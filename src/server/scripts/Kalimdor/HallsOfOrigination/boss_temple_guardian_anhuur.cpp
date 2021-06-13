@@ -80,11 +80,6 @@ enum Actions
     ACTION_HYMN_EXPIRED
 };
 
-enum Data
-{
-    DATA_ACHIEVEMENT_ENLIGIBLE = 0
-};
-
 struct boss_temple_guardian_anhuur : public BossAI
 {
     boss_temple_guardian_anhuur(Creature* creature) : BossAI(creature, DATA_TEMPLE_GUARDIAN_ANHUUR)
@@ -97,7 +92,6 @@ struct boss_temple_guardian_anhuur : public BossAI
         _countShield = 0;
         _leftBeaconDisabled = false;
         _rightBeaconDisabled = false;
-        _achievementEnligible = true;
     }
 
     void Reset() override
@@ -111,11 +105,11 @@ struct boss_temple_guardian_anhuur : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->instance->SetWorldState(WORLD_STATE_ID_I_HATE_THAT_SONG, 0);
         Talk(SAY_AGGRO);
         events.SetPhase(PHASE_FIGHT);
         events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 0, PHASE_FIGHT);
         events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s, 0, PHASE_FIGHT);
-        instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 0);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -168,14 +162,6 @@ struct boss_temple_guardian_anhuur : public BossAI
         if ((me->HealthBelowPctDamaged(66, damage) && _countShield == 0) ||
             (me->HealthBelowPctDamaged(33, damage) && _countShield == 1))
             EnterShieldPhase();
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_ACHIEVEMENT_ENLIGIBLE)
-            return uint8(_achievementEnligible);
-
-        return 0;
     }
 
     void DoAction(int32 action) override
@@ -249,8 +235,7 @@ struct boss_temple_guardian_anhuur : public BossAI
                     instance->SetData(DATA_HANDLE_BEAM_OF_LIGHT, IN_PROGRESS);
                     break;
                 case EVENT_ACHIEVEMENT_FAILED:
-                    instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 1);
-                    _achievementEnligible = false;
+                    instance->instance->SetWorldState(WORLD_STATE_ID_I_HATE_THAT_SONG, 1);
                     break;
                 default:
                     break;
@@ -319,7 +304,6 @@ struct boss_temple_guardian_anhuur : public BossAI
     uint8 _countShield;
     bool _leftBeaconDisabled;
     bool _rightBeaconDisabled;
-    bool _achievementEnligible;
 };
 
 struct go_anhuur_beacon_of_light : public GameObjectAI
@@ -437,17 +421,6 @@ class spell_anhuur_burning_light_forcecast : public SpellScript
     }
 };
 
-class achievement_i_hate_that_song : public AchievementCriteriaScript
-{
-    public:
-        achievement_i_hate_that_song() : AchievementCriteriaScript("achievement_i_hate_that_song") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target)
-        {
-            return target && target->GetAI()->GetData(DATA_ACHIEVEMENT_ENLIGIBLE);
-        }
-};
-
 void AddSC_boss_temple_guardian_anhuur()
 {
     RegisterHallsOfOriginationCreatureAI(boss_temple_guardian_anhuur);
@@ -457,5 +430,4 @@ void AddSC_boss_temple_guardian_anhuur()
     RegisterSpellScript(spell_anhuur_reverberating_hymn);
     RegisterSpellScript(spell_anhuur_disable_beacon_beams);
     RegisterSpellScript(spell_anhuur_burning_light_forcecast);
-    new achievement_i_hate_that_song();
 }

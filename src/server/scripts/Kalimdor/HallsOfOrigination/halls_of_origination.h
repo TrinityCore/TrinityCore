@@ -187,7 +187,6 @@ enum HOOGameObjects
 
 enum Achievements
 {
-    WS_I_HATE_THIS_SONG                 = 5638,
     CRITERIA_STRAW_BROKE_CAMELS_BACK    = 15989,
     ACHIEV_VAULT_OF_LIGHTS_START_EVENT  = 24212,
     SPELL_VAULT_OF_LIGHTS_CREDIT        = 94067  // Achievement aura, not in DBC
@@ -223,6 +222,18 @@ enum HoODataStates
 {
     ACTIVATE_SHIELD_OF_LIGHT = 0,
     DISABLE_SHIELD_OF_LIGHT
+};
+
+enum HoOWorldStates
+{
+    // Temple Guardian Anhuur
+    WORLD_STATE_ID_I_HATE_THAT_SONG                 = 5638,
+
+    // Vault of Lights
+    WORLD_STATE_ID_FASTER_THAN_THE_SPEED_OF_LIGHT   = 5653,
+
+    // Rajh
+    WORLD_STATE_ID_SUN_OF_A                         = 5639
 };
 
 Position const AnraphetSpawnPos     = { -90.2726f, 366.339f, 89.8639f,  3.14159f  };

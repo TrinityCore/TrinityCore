@@ -87,11 +87,6 @@ enum MovePoints
     POINT_RAJH_CENTER
 };
 
-enum AchievementData
-{
-    DATA_SUN_OF_A = 1
-};
-
 Position const RajhMiddlePos = { -318.5936f, 192.8621f, 343.9443f };
 
 struct boss_rajh : public BossAI
@@ -104,7 +99,6 @@ struct boss_rajh : public BossAI
     void Initialize()
     {
         _energized = true;
-        _achievementEnabled = true;
         _randomTimerCase = 0;
     }
 
@@ -120,6 +114,7 @@ struct boss_rajh : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->instance->SetWorldState(WORLD_STATE_ID_SUN_OF_A, 0);
         me->SetReactState(REACT_AGGRESSIVE);
         _randomTimerCase = RAND(0, 1);
         events.ScheduleEvent(EVENT_SOLAR_WINDS, 5s);
@@ -155,14 +150,6 @@ struct boss_rajh : public BossAI
             me->MakeInterruptable(false);
     }
 
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_SUN_OF_A)
-            return _achievementEnabled;
-
-        return 0;
-    }
-
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type != POINT_MOTION_TYPE)
@@ -193,7 +180,7 @@ struct boss_rajh : public BossAI
             events.CancelEvent(EVENT_SUMMON_SUN_ORB);
             events.CancelEvent(EVENT_SUN_STRIKE);
             events.CancelEvent(EVENT_INFERNO_LEAP);
-            events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Seconds(2));
+            events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 2s);
             _energized = false;
         }
 
@@ -249,7 +236,8 @@ struct boss_rajh : public BossAI
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY_SPELL_OMNI);
                     break;
                 case EVENT_REENGAGE:
-                    _achievementEnabled = false;
+                    if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_SUN_OF_A))
+                        instance->instance->SetWorldState(WORLD_STATE_ID_SUN_OF_A, 1);
                     _energized = true;
                     _randomTimerCase = RAND(0, 1);
                     events.ScheduleEvent(EVENT_SOLAR_WINDS, 5s);
@@ -276,7 +264,6 @@ struct boss_rajh : public BossAI
     }
 private:
     bool _energized;
-    bool _achievementEnabled;
     uint8 _randomTimerCase;
 };
 
@@ -420,23 +407,6 @@ class spell_rajh_summon_sun_orb_power_cost : public AuraScript
     }
 };
 
-class achievement_sun_of_a : public AchievementCriteriaScript
-{
-    public:
-        achievement_sun_of_a() : AchievementCriteriaScript("achievement_sun_of_a") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target)
-        {
-            if (!target)
-                return false;
-
-            if (target->GetMap()->IsHeroic())
-                return target->GetAI()->GetData(DATA_SUN_OF_A);
-
-            return false;
-        }
-};
-
 void AddSC_boss_rajh()
 {
     RegisterHallsOfOriginationCreatureAI(boss_rajh);
@@ -445,5 +415,4 @@ void AddSC_boss_rajh()
     RegisterSpellScript(spell_rajh_summon_meteor);
     RegisterSpellScript(spell_rajh_summon_sun_orb);
     RegisterSpellScript(spell_rajh_summon_sun_orb_power_cost);
-    new achievement_sun_of_a();
 }

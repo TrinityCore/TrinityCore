@@ -81,7 +81,8 @@ enum Events
     EVENT_ACTIVATE_LASER_BEAMS_2,
     EVENT_ACTIVATE_LASER_BEAMS_3,
     EVENT_ACTIVATE_LASER_BEAMS_4,
-    EVENT_OPEN_CONTROL_ROOM
+    EVENT_OPEN_CONTROL_ROOM,
+    EVENT_FAIL_VAULTS_OF_LIGHT_ACHIEVEMENT
 };
 
 constexpr uint8 const MAX_VAULT_OF_LIGHTS_WARDEN = 4;
@@ -303,11 +304,13 @@ class instance_halls_of_origination : public InstanceMapScript
                                 door->SetGoState(GO_STATE_ACTIVE);
 
                             DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_VAULT_OF_LIGHTS_START_EVENT);
+                            _events.ScheduleEvent(EVENT_FAIL_VAULTS_OF_LIGHT_ACHIEVEMENT, 5min);
                         }
                         else if (value == DONE)
                         {
                             DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_VAULT_OF_LIGHTS_CREDIT);
                             _events.ScheduleEvent(EVENT_OPEN_CONTROL_ROOM, 8s);
+                            _events.CancelEvent(EVENT_FAIL_VAULTS_OF_LIGHT_ACHIEVEMENT);
                             SaveToDB();
                         }
                         break;
@@ -465,6 +468,9 @@ class instance_halls_of_origination : public InstanceMapScript
                             if (Creature* anraphet = GetCreature(DATA_ANRAPHET))
                                 if (anraphet->IsAIEnabled)
                                     anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
+                            break;
+                        case EVENT_FAIL_VAULTS_OF_LIGHT_ACHIEVEMENT:
+                            instance->SetWorldState(WORLD_STATE_ID_FASTER_THAN_THE_SPEED_OF_LIGHT, 1);
                             break;
                         default:
                             break;
