@@ -18,6 +18,7 @@
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
