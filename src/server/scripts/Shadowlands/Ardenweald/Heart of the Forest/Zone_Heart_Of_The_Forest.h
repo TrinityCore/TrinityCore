@@ -21,5 +21,9 @@ void AddSC_zone_ardenweald()
 
 void AddSC_zone_Heart_Of_The_Forest()
 {
+    RegisterZoneScript(zone_Heart_Of_The_Forest, 12858);
 }
-    
+  struct zone_Heart_Of_The_Forest : public ZoneScript
+{
+    zone_Heart_Of_The_Forest(ZoneMap* map) : ZoneScript(map) { }
+};
