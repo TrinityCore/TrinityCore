@@ -94,6 +94,15 @@ enum SKGameObjectIds
     GO_ARUGALS_LAIR     = 18971
 };
 
+enum SKWorldStates
+{
+    // Baron Ashbury
+    WORLD_STATE_ID_PARDON_DENIED = 5670,
+
+    // Commander Springvale
+    WORLD_STATE_ID_TO_THE_GROUND = 5672
+};
+
 template<class AI>
 AI* GetShadowfangKeepAI(Creature* creature)
 {

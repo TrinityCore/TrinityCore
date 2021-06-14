@@ -84,13 +84,7 @@ enum Events
 
 enum Actions
 {
-    ACTION_UNHOLY_POWER = 1,
-    ACTION_TO_THE_GROUND
-};
-
-enum AchievementData
-{
-    DATA_TO_THE_GROUND = 1
+    ACTION_UNHOLY_POWER = 1
 };
 
 // Heroic additional adds
@@ -116,7 +110,6 @@ public:
         void Reset() override
         {
             _Reset();
-            _toTheGround = true;
             if (IsHeroic())
             {
                 DoSummon(NPC_WAILING_GUARDSMAN, GuardsmanPos, 4000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
@@ -185,18 +178,6 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_TO_THE_GROUND:
-                    return _toTheGround;
-                default:
-                    break;
-            }
-            return 0;
-        }
-
         void DoAction(int32 action) override
         {
             switch (action)
@@ -218,9 +199,6 @@ public:
                     }
                     else
                         events.ScheduleEvent(EVENT_SHIELD_OF_THE_PERFIDIOUS, Seconds(1));
-                    break;
-                case ACTION_TO_THE_GROUND:
-                    _toTheGround = false;
                     break;
                 default:
                     break;
@@ -276,10 +254,8 @@ public:
             }
             DoMeleeAttackIfReady();
         }
-    private:
-        bool _toTheGround;
-
     };
+
     CreatureAI* GetAI(Creature *creature) const override
     {
         return GetShadowfangKeepAI<boss_commander_springvaleAI>(creature);
@@ -522,20 +498,19 @@ public:
 
         void HandleStacks()
         {
-            if (Unit* target = GetHitUnit())
+            if (Creature* target = GetHitCreature())
             {
                 Aura* aura = nullptr;
                 aura = target->GetAura(SPELL_UNHOLY_POWER_HC);
                 if (!aura)
                     target->GetAura(SPELL_UNHOLY_POWER);
 
-                if (aura)
-                    if (aura->GetStackAmount() == 3)
-                        if (target->GetTypeId() == TYPEID_UNIT && target->IsAIEnabled)
-                            target->ToCreature()->AI()->DoAction(ACTION_UNHOLY_POWER);
+                if (aura && aura->GetStackAmount() == 3 && target->IsAIEnabled)
+                    target->ToCreature()->AI()->DoAction(ACTION_UNHOLY_POWER);
 
-                if (target->GetTypeId() == TYPEID_UNIT && target->IsAIEnabled)
-                    target->ToCreature()->AI()->DoAction(ACTION_TO_THE_GROUND);
+                if (InstanceScript* instance = target->GetInstanceScript())
+                    if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_TO_THE_GROUND))
+                        instance->instance->SetWorldState(WORLD_STATE_ID_TO_THE_GROUND, 1);
             }
         }
 
@@ -551,23 +526,6 @@ public:
     }
 };
 
-class achievement_to_the_ground : public AchievementCriteriaScript
-{
-public:
-    achievement_to_the_ground() : AchievementCriteriaScript("achievement_to_the_ground") { }
-
-    bool OnCheck(Player* /*source*/, Unit* target)
-    {
-        if (!target)
-            return false;
-
-        if (target->GetMap()->IsHeroic())
-            return target->GetAI()->GetData(DATA_TO_THE_GROUND);
-
-        return false;
-    }
-};
-
 void AddSC_boss_commander_springvale()
 {
     new boss_commander_springvale();
@@ -576,5 +534,4 @@ void AddSC_boss_commander_springvale()
     new spell_sfk_forsaken_ability();
     new spell_sfk_unholy_power();
     new spell_sfk_unholy_empowerment();
-    new achievement_to_the_ground();
 }

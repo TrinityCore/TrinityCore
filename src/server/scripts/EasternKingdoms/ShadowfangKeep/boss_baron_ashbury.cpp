@@ -35,7 +35,8 @@ enum Spells
     SPELL_PAIN_AND_SUFFERING_DUMMY  = 93605,
     SPELL_WRACKING_PAIN             = 93720,
     SPELL_DARK_ARCHANGEL_FORM       = 93757,
-    SPELL_CALAMITY                  = 93812
+    SPELL_CALAMITY                  = 93812,
+    SPELL_STAY_OF_EXECUTION_HEAL    = 93706
 };
 
 #define SPELL_STAY_OF_EXECUTION RAID_MODE<uint32>(93468, 93705)
@@ -62,11 +63,6 @@ enum Events
     EVENT_DARK_ARCHANGEL_FORM
 };
 
-enum AchievementData
-{
-    DATA_PARDON_DENIED = 1
-};
-
 struct boss_baron_ashbury : public BossAI
 {
     boss_baron_ashbury(Creature* creature) : BossAI(creature, DATA_BARON_ASHBURY)
@@ -77,7 +73,6 @@ struct boss_baron_ashbury : public BossAI
     void Initialize()
     {
         _phaseTwoTriggered = false;
-        _pardonDenied = true;
         me->MakeInterruptable(false);
     }
 
@@ -91,7 +86,8 @@ struct boss_baron_ashbury : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        instance->instance->SetWorldState(WORLD_STATE_ID_PARDON_DENIED, 0);
 
         events.ScheduleEvent(EVENT_ASPHYXIATE, IsHeroic() ? 20s + 500ms : 15s + 500ms);
         events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 6s);
@@ -112,6 +108,15 @@ struct boss_baron_ashbury : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
         _DespawnAtEvade();
+    }
+
+    void HealReceived(Unit* healer, uint32& /*heal*/) override
+    {
+        if (healer != me)
+            return;
+
+        if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_PARDON_DENIED))
+            instance->instance->SetWorldState(WORLD_STATE_ID_PARDON_DENIED, 1);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -139,26 +144,10 @@ struct boss_baron_ashbury : public BossAI
 
         if (spell->Id == SPELL_STAY_OF_EXECUTION)
         {
-            // Failing achievement when Baron Ashbury finished channeling Stay of Execution
-            if (reason == SPELL_FINISHED_CHANNELING_COMPLETE && IsHeroic())
-                _pardonDenied = false;
-
             me->SetReactState(REACT_AGGRESSIVE);
             me->resetAttackTimer();
             events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 500ms);
         }
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        switch (type)
-        {
-            case DATA_PARDON_DENIED:
-                return _pardonDenied;
-            default:
-                break;
-        }
-        return 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -218,7 +207,6 @@ struct boss_baron_ashbury : public BossAI
     }
 private:
     bool _phaseTwoTriggered;
-    bool _pardonDenied;
 };
 
 class spell_ashbury_asphyxiate : public AuraScript
@@ -300,28 +288,10 @@ class spell_ashbury_dark_archangel_form : public AuraScript
     }
 };
 
-class achievement_pardon_denied : public AchievementCriteriaScript
-{
-    public:
-        achievement_pardon_denied() : AchievementCriteriaScript("achievement_pardon_denied") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target)
-        {
-            if (!target)
-                return false;
-
-            if (target->GetMap()->IsHeroic())
-                return target->GetAI()->GetData(DATA_PARDON_DENIED);
-
-            return false;
-        }
-};
-
 void AddSC_boss_baron_ashbury()
 {
     RegisterShadowfangKeepCreatureAI(boss_baron_ashbury);
     RegisterSpellScript(spell_ashbury_asphyxiate);
     RegisterSpellScript(spell_ashbury_pain_and_suffering);
     RegisterSpellScript(spell_ashbury_dark_archangel_form);
-    new achievement_pardon_denied();
 }
