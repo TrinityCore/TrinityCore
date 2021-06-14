@@ -20,7 +20,34 @@ void AddSC_zone_exiles_reach();
 void AddSC_zone_bastion();
 void AddSC_zone_oribos();
 void AddSC_zone_maldraxxus();
+//Zone ardenweald
 void AddSC_zone_ardenweald();
+void AddSC_zone_zone_Heart_Of_The_Forest();
+void AddSC_Zone_De_Other_Side();
+void AddSC_Zone_Mist_Of_Tirna_Scithe();
+//De Other Side
+void AddSC_instance_de_other_side();
+void AddSC_boss_hakkar_the_soulflayer_os();
+void AddSC_boss_the_manastorms();
+void AddSC_boss_dealer_xyexa();
+void AddSC_boss_muehzala();
+//Mists of Tirna Scithe
+void AddSC_instance_mists_of_tirna_scithe();
+void AddSC_Boss_Ingra_Maloch();
+Void AddSC_Boss_Mistcaller();
+Void AddSC_Boss_Tred_ova();
+void AddSC_Zone_Mist_Of_Tirna_Scithe();
+
+//Zone Bastion
+void AddSC_zone_bastion();
+void AddSC_zone_necrotic_wake();
+void AddSC_Zone_spires_of_ascension();
+//Spires of Ascension
+void AddSC_instance_spires_of_ascension();
+void AddSC_boss_kintara();
+void AddSC_boss_ventunax();
+void AddSC_boss_oryphrion();
+void AddSC_boss_devos();
 void AddSC_zone_revendreth();
 //Darkmaul Citadel
 void AddSC_instance_darkmaul_citadel();
@@ -36,18 +63,47 @@ void AddSC_boss_blightbone();
 void AddSC_boss_amarth();
 void AddSC_boss_surgeon_stitchflesh();
 void AddSC_boss_nalthor();
+
+//Zone exile reach
+void AddSC_zone_exiles_reach();
+void AddSC_zone_darkmaul_citadel();
+//Darkmaul Citadel
+void AddSC_instance_darkmaul_citadel();
+void AddSC_darkmaul_citadel();
+void AddSC_boss_tunk();
+void AddSC_boss_gorgroth();
+void AddSC_boss_ravnyr();
+
+//Zone Maldraxxus
+void AddSC_zone_maldraxxus();
+void AddSC_zone_plaguefall();
+void AddSC_zone_theater_of_pain();
 //Plaguefall
 void AddSC_instance_plaguefall();
 void AddSC_boss_globgrog();
 void AddSC_boss_doctor_ickus();
 void AddSC_boss_domina_venomblade();
 void AddSC_boss_margrave_stradama();
-//Spires of Ascension
-void AddSC_instance_spires_of_ascension();
-void AddSC_boss_kintara();
-void AddSC_boss_ventunax();
-void AddSC_boss_oryphrion();
-void AddSC_boss_devos();
+void AddSC_zone_plaguefall();
+void AddSC_plaguefall();
+//Zone Theater Of Pain
+void AddSC_zone_theater_of_pain();
+void AddSC_An_Affront_to_Challengers();
+void AddSC_theater_of_pain();
+void AddSC_Boss_Gorechop();
+void AddSC_Boss_Kul_tharok();
+void AddSC_Boss_Mordretha_the_Endless_Empress();
+void AddSC_Boss_Xav_the_Unfallen();
+void AddSC_theater_of_pain();
+
+//Zone Oribos
+void AddSC_zone_oribos();
+
+//Zone Revendreth
+void AddSC_zone_revendreth();
+void AddSC_zone_castle_nathria();
+void AddSC_Zone_Hall_Of_Attonement();
+void AddSC_zone_sanguine_depths();
 //Castle Nathria
 void AddSC_instance_castle_nathria();
 void AddSC_zone_castle_nathria();
@@ -64,6 +120,14 @@ void AddSC_Boss_Ingra_Maloch();
 Void AddSC_Boss_Mistcaller();
 Void AddSC_Boss_Tred_ova();
 void AddSC_Zone_Mist_Of_Tirna_Scithe();
+void AddSC_boss_sludgefist();
+//Halls of Atonement
+void AddSC_instance_halls_of_attonement();
+Void AddSC_Zone_Hall_Of_Attonement();
+Void AddSC_Boss_Echelon();
+Void AddSC_Boss_Halkias();
+Void AddSC_Boss_High_Adjudicator_Aleez();
+Void AddSC_Boss_Lord_Chamberlain();
 //Sanguine Depths
 void AddSC_instance_sanquine_depths();
 Void AddSC_sanguine_depths();
@@ -72,17 +136,19 @@ Void AddSC_boss_general_kaal_sd();
 Void AddSC_boss_grand_proctor_beryllia();
 Void AddSC_boss_kryxis_the_voracious();
 
-//Halls of Atonement
-void AddSC_instance_halls_of_attonement();
-Void AddSC_Zone_Hall_Of_Attonement();
-Void AddSC_Boss_Echelon();
-Void AddSC_Boss_Halkias();
-Void AddSC_Boss_High_Adjudicator_Aleez();
-Void AddSC_Boss_Lord_Chamberlain();
 //ShadowlandsIntro
 void AddSC_ShadowlandsIntro();
 
-void AddShadowlandsScripts()
+//Zone The Maw
+void AddSC_instance_torgast_tower_of_the_damned();
+void AddSC_torghast_tower_of_the_damned();
+void AddSC_zone_the_maw();
+
+ 
+//void AddSC_boss_stone_legion_generals(); 
+void AddSC_boss_sire_denathrius();
+ 
+void AddShadowlandsScripts() 
 {
 	//Zones
 	AddSC_zone_exiles_reach();
