@@ -22,12 +22,12 @@
 #include "Objects_Heart_Of_The_Forest.h"
 #include "npc_Heart_Of_The_Forest.h"
 
-struct instance_Heart_Of_The_Forest : public InstanceScript
+struct zone_Heart_Of_The_Forest : public ZoneScript
 {
-    instance_Heart_Of_The_Forest(InstanceMap* map) : InstanceScript(map) { }
+    zone_Heart_Of_The_Forest(ZoneMap* map) : ZoneScript(map) { }
 };
 
-void AddSC_instance_Heart_Of_The_Forest()
+void AddSC_ zone_Heart_Of_The_Forest()
 {
-    RegisterInstanceScript(instance_Heart_Of_The_Forest, 12858);
+    RegisterZoneScript(zone_Heart_Of_The_Forest, 12858);
 }; 
