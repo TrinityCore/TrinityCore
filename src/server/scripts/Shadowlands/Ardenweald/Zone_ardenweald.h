@@ -23,4 +23,6 @@ void AddSC_Zone_Heart_Of_The_Forest()
 {
 }
 
-void AddSC_Zone_Mist_Of_Tirna_Scithe()    
+void AddSC_Zone_Mist_Of_Tirna_Scithe()
+{
+}    
