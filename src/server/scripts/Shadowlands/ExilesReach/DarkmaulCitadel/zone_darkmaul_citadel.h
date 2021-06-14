@@ -26,11 +26,10 @@
 #include "Objects_darkmaul_citadel.h"
 #include "npc_darkmaul_citadel.h"
 
-void AddSC_Zone_darkmaul_citadel();
+void AddSC_zone_darkmaul_citadel();
 {
 }
 
 void AddSC_darkmaul_citadel();
 {
 }
-    
