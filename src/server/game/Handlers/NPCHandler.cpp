@@ -423,7 +423,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
             }
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-            stmt->setUInt8(0, freeSlot);
+            stmt->setUInt8(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + freeSlot));
             stmt->setUInt32(1, _player->GetGUID().GetCounter());
             stmt->setUInt32(2, petStable->UnslottedPets[0].PetNumber);
             CharacterDatabase.Execute(stmt);
