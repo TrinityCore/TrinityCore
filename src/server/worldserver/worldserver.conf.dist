@@ -4048,9 +4048,10 @@ PacketSpoof.BanDuration = 86400
 #        Note:        A lower time will give cheaters less advantage when using a very specific
 #                     type of hack. However, the cost is that innocent but laggy players might
 #                     sometimes get kicked. Disabled if 0.
-#        Default:     5000 (5 seconds)
+#        Default:     0    - (Disabled)
+#                     3000 - (3 seconds, Recommended)
 
-AntiCheat.PendingMoveChangesTimeoutTime = 5000
+AntiCheat.PendingMoveChangesTimeoutTime = 0
 
 #
 ###################################################################################################
