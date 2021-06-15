@@ -1806,6 +1806,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             //remove auras before removing from map...
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
 
+            // players on mount will be dismounted. the speed and height change should not require an ACK and should be applied directly
+            PurgeAndApplyPendingMovementChanges(false);
+
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
@@ -22723,7 +22726,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// SMSG_RESYNC_RUNES
     ResyncRunes();
 
-    GetSession()->GetGameClient()->AddAllowedMover(this);
+    GetGameClient()->SetMovedUnit(this, true);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()

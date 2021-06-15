@@ -38,6 +38,7 @@ class TC_GAME_API GameClient
         void SetActivelyMovedUnit(Unit* activelyMovedUnit) { _activelyMovedUnit = activelyMovedUnit; }
 
         Player* GetBasePlayer() const { return _sessionToServer->GetPlayer(); }
+        WorldSession* GetWorldSession() const { return _sessionToServer; }
 
         void SendDirectMessage(WorldPacket const* data) const;
     private:
