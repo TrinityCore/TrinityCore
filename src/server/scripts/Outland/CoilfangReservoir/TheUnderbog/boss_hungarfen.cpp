@@ -154,7 +154,7 @@ struct npc_underbog_mushroom : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    uint32 _counter;
+    uint32 _counter = 0;
 };
 
 void AddSC_boss_hungarfen()
