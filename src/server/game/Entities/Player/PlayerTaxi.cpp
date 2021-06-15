@@ -144,6 +144,8 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
         else
             return false;
     }
+    else
+        return false;
 
     while ((++itr) != tokens.end())
     {
