@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <boost/accumulators/statistics/variance.hpp>
