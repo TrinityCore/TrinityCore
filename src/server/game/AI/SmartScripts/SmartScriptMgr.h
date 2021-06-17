@@ -727,6 +727,7 @@ struct SmartAction
             uint32 duration;
             uint32 attackInvoker;
             uint32 flags; // SmartActionSummonCreatureFlags
+            uint32 count;
         } summonCreature;
 
         struct
