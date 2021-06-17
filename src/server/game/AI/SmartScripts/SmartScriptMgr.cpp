@@ -32,6 +32,17 @@
 #include "Unit.h"
 #include "WaypointDefines.h"
 
+#define TC_SAI_IS_BOOLEAN_VALID(e, value) \
+{ \
+    if (value > 1) \
+    { \
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses param %s of type Boolean with value %u, valid values are 0 or 1, skipped.", \
+            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), STRINGIZE(value), value); \
+        /* ToDo: return false once all existing issues have been fixed */ \
+        /* return false;*/ \
+    } \
+}
+
 SmartWaypointMgr* SmartWaypointMgr::instance()
 {
     static SmartWaypointMgr instance;
@@ -570,23 +581,6 @@ bool SmartAIMgr::IsMinMaxValid(SmartScriptHolder const& e, uint32 min, uint32 ma
     return true;
 }
 
-bool SmartAIMgr::IsBooleanValid(SmartScriptHolder const& e, uint32 value)
-{
-    if (!IsValueInRange(e, value, 0, 1))
-        return true; // Return true for now until all errors have been fixed as any value != 0 is true in C++ anyway
-    return true;
-}
-
-bool SmartAIMgr::IsValueInRange(SmartScriptHolder const& e, uint32 value, uint32 min, uint32 max)
-{
-    if (value < min || value > max)
-    {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses param %u out of range [%u/%u], skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), value, min, max);
-        return false;
-    }
-    return true;
-}
-
 bool SmartAIMgr::NotNULL(SmartScriptHolder const& e, uint32 data)
 {
     if (!data)
@@ -827,6 +821,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
                 if (e.event.kill.creature && !IsCreatureValid(e, e.event.kill.creature))
                     return false;
+
+                TC_SAI_IS_BOOLEAN_VALID(e, e.event.kill.playerOnly);
                 break;
             case SMART_EVENT_VICTIM_CASTING:
                 if (e.event.targetCasting.spellId > 0 && !sSpellMgr->GetSpellInfo(e.event.targetCasting.spellId))
