@@ -62,7 +62,8 @@ enum Spells
     SPELL_SUMMON_WAVE_WEST                  = 79196,
     SPELL_SUMMON_ADD_SOUTH                  = 79193,
     SPELL_SUMMON_ADD_WEST                   = 79199,
-    SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND   = 61400
+    SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND   = 61400,
+    SPELL_GRAVITY_WELL_SHRINK               = 92475,
 };
 
 enum Texts
@@ -459,9 +460,16 @@ class npc_azil_gravity_well : public CreatureScript
                 if (victim->GetEntry() != NPC_DEVOUT_FOLLOWER)
                     return;
 
-                me->SetObjectScale(me->GetObjectScale() - 0.25f);
-                    if (me->GetObjectScale() <= 0.0f)
-                    me->DespawnOrUnsummon(Seconds(1));
+                if (Aura const* aura = me->GetAura(SPELL_GRAVITY_WELL_SHRINK))
+                {
+                    if (aura->GetStackAmount() == aura->GetSpellInfo()->StackAmount)
+                    {
+                        me->DespawnOrUnsummon(1s);
+                        return;
+                    }
+                }
+
+                DoCastSelf(SPELL_GRAVITY_WELL_SHRINK);
             }
 
             void UpdateAI(uint32 diff) override
