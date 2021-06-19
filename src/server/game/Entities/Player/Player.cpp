@@ -1806,9 +1806,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             //remove auras before removing from map...
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
 
-            // players on mount will be dismounted. the speed and height change should not require an ACK and should be applied directly
-            PurgeAndApplyPendingMovementChanges(false);
-
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
@@ -1823,6 +1820,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // remove from old map now
             if (oldmap)
                 oldmap->RemovePlayerFromMap(this, false);
+
+            // players on mount will be dismounted. the speed and height change should not require an ACK and should be applied directly
+            PurgeAndApplyPendingMovementChanges(false);
 
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_options = options;
