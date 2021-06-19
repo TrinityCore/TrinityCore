@@ -1050,7 +1050,7 @@ struct SmartAction
             SAIBool transport;
             SAIBool disablePathfinding;
             uint32 ContactDistance;
-        } MoveToPos;
+        } moveToPos;
 
         struct
         {
@@ -1138,6 +1138,7 @@ struct SmartAction
         {
             SAIBool disable;
         } disableEvade;
+
         struct
         {
             uint32 groupId;

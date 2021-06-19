@@ -1149,13 +1149,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_OFFER_QUEST:
-            if (!e.action.questOffer.questID || !IsQuestValid(e, e.action.questOffer.questID))
+            if (!IsQuestValid(e, e.action.questOffer.questID))
                 return false;
 
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.questOffer.directAdd);
             break;
         case SMART_ACTION_FAIL_QUEST:
-            if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest))
+            if (!IsQuestValid(e, e.action.quest.quest))
                 return false;
             break;
         case SMART_ACTION_ACTIVATE_TAXI:
@@ -1428,6 +1428,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_WP_STOP:
             if (e.action.wpStop.quest && !IsQuestValid(e, e.action.wpStop.quest))
                 return false;
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.wpStop.fail);
             break;
         case SMART_ACTION_WP_START:
         {
@@ -1444,6 +1445,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature %d Event %u Action %u uses invalid React State %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.reactState);
                 return false;
             }
+
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.wpStart.run);
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.wpStart.repeat);
             break;
         }
         case SMART_ACTION_CREATE_TIMED_EVENT:
@@ -1570,6 +1574,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
             }
+
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.pauseMovement.force);
             break;
         case SMART_ACTION_SET_MOVEMENT_SPEED:
         {
@@ -1653,15 +1659,99 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.combatMove.move);
             break;
         }
+        case SMART_ACTION_CALL_FOR_HELP:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.callHelp.withEmote);
+            break;
+        }
+        case SMART_ACTION_SET_VISIBILITY:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.visibility.state);
+            break;
+        }
+        case SMART_ACTION_SET_ACTIVE:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.active.state);
+            break;
+        }
+        case SMART_ACTION_SET_RUN:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setRun.run);
+            break;
+        }
+        case SMART_ACTION_SET_DISABLE_GRAVITY:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setDisableGravity.disable);
+            break;
+        }
+        case SMART_ACTION_SET_CAN_FLY:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setFly.fly);
+            break;
+        }
+        case SMART_ACTION_SET_SWIM:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setSwim.swim);
+            break;
+        }
+        case SMART_ACTION_SET_COUNTER:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setCounter.reset);
+            break;
+        }
+        case SMART_ACTION_CALL_TIMED_ACTIONLIST:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.timedActionList.allowOverride);
+            break;
+        }
+        case SMART_ACTION_INTERRUPT_SPELL:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.interruptSpellCasting.withDelayed);
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.interruptSpellCasting.withInstant);
+            break;
+        }
+        case SMART_ACTION_FLEE_FOR_ASSIST:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.fleeAssist.withEmote);
+            break;
+        }
+        case SMART_ACTION_MOVE_TO_POS:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.moveToPos.transport);
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.moveToPos.disablePathfinding);
+            break;
+        }
+        case SMART_ACTION_SET_ROOT:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setRoot.root);
+            break;
+        }
+        case SMART_ACTION_DISABLE_EVADE:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.disableEvade.disable);
+            break;
+        }
+        case SMART_ACTION_LOAD_EQUIPMENT:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.loadEquipment.force);
+            break;
+        }
+        case SMART_ACTION_SET_HOVER:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setHover.enable);
+            break;
+        }
+        case SMART_ACTION_EVADE:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.evade.toRespawnPosition);
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
-        case SMART_ACTION_EVADE:
-        case SMART_ACTION_FLEE_FOR_ASSIST:
         case SMART_ACTION_COMBAT_STOP:
         case SMART_ACTION_DIE:
         case SMART_ACTION_SET_IN_COMBAT_WITH_ZONE:
-        case SMART_ACTION_SET_ACTIVE:
         case SMART_ACTION_WP_RESUME:
         case SMART_ACTION_KILL_UNIT:
         case SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL:
@@ -1670,21 +1760,14 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_THREAT_ALL_PCT:
         case SMART_ACTION_THREAT_SINGLE_PCT:
         case SMART_ACTION_SET_INST_DATA64:
-        case SMART_ACTION_CALL_FOR_HELP:
         case SMART_ACTION_SET_DATA:
         case SMART_ACTION_ATTACK_STOP:
-        case SMART_ACTION_SET_VISIBILITY:
         case SMART_ACTION_WP_PAUSE:
-        case SMART_ACTION_SET_DISABLE_GRAVITY:
-        case SMART_ACTION_SET_CAN_FLY:
-        case SMART_ACTION_SET_RUN:
-        case SMART_ACTION_SET_SWIM:
         case SMART_ACTION_FORCE_DESPAWN:
         case SMART_ACTION_SET_INGAME_PHASE_MASK:
         case SMART_ACTION_SET_UNIT_FLAG:
         case SMART_ACTION_REMOVE_UNIT_FLAG:
         case SMART_ACTION_PLAYMOVIE:
-        case SMART_ACTION_MOVE_TO_POS:
         case SMART_ACTION_CLOSE_GOSSIP:
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
         case SMART_ACTION_REMOVE_TIMED_EVENT:
@@ -1693,14 +1776,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ACTIVATE_GOBJECT:
         case SMART_ACTION_CALL_SCRIPT_RESET:
         case SMART_ACTION_SET_RANGED_MOVEMENT:
-        case SMART_ACTION_CALL_TIMED_ACTIONLIST:
         case SMART_ACTION_SET_NPC_FLAG:
         case SMART_ACTION_ADD_NPC_FLAG:
         case SMART_ACTION_REMOVE_NPC_FLAG:
         case SMART_ACTION_RANDOM_MOVE:
         case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
         case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
-        case SMART_ACTION_INTERRUPT_SPELL:
         case SMART_ACTION_SEND_GO_CUSTOM_ANIM:
         case SMART_ACTION_SET_DYNAMIC_FLAG:
         case SMART_ACTION_ADD_DYNAMIC_FLAG:
@@ -1712,25 +1793,20 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
         case SMART_ACTION_SET_HOME_POS:
         case SMART_ACTION_SET_HEALTH_REGEN:
-        case SMART_ACTION_SET_ROOT:
         case SMART_ACTION_SET_GO_FLAG:
         case SMART_ACTION_ADD_GO_FLAG:
         case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
         case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
-        case SMART_ACTION_DISABLE_EVADE:
         case SMART_ACTION_SET_SIGHT_DIST:
         case SMART_ACTION_FLEE:
         case SMART_ACTION_ADD_THREAT:
-        case SMART_ACTION_LOAD_EQUIPMENT:
         case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT:
-        case SMART_ACTION_SET_COUNTER:
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_PLAY_CINEMATIC:
-        case SMART_ACTION_SET_HOVER:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
