@@ -144,6 +144,22 @@ void AddSC_instance_torgast_tower_of_the_damned();
 void AddSC_torghast_tower_of_the_damned();
 void AddSC_zone_the_maw();
 
+//Zone Sanctum of Domination
+void AddSC_zone_Sanctum_of_Domination();
+void AddSC_instance_Sanctum_of_Domination();
+void AddSC_npc_Sanctum_of_Domination();
+void AddSC_Objects_Sanctum_of_Domination();
+void AddSC_Sanctum_of_Domination();
+void AddSC_The_Tarragrue();
+void AddSC_The_Eye_of_the_Jailer();
+void AddSC_The_Nine();
+void AddSC_Remnant_of_Nerzhul();
+void AddSC_Soulrender_Dormazain();
+void AddSC_Painsmith_Raznal();
+void AddSC_Guardian_of_the_First_Ones();
+void AddSC_Fatescribe_Roh_Kalo();
+void AddSC_KelThuzad();
+void AddSC_Sylvanas_Windrunner();
  
 //void AddSC_boss_stone_legion_generals(); 
 void AddSC_boss_sire_denathrius();
@@ -215,4 +231,21 @@ void AddShadowlandsScripts()
         AddSC_Boss_Lord_Chamberlain(); 
     //shadowlands intro
     AddSC_ShadowlandsIntro();
-}
+
+    //Sanctum of Domination
+         AddSC_zone_Sanctum_of_Domination();
+        AddSC_instance_Sanctum_of_Domination();
+	     AddSC_npc_Sanctum_of_Domination();
+	     AddSC_Objects_Sanctum_of_Domination();
+	     AddSC_Sanctum_of_Domination();
+	     AddSC_The_Tarragrue();
+	     AddSC_The_Eye_of_the_Jailer();
+	     AddSC_The_Nine();
+	     AddSC_Remnant_of_Nerzhul();
+	     AddSC_Soulrender_Dormazain();
+	     AddSC_Painsmith_Raznal();
+	     AddSC_Guardian_of_the_First_Ones();
+	     AddSC_Fatescribe_Roh_Kalo();
+	     AddSC_KelThuzad();
+	     AddSC_Sylvanas_Windrunner();
+};
