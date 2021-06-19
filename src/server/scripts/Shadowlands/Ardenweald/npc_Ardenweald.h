@@ -47,5 +47,12 @@
   NPC_Ancient_Gazelle                                 = 151847,
   NPC_Angelia                                         = 170552,
   NPC_Angry_Egg_Tender                                = 171827,
+  NPC_Angwyrdmn                                       = 171162,
+  NPC_Anima_Starved_Matriarch                         = 169052,
+  NPC_Anima_Starved_Patriarch                         = 169051,
+  NPC_Anima_Starved_Shrieker                          = 169050,
+  NPC_Anima_Starved_Stalker                           = 169049,169228,
+  NPC_Anir                                            = 158494,169152,
   
+
 };
