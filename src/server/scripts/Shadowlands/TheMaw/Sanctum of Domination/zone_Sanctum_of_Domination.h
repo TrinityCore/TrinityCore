@@ -22,6 +22,18 @@
 #include "Sanctum_of_Domination.h"
 #include "zone_Sanctum_of_Domination.cpp"
 #include "zone_Sanctum_of_Domination.h"
+#include "instance_Sanctum_of_Domination.cpp"
+#include "AddSC_Sanctum_of_Domination.h"
+#include "Boss_The_Tarragrue.cpp"
+#include "Boss_The_Eye_of_the_Jailer.cpp"
+#include "Boss_The_Nine"
+#include "Boss_Remnant_of_Nerzhul.cpp"
+#include "Boss_Soulrender_Dormazain.cpp"
+#include "Boss_Painsmith_Raznal.cpp"
+#include "Boss_Guardian_of_the_First_Ones.cpp"
+#include "Boss_Fatescribe_Roh_Kalo.cpp"
+#include "Boss_KelThuzad.cpp"
+#include "Boss_Sylvanas_Windrunner.cpp"
 
 
 
