@@ -23,7 +23,7 @@
 #include "zone_Sanctum_of_Domination.cpp"
 #include "zone_Sanctum_of_Domination.h"
 #include "instance_Sanctum_of_Domination.cpp"
-#include "AddSC_Sanctum_of_Domination.h"
+#include "Sanctum_of_Domination.h"
 #include "Boss_The_Tarragrue.cpp"
 #include "Boss_The_Eye_of_the_Jailer.cpp"
 #include "Boss_The_Nine"
