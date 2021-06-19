@@ -543,24 +543,37 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
                 return false;
             }
             break;
-        case SMART_TARGET_PLAYER_RANGE:
-        case SMART_TARGET_SELF:
-        case SMART_TARGET_VICTIM:
         case SMART_TARGET_HOSTILE_SECOND_AGGRO:
         case SMART_TARGET_HOSTILE_LAST_AGGRO:
         case SMART_TARGET_HOSTILE_RANDOM:
         case SMART_TARGET_HOSTILE_RANDOM_NOT_TOP:
-        case SMART_TARGET_POSITION:
-        case SMART_TARGET_NONE:
-        case SMART_TARGET_OWNER_OR_SUMMONER:
-        case SMART_TARGET_THREAT_LIST:
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.hostilRandom.playerOnly);
+            break;
+        case SMART_TARGET_FARTHEST:
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.farthest.playerOnly);
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.farthest.isInLos);
+            break;
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_CLOSEST_CREATURE:
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.closest.dead);
+            break;
         case SMART_TARGET_CLOSEST_ENEMY:
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.closestAttackable.playerOnly);
+            break;
         case SMART_TARGET_CLOSEST_FRIENDLY:
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.closestFriendly.playerOnly);
+            break;
+        case SMART_TARGET_OWNER_OR_SUMMONER:
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.owner.useCharmerOrOwner);
+            break;
+        case SMART_TARGET_PLAYER_RANGE:
+        case SMART_TARGET_SELF:
+        case SMART_TARGET_VICTIM:
+        case SMART_TARGET_POSITION:
+        case SMART_TARGET_NONE:
+        case SMART_TARGET_THREAT_LIST:
         case SMART_TARGET_STORED:
         case SMART_TARGET_LOOT_RECIPIENTS:
-        case SMART_TARGET_FARTHEST:
         case SMART_TARGET_VEHICLE_PASSENGER:
         case SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT:
             break;
