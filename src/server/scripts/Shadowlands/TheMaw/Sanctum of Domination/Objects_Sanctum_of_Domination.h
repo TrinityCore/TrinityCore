@@ -41,39 +41,39 @@
 
 enum Objects
 {
-    Objects_Anvil                           = 192628,
-    Objects_Challengers_Cache               = 354985,
-    Objects_Crate_of_Gnomish_Machinations   = 355436,
-    Objects_Dusty_Cache_of_Ancient_Treasure = 355295,
-    Objects_Haunted_Urn                     = 357744,
-    Objects_Snow_Patch                      = 358375,
+    Objects_unu = 0,
+    Objects_doi = 0,
+    Objects_trei = 0,
+    Objects_patru = 0,
+    Objects_cinci = 0,
+    Objects_sase = 0,
 }   
 
-void Objects_Anvil 
-ObjectGuid Anvil;
+void Objects_unu
+ObjectGuid unu;
 
-void Objects_Challengers_Cache
-ObjectGuid Challengers_Cache;
+void Objects_doi
+ObjectGuid doi;
 
-void Objects_Crate_of_Gnomish_Machinations
-ObjectGuid Crate_of_Gnomish_Machinations;
+void Objects_trei
+ObjectGuid trei;
 
-void Objects_Dusty_Cache_of_Ancient_Treasure
-ObjectGuid Dusty_Cache_of_Ancient_Treasure;
+void Objects_patru
+ObjectGuid patru;
 
-void Objects_Haunted_Urn
-ObjectGuid Haunted_Urn;
+void Objects_cinci
+ObjectGuid cinci;
 
-void Objects_Snow_Patch
-ObjectGuid Snow_Patch;
+void Objects_sase
+ObjectGuid sase;
 
 void OnGameObjectCreate(GameObject* go) override
 {
     {
         switch (go->GetEntry())
         {
-        case GO_Objects_Anvil:
-            Anvil = go->GetGUID();
+        case GO_Objects_unu:
+            unu = go->GetGUID();
             break;
         }
     }
@@ -84,8 +84,8 @@ void OnGameObjectCreate(GameObject* go) override
     {
         switch (go->GetEntry())
         {
-        case GO_Objects_Challengers_Cache:
-            Challengers_Cache = go->GetGUID();
+        case GO_Objects_doi:
+            doi = go->GetGUID();
             break;
         }
     }
@@ -96,8 +96,8 @@ void OnGameObjectCreate(GameObject* go) override
     {
         switch (go->GetEntry())
         {
-        case GO_Objects_Crate_of_Gnomish_Machinations:
-            Crate_of_Gnomish_Machinations = go->GetGUID();
+        case GO_Objects_trei:
+            trei = go->GetGUID();
             break;
         }
     }
@@ -108,8 +108,8 @@ void OnGameObjectCreate(GameObject* go) override
     {
         switch (go->GetEntry())
         {
-        case GO_Objects_Dusty_Cache_of_Ancient_Treasure:
-            Dusty_Cache_of_Ancient_Treasure = go->GetGUID();
+        case GO_Objects_patru:
+            patru = go->GetGUID();
             break;
         }
     }
@@ -120,8 +120,8 @@ void OnGameObjectCreate(GameObject* go) override
     {
         switch (go->GetEntry())
         {
-        case GO_Objects_Haunted_Urn:
-            Haunted_Urn = go->GetGUID();
+        case GO_Objects_cinci:
+            cinci = go->GetGUID();
             break;
         }
     }
@@ -132,8 +132,8 @@ void OnGameObjectCreate(GameObject* go) override
     {
        swich (go->GetEntry())
        {
-        case GO_Objects_Snow_Patch:
-            Snow_Patch = go->GetGUID();
+        case GO_Objects_sase:
+            sase = go->GetGUID();
             break;
         }
     }
