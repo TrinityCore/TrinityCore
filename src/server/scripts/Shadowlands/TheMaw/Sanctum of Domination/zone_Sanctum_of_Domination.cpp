@@ -17,24 +17,69 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "InstanceScript.h"
-#include "zone_ardenweald.cpp"
-#include "Objects_Ardenweald.h"
-#include "npc_Ardenweald.h"
-#include "objects_De_Other_Side.h"
-#include "npc_De_Other_Side.h"
-#include "boss_dealer_xyexa.cpp"
-#include "boss_hakkar_the_soulflayer_os.cpp"
-#include "boss_muehzala.cpp"
-#include "boss_the_manastorms.cpp"
-#include "Zone_De_Other_Side.h"
+#include "objects_Sanctum_of_Domination.h"
+#include "npc_Sanctum_of_Domination.h"
+#include "Sanctum_of_Domination.h"
+#include "zone_Sanctum_of_Domination.cpp"
+#include "zone_Sanctum_of_Domination.h"
+#include "instance_Sanctum_of_Domination.cpp"
+#include "Sanctum_of_Domination.h"
+#include "Boss_The_Tarragrue.cpp"
+#include "Boss_The_Eye_of_the_Jailer.cpp"
+#include "Boss_The_Nine"
+#include "Boss_Remnant_of_Nerzhul.cpp"
+#include "Boss_Soulrender_Dormazain.cpp"
+#include "Boss_Painsmith_Raznal.cpp"
+#include "Boss_Guardian_of_the_First_Ones.cpp"
+#include "Boss_Fatescribe_Roh_Kalo.cpp"
+#include "Boss_KelThuzad.cpp"
+#include "Boss_Sylvanas_Windrunner.cpp"
 
 
-void AddSC_zone_ardenweald()
+void AddSC_zone_Sanctum_of_Domination()
 {
 }
 
-void AddSC_Zone_De_Other_Side()
+void AddSC_Zone_De_Maw()
 {
 }
 
-   
+void AddSC_Instance_Sanctum_of_Domination()
+{
+}
+
+void AddSC_Sanctum_of_Domination()
+{ 
+}    
+
+enum NPC
+{
+    NPC_1;
+}
+
+enum Objects
+{
+    Objects_1;
+}    
+
+enum Loot
+{
+    Loot_1;
+}
+
+enum phase
+{
+    phase_1;
+}
+
+enum Npcspawn
+{
+    spawnNpc_1;
+}    
+
+enum ObjectSpawn
+{
+    ObjectSpawn_1;
+}
+
+
