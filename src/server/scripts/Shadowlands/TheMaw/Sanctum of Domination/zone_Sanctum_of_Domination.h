@@ -24,11 +24,86 @@
 #include "zone_Sanctum_of_Domination.h"
 
 
+
 void AddSC_zone_The_Maw()
+{
+}
+
+void AddSC_instance_Sanctum_of_Domination()
 {
 }
 
 void AddSC_zone_Sanctum_of_Domination()
 {
 }
+
+void AddSC_npc_Sanctum_of_Domination()
+{
+}
+
+void AddSC_Objects_Sanctum_of_Domination()
+{
+}
+
+void AddSC_Sanctum_of_Domination()
+{
+}
+
+void AddSC_Boss_The_Tarragrue()
+{
+} 
+
+void AddSC_Boss_The_Eye_of_the_Jailer()
+{
+}
+
+void AddSC_Boss_The_Nine()
+{   
+}    
+
+void AddSC_Boss_Remnant_of_Nerzhul()
+{   
+}
+
+void AddSC_Boss_Soulrender_Dormazain()
+{   
+}
+
+void AddSC_Boss_Painsmith_Raznal()
+{   
+}
+
+void AddSC_Boss_Guardian_of_the_First_Ones()
+{  
+}
+
+void AddSC_Boss_Fatescribe_Roh_Kalo()
+{ 
+}
+
+void AddSC_Boss_KelThuzad()
+{
+}
+
+void AddSC_Boss_Sylvanas_Windrunner()
+{
+}    
+
+{
+    AddSC_instance_Sanctum_of_Domination();
+        AddSC_zone_Sanctum_of_Domination();
+         AddSC_npc_Sanctum_of_Domination();
+         AddSC_Objects_Sanctum_of_Domination();
+         AddSC_Sanctum_of_Domination();
+         AddSC_Boss_The_Tarragrue();
+         AddSC_Boss_The_Eye_of_the_Jailer();
+         AddSC_Boss_The_Nine();
+         AddSC_Boss_Remnant_of_Nerzhul();
+         AddSC_Boss_Soulrender_Dormazain();
+         AddSC_Boss_Painsmith_Raznal();
+         AddSC_Boss_Guardian_of_the_First_Ones();
+         AddSC_Boss_Fatescribe_Roh_Kalo();
+         AddSC_Boss_KelThuzad();
+         AddSC_Boss_Sylvanas_Windrunner();
+};
 
