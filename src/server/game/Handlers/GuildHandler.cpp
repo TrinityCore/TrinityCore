@@ -17,10 +17,12 @@
 
 #include "WorldSession.h"
 #include "Common.h"
+#include "Creature.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
@@ -257,6 +259,11 @@ void WorldSession::HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivat
     if (!go)
         return;
 
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (packet.Banker.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(packet.Banker))
+            creature->SendMirrorSound(_player, 0);
+#endif
     Guild* const guild = GetPlayer()->GetGuild();
     if (!guild)
     {
