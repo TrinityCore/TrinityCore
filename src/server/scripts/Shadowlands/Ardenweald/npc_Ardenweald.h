@@ -186,29 +186,42 @@ enum NPC
   NPC_Blighted_Darkcaster                             = 169631, 
 };
 
+enum aura
+{
+ Void aura();
+};
+
+enum spell
+{
+ void spell();
+};
+
+enum efect
+{
+ void efect();
+};
+
+enum NpcData
+{
+  void NpcData();
+};
+
 enum mode
 {
-  void mode_LFR()
-  void mode_N()
-  void mode_HC()
-  void mode_Mythic()
+  void mode_LFR();
+  void mode_N();
+  void mode_HC();
+  void mode_Mythic();
 };
 
 enum NpcLoot
 {
-  Void NPC_Oranomonos_the_Everbranching = NpcID "167527" 
-  {
-   If (loot)
-   Inc NPC_Oranomonos_the_Everbranching;
-   Set (loot) mode_LFR
-   Set (loot) mode_N
-   Set (loot) mode_HC
-   Set (loot) mode_Mythic
-}
+  void NpcLoot();
+};
 
 enum spawn
 {
-  spawn_NPC_Oranomonos_the_Everbranching
+  void Spawn();
 };
 
 void AddSC_npc_Ardenweald()
