@@ -826,7 +826,7 @@ enum TrinityStrings
     LANG_ACCOUNT_SEC_TYPE                 = 880,
     LANG_RBAC_EMAIL_REQUIRED              = 881,
     //                                    = 882, LANG_PINFO_CHR_MAP_WITH_AREA
-    LANG_ACCOUNT                          = 883, // 3.3.5 RESERVED
+    LANG_ACCOUNT                          = 883,
     // Room for in-game strings             884-999 not used
 
     // Level 4 (CLI only commands)
