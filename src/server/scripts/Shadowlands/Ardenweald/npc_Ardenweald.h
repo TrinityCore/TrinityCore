@@ -186,7 +186,7 @@ enum NPC
   NPC_Blighted_Darkcaster                             = 169631, 
 };
 
-Enum mode
+enum mode
 {
   void mode_LFR()
   void mode_N()
