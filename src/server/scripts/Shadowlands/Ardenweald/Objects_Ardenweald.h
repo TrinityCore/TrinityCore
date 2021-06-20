@@ -45,9 +45,36 @@
 #include "zone_Ardenweald.h"
 #include "npc_Ardenweald.cpp"
 
+enum ObjectList
+{
+    Objects_A_Faintly_Glowing_Seed = "A Faintly Glowing Seed"
+    Objects_A_Secret_Never_Spoken = "A Secret Never Spoken"
+    Objects_Abandoned_Memento = "Abandoned Memento"
+    Objects_Ancient_Cloudfeather_Egg = "Ancient Cloudfeather Egg"
+    Objects_Animacone = "Animacone"
+    Objects_Animacone_Basket = "Animacone Basket"
+    Objects_Anvil = "Anvil"
+    Objects_Ardenmoth_Cocoon = "Ardenmoth Cocoon"
+    Objects_Aromatic_Flowers = "Aromatic Flowers"
+    Objects_Basket_of_Enchanted_Wings = "Basket of Enchanted Wings"
+    Objects_Battered_Journal = "Battered Journal"
+    Objects_
+}   
+
 enum Objects
 {
-	Object_1;
+	Object_A_Faintly_Glowing_Seed     = 364345,
+	Objects_A_Secret_Never_Spoken     = 344607,
+    Objects_Abandoned_Memento         = 339996,339997,339998,
+    Objects_Ancient_Cloudfeather_Egg  = 354646,
+    Objects_Animacone                 = 336906,349512,353874,
+    Objects_Animacone_Basket          = 352628,
+    Objects_Anvil                     = 192628,
+    Objects_Ardenmoth_Cocoon          = 352047,
+    Objects_Aromatic_Flowers          = 355271,
+    Objects_Basket_of_Enchanted_Wings = 349383,
+    Objects_Battered_Journal          = 349515,
+    
 };
 
 enum map
