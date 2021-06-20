@@ -59,6 +59,8 @@
 #include "Ardenweald.cpp"
 #include "zone_Ardenweald.cpp"
 #include "zone_Ardenweald.h" 
+#include "Objects_Ardenweald.h"
+
 
  enum Creatures
 {
