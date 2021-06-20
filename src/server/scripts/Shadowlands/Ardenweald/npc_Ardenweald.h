@@ -209,7 +209,7 @@ enum spawn
 
 void AddSC_npc_Ardenweald()
 {
-    RegisterCreatureAI(NPC_Oranomonos the Everbranching);                  
+  RegisterCreatureAI(NPC_Oranomonos the Everbranching);                  
   RegisterCreatureAI(NPC_Granny);                                          
   RegisterCreatureAI(NPC_A_Naughty_Story);                                
   RegisterCreatureAI(NPC_Amun);                                          
@@ -275,5 +275,5 @@ void AddSC_npc_Ardenweald()
   RegisterCreatureAI(NPC_Blighted_Conqueror);
   RegisterCreatureAI(NPC_Blighted_Creeper);
   RegisterCreatureAI(NPC_Blighted_Darkcaster);
-    RegisterAuraScript(aura_);
+  RegisterAuraScript(aura_);
 }
