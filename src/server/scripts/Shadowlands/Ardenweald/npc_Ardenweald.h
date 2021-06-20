@@ -134,7 +134,7 @@ enum NPC
 
  enum Creatures
 {
-  NPC_Oranomonos the Everbranching                    = 167527,
+  NPC_Oranomonos_the_Everbranching                    = 167527,
   NPC_Granny                                          = 169331,
   NPC_A_Naughty_Story                                 = 174726,
   NPC_Amun                                            = 175337,
@@ -200,6 +200,11 @@ enum NPC
   NPC_Blighted_Conqueror                              = 174729,
   NPC_Blighted_Creeper                                = 169629,176179,
   NPC_Blighted_Darkcaster                             = 169631, 
+};
+
+enum spawn
+{
+  spawn_NPC_Oranomonos_the_Everbranching
 };
 
 void AddSC_npc_Ardenweald()
