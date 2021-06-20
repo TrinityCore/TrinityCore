@@ -96,9 +96,40 @@ enum NPC
   NPC_Ardenmoth = "Ardenmoth"
   NPC_Ardent_Pacifier = "Ardent Pacifier"
   NPC_Arkelios = "Arkelios <Wandering Spirit>"
-  NPC_
-  NPC_
-  NPC_
+  NPC_Artisan_Rees = "Artisan Rees"
+  NPC_Astarii_Starseeker = "Astarii Starseeker"
+  NPC_Astra_As_Azshara = "Astra, As Azshara <An Infamous Queen>"
+  NPC_Astra_As_Sylvanas = "Astra, As Sylvanas <A Warchief with Questionable Motives>"
+  NPC_Attendant_Sparkledew = "Attendant Sparkledew <Queen's Audience Chamber Staff>"
+  NPC_Audience_Member = "Audience Member"
+  NPC_Audri_Shadowrose = "Audri Shadowrose <Bloom Tender>"
+  NPC_Awool = "Awool"
+  NPC_Aynnstykny = "Aynnstykny"
+  NPC_Azelor = "Azelor <The Wild Hunt>"
+  NPC_Azeroths_Demise = "Azeroth's Demise"
+  NPC_Bagoom = "Bagoom"
+  NPC_Barrier = "Barrier"
+  NPC_Bartender = "Bartender"
+  NPC_Basin_Kit = "Basin Kit"
+  NPC_Basin_Vulpin = "Basin Vulpin"
+  NPC_Baslat = "Baslat"
+  NPC_Benyona = "Benyona"
+  NPC_Betsy = "Betsy <Silkstrider>"
+  NPC_Bitterfly = "Bitterfly"
+  NPC_Blackthorn_Ambusher = "Blackthorn Ambusher"
+  NPC_Blackthorn_Assailant = "Blackthorn Assailant"
+  NPC_Blackthorn_Barbslinger = "Blackthorn Barbslinger"
+  NPC_Blackthorn_Bully = "Blackthorn Bully"
+  NPC_Blackthorn_Lurker = "Blackthorn Lurker"
+  NPC_Blackthorn_Needler = "Blackthorn Needler"
+  NPC_Blackthorn_Subjugator = "Blackthorn Subjugator"
+  NPC_Blackthorn_Witch_Doctor = "Blackthorn Witch Doctor"
+  NPC_Blighted_Beast = "Blighted Beast"
+  NPC_Blighted_Brute = "Blighted Brute"
+  NPC_Blighted_Carver = "Blighted Carver"
+  NPC_Blighted_Conqueror = "Blighted Conqueror"
+  NPC_Blighted_Creeper = "Blighted Creeper"
+  NPC_Blighted_Darkcaster = "Blighted Darkcaster"
 }
 
  enum Creatures
@@ -130,10 +161,114 @@ enum NPC
   NPC_Anima_Starved_Shrieker                          = 169050,
   NPC_Anima_Starved_Stalker                           = 169049,169228,
   NPC_Anir                                            = 158494,169152,
-  NPC_Aralon                                          = 160963,161378,161492,169935,170290,170485,170705,
-                                                        161603,162979,165250,169649,170463,170522,171641,172133, 
+  NPC_Aralon                                          = 160963,161378,161492,169935,170290,170485,170705,161603,162979,165250,169649,170463,170522,171641,172133, 
   NPC_Archivist_Dreyden                               = 165867,
   NPC_Ardenmoth                                       = 174201,174248,
   NPC_Ardent_Pacifier                                 = 172493,
   NPC_Arkelios                                        = 173939,
+  NPC_Artisan_Rees                                    = 167047,
+  NPC_Astarii_Starseeker                              = 174515,
+  NPC_Astra_As_Azshara                                = 161161,166135,
+  NPC_Astra_As_Sylvanas                               = 161159,
+  NPC_Attendant_Sparkledew                            = 158543,
+  NPC_Audience_Member                                 = 160508,170081,170117,170119,170120,
+  NPC_Audri_Shadowrose                                = 160534,
+  NPC_Awool                                           = 159644,159661,160813,161022,167981,169319,
+  NPC_Aynnstykny                                      = 174776,
+  NPC_Azelor                                          = 170959,
+  NPC_Azeroths_Demise                                 = 161802,
+  NPC_Bagoom                                          = 174131,
+  NPC_Barrier                                         = 166222,
+  NPC_Bartender                                       = 175535,
+  NPC_Basin_Kit                                       = 169388,
+  NPC_Basin_Vulpin                                    = 163093,
+  NPC_Baslat                                          = 176334,
+  NPC_Benyona                                         = 174838,
+  NPC_Betsy                                           = 168090,
+  NPC_Bitterfly                                       = 160442,
+  NPC_Blackthorn_Ambusher                             = 170263,170286,
+  NPC_Blackthorn_Assailant                            = 174692,
+  NPC_Blackthorn_Barbslinger                          = 167049,169338,
+  NPC_Blackthorn_Bully                                = 169297,
+  NPC_Blackthorn_Lurker                               = 170873,
+  NPC_Blackthorn_Needler                              = 167050,169339,
+  NPC_Blackthorn_Subjugator                           = 170872,
+  NPC_Blackthorn_Witch_Doctor                         = 167088,169340,
+  NPC_Blighted_Beast                                  = 170087,
+  NPC_Blighted_Brute                                  = 169630,169630,176176,
+  NPC_Blighted_Carver                                 = 172193,
+  NPC_Blighted_Conqueror                              = 174729,
+  NPC_Blighted_Creeper                                = 169629,176179,
+  NPC_Blighted_Darkcaster                             = 169631, 
 };
+
+void AddSC_npc_Ardenweald()
+{
+    RegisterCreatureAI(NPC_Oranomonos the Everbranching);                  
+  RegisterCreatureAI(NPC_Granny);                                          
+  RegisterCreatureAI(NPC_A_Naughty_Story);                                
+  RegisterCreatureAI(NPC_Amun);                                          
+  RegisterCreatureAI(NPC_Abandoned_Whelp);                                
+  RegisterCreatureAI(NPC_Adopted_Son);                                    
+  RegisterCreatureAI(NPC_Aerto);                                          
+  RegisterCreatureAI(NPC_Agitated_Mistfeather);                           
+  RegisterCreatureAI(NPC_Aithlyn);                                         
+  RegisterCreatureAI(NPC_Alascene);                                       
+  RegisterCreatureAI(NPC_Aldas);                                           
+  RegisterCreatureAI(NPC_Alderyn);                                       
+  RegisterCreatureAI(NPC_Alice);                                           
+  RegisterCreatureAI(NPC_Amberfoot);                                      
+  RegisterCreatureAI(NPC_Ammi);                                            
+  RegisterCreatureAI(NPC_Amphitheater_Musician);                           
+  RegisterCreatureAI(NPC_Anaris_Windwood);                                 
+  RegisterCreatureAI(NPC_Anaya_Dawnrunner);                                
+  RegisterCreatureAI(NPC_Ancient_Gazelle);                                 
+  RegisterCreatureAI(NPC_Angelia);                                        
+  RegisterCreatureAI(NPC_Angry_Egg_Tender);                                
+  RegisterCreatureAI(NPC_Angwyrdmn);                                       
+  RegisterCreatureAI(NPC_Anima_Starved_Matriarch);                         
+  RegisterCreatureAI(NPC_Anima_Starved_Patriarch);                         
+  RegisterCreatureAI(NPC_Anima_Starved_Shrieker);                          
+  RegisterCreatureAI(NPC_Anima_Starved_Stalker); 
+  RegisterCreatureAI(NPC_Anir);                           
+  RegisterCreatureAI(NPC_Aralon);
+  RegisterCreatureAI(NPC_Archivist Dreyden);
+  RegisterCreatureAI(NPC_Ardenmoth);
+  RegisterCreatureAI(NPC_Ardent_Pacifier);
+  RegisterCreatureAI(NPC_Arkelios);
+  RegisterCreatureAI(NPC_Artisan_Rees);
+  RegisterCreatureAI(NPC_Astarii_Starseeker);
+  RegisterCreatureAI(NPC_Astra_As_Azshara);
+  RegisterCreatureAI(NPC_Astra_As_Sylvanas);
+  RegisterCreatureAI(NPC_Attendant_Sparkledew);
+  RegisterCreatureAI(NPC_Audience_Member);
+  RegisterCreatureAI(NPC_Audri_Shadowrose);
+  RegisterCreatureAI(NPC_Awool);
+  RegisterCreatureAI(NPC_Aynnstykny);
+  RegisterCreatureAI(NPC_Azelor);
+  RegisterCreatureAI(NPC_Azeroths_Demise);
+  RegisterCreatureAI(NPC_Bagoom);
+  RegisterCreatureAI(NPC_Barrier);
+  RegisterCreatureAI(NPC_Bartender);
+  RegisterCreatureAI(NPC_Basin_Kit);
+  RegisterCreatureAI(NPC_Basin_Vulpin);
+  RegisterCreatureAI(NPC_Baslat);
+  RegisterCreatureAI(NPC_Benyona);
+  RegisterCreatureAI(NPC_Betsy);
+  RegisterCreatureAI(NPC_Bitterfly);
+  RegisterCreatureAI(NPC_Blackthorn_Ambusher);
+  RegisterCreatureAI(NPC_Blackthorn_Assailant);
+  RegisterCreatureAI(NPC_Blackthorn_Barbslinger);
+  RegisterCreatureAI(NPC_Blackthorn_Bully);
+  RegisterCreatureAI(NPC_Blackthorn_Lurker);
+  RegisterCreatureAI(NPC_Blackthorn_Needler);
+  RegisterCreatureAI(NPC_Blackthorn_Subjugator);
+  RegisterCreatureAI(NPC_Blackthorn_Witch_Doctor);
+  RegisterCreatureAI(NPC_Blighted_Beast);
+  RegisterCreatureAI(NPC_Blighted_Brute);
+  RegisterCreatureAI(NPC_Blighted_Carver);
+  RegisterCreatureAI(NPC_Blighted_Conqueror);
+  RegisterCreatureAI(NPC_Blighted_Creeper);
+  RegisterCreatureAI(NPC_Blighted_Darkcaster);
+    RegisterAuraScript(aura_);
+}
