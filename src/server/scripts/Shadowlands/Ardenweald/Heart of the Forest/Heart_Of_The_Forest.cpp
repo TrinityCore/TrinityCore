@@ -22,9 +22,7 @@
 #include "Objects_Ardenweald.h"
 #include "npc_Heart_Of_The_Forest.h"
 #include "Objects_Heart_Of_The_Forest.h"
-
-
-
+ 
 void AddSC_zone_Heart_Of_The_Forest()
 {
 } 
