@@ -65,17 +65,17 @@
 
 void AddSC_zone_ardenweald()
 {
-  void zone_ardenwenweald();
+  void AddSC_zone_ardenwenweald();
 }
 
 void AddSC_Zone_Mist_Of_Tirna_Scithe()
 {
-  void Zone_Mist_Of_Tirna_Scithe();
+  void AddSC_Zone_Mist_Of_Tirna_Scithe();
 }
 
 void AddSC_Zone_De_Other_Side()
 {
-  void Zone_De_Other_Side();
+  void AddSC_Zone_De_Other_Side();
 }
 
    
