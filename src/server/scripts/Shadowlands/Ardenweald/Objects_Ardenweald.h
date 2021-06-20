@@ -58,6 +58,11 @@ enum ObjectList
     Objects_Aromatic_Flowers = "Aromatic Flowers"
     Objects_Basket_of_Enchanted_Wings = "Basket of Enchanted Wings"
     Objects_Battered_Journal = "Battered Journal"
+    Objects_Broken_Harp = "Broken Harp"
+    Objects_Broken_Spear = "Broken Spear"
+    Objects_Burried_Cache = "Burried Cache"
+    Objects_Cache_of_the_Moon = "Cache of the Moon"
+    Objects_Cache_of_the_Night = "Cache of the Night"
     Objects_
 }   
 
@@ -74,7 +79,12 @@ enum Objects
     Objects_Aromatic_Flowers          = 355271,
     Objects_Basket_of_Enchanted_Wings = 349383,
     Objects_Battered_Journal          = 349515,
-    
+    Objects_Broken_Harp               = 350804,
+    Objects_Broken_Spear              = 357726,
+    Objects_Burried_Cache             = 357771,
+    Objects_Cache_of_the_Moon         = 355041,
+    Objects_Cache_of_the_Night        = 355000,
+    Objects_
 };
 
 enum map
