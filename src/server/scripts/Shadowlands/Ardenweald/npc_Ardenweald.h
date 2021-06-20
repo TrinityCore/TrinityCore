@@ -292,5 +292,11 @@ void AddSC_npc_Ardenweald()
   RegisterCreatureAI(NPC_Blighted_Conqueror);
   RegisterCreatureAI(NPC_Blighted_Creeper);
   RegisterCreatureAI(NPC_Blighted_Darkcaster);
-  RegisterAuraScript(aura_);
+  RegisterAuraScript(aura);
+  RegisterSpellScript(spell);
+  RegisterEffectScript(efect);
+  RegisterModeScript(mode);
+  RegisterSpawnScript(Spawn);
+  RegisterNpcLootScript(NpcLoot);
+  RegisterNpcDataScript(NpcData);
 }
