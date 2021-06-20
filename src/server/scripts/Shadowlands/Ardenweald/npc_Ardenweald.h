@@ -62,6 +62,37 @@
 #include "Objects_Ardenweald.h"
 
 
+enum NPC
+{
+  NPC_Oranomonos the Everbranching                   
+  NPC_Granny                                          
+  NPC_A_Naughty_Story                                 
+  NPC_Amun                                            
+  NPC_Abandoned_Whelp                                 
+  NPC_Adopted_Son                                     
+  NPC_Aerto                                           
+  NPC_Agitated_Mistfeather                            
+  NPC_Aithlyn                                         
+  NPC_Alascene                                        
+  NPC_Aldas                                           
+  NPC_Alderyn                                       
+  NPC_Alice                                           
+  NPC_Amberfoot                                       
+  NPC_Ammi                                            
+  NPC_Amphitheater_Musician                           
+  NPC_Anaris_Windwood                                 
+  NPC_Anaya_Dawnrunner                                
+  NPC_Ancient_Gazelle                                 
+  NPC_Angelia                                         
+  NPC_Angry_Egg_Tender                                
+  NPC_Angwyrdmn                                       
+  NPC_Anima_Starved_Matriarch                         
+  NPC_Anima_Starved_Patriarch                         
+  NPC_Anima_Starved_Shrieker                          
+  NPC_Anima_Starved_Stalker                           
+  NPC_
+}
+
  enum Creatures
 {
   NPC_Oranomonos the Everbranching                    = 167527,
