@@ -58,8 +58,7 @@
 #include "Boss_Tred_ova.cpp"
 #include "Ardenweald.cpp"
 #include "zone_Ardenweald.cpp"
-#include "zone_Ardenweald.h"
-#include "Objects_Ardenweald.h"
+#include "zone_Ardenweald.h" 
 
  enum Creatures
 {
