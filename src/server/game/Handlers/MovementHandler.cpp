@@ -496,6 +496,8 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     ReadMovementInfo(recvData, &movementInfo);
     recvData >> speedReceived;
 
+    ASSERT(mover);
+
     // verify that indeed the client is replying with the changes that were send to him
     if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementCounter)
     {
@@ -647,6 +649,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     }
 
     Unit* mover = ObjectAccessor::GetUnit(*_player, guid);
+    ASSERT(mover);
 
     recvData.read_skip<uint32>();                          // unk
 

@@ -2237,7 +2237,7 @@ void World::DetectDBCLang()
         m_lang_confid = LOCALE_enUS;
     }
 
-    ChrRacesEntry const* race = sChrRacesStore.LookupEntry(1);
+    ChrRacesEntry const* race = sChrRacesStore.AssertEntry(1);
 
     std::string availableLocalsStr;
 
