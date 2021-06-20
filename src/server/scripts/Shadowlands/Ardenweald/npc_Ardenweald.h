@@ -202,6 +202,18 @@ enum NPC
   NPC_Blighted_Darkcaster                             = 169631, 
 };
 
+enum NpcLoot
+{
+  Void NPC_Oranomonos_the_Everbranching = NpcID "167527" 
+  {
+   If (loot)
+   Inc NPC_Oranomonos_the_Everbranching;
+   Set (loot) mode_LFR
+   Set (loot) mode_N
+   Set (loot) mode_HC
+   Set (loot) mode_Mythic
+}
+
 enum spawn
 {
   spawn_NPC_Oranomonos_the_Everbranching
