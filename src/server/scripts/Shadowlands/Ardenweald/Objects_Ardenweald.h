@@ -44,6 +44,7 @@
 #include "zone_Ardenweald.cpp"
 #include "zone_Ardenweald.h"
 #include "npc_Ardenweald.cpp"
+#include "AddSC_npc_Data_Ardenweald.h"
 
 enum ObjectList
 {
@@ -63,6 +64,26 @@ enum ObjectList
     Objects_Burried_Cache = "Burried Cache"
     Objects_Cache_of_the_Moon = "Cache of the Moon"
     Objects_Cache_of_the_Night = "Cache of the Night"
+    Objects_Collector = "Collector"
+    Objects_Cracked_Soulweb = "Cracked Soulweb"
+    Objects_Cracked_Vertosol = "Cracked Vertosol"
+    Objects_Crafters_Basket = "Crafter's Basket"
+    Objects_Crumpled_Journal_Page = "Crumpled Journal Page"
+    Objects_Damp_Loam = "Damp Loam"
+    Objects_Darkreach_Supplies = "Darkreach Supplies"
+    Objects_Death_Blossom = "Death Blossom"
+    Objects_Decayed_Husk = "Decayed Husk"
+    Objects_Depleted_Wildseed = "Depleted Wildseed"
+    Objects_Diary_of_the_Night = "Diary of the Night"
+    Objects_Dim_Lunarlight_Pod = "Dim Lunarlight Pod"
+    Objects_Discarded_Harp = "Discarded Harp"
+    Objects_Discarded_Scroll = "Discarded Scroll"
+    Objects_Drained_Animacone_Cluster = "Drained Animacone Cluster"
+    Objects_Drained_Wildseed = "Drained Wildseed"
+    Objects_Dreamsong_Heart = "Dreamsong Heart"
+    Objects_Elethium_Deposit = "Elethium Deposit"
+    Objects_Elusive_Faerie_Cache = "Elusive Faerie Cache"
+    Objects_Enchanted_Bough = "Enchanted Bough"
     Objects_
 }   
 
@@ -84,6 +105,26 @@ enum Objects
     Objects_Burried_Cache             = 357771,
     Objects_Cache_of_the_Moon         = 355041,
     Objects_Cache_of_the_Night        = 355000,
+    Objects_Collector                 = 357729,
+    Objects_Cracked_Soulweb           = 355800,
+    Objects_Cracked_Vertosol          = 358528,
+    Objects_Crafters_Basket           = 356878, 
+    Objects_Crumpled_Journal_Page     = 339340,
+    Objects_Damp_Loam                 = 344732,
+    Objects_Darkreach_Supplies        = 354648,
+    Objects_Death_Blossom             = 336686,
+    Objects_Decayed_Husk              = 353306,353323,353324,353326,353327,
+    Objects_Depleted_Wildseed         = 337092,364332,
+    Objects_Diary_of_the_Night        = 355216,
+    Objects_Dim_Lunarlight_Pod        = 353769,353770,353771,353772,353773,356821,
+    Objects_Discarded_Harp            = 351425,
+    Objects_Discarded_Scroll          = 336415,
+    Objects_Drained_Animacone_Cluster = 340448,
+    Objects_Drained_Wildseed          = 353152,
+    Objects_Dreamsong_Heart           = 354650,
+    Objects_Elethium_Deposit          = 349900,
+    Objects_Elusive_Faerie_Cache      = 354662,
+    Objects_Enchanted_Bough           = 355020,
     Objects_
 };
 
