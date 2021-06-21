@@ -84,6 +84,44 @@ enum ObjectList
     Objects_Elethium_Deposit = "Elethium Deposit"
     Objects_Elusive_Faerie_Cache = "Elusive Faerie Cache"
     Objects_Enchanted_Bough = "Enchanted Bough"
+    Objects_Enchanted_Cage = "Enchanted Cage"
+    Objects_Enchanted_Chest = "Enchanted Chest"
+    Objects_Enchanted_Dreamcatcher = "Enchanted Dreamcatcher"
+    Objects_Expended_Wildseed = "Expended Wildseed"
+    Objects_Extra_Gooey_Gorm_Gunk = "Extra Gooey Gorm Gunk"
+    Objects_Fae_Basket = "Fae Basket"
+    Objects_Fae_Flute = "Fae Flute"
+    Objects_Fae_Ornament = "Fae Ornament"
+    Objects_Faerie_Belongings = "Faerie Belongings"
+    Objects_Faerie_Stash = "Faerie Stash"
+    Objects_Faerie_Trove = "Faerie Trove"
+    Objects_Forge = "Forge"
+    Objects_Fresh_Ardenweald_Anima = "Fresh Ardenweald Anima"
+    Objects_Freshleaf = "Freshleaf"
+    Objects_Frilled_Filtershroom = "Frilled Filtershroom"
+    Objects_Gardeners_Basket = "Gardener's Basket"
+    Objects_Gardeners_Flute = "Gardener's Flute"
+    Objects_Gardeners_Hammer = "Gardener's Hammer"
+    Objects_Gardeners_Wand = "Gardener's Wand"
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
     Objects_
 }   
 
@@ -125,6 +163,45 @@ enum Objects
     Objects_Elethium_Deposit          = 349900,
     Objects_Elusive_Faerie_Cache      = 354662,
     Objects_Enchanted_Bough           = 355020,
+    Objects_Enchanted_Cage            = 339319,
+    Objects_Enchanted_Chest           = 353233,
+    Objects_Enchanted_Dreamcatcher    = 354651,
+    Objects_Expended_Wildseed         = 340664,
+    Objects_Extra_Gooey_Gorm_Gunk     = 358572,
+    Objects_Fae_Basket                = 353680,353751,353763,353765,
+    Objects_Fae_Flute                 = 357148,357519,
+    Objects_Fae_Ornament              = 355021,
+    Objects_Faerie_Belongings         = 339514,
+    Objects_Faerie_Stash              = 353329,353330,353331,353332,353333,
+    Objects_Faerie_Trove              = 354652,
+    Objects_Forge                     = 1685,
+    Objects_Fresh_Ardenweald_Anima    = 357336,
+    Objects_Freshleaf                 = 338681,
+    Objects_Frilled_Filtershroom      = 355805,
+    Objects_Gardeners_Basket          = 355212,
+    Objects_Gardeners_Flute           = 355215,
+    Objects_Gardeners_Hammer          = 355211,
+    Objects_Gardeners_Wand            = 355214,
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
     Objects_
 };
 
