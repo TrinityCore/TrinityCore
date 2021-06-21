@@ -123,13 +123,13 @@ enum ObjectList
     Objects_Marasmius = "Marasmius"
     Objects_Misty_Mindshroom = "Misty Mindshroom"
     Objects_Muddy_Scroll = "Muddy Scroll"
-    Objects_
-    Objects_
-    Objects_
-    Objects_
-    Objects_
-    Objects_
-    Objects_
+    Objects_Night_Lilly = "Night Lilly"
+    Objects_Nightshade = "Nightshade"
+    Objects_Nox_Root = "Nox Root"
+    Objects_Phaedrum_Deposit = "Phaedrum Deposit"
+    Objects_Pile_of_Loam = "Pile of Loam"
+    Objects_Pulsing_Animacone = "Pulsing Animacone"
+    Objects_Raw_Dream_Silk = "Raw Dream Silk"
     Objects_
     Objects_
     Objects_
@@ -244,13 +244,13 @@ enum Objects
     Objects_Marasmius                 = 334880,
     Objects_Misty_Mindshroom          = 355795,
     Objects_Muddy_Scroll              = 348747,
-    Objects_
-    Objects_
-    Objects_
-    Objects_
-    Objects_
-    Objects_
-    Objects_
+    Objects_Night_Lilly               = 357582,352058,358369,
+    Objects_Nightshade                = 336691,
+    Objects_Nox_Root                  = 357710,
+    Objects_Phaedrum_Deposit          = 349982,355508,
+    Objects_Pile_of_Loam              = 350997,
+    Objects_Pulsing_Animacone         = 353194,
+    Objects_Raw_Dream_Silk            = 355019,
     Objects_
     Objects_
     Objects_
