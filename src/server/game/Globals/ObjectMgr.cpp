@@ -448,7 +448,7 @@ void ObjectMgr::LoadCreatureTemplates()
         return;
     }
 
-    _creatureTemplateStore.rehash(result->GetRowCount());
+    _creatureTemplateStore.reserve(result->GetRowCount());
     do
     {
         Field* fields = result->Fetch();
@@ -1642,7 +1642,7 @@ void ObjectMgr::LoadCreatureModelInfo()
         return;
     }
 
-    _creatureModelStore.rehash(result->GetRowCount());
+    _creatureModelStore.reserve(result->GetRowCount());
     uint32 count = 0;
 
     do
@@ -5782,7 +5782,7 @@ void ObjectMgr::LoadGossipText()
         return;
     }
 
-    _gossipTextStore.rehash(result->GetRowCount());
+    _gossipTextStore.reserve(result->GetRowCount());
 
     uint32 count = 0;
     uint8 cic;
@@ -6091,7 +6091,7 @@ void ObjectMgr::LoadQuestGreetings()
         return;
     }
 
-    _questGreetingStore.rehash(result->GetRowCount());
+    _questGreetingStore.reserve(result->GetRowCount());
 
     uint32 count = 0;
 
@@ -7120,7 +7120,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         return;
     }
 
-    _gameObjectTemplateStore.rehash(result->GetRowCount());
+    _gameObjectTemplateStore.reserve(result->GetRowCount());
     uint32 count = 0;
     do
     {
@@ -9400,7 +9400,7 @@ void ObjectMgr::LoadBroadcastTexts()
         return;
     }
 
-    _broadcastTextStore.rehash(result->GetRowCount());
+    _broadcastTextStore.reserve(result->GetRowCount());
 
     do
     {
