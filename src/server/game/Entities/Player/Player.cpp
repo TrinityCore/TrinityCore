@@ -15364,6 +15364,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     XP *= GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_QUEST_PCT);
+    // @tswow-begin
+    FIRE(FormulaOnQuestXP,TSPlayer(this),TSQuest(quest),TSMutable<uint32>(&XP));
+    // @tswow-end
 
     if (!IsMaxLevel())
         GiveXP(XP, nullptr);
