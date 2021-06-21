@@ -50,14 +50,14 @@ enum aura
  Void aura();
 };
 
-enum spell
+enum spells
 {
- void spell();
+ void spells();
 };
 
-enum efect
+enum effect
 {
- void efect();
+ void effect();
 };
 
 enum NpcData
@@ -78,18 +78,18 @@ enum NpcLoot
   void NpcLoot();
 };
 
-enum spawn
+enum spawns
 {
-  void Spawn();
+  void Spawns();
 };
 
 void AddSC_npc_Data_Ardenweald()
 {
   RegisterAuraScript(aura);
-  RegisterSpellScript(spell);
-  RegisterEffectScript(efect);
+  RegisterSpellsScript(spells);
+  RegisterEffectScript(effect);
   RegisterModeScript(mode);
-  RegisterSpawnScript(Spawn);
+  RegisterSpawnsScript(Spawns);
   RegisterNpcLootScript(NpcLoot);
   RegisterNpcDataScript(NpcData);
 };
