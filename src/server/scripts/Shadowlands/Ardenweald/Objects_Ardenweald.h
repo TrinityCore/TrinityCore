@@ -103,6 +103,48 @@ enum ObjectList
     Objects_Gardeners_Flute = "Gardener's Flute"
     Objects_Gardeners_Hammer = "Gardener's Hammer"
     Objects_Gardeners_Wand = "Gardener's Wand"
+    Objects_Giggling_Basket = "Giggling Basket"
+    Objects_Gorm_Giblet = "Gorm Giblet"
+    Objects_Gorm_Gris = "Gorm Gris"
+    Objects_Gossamer_Thread = "Gossamer Thread"
+    Objects_Harmonic_Chest = "Harmonic Chest"
+    Objects_Heart_of_Tirna_Noch = "Heart of Tirna Noch"
+    Objects_Hearty_Dragon_Plume = "Hearty Dragon Plume"
+    Objects_Heavy_Heartshroom = "Heavy Heartshroom"
+    Objects_Intact_Husk = "Intact Husk"
+    Objects_Laestrite_Deposit = "Laestrite Deposit"
+    Objects_Lambent_Vigils_Torch = "Lambent Vigil's Torch"
+    Objects_Large_Lunarlight_Pod = "Large Lunarlight Pod"
+    Objects_Large_Thistledrop = "Large Thistledrop"
+    Objects_Ligneous_Phaedrum_Deposit = "Ligneous Phaedrum Deposit"
+    Objects_Lost_Satchel = "Lost Satchel"
+    Objects_Lunarlight_Pod = "Lunarlight Pod"
+    Objects_Mailbox = "Mailbox"
+    Objects_Marasmius = "Marasmius"
+    Objects_Misty_Mindshroom = "Misty Mindshroom"
+    Objects_Muddy_Scroll = "Muddy Scroll"
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
     Objects_
     Objects_
     Objects_
@@ -182,6 +224,47 @@ enum Objects
     Objects_Gardeners_Flute           = 355215,
     Objects_Gardeners_Hammer          = 355211,
     Objects_Gardeners_Wand            = 355214,
+    Objects_Giggling_Basket           = 338492,
+    Objects_Gorm_Giblet               = 357417,
+    Objects_Gorm_Gris                 = 338489,
+    Objects_Gossamer_Thread           = 338682,
+    Objects_Harmonic_Chest            = 355355,
+    Objects_Heart_of_Tirna_Noch       = 340028,
+    Objects_Hearty_Dragon_Plume       = 354647,
+    Objects_Heavy_Heartshroom         = 355804,
+    Objects_Intact_Husk               = 335776,
+    Objects_Laestrite_Deposit         = 349898,
+    Objects_Lambent_Vigils_Torch      = 356538,
+    Objects_Large_Lunarlight_Pod      = 356820,
+    Objects_Large_Thistledrop         = 357257,
+    Objects_Ligneous_Phaedrum_Deposit = 356400, 
+    Objects_Lost_Satchel              = 354645,
+    Objects_Lunarlight_Pod            = 353681,353683,353684,353685,353686,
+    Objects_Mailbox                   = 32349,
+    Objects_Marasmius                 = 334880,
+    Objects_Misty_Mindshroom          = 355795,
+    Objects_Muddy_Scroll              = 348747,
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
+    Objects_
     Objects_
     Objects_
     Objects_
