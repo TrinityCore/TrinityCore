@@ -397,13 +397,11 @@ class TC_GAME_API Quest
         uint32 _minLevel = 0;
         int32  _level = 0;
         uint32 _type = 0;
-        uint32 _allowableRaces = 0;
         uint32 _requiredFactionId1 = 0;
         int32  _requiredFactionValue1 = 0;
         uint32 _requiredFactionId2 = 0;
         int32  _requiredFactionValue2 = 0;
         uint32 _suggestedPlayers = 0;
-        uint32 _timeAllowed = 0;
         uint32 _flags = 0;
         uint32 _rewardTitleId = 0;
         uint32 _requiredPlayerKills = 0;
@@ -468,6 +466,8 @@ class TC_GAME_API Quest
         uint32 _startItemCount          = 0;
         uint32 _rewardMailSenderEntry   = 0;
         uint32 _specialFlags            = 0; // custom flags, not sniffed/WDB
+        uint32 _allowableRaces          = 0;
+        uint32 _timeAllowed             = 0;
 
         // Helpers
         static uint32 RoundXPValue(uint32 xp);

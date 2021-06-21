@@ -4047,35 +4047,35 @@ void ObjectMgr::LoadQuests()
     _exclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0  1          2           3         4            5            6                  7            8
-        "ID, QuestType, QuestLevel, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, TimeAllowed, AllowableRaces, "
-        //9                  10                  11                     12
+        //0  1          2           3         4            5            6
+        "ID, QuestType, QuestLevel, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, "
+        //7                  8                   9                      10
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, "
-        //13              14                  15           16                17                  18           19           20
+        //11              12                  13           14                15                  16           17           18
         "RewardNextQuest, RewardXPDifficulty, RewardMoney, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
-        //21        22     23                 24           25                   26
+        //19        20     21                 22           23                   24
         "StartItem, Flags, MinimapTargetMark, RewardTitle, RequiredPlayerKills, RewardTalents, "
-        //27                28             29                 30                    31                  32
+        //25                26             27                 28                    29                  30
         "RewardArenaPoints, RewardSkillId, RewardSkillPoints, RewardReputationMask, QuestGiverPortrait, QuestTurnInPortrait, "
-        //33          34             35           36             37           38             39           40
+        //31          32             33           34             35           36             37           38
         "RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
-        //41                  42                         43                   44                         45                   46                         47                   48                         49                   50                         51                   52
+        //39                  40                         41                   42                         43                   44                         45                   46                         47                   48                         49                   50
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemID6, RewardChoiceItemQuantity6, "
-        //53               54                   55                      56                57                   58                      59                60                   61                      62                63                   64                      65                66                   67
+        //51               52                   53                      54                55                   56                      57                58                   59                      60                61                   62                      63                64                   65
         "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, "
-        //68           69    70    71           72        73              74                75               76
+        //66           67    68    69           70        71              72                73               74
         "POIContinent, POIx, POIy, POIPriority, LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, "
-        //77               78                79                80                81                     82                     83                     84
+        //75               76                77                78                79                     80                     81                     82
         "RequiredNpcOrGo1, RequiredNpcOrGo2, RequiredNpcOrGo3, RequiredNpcOrGo4, RequiredNpcOrGoCount1, RequiredNpcOrGoCount2, RequiredNpcOrGoCount3, RequiredNpcOrGoCount4, "
-        //85        86         87         88         89                 90                 91                 92
+        //83        84         85         86         87                 88                 89                 90
         "ItemDrop1, ItemDrop2, ItemDrop3, ItemDrop4, ItemDropQuantity1, ItemDropQuantity2, ItemDropQuantity3, ItemDropQuantity4, "
-        //93              94               95               96               97               98               99                  100                 101                 102                 103                 104
+        //91              92               93               94               95               96               97                  98                  99                  100                 101                 102
         "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-        //105           106             107             108             109              110                111                112                113                114                   115                   116                   117
+        //103           104             105             106             107              108                109                110                111                112                   113                   114                   115
         "RequiredSpell, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,  RewardCurrencyId1, RewardCurrencyId2, RewardCurrencyId3, RewardCurrencyId4, RewardCurrencyCount1, RewardCurrencyCount2, RewardCurrencyCount3, RewardCurrencyCount4, "
-        //118                 119                  120                  121                  122                     123                     124                    125
+        //116                 117                  118                  119                  120                     121                     122                    123
         "RequiredCurrencyId1, RequiredCurrencyId2, RequiredCurrencyId3, RequiredCurrencyId4, RequiredCurrencyCount1, RequiredCurrencyCount2, RequiredCurrencyCount3, RequiredCurrencyCount4, "
-        //126                  127                   128                  129                  130          131
+        //124                  125                   126                  127                  128          129
         "QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, SoundAccept, SoundTurnIn"
         " FROM quest_template");
     if (!result)
@@ -4122,8 +4122,8 @@ void ObjectMgr::LoadQuests()
 
         // 0   1         2                 3              4            5            6               7                     8                     9
         { "ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, BreadcrumbForQuestId, RewardMailTemplateID, RewardMailDelay,"
-        // 10              11                   12                     13                     14                   15                   16                 17
-        " RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, SpecialFlags", "quest_template_addon", "template addons",     &Quest::LoadQuestTemplateAddon },
+        // 10              11                   12                     13                     14                   15                   16                 17            18              19
+        " RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, SpecialFlags, AllowableRaces, TimeAllowed", "quest_template_addon", "template addons",     &Quest::LoadQuestTemplateAddon },
 
         // 0        1
         { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "mail sender entries", &Quest::LoadQuestMailSender    }
