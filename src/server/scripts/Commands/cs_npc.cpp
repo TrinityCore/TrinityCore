@@ -663,12 +663,14 @@ public:
             return false;
         }
 
+        /*
         if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
         {
             handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, Trinity::ToString(displayId).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
+        */
 
         creature->SetDisplayId(displayId);
         creature->SetNativeDisplayId(displayId);
