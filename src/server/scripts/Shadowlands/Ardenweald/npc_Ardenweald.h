@@ -44,7 +44,7 @@
 #include "zone_Ardenweald.cpp"
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
-
+#include "AddSC_npc_Data_Ardenweald.h"
 
 enum NPC
 {
@@ -114,7 +114,7 @@ enum NPC
   NPC_Blighted_Conqueror = "Blighted Conqueror"
   NPC_Blighted_Creeper = "Blighted Creeper"
   NPC_Blighted_Darkcaster = "Blighted Darkcaster"
-}
+};
 
  enum Creatures
 {
@@ -185,46 +185,8 @@ enum NPC
   NPC_Blighted_Creeper                                = 169629,176179,
   NPC_Blighted_Darkcaster                             = 169631, 
 };
-
-enum aura
-{
- Void aura();
-};
-
-enum spell
-{
- void spell();
-};
-
-enum efect
-{
- void efect();
-};
-
-enum NpcData
-{
-  void NpcData();
-};
-
-enum mode
-{
-  void mode_LFR();
-  void mode_N();
-  void mode_HC();
-  void mode_Mythic();
-};
-
-enum NpcLoot
-{
-  void NpcLoot();
-};
-
-enum spawn
-{
-  void Spawn();
-};
-
-void AddSC_npc_Ardenweald()
+ 
+void AddSC_npc_Ardenweald() 
 {
   RegisterCreatureAI(NPC_Oranomonos the Everbranching);                  
   RegisterCreatureAI(NPC_Granny);                                          
@@ -291,7 +253,11 @@ void AddSC_npc_Ardenweald()
   RegisterCreatureAI(NPC_Blighted_Carver);
   RegisterCreatureAI(NPC_Blighted_Conqueror);
   RegisterCreatureAI(NPC_Blighted_Creeper);
-  RegisterCreatureAI(NPC_Blighted_Darkcaster);
+  RegisterCreatureAI(NPC_Blighted_Darkcaster); 
+};
+
+void AddSC_npc_Data_Ardenweald()
+{
   RegisterAuraScript(aura);
   RegisterSpellScript(spell);
   RegisterEffectScript(efect);
@@ -299,4 +265,4 @@ void AddSC_npc_Ardenweald()
   RegisterSpawnScript(Spawn);
   RegisterNpcLootScript(NpcLoot);
   RegisterNpcDataScript(NpcData);
-}
+};
