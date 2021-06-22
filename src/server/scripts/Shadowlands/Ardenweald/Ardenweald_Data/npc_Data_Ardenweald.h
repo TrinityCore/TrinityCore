@@ -45,19 +45,19 @@
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
 
-enum aura
+enum Aura
 {
- Void aura();
+ Void Aura();
 };
 
-enum spells
+enum Spells
 {
- void spells();
+ void Spells();
 };
 
-enum effect
+enum Effect
 {
- void effect();
+ void Effect();
 };
 
 enum NpcData
@@ -65,12 +65,12 @@ enum NpcData
   void NpcData();
 };
 
-enum mode
+enum Mode
 {
-  void mode_LFR();
-  void mode_N();
-  void mode_HC();
-  void mode_Mythic();
+  void Mode_LFR();
+  void Mode_N();
+  void Mode_HC();
+  void Mode_Mythic();
 };
 
 enum NpcLoot
@@ -78,7 +78,7 @@ enum NpcLoot
   void NpcLoot();
 };
 
-enum spawns
+enum Spawns
 {
   void Spawns();
 };
