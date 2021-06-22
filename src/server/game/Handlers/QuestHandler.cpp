@@ -208,8 +208,6 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
     }
 
     CLOSE_GOSSIP_CLEAR_SHARING_INFO();
-
-#undef CLOSE_GOSSIP_CLEAR_SHARING_INFO
 }
 
 void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGiverQueryQuest& packet)
