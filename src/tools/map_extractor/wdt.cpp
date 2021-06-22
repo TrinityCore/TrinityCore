@@ -77,7 +77,7 @@ bool WDT_file::prepareLoadedData()
     if (!main->prepareLoadedData())
         return false;
     wmo = (wdt_MWMO *)((uint8*)main+ main->size+8);
-    if (!wmo->prepareLoadedData())
-        return false;
+    //if (!wmo->prepareLoadedData())
+    //    return false;
     return true;
 }
