@@ -547,11 +547,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.CompletionText = requestItemsText;
     packet.QuestID = quest->GetQuestId();
     packet.QuestGiverGUID = npcGUID;
-
-    // There are no delays in any 4.x quest sniffs sent so we skip them and send them as 0
-    if (canComplete)
-        packet.CompEmoteType = canComplete ? quest->GetCompleteEmote() : quest->GetIncompleteEmote();
-
+    packet.CompEmoteType = canComplete ? quest->GetCompleteEmote() : quest->GetIncompleteEmote();
     packet.AutoLaunched = autoLaunched;
     packet.QuestFlags = quest->GetFlags();
     packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
