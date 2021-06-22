@@ -44,10 +44,10 @@
 #include "zone_Ardenweald.cpp"
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
-
-enum aura
+ 
+enum Aura
 {
- Void aura();
+  void Aura();
 };
 
 enum ObjectsData
