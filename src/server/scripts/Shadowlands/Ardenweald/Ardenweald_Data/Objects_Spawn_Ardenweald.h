@@ -44,32 +44,12 @@
 #include "zone_Ardenweald.cpp"
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
-
-enum aura
-{
- Void aura();
-};
-
-enum spells
-{
- void spells();
-};
-
-enum Effect
-{
- void Effect();
-};
-
+ 
 enum ObjectsData
 {
   void ObjectsData();
 };
-
-enum ObjectsLoot
-{
-  void ObjectsLoot();
-};
-
+ 
 enum ObjectsSpawns
 {
   void ObjectsSpawns();
@@ -77,10 +57,6 @@ enum ObjectsSpawns
 
 void AddSC_Objects_Data_Ardenweald()
 {
-  RegisterObjectsAuraScript(Aura);
-  RegisterObjectsSpellsScript(spells);
-  RegisterObjectsEffectScript(effect);
-  RegisterObjectsSpawnsScript(ObjectsSpawns);
-  RegisterObjectsLootScript(ObjectsLoot);
+  RegisterObjectsSpawnsScript(ObjectsSpawns); 
   RegisterObjectsDataScript(ObjectsData);
 };
