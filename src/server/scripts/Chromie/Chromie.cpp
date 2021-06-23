@@ -46,6 +46,7 @@ enum playerchoise
 };
 
 enum  DungeonFinder
+//Pandaria
 {
     Dungeon_Gate_of_the_Setting_Sun = 5976,
 	Dungeon_Temple_of_the_Jade_Serpent =  5956,
