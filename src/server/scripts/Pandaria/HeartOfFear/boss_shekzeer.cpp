@@ -21,6 +21,24 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "heart_of_fear.h"
+#include <Player/Player.h>
+#include <DungeonFinding/LFGMgr.h>
+#include <Client/user_manager_service.pb.h>
+
+enum IsLFR
+{
+   IsLFR
+};
+
+enum IsWipe
+{
+    IsWipe
+};
+
+enum GetRoleForGroup
+{
+    Player = GetRoleForGroup()
+};
 
 enum eShekzeerSays
 {
@@ -298,7 +316,7 @@ class boss_shekzeer : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker) override
+            void EnterCombat(Unit* attacker)
             {
                 if (fightInProgress || !pInstance)
                     return;
@@ -374,20 +392,20 @@ class boss_shekzeer : public CreatureScript
 
                 _JustDied();
 
-                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                Map::PlayerList const& PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = PlrList.begin(); l_Itr != PlrList.end(); ++l_Itr)
                 {
-                    if (Player* l_Player = l_Itr->GetSource())
-                        me->CastSpell(l_Player, SPELL_SHEKZEER_BONUS, true);
+                    if (Player* Player = Itr->GetSource())
+                        me->CastSpell(Player, SPELL_SHEKZEER_BONUS, true);
                 }
 
-                /*if (me->GetMap()->IsLFR())
+                if (me->GetMap()->LFR())
                 {
                     me->ResetLootRecipients();
-                    Player* l_Player = me->GetMap()->GetPlayers().begin()->GetSource();
-                    if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                }*/
+                    Player* Player = me->GetMap()->GetPlayers().begin()->GetSource();
+                    if (Player && Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, Player->GetGroup());
+                };
             }
 
             void KilledUnit(Unit* victim) override
@@ -985,7 +1003,7 @@ class mob_add_setthik_windblade : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (me->HasAura(SPELL_TRAP_DAMAGES))
                     return;
