@@ -71,3 +71,8 @@ enum Event
 	Event_Shado_Pan_Monastery = 5918,
 	Event_Mogu_shan_Palace = 6182,
 };
+
+void AddSC_Cromie()
+{
+	void AddSC_Cromie();
+};
