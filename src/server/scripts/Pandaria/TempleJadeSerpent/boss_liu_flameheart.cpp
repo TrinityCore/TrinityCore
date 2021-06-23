@@ -1,6 +1,8 @@
 /*
+ * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
  * Copyright 2023 AzgathCore
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -19,6 +21,13 @@
 #include "ScriptedCreature.h"
 
 enum Spells
+{
+    BOSS_LIU_FLAMEHEART,
+    BOSS_YU_LON,
+    BOSS_TRIGGER
+};
+
+enum eSpells
 {
     //LIU FLAMEHEART Event:
     SPELL_POSSESSED_BY_SHA = 110164, //On Spawn
@@ -60,7 +69,7 @@ enum Spells
     SPELL_JADE_SERPENT_WAVE = 119508,
     SPELL_SERPENT_WAVE = 106938,
 
-    SPELL_JADE_FIRE_PERIODIC = 107108,
+    SPELL_JADE_FIRE_PERIODIC                = 107108
 };
 
 enum Phases
@@ -107,8 +116,441 @@ enum Creatures
     NPC_MINION_OF_DOUBT = 57109,
 };
 
+class boss_liu_flameheart : public CreatureScript
+{
+    public:
+        boss_liu_flameheart() : CreatureScript("boss_liu_flameheart") { }
+
+        struct boss_liu_flameheart_AI : public BossAI
+        {
+            boss_liu_flameheart_AI(Creature* creature) : BossAI(creature, BOSS_LIU_FLAMEHEART)
+            {
+                me->CastSpell(me, SPELL_POSSESSED_BY_SHA, false);
+                status = PHASE_1;
+                me->CastSpell(me, SPELL_DUST_VISUAL, false);
+                wipe_timer = 2000;
+                Talk(TALK_INTRO_01);
+            }
+            eStatus status;
+            uint32 wipe_timer;
+
+            void Reset() override
+            {
+                status = PHASE_1;
+                _Reset();
+            }
+
+            void DoAction(int32 action) override
+            {
+                switch (action)
+                {
+                case 0:
+                    me->SetFaction(35);
+                    me->GetThreatManager().resetAllAggro();
+                    me->SetReactState(REACT_PASSIVE);
+                    break;
+                }
+            }
+
+            void KilledUnit(Unit* /*victim*/) override
+            {
+                if (urand(0, 1))
+                    Talk(TALK_KILL_01);
+                else
+                    Talk(TALK_KILL_02);
+            }
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                Talk(TALK_AGGRO_01);
+                events.ScheduleEvent(EVENT_SERPENT_STRIKE, 5000);
+                events.ScheduleEvent(EVENT_JADE_SERPENT_KICK, 5000);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (wipe_timer <= diff)
+                {
+                    if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(TYPE_IS_WIPE))
+                    {
+                        me->GetInstanceScript()->SetData(TYPE_IS_WIPE, 1);
+                        wipe_timer = 2000;
+                    }
+                }
+                else
+                    wipe_timer -= diff;
+
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->GetHealthPct() < 70.0f && status == PHASE_1)
+                {
+                    me->AddAura(SPELL_JADE_ESSENCE, me);
+
+                    events.Reset();
+                    events.ScheduleEvent(EVENT_JADE_SERPENT_STRIKE, 5000);
+                    events.ScheduleEvent(EVENT_JADE_SERPENT_KICK, 10000);
+                    Talk(TALK_EVENT_01);
+                    status = PHASE_2;
+                }
+                if (me->GetHealthPct() < 30.0f && status == PHASE_2)
+                {
+                    events.Reset();
+                    events.ScheduleEvent(EVENT_SUMMON_YULON, 500);
+                    Talk(TALK_EVENT_02);
+                    status = PHASE_3;
+                }
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SERPENT_STRIKE:
+                            {
+                                me->CastSpell(me->GetVictim(), SPELL_SERPENT_STRIKE, false);
+                                Map::PlayerList const& PlayerList = me->GetInstanceScript()->instance->GetPlayers();
+
+                                if (!PlayerList.isEmpty())
+                                {
+                                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                                    {
+                                        Player* plr = i->GetSource();
+                                        if (!plr)
+                                            continue;
+                                        if (plr->GetDistance2d(me) < 10.0f)
+                                            plr->KnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10, 10);
+                                    }
+                                }
+                                events.ScheduleEvent(EVENT_SERPENT_STRIKE, 10000);
+                                events.ScheduleEvent(EVENT_SERPENT_WAVE, 4000);
+                            }
+                            break;
+                        case EVENT_SERPENT_KICK:
+                            me->CastSpell(me->GetVictim(), SPELL_SERPENT_KICK, false);
+                            events.ScheduleEvent(EVENT_SERPENT_KICK, 10000);
+                            break;
+                        case EVENT_SERPENT_WAVE:
+                            {
+                                TempSummon* sum = nullptr;
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 932.775f, -2548.743f, 179.821f, 1.254f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 939.796f, -2530.586f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 940.014f, -2564.114f, 179.821f, 5.978f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 957.711f, -2570.030f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 925.971f, -2572.423f, 179.821f, 4.395f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 919.606f, -2591.245f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 918.923f, -2557.356f, 179.821f, 2.821f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 901.839f, -2551.843f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                            }
+                            break;
+                        case EVENT_JADE_SERPENT_STRIKE:
+                            {
+                                me->CastSpell(me->GetVictim(), SPELL_JADE_SERPENT_STRIKE, false);
+
+                                Map::PlayerList const& PlayerList = me->GetInstanceScript()->instance->GetPlayers();
+
+                                if (!PlayerList.isEmpty())
+                                {
+                                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                                    {
+                                        Player* plr = i->GetSource();
+                                        if (!plr)
+                                            continue;
+                                        if (plr->GetDistance2d(me) < 10.0f)
+                                            plr->KnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10, 10);
+                                    }
+                                }
+                                events.ScheduleEvent(EVENT_JADE_SERPENT_STRIKE, 10000);
+                                events.ScheduleEvent(EVENT_JADE_SERPENT_WAVE, 4000);
+                            }
+                            break;
+                        case EVENT_JADE_SERPENT_KICK:
+                            me->CastSpell(me->GetVictim(), SPELL_JADE_SERPENT_KICK, false);
+                            events.ScheduleEvent(EVENT_JADE_SERPENT_KICK, 10000);
+                            break;
+                        case EVENT_JADE_SERPENT_WAVE:
+                            {
+                                TempSummon* sum = nullptr;
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 932.775f, -2548.743f, 179.821f, 1.254f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_JADE_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 939.796f, -2530.586f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 940.014f, -2564.114f, 179.821f, 5.978f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_JADE_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 957.711f, -2570.030f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 925.971f, -2572.423f, 179.821f, 4.395f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_JADE_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 919.606f, -2591.245f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                                sum = me->SummonCreature(CREATURE_TRIGGER_WAVE, 918.923f, -2557.356f, 179.821f, 2.821f);
+                                if (sum)
+                                {
+                                    sum->SetDisplayId(11686);
+                                    sum->CastSpell(sum, SPELL_JADE_SERPENT_WAVE_VISUAL, false);
+                                    sum->CastSpell(sum, SPELL_SERPENT_WAVE_PERIODIC, false);
+                                    sum->GetMotionMaster()->MovePoint(0, 901.839f, -2551.843f, 179.941f);
+                                    sum->ForcedDespawn(3200);
+                                }
+                            }
+                            break;
+                        case EVENT_SUMMON_YULON:
+                            me->CastSpell(me, SPELL_SUMMON_JADE_SERPENT, false);
+                            me->CastSpell(me, SPELL_JADE_SOUL, false);
+                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->ApplySpellImmune(SPELL_JADE_SOUL, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
+                            me->ApplySpellImmune(SPELL_JADE_SOUL, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+                            me->SetReactState(REACT_PASSIVE);
+                            me->AddUnitState(UNIT_STATE_ROOT);
+                            events.ScheduleEvent(EVENT_AURA_JADE, 3000);
+                            break;
+
+                        case EVENT_AURA_JADE:
+                            me->CastSpell(me, SPELL_JADE_SOUL, false);
+                            events.ScheduleEvent(EVENT_AURA_JADE, 2500);
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new boss_liu_flameheart_AI(creature);
+        }
+};
+
+class boss_yu_lon : public CreatureScript
+{
+    public:
+        boss_yu_lon() : CreatureScript("boss_yu_lon") { }
+
+        struct boss_yu_lon_AI : public BossAI
+        {
+            boss_yu_lon_AI(Creature* creature) : BossAI(creature, BOSS_YU_LON) {}
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                events.ScheduleEvent(EVENT_JADE_FIRE, 100);
+            }
+
+            void JustDied(Unit* /*died*/) override
+            {
+                me->CastSpell(me, 132387, false);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_JADE_FIRE:
+                        me->CastSpell(SelectTarget(SELECT_TARGET_RANDOM), SPELL_JADE_FIRE, false);
+                        events.ScheduleEvent(EVENT_JADE_FIRE, 1700);
+                        break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new boss_yu_lon_AI(creature);
+        }
+};
+
+class mob_trigger_liu_flameheart : public CreatureScript
+{
+    public:
+        mob_trigger_liu_flameheart() : CreatureScript("mob_trigger_liu_flameheart") { }
+
+        struct mob_trigger_liu_flameheart_AI : public ScriptedAI
+        {
+            mob_trigger_liu_flameheart_AI(Creature* creature) : ScriptedAI(creature)
+            {
+                if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(TYPE_LIU_FLAMEHEART_STATUS))
+                    timer = 500;
+                else
+                    timer = 0;
+            }
+
+            uint32 timer;
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (timer <= diff)
+                {
+                    if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(TYPE_LIU_FLAMEHEART_STATUS))
+                    {
+                        me->CastSpell(me, 107103, false);
+                        timer = 1000;
+                    }
+                }
+                else
+                    timer -= diff;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_trigger_liu_flameheart_AI(creature);
+        }
+};
+
+class mob_minion_of_doubt : public CreatureScript
+{
+    public:
+        mob_minion_of_doubt() : CreatureScript("mob_minion_of_doubt") { }
+
+        struct mob_minion_of_doubt_AI : public ScriptedAI
+        {
+            mob_minion_of_doubt_AI(Creature* creature) : ScriptedAI(creature) {}
+
+            EventMap events;
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                events.ScheduleEvent(1, 2000);
+                events.ScheduleEvent(2, 4000);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case 1:
+                            me->CastSpell(me->GetVictim(), 110099, false);
+                            events.ScheduleEvent(1, 5000);
+                            break;
+                        case 2:
+                            me->CastSpell(me->GetVictim(), 110125, false);
+                            events.ScheduleEvent(2, 5000);
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_minion_of_doubt_AI(creature);
+        }
+};
+
+class mob_lesser_sha : public CreatureScript
+{
+    public:
+        mob_lesser_sha() : CreatureScript("mob_lesser_sha") { }
+
+        struct mob_lesser_sha_AI : public ScriptedAI
+        {
+            mob_lesser_sha_AI(Creature* creature) : ScriptedAI(creature) {}
+
+            EventMap events;
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                events.ScheduleEvent(1, 2000);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case 1:
+                        me->CastSpell(me->GetVictim(), 122527, false);
+                        events.ScheduleEvent(1, 5000);
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_lesser_sha_AI(creature);
+        }
+};
 
 void AddSC_boss_liu_flameheat()
 {
-   
+    new boss_liu_flameheart();
+    new boss_yu_lon();
+    new mob_trigger_liu_flameheart();
+    //Trashes
+    new mob_minion_of_doubt();
+    new mob_lesser_sha();
 }

@@ -1,6 +1,8 @@
 /*
+ * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
  * Copyright 2023 AzgathCore
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -39,26 +41,26 @@ public:
 
         instance_stormstout_brewery_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 
-        void Initialize()
+        void Initialize() override
         {
-            ookookGUID = ObjectGuid::Empty;
-            hoptallusGUID = ObjectGuid::Empty;
-            yanzhuGUID = ObjectGuid::Empty;
+            ookookGUID      = ObjectGuid::Empty;
+            hoptallusGUID   = ObjectGuid::Empty;
+            yanzhuGUID      = ObjectGuid::Empty;
         }
 
         void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
-            case NPC_OOK_OOK:
-                ookookGUID = creature->GetGUID();
-                break;
-            case NPC_HOPTALLUS:
-                hoptallusGUID = creature->GetGUID();
-                break;
-            case NPC_YAN_ZHU:
-                yanzhuGUID = creature->GetGUID();
-                break;
+                case NPC_OOK_OOK:
+                    ookookGUID = creature->GetGUID();
+                    break;
+                case NPC_HOPTALLUS:
+                    hoptallusGUID = creature->GetGUID();
+                    break;
+                case NPC_YAN_ZHU:
+                    yanzhuGUID = creature->GetGUID();
+                    break;
             }
         }
 
@@ -77,12 +79,12 @@ public:
         {
             switch (type)
             {
-            case NPC_OOK_OOK:
-                return ookookGUID;
-            case NPC_HOPTALLUS:
-                return hoptallusGUID;
-            case NPC_YAN_ZHU:
-                return yanzhuGUID;
+                case NPC_OOK_OOK:
+                    return ookookGUID;
+                case NPC_HOPTALLUS:
+                    return hoptallusGUID;
+                case NPC_YAN_ZHU:
+                    return yanzhuGUID;
             }
 
             return ObjectGuid::Empty;

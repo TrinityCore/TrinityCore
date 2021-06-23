@@ -1,13 +1,17 @@
-#include "zone_stormwind_city.cpp"
-#include "zone_orgrimmar.cpp"
 
-enum Quest 
+#include "Chromie.h"
+#include "Quests"
+#include "Spells"
+#include "NPC"
+#include "Data"
+
+enum Quests 
 {
    Adventurers_Wanted_Chromies_Call_A = 62567,    //Adventurers Wanted: Chromie's Call
    Adventurers_Wanted_Chromies_Call_H = 62568,    //Adventurers Wanted: Chromie's Call
 };
 
-enum Spell
+enum Spells
 {
 	Timewalking = 150683,
 };
@@ -19,13 +23,14 @@ enum Npc
 
 enum NpcList
 {
-	Chromie = "Chromie <Emissary of the Bronze Dragonflight>"
+//	Chromie = "Chromie <Emissary of the Bronze Dragonflight>"
 };
 
 enum Factions
 {
-	Alliance();
-	Horde();
+	//void Alliance();
+	//void Horde();
+    //void Neutral();
 };
 
 enum NpcData
@@ -35,26 +40,26 @@ enum NpcData
 
 enum Menu
 {
-	The Cataclysm;
-	Burning Crusade;
-	Wrath of the Lich King;
-	Mist of Pandaria;
-	Warlords of Draenor;
-    Legion;
+	select = The_Cataclysm;
+	select = Burning_Crusade;
+	select = Wrath_of_the_Lich_King;
+    select = Mist_of_Pandaria;
+	select = Warlords_of_Draenor;
+    select = Legion;
 };
 
 enum select
 {
-	select;
-}
+    select
+};
 enum PlayerChoise
 {
-	PlayerChoise = The Cataclysm;
-	PlayerChoise = Burning Crusade;
-	PlayerChoise = Wrath of the Lich King;
-	PlayerChoise = Mist of Pandaria;
-	PlayerChoise = Warlords of Draenor;
-	PlayerChoise = Legion;
+	PlayerChoise* select = The Cataclysm;
+	PlayerChoise* select = Burning Crusade;
+	PlayerChoise* select = Wrath of the Lich King;
+	PlayerChoise* select = Mist of Pandaria;
+	PlayerChoise* select = Warlords of Draenor;
+	PlayerChoise* select = Legion;
 };
 
 enum  DungeonFinder
@@ -68,20 +73,20 @@ enum  DungeonFinder
 	Dungeon_Mogu_shan_Palace = 6182,
 };
 
-void TimewalkingDungeonEvent()
+void TimewalkingDungeonEvent() {
 
-enum Event
+void Events();
 {
-	Event = 643,
-}
+    Events = 643,
+};
 //Pandaria
 {
-	Event_Gate_of_the_Setting_Sun = 5976,
-	Event_Temple_of_the_Jade_Serpent =  5956,
-	Event_Stormstout_Brewery = 5963,
-	Event_Siege_of_Niuzao_Temple = 6214,
-	Event_Shado_Pan_Monastery = 5918,
-	Event_Mogu_shan_Palace = 6182,
+	Events_Gate_of_the_Setting_Sun = 5976,
+	Events_Temple_of_the_Jade_Serpent =  5956,
+	Events_Stormstout_Brewery = 5963,
+	Events_Siege_of_Niuzao_Temple = 6214,
+	Events_Shado_Pan_Monastery = 5918,
+	Events_Mogu_shan_Palace = 6182,
 };
 
 void AddSC_Cromie()
