@@ -79,12 +79,12 @@ AuctionsBucketKey AuctionsBucketKey::ForItem(Item* item)
         };
     }
     else
-        return ForCommodity(item->GetEntry());
+        return ForCommodity(itemTemplate);
 }
 
-AuctionsBucketKey AuctionsBucketKey::ForCommodity(uint32 itemId)
+AuctionsBucketKey AuctionsBucketKey::ForCommodity(ItemTemplate const* itemTemplate)
 {
-    return { itemId, 0, 0, 0 };
+    return { itemTemplate->GetId(), uint16(itemTemplate->GetBaseItemLevel()), 0, 0 };
 }
 
 bool operator<(AuctionsBucketKey const& left, AuctionsBucketKey const& right)
@@ -1558,7 +1558,11 @@ uint64 AuctionHouseObject::CalcualteAuctionHouseCut(uint64 bidAmount) const
 
 CommodityQuote const* AuctionHouseObject::CreateCommodityQuote(Player* player, uint32 itemId, uint32 quantity)
 {
-    auto bucketItr = _buckets.find(AuctionsBucketKey::ForCommodity(itemId));
+    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+    if (!itemTemplate)
+        return nullptr;
+
+    auto bucketItr = _buckets.find(AuctionsBucketKey::ForCommodity(itemTemplate));
     if (bucketItr == _buckets.end())
         return nullptr;
 
@@ -1601,7 +1605,11 @@ void AuctionHouseObject::CancelCommodityQuote(ObjectGuid guid)
 
 bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player* player, uint32 itemId, uint32 quantity, Milliseconds delayForNextAction)
 {
-    auto bucketItr = _buckets.find(AuctionsBucketKey::ForCommodity(itemId));
+    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+    if (!itemTemplate)
+        return false;
+
+    auto bucketItr = _buckets.find(AuctionsBucketKey::ForCommodity(itemTemplate));
     if (bucketItr == _buckets.end())
     {
         player->GetSession()->SendAuctionCommandResult(0, AuctionCommand::PlaceBid, AuctionResult::CommodityPurchaseFailed, delayForNextAction);

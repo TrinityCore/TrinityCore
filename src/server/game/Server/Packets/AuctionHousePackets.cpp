@@ -544,7 +544,7 @@ WorldPacket const* AuctionGetCommodityQuoteResult::Write()
     _worldPacket.WriteBit(TotalPrice.is_initialized());
     _worldPacket.WriteBit(Quantity.is_initialized());
     _worldPacket.WriteBit(QuoteDuration.is_initialized());
-    _worldPacket << int32(Unknown830);
+    _worldPacket << int32(ItemID);
     _worldPacket << uint32(DesiredDelay);
 
     if (TotalPrice)

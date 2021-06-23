@@ -397,7 +397,7 @@ namespace WorldPackets
             Optional<uint64> TotalPrice;
             Optional<uint32> Quantity;
             Optional<Duration<Milliseconds>> QuoteDuration;
-            int32 Unknown830 = 0;
+            int32 ItemID = 0;
             uint32 DesiredDelay = 0;
         };
 

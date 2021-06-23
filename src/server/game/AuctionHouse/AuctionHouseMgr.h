@@ -179,7 +179,7 @@ struct AuctionsBucketKey
 
     static std::size_t Hash(AuctionsBucketKey const& bucket);
     static AuctionsBucketKey ForItem(Item* item);
-    static AuctionsBucketKey ForCommodity(uint32 itemId);
+    static AuctionsBucketKey ForCommodity(ItemTemplate const* itemTemplate);
 };
 
 bool operator<(AuctionsBucketKey const& left, AuctionsBucketKey const& right);
