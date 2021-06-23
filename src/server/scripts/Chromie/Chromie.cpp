@@ -35,14 +35,26 @@ enum NpcData
 
 enum Menu
 {
-	Pandaria;
-	Cataclysm;
-
+	The Cataclysm;
+	Burning Crusade;
+	Wrath of the Lich King;
+	Mist of Pandaria;
+	Warlords of Draenor;
+    Legion;
 };
 
-enum playerchoise
+enum select
 {
-	player 
+	select;
+}
+enum PlayerChoise
+{
+	PlayerChoise = The Cataclysm;
+	PlayerChoise = Burning Crusade;
+	PlayerChoise = Wrath of the Lich King;
+	PlayerChoise = Mist of Pandaria;
+	PlayerChoise = Warlords of Draenor;
+	PlayerChoise = Legion;
 };
 
 enum  DungeonFinder
@@ -56,7 +68,7 @@ enum  DungeonFinder
 	Dungeon_Mogu_shan_Palace = 6182,
 };
 
-enum TimewalkingDungeonEvent
+void TimewalkingDungeonEvent()
 
 enum Event
 {
