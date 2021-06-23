@@ -45,6 +45,11 @@
 #include "zone_Ardenweald.h"
 #include "npc_Ardenweald.cpp"
 #include "AddSC_npc_Data_Ardenweald.h"
+#include "GameObjectAI.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "LootMgr.h"
+#include "QuestDef.h"
 
 enum ObjectList
 {
