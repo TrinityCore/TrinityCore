@@ -609,7 +609,7 @@ class npc_xuen : public CreatureScript
                     phaseDone[i] = NOT_STARTED;
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id*/ /*= 0*/) override
+            void SetGUID(ObjectGuid guid, int32 /*id*/ /*= 0*/)
             {
                 playerGUID = guid;
             }
@@ -1197,7 +1197,7 @@ class mob_lun_chi : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1357,7 +1357,7 @@ class mob_brewmaster_chani : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1513,7 +1513,7 @@ class mob_kang_bramblestaff : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1684,7 +1684,7 @@ class mob_clever_ashyo : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1710,7 +1710,7 @@ class mob_clever_ashyo : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* victim)
             {
                 if (Creature* kenKen = GetClosestCreatureWithEntry(me, 60979, 20.0f, true))
                 {
@@ -1860,7 +1860,7 @@ class mob_ken_ken : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1871,7 +1871,7 @@ class mob_ken_ken : public CreatureScript
                 events.ScheduleEvent(EVENT_DESPAWN, 600000);
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* victim)
             {
                 if (Creature* ashyo = GetClosestCreatureWithEntry(me, 60980, 20.0f, true))
                 {
@@ -2026,7 +2026,7 @@ class mob_the_wrestler : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2186,7 +2186,7 @@ class mob_master_boom_boom : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2341,7 +2341,7 @@ class mob_master_windfur : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2519,7 +2519,7 @@ class mob_tankiss : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2545,7 +2545,7 @@ class mob_tankiss : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* victim)
             {
                 if (Creature* healiss = GetClosestCreatureWithEntry(me, 61004, 20.0f, true))
                 {
@@ -2713,7 +2713,7 @@ class mob_healiss : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2739,7 +2739,7 @@ class mob_healiss : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* victim)
             {
                 if (Creature* tankiss = GetClosestCreatureWithEntry(me, 61006, 20.0f, true))
                 {
@@ -2907,7 +2907,7 @@ class mob_hackiss : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index) override
+            void SetGUID(ObjectGuid guid, int32 index)
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2933,7 +2933,7 @@ class mob_hackiss : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* victim)
             {
                 if (Creature* healiss = GetClosestCreatureWithEntry(me, 61004, 20.0f, true))
                 {
