@@ -387,9 +387,10 @@ void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 
 // Method that does the respawn job on the specified gameobject
 template <>
-void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* /*obj*/)
+void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 {
-    // GameObject is still on map, nothing to do
+    Despawn1Object(obj->guid, false, false);
+    Spawn1Object(obj);
 }
 
 // Nothing to do for a child Pool
