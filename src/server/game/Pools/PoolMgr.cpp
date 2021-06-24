@@ -168,7 +168,7 @@ void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType gui
 
 // Method that is actualy doing the removal job on one creature
 template<>
-void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime)
+void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime, bool saveRespawnTime)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
     {
@@ -183,7 +183,7 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDe
                 Creature* creature = itr->second;
                 ++itr;
                 // For dynamic spawns, save respawn time here
-                if (!creature->GetRespawnCompatibilityMode())
+                if (saveRespawnTime && !creature->GetRespawnCompatibilityMode())
                     creature->SaveRespawnTime();
                 creature->AddObjectToRemoveList();
             }
@@ -196,7 +196,7 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDe
 
 // Same on one gameobject
 template<>
-void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime)
+void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime, bool saveRespawnTime)
 {
     if (GameObjectData const* data = sObjectMgr->GetGameObjectData(guid))
     {
@@ -212,7 +212,7 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid, bool always
                 ++itr;
 
                 // For dynamic spawns, save respawn time here
-                if (!go->GetRespawnCompatibilityMode())
+                if (saveRespawnTime && !go->GetRespawnCompatibilityMode())
                     go->SaveRespawnTime();
                 go->AddObjectToRemoveList();
             }
@@ -225,7 +225,7 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid, bool always
 
 // Same on one pool
 template<>
-void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id, bool alwaysDeleteRespawnTime)
+void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id, bool alwaysDeleteRespawnTime, bool /*saveRespawnTime*/)
 {
     sPoolMgr->DespawnPool(child_pool_id, alwaysDeleteRespawnTime);
 }
@@ -381,7 +381,7 @@ void PoolGroup<Pool>::Spawn1Object(PoolObject* obj)
 template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
-    Despawn1Object(obj->guid);
+    Despawn1Object(obj->guid, false, false);
     Spawn1Object(obj);
 }
 
