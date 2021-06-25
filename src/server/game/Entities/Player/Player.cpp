@@ -15690,6 +15690,7 @@ void Player::SendQuestUpdate(uint32 questId)
                 aurasToRemove.insert(itr->second->spellId);
             else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST)
                 aurasToCast.insert(itr->second->spellId);
+        }
 
         // Auras matching the requirements will be inside the aurasToCast container.
         // Auras not matching the requirements may prevent using auras matching the requirements.
