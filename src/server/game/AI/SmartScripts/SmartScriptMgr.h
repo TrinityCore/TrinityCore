@@ -711,6 +711,7 @@ struct SmartAction
             uint32 duration;
             SAIBool attackInvoker;
             uint32 flags; // SmartActionSummonCreatureFlags
+            uint32 count;
         } summonCreature;
 
         struct

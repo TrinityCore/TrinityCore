@@ -2019,7 +2019,7 @@ class spell_dk_raise_dead : public SpellScriptLoader
             SpellCastResult CheckReagents()
             {
                 /// @workaround: there is no access to castresult of other spells, check it manually
-                SpellInfo const* reagentSpell = sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_DEAD_USE_REAGENT);
+                SpellInfo const* reagentSpell = sSpellMgr->AssertSpellInfo(SPELL_DK_RAISE_DEAD_USE_REAGENT);
                 Player* player = GetCaster()->ToPlayer();
                 if (!player->CanNoReagentCast(reagentSpell))
                 {

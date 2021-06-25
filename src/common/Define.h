@@ -57,16 +57,8 @@
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX 260
 #  define _USE_MATH_DEFINES
-#  ifndef DECLSPEC_NORETURN
-#    define DECLSPEC_NORETURN __declspec(noreturn)
-#  endif //DECLSPEC_NORETURN
-#  ifndef DECLSPEC_DEPRECATED
-#    define DECLSPEC_DEPRECATED __declspec(deprecated)
-#  endif //DECLSPEC_DEPRECATED
 #else // TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX PATH_MAX
-#  define DECLSPEC_NORETURN
-#  define DECLSPEC_DEPRECATED
 #endif // TRINITY_PLATFORM
 
 #if !defined(COREDEBUG)
@@ -79,13 +71,9 @@
 #endif //!COREDEBUG
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#  define ATTR_NORETURN __attribute__((__noreturn__))
 #  define ATTR_PRINTF(F, V) __attribute__ ((__format__ (__printf__, F, V)))
-#  define ATTR_DEPRECATED __attribute__((__deprecated__))
 #else //TRINITY_COMPILER != TRINITY_COMPILER_GNU
-#  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
-#  define ATTR_DEPRECATED
 #endif //TRINITY_COMPILER == TRINITY_COMPILER_GNU
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING

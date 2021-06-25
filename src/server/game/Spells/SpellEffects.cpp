@@ -970,6 +970,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
 void Spell::CalculateJumpSpeeds(SpellInfo const* spellInfo, uint8 i, float dist, float& speedXY, float& speedZ)
 {
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
+    ASSERT(unitCaster);
     float runSpeed = unitCaster->IsControlledByPlayer() ? playerBaseMoveSpeed[MOVE_RUN] : baseMoveSpeed[MOVE_RUN];
     if (Creature* creature = unitCaster->ToCreature())
         runSpeed *= creature->GetCreatureTemplate()->speed_run;

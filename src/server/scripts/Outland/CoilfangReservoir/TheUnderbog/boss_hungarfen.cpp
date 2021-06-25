@@ -113,7 +113,7 @@ private:
 
 struct npc_underbog_mushroom : public ScriptedAI
 {
-    npc_underbog_mushroom(Creature* creature) : ScriptedAI(creature) { }
+    npc_underbog_mushroom(Creature* creature) : ScriptedAI(creature), _counter(0) { }
 
     void InitializeAI() override
     {
@@ -154,7 +154,7 @@ struct npc_underbog_mushroom : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    uint32 _counter = 0;
+    uint32 _counter;
 };
 
 void AddSC_boss_hungarfen()
