@@ -15679,11 +15679,25 @@ void Player::SendQuestUpdate(uint32 questId)
     uint32 zone = 0, area = 0;
     GetZoneAndAreaId(zone, area);
 
-    SpellAreaForQuestAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestAreaMapBounds(area, questId);
+    SpellAreaForQuestAreaMapBounds saZoneBounds = sSpellMgr->GetSpellAreaForQuestAreaMapBounds(zone, questId);
 
-    if (saBounds.first != saBounds.second)
+    if (saZoneBounds.first != saZoneBounds.second)
     {
-        for (SpellAreaForQuestAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+        for (SpellAreaForQuestAreaMap::const_iterator itr = saZoneBounds.first; itr != saZoneBounds.second; ++itr)
+        {
+            if (itr->second->flags & SPELL_AREA_FLAG_AUTOREMOVE && !itr->second->IsFitToRequirements(this, zone, area))
+                RemoveAurasDueToSpell(itr->second->spellId);
+            else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST)
+                if (!HasAura(itr->second->spellId))
+                    CastSpell(this, itr->second->spellId, true);
+        }
+    }
+
+    SpellAreaForQuestAreaMapBounds saAreaBounds = sSpellMgr->GetSpellAreaForQuestAreaMapBounds(area, questId);
+
+    if (saAreaBounds.first != saAreaBounds.second)
+    {
+        for (SpellAreaForQuestAreaMap::const_iterator itr = saAreaBounds.first; itr != saAreaBounds.second; ++itr)
         {
             if (itr->second->flags & SPELL_AREA_FLAG_AUTOREMOVE && !itr->second->IsFitToRequirements(this, zone, area))
                 RemoveAurasDueToSpell(itr->second->spellId);
