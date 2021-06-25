@@ -28,6 +28,7 @@
 
 class WorldObject;
 enum SpellEffIndex : uint8;
+typedef uint32 SAIBool;
 
 enum eSmartAI
 {
@@ -204,7 +205,7 @@ struct SmartEvent
         {
             uint32 cooldownMin;
             uint32 cooldownMax;
-            uint32 playerOnly;
+            SAIBool playerOnly;
             uint32 creature;
         } kill;
 
@@ -225,7 +226,7 @@ struct SmartEvent
             uint32 maxDist;
             uint32 cooldownMin;
             uint32 cooldownMax;
-            uint32 playerOnly;
+            SAIBool playerOnly;
         } los;
 
         struct
@@ -302,7 +303,7 @@ struct SmartEvent
 
         struct
         {
-            uint32 onRemove;
+            SAIBool onRemove;
         } charm;
 
         struct
@@ -637,7 +638,7 @@ struct SmartAction
         {
             uint32 textGroupID;
             uint32 duration;
-            uint32 useTalkTarget;
+            SAIBool useTalkTarget;
         } talk;
 
         struct
@@ -654,7 +655,7 @@ struct SmartAction
         struct
         {
             uint32 sound;
-            uint32 onlySelf;
+            SAIBool onlySelf;
             uint32 distance;
             uint32 keyBroadcastTextId; // UNUSED: param reserved for compatibility with master branch
         } sound;
@@ -672,7 +673,7 @@ struct SmartAction
         struct
         {
             uint32 questID;
-            uint32 directAdd;
+            SAIBool directAdd;
         } questOffer;
 
         struct
@@ -708,7 +709,7 @@ struct SmartAction
             uint32 creature;
             uint32 type;
             uint32 duration;
-            uint32 attackInvoker;
+            SAIBool attackInvoker;
             uint32 flags; // SmartActionSummonCreatureFlags
             uint32 count;
         } summonCreature;
@@ -741,12 +742,12 @@ struct SmartAction
 
         struct
         {
-            uint32 attack;
+            SAIBool attack;
         } autoAttack;
 
         struct
         {
-            uint32 move;
+            SAIBool move;
         } combatMove;
 
         struct
@@ -764,7 +765,7 @@ struct SmartAction
         {
             uint32 spell;
             uint32 charges;
-            uint32 onlyOwnedAuras;
+            SAIBool onlyOwnedAuras;
         } removeAura;
 
         struct
@@ -807,13 +808,13 @@ struct SmartAction
         struct
         {
             uint32 creature;
-            uint32 updateLevel;
+            SAIBool updateLevel;
         } updateTemplate;
 
         struct
         {
             uint32 range;
-            uint32 withEmote;
+            SAIBool withEmote;
         } callHelp;
 
         struct
@@ -851,7 +852,7 @@ struct SmartAction
 
         struct
         {
-            uint32 state;
+            SAIBool state;
         } visibility;
 
         struct
@@ -863,7 +864,7 @@ struct SmartAction
 
         struct
         {
-            uint32 state;
+            SAIBool state;
         } active;
 
         struct
@@ -873,9 +874,9 @@ struct SmartAction
 
         struct
         {
-            uint32 run;
+            SAIBool run;
             uint32 pathID;
-            uint32 repeat;
+            SAIBool repeat;
             uint32 quest;
             uint32 despawnTime;
             uint32 reactState;
@@ -890,7 +891,7 @@ struct SmartAction
         {
             uint32 despawnTime;
             uint32 quest;
-            uint32 fail;
+            SAIBool fail;
         } wpStop;
 
         struct
@@ -911,22 +912,22 @@ struct SmartAction
 
         struct
         {
-            uint32 run;
+            SAIBool run;
         } setRun;
 
         struct
         {
-            uint32 disable;
+            SAIBool disable;
         } setDisableGravity;
 
         struct
         {
-            uint32 fly;
+            SAIBool fly;
         } setFly;
 
         struct
         {
-            uint32 swim;
+            SAIBool swim;
         } setSwim;
 
         struct
@@ -938,7 +939,7 @@ struct SmartAction
         {
             uint32 counterId;
             uint32 value;
-            uint32 reset;
+            SAIBool reset;
         } setCounter;
 
         struct
@@ -1003,7 +1004,7 @@ struct SmartAction
         {
             uint32 id;
             uint32 timerType;
-            uint32 allowOverride;
+            SAIBool allowOverride;
         } timedActionList;
 
         struct
@@ -1013,9 +1014,9 @@ struct SmartAction
 
         struct
         {
-            uint32 withDelayed;
+            SAIBool withDelayed;
             uint32 spell_id;
-            uint32 withInstant;
+            SAIBool withInstant;
         } interruptSpellCasting;
 
         struct
@@ -1031,7 +1032,7 @@ struct SmartAction
 
         struct
         {
-            uint32 withEmote;
+            SAIBool withEmote;
         } fleeAssist;
 
         struct
@@ -1047,10 +1048,10 @@ struct SmartAction
         struct
         {
             uint32 pointId;
-            uint32 transport;
-            uint32 disablePathfinding;
+            SAIBool transport;
+            SAIBool disablePathfinding;
             uint32 ContactDistance;
-        } MoveToPos;
+        } moveToPos;
 
         struct
         {
@@ -1081,7 +1082,7 @@ struct SmartAction
 
         struct
         {
-            uint32 root;
+            SAIBool root;
         } setRoot;
 
         struct
@@ -1124,7 +1125,7 @@ struct SmartAction
         struct
         {
             uint32 sounds[SMART_ACTION_PARAM_COUNT - 2];
-            uint32 onlySelf;
+            SAIBool onlySelf;
             uint32 distance;
         } randomSound;
 
@@ -1136,8 +1137,9 @@ struct SmartAction
 
         struct
         {
-            uint32 disable;
+            SAIBool disable;
         } disableEvade;
+
         struct
         {
             uint32 groupId;
@@ -1159,7 +1161,7 @@ struct SmartAction
         struct
         {
             uint32 id;
-            uint32 force;
+            SAIBool force;
         } loadEquipment;
 
         struct
@@ -1172,7 +1174,7 @@ struct SmartAction
         {
             uint32 movementSlot;
             uint32 pauseTimer;
-            uint32 force;
+            SAIBool force;
         } pauseMovement;
 
         struct
@@ -1210,12 +1212,12 @@ struct SmartAction
 
         struct
         {
-            uint32 enable;
+            SAIBool enable;
         } setHover;
 
         struct
         {
-            uint32 toRespawnPosition;
+            SAIBool toRespawnPosition;
         } evade;
 
         struct
@@ -1315,15 +1317,15 @@ struct SmartTarget
         struct
         {
             uint32 maxDist;
-            uint32 playerOnly;
+            SAIBool playerOnly;
             uint32 powerType;
         } hostilRandom;
 
         struct
         {
             uint32 maxDist;
-            uint32 playerOnly;
-            uint32 isInLos;
+            SAIBool playerOnly;
+            SAIBool isInLos;
         } farthest;
 
         struct
@@ -1393,24 +1395,24 @@ struct SmartTarget
         {
             uint32 entry;
             uint32 dist;
-            uint32 dead;
+            SAIBool dead;
         } closest;
 
         struct
         {
             uint32 maxDist;
-            uint32 playerOnly;
+            SAIBool playerOnly;
         } closestAttackable;
 
         struct
         {
             uint32 maxDist;
-            uint32 playerOnly;
+            SAIBool playerOnly;
         } closestFriendly;
 
         struct
         {
-            uint32 useCharmerOrOwner;
+            SAIBool useCharmerOrOwner;
         } owner;
 
         struct
