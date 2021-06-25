@@ -38,8 +38,7 @@
     { \
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses param %s of type Boolean with value %u, valid values are 0 or 1, skipped.", \
             e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), STRINGIZE(value), value); \
-        /* ToDo: return false once all existing issues have been fixed */ \
-        /* return false;*/ \
+        return false; \
     } \
 }
 
