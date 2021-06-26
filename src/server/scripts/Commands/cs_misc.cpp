@@ -67,60 +67,59 @@ class misc_commandscript : public CommandScript
 public:
     misc_commandscript() : CommandScript("misc_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "additem",          rbac::RBAC_PERM_COMMAND_ADDITEM,          false, &HandleAddItemCommand,          "" },
-            { "additem set",      rbac::RBAC_PERM_COMMAND_ADDITEMSET,       false, &HandleAddItemSetCommand,       "" },
-            { "appear",           rbac::RBAC_PERM_COMMAND_APPEAR,           false, &HandleAppearCommand,           "" },
-            { "aura",             rbac::RBAC_PERM_COMMAND_AURA,             false, &HandleAuraCommand,             "" },
-            { "bank",             rbac::RBAC_PERM_COMMAND_BANK,             false, &HandleBankCommand,             "" },
-            { "bindsight",        rbac::RBAC_PERM_COMMAND_BINDSIGHT,        false, &HandleBindSightCommand,        "" },
-            { "combatstop",       rbac::RBAC_PERM_COMMAND_COMBATSTOP,        true, &HandleCombatStopCommand,       "" },
-            { "cometome",         rbac::RBAC_PERM_COMMAND_COMETOME,         false, &HandleComeToMeCommand,         "" },
-            { "commands",         rbac::RBAC_PERM_COMMAND_COMMANDS,          true, &HandleCommandsCommand,         "" },
-            { "cooldown",         rbac::RBAC_PERM_COMMAND_COOLDOWN,         false, &HandleCooldownCommand,         "" },
-            { "damage",           rbac::RBAC_PERM_COMMAND_DAMAGE,           false, &HandleDamageCommand,           "" },
-            { "dev",              rbac::RBAC_PERM_COMMAND_DEV,              false, &HandleDevCommand,              "" },
-            { "die",              rbac::RBAC_PERM_COMMAND_DIE,              false, &HandleDieCommand,              "" },
-            { "dismount",         rbac::RBAC_PERM_COMMAND_DISMOUNT,         false, &HandleDismountCommand,         "" },
-            { "distance",         rbac::RBAC_PERM_COMMAND_DISTANCE,         false, &HandleGetDistanceCommand,      "" },
-            { "freeze",           rbac::RBAC_PERM_COMMAND_FREEZE,           false, &HandleFreezeCommand,           "" },
-            { "gps",              rbac::RBAC_PERM_COMMAND_GPS,              false, &HandleGPSCommand,              "" },
-            { "guid",             rbac::RBAC_PERM_COMMAND_GUID,             false, &HandleGUIDCommand,             "" },
-            { "help",             rbac::RBAC_PERM_COMMAND_HELP,              true, &HandleHelpCommand,             "" },
-            { "hidearea",         rbac::RBAC_PERM_COMMAND_HIDEAREA,         false, &HandleHideAreaCommand,         "" },
-            { "itemmove",         rbac::RBAC_PERM_COMMAND_ITEMMOVE,         false, &HandleItemMoveCommand,         "" },
-            { "kick",             rbac::RBAC_PERM_COMMAND_KICK,              true, &HandleKickPlayerCommand,       "" },
-            { "linkgrave",        rbac::RBAC_PERM_COMMAND_LINKGRAVE,        false, &HandleLinkGraveCommand,        "" },
-            { "listfreeze",       rbac::RBAC_PERM_COMMAND_LISTFREEZE,       false, &HandleListFreezeCommand,       "" },
-            { "movegens",         rbac::RBAC_PERM_COMMAND_MOVEGENS,         false, &HandleMovegensCommand,         "" },
-            { "mute",             rbac::RBAC_PERM_COMMAND_MUTE,              true, &HandleMuteCommand,             "" },
-            { "mutehistory",      rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       true, &HandleMuteHistoryCommand,      "" },
-            { "neargrave",        rbac::RBAC_PERM_COMMAND_NEARGRAVE,        false, &HandleNearGraveCommand,        "" },
-            { "pinfo",            rbac::RBAC_PERM_COMMAND_PINFO,             true, &HandlePInfoCommand,            "" },
-            { "playall",          rbac::RBAC_PERM_COMMAND_PLAYALL,          false, &HandlePlayAllCommand,          "" },
-            { "possess",          rbac::RBAC_PERM_COMMAND_POSSESS,          false, &HandlePossessCommand,          "" },
-            { "pvpstats",         rbac::RBAC_PERM_COMMAND_PVPSTATS,          true, &HandlePvPstatsCommand,         "" },
-            { "recall",           rbac::RBAC_PERM_COMMAND_RECALL,           false, &HandleRecallCommand,           "" },
-            { "repairitems",      rbac::RBAC_PERM_COMMAND_REPAIRITEMS,       true, &HandleRepairitemsCommand,      "" },
-            { "respawn",          rbac::RBAC_PERM_COMMAND_RESPAWN,          false, &HandleRespawnCommand,          "" },
-            { "revive",           rbac::RBAC_PERM_COMMAND_REVIVE,            true, &HandleReviveCommand,           "" },
-            { "saveall",          rbac::RBAC_PERM_COMMAND_SAVEALL,           true, &HandleSaveAllCommand,          "" },
-            { "save",             rbac::RBAC_PERM_COMMAND_SAVE,             false, &HandleSaveCommand,             "" },
-            { "setskill",         rbac::RBAC_PERM_COMMAND_SETSKILL,         false, &HandleSetSkillCommand,         "" },
-            { "showarea",         rbac::RBAC_PERM_COMMAND_SHOWAREA,         false, &HandleShowAreaCommand,         "" },
-            { "summon",           rbac::RBAC_PERM_COMMAND_SUMMON,           false, &HandleSummonCommand,           "" },
-            { "unaura",           rbac::RBAC_PERM_COMMAND_UNAURA,           false, &HandleUnAuraCommand,           "" },
-            { "unbindsight",      rbac::RBAC_PERM_COMMAND_UNBINDSIGHT,      false, HandleUnbindSightCommand,       "" },
-            { "unfreeze",         rbac::RBAC_PERM_COMMAND_UNFREEZE,         false, &HandleUnFreezeCommand,         "" },
-            { "unmute",           rbac::RBAC_PERM_COMMAND_UNMUTE,            true, &HandleUnmuteCommand,           "" },
-            { "unpossess",        rbac::RBAC_PERM_COMMAND_UNPOSSESS,        false, &HandleUnPossessCommand,        "" },
-            { "unstuck",          rbac::RBAC_PERM_COMMAND_UNSTUCK,           true, &HandleUnstuckCommand,          "" },
-            { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "" },
-            { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
-            { "auras  ",          rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleAurasCommand,            "" },
+            { "additem",          HandleAddItemCommand,          rbac::RBAC_PERM_COMMAND_ADDITEM,          Console::No },
+            { "additem set",      HandleAddItemSetCommand,       rbac::RBAC_PERM_COMMAND_ADDITEMSET,       Console::No },
+            { "appear",           HandleAppearCommand,           rbac::RBAC_PERM_COMMAND_APPEAR,           Console::No },
+            { "aura",             HandleAuraCommand,             rbac::RBAC_PERM_COMMAND_AURA,             Console::No },
+            { "bank",             HandleBankCommand,             rbac::RBAC_PERM_COMMAND_BANK,             Console::No },
+            { "bindsight",        HandleBindSightCommand,        rbac::RBAC_PERM_COMMAND_BINDSIGHT,        Console::No },
+            { "combatstop",       HandleCombatStopCommand,       rbac::RBAC_PERM_COMMAND_COMBATSTOP,       Console::Yes },
+            { "cometome",         HandleComeToMeCommand,         rbac::RBAC_PERM_COMMAND_COMETOME,         Console::No },
+            { "commands",         HandleCommandsCommand,         rbac::RBAC_PERM_COMMAND_COMMANDS,         Console::Yes },
+            { "cooldown",         HandleCooldownCommand,         rbac::RBAC_PERM_COMMAND_COOLDOWN,         Console::No },
+            { "damage",           HandleDamageCommand,           rbac::RBAC_PERM_COMMAND_DAMAGE,           Console::No },
+            { "dev",              HandleDevCommand,              rbac::RBAC_PERM_COMMAND_DEV,              Console::No },
+            { "die",              HandleDieCommand,              rbac::RBAC_PERM_COMMAND_DIE,              Console::No },
+            { "dismount",         HandleDismountCommand,         rbac::RBAC_PERM_COMMAND_DISMOUNT,         Console::No },
+            { "distance",         HandleGetDistanceCommand,      rbac::RBAC_PERM_COMMAND_DISTANCE,         Console::No },
+            { "freeze",           HandleFreezeCommand,           rbac::RBAC_PERM_COMMAND_FREEZE,           Console::No },
+            { "gps",              HandleGPSCommand,              rbac::RBAC_PERM_COMMAND_GPS,              Console::No },
+            { "guid",             HandleGUIDCommand,             rbac::RBAC_PERM_COMMAND_GUID,             Console::No },
+            { "help",             HandleHelpCommand,             rbac::RBAC_PERM_COMMAND_HELP,             Console::Yes },
+            { "hidearea",         HandleHideAreaCommand,         rbac::RBAC_PERM_COMMAND_HIDEAREA,         Console::No },
+            { "itemmove",         HandleItemMoveCommand,         rbac::RBAC_PERM_COMMAND_ITEMMOVE,         Console::No },
+            { "kick",             HandleKickPlayerCommand,       rbac::RBAC_PERM_COMMAND_KICK,             Console::Yes },
+            { "linkgrave",        HandleLinkGraveCommand,        rbac::RBAC_PERM_COMMAND_LINKGRAVE,        Console::No },
+            { "listfreeze",       HandleListFreezeCommand,       rbac::RBAC_PERM_COMMAND_LISTFREEZE,       Console::No },
+            { "movegens",         HandleMovegensCommand,         rbac::RBAC_PERM_COMMAND_MOVEGENS,         Console::No },
+            { "mute",             HandleMuteCommand,             rbac::RBAC_PERM_COMMAND_MUTE,             Console::Yes },
+            { "mutehistory",      HandleMuteHistoryCommand,      rbac::RBAC_PERM_COMMAND_MUTEHISTORY,      Console::Yes },
+            { "neargrave",        HandleNearGraveCommand,        rbac::RBAC_PERM_COMMAND_NEARGRAVE,        Console::No },
+            { "pinfo",            HandlePInfoCommand,            rbac::RBAC_PERM_COMMAND_PINFO,            Console::Yes },
+            { "playall",          HandlePlayAllCommand,          rbac::RBAC_PERM_COMMAND_PLAYALL,          Console::No },
+            { "possess",          HandlePossessCommand,          rbac::RBAC_PERM_COMMAND_POSSESS,          Console::No },
+            { "pvpstats",         HandlePvPstatsCommand,         rbac::RBAC_PERM_COMMAND_PVPSTATS,         Console::Yes },
+            { "recall",           HandleRecallCommand,           rbac::RBAC_PERM_COMMAND_RECALL,           Console::No },
+            { "repairitems",      HandleRepairitemsCommand,      rbac::RBAC_PERM_COMMAND_REPAIRITEMS,      Console::Yes },
+            { "respawn",          HandleRespawnCommand,          rbac::RBAC_PERM_COMMAND_RESPAWN,          Console::No },
+            { "revive",           HandleReviveCommand,           rbac::RBAC_PERM_COMMAND_REVIVE,           Console::Yes },
+            { "saveall",          HandleSaveAllCommand,          rbac::RBAC_PERM_COMMAND_SAVEALL,          Console::Yes },
+            { "save",             HandleSaveCommand,             rbac::RBAC_PERM_COMMAND_SAVE,             Console::No },
+            { "setskill",         HandleSetSkillCommand,         rbac::RBAC_PERM_COMMAND_SETSKILL,         Console::No },
+            { "showarea",         HandleShowAreaCommand,         rbac::RBAC_PERM_COMMAND_SHOWAREA,         Console::No },
+            { "summon",           HandleSummonCommand,           rbac::RBAC_PERM_COMMAND_SUMMON,           Console::No },
+            { "unaura",           HandleUnAuraCommand,           rbac::RBAC_PERM_COMMAND_UNAURA,           Console::No },
+            { "unbindsight",      HandleUnbindSightCommand,      rbac::RBAC_PERM_COMMAND_UNBINDSIGHT,      Console::No },
+            { "unfreeze",         HandleUnFreezeCommand,         rbac::RBAC_PERM_COMMAND_UNFREEZE,         Console::No },
+            { "unmute",           HandleUnmuteCommand,           rbac::RBAC_PERM_COMMAND_UNMUTE,           Console::Yes },
+            { "unpossess",        HandleUnPossessCommand,        rbac::RBAC_PERM_COMMAND_UNPOSSESS,        Console::No },
+            { "unstuck",          HandleUnstuckCommand,          rbac::RBAC_PERM_COMMAND_UNSTUCK,          Console::Yes },
+            { "wchange",          HandleChangeWeather,           rbac::RBAC_PERM_COMMAND_WCHANGE,          Console::No },
+            { "mailbox",          HandleMailBoxCommand,          rbac::RBAC_PERM_COMMAND_MAILBOX,          Console::No },
         };
         return commandTable;
     }
@@ -2632,44 +2631,6 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         handler->GetSession()->SendShowMailBox(player->GetGUID());
-        return true;
-    }
-
-    static bool HandleAurasCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        Unit* target = handler->GetSession()->GetPlayer()->GetSelectedUnit();
-
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        Unit::AuraApplicationMap const& uAuras = target->GetAppliedAuras();
-        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, std::to_string(uAuras.size()).c_str());
-        for (Unit::AuraApplicationMap::const_iterator itr = uAuras.begin(); itr != uAuras.end(); ++itr)
-        {
-            AuraApplication const* aurApp = itr->second;
-            Aura const* aura = aurApp->GetBase();
-            char const* name = aura->GetSpellInfo()->SpellName->Str[handler->GetSessionDbcLocale()];
-
-            bool self = target->GetGUID() == aura->GetCasterGUID();
-            if (self)
-                handler->PSendSysMessage("%u: %s (self)", aura->GetId(), name);
-            else
-            {
-                if (Unit* u = aura->GetCaster())
-                {
-                    if (u->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage("%u: %s (player: %s)", aura->GetId(), name, u->GetName().c_str());
-                    else if (u->GetTypeId() == TYPEID_UNIT)
-                        handler->PSendSysMessage("%u: %s (creature: %s)", aura->GetId(), name, u->GetName().c_str());
-                }
-                else
-                    handler->PSendSysMessage("%u: %s)", aura->GetId(), name);
-            }
-        }
         return true;
     }
 };
