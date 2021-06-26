@@ -626,11 +626,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_UNASSIGN                        = 758,
     RBAC_PERM_COMMAND_TICKET_VIEWID                          = 759,
     RBAC_PERM_COMMAND_TICKET_VIEWNAME                        = 760,
-    RBAC_PERM_COMMAND_TITLES                                 = 761,
+    // 761 previously used, do not reuse
     RBAC_PERM_COMMAND_TITLES_ADD                             = 762,
     RBAC_PERM_COMMAND_TITLES_CURRENT                         = 763,
     RBAC_PERM_COMMAND_TITLES_REMOVE                          = 764,
-    RBAC_PERM_COMMAND_TITLES_SET                             = 765,
+    // 765 previously used, do not reuse
     RBAC_PERM_COMMAND_TITLES_SET_MASK                        = 766,
     RBAC_PERM_COMMAND_WP                                     = 767,
     RBAC_PERM_COMMAND_WP_ADD                                 = 768,
