@@ -3226,6 +3226,7 @@ void Map::ProcessRespawns()
             sPoolMgr->UpdatePool(poolId, next->type, next->spawnId);
 
             // step 3: get rid of the actual entry
+            RemoveRespawnTime(next->type, next->spawnId, nullptr, true);
             delete next;
         }
         else if (CheckRespawn(next)) // see if we're allowed to respawn
@@ -3238,12 +3239,14 @@ void Map::ProcessRespawns()
             DoRespawn(next->type, next->spawnId, next->gridId);
 
             // step 3: get rid of the actual entry
+            RemoveRespawnTime(next->type, next->spawnId, nullptr, true);
             delete next;
         }
         else if (!next->respawnTime)
         { // just remove this respawn entry without rescheduling
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
+            RemoveRespawnTime(next->type, next->spawnId, nullptr, true);
             delete next;
         }
         else

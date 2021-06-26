@@ -25,13 +25,13 @@
 
 struct PoolTemplateData
 {
-    uint32  MaxLimit;
+    uint32 MaxLimit;
 };
 
 struct PoolObject
 {
-    ObjectGuid::LowType  guid;
-    float   chance;
+    ObjectGuid::LowType guid;
+    float chance;
     PoolObject(ObjectGuid::LowType _guid, float _chance) : guid(_guid), chance(std::fabs(_chance)) { }
 };
 
@@ -73,7 +73,7 @@ class TC_GAME_API PoolGroup
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
         void DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid = 0, bool alwaysDeleteRespawnTime = false);
-        void Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime = false);
+        void Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true);
         void SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom);
         void RemoveRespawnTimeFromDB(ObjectGuid::LowType guid);
 
