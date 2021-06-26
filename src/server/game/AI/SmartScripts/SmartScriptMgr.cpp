@@ -707,7 +707,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
     auto sizeMapping = sizeMappings.find(e.event.type);
     if (sizeMapping == sizeMappings.end())
     {
-        TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams().", \
+        TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.", \
             e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
         return true;
     }
@@ -730,12 +730,12 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
     return valid;
 }
 
-bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
+bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& /*e*/)
 {
     return true;
 }
 
-bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
+bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& /*e*/)
 {
     return true;
 }
