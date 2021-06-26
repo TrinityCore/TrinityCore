@@ -42,6 +42,25 @@
     } \
 }
 
+#define TC_SAI_CHECK_UNUSED_PARAMS(e, type, params) \
+{ \
+    size_t rawCount = sizeof(e.type.raw) / sizeof(uint32); \
+    size_t paramsCount = sizeof(e.type.params) / sizeof(uint32); \
+    bool valid = true; \
+    for (size_t index = paramsCount; index < rawCount; index++) \
+    { \
+        uint32 value = ((uint32*)&e.type.raw)[index]; \
+        if (value != 0) \
+        { \
+            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused param at index %zu with value %u, it must be 0, skipped.", \
+                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index, value); \
+            valid = false; \
+        } \
+    } \
+    if (!valid) \
+        return false; \
+}
+
 SmartWaypointMgr* SmartWaypointMgr::instance()
 {
     static SmartWaypointMgr instance;
@@ -761,6 +780,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
                 if (!IsMinMaxValid(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax))
                     return false;
+                TC_SAI_CHECK_UNUSED_PARAMS(e, event, minMaxRepeat);
                 break;
             case SMART_EVENT_SPELLHIT:
             case SMART_EVENT_SPELLHIT_TARGET:
