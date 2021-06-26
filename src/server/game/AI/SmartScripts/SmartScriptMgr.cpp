@@ -42,25 +42,6 @@
     } \
 }
 
-#define TC_SAI_CHECK_UNUSED_PARAMS(e, type, params) \
-{ \
-    size_t rawCount = sizeof(e.type.raw) / sizeof(uint32); \
-    size_t paramsCount = sizeof(e.type.params) / sizeof(uint32); \
-    bool valid = true; \
-    for (size_t index = paramsCount; index < rawCount; index++) \
-    { \
-        uint32 value = ((uint32*)&e.type.raw)[index]; \
-        if (value != 0) \
-        { \
-            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused param at index %zu with value %u, it must be 0, skipped.", \
-                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index, value); \
-            valid = false; \
-        } \
-    } \
-    if (!valid) \
-        return false; \
-}
-
 SmartWaypointMgr* SmartWaypointMgr::instance()
 {
     static SmartWaypointMgr instance;
@@ -599,6 +580,10 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled target_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             return false;
     }
+
+    if (!CheckUnusedTargetParams(e))
+        return false;
+
     return true;
 }
 
@@ -712,6 +697,49 @@ bool SmartAIMgr::IsSoundValid(SmartScriptHolder const& e, uint32 entry)
     return true;
 }
 
+bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
+{
+    static std::unordered_map<SMART_EVENT, size_t> sizeMappings = {
+        {SMART_EVENT_UPDATE_IC, sizeof(SmartEvent::minMaxRepeat)},
+        {SMART_EVENT_UPDATE_OOC, sizeof(SmartEvent::raw)}
+    };
+
+    auto sizeMapping = sizeMappings.find(e.event.type);
+    if (sizeMapping == sizeMappings.end())
+    {
+        TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams().", \
+            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+        return true;
+    }
+
+    static size_t rawCount = sizeof(SmartEvent::raw) / sizeof(uint32);
+    size_t paramsCount = sizeMapping->second / sizeof(uint32);
+
+    bool valid = true;
+    for (size_t index = paramsCount; index < rawCount; index++)
+    {
+        uint32 value = ((uint32*)&e.event.raw)[index];
+        if (value != 0)
+        {
+            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused event_param%zu with value %u, it must be 0, skipped.",
+                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
+            valid = false;
+        }
+    }
+
+    return valid;
+}
+
+bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
+{
+    return true;
+}
+
+bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
+{
+    return true;
+}
+
 bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 {
     if (e.event.type >= SMART_EVENT_END)
@@ -780,7 +808,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
                 if (!IsMinMaxValid(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax))
                     return false;
-                TC_SAI_CHECK_UNUSED_PARAMS(e, event, minMaxRepeat);
                 break;
             case SMART_EVENT_SPELLHIT:
             case SMART_EVENT_SPELLHIT_TARGET:
@@ -1128,6 +1155,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
         }
     }
+
+    if (!CheckUnusedEventParams(e))
+        return false;
 
     switch (e.GetActionType())
     {
@@ -1844,6 +1874,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
             return false;
     }
+
+    if (!CheckUnusedActionParams(e))
+        return false;
 
     return true;
 }

@@ -100,7 +100,7 @@ enum SMART_EVENT
 {
     SMART_EVENT_UPDATE_IC                = 0,       // InitialMin, InitialMax, RepeatMin, RepeatMax
     SMART_EVENT_UPDATE_OOC               = 1,       // InitialMin, InitialMax, RepeatMin, RepeatMax
-    SMART_EVENT_HEALTH_PCT                = 2,      // HPMin%, HPMax%,  RepeatMin, RepeatMax
+    SMART_EVENT_HEALTH_PCT               = 2,       // HPMin%, HPMax%,  RepeatMin, RepeatMax
     SMART_EVENT_MANA_PCT                 = 3,       // ManaMin%, ManaMax%, RepeatMin, RepeatMax
     SMART_EVENT_AGGRO                    = 4,       // NONE
     SMART_EVENT_KILL                     = 5,       // CooldownMin0, CooldownMax1, playerOnly2, else creature entry3
@@ -1726,6 +1726,10 @@ class TC_GAME_API SmartAIMgr
         static bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsSoundValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsTextValid(SmartScriptHolder const& e, uint32 id);
+
+        static bool CheckUnusedEventParams(SmartScriptHolder const& e);
+        static bool CheckUnusedActionParams(SmartScriptHolder const& e);
+        static bool CheckUnusedTargetParams(SmartScriptHolder const& e);
 
         // Helpers
         void LoadHelperStores();
