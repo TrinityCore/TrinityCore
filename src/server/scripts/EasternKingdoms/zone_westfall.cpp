@@ -929,20 +929,22 @@ struct npc_westfall_thug : public ScriptedAI
         _events.Reset();
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        if (Creature* summoner = me->ToTempSummon()->GetSummoner()->ToCreature())
-            if (summoner->IsAIEnabled)
-                summoner->AI()->DoAction(ACTION_THUG_RESET);
+        if (Unit* summon = me->ToTempSummon()->GetSummoner())
+            if (Creature* creature = summon->ToCreature())
+                if (creature->IsAIEnabled)
+                    creature->AI()->DoAction(ACTION_THUG_RESET);
 
         me->DespawnOrUnsummon();
     }
 
     void JustDied(Unit* /*who*/) override
     {
-        if (Creature * summoner = me->ToTempSummon()->GetSummoner()->ToCreature())
-            if (summoner->IsAIEnabled)
-                summoner->AI()->SetData(0, DATA_THUG_DEATH);
+        if (Unit* summon = me->ToTempSummon()->GetSummoner())
+            if (Creature* creature = summon->ToCreature())
+                if (creature->IsAIEnabled)
+                    creature->AI()->SetData(0, DATA_THUG_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
