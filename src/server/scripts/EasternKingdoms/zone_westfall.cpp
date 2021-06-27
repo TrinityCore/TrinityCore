@@ -948,7 +948,7 @@ struct npc_westfall_thug : public ScriptedAI
                     creature->AI()->SetData(0, DATA_THUG_DEATH);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
