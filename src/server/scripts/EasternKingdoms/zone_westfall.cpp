@@ -20,11 +20,46 @@
 #include "SpellScript.h"
 #include "CombatAI.h"
 #include "CreatureAIImpl.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SharedDefines.h"
+#include "ObjectMgr.h"
+#include "Group.h"
+
+enum WestfallQuest
+{
+    QUEST_MURDER_WAS_THE_CASE_THAT_THEY_GAVE_ME = 26209,
+    QUEST_LOUS_PARTING_THOUGHTS                 = 26232
+};
+
+enum WestfallCreature
+{
+    NPC_HOMELESS_STORMWIND_CITIZEN_1  = 42386,
+    NPC_HOMELESS_STORMWIND_CITIZEN_2  = 42384,
+    NPC_WEST_PLAINS_DRIFTER           = 42391,
+    NPC_TRANSIENT                     = 42383,
+    NPC_THUG                          = 42387,
+    MPC_LOUS_PARTING_THOUGHTS_TRIGGER = 42562,
+    NPC_SMALL_TIME_HUSTLER            = 42390
+};
+
+enum WestfallSpell
+{
+    SPELL_HOBO_INFORMATION_1 = 79181,
+    SPELL_HOBO_INFORMATION_2 = 79182,
+    SPELL_HOBO_INFORMATION_3 = 79183,
+    SPELL_HOBO_INFORMATION_4 = 79184,
+    SPELL_SUMMON_RAGAMUFFIN_LOOTER = 79169,
+    SPELL_SUMMON_RAGAMUFFIN_LOOTER_1 = 79170,
+    SPELL_SUMMON_RAGAMUFFIN_LOOTER_2 = 79171,
+    SPELL_SUMMON_RAGAMUFFIN_LOOTER_3 = 79172,
+    SPELL_SUMMON_RAGAMUFFIN_LOOTER_4 = 79173,
+    SPELL_AGGRO_HOBO = 79168,
+    SPELL_HOBO_INFORMATION = 79184
+};
 
 class spell_westfall_unbound_energy : public SpellScript
 {
@@ -178,31 +213,12 @@ enum HoboGossipOption
     OPTION_PAY      = 1,
 };
 
-enum HoboQuest
-{
-    QUEST_MURDER_WAS_THE_CASE_THAT_THEY_GAVE_ME = 26209
-};
-
 enum HoboQuestObjective
 {
     CLUE1 = 0,
     CLUE2 = 1,
     CLUE3 = 2,
     CLUE4 = 3
-};
-
-enum HoboSpell
-{
-    SPELL_HOBO_INFORMATION_1         = 79181,
-    SPELL_HOBO_INFORMATION_2         = 79182,
-    SPELL_HOBO_INFORMATION_3         = 79183,
-    SPELL_HOBO_INFORMATION_4         = 79184,
-    SPELL_SUMMON_RAGAMUFFIN_LOOTER   = 79169,
-    SPELL_SUMMON_RAGAMUFFIN_LOOTER_1 = 79170,
-    SPELL_SUMMON_RAGAMUFFIN_LOOTER_2 = 79171,
-    SPELL_SUMMON_RAGAMUFFIN_LOOTER_3 = 79172,
-    SPELL_SUMMON_RAGAMUFFIN_LOOTER_4 = 79173,
-    SPELL_AGGRO_HOBO                 = 79168
 };
 
 enum HoboText
@@ -230,14 +246,6 @@ enum HoboEvent
     EVENT_JACKPOT_END    = 6,
     EVENT_RESUME_MOVE    = 7,
     EVENT_GROUP_OOC      = 1
-};
-
-enum HoboCreature
-{
-    NPC_HOMELESS_STORMWIND_CITIZEN_1 = 42386,
-    NPC_HOMELESS_STORMWIND_CITIZEN_2 = 42384,
-    NPC_WEST_PLAINS_DRIFTER          = 42391,
-    NPC_TRANSIENT                    = 42383
 };
 
 enum HoboAction
@@ -521,6 +529,744 @@ class spell_westfall_aggro_hobo : public SpellScript
     }
 };
 
+enum BridgeRefugee
+{
+    // Events
+    EVENT_START_MOVE = 1,
+    EVENT_CRIME_SCENE_DRIFTER_TALK_0,
+    EVENT_CRIME_SCENE_TALK_12,
+    EVENT_CRIME_SCENE_DRIFTER_TALK_1,
+    EVENT_CRIME_SCENE_TALK_13,
+    EVENT_CRIME_SCENE_DRIFTER_TALK_2,
+    EVENT_SENTINEL_HILL_GUARD1_TALK_1,
+    EVENT_SENTINEL_HILL_TALK_14,
+    EVENT_SENTINEL_HILL_TALK_3,
+    EVENT_SENTINEL_HILL_GUARD2_TALK_2,
+    EVENT_SENTINEL_HILL_GUARD2_TALK_3,
+    EVENT_SENTINEL_HILL_TALK_4,
+    EVENT_SENTINEL_HILL_TALK_5,
+    EVENT_SENTINEL_HILL_TALK_15,
+    EVENT_SENTINEL_HILL_TALK_16,
+    EVENT_CANCEL,
+
+    // Action
+    ACTION_CRIME_SCENE          = 1,
+    ACTION_SENTINEL_HILL_GATE_1 = 2,
+    ACTION_SENTINEL_HILL_GATE_2 = 3,
+    ACTION_SENTINEL_HILL_TALK_3 = 4,
+    ACTION_SENTINEL_HILL_TALK_4 = 5,
+    ACTION_SENTINEL_HILL_TALK_5 = 6,
+
+    // MovePoints
+    POINT_CRIME_SCENE        = 0,
+    POINT_SENTINEL_HILL_GATE = 1,
+    POINT_DESPAWN            = 2,
+
+    // Text
+    SAY_TRANSIENT_11 = 11,
+    SAY_TRANSIENT_12 = 12,
+    SAY_TRANSIENT_13 = 13,
+    SAY_TRANSIENT_14 = 14,
+    SAY_TRANSIENT_15 = 15,
+    SAY_TRANSIENT_16 = 16,
+    SAY_WEST_PLAINS_DRIFTER_0 = 0,
+    SAY_WEST_PLAINS_DRIFTER_1 = 1,
+    SAY_WEST_PLAINS_DRIFTER_2 = 2,
+    SAY_WEST_PLAINS_DRIFTER_3 = 3,
+    SAY_WEST_PLAINS_DRIFTER_4 = 4,
+    SAY_WEST_PLAINS_DRIFTER_5 = 5,
+    SAY_SENTINEL_HILL_GUARD_0 = 0,
+    SAY_SENTINEL_HILL_GUARD_1 = 1,
+    SAY_SENTINEL_HILL_GUARD_2 = 2,
+    SAY_SENTINEL_HILL_GUARD_3 = 3,
+
+    // DisplayID
+    DISPLAY_HOBO_CART = 32849,
+
+    // CreatureID
+    NPC_HOBO_CART                    = 42399,
+    NPC_WEST_PLAINS_DRIFTER_FOLLOWER = 42400,
+    NPC_SENTINEL_HILL_GUARD          = 42407
+};
+
+Position const SentinelHillGuard1Pos = { -10341.4f, 978.075f, 31.2339f };
+Position const SentinelHillGuard2Pos = { -10341.3f, 981.691f, 31.4328f };
+
+struct npc_westfall_refugee_bridge_to_sentinelhill : public ScriptedAI
+{
+    npc_westfall_refugee_bridge_to_sentinelhill(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_START_MOVE, 4s);
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != WAYPOINT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+        case POINT_CRIME_SCENE:
+            Talk(SAY_TRANSIENT_11);
+            _events.ScheduleEvent(EVENT_CRIME_SCENE_DRIFTER_TALK_0, 6s);
+            break;
+        case POINT_SENTINEL_HILL_GATE:
+        {
+            std::vector<Creature*> guardList;
+            Creature* guard1 = nullptr;
+            Creature* guard2 = nullptr;
+            me->GetCreatureListWithEntryInGrid(guardList, NPC_SENTINEL_HILL_GUARD, 8.f);
+            for (Creature* guard : guardList)
+            {
+                if (guard->GetHomePosition().GetExactDist2d(SentinelHillGuard1Pos) < 0.1f)
+                    guard1 = guard;
+
+                if (guard->GetHomePosition().GetExactDist2d(SentinelHillGuard2Pos) < 0.1f)
+                    guard2 = guard;
+
+                if (guard1 && guard2)
+                    break;
+            }
+
+            if (guard1 && guard2 && !guard1->IsInCombat() && !guard2->IsInCombat())
+            {
+                if (guard1->IsAIEnabled)
+                {
+                    guard1->AI()->DoAction(ACTION_SENTINEL_HILL_GATE_1);
+                    guard1->AI()->SetGUID(me->GetGUID(), 0);
+                }
+
+                if (guard2->IsAIEnabled)
+                {
+                    guard2->AI()->DoAction(ACTION_SENTINEL_HILL_GATE_2);
+                    guard2->AI()->SetGUID(me->GetGUID(), 0);
+                }
+
+                Creature* creature = ObjectAccessor::GetCreature(*me, _westPlainsDrifter);
+
+                if (roll_chance_i(50))
+                    _events.ScheduleEvent(EVENT_SENTINEL_HILL_TALK_14, 10s);
+                else
+                {
+                    if (creature)
+                        if (creature->IsAIEnabled)
+                            creature->AI()->DoAction(ACTION_SENTINEL_HILL_TALK_3);
+                }
+
+                if (roll_chance_i(50))
+                    _events.ScheduleEvent(EVENT_SENTINEL_HILL_TALK_15, 32s + 500ms);
+                else
+                {
+                    if (creature)
+                        if (creature->IsAIEnabled)
+                            creature->AI()->DoAction(ACTION_SENTINEL_HILL_TALK_4);
+                }
+
+                if (roll_chance_i(50))
+                    _events.ScheduleEvent(EVENT_SENTINEL_HILL_TALK_15, 38s + 500ms);
+                else
+                {
+                    if (creature)
+                        if (creature->IsAIEnabled)
+                            creature->AI()->DoAction(ACTION_SENTINEL_HILL_TALK_5);
+                }
+            }
+            else
+                _events.ScheduleEvent(EVENT_CANCEL, 5min);
+            break;
+        }
+        case POINT_DESPAWN:
+            _events.ScheduleEvent(EVENT_CANCEL, 0);
+            break;
+        default:
+            break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_MOVE:
+                    me->GetMotionMaster()->MovePath(me->GetEntry() * 100, false);
+                    break;
+                case EVENT_CRIME_SCENE_DRIFTER_TALK_0:
+                    if (Creature* creature = me->FindNearestCreature(NPC_WEST_PLAINS_DRIFTER_FOLLOWER, 5.f))
+                    {
+                        if (creature->IsAIEnabled)
+                            creature->AI()->DoAction(ACTION_CRIME_SCENE);
+                        _westPlainsDrifter = creature->GetGUID();
+                    }
+                    _events.ScheduleEvent(EVENT_CRIME_SCENE_TALK_12, 6s);
+                    break;
+                case EVENT_CRIME_SCENE_TALK_12:
+                    Talk(SAY_TRANSIENT_12);
+                    _events.ScheduleEvent(EVENT_CRIME_SCENE_TALK_13, 12s);
+                    break;
+                case EVENT_CRIME_SCENE_TALK_13:
+                    Talk(SAY_TRANSIENT_13);
+                    break;
+                case EVENT_SENTINEL_HILL_TALK_14:
+                    Talk(SAY_TRANSIENT_14);
+                    break;
+                case EVENT_SENTINEL_HILL_TALK_15:
+                    Talk(SAY_TRANSIENT_15);
+                    break;
+                case EVENT_SENTINEL_HILL_TALK_16:
+                    Talk(SAY_TRANSIENT_16);
+                    break;
+                case EVENT_CANCEL:
+                    if (Creature* creature = me->FindNearestCreature(NPC_WEST_PLAINS_DRIFTER_FOLLOWER, 5.f))
+                        creature->DespawnOrUnsummon();
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _westPlainsDrifter;
+};
+
+struct npc_westfall_west_plains_drifter : public ScriptedAI
+{
+    npc_westfall_west_plains_drifter(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_HOBO_CART)
+            summon->SetDisplayId(DISPLAY_HOBO_CART);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_CRIME_SCENE:
+                Talk(SAY_WEST_PLAINS_DRIFTER_0);
+                _events.ScheduleEvent(EVENT_CRIME_SCENE_DRIFTER_TALK_1, 12s);
+                break;
+            case ACTION_SENTINEL_HILL_TALK_3:
+                _events.ScheduleEvent(EVENT_SENTINEL_HILL_TALK_3, 10s);
+                break;
+            case ACTION_SENTINEL_HILL_TALK_4:
+                _events.ScheduleEvent(EVENT_SENTINEL_HILL_TALK_4, 32s + 500ms);
+                break;
+            case ACTION_SENTINEL_HILL_TALK_5:
+                _events.ScheduleEvent(EVENT_SENTINEL_HILL_TALK_5, 38s + 500ms);
+                break;
+            default:
+                return;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CRIME_SCENE_DRIFTER_TALK_1:
+                    Talk(SAY_WEST_PLAINS_DRIFTER_1);
+                    _events.ScheduleEvent(EVENT_CRIME_SCENE_DRIFTER_TALK_2, 11s);
+                    break;
+                case EVENT_CRIME_SCENE_DRIFTER_TALK_2:
+                    Talk(SAY_WEST_PLAINS_DRIFTER_2);
+                    break;
+                case EVENT_SENTINEL_HILL_TALK_3:
+                    Talk(SAY_WEST_PLAINS_DRIFTER_3);
+                    break;
+                case EVENT_SENTINEL_HILL_TALK_4:
+                    Talk(SAY_WEST_PLAINS_DRIFTER_4);
+                    break;
+                case EVENT_SENTINEL_HILL_TALK_5:
+                    Talk(SAY_WEST_PLAINS_DRIFTER_5);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_westfall_sentinel_hill_guard : public ScriptedAI
+{
+    npc_westfall_sentinel_hill_guard(Creature* creature) : ScriptedAI(creature) { }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_SENTINEL_HILL_GATE_1:
+                Talk(SAY_SENTINEL_HILL_GUARD_0);
+                _events.ScheduleEvent(EVENT_SENTINEL_HILL_GUARD1_TALK_1, 4s);
+                break;
+            case ACTION_SENTINEL_HILL_GATE_2:
+                _events.ScheduleEvent(EVENT_SENTINEL_HILL_GUARD2_TALK_2, 17s);
+                break;
+            default:
+                return;
+        }
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    {
+        _transientGuid = guid;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SENTINEL_HILL_GUARD1_TALK_1:
+                    Talk(SAY_SENTINEL_HILL_GUARD_1);
+                    break;
+                case EVENT_SENTINEL_HILL_GUARD2_TALK_2:
+                    Talk(SAY_SENTINEL_HILL_GUARD_2);
+                    _events.ScheduleEvent(EVENT_SENTINEL_HILL_GUARD2_TALK_3, 6s);
+                    break;
+                case EVENT_SENTINEL_HILL_GUARD2_TALK_3:
+                    Talk(SAY_SENTINEL_HILL_GUARD_3);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _transientGuid;
+};
+
+enum ThugText
+{
+    SAY_THUG_0 = 0,
+    SAY_THUG_1 = 1,
+    SAY_THUG_2 = 2,
+    SAY_THUG_3 = 3,
+    SAY_THUG_4 = 4,
+    SAY_THUG_5 = 5,
+    SAY_THUG_6 = 6,
+    SAY_WARNING = 0
+};
+
+enum ThugEvent
+{
+    EVENT_SUMMON_THUGS = 1,
+    EVENT_THUG1_SAY_0  = 2,
+    EVENT_THUG2_SAY_1  = 3,
+    EVENT_THUG2_SAY_2  = 4,
+    EVENT_THUG3_SAY_3  = 5,
+    EVENT_THUG1_SAY_4  = 6,
+    EVENT_THUG1_SAY_5  = 7,
+    EVENT_THUG1_SAY_6  = 8,
+    EVENT_THUG_CREDIT  = 9,
+    EVENT_THUG_RESET   = 10,
+    EVENT_THUG_SHOOT_1 = 11,
+    EVENT_THUG_SHOOT_2 = 12,
+    EVENT_THUG_SCREAM  = 13,
+    EVENT_THUG_WARNING = 14
+};
+
+enum ThugAction
+{
+    ACTION_THUG_RESET        = 1
+};
+
+enum ThugData
+{
+    DATA_THUG_DEATH = 1
+};
+
+enum ThugMisc
+{
+    OBJECT_SOUND_SHOOTING = 15071,
+    OBJECT_SOUND_SCREAM   = 17852
+};
+
+class at_westfall_two_shoed_lou_thugs : public AreaTriggerScript
+{
+public:
+    at_westfall_two_shoed_lou_thugs() : AreaTriggerScript("at_westfall_two_shoed_lou_thugs") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+    {
+        if (player->IsAlive())
+            if (player->GetQuestStatus(QUEST_LOUS_PARTING_THOUGHTS) == QUEST_STATUS_INCOMPLETE)
+                if (Creature* lousPartingThoughtsTrigger = player->FindNearestCreature(MPC_LOUS_PARTING_THOUGHTS_TRIGGER, 50.0f, true))
+                    if (lousPartingThoughtsTrigger->IsAIEnabled)
+                        lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID());
+
+        return true;
+    }
+};
+
+struct npc_westfall_thug : public ScriptedAI
+{
+    npc_westfall_thug(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        ScriptedAI::Reset();
+        _events.Reset();
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (Creature* summoner = me->ToTempSummon()->GetSummoner()->ToCreature())
+            if (summoner->IsAIEnabled)
+                summoner->AI()->DoAction(ACTION_THUG_RESET);
+
+        me->DespawnOrUnsummon();
+    }
+
+    void JustDied(Unit* /*who*/) override
+    {
+        if (Creature * summoner = me->ToTempSummon()->GetSummoner()->ToCreature())
+            if (summoner->IsAIEnabled)
+                summoner->AI()->SetData(0, DATA_THUG_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+Position const ThugPos[4] =
+{
+    { -9859.36f, 1332.42f, 41.9859f, 2.49582f  },
+    { -9862.52f, 1332.08f, 41.9859f, 0.855211f },
+    { -9863.49f, 1335.49f, 41.9859f, 5.63741f  },
+    { -9860.43f, 1335.46f, 41.9859f, 4.11898f  },
+};
+
+struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
+{
+    npc_westfall_lous_parting_thoughts_trigger(Creature* creature) : ScriptedAI(creature), _summons(), _thugDeathCount(0) { }
+
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    {
+        if (!_eventInvokerGUID.IsEmpty())
+            return;
+
+        _eventInvokerGUID = guid;
+
+        _events.ScheduleEvent(EVENT_THUG1_SAY_0, 0s);
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == DATA_THUG_DEATH)
+        {
+            _thugDeathCount++;
+
+            if (_thugDeathCount >= 4)
+            {
+                _events.ScheduleEvent(EVENT_THUG_CREDIT, 0s);
+                DoAction(ACTION_THUG_RESET);
+            }
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_THUG_RESET:
+                _events.ScheduleEvent(EVENT_SUMMON_THUGS, 60s);
+                break;
+        }
+    }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_SUMMON_THUGS, 0s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SUMMON_THUGS:
+                    _summons[0] = me->SummonCreature(NPC_THUG, ThugPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
+                    _summons[1] = me->SummonCreature(NPC_THUG, ThugPos[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
+                    _summons[2] = me->SummonCreature(NPC_THUG, ThugPos[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
+                    _summons[3] = me->SummonCreature(NPC_THUG, ThugPos[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60s)->GetGUID();
+                    _eventInvokerGUID = ObjectGuid::Empty;
+                    _thugDeathCount = 0;
+                    break;
+                case EVENT_THUG1_SAY_0:
+                {
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker && thug1)
+                        if (thug1->IsAIEnabled)
+                            thug1->AI()->Talk(SAY_THUG_0, invoker);
+                    _events.ScheduleEvent(EVENT_THUG2_SAY_1, 5s);
+                    break;
+                }
+                case EVENT_THUG2_SAY_1:
+                {
+                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker && thug2)
+                        if (thug2->IsAIEnabled)
+                            thug2->AI()->Talk(SAY_THUG_1, invoker);
+                    _events.ScheduleEvent(EVENT_THUG2_SAY_2, 5s);
+                    break;
+                }
+                case EVENT_THUG2_SAY_2:
+                {
+                    Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker && thug2)
+                        if (thug2->IsAIEnabled)
+                            thug2->AI()->Talk(SAY_THUG_2, invoker);
+                    _events.ScheduleEvent(EVENT_THUG3_SAY_3, 8s + 500ms);
+                    break;
+                }
+                case EVENT_THUG3_SAY_3:
+                {
+                    Creature* thug3 = ObjectAccessor::GetCreature(*me, _summons[2]);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker && thug3)
+                        if (thug3->IsAIEnabled)
+                            thug3->AI()->Talk(SAY_THUG_3, invoker);
+                    _events.ScheduleEvent(EVENT_THUG1_SAY_4, 5s);
+                    break;
+                }
+                case EVENT_THUG1_SAY_4:
+                {
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker && thug1)
+                    {
+                        if (thug1->IsAIEnabled)
+                            thug1->AI()->Talk(SAY_THUG_4, invoker);
+
+                        for (ObjectGuid const& guid : _summons)
+                            if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
+                                thug->SetFacingToObject(invoker);
+                    }
+
+                    _events.ScheduleEvent(EVENT_THUG1_SAY_5, 8s + 500ms);
+                    break;
+                }
+                case EVENT_THUG1_SAY_5:
+                {
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker && thug1)
+                        if (thug1->IsAIEnabled)
+                            thug1->AI()->Talk(SAY_THUG_5, invoker);
+
+
+                    _events.ScheduleEvent(EVENT_THUG1_SAY_6, 5s);
+                    break;
+                }
+                case EVENT_THUG1_SAY_6:
+                {
+                    Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker && thug1)
+                    {
+                        if (thug1->IsAIEnabled)
+                            thug1->AI()->Talk(SAY_THUG_6, invoker);
+
+                        for (ObjectGuid const& guid : _summons)
+                            if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
+                            {
+                                thug->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                if (thug->IsAIEnabled)
+                                    thug->AI()->AttackStart(invoker);
+                            }
+                    }
+                    break;
+                }
+                case EVENT_THUG_CREDIT:
+                {
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                    {
+                        invoker->CastSpell(invoker, SPELL_HOBO_INFORMATION, TriggerCastFlags(TRIGGERED_FULL_MASK));
+
+                        if (Group* group = invoker->GetGroup())
+                        {
+                            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                            {
+                                Player* groupMember = itr->GetSource();
+                                if (groupMember && groupMember->IsInMap(invoker) && groupMember->GetQuestStatus(QUEST_LOUS_PARTING_THOUGHTS) == QUEST_STATUS_INCOMPLETE && groupMember->GetDistance(me) <= 75.f)
+                                {
+                                    groupMember->CastSpell(groupMember, SPELL_HOBO_INFORMATION, TriggerCastFlags(TRIGGERED_FULL_MASK));
+                                }
+                            }
+                        }
+                    }
+                    _events.ScheduleEvent(EVENT_THUG_SHOOT_1, 1s + 500ms);
+                    break;
+                }
+                case EVENT_THUG_SHOOT_1:
+                {
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                        me->PlayDistanceSound(OBJECT_SOUND_SHOOTING, invoker);
+
+                    _events.ScheduleEvent(EVENT_THUG_SHOOT_2, 1s + 200ms);
+                    break;
+                }
+                case EVENT_THUG_SHOOT_2:
+                {
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                        me->PlayDistanceSound(OBJECT_SOUND_SHOOTING, invoker);
+
+                    _events.ScheduleEvent(EVENT_THUG_SCREAM, 1s + 200ms);
+                    break;
+                }
+                case EVENT_THUG_SCREAM:
+                {
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                        me->PlayDistanceSound(OBJECT_SOUND_SCREAM, invoker);
+
+                    _events.ScheduleEvent(EVENT_THUG_WARNING, 2s + 500ms);
+                    break;
+                }
+                case EVENT_THUG_WARNING:
+                {
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                        Talk(SAY_WARNING, invoker);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _eventInvokerGUID;
+    std::array<ObjectGuid, 4> _summons;
+    uint32 _thugDeathCount;
+};
+
+enum SmallTimeEvent
+{
+    EVENT_TALK_0 = 1,
+    EVENT_TALK_1 = 2,
+    EVENT_RESET  = 3
+};
+
+enum SmallTimeSay
+{
+    SAY_SMALL_TIME_0 = 0,
+    SAY_SMALL_TIME_1 = 1
+};
+
+class at_westfall_small_time_hustler : public AreaTriggerScript
+{
+public:
+    at_westfall_small_time_hustler() : AreaTriggerScript("at_westfall_small_time_hustler") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+    {
+        if (player->IsAlive())
+            if (Creature* lousPartingThoughtsTrigger = player->FindNearestCreature(NPC_SMALL_TIME_HUSTLER, 10.0f, true))
+                if (lousPartingThoughtsTrigger->IsAIEnabled)
+                    lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID());
+
+        return true;
+    }
+};
+
+struct npc_westfall_small_time_hustler : public ScriptedAI
+{
+    npc_westfall_small_time_hustler(Creature* creature) : ScriptedAI(creature) { }
+
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    {
+        if (!_eventInvokerGUID.IsEmpty())
+            return;
+
+        _eventInvokerGUID = guid;
+
+        _events.ScheduleEvent(EVENT_TALK_0, 0s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK_0:
+                {
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                    {
+                        me->SetFacingToObject(invoker);
+                        Talk(SAY_SMALL_TIME_0, invoker);
+                        _events.ScheduleEvent(EVENT_TALK_1, 4s);
+                    }
+                    break;
+                }
+                case EVENT_TALK_1:
+                {
+                    Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
+                    if (invoker)
+                    {
+                        Talk(SAY_SMALL_TIME_1, invoker);
+                        _events.ScheduleEvent(EVENT_RESET, 60s);
+                    }
+                    break;
+                }
+                case EVENT_RESET:
+                {
+                    _eventInvokerGUID = ObjectGuid::Empty;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _eventInvokerGUID;
+};
+
 void AddSC_westfall()
 {
     RegisterSpellScript(spell_westfall_unbound_energy);
@@ -531,4 +1277,12 @@ void AddSC_westfall()
     RegisterCreatureAI(npc_westfall_hobo_witness);
     RegisterSpellScript(spell_westfall_summon_ragamuffin_looter);
     RegisterSpellScript(spell_westfall_aggro_hobo);
+    RegisterCreatureAI(npc_westfall_refugee_bridge_to_sentinelhill);
+    RegisterCreatureAI(npc_westfall_west_plains_drifter);
+    RegisterCreatureAI(npc_westfall_sentinel_hill_guard);
+    new at_westfall_two_shoed_lou_thugs();
+    RegisterCreatureAI(npc_westfall_thug);
+    RegisterCreatureAI(npc_westfall_lous_parting_thoughts_trigger);
+    new at_westfall_small_time_hustler();
+    RegisterCreatureAI(npc_westfall_small_time_hustler);
 }
