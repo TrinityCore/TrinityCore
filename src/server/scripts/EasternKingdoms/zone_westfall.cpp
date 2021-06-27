@@ -26,6 +26,7 @@
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SharedDefines.h"
+#include "TemporarySummon.h"
 #include "ObjectMgr.h"
 #include "Group.h"
 
