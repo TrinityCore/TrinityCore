@@ -18,12 +18,16 @@
 #include "../CascCommon.h"
 
 #ifdef _MSC_VER
-#pragma comment(lib, "wininet.lib")             // Internet functions for HTTP stream
 #pragma warning(disable: 4800)                  // 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
 #endif
 
 //-----------------------------------------------------------------------------
 // Local functions - platform-specific functions
+
+static ULONGLONG GetByteOffset(ULONGLONG * ByteOffset1, ULONGLONG ByteOffset2)
+{
+    return (ByteOffset1 != NULL) ? ByteOffset1[0] : ByteOffset2;
+}
 
 static DWORD StringToInt(const char * szString)
 {
@@ -165,7 +169,7 @@ static bool BaseFile_Read(
     // Synchronize the access to the TFileStream structure
     CascLock(pStream->Lock);
     {
-        ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
+        ULONGLONG ByteOffset = GetByteOffset(pByteOffset, pStream->Base.File.FilePos);
 
 #ifdef PLATFORM_WINDOWS
         {
@@ -265,7 +269,7 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
     // Synchronize the access to the TFileStream structure
     CascLock(pStream->Lock);
     {
-        ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
+        ULONGLONG ByteOffset = GetByteOffset(pByteOffset, pStream->Base.File.FilePos);
 
 #ifdef PLATFORM_WINDOWS
         {
@@ -557,7 +561,7 @@ static bool BaseMap_Read(
     void * pvBuffer,                        // Pointer to data to be read
     DWORD dwBytesToRead)                    // Number of bytes to read from the file
 {
-    ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.Map.FilePos;
+    ULONGLONG ByteOffset = GetByteOffset(pByteOffset, pStream->Base.Map.FilePos);
 
     // Do we have to read anything at all?
     if(dwBytesToRead != 0)
@@ -607,150 +611,100 @@ static void BaseMap_Init(TFileStream * pStream)
 //-----------------------------------------------------------------------------
 // Local functions - base HTTP file support
 
-static LPCTSTR BaseHttp_ExtractServerName(LPCTSTR szFileName, LPTSTR szServerName)
+static DWORD BaseHttp_ParseURL(TFileStream * pStream, LPCTSTR szFileName)
 {
-    // Check for HTTP
-    if(!_tcsnicmp(szFileName, _T("http://"), 7))
-        szFileName += 7;
+    LPCTSTR szFilePtr = szFileName;
+    char * hostName;
+    char * fileName;
 
-    // Cut off the server name
-    if(szServerName != NULL)
+    // Find the end od the host name
+    if((szFilePtr = _tcschr(szFileName, '/')) == NULL)
+        return ERROR_INVALID_PARAMETER;
+
+    // Allocate and copy the host name
+    if((hostName = CASC_ALLOC<char>(szFilePtr - szFileName + 1)) != NULL)
     {
-        while(szFileName[0] != 0 && szFileName[0] != _T('/'))
-            *szServerName++ = *szFileName++;
-        *szServerName = 0;
-    }
-    else
-    {
-        while(szFileName[0] != 0 && szFileName[0] != _T('/'))
-            szFileName++;
+        CascStrCopy(hostName, 256, szFileName, (szFilePtr - szFileName));
+
+        // Allocate and copy the resource name
+        if((fileName = CascNewStrT2A(szFilePtr)) != NULL)
+        {
+            pStream->Base.Socket.hostName = hostName;
+            pStream->Base.Socket.fileName = fileName;
+            return ERROR_SUCCESS;
+        }
+
+        CASC_FREE(hostName);
     }
 
-    // Return the remainder
-    return szFileName;
+    return ERROR_NOT_ENOUGH_MEMORY;
+}
+
+static bool BaseHttp_Download(TFileStream * pStream)
+{
+    CASC_MIME Mime;
+    const char * request_mask = "GET %s HTTP/1.1\r\nHost: %s\r\nConnection: Keep-Alive\r\n\r\n";
+    char * server_response;
+    char * fileName = pStream->Base.Socket.fileName;
+    char request[0x100];
+    size_t response_length = 0;
+    size_t request_length = 0;
+    DWORD dwErrCode;
+
+    // If we already have the data, it's success
+    if(pStream->Base.Socket.fileData == NULL)
+    {
+        // Construct the request, either HTTP or Ribbit (https://wowdev.wiki/Ribbit).
+        // Note that Ribbit requests don't start with slash
+        if((pStream->dwFlags & BASE_PROVIDER_MASK) == BASE_PROVIDER_RIBBIT)
+        {
+            if(fileName[0] == '/')
+                fileName++;
+            request_mask = "%s\r\n";
+        }
+
+        // Send the request and receive decoded response
+        request_length = CascStrPrintf(request, _countof(request), request_mask, fileName, pStream->Base.Socket.hostName);
+        server_response = pStream->Base.Socket.pSocket->ReadResponse(request, request_length, &response_length);
+        if(server_response != NULL)
+        {
+            // Decode the MIME document
+            if((dwErrCode = Mime.Load(server_response, response_length)) == ERROR_SUCCESS)
+            {
+                // Move the data from MIME to HTTP stream
+                pStream->Base.Socket.fileData = Mime.GiveAway(&pStream->Base.Socket.fileDataLength);
+            }
+
+            CASC_FREE(server_response);
+        }
+    }
+
+    // If we have data loaded, return true
+    return (pStream->Base.Socket.fileData != NULL);
 }
 
 static bool BaseHttp_Open(TFileStream * pStream, LPCTSTR szFileName, DWORD dwStreamFlags)
 {
-#ifdef PLATFORM_WINDOWS
+    DWORD dwErrCode;
 
-    INTERNET_PORT ServerPort = INTERNET_DEFAULT_HTTP_PORT;
-    HINTERNET hRequest;
-    DWORD dwTemp = 0;
-    bool bFileAvailable = false;
-    DWORD dwErrCode = ERROR_SUCCESS;
-
-    // Check alternate ports
-    if(dwStreamFlags & STREAM_FLAG_USE_PORT_1119)
+    // Extract the server part
+    if((dwErrCode = BaseHttp_ParseURL(pStream, szFileName)) == ERROR_SUCCESS)
     {
-        ServerPort = 1119;
-    }
+        // Determine the proper port
+        PCASC_SOCKET pSocket;
+        int portNum = ((dwStreamFlags & BASE_PROVIDER_MASK) == BASE_PROVIDER_RIBBIT) ? CASC_PORT_RIBBIT : CASC_PORT_HTTP;
 
-    // Don't download if we are not connected to the internet
-    if(!InternetGetConnectedState(&dwTemp, 0))
-        dwErrCode = GetCascError();
-
-    // Initiate the connection to the internet
-    if(dwErrCode == ERROR_SUCCESS)
-    {
-        pStream->Base.Http.hInternet = InternetOpen(_T("agent/2.17.2.6700"),
-                                                    INTERNET_OPEN_TYPE_PRECONFIG,
-                                                    NULL,
-                                                    NULL,
-                                                    0);
-        if(pStream->Base.Http.hInternet == NULL)
-            dwErrCode = GetCascError();
-    }
-
-    // Connect to the server
-    if(dwErrCode == ERROR_SUCCESS)
-    {
-        TCHAR szServerName[MAX_PATH];
-        DWORD dwFlags = INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE;
-
-        // Initiate connection with the server
-        szFileName = BaseHttp_ExtractServerName(szFileName, szServerName);
-        pStream->Base.Http.hConnect = InternetConnect(pStream->Base.Http.hInternet,
-                                                      szServerName,
-                                                      ServerPort,
-                                                      NULL,
-                                                      NULL,
-                                                      INTERNET_SERVICE_HTTP,
-                                                      dwFlags,
-                                                      0);
-        if(pStream->Base.Http.hConnect == NULL)
-            dwErrCode = GetCascError();
-    }
-
-    // Now try to query the file size
-    if(dwErrCode == ERROR_SUCCESS)
-    {
-        // Open HTTP request to the file
-        hRequest = HttpOpenRequest(pStream->Base.Http.hConnect, _T("GET"), szFileName, NULL, NULL, NULL, INTERNET_FLAG_NO_CACHE_WRITE, 0);
-        if(hRequest != NULL)
+        // Initiate the remote connection
+        if((pSocket = sockets_connect(pStream->Base.Socket.hostName, portNum)) != NULL)
         {
-            if(HttpSendRequest(hRequest, NULL, 0, NULL, 0))
-            {
-                ULONGLONG FileTime = 0;
-                LPTSTR szEndPtr;
-                TCHAR szStatusCode[0x10];
-                DWORD dwStatusCode = 404;
-                DWORD dwFileSize = 0;
-                DWORD dwDataSize = sizeof(szStatusCode);
-                DWORD dwIndex = 0;
-
-                // Check whether the file exists
-                if (HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE, szStatusCode, &dwDataSize, &dwIndex))
-                    dwStatusCode = _tcstoul(szStatusCode, &szEndPtr, 10);
-
-                // Compare the status code
-                if (dwStatusCode == 200)
-                {
-                    // Check if the archive has Last Modified field
-                    dwDataSize = sizeof(ULONGLONG);
-                    if (HttpQueryInfo(hRequest, HTTP_QUERY_LAST_MODIFIED | HTTP_QUERY_FLAG_SYSTEMTIME, &FileTime, &dwDataSize, &dwIndex))
-                        pStream->Base.Http.FileTime = FileTime;
-
-                    // Verify if the server supports random access
-                    dwDataSize = sizeof(DWORD);
-                    if (HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &dwFileSize, &dwDataSize, &dwIndex))
-                    {
-                        if (dwFileSize != 0)
-                        {
-                            pStream->Base.Http.FileSize = dwFileSize;
-                            pStream->Base.Http.FilePos = 0;
-                            bFileAvailable = true;
-                        }
-                    }
-                }
-                else
-                {
-                    dwErrCode = ERROR_FILE_NOT_FOUND;
-                }
-            }
-            InternetCloseHandle(hRequest);
+            pStream->Base.Socket.pSocket = pSocket;
+            return true;
         }
     }
 
-    // If the file is not there and is not available for random access,
-    // report error
-    if(bFileAvailable == false)
-    {
-        pStream->BaseClose(pStream);
-        SetCascError(dwErrCode);
-        return false;
-    }
-
-    return true;
-
-#else
-
-    // Not supported
-    SetCascError(ERROR_NOT_SUPPORTED);
-    pStream = pStream;
+    // Failure: set the last error and return false
+    SetCascError(dwErrCode);
     return false;
-
-#endif
 }
 
 static bool BaseHttp_Read(
@@ -759,90 +713,94 @@ static bool BaseHttp_Read(
     void * pvBuffer,                        // Pointer to data to be read
     DWORD dwBytesToRead)                    // Number of bytes to read from the file
 {
-#ifdef PLATFORM_WINDOWS
-    ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.Http.FilePos;
-    DWORD dwTotalBytesRead = 0;
+    ULONGLONG ByteOffset = GetByteOffset(pByteOffset, pStream->Base.Socket.fileDataPos);
+    bool bCanReadTheWholeRange = true;
 
-    // Do we have to read anything at all?
-    if(dwBytesToRead != 0)
+    // Synchronize the access to the TFileStream structure
+    CascLock(pStream->Lock);
     {
-        HINTERNET hRequest;
-        LPCTSTR szFileName;
-        LPBYTE pbBuffer = (LPBYTE)pvBuffer;
-        TCHAR szRangeRequest[0x80];
-        DWORD dwStartOffset = (DWORD)ByteOffset;
-        DWORD dwEndOffset = dwStartOffset + dwBytesToRead;
-
-        // Open HTTP request to the file
-        szFileName = BaseHttp_ExtractServerName(pStream->szFileName, NULL);
-        hRequest = HttpOpenRequest(pStream->Base.Http.hConnect, _T("GET"), szFileName, NULL, NULL, NULL, INTERNET_FLAG_NO_CACHE_WRITE, 0);
-        if(hRequest != NULL)
+        // Do we have to read anything at all?
+        if(dwBytesToRead != 0)
         {
-            // Add range request to the HTTP headers
-            // http://www.clevercomponents.com/articles/article015/resuming.asp
-            CascStrPrintf(szRangeRequest, _countof(szRangeRequest), _T("Range: bytes=%u-%u"), (unsigned int)dwStartOffset, (unsigned int)dwEndOffset);
-            HttpAddRequestHeaders(hRequest, szRangeRequest, 0xFFFFFFFF, HTTP_ADDREQ_FLAG_ADD_IF_NEW);
-
-            // Send the request to the server
-            if(HttpSendRequest(hRequest, NULL, 0, NULL, 0))
+            // Make sure that we have the file downloaded
+            if(!BaseHttp_Download(pStream))
             {
-                while(dwTotalBytesRead < dwBytesToRead)
+                CascUnlock(pStream->Lock);
+                return false;
+            }
+
+            // Are we trying to read more than available?
+            if(ByteOffset <= pStream->Base.Socket.fileDataLength)
+            {
+                if((ByteOffset + dwBytesToRead) > pStream->Base.Socket.fileDataLength)
                 {
-                    DWORD dwBlockBytesToRead = dwBytesToRead - dwTotalBytesRead;
-                    DWORD dwBlockBytesRead = 0;
-
-                    // Read the block from the file
-                    if(dwBlockBytesToRead > 0x200)
-                        dwBlockBytesToRead = 0x200;
-                    InternetReadFile(hRequest, pbBuffer, dwBlockBytesToRead, &dwBlockBytesRead);
-
-                    // Check for end
-                    if(dwBlockBytesRead == 0)
-                        break;
-
-                    // Move buffers
-                    dwTotalBytesRead += dwBlockBytesRead;
-                    pbBuffer += dwBlockBytesRead;
+                    bCanReadTheWholeRange = false;
+                    dwBytesToRead = (DWORD)(pStream->Base.Socket.fileDataLength - ByteOffset);
                 }
             }
-            InternetCloseHandle(hRequest);
-        }
-    }
+            else
+            {
+                bCanReadTheWholeRange = false;
+                dwBytesToRead = 0;
+            }
 
-    // Increment the current file position by number of bytes read
-    pStream->Base.Http.FilePos = ByteOffset + dwTotalBytesRead;
+            // Copy the data
+            if(dwBytesToRead != 0)
+            {
+                memcpy(pvBuffer, pStream->Base.Socket.fileData + ByteOffset, dwBytesToRead);
+            }
+        }
+
+        // Increment the current file position by number of bytes read
+        pStream->Base.Socket.fileDataPos = (size_t)(ByteOffset + dwBytesToRead);
+    }
+    CascUnlock(pStream->Lock);
 
     // If the number of bytes read doesn't match the required amount, return false
-    if(dwTotalBytesRead != dwBytesToRead)
+    if(bCanReadTheWholeRange == false)
         SetCascError(ERROR_HANDLE_EOF);
-    return (dwTotalBytesRead == dwBytesToRead);
+    return bCanReadTheWholeRange;
+}
 
-#else
+// Gives the current file size
+static bool BaseHttp_GetSize(TFileStream * pStream, ULONGLONG * pFileSize)
+{
+    bool bResult;
 
-    // Not supported
-    pStream = pStream;
-    pByteOffset = pByteOffset;
-    pvBuffer = pvBuffer;
-    dwBytesToRead = dwBytesToRead;
-    SetCascError(ERROR_NOT_SUPPORTED);
-    return false;
+    // Synchronize the access to the TFileStream structure
+    CascLock(pStream->Lock);
+    {
+        // Make sure that we have the file data
+        bResult = BaseHttp_Download(pStream);
+        if(bResult)
+        {
+            *pFileSize = pStream->Base.Socket.fileDataLength;
+        }
+    }
+    CascUnlock(pStream->Lock);
 
-#endif
+    // Give the result
+    return bResult;
+}
+
+static bool BaseHttp_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
+{
+    // Give the current position
+    *pByteOffset = pStream->Base.Socket.fileDataPos;
+    return true;
 }
 
 static void BaseHttp_Close(TFileStream * pStream)
 {
-#ifdef PLATFORM_WINDOWS
-    if(pStream->Base.Http.hConnect != NULL)
-        InternetCloseHandle(pStream->Base.Http.hConnect);
-    pStream->Base.Http.hConnect = NULL;
-
-    if(pStream->Base.Http.hInternet != NULL)
-        InternetCloseHandle(pStream->Base.Http.hInternet);
-    pStream->Base.Http.hInternet = NULL;
-#else
-    pStream = pStream;
-#endif
+    if(pStream->Base.Socket.fileData != NULL)
+        CASC_FREE(pStream->Base.Socket.fileData);
+    if(pStream->Base.Socket.hostName != NULL)
+        CASC_FREE(pStream->Base.Socket.hostName);
+    if(pStream->Base.Socket.fileName != NULL)
+        CASC_FREE(pStream->Base.Socket.fileName);
+    if(pStream->Base.Socket.pSocket != NULL)
+        pStream->Base.Socket.pSocket->Release();
+    memset(&pStream->Base.Socket, 0, sizeof(pStream->Base.Socket));
 }
 
 // Initializes base functions for the mapped file
@@ -851,8 +809,8 @@ static void BaseHttp_Init(TFileStream * pStream)
     // Supply the stream functions
     pStream->BaseOpen    = BaseHttp_Open;
     pStream->BaseRead    = BaseHttp_Read;
-    pStream->BaseGetSize = BaseFile_GetSize;    // Reuse BaseFile function
-    pStream->BaseGetPos  = BaseFile_GetPos;     // Reuse BaseFile function
+    pStream->BaseGetSize = BaseHttp_GetSize;
+    pStream->BaseGetPos  = BaseHttp_GetPos;
     pStream->BaseClose   = BaseHttp_Close;
 
     // HTTP files are read-only
@@ -894,7 +852,7 @@ static bool BlockStream_Read(
         return true;
 
     // Get the current position in the stream
-    ByteOffset = (pByteOffset != NULL) ? pByteOffset[0] : pStream->StreamPos;
+    ByteOffset = GetByteOffset(pByteOffset, pStream->StreamPos);
     EndOffset = ByteOffset + dwBytesToRead;
     if(EndOffset > pStream->StreamSize)
     {
@@ -1029,11 +987,12 @@ static void BlockStream_Close(TBlockStream * pStream)
 //-----------------------------------------------------------------------------
 // File stream allocation function
 
-static STREAM_INIT StreamBaseInit[4] =
+static STREAM_INIT StreamBaseInit[5] =
 {
     BaseFile_Init,
     BaseMap_Init,
     BaseHttp_Init,
+    BaseHttp_Init,      // Ribbit provider shares code with HTTP provider
     BaseNone_Init
 };
 
@@ -2526,42 +2485,50 @@ size_t FileStream_Prefix(LPCTSTR szFileName, DWORD * pdwProvider)
             nPrefixLength1 = 5;
         }
 
+        // Cut out the stream provider
+        szFileName += nPrefixLength1;
+
         //
         // Determine the base provider
         //
 
-        if(!_tcsnicmp(szFileName+nPrefixLength1, _T("file:"), 5))
+        if(!_tcsnicmp(szFileName, _T("file:"), 5))
         {
             dwProvider |= BASE_PROVIDER_FILE;
             nPrefixLength2 = 5;
         }
 
-        else if(!_tcsnicmp(szFileName+nPrefixLength1, _T("map:"), 4))
+        else if(!_tcsnicmp(szFileName, _T("map:"), 4))
         {
             dwProvider |= BASE_PROVIDER_MAP;
             nPrefixLength2 = 4;
         }
 
-        else if(!_tcsnicmp(szFileName+nPrefixLength1, _T("http:"), 5))
+        else if(!_tcsnicmp(szFileName, _T("http:"), 5))
         {
             dwProvider |= BASE_PROVIDER_HTTP;
             nPrefixLength2 = 5;
+        }
+
+        else if(!_tcsnicmp(szFileName, _T("ribbit:"), 7))
+        {
+            dwProvider |= BASE_PROVIDER_RIBBIT;
+            nPrefixLength2 = 7;
         }
 
         // Only accept stream provider if we recognized the base provider
         if(nPrefixLength2 != 0)
         {
             // It is also allowed to put "//" after the base provider, e.g. "file://", "http://"
-            if(szFileName[nPrefixLength1+nPrefixLength2] == '/' && szFileName[nPrefixLength1+nPrefixLength2+1] == '/')
+            if(szFileName[nPrefixLength2] == '/' && szFileName[nPrefixLength2+1] == '/')
                 nPrefixLength2 += 2;
 
             if(pdwProvider != NULL)
                 *pdwProvider = dwProvider;
-            return nPrefixLength1 + nPrefixLength2;
         }
     }
 
-    return 0;
+    return nPrefixLength1 + nPrefixLength2;
 }
 
 /**

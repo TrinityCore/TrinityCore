@@ -163,7 +163,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
                 pbRootPtr = pbRootPtr + (sizeof(CONTENT_KEY) * RootGroup.Header.NumberOfFiles);
 
                 // Also include array of file hashes
-                if(FileCounter > FileCounterHashless)
+                if(!(RootGroup.Header.ContentFlags & CASC_CFLAG_NO_NAME_HASH))
                 {
                     if((pbRootPtr + (sizeof(ULONGLONG) * RootGroup.Header.NumberOfFiles)) > pbRootEnd)
                         return NULL;

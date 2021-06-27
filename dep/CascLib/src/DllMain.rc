@@ -27,8 +27,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,50,0,204
- PRODUCTVERSION 1,50,0,204
+ FILEVERSION 1,50,0,205
+ PRODUCTVERSION 1,50,0,205
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -45,12 +45,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "http://www.zezula.net/casc.html"
             VALUE "FileDescription", "CascLib library for reading Blizzard CASC storages"
-            VALUE "FileVersion", "1, 50, 0, 204\0"
+            VALUE "FileVersion", "1, 50, 0, 205\0"
             VALUE "InternalName", "CascLib"
             VALUE "LegalCopyright", "Copyright (c) 2014 - 2019 Ladislav Zezula"
             VALUE "OriginalFilename", "CascLib.dll"
             VALUE "ProductName", "CascLib"
-            VALUE "ProductVersion", "1, 50, 0, 204\0"
+            VALUE "ProductVersion", "1, 50, 0, 205\0"
         END
     END
     BLOCK "VarFileInfo"

@@ -74,8 +74,8 @@ extern "C" {
 //-----------------------------------------------------------------------------
 // Defines
 
-#define CASCLIB_VERSION                 0x0200  // CascLib version - integral (1.50)
-#define CASCLIB_VERSION_STRING           "2.0"  // CascLib version - string
+#define CASCLIB_VERSION                 0x0210  // CascLib version - integral (2.1)
+#define CASCLIB_VERSION_STRING           "2.1"  // CascLib version - string
 
 // Values for CascOpenFile
 #define CASC_OPEN_BY_NAME           0x00000000  // Open the file by name. This is the default value

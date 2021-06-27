@@ -13,8 +13,8 @@
 #define __CASCPORT_H__
 
 #ifndef __cplusplus
-  #define bool char
-  #define true 1
+  #define bool  char
+  #define true  1
   #define false 0
 #endif
 
@@ -43,9 +43,9 @@
   #include <direct.h>
   #include <malloc.h>
   #include <windows.h>
-  #include <wininet.h>
+  #include <ws2tcpip.h>
   #include <strsafe.h>
-  #include <sys/types.h>
+
   #define PLATFORM_LITTLE_ENDIAN
 
   #pragma intrinsic(memset, memcmp, memcpy)     // Make these functions intrinsic (inline)
@@ -56,6 +56,7 @@
 
   #define PLATFORM_WINDOWS
   #define PLATFORM_DEFINED                      // The platform is known now
+
 #endif
 
 #ifndef FIELD_OFFSET
@@ -70,6 +71,7 @@
   // Macintosh
   #include <sys/types.h>
   #include <sys/stat.h>
+  #include <sys/socket.h>
   #include <sys/mman.h>
   #include <fcntl.h>
   #include <dirent.h>
@@ -85,6 +87,7 @@
   #include <cassert>
   #include <errno.h>
   #include <pthread.h>
+  #include <netdb.h>
 
   // Support for PowerPC on Max OS X
   #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
@@ -104,6 +107,8 @@
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
 
+  typedef int SOCKET;
+
   #define PLATFORM_MAC
   #define PLATFORM_DEFINED                  // The platform is known now
 
@@ -115,6 +120,7 @@
 #if !defined(PLATFORM_DEFINED)
   #include <sys/types.h>
   #include <sys/stat.h>
+  #include <sys/socket.h>
   #include <sys/mman.h>
   #include <fcntl.h>
   #include <dirent.h>
@@ -130,10 +136,13 @@
   #include <assert.h>
   #include <errno.h>
   #include <pthread.h>
+  #include <netdb.h>
 
   #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
+
+  typedef int SOCKET;
 
   #define PLATFORM_LITTLE_ENDIAN
   #define PLATFORM_LINUX
@@ -202,6 +211,8 @@
   #define _tcsicmp  strcasecmp
   #define _tcsnicmp strncasecmp
 
+  #define closesocket close
+
 #endif // !PLATFORM_WINDOWS
 
 // 64-bit calls are supplied by "normal" calls on Mac
@@ -235,6 +246,7 @@
   #define ERROR_FILE_ENCRYPTED           1005       // Returned by encrypted stream when can't find file key
   #define ERROR_FILE_TOO_LARGE           1006       // No such error code under Linux
   #define ERROR_ARITHMETIC_OVERFLOW      1007       // The string value is too large to fit in the given type
+  #define ERROR_NETWORK_NOT_AVAILABLE    1008       // Cannot connect to the internet
 #endif
 
 #ifndef ERROR_FILE_INCOMPLETE

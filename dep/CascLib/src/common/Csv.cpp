@@ -21,7 +21,7 @@ static const CASC_CSV_LINE NullLine;
 //-----------------------------------------------------------------------------
 // Local functions
 
-static char * NextLine(char * szLine)
+static char * NextLine_Default(void * /* pvUserData */, char * szLine)
 {
     // Find the end of the line
     while(szLine[0] != 0 && szLine[0] != 0x0A && szLine[0] != 0x0D)
@@ -35,7 +35,7 @@ static char * NextLine(char * szLine)
     return (szLine[0] != 0) ? szLine : NULL;
 }
 
-static char * NextColumn(char * szColumn)
+static char * NextColumn_Default(void * /* pvUserData */, char * szColumn)
 {
     // Find the end of the column
     while(szColumn[0] != 0 && szColumn[0] != '|')
@@ -86,6 +86,7 @@ CASC_CSV_LINE::~CASC_CSV_LINE()
 
 bool CASC_CSV_LINE::SetLine(CASC_CSV * pParent, char * szCsvLine)
 {
+    CASC_CSV_NEXTPROC PfnNextColumn = pParent->GetNextColumnProc();
     char * szCsvColumn;
     size_t nHdrColumns = 0;
     size_t nColumns = 0;
@@ -99,7 +100,7 @@ bool CASC_CSV_LINE::SetLine(CASC_CSV * pParent, char * szCsvLine)
     {
         // Get current line and the next one
         szCsvColumn = szCsvLine;
-        szCsvLine = NextColumn(szCsvLine);
+        szCsvLine = PfnNextColumn(pParent->GetUserData(), szCsvLine);
 
         // Save the current line
         Columns[nColumns].szValue = szCsvColumn;
@@ -154,11 +155,16 @@ CASC_CSV::CASC_CSV(size_t nLinesMax, bool bHasHeader)
 {
     // Initialize the class variables
     memset(HashTable, 0xFF, sizeof(HashTable));
+    m_pvUserData = NULL;
     m_szCsvFile = NULL;
     m_szCsvPtr = NULL;
     m_nCsvFile = 0;
     m_nLines = 0;
     m_bHasHeader = bHasHeader;
+
+    // Initialize the "NextLine" function that will serve for finding next line in the text
+    PfnNextLine = NextLine_Default;
+    PfnNextColumn = NextColumn_Default;
 
     // Nonzero number of lines means a finite CSV handler. The CSV will be loaded at once.
     // Zero means that the user needs to call LoadNextLine() and then the line data
@@ -185,6 +191,21 @@ CASC_CSV::~CASC_CSV()
     m_szCsvFile = NULL;
 }
 
+DWORD CASC_CSV::SetNextLineProc(CASC_CSV_NEXTPROC PfnNextLineProc, CASC_CSV_NEXTPROC PfnNextColProc, void * pvUserData)
+{
+    // Set the procedure for next line parsing
+    if(PfnNextLineProc != NULL)
+        PfnNextLine = PfnNextLineProc;
+
+    // Set procedure for next columne parsing
+    if(PfnNextColProc != NULL)
+        PfnNextColumn = PfnNextColProc;
+
+    // Save the user data
+    m_pvUserData = pvUserData;
+    return ERROR_SUCCESS;
+}
+
 DWORD CASC_CSV::Load(LPCTSTR szFileName)
 {
     DWORD cbFileData = 0;
@@ -193,8 +214,7 @@ DWORD CASC_CSV::Load(LPCTSTR szFileName)
     m_szCsvFile = (char *)LoadFileToMemory(szFileName, &cbFileData);
     if (m_szCsvFile != NULL)
     {
-        // There is one extra byte reserved by LoadFileToMemory, so we can put zero there
-        m_szCsvFile[cbFileData] = 0;
+        // Assign the data to the CSV object
         m_szCsvPtr = m_szCsvFile;
         m_nCsvFile = cbFileData;
 
@@ -282,7 +302,7 @@ bool CASC_CSV::LoadNextLine(CASC_CSV_LINE & Line)
         char * szCsvLine = m_szCsvPtr;
 
         // Get the next line
-        m_szCsvPtr = NextLine(m_szCsvPtr);
+        m_szCsvPtr = PfnNextLine(m_pvUserData, m_szCsvPtr);
 
         // Initialize the line
         if (Line.SetLine(this, szCsvLine))

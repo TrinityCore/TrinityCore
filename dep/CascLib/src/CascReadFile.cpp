@@ -48,7 +48,7 @@ static DWORD OpenDataStream(TCascFile * hf, PCASC_FILE_SPAN pFileSpan, PCASC_CKE
         {
             // Prepare the name of the data file
             CascStrPrintf(szPlainName, _countof(szPlainName), _T("data.%03u"), dwArchiveIndex);
-            CombinePath(szDataFile, _countof(szDataFile), PATH_SEP_CHAR, hs->szIndexPath, szPlainName, NULL);
+            CombinePath(szDataFile, _countof(szDataFile), hs->szIndexPath, szPlainName, NULL);
 
             // Open the data stream with read+write sharing to prevent Battle.net agent
             // detecting a corruption and redownloading the entire package

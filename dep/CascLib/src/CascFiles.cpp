@@ -13,6 +13,10 @@
 #include "CascLib.h"
 #include "CascCommon.h"
 
+#ifdef _MSC_VER
+#pragma comment(lib, "ws2_32.lib")          // Internet functions for HTTP stream
+#endif
+
 //-----------------------------------------------------------------------------
 // Local defines
 
@@ -56,6 +60,8 @@ static LPCTSTR DataDirs[] =
     NULL,
 };
 
+static LPCTSTR bnet_region = _T("us");
+
 //-----------------------------------------------------------------------------
 // Local functions
 
@@ -93,12 +99,12 @@ static const char * CaptureDecimalInteger(const char * szDataPtr, const char * s
     while (szDataPtr < szDataEnd && szDataPtr[0] != ' ')
     {
         // Must only contain decimal digits ('0' - '9')
-        if (!IsCharDigit(szDataPtr[0]))
+        if(!IsCharDigit(szDataPtr[0]))
             break;
 
         // Get the next value and verify overflow
         AddValue = szDataPtr[0] - '0';
-        if ((TotalValue + AddValue) < TotalValue)
+        if((TotalValue + AddValue) < TotalValue)
             return NULL;
 
         TotalValue = (TotalValue * 10) + AddValue;
@@ -143,13 +149,13 @@ static const char * CaptureSingleHash(const char * szDataPtr, const char * szDat
     // Count all hash characters
     for (size_t i = 0; i < HashStringLength; i++)
     {
-        if (szDataPtr >= szDataEnd || isxdigit(szDataPtr[0]) == 0)
+        if(szDataPtr >= szDataEnd || isxdigit(szDataPtr[0]) == 0)
             return NULL;
         szDataPtr++;
     }
 
     // There must be a separator or end-of-string
-    if (szDataPtr > szDataEnd || IsWhiteSpace(szDataPtr) == false)
+    if(szDataPtr > szDataEnd || IsWhiteSpace(szDataPtr) == false)
         return NULL;
 
     // Give the values
@@ -167,7 +173,7 @@ static const char * CaptureHashCount(const char * szDataPtr, const char * szData
     {
         // Check one hash
         szDataPtr = CaptureSingleHash(szDataPtr, szDataEnd, HashValue, MD5_HASH_SIZE);
-        if (szDataPtr == NULL)
+        if(szDataPtr == NULL)
             return NULL;
 
         // Skip all whitespaces
@@ -227,11 +233,11 @@ static bool CheckConfigFileVariable(
 
     // Capture the variable from the line
     szLinePtr = CaptureSingleString(szLinePtr, szLineEnd, szVariableName, sizeof(szVariableName));
-    if (szLinePtr == NULL)
+    if(szLinePtr == NULL)
         return false;
 
     // Verify whether this is the variable
-    if (!CascCheckWildCard(szVariableName, szVarName))
+    if(!CascCheckWildCard(szVariableName, szVarName))
         return false;
 
     // Skip the spaces and '='
@@ -239,7 +245,7 @@ static bool CheckConfigFileVariable(
         szLinePtr++;
 
     // Call the parsing function only if there is some data
-    if (szLinePtr >= szLineEnd)
+    if(szLinePtr >= szLineEnd)
         return false;
 
     return (PfnParseProc(hs, szVariableName, szLinePtr, szLineEnd, pvParseParam) == ERROR_SUCCESS);
@@ -256,7 +262,7 @@ static DWORD LoadHashArray(
     // Allocate the blob buffer
     pBlob->cbData = (DWORD)(HashCount * MD5_HASH_SIZE);
     pBlob->pbData = CASC_ALLOC<BYTE>(pBlob->cbData);
-    if (pBlob->pbData != NULL)
+    if(pBlob->pbData != NULL)
     {
         LPBYTE pbBuffer = pBlob->pbData;
 
@@ -264,7 +270,7 @@ static DWORD LoadHashArray(
         {
             // Capture the hash value
             szLinePtr = CaptureSingleHash(szLinePtr, szLineEnd, pbBuffer, MD5_HASH_SIZE);
-            if (szLinePtr == NULL)
+            if(szLinePtr == NULL)
                 return ERROR_BAD_FORMAT;
 
             // Move buffer
@@ -283,7 +289,7 @@ static DWORD LoadMultipleHashes(PQUERY_KEY pBlob, const char * szLineBegin, cons
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Retrieve the hash count
-    if (CaptureHashCount(szLineBegin, szLineEnd, &HashCount) == NULL)
+    if(CaptureHashCount(szLineBegin, szLineEnd, &HashCount) == NULL)
         return ERROR_BAD_FORMAT;
 
     // Do nothing if there is no data
@@ -398,10 +404,10 @@ static DWORD LoadVfsRootEntry(TCascStorage * hs, const char * szVariableName, co
     DWORD VfsRootIndex = CASC_INVALID_INDEX;
 
     // Skip the "vfs-" part
-    if (!strncmp(szVariableName, "vfs-", 4))
+    if(!strncmp(szVariableName, "vfs-", 4))
     {
         // Then, there must be a decimal number as index
-        if ((szVarPtr = CaptureDecimalInteger(szVarPtr + 4, szVarEnd, &VfsRootIndex)) != NULL)
+        if((szVarPtr = CaptureDecimalInteger(szVarPtr + 4, szVarEnd, &VfsRootIndex)) != NULL)
         {
             // We expect the array to be initialized
             assert(pArray->IsInitialized());
@@ -484,9 +490,9 @@ static DWORD LoadBuildNumber(TCascStorage * hs, const char * /* szVariableName *
 static int LoadQueryKey(const CASC_CSV_COLUMN & Column, QUERY_KEY & Key)
 {
     // Check the input data
-    if (Column.szValue == NULL)
+    if(Column.szValue == NULL)
         return ERROR_BUFFER_OVERFLOW;
-    if (Column.nLength != MD5_STRING_SIZE)
+    if(Column.nLength != MD5_STRING_SIZE)
         return ERROR_BAD_FORMAT;
 
     return LoadHashArray(&Key, Column.szValue, Column.szValue + Column.nLength, 1);
@@ -538,6 +544,7 @@ static DWORD GetDefaultLocaleMask(TCascStorage * hs, const CASC_CSV_COLUMN & Col
 static DWORD ParseFile_CDNS(TCascStorage * hs, CASC_CSV & Csv)
 {
     const char * szWantedRegion = hs->szRegion;
+    const char * szRegion;
     size_t nLineCount;
 
     // Fix the region
@@ -548,19 +555,23 @@ static DWORD ParseFile_CDNS(TCascStorage * hs, CASC_CSV & Csv)
     nLineCount = Csv.GetLineCount();
 
     // Find the active config
-    for (size_t i = 0; i < nLineCount; i++)
+    for(size_t i = 0; i < nLineCount; i++)
     {
-        // Is it the version we are looking for?
-        if(!strcmp(Csv[i]["Name!STRING:0"].szValue, szWantedRegion))
+        // Retrieve the region
+        if((szRegion = Csv[i]["Name!STRING:0"].szValue) != NULL)
         {
-            // Save the list of CDN servers
-            hs->szCdnServers = CascNewStrA2T(Csv[i]["Hosts!STRING:0"].szValue);
+            // Is it the version we are looking for?
+            if(!strcmp(Csv[i]["Name!STRING:0"].szValue, szWantedRegion))
+            {
+                // Save the list of CDN servers
+                hs->szCdnServers = CascNewStrA2T(Csv[i]["Hosts!STRING:0"].szValue);
 
-            // Save the CDN subpath
-            hs->szCdnPath = CascNewStrA2T(Csv[i]["Path!STRING:0"].szValue);
+                // Save the CDN subpath
+                hs->szCdnPath = CascNewStrA2T(Csv[i]["Path!STRING:0"].szValue);
 
-            // Check and return result
-            return (hs->szCdnServers && hs->szCdnPath) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+                // Check and return result
+                return (hs->szCdnServers && hs->szCdnPath) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+            }
         }
     }
 
@@ -657,12 +668,12 @@ static DWORD ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
     {
         // Extract the CDN build key
         dwErrCode = LoadQueryKey(Csv[nSelected]["Build Key!HEX:16"], hs->CdnBuildKey);
-        if (dwErrCode != ERROR_SUCCESS)
+        if(dwErrCode != ERROR_SUCCESS)
             return dwErrCode;
 
         // Extract the CDN config key
         dwErrCode = LoadQueryKey(Csv[nSelected]["CDN Key!HEX:16"], hs->CdnConfigKey);
-        if (dwErrCode != ERROR_SUCCESS)
+        if(dwErrCode != ERROR_SUCCESS)
             return dwErrCode;
 
         // Get the CDN path
@@ -694,20 +705,20 @@ static DWORD ParseFile_VersionsDb(TCascStorage * hs, CASC_CSV & Csv)
     for (size_t i = 0; i < nLineCount; i++)
     {
         // Either take the version required or take the first one
-        if (hs->szRegion == NULL || !strcmp(Csv[i]["Region!STRING:0"].szValue, hs->szRegion))
+        if(hs->szRegion == NULL || !strcmp(Csv[i]["Region!STRING:0"].szValue, hs->szRegion))
         {
             // Extract the CDN build key
             dwErrCode = LoadQueryKey(Csv[i]["BuildConfig!HEX:16"], hs->CdnBuildKey);
-            if (dwErrCode != ERROR_SUCCESS)
+            if(dwErrCode != ERROR_SUCCESS)
                 return dwErrCode;
 
             // Extract the CDN config key
             dwErrCode = LoadQueryKey(Csv[i]["CDNConfig!HEX:16"], hs->CdnConfigKey);
-            if (dwErrCode != ERROR_SUCCESS)
+            if(dwErrCode != ERROR_SUCCESS)
                 return dwErrCode;
 
             const CASC_CSV_COLUMN & VerColumn = Csv[i]["VersionsName!String:0"];
-            if (VerColumn.szValue && VerColumn.nLength)
+            if(VerColumn.szValue && VerColumn.nLength)
             {
                 LoadBuildNumber(hs, NULL, VerColumn.szValue, VerColumn.szValue + VerColumn.nLength, NULL);
             }
@@ -739,7 +750,7 @@ static DWORD ParseFile_BuildDb(TCascStorage * hs, CASC_CSV & Csv)
 
     // Extract the CDN config key
     dwErrCode = LoadQueryKey(Csv[CSV_ZERO][1], hs->CdnConfigKey);
-    if (dwErrCode != ERROR_SUCCESS)
+    if(dwErrCode != ERROR_SUCCESS)
         return dwErrCode;
 
     // Verify all variables
@@ -798,7 +809,7 @@ static DWORD ParseFile_CdnBuild(TCascStorage * hs, void * pvListFile)
 
     // Initialize the empty VFS array
     dwErrCode = hs->VfsRootList.Create<CASC_CKEY_ENTRY>(0x10);
-    if (dwErrCode != ERROR_SUCCESS)
+    if(dwErrCode != ERROR_SUCCESS)
         return dwErrCode;
 
     // Parse all variables
@@ -860,29 +871,35 @@ static DWORD ParseFile_CdnBuild(TCascStorage * hs, void * pvListFile)
 
 static DWORD CheckDataDirectory(TCascStorage * hs, LPTSTR szDirectory)
 {
-    LPTSTR szDataPath;
+    TCHAR szDataPath[MAX_PATH];
     DWORD dwErrCode = ERROR_FILE_NOT_FOUND;
 
     // Try all known subdirectories
     for(size_t i = 0; DataDirs[i] != NULL; i++)
     {
         // Create the eventual data path
-        szDataPath = CombinePath(szDirectory, DataDirs[i]);
-        if(szDataPath != NULL)
-        {
-            // Does that directory exist?
-            if(DirectoryExists(szDataPath))
-            {
-                hs->szRootPath = CascNewStr(szDirectory);
-                hs->szDataPath = szDataPath;
-                return ERROR_SUCCESS;
-            }
+        CombinePath(szDataPath, _countof(szDataPath), szDirectory, DataDirs[i], NULL);
 
-            // Free the data path
-            CASC_FREE(szDataPath);
+        // Does that directory exist?
+        if(DirectoryExists(szDataPath))
+        {
+            hs->szRootPath = CascNewStr(szDirectory);
+            hs->szDataPath = CascNewStr(szDataPath);
+            return ERROR_SUCCESS;
         }
     }
 
+    return dwErrCode;
+}
+
+static DWORD LoadCsvFile(TCascStorage * hs, LPBYTE pbFileData, size_t cbFileData, PARSECSVFILE PfnParseProc, bool bHasHeader)
+{
+    CASC_CSV Csv(0x40, bHasHeader);
+    DWORD dwErrCode;
+
+    // Load the external file to memory
+    if((dwErrCode = Csv.Load(pbFileData, cbFileData)) == ERROR_SUCCESS)
+        dwErrCode = PfnParseProc(hs, Csv);
     return dwErrCode;
 }
 
@@ -892,7 +909,7 @@ static DWORD LoadCsvFile(TCascStorage * hs, LPCTSTR szFileName, PARSECSVFILE Pfn
     DWORD dwErrCode;
 
     // Load the external file to memory
-    if ((dwErrCode = Csv.Load(szFileName)) == ERROR_SUCCESS)
+    if((dwErrCode = Csv.Load(szFileName)) == ERROR_SUCCESS)
         dwErrCode = PfnParseProc(hs, Csv);
     return dwErrCode;
 }
@@ -940,7 +957,7 @@ static void CreateRemoteAndLocalPath(TCascStorage * hs, CASC_CDN_DOWNLOAD & Cdns
     {
         // The file is given by EKey. It's either a loose file, or it's stored in an archive.
         // We check that using the EKey map
-        if ((pEKeyEntry = (PCASC_EKEY_ENTRY)hs->IndexMap.FindObject(CdnsInfo.pbEKey)) != NULL)
+        if((pEKeyEntry = (PCASC_EKEY_ENTRY)hs->IndexMap.FindObject(CdnsInfo.pbEKey)) != NULL)
         {
             // Change the path type to "data"
             RemotePath.AppendString(_T("data"), true);
@@ -1073,15 +1090,15 @@ static DWORD DownloadFile(
 
     // Open the remote stream
     pRemStream = FileStream_OpenFile(szRemoteName, BASE_PROVIDER_HTTP | STREAM_PROVIDER_FLAT | dwPortFlags);
-    if (pRemStream != NULL)
+    if(pRemStream != NULL)
     {
         // Will we download the entire file or just a part of it?
-        if (PtrByteOffset == NULL)
+        if(PtrByteOffset == NULL)
         {
             ULONGLONG FileSize = 0;
 
             // Retrieve the file size, but not longer than 1 GB
-            if (FileStream_GetSize(pRemStream, &FileSize) && 0 < FileSize && FileSize < 0x40000000)
+            if(FileStream_GetSize(pRemStream, &FileSize) && 0 < FileSize && FileSize < 0x40000000)
             {
                 // Cut the file size down to 32 bits
                 cbReadSize = (DWORD)FileSize;
@@ -1089,15 +1106,15 @@ static DWORD DownloadFile(
         }
 
         // Shall we read something?
-        if ((cbReadSize != 0) && (pbFileData = CASC_ALLOC<BYTE>(cbReadSize)) != NULL)
+        if((cbReadSize != 0) && (pbFileData = CASC_ALLOC<BYTE>(cbReadSize)) != NULL)
         {
             // Read all required data from the remote file
-            if (FileStream_Read(pRemStream, PtrByteOffset, pbFileData, cbReadSize))
+            if(FileStream_Read(pRemStream, PtrByteOffset, pbFileData, cbReadSize))
             {
                 pLocStream = FileStream_CreateFile(szLocalName, BASE_PROVIDER_FILE | STREAM_PROVIDER_FLAT);
-                if (pLocStream != NULL)
+                if(pLocStream != NULL)
                 {
-                    if (FileStream_Write(pLocStream, NULL, pbFileData, cbReadSize))
+                    if(FileStream_Write(pLocStream, NULL, pbFileData, cbReadSize))
                         dwErrCode = ERROR_SUCCESS;
 
                     FileStream_Close(pLocStream);
@@ -1119,11 +1136,63 @@ static DWORD DownloadFile(
     return dwErrCode;
 }
 
+static DWORD RibbitDownloadFile(LPCTSTR szProduct, LPCTSTR szFileName, QUERY_KEY & FileData)
+{
+    TFileStream * pStream;
+    ULONGLONG FileSize = 0;
+    TCHAR szRemoteUrl[256];
+    DWORD dwErrCode = ERROR_CAN_NOT_COMPLETE;
+
+    // Construct the full URL (https://wowdev.wiki/Ribbit)
+    // Old (HTTP) download: wget http://us.patch.battle.net:1119/wow_classic/cdns
+    CascStrPrintf(szRemoteUrl, _countof(szRemoteUrl), _T("ribbit://%s.version.battle.net/v1/products/%s/%s"), bnet_region, szProduct, szFileName);
+
+    // Open the file stream
+    if((pStream = FileStream_OpenFile(szRemoteUrl, 0)) != NULL)
+    {
+        if(FileStream_GetSize(pStream, &FileSize) && FileSize <= 0x04000000)
+        {
+            // Fill-in the file pointer and size
+            FileData.pbData = CASC_ALLOC<BYTE>((size_t)FileSize);
+            if(FileData.pbData != NULL)
+            {
+                if(FileStream_Read(pStream, NULL, FileData.pbData, (DWORD)FileSize))
+                {
+                    FileData.cbData = (size_t)FileSize;
+                    dwErrCode = ERROR_SUCCESS;
+                }
+                else
+                {
+                    dwErrCode = GetCascError();
+                    CASC_FREE(FileData.pbData);
+                    FileData.pbData = NULL;
+                }
+            }
+            else
+            {
+                dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+            }
+        }
+        else
+        {
+            dwErrCode = GetCascError();
+        }
+
+        // Close the remote stream
+        FileStream_Close(pStream);
+    }
+    else
+    {
+        dwErrCode = GetCascError();
+    }
+
+    return dwErrCode;
+}
+
 static DWORD DownloadFileFromCDN2(TCascStorage * hs, CASC_CDN_DOWNLOAD & CdnsInfo)
 {
     CASC_PATH<TCHAR> RemotePath(URL_SEP_CHAR);
     CASC_PATH<TCHAR> LocalPath(PATH_SEP_CHAR);
-    DWORD dwPortFlags = (CdnsInfo.Flags & CASC_CDN_FLAG_PORT1119) ? STREAM_FLAG_USE_PORT_1119 : 0;
     DWORD dwErrCode;
 
     // Assemble both the remote and local path
@@ -1139,7 +1208,7 @@ static DWORD DownloadFileFromCDN2(TCascStorage * hs, CASC_CDN_DOWNLOAD & CdnsInf
             return dwErrCode;
 
         // Attempt to download the file
-        dwErrCode = DownloadFile(RemotePath, LocalPath, NULL, 0, dwPortFlags);
+        dwErrCode = DownloadFile(RemotePath, LocalPath, NULL, 0, 0);
         if(dwErrCode != ERROR_SUCCESS)
             return dwErrCode;
     }
@@ -1213,9 +1282,9 @@ static DWORD FetchAndLoadConfigFile(TCascStorage * hs, PQUERY_KEY pFileKey, PARS
 
     // Load and verify the external listfile
     pvListFile = ListFile_OpenExternal(szLocalPath);
-    if (pvListFile != NULL)
+    if(pvListFile != NULL)
     {
-        if (ListFile_VerifyMD5(pvListFile, pFileKey->pbData))
+        if(ListFile_VerifyMD5(pvListFile, pFileKey->pbData))
         {
             dwErrCode = PfnParseProc(hs, pvListFile);
         }
@@ -1283,34 +1352,30 @@ DWORD GetFileSpanInfo(PCASC_CKEY_ENTRY pCKeyEntry, PULONGLONG PtrContentSize, PU
 DWORD CheckGameDirectory(TCascStorage * hs, LPTSTR szDirectory)
 {
     TFileStream * pStream;
-    LPTSTR szBuildFile;
+    TCHAR szBuildFile[MAX_PATH];
     DWORD dwErrCode = ERROR_FILE_NOT_FOUND;
 
     // Try to find any of the root files used in the history
     for (size_t i = 0; BuildTypes[i].szFileName != NULL; i++)
     {
         // Create the full name of the .agent.db file
-        szBuildFile = CombinePath(szDirectory, BuildTypes[i].szFileName);
-        if (szBuildFile != NULL)
+        CombinePath(szBuildFile, _countof(szBuildFile), szDirectory, BuildTypes[i].szFileName, NULL);
+
+        // Attempt to open the file
+        pStream = FileStream_OpenFile(szBuildFile, STREAM_FLAG_READ_ONLY);
+        if(pStream != NULL)
         {
-            // Attempt to open the file
-            pStream = FileStream_OpenFile(szBuildFile, STREAM_FLAG_READ_ONLY);
-            if (pStream != NULL)
+            // Free the stream
+            FileStream_Close(pStream);
+
+            // Check for the data directory
+            dwErrCode = CheckDataDirectory(hs, szDirectory);
+            if(dwErrCode == ERROR_SUCCESS)
             {
-                // Free the stream
-                FileStream_Close(pStream);
-
-                // Check for the data directory
-                dwErrCode = CheckDataDirectory(hs, szDirectory);
-                if (dwErrCode == ERROR_SUCCESS)
-                {
-                    hs->szBuildFile = szBuildFile;
-                    hs->BuildFileType = BuildTypes[i].BuildFileType;
-                    return ERROR_SUCCESS;
-                }
+                hs->szBuildFile = CascNewStr(szBuildFile);
+                hs->BuildFileType = BuildTypes[i].BuildFileType;
+                return ERROR_SUCCESS;
             }
-
-            CASC_FREE(szBuildFile);
         }
     }
 
@@ -1322,35 +1387,6 @@ DWORD LoadBuildInfo(TCascStorage * hs)
     PARSECSVFILE PfnParseProc = NULL;
     DWORD dwErrCode;
     bool bHasHeader = true;
-
-    // If the storage is online storage, we need to download "versions"
-    if(hs->dwFeatures & CASC_FEATURE_ONLINE)
-    {
-        CASC_CDN_DOWNLOAD CdnsInfo = {0};
-        TCHAR szLocalFile[MAX_PATH];
-
-        // Inform the user about loading the build.info/build.db/versions
-        if(InvokeProgressCallback(hs, "Downloading the \"versions\" file", NULL, 0, 0))
-            return ERROR_CANCELLED;
-
-        // Prepare the download structure for "us.patch.battle.net/%CODENAME%/versions" file
-        CdnsInfo.szCdnsHost = _T("us.patch.battle.net");
-        CdnsInfo.szCdnsPath = hs->szCodeName;
-        CdnsInfo.szPathType = _T("");
-        CdnsInfo.szFileName = _T("versions");
-        CdnsInfo.szLocalPath = szLocalFile;
-        CdnsInfo.ccLocalPath = _countof(szLocalFile);
-        CdnsInfo.Flags = CASC_CDN_FLAG_PORT1119 | CASC_CDN_FORCE_DOWNLOAD;
-
-        // Attempt to download the "versions" file
-        dwErrCode = DownloadFileFromCDN(hs, CdnsInfo);
-        if(dwErrCode != ERROR_SUCCESS)
-            return dwErrCode;
-
-        // Retrieve the name of the "versions" file
-        if((hs->szBuildFile = CascNewStr(szLocalFile)) == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
-    }
 
     // We support ".build.info", ".build.db" or "versions"
     switch (hs->BuildFileType)
@@ -1372,14 +1408,35 @@ DWORD LoadBuildInfo(TCascStorage * hs)
             return ERROR_NOT_SUPPORTED;
     }
 
-    assert(hs->szBuildFile != NULL);
-    return LoadCsvFile(hs, hs->szBuildFile, PfnParseProc, bHasHeader);
+    // If the storage is online storage, we need to download "versions"
+    if(hs->dwFeatures & CASC_FEATURE_ONLINE)
+    {
+        QUERY_KEY FileData;
+
+        // Inform the user about loading the build.info/build.db/versions
+        if(InvokeProgressCallback(hs, "Downloading the \"versions\" file", NULL, 0, 0))
+            return ERROR_CANCELLED;
+
+        // Download the file using Ribbit protocol
+        dwErrCode = RibbitDownloadFile(hs->szCodeName, _T("versions"), FileData);
+        if(dwErrCode == ERROR_SUCCESS)
+        {
+            // Parse the downloaded file
+            dwErrCode = LoadCsvFile(hs, FileData.pbData, FileData.cbData, ParseFile_VersionsDb, true);
+        }
+    }
+    else
+    {
+        assert(hs->szBuildFile != NULL);
+        dwErrCode = LoadCsvFile(hs, hs->szBuildFile, PfnParseProc, bHasHeader);
+    }
+
+    return dwErrCode;
 }
 
 DWORD LoadCdnsFile(TCascStorage * hs)
 {
-    CASC_CDN_DOWNLOAD CdnsInfo = {0};
-    TCHAR szLocalPath[MAX_PATH];
+    QUERY_KEY FileData;
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Sanity checks
@@ -1389,19 +1446,12 @@ DWORD LoadCdnsFile(TCascStorage * hs)
     if(InvokeProgressCallback(hs, "Downloading the \"cdns\" file", NULL, 0, 0))
         return ERROR_CANCELLED;
 
-    // Prepare the download structure
-    CdnsInfo.szCdnsHost = _T("us.patch.battle.net");
-    CdnsInfo.szCdnsPath = hs->szCodeName;
-    CdnsInfo.szPathType = _T("");
-    CdnsInfo.szFileName = _T("cdns");
-    CdnsInfo.szLocalPath = szLocalPath;
-    CdnsInfo.ccLocalPath = _countof(szLocalPath);
-    CdnsInfo.Flags = CASC_CDN_FLAG_PORT1119 | CASC_CDN_FORCE_DOWNLOAD;
-
-    // Download file and parse it
-    if((dwErrCode = DownloadFileFromCDN(hs, CdnsInfo)) == ERROR_SUCCESS)
+    // Download the file using Ribbit protocol
+    dwErrCode = RibbitDownloadFile(hs->szCodeName, _T("cdns"), FileData);
+    if(dwErrCode == ERROR_SUCCESS)
     {
-        dwErrCode = LoadCsvFile(hs, szLocalPath, ParseFile_CDNS, true);
+        // Parse the downloaded file
+        dwErrCode = LoadCsvFile(hs, FileData.pbData, FileData.cbData, ParseFile_CDNS, true);
     }
 
     return dwErrCode;
@@ -1524,7 +1574,7 @@ LPBYTE LoadFileToMemory(LPCTSTR szFileName, DWORD * pcbFileData)
         FileStream_GetSize(pStream, &FileSize);
         cbFileData = (DWORD)FileSize;
 
-        // Do not load zero files or too larget files
+        // Do not load zero files or too large files
         if(0 < FileSize && FileSize <= 0x2000000)
         {
             // Allocate file data buffer. Make it 1 byte longer
@@ -1532,7 +1582,12 @@ LPBYTE LoadFileToMemory(LPCTSTR szFileName, DWORD * pcbFileData)
             pbFileData = CASC_ALLOC<BYTE>(cbFileData + 1);
             if(pbFileData != NULL)
             {
-                if(!FileStream_Read(pStream, NULL, pbFileData, cbFileData))
+                if(FileStream_Read(pStream, NULL, pbFileData, cbFileData))
+                {
+                    // Terminate the data with zero so various string-based functions can process it
+                    pbFileData[cbFileData] = 0;
+                }
+                else
                 {
                     CASC_FREE(pbFileData);
                     cbFileData = 0;

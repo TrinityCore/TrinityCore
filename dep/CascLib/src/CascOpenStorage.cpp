@@ -135,6 +135,11 @@ TCascStorage * TCascStorage::Release()
     // Need this to be atomic to make multi-threaded file opens work
     if(CascInterlockedDecrement(&dwRefCount) == 0)
     {
+        // Release all references in the socket cache
+        if(dwFeatures & CASC_FEATURE_ONLINE)
+            sockets_set_caching(false);
+
+        // Delete the object and return NULL
         delete this;
         return NULL;
     }
@@ -162,16 +167,16 @@ void * ProbeOutputBuffer(void * pvBuffer, size_t cbLength, size_t cbMinLength, s
 
 static LPTSTR CheckForIndexDirectory(TCascStorage * hs, LPCTSTR szSubDir)
 {
-    LPTSTR szIndexPath;
+    TCHAR szIndexPath[MAX_PATH];
 
     // Combine the index path
-    szIndexPath = CombinePath(hs->szDataPath, szSubDir);
-    if (!DirectoryExists(szIndexPath))
-    {
-        CASC_FREE(szIndexPath);
-    }
+    CombinePath(szIndexPath, _countof(szIndexPath), hs->szDataPath, szSubDir, NULL);
 
-    return szIndexPath;
+    // Check whether the path exists
+    if(!DirectoryExists(szIndexPath))
+        return NULL;
+
+    return CascNewStr(szIndexPath);
 }
 
 // Inserts an entry from the text build file
@@ -1168,9 +1173,14 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szBuildKey), &szBuildKey) && szBuildKey != NULL)
         hs->szBuildKey = CascNewStrT2A(szBuildKey);
 
-    // For online storages, we need to load CDN servers
-    if ((dwErrCode == ERROR_SUCCESS) && (hs->dwFeatures & CASC_FEATURE_ONLINE))
+    // Special handling to online storages
+    if(hs->dwFeatures & CASC_FEATURE_ONLINE)
     {
+        // Enable caching of the sockets. This will add references
+        // to all existing and all future sockets
+        sockets_set_caching(true);
+
+        // For online storages, we need to load CDN servers
         dwErrCode = LoadCdnsFile(hs);
     }
 

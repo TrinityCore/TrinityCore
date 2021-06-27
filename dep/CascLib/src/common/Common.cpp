@@ -454,9 +454,9 @@ bool CutLastPathPart(LPTSTR szWorkPath)
     return true;
 }
 
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, char chSeparator, va_list argList)
+size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, va_list argList)
 {
-    CASC_PATH<TCHAR> Path(chSeparator);
+    CASC_PATH<TCHAR> Path(PATH_SEP_CHAR);
     LPCTSTR szFragment;
     bool bWithSeparator = false;
 
@@ -470,26 +470,16 @@ size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, char chSeparator, va_list 
     return Path.Copy(szBuffer, nMaxChars);
 }
 
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, char chSeparator, ...)
+size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, ...)
 {
     va_list argList;
     size_t nLength;
 
-    va_start(argList, chSeparator);
-    nLength = CombinePath(szBuffer, nMaxChars, chSeparator, argList);
+    va_start(argList, nMaxChars);
+    nLength = CombinePath(szBuffer, nMaxChars, argList);
     va_end(argList);
 
     return nLength;
-}
-
-LPTSTR CombinePath(LPCTSTR szDirectory, LPCTSTR szSubDir)
-{
-    CASC_PATH<TCHAR> Path(PATH_SEP_CHAR);
-
-    // Merge the path
-    Path.AppendString(szDirectory, false);
-    Path.AppendString(szSubDir, true);
-    return Path.New();
 }
 
 size_t NormalizeFileName(const unsigned char * NormTable, char * szNormName, const char * szFileName, size_t cchMaxChars)
