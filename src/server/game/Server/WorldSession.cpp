@@ -38,6 +38,7 @@
 #include "Map.h"
 #include "Metric.h"
 #include "MoveSpline.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
