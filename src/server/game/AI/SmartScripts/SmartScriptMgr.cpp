@@ -701,12 +701,12 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
 {
     static std::unordered_map<SMART_EVENT, size_t> sizeMappings = {
         {SMART_EVENT_UPDATE_IC, sizeof(SmartEvent::minMaxRepeat)},
-        {SMART_EVENT_UPDATE_OOC, sizeof(SmartEvent::raw)},
-        {SMART_EVENT_HEALTH_PCT, sizeof(SmartEvent::raw)},
-        {SMART_EVENT_MANA_PCT, sizeof(SmartEvent::raw)},
-        {SMART_EVENT_AGGRO, sizeof(SmartEvent::raw)},
-        {SMART_EVENT_KILL, sizeof(SmartEvent::raw)},
-        {SMART_EVENT_DEATH, sizeof(SmartEvent::raw)},
+        {SMART_EVENT_UPDATE_OOC, sizeof(SmartEvent::minMaxRepeat)},
+        {SMART_EVENT_HEALTH_PCT, sizeof(SmartEvent::minMaxRepeat)},
+        {SMART_EVENT_MANA_PCT, sizeof(SmartEvent::minMaxRepeat)},
+        {SMART_EVENT_AGGRO, size_t(0)},
+        {SMART_EVENT_KILL, sizeof(SmartEvent::kill)},
+        {SMART_EVENT_DEATH, size_t(0)},
         {SMART_EVENT_EVADE, sizeof(SmartEvent::raw)},
         {SMART_EVENT_SPELLHIT, sizeof(SmartEvent::raw)},
         {SMART_EVENT_RANGE, sizeof(SmartEvent::raw)},
