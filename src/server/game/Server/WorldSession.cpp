@@ -926,7 +926,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
-    Unit* mover = GetGameClient()->GetActivelyMovedUnit();
+    Unit* mover = GetPlayer()->GetGUID() == mi->guid ? GetPlayer() : ObjectAccessor::GetUnit(*GetPlayer(), mi->guid);
 
     if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
         REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
