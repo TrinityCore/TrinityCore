@@ -928,6 +928,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     #endif
 
     Unit* mover = GetPlayer()->GetGUID() == mi->guid ? GetPlayer() : ObjectAccessor::GetUnit(*GetPlayer(), mi->guid);
+    ASSERT(mover, "if the server allows this unit to be moved by the client, the unit should still exist!");
 
     if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
         REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
