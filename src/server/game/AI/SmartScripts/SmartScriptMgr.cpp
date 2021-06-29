@@ -699,104 +699,103 @@ bool SmartAIMgr::IsSoundValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
 {
-    static constexpr size_t NO_PARAMS = size_t(0);
-
-    static std::unordered_map<SMART_EVENT, size_t> sizeMappings = {
-        {SMART_EVENT_UPDATE_IC, sizeof(SmartEvent::minMaxRepeat)},
-        {SMART_EVENT_UPDATE_OOC, sizeof(SmartEvent::minMaxRepeat)},
-        {SMART_EVENT_HEALTH_PCT, sizeof(SmartEvent::minMaxRepeat)},
-        {SMART_EVENT_MANA_PCT, sizeof(SmartEvent::minMaxRepeat)},
-        {SMART_EVENT_AGGRO, NO_PARAMS},
-        {SMART_EVENT_KILL, sizeof(SmartEvent::kill)},
-        {SMART_EVENT_DEATH, NO_PARAMS},
-        {SMART_EVENT_EVADE, NO_PARAMS},
-        {SMART_EVENT_SPELLHIT, sizeof(SmartEvent::spellHit)},
-        {SMART_EVENT_RANGE, sizeof(SmartEvent::minMaxRepeat)},
-        {SMART_EVENT_OOC_LOS, sizeof(SmartEvent::los)},
-        //{SMART_EVENT_RESPAWN, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TARGET_HEALTH_PCT, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_VICTIM_CASTING, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_FRIENDLY_HEALTH, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_FRIENDLY_IS_CC, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_FRIENDLY_MISSING_BUFF, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_SUMMONED_UNIT, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TARGET_MANA_PCT, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_ACCEPTED_QUEST, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_REWARD_QUEST, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_REACHED_HOME, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_RECEIVE_EMOTE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_HAS_AURA, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TARGET_BUFFED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_RESET, sizeof(SmartEvent::raw)},
-        {SMART_EVENT_IC_LOS, sizeof(SmartEvent::los)},
-        //{SMART_EVENT_PASSENGER_BOARDED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_PASSENGER_REMOVED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_CHARMED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_CHARMED_TARGET, sizeof(SmartEvent::raw)},
-        {SMART_EVENT_SPELLHIT_TARGET, sizeof(SmartEvent::spellHit)},
-        //{SMART_EVENT_DAMAGED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_DAMAGED_TARGET, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_MOVEMENTINFORM, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_SUMMON_DESPAWNED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_CORPSE_REMOVED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_AI_INIT, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_DATA_SET, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_WAYPOINT_START, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_WAYPOINT_REACHED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TRANSPORT_ADDPLAYER, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TRANSPORT_ADDCREATURE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TRANSPORT_REMOVE_PLAYER, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TRANSPORT_RELOCATE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_INSTANCE_PLAYER_ENTER, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_AREATRIGGER_ONTRIGGER, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_QUEST_ACCEPTED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_QUEST_OBJ_COMPLETION, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_QUEST_COMPLETION, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_QUEST_REWARDED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_QUEST_FAIL, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TEXT_OVER, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_RECEIVE_HEAL, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_JUST_SUMMONED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_WAYPOINT_PAUSED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_WAYPOINT_RESUMED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_WAYPOINT_STOPPED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_WAYPOINT_ENDED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_TIMED_EVENT_TRIGGERED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_UPDATE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_LINK, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_GOSSIP_SELECT, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_JUST_CREATED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_GOSSIP_HELLO, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_FOLLOW_COMPLETED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_EVENT_PHASE_CHANGE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_IS_BEHIND_TARGET, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_GAME_EVENT_START, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_GAME_EVENT_END, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_GO_LOOT_STATE_CHANGED, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_GO_EVENT_INFORM, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_ACTION_DONE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_ON_SPELLCLICK, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_FRIENDLY_HEALTH_PCT, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_DISTANCE_CREATURE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_DISTANCE_GAMEOBJECT, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_COUNTER_SET, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_SCENE_START, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_SCENE_TRIGGER, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_SCENE_CANCEL, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_SCENE_COMPLETE, sizeof(SmartEvent::raw)},
-        //{SMART_EVENT_SUMMONED_UNIT_DIES, sizeof(SmartEvent::raw)}
-    };
-
-    auto sizeMapping = sizeMappings.find(e.event.type);
-    if (sizeMapping == sizeMappings.end())
+    size_t paramsStructSize = [&]() -> size_t
     {
-        TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.", \
-            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-        return true;
-    }
+        constexpr size_t NO_PARAMS = size_t(0);
+        switch (e.event.type)
+        {
+            case SMART_EVENT_UPDATE_IC: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_UPDATE_OOC: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_HEALTH_PCT: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_MANA_PCT: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_AGGRO: return NO_PARAMS;
+            case SMART_EVENT_KILL: return sizeof(SmartEvent::kill);
+            case SMART_EVENT_DEATH: return NO_PARAMS;
+            case SMART_EVENT_EVADE: return NO_PARAMS;
+            case SMART_EVENT_SPELLHIT: return sizeof(SmartEvent::spellHit);
+            case SMART_EVENT_RANGE: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_OOC_LOS: return sizeof(SmartEvent::los);
+            case SMART_EVENT_RESPAWN: return sizeof(SmartEvent::respawn);
+            case SMART_EVENT_TARGET_HEALTH_PCT: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_VICTIM_CASTING: return sizeof(SmartEvent::targetCasting);
+            //case SMART_EVENT_FRIENDLY_HEALTH: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_FRIENDLY_IS_CC: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_FRIENDLY_MISSING_BUFF: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SUMMONED_UNIT: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TARGET_MANA_PCT: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_ACCEPTED_QUEST: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_REWARD_QUEST: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_REACHED_HOME: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_RECEIVE_EMOTE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_HAS_AURA: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TARGET_BUFFED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_RESET: return sizeof(SmartEvent::raw);
+            case SMART_EVENT_IC_LOS: return sizeof(SmartEvent::los);
+            //case SMART_EVENT_PASSENGER_BOARDED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_PASSENGER_REMOVED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_CHARMED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_CHARMED_TARGET: return sizeof(SmartEvent::raw);
+            case SMART_EVENT_SPELLHIT_TARGET: return sizeof(SmartEvent::spellHit);
+            //case SMART_EVENT_DAMAGED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_DAMAGED_TARGET: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_MOVEMENTINFORM: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SUMMON_DESPAWNED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_CORPSE_REMOVED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_AI_INIT: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_DATA_SET: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_WAYPOINT_START: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_WAYPOINT_REACHED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TRANSPORT_ADDPLAYER: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TRANSPORT_ADDCREATURE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TRANSPORT_REMOVE_PLAYER: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TRANSPORT_RELOCATE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_INSTANCE_PLAYER_ENTER: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_AREATRIGGER_ONTRIGGER: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_QUEST_ACCEPTED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_QUEST_OBJ_COMPLETION: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_QUEST_COMPLETION: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_QUEST_REWARDED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_QUEST_FAIL: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TEXT_OVER: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_RECEIVE_HEAL: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_JUST_SUMMONED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_WAYPOINT_PAUSED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_WAYPOINT_RESUMED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_WAYPOINT_STOPPED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_WAYPOINT_ENDED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_TIMED_EVENT_TRIGGERED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_UPDATE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_LINK: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_GOSSIP_SELECT: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_JUST_CREATED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_GOSSIP_HELLO: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_FOLLOW_COMPLETED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_EVENT_PHASE_CHANGE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_IS_BEHIND_TARGET: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_GAME_EVENT_START: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_GAME_EVENT_END: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_GO_LOOT_STATE_CHANGED: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_GO_EVENT_INFORM: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_ACTION_DONE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_ON_SPELLCLICK: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_FRIENDLY_HEALTH_PCT: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_DISTANCE_CREATURE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_DISTANCE_GAMEOBJECT: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_COUNTER_SET: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SCENE_START: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SCENE_TRIGGER: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SCENE_CANCEL: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SCENE_COMPLETE: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SUMMONED_UNIT_DIES: return sizeof(SmartEvent::raw);
+            default:
+                TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return sizeof(SmartEvent::raw);
+        }
+    }();
 
     static size_t rawCount = sizeof(SmartEvent::raw) / sizeof(uint32);
-    size_t paramsCount = sizeMapping->second / sizeof(uint32);
+    size_t paramsCount = paramsStructSize / sizeof(uint32);
 
     bool valid = true;
     for (size_t index = paramsCount; index < rawCount; index++)
