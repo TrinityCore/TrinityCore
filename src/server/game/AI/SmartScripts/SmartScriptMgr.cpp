@@ -718,18 +718,18 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_RESPAWN: return sizeof(SmartEvent::respawn);
             case SMART_EVENT_TARGET_HEALTH_PCT: return sizeof(SmartEvent::minMaxRepeat);
             case SMART_EVENT_VICTIM_CASTING: return sizeof(SmartEvent::targetCasting);
-            //case SMART_EVENT_FRIENDLY_HEALTH: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_FRIENDLY_IS_CC: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_FRIENDLY_MISSING_BUFF: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_SUMMONED_UNIT: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_TARGET_MANA_PCT: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_ACCEPTED_QUEST: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_REWARD_QUEST: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_REACHED_HOME: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_RECEIVE_EMOTE: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_HAS_AURA: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_TARGET_BUFFED: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_RESET: return sizeof(SmartEvent::raw);
+            case SMART_EVENT_FRIENDLY_HEALTH: return sizeof(SmartEvent::friendlyHealth);
+            case SMART_EVENT_FRIENDLY_IS_CC: return sizeof(SmartEvent::friendlyCC);
+            case SMART_EVENT_FRIENDLY_MISSING_BUFF: return sizeof(SmartEvent::missingBuff);
+            case SMART_EVENT_SUMMONED_UNIT: return sizeof(SmartEvent::summoned);
+            case SMART_EVENT_TARGET_MANA_PCT: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_ACCEPTED_QUEST: return sizeof(SmartEvent::quest);
+            case SMART_EVENT_REWARD_QUEST: return sizeof(SmartEvent::quest);
+            case SMART_EVENT_REACHED_HOME: return NO_PARAMS;
+            case SMART_EVENT_RECEIVE_EMOTE: return sizeof(SmartEvent::emote);
+            case SMART_EVENT_HAS_AURA: return sizeof(SmartEvent::aura);
+            case SMART_EVENT_TARGET_BUFFED: return sizeof(SmartEvent::aura);
+            case SMART_EVENT_RESET: return NO_PARAMS;
             case SMART_EVENT_IC_LOS: return sizeof(SmartEvent::los);
             //case SMART_EVENT_PASSENGER_BOARDED: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_PASSENGER_REMOVED: return sizeof(SmartEvent::raw);
@@ -778,7 +778,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             //case SMART_EVENT_GO_EVENT_INFORM: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_ACTION_DONE: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_ON_SPELLCLICK: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_FRIENDLY_HEALTH_PCT: return sizeof(SmartEvent::raw);
+            case SMART_EVENT_FRIENDLY_HEALTH_PCT: return sizeof(SmartEvent::friendlyHealthPct);
             //case SMART_EVENT_DISTANCE_CREATURE: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_DISTANCE_GAMEOBJECT: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_COUNTER_SET: return sizeof(SmartEvent::raw);
@@ -786,7 +786,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             //case SMART_EVENT_SCENE_TRIGGER: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_SCENE_CANCEL: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_SCENE_COMPLETE: return sizeof(SmartEvent::raw);
-            //case SMART_EVENT_SUMMONED_UNIT_DIES: return sizeof(SmartEvent::raw);
+            case SMART_EVENT_SUMMONED_UNIT_DIES: return sizeof(SmartEvent::summoned);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
