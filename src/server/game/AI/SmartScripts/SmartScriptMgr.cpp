@@ -812,9 +812,180 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
     return valid;
 }
 
-bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& /*e*/)
+bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
 {
-    return true;
+    size_t paramsStructSize = [&]() -> size_t
+    {
+        constexpr size_t NO_PARAMS = size_t(0);
+        switch (e.action.type)
+        {
+            //case SMART_ACTION_NONE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_TALK: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_FACTION: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SOUND: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_PLAY_EMOTE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_FAIL_QUEST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_OFFER_QUEST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_REACT_STATE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ACTIVATE_GOBJECT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RANDOM_EMOTE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CAST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SUMMON_CREATURE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_THREAT_SINGLE_PCT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_THREAT_ALL_PCT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RESERVED_16: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_EMOTE_STATE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_UNIT_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_UNIT_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_AUTO_ATTACK: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ALLOW_COMBAT_MOVEMENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_EVENT_PHASE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_INC_EVENT_PHASE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_EVADE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_FLEE_FOR_ASSIST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_GROUPEVENTHAPPENS: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_COMBAT_STOP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVEAURASFROMSPELL: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_FOLLOW: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RANDOM_PHASE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RANDOM_PHASE_RANGE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RESET_GOBJECT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_KILLEDMONSTER: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_INST_DATA: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_INST_DATA64: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_UPDATE_TEMPLATE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_DIE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_IN_COMBAT_WITH_ZONE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_FOR_HELP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_SHEATH: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_FORCE_DESPAWN: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_INGAME_PHASE_MASK: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_DATA: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ATTACK_STOP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_VISIBILITY: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_ACTIVE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ATTACK_START: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SUMMON_GO: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_KILL_UNIT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ACTIVATE_TAXI: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_WP_START: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_WP_PAUSE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_WP_STOP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ADD_ITEM: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_ITEM: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_INSTALL_AI_TEMPLATE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_RUN: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_DISABLE_GRAVITY: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_SWIM: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_TELEPORT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_COUNTER: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_STORE_TARGET_LIST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_WP_RESUME: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_ORIENTATION: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CREATE_TIMED_EVENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_PLAYMOVIE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_MOVE_TO_POS: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ENABLE_TEMP_GOBJ: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_EQUIP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CLOSE_GOSSIP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_TRIGGER_TIMED_EVENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_TIMED_EVENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ADD_AURA: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RESET_SCRIPT_BASE_OBJECT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_SCRIPT_RESET: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_RANGED_MOVEMENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_TIMED_ACTIONLIST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_NPC_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ADD_NPC_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_NPC_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SIMPLE_TALK: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SELF_CAST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CROSS_CAST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RANDOM_MOVE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_UNIT_FIELD_BYTES_1: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_INTERRUPT_SPELL: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SEND_GO_CUSTOM_ANIM: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_DYNAMIC_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ADD_DYNAMIC_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_DYNAMIC_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_JUMP_TO_POS: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SEND_GOSSIP_MENU: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_GO_SET_LOOT_STATE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SEND_TARGET_TO_TARGET: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_HOME_POS: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_HEALTH_REGEN: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_ROOT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_GO_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ADD_GO_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_GO_FLAG: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SUMMON_CREATURE_GROUP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_POWER: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ADD_POWER: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_POWER: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_GAME_EVENT_STOP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_GAME_EVENT_START: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_START_CLOSEST_WAYPOINT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_MOVE_OFFSET: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RANDOM_SOUND: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_CORPSE_DELAY: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_DISABLE_EVADE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_GO_SET_GO_STATE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_CAN_FLY: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_AURAS_BY_TYPE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_SIGHT_DIST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_FLEE: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_ADD_THREAT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_LOAD_EQUIPMENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_PAUSE_MOVEMENT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_PLAY_ANIMKIT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SCENE_PLAY: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SCENE_CANCEL: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SPAWN_SPAWNGROUP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_DESPAWN_SPAWNGROUP: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_RESPAWN_BY_SPAWNID: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_INVOKER_CAST: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_PLAY_CINEMATIC: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_MOVEMENT_SPEED: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_PLAY_SPELL_VISUAL_KIT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_OVERRIDE_LIGHT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_OVERRIDE_WEATHER: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_AI_ANIM_KIT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_HOVER: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SET_HEALTH_PCT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_CREATE_CONVERSATION: return sizeof(SmartAction::raw);
+            default:
+                TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return sizeof(SmartAction::raw);
+        }
+    }();
+
+    static size_t rawCount = sizeof(SmartAction::raw) / sizeof(uint32);
+    size_t paramsCount = paramsStructSize / sizeof(uint32);
+
+    bool valid = true;
+    for (size_t index = paramsCount; index < rawCount; index++)
+    {
+        uint32 value = ((uint32*)&e.action.raw)[index];
+        if (value != 0)
+        {
+            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused action_param%zu with value %u, it must be 0, skipped.",
+                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
+            valid = false;
+        }
+    }
+
+    return valid;
 }
 
 bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& /*e*/)
