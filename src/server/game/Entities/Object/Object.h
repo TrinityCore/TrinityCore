@@ -283,6 +283,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         TSTasks<TSWorldObject> tasks;
         TSStorage storage;
         TSCollisions collisions;
+        std::set<TSObjectGroup*> groups;
+        void RemoveFromAllGroups();
         // @tswow-end
 
         virtual void Update(uint32 /*time_diff*/) { }

@@ -1098,6 +1098,9 @@ void WorldObject::RemoveFromWorld()
     DestroyForNearbyPlayers();
 
     Object::RemoveFromWorld();
+    // @tswow-begin
+    RemoveFromAllGroups();
+    // @tswow-end
 }
 
 bool WorldObject::IsInWorldPvpZone() const
@@ -3628,6 +3631,18 @@ std::string WorldObject::GetDebugInfo() const
          << "Name: " << GetName();
     return sstr.str();
 }
+
+// @tswow-begin
+void WorldObject::RemoveFromAllGroups()
+{
+    for (auto& group : groups)
+    {
+        group->RemovedByObject(TSWorldObject(this));
+    }
+    groups.clear();
+    storage.ClearGroups();
+}
+// @tswow-end
 
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::deque<GameObject*>&, uint32, float) const;
