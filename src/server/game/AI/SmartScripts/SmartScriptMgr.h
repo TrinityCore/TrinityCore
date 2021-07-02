@@ -308,14 +308,6 @@ struct SmartEvent
 
         struct
         {
-            uint32 spell;
-            uint32 count;
-            uint32 repeatMin;
-            uint32 repeatMax;
-        } targetAura;
-
-        struct
-        {
             uint32 type;
             uint32 id;
         } movementInform;
@@ -377,12 +369,6 @@ struct SmartEvent
             uint32 sender;
             uint32 action;
         } gossip;
-
-        struct
-        {
-            uint32 spell;
-            uint32 effIndex;
-        } dummy;
 
         struct
         {
