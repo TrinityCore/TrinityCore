@@ -101,6 +101,7 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
+    SPELL_PRIEST_MIND_CONTROL                       = 605,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
 };
 
@@ -1602,6 +1603,96 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 121536 - Angelic Feather talent
+class Spell_pri_mind_control : public SpellScriptLoader
+{
+    public:
+        Spell_pri_mind_control() : SpellScriptLoader("Spell_pri_mind_control") { }
+
+        class Spell_pri_mind_control_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(Spell_pri_mind_control_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_PRIEST_MIND_CONTROL });
+            }
+
+            void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+            {
+                Position destPos = GetHitDest()->GetPosition();
+                float radius = GetEffectInfo()->CalcRadius();
+
+                // Caster is prioritary
+                if (GetCaster()->IsWithinDist2d(&destPos, radius))
+                {
+                    GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_MIND_CONTROL, true);
+                }
+                else
+                {
+                    SpellCastTargets targets;
+                    targets.SetDst(destPos);
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.CastDifficulty = GetCastDifficulty();
+                    GetCaster()->CastSpell(targets, SPELL_PRIEST_MIND_CONTROL, args);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_pri_mind_control_SpellScript::HandleEffectDummy, EFFECT_1, EFFECT_2, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_mind_control_SpellScript();
+        }
+};
+
+// Angelic Feather areatrigger - created by SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER
+class areatrigger_pri_mind_contril : public AreaTriggerEntityScript
+{
+public:
+    areatrigger_pri_mind_control() : AreaTriggerEntityScript("areatrigger_pri_mind_control") { }
+
+    struct areatrigger_pri_mind_contolAI : AreaTriggerAI
+    {
+        areatrigger_pri_mind_controlAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+        // Called when the AreaTrigger has just been initialized, just before added to map
+        void OnInitialize() override
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_MIND_CONTROL);
+
+                if (areaTriggers.size() >= 3)
+                    areaTriggers.front()->SetDuration(1.3s);
+            }
+        }
+
+        void OnUnitEnter(Unit* unit) override
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                if (caster->IsFriendlyTo(unit))
+                {
+                    // If target already has aura, increase duration to max 130% of initial duration
+                    caster->CastSpell(unit, SPELL_PRIEST_MIND_CONTROL_AURA, true);
+                    at->SetDuration(1.3s);
+                }
+            }
+        }
+    };
+
+    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    {
+        return new areatrigger_pri_mind_controlAI(areatrigger);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_angelic_feather_trigger);
@@ -1641,4 +1732,14 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
+    new spell_pri_t3_4p_bonus();
+    new spell_pri_t5_heal_2p_bonus();
+    new spell_pri_t10_heal_2p_bonus();
+    new spell_pri_vampiric_embrace();
+    new spell_pri_vampiric_embrace_target();
+    new spell_pri_vampiric_touch();
+    new spell_pri_angelic_feather_trigger();
+    new areatrigger_pri_angelic_feather();
+    new spell_mind_control();
+    new areatrigger_pri_mind_controlAI();
 }

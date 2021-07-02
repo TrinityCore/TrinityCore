@@ -74,7 +74,7 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
     SPELL_DK_VOLATILE_SHIELDING                 = 207188,
     SPELL_DK_VOLATILE_SHIELDING_DAMAGE          = 207194,
-    SPELL_DK_IMPROVED_BLOOD_PRESENCE            = 50371,
+    SPELL_DK_IMPROVED_BLOOD_PRESENCE            = 50371,50365,63611,
 };
 
 enum Misc
@@ -102,7 +102,7 @@ class SPELL_DK_IMPROVED_BLOOD_PRESENCE : public SpellScript
     
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_dk_improved_blood_presence::CheckProc);
+        DoCheckProc += AuraCheckProcFn(spell_dk_improved_blood_presence::CheckProc, EFFECT_1, EFFECT_2, EFFECT_3);
     }
 };
 
