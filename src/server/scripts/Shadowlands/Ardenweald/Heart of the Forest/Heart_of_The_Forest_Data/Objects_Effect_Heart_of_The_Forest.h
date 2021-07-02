@@ -44,25 +44,18 @@
 #include "zone_Ardenweald.cpp"
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
- 
-enum ObjectsAuraScript
+
+enum NpcEffectScript
 {
-  void ObjectsAura();
+    void ObjectEffect();
 };
 
-enum ObjectsDataScript
+enum EffectScript
 {
-  void ObjectsData();
+    void Effect();
 };
 
-enum ObjectsQuestScript
+void AddSC_npc_Data_Ardenweald()
 {
-  void ObjectsQuest();
-};
-
-void AddSC_Objects_Data_Ardenweald()
-{
-  RegisterObjectsAuraScript(ObjectAura);
-  RegisterObjectsDataScript(ObjectsData);
-  RegisterObjectsQuestScript(ObjectsQuest)
-};
+  RegisterObjectEffectScript(ObjectEffect);
+  RegisterEffectScript(Effect);

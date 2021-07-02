@@ -45,24 +45,87 @@
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
  
-enum ObjectsAuraScript
+enum Mode
 {
-  void ObjectsAura();
+  void Mode_LFR();
+  void Mode_N();
+  void Mode_HC();
+  void Mode_Mythic();
 };
 
-enum ObjectsDataScript
+enum AuraScript
 {
-  void ObjectsData();
+  void aura();
+};
+ 
+enum SpellScript
+{
+  void Spell();
 };
 
-enum ObjectsQuestScript
+enum EffectScript
 {
-  void ObjectsQuest();
+  void Effect();
 };
 
-void AddSC_Objects_Data_Ardenweald()
+enum ModeScript
 {
-  RegisterObjectsAuraScript(ObjectAura);
-  RegisterObjectsDataScript(ObjectsData);
-  RegisterObjectsQuestScript(ObjectsQuest)
+  void Mode();
+};
+
+enum SpawnScript
+{
+  void Spawn();
+};
+
+enum NpcLootScript
+{
+  void NpcLoot();
+};
+
+enum NpcDataScript
+{
+  void NpcData();
+};
+
+enum QuestDataScript
+{
+  void QuestData();
+};
+
+enum QuestRewardsScript
+{
+  void QuestRewards();
+};
+
+enum FishingScripts
+{
+  void Fishing();
+};
+
+enum StartsQuestScript
+{
+  void StartsQuest();
+};
+
+enum QuestScript
+{
+  void Quest();
+}; 
+
+void AddSC_npc_Data_Ardenweald()
+{
+  RegisterAuraScript(aura);
+  RegisterSpellScript(spell);
+  RegisterEffectScript(efect);
+  RegisterModeScript(mode);
+  RegisterSpawnScript(Spawn);
+  RegisterNpcLootScript(NpcLoot);
+  RegisterNpcDataScript(NpcData);
+  RegisterQuestDataScript(QuestData);
+  RegisterQuestRewardsScript(QuestRewards);
+  RegisterFishingScripts(Fishing);
+  RegisterQuestScript(Quest);
+  RegisterStartsQuestScript(StartsQuest);
+  RegisterFishingScripts(Fishing);
 };

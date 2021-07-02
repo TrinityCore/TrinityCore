@@ -45,24 +45,18 @@
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
  
-enum ObjectsAuraScript
-{
-  void ObjectsAura();
-};
-
 enum ObjectsDataScript
 {
   void ObjectsData();
 };
-
-enum ObjectsQuestScript
+ 
+enum ObjectsSpawnsScript
 {
-  void ObjectsQuest();
+  void ObjectsSpawns();
 };
 
 void AddSC_Objects_Data_Ardenweald()
 {
-  RegisterObjectsAuraScript(ObjectAura);
+  RegisterObjectsSpawnsScript(ObjectsSpawns); 
   RegisterObjectsDataScript(ObjectsData);
-  RegisterObjectsQuestScript(ObjectsQuest)
 };
