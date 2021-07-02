@@ -236,6 +236,16 @@ enum FishingScripts
   void Fishing();
 };
 
+enum StartsQuestScript
+{
+  void StartsQuest();
+};
+
+enum QuestScript
+{
+  void Quest();
+}; 
+
 void AddSC_npc_Ardenweald() 
 {
   RegisterCreatureAI(NPC_Oranomonos the Everbranching);                  
@@ -317,5 +327,8 @@ void AddSC_npc_Data_Ardenweald()
   RegisterNpcDataScript(NpcData);
   RegisterQuestDataScript(QuestData);
   RegisterQuestRewardsScript(QuestRewards);
+  RegisterFishingScripts(Fishing);
+  RegisterQuestScript(Quest);
+  RegisterStartsQuestScript(StartsQuest);
   RegisterFishingScripts(Fishing);
 };
