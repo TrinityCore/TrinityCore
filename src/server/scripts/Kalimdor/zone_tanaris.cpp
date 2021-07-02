@@ -30,6 +30,44 @@ EndContentData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedFollowerAI.h"
+#include "ScriptedGossip.h"
+// quest Easy Money
+enum Quest
+{
+    Quest_Easy_Money         = 27003,
+};
+
+enum Creature
+{
+    NPC_Adarrah              = 44833,46873,
+    NPC_Lady_Humps           = 46536,
+};
+
+enum 
+/*######
+## npc_custodian_of_time
+######*/
+
+enum CustodianOfTime
+{
+    WHISPER_CUSTODIAN_1     = 0,
+    WHISPER_CUSTODIAN_2     = 1,
+    WHISPER_CUSTODIAN_3     = 2,
+    WHISPER_CUSTODIAN_4     = 3,
+    WHISPER_CUSTODIAN_5     = 4,
+    WHISPER_CUSTODIAN_6     = 5,
+    WHISPER_CUSTODIAN_7     = 6,
+    WHISPER_CUSTODIAN_8     = 7,
+    WHISPER_CUSTODIAN_9     = 8,
+    WHISPER_CUSTODIAN_10    = 9,
+    WHISPER_CUSTODIAN_11    = 10,
+    WHISPER_CUSTODIAN_12    = 11,
+    WHISPER_CUSTODIAN_13    = 12,
+    WHISPER_CUSTODIAN_14    = 13,
+
+    QUEST_CAVERNS_OF_TIME   = 10277,
+    SPELL_QID_10277         = 34883
+};
 
 /*####
 # npc_tooga
