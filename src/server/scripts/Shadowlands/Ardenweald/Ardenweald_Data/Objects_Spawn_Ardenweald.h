@@ -45,12 +45,12 @@
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
  
-enum ObjectsData
+enum ObjectsDataScript
 {
   void ObjectsData();
 };
  
-enum ObjectsSpawns
+enum ObjectsSpawnsScript
 {
   void ObjectsSpawns();
 };
