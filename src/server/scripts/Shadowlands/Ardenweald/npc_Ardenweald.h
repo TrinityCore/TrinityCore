@@ -185,7 +185,42 @@ enum NPC
   NPC_Blighted_Creeper                                = 169629,176179,
   NPC_Blighted_Darkcaster                             = 169631, 
 };
+
+enum AuraScript
+{
+  void aura();
+};
  
+enum SpellScript
+{
+  void Spell();
+};
+
+enum EffectScript
+{
+  void Effect();
+};
+
+enum ModeScript
+{
+  void Mode();
+};
+
+enum SpawnScript
+{
+  void Spawn();
+};
+
+enum NpcLootScript
+{
+  void NpcLoot();
+};
+
+enum NpcDataScript
+{
+  void NpcData();
+};
+
 void AddSC_npc_Ardenweald() 
 {
   RegisterCreatureAI(NPC_Oranomonos the Everbranching);                  
