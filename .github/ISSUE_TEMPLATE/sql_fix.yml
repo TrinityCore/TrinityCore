@@ -20,6 +20,7 @@ body:
         - start fix by -- in case some previous sql misses proper ending.
         - DELETE by guid AND entry to be sure we don't delete existing spawns.
         - start sql code with \`\`\`sql
+        The wiki page https://github.com/TrinityCore/TrinityCore/wiki/SQL-Fix includes additional details about how to fill this form and an example of a SQL fix.
   - type: textarea
     id: description
     attributes:
