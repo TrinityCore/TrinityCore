@@ -819,14 +819,14 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
         constexpr size_t NO_PARAMS = size_t(0);
         switch (e.action.type)
         {
-            //case SMART_ACTION_NONE: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_TALK: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SET_FACTION: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SOUND: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_PLAY_EMOTE: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_FAIL_QUEST: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_OFFER_QUEST: return sizeof(SmartAction::raw);
+            case SMART_ACTION_NONE: return NO_PARAMS;
+            case SMART_ACTION_TALK: return sizeof(SmartAction::talk);
+            case SMART_ACTION_SET_FACTION: return sizeof(SmartAction::faction);
+            case SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: return sizeof(SmartAction::morphOrMount);
+            case SMART_ACTION_SOUND: return sizeof(SmartAction::sound);
+            case SMART_ACTION_PLAY_EMOTE: return sizeof(SmartAction::emote);
+            case SMART_ACTION_FAIL_QUEST: return sizeof(SmartAction::quest);
+            case SMART_ACTION_OFFER_QUEST: return sizeof(SmartAction::questOffer);
             //case SMART_ACTION_SET_REACT_STATE: return sizeof(SmartAction::raw);
             //case SMART_ACTION_ACTIVATE_GOBJECT: return sizeof(SmartAction::raw);
             //case SMART_ACTION_RANDOM_EMOTE: return sizeof(SmartAction::raw);
@@ -903,7 +903,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             //case SMART_ACTION_SET_NPC_FLAG: return sizeof(SmartAction::raw);
             //case SMART_ACTION_ADD_NPC_FLAG: return sizeof(SmartAction::raw);
             //case SMART_ACTION_REMOVE_NPC_FLAG: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SIMPLE_TALK: return sizeof(SmartAction::raw);
+            case SMART_ACTION_SIMPLE_TALK: return sizeof(SmartAction::simpleTalk);
             //case SMART_ACTION_SELF_CAST: return sizeof(SmartAction::raw);
             //case SMART_ACTION_CROSS_CAST: return sizeof(SmartAction::raw);
             //case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST: return sizeof(SmartAction::raw);
@@ -1416,9 +1416,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     {
         case SMART_ACTION_TALK:
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.talk.useTalkTarget);
-            [[fallthrough]];
-        case SMART_ACTION_SIMPLE_TALK:
             if (!IsTextValid(e, e.action.talk.textGroupID))
+                return false;
+            break;
+        case SMART_ACTION_SIMPLE_TALK:
+            if (!IsTextValid(e, e.action.simpleTalk.textGroupID))
                 return false;
             break;
         case SMART_ACTION_SET_FACTION:

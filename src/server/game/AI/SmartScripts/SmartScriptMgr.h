@@ -629,6 +629,12 @@ struct SmartAction
 
         struct
         {
+            uint32 textGroupID;
+            uint32 duration;
+        } simpleTalk;
+
+        struct
+        {
             uint32 factionID;
         } faction;
 
