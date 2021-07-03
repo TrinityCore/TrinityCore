@@ -1,6 +1,6 @@
 name: SQL fix
 description: Suggest a SQL only fix.
-labels: [Feedback-PatchFix]
+labels: [Comp-Database, Feedback-PatchFix]
 body:
   - type: markdown
     attributes:
