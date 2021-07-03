@@ -1,5 +1,6 @@
 name: SQL fix
 description: Report a SQL only fix.
+labels: [Feedback-PatchFix]
 body:
   - type: markdown
     attributes:
