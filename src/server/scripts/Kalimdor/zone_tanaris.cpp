@@ -49,7 +49,7 @@ enum npc_adarrah
     SAY_TORT_POST_4                                 = 1,
     SAY_TOOG_POST_5                                 = 3,
     SAY_TORT_POST_6                                 = 2,
-
+    SPELL_Play_Scene_Easy_Money                     = 319081,
     QUEST_EASY_MONEY                                = 1560,
     
 
