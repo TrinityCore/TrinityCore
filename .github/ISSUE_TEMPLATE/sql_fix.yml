@@ -32,11 +32,11 @@ body:
     attributes:
       label: SQL fix
       description: |
-        Tell us what should happen instead.
-    placeholder: |
+        SQL script with the fix
+      value: |
         ```sql
         --
-        
+
         ```
     validations:
       required: true
