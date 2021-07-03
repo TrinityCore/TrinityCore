@@ -23,11 +23,24 @@
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
 
+
+/*######
+## npc_Horzak_Zignibble
+######*/
+
+enum npc_Horzak_Zignibble
+{
+    QUEST_BASILISK_BASHIN       = 14161,
+    QUEST_STONE_COLD            = 14165,
+    QUEST_THE_PERFECT_PRISM     = 14190,
+    
+}
+
 /*######
 ## npc_spitelashes
 ######*/
 
-enum Spitelashes
+enum npc_Spitelashes
 {
     SPELL_POLYMORPH_RANK1       = 118,
     SPELL_POLYMORPH_RANK2       = 12824,
