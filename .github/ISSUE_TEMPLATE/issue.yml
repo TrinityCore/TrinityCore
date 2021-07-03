@@ -1,5 +1,5 @@
 name: Generic issue
-description: Report an issue, a suggestion, SQL only fix.
+description: Report an issue or a suggestion.
 body:
   - type: markdown
     attributes:
