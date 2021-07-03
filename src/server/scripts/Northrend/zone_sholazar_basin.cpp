@@ -130,7 +130,10 @@ class spell_q12688_detonate_1 : public SpellScript
             target->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_FLAMES, false, false, &flames);
             target->GetMap()->SetSpawnGroupInactive(SPAWN_GROUP_FLAMES);
             for (WorldObject* flame : flames)
-                dynamic_cast<GameObject*>(flame)->DespawnOrUnsummon(20s);
+            {
+                if (GameObject* flame_go = flame->ToGameObject())
+                    flame_go->DespawnOrUnsummon(20s);
+            }
         }
     }
 
@@ -168,7 +171,10 @@ class spell_q12688_detonate_2 : public SpellScript
             target->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_FLAMES, false, false, &flames);
             target->GetMap()->SetSpawnGroupInactive(SPAWN_GROUP_FLAMES);
             for (WorldObject* flame : flames)
-                dynamic_cast<GameObject*>(flame)->DespawnOrUnsummon(20s);
+            {
+                if (GameObject* flame_go = flame->ToGameObject())
+                    flame_go->DespawnOrUnsummon(20s);
+            }
         }
     }
 
