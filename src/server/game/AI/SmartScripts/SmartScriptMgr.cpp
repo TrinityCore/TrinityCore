@@ -905,23 +905,23 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_REMOVE_NPC_FLAG: return sizeof(SmartAction::flag);
             case SMART_ACTION_SIMPLE_TALK: return sizeof(SmartAction::simpleTalk);
             case SMART_ACTION_SELF_CAST: return sizeof(SmartAction::cast);
-            //case SMART_ACTION_CROSS_CAST: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_RANDOM_MOVE: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SET_UNIT_FIELD_BYTES_1: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_INTERRUPT_SPELL: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SEND_GO_CUSTOM_ANIM: return sizeof(SmartAction::raw);
+            case SMART_ACTION_CROSS_CAST: return sizeof(SmartAction::crossCast);
+            case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST: return sizeof(SmartAction::randTimedActionList);
+            case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST: return sizeof(SmartAction::randRangeTimedActionList);
+            case SMART_ACTION_RANDOM_MOVE: return sizeof(SmartAction::moveRandom);
+            case SMART_ACTION_SET_UNIT_FIELD_BYTES_1: return sizeof(SmartAction::setunitByte);
+            case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1: return sizeof(SmartAction::delunitByte);
+            case SMART_ACTION_INTERRUPT_SPELL: return sizeof(SmartAction::interruptSpellCasting);
+            case SMART_ACTION_SEND_GO_CUSTOM_ANIM: return sizeof(SmartAction::sendGoCustomAnim);
             case SMART_ACTION_SET_DYNAMIC_FLAG: return sizeof(SmartAction::flag);
             case SMART_ACTION_ADD_DYNAMIC_FLAG: return sizeof(SmartAction::flag);
             case SMART_ACTION_REMOVE_DYNAMIC_FLAG: return sizeof(SmartAction::flag);
-            //case SMART_ACTION_JUMP_TO_POS: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SEND_GOSSIP_MENU: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_GO_SET_LOOT_STATE: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SEND_TARGET_TO_TARGET: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SET_HOME_POS: return sizeof(SmartAction::raw);
-            //case SMART_ACTION_SET_HEALTH_REGEN: return sizeof(SmartAction::raw);
+            case SMART_ACTION_JUMP_TO_POS: return sizeof(SmartAction::jump);
+            case SMART_ACTION_SEND_GOSSIP_MENU: return sizeof(SmartAction::sendGossipMenu);
+            case SMART_ACTION_GO_SET_LOOT_STATE: return sizeof(SmartAction::setGoLootState);
+            case SMART_ACTION_SEND_TARGET_TO_TARGET: return sizeof(SmartAction::sendTargetToTarget);
+            case SMART_ACTION_SET_HOME_POS: return NO_PARAMS;
+            case SMART_ACTION_SET_HEALTH_REGEN: return sizeof(SmartAction::setHealthRegen);
             //case SMART_ACTION_SET_ROOT: return sizeof(SmartAction::raw);
             //case SMART_ACTION_SET_GO_FLAG: return sizeof(SmartAction::raw);
             //case SMART_ACTION_ADD_GO_FLAG: return sizeof(SmartAction::raw);
@@ -1781,7 +1781,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST:
         {
-            if (!IsMinMaxValid(e, e.action.randTimedActionList.actionLists[0], e.action.randTimedActionList.actionLists[1]))
+            if (!IsMinMaxValid(e, e.action.randRangeTimedActionList.idMin, e.action.randRangeTimedActionList.idMax))
                 return false;
             break;
         }
@@ -2066,6 +2066,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.evade.toRespawnPosition);
             break;
         }
+        case SMART_ACTION_SET_HEALTH_REGEN:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setHealthRegen.regenHealth);
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -2112,7 +2117,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_GO_SET_GO_STATE:
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
         case SMART_ACTION_SET_HOME_POS:
-        case SMART_ACTION_SET_HEALTH_REGEN:
         case SMART_ACTION_SET_GO_FLAG:
         case SMART_ACTION_ADD_GO_FLAG:
         case SMART_ACTION_REMOVE_GO_FLAG:

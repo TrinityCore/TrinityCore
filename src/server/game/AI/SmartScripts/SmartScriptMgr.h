@@ -1016,6 +1016,12 @@ struct SmartAction
 
         struct
         {
+            uint32 idMin;
+            uint32 idMax;
+        } randRangeTimedActionList;
+
+        struct
+        {
             SAIBool withDelayed;
             uint32 spell_id;
             SAIBool withInstant;
@@ -1079,7 +1085,7 @@ struct SmartAction
 
         struct
         {
-            uint32 regenHealth;
+            SAIBool regenHealth;
         } setHealthRegen;
 
         struct
