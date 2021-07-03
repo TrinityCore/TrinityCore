@@ -33,6 +33,7 @@ body:
     id: fix
     attributes:
       label: SQL fix
+      description: This field will be formatted automatically as SQL code block, no need to include \`\`\`sql
       placeholder: |
         --
       render: sql
