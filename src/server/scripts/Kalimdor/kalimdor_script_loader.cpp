@@ -246,7 +246,7 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     // AddSC_ungoro_crater();
     AddSC_winterspring();
-
+    AddSC_azshara();
     AddSC_instance_halls_of_origination();
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
