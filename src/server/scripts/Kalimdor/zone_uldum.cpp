@@ -102,11 +102,7 @@ public:
         {
             m_events.Reset();
             Harrison_JonesGUID = 0;
-            kodoGUID = 0;
-            kurzelGUID = 0;
-            turgoreGUID = 0;
-            tanzarGUID = 0;
-            harkorGUID = 0;
+            Brann_BronzebeardGUID = 0;
             hasChains = false;
         }
 
