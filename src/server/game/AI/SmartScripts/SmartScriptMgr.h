@@ -720,26 +720,6 @@ struct SmartAction
 
         struct
         {
-            uint32 flag1;
-            uint32 flag2;
-            uint32 flag3;
-            uint32 flag4;
-            uint32 flag5;
-            uint32 flag6;
-        } addUnitFlag;
-
-        struct
-        {
-            uint32 flag1;
-            uint32 flag2;
-            uint32 flag3;
-            uint32 flag4;
-            uint32 flag5;
-            uint32 flag6;
-        } removeUnitFlag;
-
-        struct
-        {
             SAIBool attack;
         } autoAttack;
 
@@ -948,12 +928,6 @@ struct SmartAction
         struct
         {
             uint32 id;
-            uint32 number;
-        } storeVar;
-
-        struct
-        {
-            uint32 id;
         } storeTargets;
 
         struct
@@ -1002,11 +976,6 @@ struct SmartAction
             uint32 byte1;
             uint32 type;
         } delunitByte;
-
-        struct
-        {
-            uint32 seat;
-        } enterVehicle;
 
         struct
         {

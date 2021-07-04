@@ -992,7 +992,7 @@ bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
 {
     size_t paramsStructSize = [&]() -> size_t
     {
-        constexpr size_t NO_PARAMS = size_t(0);
+        //constexpr size_t NO_PARAMS = size_t(0);
         switch (e.target.type)
         {
             default:
