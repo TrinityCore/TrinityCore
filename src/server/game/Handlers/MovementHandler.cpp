@@ -699,6 +699,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<uint32>();                           // unk2
@@ -720,6 +721,7 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<uint32>();                           // unk2
@@ -741,6 +743,7 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 }
 
@@ -760,6 +763,7 @@ void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<uint32>();                           // unk2
@@ -781,6 +785,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 }
 
@@ -800,6 +805,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<uint32>();                           // unk2
@@ -821,6 +827,7 @@ void WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& r
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<uint32>();                           // unk2
@@ -842,6 +849,7 @@ void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 }
 
@@ -861,6 +869,7 @@ void WorldSession::HandleMoveGravityEnableAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 }
 
@@ -881,6 +890,7 @@ void WorldSession::HandleMoveSetCollisionHgtAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                           // movement counter
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData >> newValue;
