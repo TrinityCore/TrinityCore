@@ -36,7 +36,7 @@ jobs:
             mysql -h 127.0.0.1 -uroot hotfixes < sql/base/dev/hotfixes_database.sql
             echo "Importing world database updates"
             cat sql/updates/world/master/*.sql | mysql -h 127.0.0.1 -uroot world
-            echo "Importing hoxfixes database updates"
+            echo "Importing hotfixes database updates"
             cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
             echo "Dropping databases"
             mysql -h 127.0.0.1 -uroot < sql/create/drop_mysql.sql
