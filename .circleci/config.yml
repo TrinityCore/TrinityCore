@@ -30,10 +30,15 @@ jobs:
             ./contrib/check_updates.sh auth master auth 127.0.0.1
             mysql -h 127.0.0.1 -uroot characters < sql/base/characters_database.sql
             ./contrib/check_updates.sh characters master characters 127.0.0.1
+            echo "Importing world database structure"
             mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
+            echo "Importing hotfixes database structure"
             mysql -h 127.0.0.1 -uroot hotfixes < sql/base/dev/hotfixes_database.sql
+            echo "Importing world database updates"
             cat sql/updates/world/master/*.sql | mysql -h 127.0.0.1 -uroot world
+            echo "Importing hoxfixes database updates"
             cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
+            echo "Dropping databases"
             mysql -h 127.0.0.1 -uroot < sql/create/drop_mysql.sql
       - run:
           name: Build
