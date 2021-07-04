@@ -202,6 +202,9 @@ void AddSC_stormwind_city();
 void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
 void AddSC_undercity();
+void AddSC_western_plaguelands();
+void AddSC_wetlands();
+void AddSC_zone_gilneas();
 //void AddSC_western_plaguelands();
 
 // The name of this function should match:
@@ -395,5 +398,8 @@ void AddEasternKingdomsScripts()
     AddSC_tirisfal_glades();
     AddSC_tol_barad();
     AddSC_undercity();
+    AddSC_western_plaguelands();
+    AddSC_wetlands();
+    AddSC_zone_gilneas();    // gilneas
     //AddSC_western_plaguelands();
 }
