@@ -714,6 +714,12 @@ struct SmartAction
 
         struct
         {
+            uint32 threatINC;
+            uint32 threatDEC;
+        } threat;
+
+        struct
+        {
             uint32 flag1;
             uint32 flag2;
             uint32 flag3;
@@ -1132,7 +1138,7 @@ struct SmartAction
 
         struct
         {
-            uint32 sounds[SMART_ACTION_PARAM_COUNT - 2];
+            uint32 sounds[4];
             SAIBool onlySelf;
             uint32 distance;
         } randomSound;
