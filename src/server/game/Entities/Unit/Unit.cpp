@@ -13676,6 +13676,7 @@ std::string Unit::GetDebugInfo() const
         << "" << (movespline ? movespline->ToString() : "Movespline: <none>\n")
         << "GetCharmedGUID(): " << GetCharmedGUID().ToString() << "\n"
         << "GetCharmerGUID(): " << GetCharmerGUID().ToString() << "\n"
-        << "" << (GetVehicleKit() ? GetVehicleKit()->GetDebugInfo() : "No vehicle kit");
+        << "" << (GetVehicleKit() ? GetVehicleKit()->GetDebugInfo() : "No vehicle kit") << "\n"
+        << "GetGameClientMovingMe(): " << (GetGameClientMovingMe() ? GetGameClientMovingMe()->GetDebugInfo() : "NULL");
     return sstr.str();
 }

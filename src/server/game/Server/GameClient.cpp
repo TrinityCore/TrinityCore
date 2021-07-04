@@ -67,3 +67,10 @@ void GameClient::SendDirectMessage(WorldPacket const* data) const
 {
     GetBasePlayer()->SendDirectMessage(data);
 }
+
+std::string GameClient::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << "GetBasePlayer(): " << (GetBasePlayer() ? GetBasePlayer()->GetGUID().ToString().c_str() : "NULL");
+    return sstr.str();
+}

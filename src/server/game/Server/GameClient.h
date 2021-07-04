@@ -41,6 +41,8 @@ class TC_GAME_API GameClient
         WorldSession* GetWorldSession() const { return _sessionToServer; }
 
         void SendDirectMessage(WorldPacket const* data) const;
+
+        std::string GetDebugInfo() const;
     private:
         // describe all units that this client has direct control over. Example, a player on a vehicle has client control over himself and the vehicle at the same time.
         GuidUnorderedSet _allowedMovers;
