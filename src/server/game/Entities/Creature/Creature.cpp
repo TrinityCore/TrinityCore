@@ -2655,7 +2655,7 @@ void Creature::InitializeMovementFlags()
 void Creature::UpdateMovementFlags()
 {
     // Do not update movement flags if creature is controlled by a player (charm/vehicle)
-    if (IsMovedByClient())
+    if (m_playerMovingMe)
         return;
 
     // Creatures with CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE should control MovementFlags in your own scripts

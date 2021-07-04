@@ -202,14 +202,8 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_MOVE_SPLINE_DONE");
 
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
-
-    if (!IsRightUnitBeingMoved(guid))
-    {
-        recvData.rfinish();                     // prevent warnings spam
-        return;
-    }
+    uint64 guid; // used only for proper packet read
+    recvData.readPackGUID(guid);
 
     MovementInfo movementInfo;                              // used only for proper packet read
     ReadMovementInfo(recvData, &movementInfo);
