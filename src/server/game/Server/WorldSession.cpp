@@ -927,16 +927,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
-    Unit* mover = GetGameClient()->GetActivelyMovedUnit();
-    if (!mover)
-    {
-        if (mi->guid.IsEmpty())
-        {
-            TC_LOG_ERROR("entities.unit", "WorldSession::ReadMovementInfo: GetActivelyMovedUnit() returned no mover and mi->guid is empty, opcode %u", static_cast<uint32>(data.GetOpcode()));
-            return;
-        }
-        mover = GetPlayer()->GetGUID() == mi->guid ? GetPlayer() : ObjectAccessor::GetUnit(*GetPlayer(), mi->guid);
-    }
+    Unit* mover = GetPlayer()->GetGUID() == mi->guid ? GetPlayer() : ObjectAccessor::GetUnit(*GetPlayer(), mi->guid);
     ASSERT(mover, "if the server allows this unit to be moved by the client, the unit should still exist!");
 
     if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
