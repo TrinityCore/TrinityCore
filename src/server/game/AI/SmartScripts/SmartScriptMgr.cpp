@@ -988,9 +988,36 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
     return valid;
 }
 
-bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& /*e*/)
+bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
 {
-    return true;
+    size_t paramsStructSize = [&]() -> size_t
+    {
+        constexpr size_t NO_PARAMS = size_t(0);
+        switch (e.target.type)
+        {
+            default:
+                TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using a target with no unused params specified in SmartAIMgr::CheckUnusedTargetParams(), please report this.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return sizeof(SmartTarget::raw);
+        }
+    }();
+
+    static size_t rawCount = sizeof(SmartTarget::raw) / sizeof(uint32);
+    size_t paramsCount = paramsStructSize / sizeof(uint32);
+
+    bool valid = true;
+    for (size_t index = paramsCount; index < rawCount; index++)
+    {
+        uint32 value = ((uint32*)&e.target.raw)[index];
+        if (value != 0)
+        {
+            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused target_param%zu with value %u, it must be 0, skipped.",
+                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
+            valid = false;
+        }
+    }
+
+    return valid;
 }
 
 bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
