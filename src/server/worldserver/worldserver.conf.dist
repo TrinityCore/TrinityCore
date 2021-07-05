@@ -4302,3 +4302,18 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+
+###################################################################################################
+# TSWoW Settings
+#
+# Setting related to TSWoW
+#
+#    TSWoW.MessageBufferBytes
+#        Description: How many bytes are allowed in a MessageBuffer for long AddOn messages
+#        Default:     10000 bytes
+#
+
+TSWoW.MessageBufferBytes = 10000
+
+#
+###################################################################################################

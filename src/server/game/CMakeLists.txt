@@ -48,11 +48,28 @@ target_include_directories(game
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
+#tswow-begin
+include(FetchContent)
+FetchContent_Declare (json
+GIT_REPOSITORY https://github.com/ArthurSonzogni/nlohmann_json_cmake_fetchcontent
+GIT_TAG v3.9.1
+)
+FetchContent_GetProperties (json)
+if (NOT json_POPULATED)
+message (STATUS "Installing json.hpp...")
+FetchContent_Populate (json)
+endif()
+add_subdirectory (${json_SOURCE_DIR} ${json_BINARY_DIR})
+# tswow-end
+
 target_link_libraries(game
   PRIVATE
     trinity-core-interface
     efsw
   PUBLIC
+    # tswow-begin
+    nlohmann_json::nlohmann_json
+    # tswow-end
     game-interface)
 
 set_target_properties(game

@@ -185,6 +185,9 @@ static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::max());
 
 Player::Player(WorldSession* session): Unit(true)
+// @tswow-begin
+, m_message_buffer(TSPlayer(this))
+// @tswow-end
 {
     m_speakTime = 0;
     m_speakCount = 0;

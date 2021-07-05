@@ -117,7 +117,9 @@ function(ConfigureScriptLoader SCRIPTLOADER_NAME LOADER_OUT IS_DYNAMIC_SCRIPTLOA
     set(LOADER_FUNCTION
       "Add${LOCALE_SCRIPT_MODULE}Scripts()")
     # Generate the funciton call and the forward declarations
+
     set(TRINITY_SCRIPTS_FORWARD_DECL
+    
       "${TRINITY_SCRIPTS_FORWARD_DECL}void ${LOADER_FUNCTION};\n")
     set(TRINITY_SCRIPTS_INVOKE
       "${TRINITY_SCRIPTS_INVOKE}    ${LOADER_FUNCTION};\n")
