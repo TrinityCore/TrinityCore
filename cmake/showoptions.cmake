@@ -104,6 +104,13 @@ if ( HELGRIND )
   add_definitions(-DHELGRIND)
 endif()
 
+if ( PERFORMANCE_PROFILING )
+  message("")
+  message(" *** PERFORMANCE_PROFILING - WARNING!")
+  message(" *** Please note that this is for PERFORMANCE PROFILING only! Do NOT report any issue when enabling this configuration!")
+  add_definitions(-DPERFORMANCE_PROFILING)
+endif()
+
 if (BUILD_SHARED_LIBS)
   message("")
   message(" *** WITH_DYNAMIC_LINKING - INFO!")

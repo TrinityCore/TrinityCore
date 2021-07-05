@@ -204,6 +204,7 @@ public:
             instance = creature->GetInstanceScript();
             HadMount = false;
             me->setActive(true);
+            me->SetFarVisible(true);
         }
 
         void Initialize()

@@ -605,14 +605,15 @@ public:
         if (!param1)
             return false;
 
+        ObjectGuid::LowType spawnId = 0;
         if (strcmp(param1, "guid") == 0)
         {
             char* tail = strtok(nullptr, "");
             char* cValue = handler->extractKeyFromLink(tail, "Hgameobject");
             if (!cValue)
                 return false;
-            ObjectGuid::LowType guidLow = atoull(cValue);
-            GameObjectData const* data = sObjectMgr->GetGameObjectData(guidLow);
+            spawnId = atoull(cValue);
+            GameObjectData const* data = sObjectMgr->GetGameObjectData(spawnId);
             if (!data)
                 return false;
             entry = data->id;
@@ -672,8 +673,16 @@ public:
         handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
         handler->PSendSysMessage(LANG_GOINFO_SIZE, gameObjectInfo->size);
 
-        if (GameObjectTemplateAddon const* addon = sObjectMgr->GetGameObjectTemplateAddon(entry))
-            handler->PSendSysMessage(LANG_GOINFO_ADDON, addon->faction, addon->flags);
+        GameObjectOverride const* goOverride = nullptr;
+        if (spawnId)
+            if (GameObjectOverride const* ovr = sObjectMgr->GetGameObjectOverride(spawnId))
+                goOverride = ovr;
+
+        if (!goOverride)
+            goOverride = sObjectMgr->GetGameObjectTemplateAddon(entry);
+
+        if (goOverride)
+            handler->PSendSysMessage(LANG_GOINFO_ADDON, goOverride->Faction, goOverride->Flags);
 
         handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, gameObjectInfo->AIName.c_str(), sObjectMgr->GetScriptName(gameObjectInfo->ScriptId).c_str());
 

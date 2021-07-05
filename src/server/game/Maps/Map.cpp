@@ -2549,10 +2549,8 @@ float Map::GetMinHeight(PhaseShift const& phaseShift, float x, float y)
     return -500.0f;
 }
 
-inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, int32 /*groupId*/, WMOAreaTableEntry const* wmoEntry, AreaTableEntry const* atEntry)
+inline bool IsOutdoorWMO(uint32 mogpFlags, WMOAreaTableEntry const* wmoEntry, AreaTableEntry const* atEntry)
 {
-    bool outdoor = true;
-
     if (wmoEntry && atEntry)
     {
         if (atEntry->Flags[0] & AREA_FLAG_OUTSIDE)
@@ -2561,16 +2559,14 @@ inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, in
             return false;
     }
 
-    outdoor = (mogpFlags & 0x8) != 0;
-
     if (wmoEntry)
     {
         if (wmoEntry->Flags & 4)
             return true;
         if (wmoEntry->Flags & 2)
-            outdoor = false;
+            return false;
     }
-    return outdoor;
+    return (mogpFlags & 0x8);
 }
 
 bool Map::IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z)
@@ -2583,13 +2579,13 @@ bool Map::IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z)
         return true;
 
     AreaTableEntry const* atEntry = nullptr;
-    WMOAreaTableEntry const* wmoEntry= sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId);
+    WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId);
     if (wmoEntry)
     {
         TC_LOG_DEBUG("maps", "Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->AreaTableID);
         atEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
     }
-    return IsOutdoorWMO(mogpFlags, adtId, rootId, groupId, wmoEntry, atEntry);
+    return IsOutdoorWMO(mogpFlags, wmoEntry, atEntry);
 }
 
 bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId)
@@ -2672,7 +2668,7 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, b
     if (isOutdoors)
     {
         if (haveAreaInfo)
-            *isOutdoors = IsOutdoorWMO(mogpFlags, adtId, rootId, groupId, wmoEntry, atEntry);
+            *isOutdoors = IsOutdoorWMO(mogpFlags, wmoEntry, atEntry);
         else
             *isOutdoors = true;
     }
@@ -2807,18 +2803,23 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
 
     // area lookup
     AreaTableEntry const* areaEntry = nullptr;
-    if (vmapData.areaInfo && (z <= mapHeight || mapHeight <= vmapData.floorZ))
-        if (WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId))
+    WMOAreaTableEntry const* wmoEntry = nullptr;
+    // the vmap floor is our floor if either
+    //  - the vmap floor is above the gridmap floor
+    // or
+    //  - we are below the gridmap floor
+    if (vmapData.areaInfo && (G3D::fuzzyLt(z, mapHeight - GROUND_HEIGHT_TOLERANCE) || mapHeight <= vmapData.floorZ))
+        if ((wmoEntry = sDB2Manager.GetWMOAreaTable(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId)))
             areaEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
 
     if (areaEntry)
     {
-        data.floorZ = vmapData.floorZ;
         data.areaId = areaEntry->ID;
+        data.floorZ = vmapData.floorZ;
+        data.outdoors = IsOutdoorWMO(vmapData.areaInfo->mogpFlags, wmoEntry, areaEntry);
     }
     else
     {
-        data.floorZ = mapHeight;
         if (gmap)
             data.areaId = gmap->getArea(x, y);
         else
@@ -2829,6 +2830,9 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
 
         if (data.areaId)
             areaEntry = sAreaTableStore.LookupEntry(data.areaId);
+
+        data.floorZ = mapHeight;
+        data.outdoors = true; // @todo default true taken from old GetAreaId check, maybe review
     }
 
     // liquid processing
@@ -3062,10 +3066,24 @@ void Map::SendObjectUpdates()
     }
 }
 
+// CheckRespawn MUST do one of the following:
+//  -) return true
+//  -) set info->respawnTime to zero, which indicates the respawn time should be deleted (and will never be processed again without outside intervention)
+//  -) set info->respawnTime to a new respawn time, which must be strictly GREATER than the current time (GameTime::GetGameTime())
 bool Map::CheckRespawn(RespawnInfo* info)
 {
+    SpawnData const* data = sObjectMgr->GetSpawnData(info->type, info->spawnId);
+    ASSERT(data, "Invalid respawn info with type %u, spawnID " UI64FMTD " in respawn queue.", info->type, info->spawnId);
+
+    // First, check if this creature's spawn group is inactive
+    if (!IsSpawnGroupActive(data->spawnGroupData->groupId))
+    {
+        info->respawnTime = 0;
+        return false;
+    }
+
     uint32 poolId = info->spawnId ? sPoolMgr->IsPartOfAPool(info->type, info->spawnId) : 0;
-    // First, check if there's already an instance of this object that would block the respawn
+    // Next, check if there's already an instance of this object that would block the respawn
     // Only do this for unpooled spawns
     if (!poolId)
     {
@@ -3075,11 +3093,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
             case SPAWN_TYPE_CREATURE:
             {
                 // escort check for creatures only (if the world config boolean is set)
-                bool isEscort = false;
-                if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && info->type == SPAWN_TYPE_CREATURE)
-                    if (CreatureData const* cdata = sObjectMgr->GetCreatureData(info->spawnId))
-                        if (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC)
-                            isEscort = true;
+                bool const isEscort = (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && data->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC);
 
                 auto range = _creatureBySpawnIdStore.equal_range(info->spawnId);
                 for (auto it = range.first; it != range.second; ++it)
@@ -3143,15 +3157,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
         return false;
     }
 
-    // if we're a creature, see if the script objects to us spawning
-    if (info->type == SPAWN_TYPE_CREATURE)
-    {
-        if (!sScriptMgr->CanSpawn(info->spawnId, info->entry, sObjectMgr->GetCreatureData(info->spawnId), this))
-        { // if a script blocks our respawn, schedule next check in a little bit
-            info->respawnTime = GameTime::GetGameTime() + urand(4, 7);
-            return false;
-        }
-    }
+    // everything ok, let's spawn
     return true;
 }
 

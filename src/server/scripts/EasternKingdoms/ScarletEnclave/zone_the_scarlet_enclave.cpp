@@ -69,6 +69,7 @@ public:
         void Reset() override
         {
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetVisible(false);
             me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);

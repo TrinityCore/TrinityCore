@@ -50,9 +50,9 @@ public:
             lasherClicked = false;
         }
 
-        void OnSpellClick(Unit* clicker, bool& result) override
+        void OnSpellClick(Unit* clicker, bool spellClickHandled) override
         {
-            if (!result)
+            if (!spellClickHandled)
                 return;
 
             if (roll_chance_i(CHANCE_HOSTILE))

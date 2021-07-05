@@ -284,6 +284,7 @@ class boss_sindragosa : public CreatureScript
                 instance->SetBossState(DATA_SINDRAGOSA, IN_PROGRESS);
                 me->SetCombatPulseDelay(5);
                 me->setActive(true);
+                me->SetFarVisible(true);
                 DoZoneInCombat();
             }
 
@@ -321,6 +322,7 @@ class boss_sindragosa : public CreatureScript
                         return;
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     me->SetCanFly(true);
                     me->SetDisableGravity(true);
                     me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
@@ -355,6 +357,7 @@ class boss_sindragosa : public CreatureScript
                 {
                     case POINT_FROSTWYRM_LAND:
                         me->setActive(false);
+                        me->SetFarVisible(false);
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
                         me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
@@ -716,6 +719,7 @@ class npc_spinestalker : public CreatureScript
                         return;
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
                     me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     float moveTime = me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
@@ -734,6 +738,7 @@ class npc_spinestalker : public CreatureScript
                     return;
 
                 me->setActive(false);
+                me->SetFarVisible(false);
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
@@ -853,6 +858,7 @@ class npc_rimefang : public CreatureScript
                         return;
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
                     me->SetImmuneToPC(true);
                     float moveTime = me->GetExactDist(&RimefangFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
@@ -871,6 +877,7 @@ class npc_rimefang : public CreatureScript
                     return;
 
                 me->setActive(false);
+                me->SetFarVisible(false);
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);

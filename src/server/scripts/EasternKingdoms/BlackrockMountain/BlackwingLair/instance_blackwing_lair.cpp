@@ -258,6 +258,7 @@ public:
                         if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS))
                         {
                             nefarius->setActive(true);
+                            nefarius->SetFarVisible(true);
                             nefarius->Respawn();
                             nefarius->GetMotionMaster()->MoveTargetedHome();
                         }

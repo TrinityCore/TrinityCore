@@ -445,6 +445,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetZoneId() const { return m_zoneId; }
         uint32 GetAreaId() const { return m_areaId; }
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const { zoneid = m_zoneId, areaid = m_areaId; }
+        bool IsOutdoors() const { return m_outdoors; }
         bool IsInWorldPvpZone() const;
 
         InstanceScript* GetInstanceScript() const;
@@ -548,10 +549,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
-        virtual void UpdateObjectVisibilityOnCreate()
-        {
-            UpdateObjectVisibility(true);
-        }
+        virtual void UpdateObjectVisibilityOnCreate() { UpdateObjectVisibility(true); }
         void UpdatePositionData();
 
         void BuildUpdate(UpdateDataMapType&) override;
@@ -566,6 +564,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
+        bool IsFarVisible() const { return m_isFarVisible; }
+        void SetFarVisible(bool on);
         bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.is_initialized(); }
         void SetVisibilityDistanceOverride(VisibilityDistanceType type);
         void SetWorldObject(bool apply);
@@ -612,6 +612,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     protected:
         std::string m_name;
         bool m_isActive;
+        bool m_isFarVisible;
         Optional<float> m_visibilityDistanceOverride;
         const bool m_isWorldObject;
         ZoneScript* m_zoneScript;
@@ -623,6 +624,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 m_zoneId;
         uint32 m_areaId;
         float m_staticFloorZ;
+        bool m_outdoors;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!

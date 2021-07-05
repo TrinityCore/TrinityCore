@@ -91,6 +91,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 {
                     case ACTION_INTRO_BALTHARUS:
                         me->setActive(true);
+                        me->SetFarVisible(true);
                         events.ScheduleEvent(EVENT_INTRO_TALK, Seconds(7), 0, PHASE_INTRO);
                         break;
                     case ACTION_CLONE:

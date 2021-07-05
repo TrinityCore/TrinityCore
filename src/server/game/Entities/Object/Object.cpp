@@ -849,7 +849,7 @@ void MovementInfo::OutDebug()
 }
 
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
-m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
+m_name(""), m_isActive(false), m_isFarVisible(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_currMap(nullptr), m_InstanceId(0),
 _dbPhase(0), m_notifyflags(0)
 {
@@ -909,13 +909,21 @@ void WorldObject::setActive(bool on)
     }
 }
 
-void WorldObject::SetVisibilityDistanceOverride(VisibilityDistanceType type)
+    void WorldObject::SetVisibilityDistanceOverride(VisibilityDistanceType type)
 {
     ASSERT(type < VisibilityDistanceType::Max);
     if (GetTypeId() == TYPEID_PLAYER)
         return;
 
     m_visibilityDistanceOverride = VisibilityDistances[AsUnderlyingType(type)];
+}
+
+void WorldObject::SetFarVisible(bool on)
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    m_isFarVisible = on;
 }
 
 void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
@@ -940,6 +948,7 @@ void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& da
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaId))
         if (area->ParentAreaID)
             m_zoneId = area->ParentAreaID;
+    m_outdoors = data.outdoors;
     m_staticFloorZ = data.floorZ;
 }
 
@@ -1327,7 +1336,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             else
             {
                 float ground_z = GetMapHeight(x, y, z);
-                if (z < ground_z)
+                if (std::fabs(z - ground_z) < GetCollisionHeight())
                     z = ground_z;
             }
             break;
@@ -1350,7 +1359,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             else
             {
                 float ground_z = GetMapHeight(x, y, z);
-                if (z < ground_z)
+                if (std::fabs(z - ground_z) < GetCollisionHeight())
                     z = ground_z;
             }
             break;
@@ -1385,7 +1394,7 @@ float WorldObject::GetVisibilityRange() const
 {
     if (IsVisibilityOverridden() && !ToPlayer())
         return *m_visibilityDistanceOverride;
-    else if (isActiveObject() && !ToPlayer())
+    else if (IsFarVisible() && !ToPlayer())
         return MAX_VISIBILITY_DISTANCE;
     else
         return GetMap()->GetVisibilityRange();
@@ -1399,7 +1408,7 @@ float WorldObject::GetSightRange(WorldObject const* target) const
         {
             if (target && target->IsVisibilityOverridden() && !target->ToPlayer())
                 return *target->m_visibilityDistanceOverride;
-            else if (target && target->isActiveObject() && !target->ToPlayer())
+            else if (target && target->IsFarVisible() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
             else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
