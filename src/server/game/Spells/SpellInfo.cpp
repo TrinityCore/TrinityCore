@@ -1538,7 +1538,6 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
     if (!affectSpell)
         return false;
 
-    return IsAffected(affectSpell->SpellFamilyName, mod->mask);
     // TEMP: dont use IsAffected - !familyName and !familyFlags are not valid options for spell mods
     // TODO: investigate if the !familyName and !familyFlags conditions are even valid for all other (nonmod) uses of SpellInfo::IsAffected
     return affectSpell->SpellFamilyName == SpellFamilyName && mod->mask & SpellFamilyFlags;
