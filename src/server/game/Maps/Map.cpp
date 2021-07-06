@@ -778,7 +778,7 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
 void Map::Update(uint32 t_diff)
 {
     // @tswow-begin
-    tasks.Tick(TSMap(this));
+    m_tsWorldEntity.tick(TSMap(this));
     FIRE_MAP(
           GetExtraData()->events
         , MapOnUpdate

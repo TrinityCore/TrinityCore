@@ -3635,12 +3635,12 @@ std::string WorldObject::GetDebugInfo() const
 // @tswow-begin
 void WorldObject::RemoveFromAllGroups()
 {
-    for (auto& group : groups)
+    for (auto& group : m_tsGroups)
     {
         group->RemovedByObject(TSWorldObject(this));
     }
-    groups.clear();
-    storage.ClearGroups();
+    m_tsGroups.clear();
+    m_tsWorldEntity.m_groups.ClearGroups();
 }
 // @tswow-end
 

@@ -29,7 +29,7 @@
 #include <cmath>
 // @tswow-begin
 #include "TSEvents.h"
-#include "TSStorage.h"
+#include "TSEntity.h"
 // @tswow-end
 
 struct ItemTemplate;
@@ -216,7 +216,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GetFirstVisibleModel() const;
     // @tswow-begin
     TSCreatureEvents* events = nullptr;
-    TSStorage storage;
+    TSEntity m_tsEntity;
     // @tswow-end
 
     // helpers

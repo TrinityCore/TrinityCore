@@ -35,9 +35,9 @@
 #include <set>
 #include <unordered_map>
 // @tswow-begin
-#include "TSStorage.h"
 #include "TSWorldObject.h"
-#include "TSTask.h"
+#include "TSEntity.h"
+#include "TSWorldEntity.h"
 // @tswow-end
 
 class Corpse;
@@ -71,6 +71,10 @@ class TC_GAME_API Object
 {
     public:
         virtual ~Object();
+
+        // @tswow-begin
+        TSEntity m_tsEntity;
+        // @tswow-end
 
         bool IsInWorld() const { return m_inWorld; }
 
@@ -280,10 +284,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual ~WorldObject();
 
         // @tswow-begin
-        TSTasks<TSWorldObject> tasks;
-        TSStorage storage;
-        TSCollisions collisions;
-        std::set<TSObjectGroup*> groups;
+        TSCollisions m_tsCollisions;
+        TSWorldEntity<TSWorldObject> m_tsWorldEntity;
+        std::set<TSWorldObjectGroup*> m_tsGroups;
         void RemoveFromAllGroups();
         // @tswow-end
 

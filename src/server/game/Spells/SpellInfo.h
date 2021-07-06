@@ -25,7 +25,7 @@
 #include "SpellAuraDefines.h"
 // @tswow-begin
 #include "TSEvents.h"
-#include "TSStorage.h"
+#include "TSEntity.h"
 // @tswow-end
 #include <boost/container/flat_set.hpp>
 
@@ -407,7 +407,7 @@ class TC_GAME_API SpellInfo
 
         // @tswow-begin
         TSSpellEvents* events = nullptr;
-        TSStorage storage;
+        TSEntity m_tsEntity;
         // @tswow-end
 
         SpellInfo(SpellEntry const* spellEntry);

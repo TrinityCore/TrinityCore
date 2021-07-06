@@ -445,8 +445,8 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 void GameObject::Update(uint32 diff)
 {
     // @tswow-begin
-    tasks.Tick(TSWorldObject(this));
-    collisions.Tick(TSWorldObject(this));
+    m_tsWorldEntity.tick(TSWorldObject(this));
+    m_tsCollisions.Tick(TSWorldObject(this));
     FIRE_MAP(this->GetGOInfo()->events,GameObjectOnUpdate,TSGameObject(this),diff);
     // @tswow-end
     m_Events.Update(diff);

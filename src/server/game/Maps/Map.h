@@ -39,9 +39,10 @@
 #include <mutex>
 // @tswow-begin
 #include "TSMap.h"
-#include "TSTask.h"
 #include "TSEvents.h"
-#include "TSStorage.h"
+#include "TSEntity.h"
+#include "TSJson.h"
+#include "TSWorldEntity.h"
 // @tswow-end
 
 class Battleground;
@@ -334,8 +335,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         // @tswow-begin
         TSMapDataExtra* GetExtraData() { return i_mapExtra; }
-        TSTasks<TSMap> tasks;
-        TSStorage storage;
+        TSWorldEntity<TSMap> m_tsWorldEntity;
+        TSEntity m_tsEntity;
         // @tswow-end
 
         // currently unused for normal maps

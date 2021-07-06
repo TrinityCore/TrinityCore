@@ -427,7 +427,7 @@ struct GameObjectTemplate
 
     // @tswow-begin
     TSGameObjectEvents* events = nullptr;
-    TSStorage storage;
+    TSEntity m_tsEntity;
     // @tswow-end
 
     // helpers
