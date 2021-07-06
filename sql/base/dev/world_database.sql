@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.30, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.34, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.7.30-0ubuntu0.18.04.1
+-- Server version	5.7.34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -328,7 +328,7 @@ CREATE TABLE `conditions` (
   `NegativeCondition` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `ErrorType` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `ErrorTextId` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ScriptName` char(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Condition System';
@@ -505,6 +505,21 @@ CREATE TABLE `creature_model_info` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `creature_movement_info`
+--
+
+DROP TABLE IF EXISTS `creature_movement_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_movement_info` (
+  `MovementID` int(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template.movementId value',
+  `WalkSpeed` float unsigned DEFAULT NULL,
+  `RunSpeed` float unsigned DEFAULT NULL,
+  PRIMARY KEY (`MovementID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `creature_movement_override`
 --
 
@@ -513,11 +528,12 @@ DROP TABLE IF EXISTS `creature_movement_override`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_movement_override` (
   `SpawnId` int(10) unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Random` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned DEFAULT NULL,
+  `Swim` tinyint(3) unsigned DEFAULT NULL,
+  `Flight` tinyint(3) unsigned DEFAULT NULL,
+  `Rooted` tinyint(3) unsigned DEFAULT NULL,
+  `Random` tinyint(3) unsigned DEFAULT NULL,
+  `InteractionPauseTimer` int(10) unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
   PRIMARY KEY (`SpawnId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -773,11 +789,12 @@ DROP TABLE IF EXISTS `creature_template_movement`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_template_movement` (
   `CreatureId` int(10) unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Random` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned DEFAULT NULL,
+  `Swim` tinyint(3) unsigned DEFAULT NULL,
+  `Flight` tinyint(3) unsigned DEFAULT NULL,
+  `Rooted` tinyint(3) unsigned DEFAULT NULL,
+  `Random` tinyint(3) unsigned DEFAULT NULL,
+  `InteractionPauseTimer` int(10) unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
   PRIMARY KEY (`CreatureId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1678,11 +1695,12 @@ DROP TABLE IF EXISTS `item_enchantment_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_enchantment_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ench` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `entry` int(10) unsigned NOT NULL DEFAULT '0',
+  `type` tinyint(3) unsigned NOT NULL,
+  `ench` int(10) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`entry`,`ench`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=FIXED COMMENT='Item Random Enchantment System';
+  PRIMARY KEY (`entry`,`type`,`ench`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item Random Enchantment System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2019,6 +2037,7 @@ CREATE TABLE `npc_vendor` (
   `incrtime` int(10) unsigned NOT NULL DEFAULT '0',
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `PlayerConditionID` int(10) NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) DEFAULT '0',
   PRIMARY KEY (`entry`,`item`,`ExtendedCost`,`type`),
   KEY `slot` (`slot`)
@@ -2735,8 +2754,6 @@ CREATE TABLE `quest_template` (
   `RewardFactionID5` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
   `RewardFactionValue5` mediumint(8) NOT NULL DEFAULT '0',
   `RewardFactionOverride5` mediumint(8) NOT NULL DEFAULT '0',
-  `TimeAllowed` int(10) unsigned NOT NULL DEFAULT '0',
-  `AllowableRaces` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `LogTitle` text COLLATE utf8mb4_unicode_ci,
   `LogDescription` text COLLATE utf8mb4_unicode_ci,
   `QuestDescription` text COLLATE utf8mb4_unicode_ci,
@@ -2820,6 +2837,8 @@ CREATE TABLE `quest_template_addon` (
   `RequiredMaxRepValue` mediumint(8) NOT NULL DEFAULT '0',
   `ProvidedItemCount` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `SpecialFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `AllowableRaces` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `TimeAllowed` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3831,14 +3850,32 @@ CREATE TABLE `waypoint_data` (
   `position_x` float NOT NULL DEFAULT '0',
   `position_y` float NOT NULL DEFAULT '0',
   `position_z` float NOT NULL DEFAULT '0',
-  `orientation` float NOT NULL DEFAULT '0',
-  `delay` int(10) unsigned NOT NULL DEFAULT '0',
+  `orientation` float DEFAULT NULL,
+  `velocity` float NOT NULL DEFAULT '0',
+  `delay` int(10) NOT NULL DEFAULT '0',
   `move_type` int(11) NOT NULL DEFAULT '0',
   `action` int(11) NOT NULL DEFAULT '0',
   `action_chance` smallint(6) NOT NULL DEFAULT '100',
   `wpguid` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`point`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `waypoint_data_addon`
+--
+
+DROP TABLE IF EXISTS `waypoint_data_addon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `waypoint_data_addon` (
+  `PathID` int(10) unsigned NOT NULL DEFAULT '0',
+  `PointID` int(10) unsigned NOT NULL DEFAULT '0',
+  `SplinePointIndex` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `PositionX` float NOT NULL DEFAULT '0',
+  `PositionY` float NOT NULL DEFAULT '0',
+  `PositionZ` float NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3877,6 +3914,9 @@ CREATE TABLE `waypoints` (
   `position_x` float NOT NULL DEFAULT '0',
   `position_y` float NOT NULL DEFAULT '0',
   `position_z` float NOT NULL DEFAULT '0',
+  `orientation` float DEFAULT NULL,
+  `velocity` float NOT NULL DEFAULT '0',
+  `delay` int(10) NOT NULL DEFAULT '0',
   `point_comment` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=FIXED COMMENT='Creature waypoints';
@@ -3897,6 +3937,22 @@ CREATE TABLE `world_map_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `world_states`
+--
+
+DROP TABLE IF EXISTS `world_states`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `world_states` (
+  `ID` int(5) unsigned NOT NULL,
+  `DefaultValue` int(8) NOT NULL DEFAULT '0',
+  `MapID` int(4) unsigned DEFAULT NULL,
+  `Comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping routines for database 'world'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -3909,4 +3965,4 @@ CREATE TABLE `world_map_template` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-22  0:55:52
+-- Dump completed on 2021-07-06  5:02:50

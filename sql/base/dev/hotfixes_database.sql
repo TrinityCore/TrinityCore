@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.30, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.34, for Linux (x86_64)
 --
 -- Host: localhost    Database: hotfixes
 -- ------------------------------------------------------
--- Server version	5.7.30-0ubuntu0.18.04.1
+-- Server version	5.7.34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -104,6 +104,7 @@ CREATE TABLE `item_extended_cost` (
   `RequiredFactionId` int(10) unsigned NOT NULL DEFAULT '0',
   `RequiredFactionStanding` int(10) unsigned NOT NULL DEFAULT '0',
   `RequirementFlags` int(10) unsigned NOT NULL DEFAULT '0',
+  `RequiredGuildLevel` int(10) unsigned NOT NULL DEFAULT '0',
   `RequiredAchievement` int(10) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
@@ -365,4 +366,4 @@ CREATE TABLE `updates_include` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-22  0:55:52
+-- Dump completed on 2021-07-06  5:02:50
