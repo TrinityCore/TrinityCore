@@ -1016,26 +1016,20 @@ struct npc_lord_victor_nefarius_omnotron : public PassiveAI
         switch (action)
         {
             case ACTION_CAST_SHADOW_INFUSION:
-                if (Creature* electron = _instance->GetCreature(DATA_ELECTRON))
+                if (!_abilitiesOnCooldown)
                 {
-                    if (!_abilitiesOnCooldown)
-                    {
-                        DoCastAOE(SPELL_SHADOW_INFUSION);
-                        _events.ScheduleEvent(EVENT_TALK_MANIPULATE_LIGHTNING_CONDUCTOR, 6s);
-                        _abilitiesOnCooldown = true;
-                        _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
-                    }
+                    DoCastAOE(SPELL_SHADOW_INFUSION);
+                    _events.ScheduleEvent(EVENT_TALK_MANIPULATE_LIGHTNING_CONDUCTOR, 6s);
+                    _abilitiesOnCooldown = true;
+                    _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
                 }
                 break;
             case ACTION_CAST_ENCASING_SHADOWS:
-                if (Creature* magmatron = _instance->GetCreature(DATA_MAGMATRON))
+                if (!_abilitiesOnCooldown)
                 {
-                    if (!_abilitiesOnCooldown)
-                    {
-                        _events.ScheduleEvent(EVENT_ENCASING_SHADOWS, 300ms);
-                        _abilitiesOnCooldown = true;
-                        _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
-                    }
+                    _events.ScheduleEvent(EVENT_ENCASING_SHADOWS, 300ms);
+                    _abilitiesOnCooldown = true;
+                    _events.ScheduleEvent(EVENT_CLEAR_ABILITY_COOLDOWN, 30s);
                 }
                 break;
             default:
