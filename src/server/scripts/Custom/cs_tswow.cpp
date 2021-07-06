@@ -66,12 +66,12 @@ public:
             return false;
         }
 
-        std::string str = "Pos(" +
-            std::to_string(player->GetMap()->GetId()) + "," +
-            std::to_string(player->GetPositionX()) + "," +
-            std::to_string(player->GetPositionY()) + "," +
-            std::to_string(player->GetPositionZ()) + "," +
-            std::to_string(player->GetOrientation()) + "),";
+        std::string str = "{" +
+            std::string("map:")+std::to_string(player->GetMap()->GetId()) + "," +
+            std::string("x:")+std::to_string(player->GetPositionX()) + "," +
+            std::string("y:")+std::to_string(player->GetPositionY()) + "," +
+            std::string("z:")+std::to_string(player->GetPositionZ()) + "," +
+            std::string("o:")+std::to_string(player->GetOrientation()) + "},";
 
         if(args && strlen(args)>0)
         {
