@@ -862,7 +862,7 @@ void WorldPackets::Spells::UpdateMissileTrajectory::Read()
         Status->guid[2] = _worldPacket.ReadBit();
         Status->heightChangeFailed = _worldPacket.ReadBit();
         bool hasMovementFlags0 = !_worldPacket.ReadBit();
-        bool hasSpline = _worldPacket.ReadBit();
+        _worldPacket.ReadBit(); // hasSpline
         Status->guid[4] = _worldPacket.ReadBit();
 
         if (hasMovementFlags0)
