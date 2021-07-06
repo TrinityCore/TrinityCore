@@ -611,7 +611,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
 {
     Unit* caster = ObjectAccessor::GetUnit(*_player, updateMissileTrajectory.Guid);
     Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : nullptr;
-    if (!spell || spell->m_spellInfo->Id != updateMissileTrajectory.SpellID || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
+    if (!spell || int32(spell->m_spellInfo->Id) != updateMissileTrajectory.SpellID || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
         return;
 
     Position pos = *spell->m_targets.GetSrcPos();
