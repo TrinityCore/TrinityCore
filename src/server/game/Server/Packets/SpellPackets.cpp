@@ -821,3 +821,163 @@ void WorldPackets::Spells::UseItem::Read()
         }
     }
 }
+
+void WorldPackets::Spells::UpdateMissileTrajectory::Read()
+{
+    _worldPacket >> FirePos.Pos.m_positionZ;
+    _worldPacket >> FirePos.Pos.m_positionX;
+    _worldPacket >> Pitch;
+    _worldPacket >> ImpactPos.Pos.m_positionX;
+    _worldPacket >> FirePos.Pos.m_positionY;
+    _worldPacket >> Speed;
+    _worldPacket >> ImpactPos.Pos.m_positionY;
+    _worldPacket >> MoveMsgID;
+    _worldPacket >> SpellID;
+    _worldPacket >> ImpactPos.Pos.m_positionZ;
+
+    Guid[5] = _worldPacket.ReadBit();
+    Guid[6] = _worldPacket.ReadBit();
+    Guid[0] = _worldPacket.ReadBit();
+    Guid[7] = _worldPacket.ReadBit();
+    Guid[1] = _worldPacket.ReadBit();
+    Guid[3] = _worldPacket.ReadBit();
+    Guid[2] = _worldPacket.ReadBit();
+    Guid[4] = _worldPacket.ReadBit();
+
+    bool hasFallData = false;
+    bool hasFallVelocity = false;
+    bool hasFacing = false;
+    bool hasTransportData = false;
+    bool hasTransportTime2 = false;
+    bool hasVehicleId = false;
+    bool hasSplineElevation = false;
+    bool hasPitch = false;
+    bool hasMoveTime = false;
+
+    // Thanks to Cataclysm's randomized packet structures we now have to read the packet like this instead of using the MovementStructures helper
+    if (_worldPacket.ReadBit())
+    {
+        Status.emplace();
+
+        Status->guid[2] = _worldPacket.ReadBit();
+        Status->heightChangeFailed = _worldPacket.ReadBit();
+        bool hasMovementFlags0 = !_worldPacket.ReadBit();
+        bool hasSpline = _worldPacket.ReadBit();
+        Status->guid[4] = _worldPacket.ReadBit();
+
+        if (hasMovementFlags0)
+            Status->SetMovementFlags(_worldPacket.ReadBits(30));
+
+        Status->guid[3] = _worldPacket.ReadBit();
+        hasPitch = _worldPacket.ReadBit();
+        bool hasMovementFlags1 = _worldPacket.ReadBit();
+        hasTransportData = _worldPacket.ReadBit();
+        Status->guid[7] = _worldPacket.ReadBit();
+
+        if (hasTransportData)
+        {
+            Status->transport.guid[0] = _worldPacket.ReadBit();
+            Status->transport.guid[7] = _worldPacket.ReadBit();
+            Status->transport.guid[2] = _worldPacket.ReadBit();
+            Status->transport.guid[4] = _worldPacket.ReadBit();
+            hasVehicleId = _worldPacket.ReadBit();
+            Status->transport.guid[5] = _worldPacket.ReadBit();
+            Status->transport.guid[3] = _worldPacket.ReadBit();
+            Status->transport.guid[6] = _worldPacket.ReadBit();
+            hasTransportTime2 = _worldPacket.ReadBit();
+            Status->transport.guid[1] = _worldPacket.ReadBit();
+        }
+
+        Status->guid[6] = _worldPacket.ReadBit();
+        hasFacing = !_worldPacket.ReadBit();
+        hasMoveTime = !_worldPacket.ReadBit();
+        Status->guid[5] = _worldPacket.ReadBit();
+        hasSplineElevation = !_worldPacket.ReadBit();
+        Status->guid[1] = _worldPacket.ReadBit();
+        hasFallData = _worldPacket.ReadBit();
+        Status->guid[0] = _worldPacket.ReadBit();
+
+        if (hasFallData)
+            hasFallVelocity = _worldPacket.ReadBit();
+
+        if (hasMovementFlags1)
+            Status->SetExtraMovementFlags(_worldPacket.ReadBits(12));
+    }
+
+    _worldPacket.ReadByteSeq(Guid[2]);
+    _worldPacket.ReadByteSeq(Guid[1]);
+    _worldPacket.ReadByteSeq(Guid[3]);
+    _worldPacket.ReadByteSeq(Guid[7]);
+    _worldPacket.ReadByteSeq(Guid[6]);
+    _worldPacket.ReadByteSeq(Guid[4]);
+    _worldPacket.ReadByteSeq(Guid[0]);
+    _worldPacket.ReadByteSeq(Guid[5]);
+
+    if (Status.has_value())
+    {
+        if (hasFallData)
+        {
+            if (hasFallVelocity)
+            {
+                _worldPacket >> Status->jump.cosAngle;
+                _worldPacket >> Status->jump.sinAngle;
+                _worldPacket >> Status->jump.xyspeed;
+            }
+
+            _worldPacket >> Status->jump.zspeed;
+            _worldPacket >> Status->jump.fallTime;
+        }
+
+        if (hasFacing)
+            Status->pos.SetOrientation(_worldPacket.read<float>());
+
+        if (hasTransportData)
+        {
+            _worldPacket >> Status->transport.pos.m_positionZ;
+            _worldPacket.ReadByteSeq(Status->transport.guid[3]);
+            _worldPacket.ReadByteSeq(Status->transport.guid[7]);
+            _worldPacket >> Status->transport.pos.m_positionX;
+            Status->transport.pos.SetOrientation(_worldPacket.read<float>());
+
+            if (hasTransportTime2)
+                _worldPacket >> Status->transport.time2;
+
+            _worldPacket.ReadByteSeq(Status->transport.guid[2]);
+            _worldPacket >> Status->transport.time;
+            _worldPacket.ReadByteSeq(Status->transport.guid[0]);
+            _worldPacket >> Status->transport.pos.m_positionY;
+
+            if (hasVehicleId)
+                _worldPacket >> Status->transport.vehicleId;
+
+            _worldPacket.ReadByteSeq(Status->transport.guid[4]);
+            _worldPacket.ReadByteSeq(Status->transport.guid[6]);
+            _worldPacket.ReadByteSeq(Status->transport.guid[1]);
+            _worldPacket >> Status->transport.seat;
+            _worldPacket.ReadByteSeq(Status->transport.guid[5]);
+        }
+
+        if (hasSplineElevation)
+            _worldPacket >> Status->splineElevation;
+
+        _worldPacket.ReadByteSeq(Status->guid[4]);
+
+        if (hasPitch)
+            _worldPacket >> Status->pitch;
+
+        _worldPacket.ReadByteSeq(Status->guid[7]);
+        _worldPacket.ReadByteSeq(Status->guid[2]);
+
+        if (hasMoveTime)
+            _worldPacket >> Status->time;
+
+        _worldPacket >> Status->pos.m_positionX;
+        _worldPacket.ReadByteSeq(Status->guid[5]);
+        _worldPacket.ReadByteSeq(Status->guid[3]);
+        _worldPacket.ReadByteSeq(Status->guid[1]);
+        _worldPacket.ReadByteSeq(Status->guid[0]);
+        _worldPacket >> Status->pos.m_positionY;
+        _worldPacket >> Status->pos.m_positionZ;
+        _worldPacket.ReadByteSeq(Status->guid[6]);
+    }
+}

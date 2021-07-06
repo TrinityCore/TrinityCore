@@ -200,6 +200,7 @@ namespace WorldPackets
         class CastSpell;
         class CancelQueuedSpell;
         class UseItem;
+        class UpdateMissileTrajectory;
     }
 
     namespace Who
@@ -1207,7 +1208,7 @@ class TC_GAME_API WorldSession
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
-        void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
+        void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& updateMissileTrajectory);
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);

@@ -607,3 +607,21 @@ void WorldSession::HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQue
 
     mover->CancelPendingCastRequest();
 }
+void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& updateMissileTrajectory)
+{
+    Unit* caster = ObjectAccessor::GetUnit(*_player, updateMissileTrajectory.Guid);
+    Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : nullptr;
+    if (!spell || spell->m_spellInfo->Id != updateMissileTrajectory.SpellID || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
+        return;
+
+    Position pos = *spell->m_targets.GetSrcPos();
+    pos.Relocate(updateMissileTrajectory.FirePos);
+    spell->m_targets.ModSrc(pos);
+
+    pos = spell->m_targets.GetDstPos()->GetPosition();
+    pos.Relocate(updateMissileTrajectory.ImpactPos);
+    spell->m_targets.ModDst(pos);
+
+    spell->m_targets.SetElevation(updateMissileTrajectory.Pitch);
+    spell->m_targets.SetSpeed(updateMissileTrajectory.Speed);
+}
