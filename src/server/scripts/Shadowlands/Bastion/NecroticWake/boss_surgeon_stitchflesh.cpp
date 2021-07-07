@@ -61,9 +61,21 @@ enum Creatures
 	NPC_ROTSPEW_LEFTOVERS     = 163623,
 }
 
-enum Events
+enum Texts
 {
-	events_SAY : "Come, my Assistants! these raw materials are in need of processing! "
+	TEXT_SURGEON_STITCHFLESH_SAY : "Come, my Assistants! these raw materials are in need of processing! "
+	TEXT_SURGEON_STITCHFLESH_SAY : "Incompentent oafs! Goregrind! try not to damage those limbs whilst you thear them off."
+	TEXT_SURGEON_STITCHFLESH_SAY : "How vexing.Rotspew! Get to work,and don't fail me like your predecesor!"
+	TEXT_SURGEON_STITCHFLESH_SAY : "No! Now I have to rebuild those two from scratch! It seems I must take matters intro my own hands."
+	TEXT_SURGEON_STITCHFLESH_YELLS : "So much materials to work with!"
+	TEXT_SURGEON_STITCHFLESH_YELLS : "I must preserve your parts for later!"
+	TEXT_SURGEON_STITCHFLESH_YELLS : "Have you no respect for craftsmanship?!"
+	TEXT_SURGEON_STITCHFLESH_YELLS : "I'm awfully proud of this one!"
+	TEXT_SURGEON_STITCHFLESH_YELLS : "That one was my favorite!"
+	TEXT_SURGEON_STITCHFLESH_YELLS : "Imbecille! I'm the one who made you!"
+    TEXT_SURGEON_STITCHFLESH_YELLS : "My constructs can handle you on their own."
+    TEXT_SURGEON_STITCHFLESH_YELLS : "My greatest...was yet...to come..."
+    
 }
 
 //162691
