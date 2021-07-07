@@ -32,12 +32,17 @@
 enum Spells
 {
 	//Surgeon Stitchflesh
-	
+	SPELL_NOXIOUS_FOG      = 327100,
+	SPELL_EMBALMING_ICHOR  = 327664,
+	SPELL_STITCHNEEDLE     = 320200,
+	SPELL_SEVER_FLESH      = 334488,
+	SPELL_MORBID_FIXATION  = 343555,
+	SPELL_ESCAPE           = 320359,
 	//Stitchflesh's Creation
-    SPELL_MEAT_HOOK  = 320208,322548,322681,
-    SPELL_AWAKEN_CREATION = 320358,
-    SPELL_Festering Rot = 348170,
-    SPELL_Lethargy = 326868,
+    SPELL_MEAT_HOOK        = 320208,322548,322681,
+    SPELL_AWAKEN_CREATION  = 320358,
+    SPELL_Festering Rot    = 348170,
+    SPELL_Lethargy         = 326868,
     SPELL_Meerahs_Jukebox  = 288865,
     SPELL_Mutilate         = 320376,
     SPELL_Shattered Psyche = 344663,
@@ -45,8 +50,8 @@ enum Spells
 
 enum Creatures
 {
-	NPC_Stitchfleshs_Creation;
-	NPC_Surgeon_Stitchflesh;
+	NPC_Stitchfleshs_Creation = 164578,
+	NPC_Surgeon_Stitchflesh   = 166882,
 	NPC_
 }
 
