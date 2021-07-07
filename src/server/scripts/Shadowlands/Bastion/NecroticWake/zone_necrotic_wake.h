@@ -24,7 +24,7 @@
 #include "npc_necrotic_wake.h"
 #include "boss_amarth.cpp"
 #include "boss_blightbone.cpp"
-#include "boss_nalthor.cpp"
+#include "boss_Nalthor_the_Rimebinder.cpp"
 #include "boss_surgeon_stitchflesh.cpp"
 
 void AddSC_zone_necrotic_wake()
