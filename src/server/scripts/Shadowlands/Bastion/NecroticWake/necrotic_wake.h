@@ -20,16 +20,16 @@ enum Data
     DATA_BLIGHTBONE = 1,
     DATA_AMARTH,
     DATA_SURGEON,
-    DATA_NALTHOR
+    DATA_NALTHOR_THE_RIMEBINDER
 };
 
 enum Creatures
 {
-    NPC_BLIGHTBONE          = 162691,
-    NPC_AMARTH              = 162692,
-    NPC_AMARTH_MOUNT        = 163157,
-    NPC_SURGEON_STITCHFLESH = 166882,
-    NPC_NALTHORN            = 166945,
+    NPC_BLIGHTBONE              = 162691,
+    NPC_AMARTH                  = 162692,
+    NPC_AMARTH_MOUNT            = 163157,
+    NPC_SURGEON_STITCHFLESH     = 166882,
+    NPC_NALTHOR_THE_RIMEBINDER  = 166945,
 };
 
 enum Gameobjects
