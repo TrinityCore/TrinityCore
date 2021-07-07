@@ -35,9 +35,9 @@ enum WaypointMoveType
 
 struct WaypointNode
 {
-    WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), Velocity(0.f), Delay(0), EventId(0), MoveType(WAYPOINT_MOVE_TYPE_RUN), EventChance(0) { }
-    WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, float velocity = 0.f, uint32 delay = 0) :
-        Id(id), X(x), Y(y), Z(z), Orientation(orientation), Velocity(velocity), Delay(delay)
+    WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), Velocity(0.f), Delay(0), EventId(0), MoveType(WAYPOINT_MOVE_TYPE_RUN), EventChance(0), SmoothTransition(false) { }
+    WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, float velocity = 0.f, uint32 delay = 0, bool smoothTransition = false) :
+        Id(id), X(x), Y(y), Z(z), Orientation(orientation), Velocity(velocity), Delay(delay), SmoothTransition(smoothTransition)
     {
         EventId = 0;
         MoveType = WAYPOINT_MOVE_TYPE_WALK;
@@ -52,6 +52,7 @@ struct WaypointNode
     uint32 EventId;
     uint32 MoveType;
     uint8 EventChance;
+    bool SmoothTransition;
     std::vector<G3D::Vector3> SplinePoints;
 };
 

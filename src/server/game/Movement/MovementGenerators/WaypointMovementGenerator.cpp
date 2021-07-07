@@ -27,12 +27,12 @@
 #include "Transport.h"
 #include "WaypointManager.h"
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTimer(0), _movementInformTimer(0), _lastSplineId(0), _pathId(pathId),
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _lastSplineId(0), _pathId(pathId), _waypointDelay(0),
 _waypointReached(true), _recalculateSpeed(false), _repeating(repeating), _loadedFromDB(true), _stalled(false), _hasBeenStalled(false), _done(false)
 {
 }
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _nextMoveTimer(0), _movementInformTimer(0), _lastSplineId(0), _pathId(0),
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _lastSplineId(0), _pathId(0), _waypointDelay(0),
 _waypointReached(true), _recalculateSpeed(false), _repeating(repeating), _loadedFromDB(false), _stalled(false), _hasBeenStalled(false), _done(false)
 {
     _path = &path;
@@ -67,9 +67,6 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
         }
     }
 
-    // We launch the first movement after a initial 1ms delay.
-    _nextMoveTimer.Reset(1);
-
     // inform AI
     if (creature->IsAIEnabled)
         creature->AI()->WaypointPathStarted(_path->Id);
@@ -94,12 +91,11 @@ void WaypointMovementGenerator<Creature>::DoReset(Creature* creature)
     }
 }
 
-void WaypointMovementGenerator<Creature>::HandleMovementInformationHooks(Creature* creature)
+void WaypointMovementGenerator<Creature>::ProcessWaypointArrival(Creature* creature, WaypointNode const& waypoint)
 {
     if (!_path || _path->Nodes.empty())
         return;
 
-    WaypointNode const& waypoint = _path->Nodes.at(_currentNode);
     if (waypoint.Delay > 0)
         creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
 
@@ -165,7 +161,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
     {
         if (!IsAllowedToMove(creature) || (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed()))
         {
-            _nextMoveTimer.Reset(1000);
+            _waypointDelay = 1000;
             return;
         }
     }
@@ -200,7 +196,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
     else
     {
         // We have no db spline points, so we are going to fall back to default waypoint behaivior.
-        if (!creature->movespline->Finalized() && _lastSplineId == creature->movespline->GetId())
+        if (waypoint.SmoothTransition && !creature->movespline->Finalized() && _lastSplineId == creature->movespline->GetId())
         {
             // We are still running our previous waypoint spline. Use its final destination as starting point for our next path.
             init.MoveTo(creature->movespline->FinalDestination(), PositionToVector3({ waypoint.X, waypoint.Y, waypoint.Z }));
@@ -242,11 +238,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
     if (waypoint.Velocity > 0.f)
         init.SetVelocity(waypoint.Velocity);
 
-    // All set and ready, launch spline and initialize timers.
-    int32 moveTime = init.Launch();
-    int32 estimatedArrivalTime = std::max<int32>(0, moveTime + waypoint.Delay);
-    _movementInformTimer.Reset(std::min<int32>(moveTime, estimatedArrivalTime));
-    _nextMoveTimer.Reset(estimatedArrivalTime);
+    init.Launch();
+    _waypointDelay = std::abs(waypoint.Delay);
 
     if (!creature->movespline->Finalized())
         _lastSplineId = creature->movespline->GetId();
@@ -273,7 +266,12 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     if (_done || !_path || _path->Nodes.empty())
         return true;
 
-    // Stop the creature's movement when it has been stalled or when it's currently unable to move
+    // Creature is not moving but has a delay between the current and the next delay.
+    if (creature->movespline->Finalized())
+        if (_waypointDelay > 0)
+            _waypointDelay -= diff;
+
+    // Creature cannot move at the moment. Stop movement and hold further updates until the creature can move again.
     if (!IsAllowedToMove(creature))
     {
         _hasBeenStalled = !_waypointReached;
@@ -281,22 +279,40 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
         return true;
     }
 
-    // Update movement inform timer. Inform AI that we have reached a waypoint or that the path has ended.
-    if (!_hasBeenStalled && !_waypointReached)
-    {
-        _movementInformTimer.Update(diff);
-        if (_movementInformTimer.Passed())
-            HandleMovementInformationHooks(creature);
-    }
-
-    // Reached the end of the path or the path has been paused in one of the AI hooks. Do not launch movements anymore.
-    if (_done || _stalled)
+    // There is no way that this should ever happen but just in case
+    if (_path->Nodes.size() - 1 < _currentNode)
         return true;
 
-    // Update next movement timer. Launch new spline when timer has passed or when we have to recalculate the speed of the spline.
-    _nextMoveTimer.Update(diff);
-    if (_nextMoveTimer.Passed() || (!creature->movespline->Finalized() && _recalculateSpeed))
-        StartMove(creature, (_hasBeenStalled || _recalculateSpeed));
+    WaypointNode const& waypoint = _path->Nodes.at(_currentNode);
+
+    // Basic check for launching a new spline. Creature is no longer moving or is about to smoothly transition from one spline to another
+    bool shouldLaunchNextSpline = [&]()
+    {
+        if (creature->movespline->Finalized())
+            return true;
+
+        if (waypoint.SmoothTransition && creature->movespline->MaxPathIdx() >= 1 && creature->movespline->currentPathIdx() >= creature->movespline->MaxPathIdx() - 1)
+            return true;
+
+        return false;
+    }();
+
+    // Inform AI hooks that we have arrived at our transition point
+    if (shouldLaunchNextSpline && !_waypointReached && !_hasBeenStalled)
+        ProcessWaypointArrival(creature, waypoint);
+
+    // Waypoint is a one-way path and has been completed. No further actions needed.
+    if (_done)
+        return true;
+
+    bool hasToRelaunchSpline = _hasBeenStalled || _recalculateSpeed;
+
+    // Creature cannot launch a new spline yet. There is still a delay that needs to expire.
+    if (!hasToRelaunchSpline && _waypointDelay > 0)
+        return true;
+
+    if (shouldLaunchNextSpline)
+        StartMove(creature, hasToRelaunchSpline);
 
     // Set home position to current position.
     if (!creature->movespline->Finalized())
@@ -310,7 +326,7 @@ void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
 {
     _stalled = timer ? false : true;
     _hasBeenStalled = !_waypointReached;
-    _nextMoveTimer.Reset(timer ? timer : 1);
+    _waypointDelay = 0;
 }
 
 void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
@@ -318,7 +334,7 @@ void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
     _hasBeenStalled = !_waypointReached;
     _stalled = false;
     if (overrideTimer)
-        _nextMoveTimer.Reset(overrideTimer);
+        _waypointDelay = overrideTimer;
 }
 
 bool WaypointMovementGenerator<Creature>::GetResetPosition(Unit* /*owner*/, float& x, float& y, float& z)

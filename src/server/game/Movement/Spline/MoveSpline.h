@@ -138,6 +138,7 @@ namespace Movement
         Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
         Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
         int32 currentPathIdx() const;
+        int32 MaxPathIdx() const { return spline.last() - 1; }
         bool HasStarted() const { return time_passed > 0; }
 
         bool HasAnimation() const { return splineflags.animation; }

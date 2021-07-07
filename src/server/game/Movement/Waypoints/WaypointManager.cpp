@@ -25,8 +25,8 @@ void WaypointMgr::Load()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1      2           3           4           5            6         7          8      9       10
-    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, velocity, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
+    //                                               0   1      2           3           4           5            6         7          8      9                 10      11
+    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, velocity, move_type, delay, smoothTransition, action, action_chance FROM waypoint_data ORDER BY id, point");
 
     if (!result)
     {
@@ -68,9 +68,10 @@ void WaypointMgr::Load()
             continue;
         }
 
-        waypoint.Delay = fields[8].GetInt32();
-        waypoint.EventId = fields[9].GetUInt32();
-        waypoint.EventChance = fields[10].GetInt16();
+        waypoint.Delay = fields[8].GetUInt32();
+        waypoint.SmoothTransition = fields[9].GetBool();
+        waypoint.EventId = fields[10].GetUInt32();
+        waypoint.EventChance = fields[11].GetInt16();
 
         WaypointPath& path = _waypointStore[pathId];
         path.Id = pathId;
