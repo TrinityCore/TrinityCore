@@ -41,24 +41,35 @@ enum Spells
 	//Stitchflesh's Creation
     SPELL_MEAT_HOOK        = 320208,322548,322681,
     SPELL_AWAKEN_CREATION  = 320358,
-    SPELL_Festering Rot    = 348170,
-    SPELL_Lethargy         = 326868,
-    SPELL_Meerahs_Jukebox  = 288865,
-    SPELL_Mutilate         = 320376,
-    SPELL_Shattered Psyche = 344663,
+    SPELL_FESTERING_ROT    = 348170,
+    SPELL_LETHARGY         = 326868,
+    SPELL_MEERAHS_JUKEBOX  = 288865,
+    SPELL_MUTILATE         = 320376,
+    SPELL_SHATTERED_PSYCHE = 344663,
 };
 
 enum Creatures
 {
-	NPC_Stitchfleshs_Creation = 164578,
-	NPC_Surgeon_Stitchflesh   = 166882,
-	NPC_
+	NPC_SURGEON_STITCHFLESH   = 166882,
+	NPC_STITCHFLESHS_CREATION = 164578,
+	NPC_SURGEON_STITCHFLESH   = 166882,
+	NPC_STITCHING_ASSISTANT   = 173044,
+	NPC_SEPARATION_ASSISTANT  = 167731,
+	NPC_GOREGRIND_BITS        = 163622,
+	NPC_GOREGRIND             = 163621,
+	NPC_ROTSPEW               = 163620,
+	NPC_ROTSPEW_LEFTOVERS     = 163623,
+}
+
+enum Events
+{
+	events_SAY : "Come, my Assistants! these raw materials are in need of processing! "
 }
 
 //162691
-struct boss_boss_surgeon_stitchflesh : public BossAI
+struct surgeon_stitchflesh : public BossAI
 {
-    boss_surgeon_stitchflesh(Creature* creature) : BossAI(creature, DATA_SURGEON_STITCHFLESH) { }
+    surgeon_stitchflesh(Creature* creature) : BossAI(creature, DATA_SURGEON_STITCHFLESH) { }
 
     void Reset() override
     {
@@ -71,18 +82,36 @@ struct boss_boss_surgeon_stitchflesh : public BossAI
         Talk(0);
         if (auto* encounterDoor = me->FindNearestGameObject(GO_SURGEON_STITCHFLESH_EXIT, 100.0f))
             encounterDoor->SetGoState(GO_STATE_READY);
-        events.ScheduleEvent(SPELL_CRUNCH, 3s);
-        events.ScheduleEvent(SPELL_HEAVING_RETCH, 5s);
-        events.ScheduleEvent(SPELL_FETID_GAS_CREATE_AT, 10s);
+        events.ScheduleEvent(SPELL_NOXIOUS_FOG, 3s);
+        events.ScheduleEvent(SPELL_EMBALMING_ICHOR, 5s);
+        events.ScheduleEvent(SPELL_STITCHNEEDLE, 10s);
+        events.ScheduleEvent(SPELL_SPELL_SEVER_FLESH, 3s);
+        events.ScheduleEvent(SPELL_MORBID_FIXATION, 3s);
+        events.ScheduleEvent(SPELL_ESCAPE, 3s);
     }
 
     void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override 
     { 
         switch (spellInfo->Id)
         {
-        case SPELL_HEAVING_RETCH:
-            me->AddAura(SPELL_HEAVING_RETCH, target);
+        case SPELL_NOXIOUS_FOG:
+            me->AddAura(SPELL_NOXIOUS_FOG, target);
             break;
+        case SPELL_EMBALMING_ICHOR:
+            me->AddAura(SPELL_EMBALMING_ICHOR, target);
+            break;
+        case SPELL_STITCHNEEDLE:
+            me->AddAura(SPELL_STITCHNEEDLE, target);
+            break;
+        case SPELL_SPELL_SEVER_FLESH:
+            me->AddAura(SPELL_SPELL_SEVER_FLESH, target);
+            break;
+        case SPELL_MORBID_FIXATION:
+            me->AddAura(SPELL_MORBID_FIXATION, target);
+            break;
+        case SPELL_ESCAPE:
+            me->AddAura(SPELL_ESCAPE, target);
+            break;                   
         }
     }
 
@@ -90,28 +119,115 @@ struct boss_boss_surgeon_stitchflesh : public BossAI
     {
         switch (eventId)
         {
-        case SPELL_CRUNCH:
-            DoCastVictim(SPELL_CRUNCH, false);
+        case SPELL_NOXIOUS_FOG:
+            DoCastVictim(SPELL_NOXIOUS_FOG, false);
             events.Repeat(15s);
             break;
-        case SPELL_HEAVING_RETCH:
+        case SPELL_EMBALMING_ICHOR:
+            DoCastVictim(SPELL_EMBALMING_ICHOR, false);
+            events.Repeat(15s);
+            break;
+        case SPELL_STITCHNEEDLE:
+            DoCastVictim(SPELL_STITCHNEEDLE, false);
+            events.Repeat(15s);
+            break;
+        case SPELL_SEVER_FLESH:
+            DoCastVictim(SPELL_SPELL_SEVER_FLESH, false);
+            events.Repeat(15s);
+            break;
+        case SPELL_MORBID_FIXATION:
+            DoCastVictim(SPELL_MORBID_FIXATION, false);
+            events.Repeat(15s);
+            break;
+        case SPELL_ESCAPE:
+            DoCastVictim(SPELL_ESCAPE, false);
+            events.Repeat(15s);
+            break;
+    };                           
+        case SPELL_NOXIOUS_FOG:
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                me->CastSpell(target, SPELL_HEAVING_RETCH), false;
+                me->CastSpell(target, SPELL_NOXIOUS_FOG), false;
                 AddTimedDelayedOperation(2600, [this, target]() -> void
                 {
                     for (uint8 i = 0; i < 3; i++)
                     {
-                        me->CastSpell(target, SPELL_HEAVING_RETCH_MISSILE, true);
+                        me->CastSpell(target, SPELL_NOXIOUS_FOG, true);
                     }
                 });
             }
             events.Repeat(20s);
             break;
-        case SPELL_FETID_GAS_CREATE_AT:
-            me->CastSpell(nullptr, SPELL_FETID_GAS_CREATE_AT, false);
-            events.Repeat(18s);
+        case SPELL_EMBALMING_ICHOR:
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            {
+                me->CastSpell(target, SPELL_EMBALMING_ICHOR), false;
+                AddTimedDelayedOperation(2600, [this, target]() -> void
+                {
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        me->CastSpell(target, SPELL_EMBALMING_ICHOR, true);
+                    }
+                });
+            }
+            events.Repeat(20s);
             break;
+        case SPELL_STITCHNEEDLE:
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            {
+                me->CastSpell(target, SPELL_STITCHNEEDLE), false;
+                AddTimedDelayedOperation(2600, [this, target]() -> void
+                {
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        me->CastSpell(target, SPELL_STITCHNEEDLE, true);
+                    }
+                });
+            }
+            events.Repeat(20s);
+            break;
+        case SPELL_SEVER_FLESH:
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            {
+                me->CastSpell(target, SPELL_SEVER_FLESH), false;
+                AddTimedDelayedOperation(2600, [this, target]() -> void
+                {
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        me->CastSpell(target, SPELL_SEVER_FLESH, true);
+                    }
+                });
+            }
+            events.Repeat(20s);
+            break;
+        case SPELL_MORBID_FIXATION:
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            {
+                me->CastSpell(target, SPELL_MORBID_FIXATION), false;
+                AddTimedDelayedOperation(2600, [this, target]() -> void
+                {
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        me->CastSpell(target, SPELL_MORBID_FIXATION, true);
+                    }
+                });
+            }
+            events.Repeat(20s);
+            break;
+        case SPELL_ESCAPE:
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            {
+                me->CastSpell(target, SPELL_ESCAPE), false;
+                AddTimedDelayedOperation(2600, [this, target]() -> void
+                {
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        me->CastSpell(target, SPELL_ESCAPE, true);
+                    }
+                });
+            }
+            events.Repeat(20s);
+            break; 
         }
     }
 
@@ -128,7 +244,8 @@ struct boss_boss_surgeon_stitchflesh : public BossAI
         me->RemoveAllAreaTriggers();
         if (auto* encounterDoor = me->FindNearestGameObject(GO_SURGEON_STITCHFLESH_EXIT, 100.0f))
             encounterDoor->SetGoState(GO_STATE_ACTIVE);
-    }
+        break;
+    };
 };
 
 //23443
