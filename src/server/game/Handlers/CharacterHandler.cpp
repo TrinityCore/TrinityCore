@@ -1259,6 +1259,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     {
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             guild->SendLoginInfo(this);
+            break;       
+    
         else
         {
             // remove wrong guild data
@@ -1266,6 +1268,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
             pCurrChar->SetInGuild(UI64LIT(0));
         }
     }
+
+    if (pCurrChar->GetTeam() == ALLIANCE)
+            {
+                guidLow = ObjectGuid::Create<HighGuid::Transport>(35);
+                gobTransport = HashMapHolder<Transport>::Find(guidLow);
+                if (gobTransport)
+                {
 
     pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
 
