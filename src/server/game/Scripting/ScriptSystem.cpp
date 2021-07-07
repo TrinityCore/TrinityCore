@@ -80,7 +80,7 @@ void SystemMgr::LoadScriptWaypoints()
 
         WaypointPath& path = _waypointStore[entry];
         path.Id = entry;
-        path.Nodes.emplace_back(id, x, y, z, 0.f, 0.f, waitTime);
+        path.Nodes.emplace_back(id, x, y, z, std::nullopt, 0.f, waitTime);
 
         ++count;
     } while (result->NextRow());
