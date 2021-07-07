@@ -26,8 +26,6 @@
 #include "SpellAuraEffects.h"
 #include "Map.h"
 #include "necrotic_wake.h"
-#include "npc_Bastion"
-#include "objects_Bastion"
 #include "necrotic_wake.h"
 #include "InstanceScript.h"
 #include "Transport.h"
@@ -35,6 +33,13 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "necrotic_wake.h"
+#include "npc_necrotic_wake.h"
+#include "Objects_necrotic_wake.h"
+#include "npc_Data_NecroticWake.h"
+#include "Objects_Aura_NecroticWake.h"
+#include "Objects_Data_NecroticWake.h"
+#include "Objects_Effect_NecroticWake.h"
+#include "Objects_Spawn_NecroticWake.h"
 
 enum Spells
 {
