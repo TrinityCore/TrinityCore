@@ -27,12 +27,12 @@
 #include "Transport.h"
 #include "WaypointManager.h"
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _lastSplineId(0), _pathId(pathId), _waypointDelay(0),
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _lastSplineId(0), _pathId(pathId), _waypointDelay(0), _pauseTime(0),
 _waypointReached(true), _recalculateSpeed(false), _repeating(repeating), _loadedFromDB(true), _stalled(false), _hasBeenStalled(false), _done(false)
 {
 }
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _lastSplineId(0), _pathId(0), _waypointDelay(0),
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _lastSplineId(0), _pathId(0), _waypointDelay(0), _pauseTime(0),
 _waypointReached(true), _recalculateSpeed(false), _repeating(repeating), _loadedFromDB(false), _stalled(false), _hasBeenStalled(false), _done(false)
 {
     _path = &path;
@@ -239,7 +239,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
         init.SetVelocity(waypoint.Velocity);
 
     init.Launch();
-    _waypointDelay = std::abs(waypoint.Delay);
+    _waypointDelay = waypoint.Delay;
 
     if (!creature->movespline->Finalized())
         _lastSplineId = creature->movespline->GetId();
@@ -270,6 +270,10 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     if (creature->movespline->Finalized())
         if (_waypointDelay > 0)
             _waypointDelay -= diff;
+
+    // Creature's movement has been paused.
+    if (_pauseTime > 0)
+        _pauseTime -= diff;
 
     // Creature cannot move at the moment. Stop movement and hold further updates until the creature can move again.
     if (!IsAllowedToMove(creature))
@@ -311,7 +315,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     if (!hasToRelaunchSpline && _waypointDelay > 0)
         return true;
 
-    if (shouldLaunchNextSpline)
+    if (shouldLaunchNextSpline || hasToRelaunchSpline)
         StartMove(creature, hasToRelaunchSpline);
 
     // Set home position to current position.
@@ -322,19 +326,19 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     return true;
 }
 
-void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
+void WaypointMovementGenerator<Creature>::Pause(uint32 timer /*= 0*/)
 {
     _stalled = timer ? false : true;
     _hasBeenStalled = !_waypointReached;
-    _waypointDelay = 0;
+    _pauseTime = timer;
 }
 
-void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
+void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer /*= 0*/)
 {
     _hasBeenStalled = !_waypointReached;
     _stalled = false;
     if (overrideTimer)
-        _waypointDelay = overrideTimer;
+        _pauseTime = overrideTimer;
 }
 
 bool WaypointMovementGenerator<Creature>::GetResetPosition(Unit* /*owner*/, float& x, float& y, float& z)
@@ -354,5 +358,5 @@ bool WaypointMovementGenerator<Creature>::GetResetPosition(Unit* /*owner*/, floa
 
 bool WaypointMovementGenerator<Creature>::IsAllowedToMove(Creature* creature)
 {
-    return (!_stalled && !creature->HasUnitState(UNIT_STATE_NOT_MOVE) && !creature->IsMovementPreventedByCasting());
+    return (!_stalled && _pauseTime <= 0 && !creature->HasUnitState(UNIT_STATE_NOT_MOVE) && !creature->IsMovementPreventedByCasting());
 }

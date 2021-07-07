@@ -65,6 +65,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         uint32 _lastSplineId;
         uint32 _pathId;
         int32 _waypointDelay;
+        int32 _pauseTime;
         bool _waypointReached;
         bool _recalculateSpeed;
         bool _repeating;

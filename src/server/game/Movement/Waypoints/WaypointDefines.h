@@ -48,7 +48,7 @@ struct WaypointNode
     float X, Y, Z;
     Optional<float> Orientation;
     float Velocity;
-    int32 Delay;
+    uint32 Delay;
     uint32 EventId;
     uint32 MoveType;
     uint8 EventChance;
