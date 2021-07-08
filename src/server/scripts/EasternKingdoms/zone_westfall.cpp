@@ -849,6 +849,9 @@ struct npc_westfall_sentinel_hill_guard : public ScriptedAI
             }
         }
 
+        if (!UpdateVictim())
+            return;
+
         DoMeleeAttackIfReady();
     }
 
