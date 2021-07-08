@@ -39,7 +39,13 @@ enum Loot_mode
   void Fatescribe_Roh_Kalo()                                 
   mode_LFR()                                                   
   {                                                            
-   	item_1                                                     = 1,
+   	item_Carnivorous Stalkers                                       = 182750,
+    item_Ferocious Appetite                                         = 182610,
+    item_Fleeting Wind                                              = 182113,
+    item_Fueled by Violence                                         = 180932,
+    item_Incessant Hunter                                           = 183481,
+    item_Inner Fury                                                 = 181376,
+    item_Lost in Darkness                                           = 182344,
   };                                                           
   mode_N()                                                     
   {                                                          
