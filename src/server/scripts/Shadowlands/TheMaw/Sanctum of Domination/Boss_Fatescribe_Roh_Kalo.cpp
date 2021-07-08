@@ -25,10 +25,18 @@ enum Creatures
 {
 	NPC_FATESCRIBE_ROH_KALO                                    = 179390,
 };                                                             
+
+enum Raid_mode
+{
+	mode_LFR;
+	mode_N;
+	mode_HC;
+	mode_Mythic;
+}
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void NPC_Eye_of_the_Jailer()                                 
+  void Fatescribe_Roh_Kalo()                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
@@ -46,4 +54,5 @@ enum Loot_mode
     item_1                                                     = 1,
   };
 };
+
 	 
