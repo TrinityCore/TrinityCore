@@ -24,6 +24,9 @@
 enum Creatures
 {
 	NPC_KYRA                                                   = 178738,
+  NPC_SIGNE                                                  = 178736,
+  NPC_SKYJA                                                  = 178684,
+  NPC_FORMLESS_MASS                                          = 177407,
 };
 
 enum Raid_mode
@@ -36,7 +39,10 @@ enum Raid_mode
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void Kyra <The Unending>()                                 
+  void Kyra();
+  void Signe();
+  void Skyja();
+  void Formless_Mass();                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
