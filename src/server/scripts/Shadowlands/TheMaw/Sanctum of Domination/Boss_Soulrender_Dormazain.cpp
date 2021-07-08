@@ -20,3 +20,39 @@
 #include "zone_Sanctum_of_Domination.cpp"
 #include "zone_Sanctum_of_Domination.h"
 #include "instance_Sanctum_of_Domination.cpp"
+
+enum Creatures
+{
+	NPC_1
+};
+
+enum Raid_mode
+{
+	mode_LFR;
+	mode_N;
+	mode_HC;
+	mode_Mythic;
+}
+                                                               
+enum Loot_mode                                                 
+{                                                              
+  void Fatescribe_Roh_Kalo()                                 
+  mode_LFR()                                                   
+  {                                                            
+   	item_1                                                     = 1,
+  };                                                           
+  mode_N()                                                     
+  {                                                          
+    item_1                                                     = 1,
+  };
+  mode_HC()
+  {                                                          
+    item_1                                                     = 1,
+  };
+  mode_Mythic()
+  {
+    item_1                                                     = 1,
+  };
+};
+
+	
