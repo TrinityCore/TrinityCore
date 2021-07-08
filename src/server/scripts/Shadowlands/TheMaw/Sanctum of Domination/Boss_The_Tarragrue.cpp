@@ -37,6 +37,11 @@ enum Spells
   Spell_Unnatural Power                                            = 299150,
 }
 
+enum achievements
+{
+  Name A Better Duo, Ill Wait                                      = 14998,
+}
+
 enum Raid_mode
 {
 	mode_LFR;
