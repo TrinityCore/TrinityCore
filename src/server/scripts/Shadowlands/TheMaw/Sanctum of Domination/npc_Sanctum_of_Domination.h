@@ -71,7 +71,7 @@ enum NPC
  NPC_MAWSWORN_DARKCASTER = "Mawsworn_Darkcaster";                                   
  NPC_MAWSWORN_GUARD = "Mawsworn_Guard";                                       
  NPC_MAWSWORN_INTERCEPTOR = "Mawsworn_Interceptor";                                    
- NPC_MAWSWORN OVEERLORD = "Mawsworn Overlord";                                     
+ NPC_MAWSWORN_OVEERLORD = "Mawsworn Overlord";                                     
  NPC_ORB_OF_TORMENT = "Orb_of_Torment";                                        
  NPC_REMNANT_OF_KELTHUZAD = "Remnant_of_KelThuzad";                                  
  NPC_SHADE_OF_DESTINY = "Shade_of_Destiny";                                      
@@ -127,50 +127,121 @@ void OnCreatureCreate(Creature* creature) override
 {
     switch (creature->GetEntry())
     {
-    case NPC_Eye_of_the_Jailer:
-        Eye_of_the_Jailer = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case :
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-        case NPC_:
-             = creature->GetGUID();
-            break;
-        }
-    };    
+     case NPC_EYE_OF_THE_JAILER:
+          Eye_of_the_Jailer() = creature->GetGUID();
+          break;
+     };
+     case NPC_NPC_FATESCRIBE_ROH_KALO:
+          Fatescribe_Roh_Kalo() = creature->GetGUID();
+          break;
+     };
+     case NPC_GUARDIAN_OF_THE_FIRST_ONES:
+          Guardian_of_the_First_Ones() = creature->GetGUID();
+          break;
+     };
+     case NPC_KELTHUZAD:
+          KelThuzad() = creature->GetGUID();
+          break;
+     };
+     case NPC_KYRA:
+          Kyra() = creature->GetGUID();
+          break;
+     };
+     case NPC_PAINSMITH_RAZNAL:
+          Painsmith_Raznal() = creature->GetGUID();
+          break;
+     };
+     case NPC_REMNANT_OF_NERZHUL:
+          Remnant_of_Nerzhul() = creature->GetGUID();
+          break;
+     }
+     case NPC_SOULRENDER_DORMAZAIN:
+          Soulrender_Dormazain() = creature->GetGUID();
+          break;
+     }
+     case NPC_SYLVANAS_WINDRUNNER:
+          Sylvanas_Windrunner() = creature->GetGUID();
+          break;
+     }
+     case NPC_THE_TARRAGRUE:
+          The_Tarragrue() = creature->GetGUID();
+          break;
+     }
+     case NPC_FATESPAWN_ANOMALY:
+          Fatespawn_Anomaly() = creature->GetGUID();
+          break;
+     };
+     case NPC_FATESPAWN_MONSTROSITY:
+          Fatespawn_Monstrosity() = creature->GetGUID();
+          break;
+     };
+     case NPC_FROSTBOUND_DEVOTED:
+          Frostbound_Devoted() = creature->GetGUID();
+          break;
+     };
+     case NPC_HIGHLORD_BOLVAR_FORDRAGON:
+          Highlord_Bolvar_Fordragon() = creature->GetGUID();
+          break;
+     };
+     case NPC_INFUSED_GOLIATH:
+          Infused_Goliath() = creature->GetGUID();
+          break;
+     };
+     case NPC_MAWSWORN_AGONIZER:
+          Mawsworn_Agonizer() = creature->GetGUID();
+          break;
+     };
+     case NPC_MAWSWORN_COMMANDER:
+          Mawsworn_Commander() = creature->GetGUID();
+          break;
+     };
+     case NPC_MAWSWORN_DARKCASTER:
+          Mawsworn_Darkcaster() = creature->GetGUID();
+          break;
+     };
+     case NPC_MAWSWORN_GUARD:
+          Mawsworn_Guard() = creature->GetGUID();
+          break;
+     };  
+     case NPC_MAWSWORN_INTERCEPTOR:
+          Mawsworn_Interceptor() = creature->GetGUID();
+          break;
+     };
+     case NPC_MAWSWORN_OVEERLORD:
+          Mawsworn_Overlord() = creature->GetGUID();
+          break;
+     };
+     case NPC_ORB_OF_TORMENT:
+          Orb_of_Torment() = creature->GetGUID();
+          break;
+     };
+     case NPC_REMNANT_OF_KELTHUZAD:
+          Remnant_of_KelThuzad() = creature->GetGUID();
+          break;
+     };
+     case NPC_SHADE_OF_DESTINY:
+          Shade_of_Destiny() = creature->GetGUID();
+          break;
+     };
+     case NPC_SIGNE:
+          Signe() = creature->GetGUID();
+          break;
+     };
+     case NPC_SKYJA:
+          Skyja() = creature->GetGUID();
+          break;
+     };
+     case NPC_SOUL_REAVER:
+          Soul_Reaver() = creature->GetGUID();
+          break;
+     };
+     case NPC_SPIKED_BALL:
+          Spiked_Ball() = creature->GetGUID();
+          break;
+     };
+     case NPC_UNSTOPPABLE_ABOMINATION:
+          Unstoppable_Abomination() = creature->GetGUID();
+          break;
+     };                             
 };                                               
 
