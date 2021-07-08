@@ -116,7 +116,8 @@ void AddSC_Boss_Sylvanas_Windrunner()
 
 {
     AddSC_instance_Sanctum_of_Domination();
-        AddSC_zone_Sanctum_of_Domination();
+        AddSC_zone_The_Maw()
+         AddSC_zone_Sanctum_of_Domination();
          AddSC_npc_Sanctum_of_Domination();
          AddSC_Objects_Sanctum_of_Domination();
          AddSC_Sanctum_of_Domination();
