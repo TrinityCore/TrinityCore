@@ -79,8 +79,7 @@ enum NPC
  NPC_SKYJA = "Skyja <The First>";                                     
  NPC_SOUL_REAVER = "Soul_Reaver";                                           
  NPC_SPIKED_BALL = "Spiked_Ball";                                                                                     
- NPC_UNSTOPPABLE_ABOMINATION = "Unstoppable_Abomination"                               
-
+ NPC_UNSTOPPABLE_ABOMINATION = "Unstoppable_Abomination"                                
 };
 
 enum Creatures
@@ -99,22 +98,22 @@ enum Creatures
  NPC_FATESPAWN_ANOMALY                                      = 179010,
  NPC_FATESPAWN_MONSTROSITY                                  = 180323,                         
  NPC_FROSTBOUND_DEVOTED                                     = 180840,                       
- NPC_Highlord_Bolvar_Fordragon <Knights of the Ebon Blade>  = 178592,                        
- NPC_Infused_Goliath                                        = 176535,176537,176538,176539,     
- NPC_Mawsworn_Agonizer                                      = 177594,
- NPC_Mawsworn_Commander                                     = 178631,
- NPC_Mawsworn_Darkcaster                                    = 178628,
- NPC_Mawsworn_Guard                                         = 178623,
- NPC_Mawsworn_Interceptor                                   = 178661,
- NPC_Mawsworn Overlord                                      = 179177,
- NPC_Orb_of_Torment                                         = 177117,
- NPC_Remnant_of_KelThuzad                                   = 176929,
- NPC_Shade_of_Destiny                                       = 179124,
- NPC_Signe <The Voice>                                      = 178736,
- NPC_Skyja <The First>                                      = 178684,
- NPC_Soul_Reaver                                            = 180474,
- NPC_Spiked_Ball                                            = 176581,
- NPC_Unstoppable_Abomination                                = 180473,
+ NPC_HIGHLORD_BOLVAR_FORDRAGON                              = 178592,                        
+ NPC_INFUSED_GOLIATH                                        = 176535,176537,176538,176539,     
+ NPC_MAWSWORN_AGONIZER                                      = 177594,
+ NPC_MAWSWORN_COMMANDER                                     = 178631,
+ NPC_MAWSWORN_DARKCASTER                                    = 178628,
+ NPC_MAWSWORN_GUARD                                         = 178623,
+ NPC_MAWSWORN_INTERCEPTOR                                   = 178661,
+ NPC_MAWSWORN OVEERLORD                                     = 179177,
+ NPC_ORB_OF_TORMENT                                         = 177117,
+ NPC_REMNANT_OF_KELTHUZAD                                   = 176929,
+ NPC_SHADE_OF_DESTINY                                       = 179124,
+ NPC_SIGNE                                                  = 178736,
+ NPC_SKYJA                                                  = 178684,
+ NPC_SOUL_REAVER                                            = 180474,
+ NPC_SPIKED_BALL                                            = 176581,
+ NPC_UNSTOPPABLE_ABOMINATION                                = 180473,
 
 };
 
