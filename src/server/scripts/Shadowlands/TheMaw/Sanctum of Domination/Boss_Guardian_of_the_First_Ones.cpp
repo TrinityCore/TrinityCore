@@ -23,12 +23,12 @@
 
 enum Creatures
 {
-	NPC_FATESCRIBE_ROH_KALO                                    = 179390,
+	NPC_GUARDIAN_OF_THE_FIRST_ONES                                    = 175731,
 };                                                             
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void NPC_Eye_of_the_Jailer()                                 
+  void Guardian_of_the_First_Ones()                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
