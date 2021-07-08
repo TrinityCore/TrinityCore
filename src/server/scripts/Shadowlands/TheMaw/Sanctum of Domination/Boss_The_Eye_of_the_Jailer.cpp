@@ -31,8 +31,7 @@
 
 enum Creatures
 {
-
- NPC_Eye_of_the_Jailer                 = 180018,
+  NPC_EYE_OF_THE_JAILER                                      = 180018,
 };
 
 enum achivements
@@ -57,7 +56,7 @@ enum Sounds
 
 enum Loot_mode
 {
-  void NPC_Eye_of_the_Jailer() 
+  void Eye_of_the_Jailer() 
   mode_LFR()
    {
      item_Artifice_of_the_Archmage = 181738,
