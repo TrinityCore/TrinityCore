@@ -25,3 +25,20 @@ enum Creatures
 	NPC_Nalthor_the_Rimebinder     = 166945,
 	
 };
+
+void OnCreatureCreate(Creature* creature) override
+{
+	switch (creature->GetEntry())
+    {
+    case NPC_:
+             = creature->GetGUID();
+            break;
+    };
+    case NPC_:
+             = creature->GetGUID();
+            break;
+    };
+    case NPC_:
+             = creature->GetGUID();
+            break;
+    };                         	
