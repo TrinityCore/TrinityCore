@@ -27,6 +27,16 @@ enum Creatures
   NPC_INFUSED_GOLIATH                                        = 176535,176537,176538,176539,
 };
 
+enum Spells
+{
+  Spell_Frostbite Wand                                             = 315293,
+  Spell_Shattered Psyche                                           = 344663,
+  Spell_The Jailers Directive                                      = 329628,
+  Spell_The Jailers Fury                                           = 329338,
+  Spell_The Jailers Vigil                                          = 345312,
+  Spell_Unnatural Power                                            = 299150,
+}
+
 enum Raid_mode
 {
 	mode_LFR;
@@ -41,19 +51,107 @@ enum Loot_mode
   void Infused_Goliath()                                 
   mode_LFR()                                                   
   {                                                            
-   	item_1                                                     = 1,
+   	item_Carnivorous Stalkers                                       = 182750,
+    item_Ferocious Appetite                                         = 182610,
+    item_Fleeting Wind                                              = 182113,
+    item_Fueled by Violence                                         = 180932,
+    item_Incessant Hunter                                           = 183481,
+    item_Inner Fury                                                 = 181376,
+    item_Lost in Darkness                                           = 182344,
+    item_Natures Focus                                              = 182144,
+    item_Rabid Shadows                                              = 182139,
+    item_Well_Placed Steel                                          = 183504,
+    item_Wrench Evil                                                = 182456,
+    item_Cavalier Oathbreakers Grasps                               = 186311,
+    item_Champions Gruesome Greaves                                 = 186318,
+    item_Clasps of the Unfortunate Troubadour                       = 186297,
+    item_Colossus Slayers Hauberk                                   = 186303,
+    item_Elethium-Bladed Glaive                                     = 186381,
+    item_Mistwrap Manacles                                          = 186302,
+    item_Moriazs Spare Targe                                        = 186415,
+    item_Periapt of Pristine Preservation                           = 186291,
+    item_Phantasma-Forged Striders                                  = 186281,
+    item_Smugglers Plundered Pauldrons                              = 186298,
+    item_Sorcerers Headlong Legwraps                                = 186285,
+    item_Tome of Monstrous Constructions                            = 186422,
   };                                                           
   mode_N()                                                     
   {                                                          
-    item_1                                                     = 1,
+    item_Carnivorous Stalkers                                       = 182750,
+    item_Ferocious Appetite                                         = 182610,
+    item_Fleeting Wind                                              = 182113,
+    item_Fueled by Violence                                         = 180932,
+    item_Incessant Hunter                                           = 183481,
+    item_Inner Fury                                                 = 181376,
+    item_Lost in Darkness                                           = 182344,
+    item_Natures Focus                                              = 182144,
+    item_Rabid Shadows                                              = 182139,
+    item_Well_Placed Steel                                          = 183504,
+    item_Wrench Evil                                                = 182456,
+    item_Cavalier Oathbreakers Grasps                               = 186311,
+    item_Champions Gruesome Greaves                                 = 186318,
+    item_Clasps of the Unfortunate Troubadour                       = 186297,
+    item_Colossus Slayers Hauberk                                   = 186303,
+    item_Elethium-Bladed Glaive                                     = 186381,
+    item_Mistwrap Manacles                                          = 186302,
+    item_Moriazs Spare Targe                                        = 186415,
+    item_Periapt of Pristine Preservation                           = 186291,
+    item_Phantasma-Forged Striders                                  = 186281,
+    item_Smugglers Plundered Pauldrons                              = 186298,
+    item_Sorcerers Headlong Legwraps                                = 186285,
+    item_Tome of Monstrous Constructions                            = 186422,
   };
   mode_HC()
   {                                                          
-    item_1                                                     = 1,
+    item_Carnivorous Stalkers                                       = 182750,
+    item_Ferocious Appetite                                         = 182610,
+    item_Fleeting Wind                                              = 182113,
+    item_Fueled by Violence                                         = 180932,
+    item_Incessant Hunter                                           = 183481,
+    item_Inner Fury                                                 = 181376,
+    item_Lost in Darkness                                           = 182344,
+    item_Natures Focus                                              = 182144,
+    item_Rabid Shadows                                              = 182139,
+    item_Well_Placed Steel                                          = 183504,
+    item_Wrench Evil                                                = 182456,
+    item_Cavalier Oathbreakers Grasps                               = 186311,
+    item_Champions Gruesome Greaves                                 = 186318,
+    item_Clasps of the Unfortunate Troubadour                       = 186297,
+    item_Colossus Slayers Hauberk                                   = 186303,
+    item_Elethium-Bladed Glaive                                     = 186381,
+    item_Mistwrap Manacles                                          = 186302,
+    item_Moriazs Spare Targe                                        = 186415,
+    item_Periapt of Pristine Preservation                           = 186291,
+    item_Phantasma-Forged Striders                                  = 186281,
+    item_Smugglers Plundered Pauldrons                              = 186298,
+    item_Sorcerers Headlong Legwraps                                = 186285,
+    item_Tome of Monstrous Constructions                            = 186422,
   };
   mode_Mythic()
   {
-    item_1                                                     = 1,
+    item_Carnivorous Stalkers                                       = 182750,
+    item_Ferocious Appetite                                         = 182610,
+    item_Fleeting Wind                                              = 182113,
+    item_Fueled by Violence                                         = 180932,
+    item_Incessant Hunter                                           = 183481,
+    item_Inner Fury                                                 = 181376,
+    item_Lost in Darkness                                           = 182344,
+    item_Natures Focus                                              = 182144,
+    item_Rabid Shadows                                              = 182139,
+    item_Well_Placed Steel                                          = 183504,
+    item_Wrench Evil                                                = 182456,
+    item_Cavalier Oathbreakers Grasps                               = 186311,
+    item_Champions Gruesome Greaves                                 = 186318,
+    item_Clasps of the Unfortunate Troubadour                       = 186297,
+    item_Colossus Slayers Hauberk                                   = 186303,
+    item_Elethium-Bladed Glaive                                     = 186381,
+    item_Mistwrap Manacles                                          = 186302,
+    item_Moriazs Spare Targe                                        = 186415,
+    item_Periapt of Pristine Preservation                           = 186291,
+    item_Phantasma-Forged Striders                                  = 186281,
+    item_Smugglers Plundered Pauldrons                              = 186298,
+    item_Sorcerers Headlong Legwraps                                = 186285,
+    item_Tome of Monstrous Constructions                            = 186422,
   };
 };
 
