@@ -23,7 +23,7 @@
 
 enum Creatures
 {
-	NPC_1
+	NPC_SYLVANAS_WINDRUNNER                                    = 180828,
 };
 
 enum Raid_mode
@@ -36,7 +36,7 @@ enum Raid_mode
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void Fatescribe_Roh_Kalo()                                 
+  void Sylvanas_Windrunner()                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
