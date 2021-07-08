@@ -79,7 +79,7 @@ enum NPC
  NPC_SOUL_REAVER = "Soul_Reaver";                                           
  NPC_SPIKED_BALL = "Spiked_Ball";                                                                                     
  NPC_UNSTOPPABLE_ABOMINATION = "Unstoppable_Abomination"
- NPC_FORMLESS_MASS = "Formless Mass"                                
+ NPC_FORMLESS_MASS = "Formless_Mass"                                
 };
 
 enum Creatures
