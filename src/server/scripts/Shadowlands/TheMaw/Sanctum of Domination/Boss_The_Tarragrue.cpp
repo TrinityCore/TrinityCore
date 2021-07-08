@@ -23,7 +23,8 @@
 
 enum Creatures
 {
-	NPC_1
+	NPC_THE_TARRAGRUE                                          = 152253,
+  NPC_INFUSED_GOLIATH                                        = 176535,176537,176538,176539,
 };
 
 enum Raid_mode
@@ -36,7 +37,8 @@ enum Raid_mode
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void Fatescribe_Roh_Kalo()                                 
+  void The_Tarragrue()
+  void Infused_Goliath()                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
