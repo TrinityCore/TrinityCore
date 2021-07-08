@@ -1415,6 +1415,7 @@ struct npc_westfall_homless_stormwind_citizen : public ScriptedAI
                 case EVENT_RETURN_TO_HOME:
                 {
                     me->GetMotionMaster()->MoveTargetedHome();
+                    break;
                 }
                 default:
                     break;
@@ -1525,6 +1526,7 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
                 case EVENT_RETURN_TO_HOME:
                 {
                     me->GetMotionMaster()->MoveTargetedHome();
+                    break;
                 }
                 default:
                     break;
