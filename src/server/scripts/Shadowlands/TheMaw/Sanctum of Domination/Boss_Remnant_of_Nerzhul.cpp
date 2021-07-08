@@ -23,7 +23,7 @@
 
 enum Creatures
 {
-	NPC_1
+	NPC_REMNANT_OF_KELTHUZAD                                   = 176929,
 };
 
 enum Raid_mode
@@ -36,7 +36,7 @@ enum Raid_mode
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void Fatescribe_Roh_Kalo()                                 
+  void Remnant_of_KelThuzad()                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
