@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2021 Thordekk
+ * Copyright 2021 Frozen
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,20 @@
  */
 #include "ScriptMgr.h"
 #include "Player.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "SpellAuraEffects.h"
+#include "Map.h"
 #include "InstanceScript.h"
+#include "Transport.h"
+#include "TransportMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "zone_the_maw.cpp"
 #include "objects_Sanctum_of_Domination.h"
 #include "npc_Sanctum_of_Domination.h"
 #include "Sanctum_of_Domination.h"
