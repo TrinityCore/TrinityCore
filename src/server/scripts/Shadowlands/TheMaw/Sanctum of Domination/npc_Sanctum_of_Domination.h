@@ -78,7 +78,8 @@ enum NPC
  NPC_SKYJA = "Skyja <The First>";                                     
  NPC_SOUL_REAVER = "Soul_Reaver";                                           
  NPC_SPIKED_BALL = "Spiked_Ball";                                                                                     
- NPC_UNSTOPPABLE_ABOMINATION = "Unstoppable_Abomination"                                
+ NPC_UNSTOPPABLE_ABOMINATION = "Unstoppable_Abomination"
+ NPC_FORMLESS_MASS = "Formless Mass"                                
 };
 
 enum Creatures
@@ -113,7 +114,7 @@ enum Creatures
  NPC_SOUL_REAVER                                            = 180474,
  NPC_SPIKED_BALL                                            = 176581,
  NPC_UNSTOPPABLE_ABOMINATION                                = 180473,
-
+ NPC_FORMLESS_MASS                                          = 177407,
 };
 
 enum Quests
