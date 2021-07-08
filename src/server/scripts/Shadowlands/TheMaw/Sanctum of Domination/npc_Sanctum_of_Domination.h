@@ -48,70 +48,81 @@
 #include "Boss_KelThuzad.cpp"
 #include "Boss_Sylvanas_Windrunner.cpp"
 
+enum NPC
+{
+
+ NPC_EYE_OF_THE_JAILER = "Eye_of_the_Jailer";                                   
+ NPC_FATESCRIBE_ROH_KALO = "Fatescribe_Roh_Kalo";                                   
+ NPC_GUARDIAN_OF_THE_FIRST_ONES = "Guardian_of_the_First_Ones";                           
+ NPC_KELTHUZAD = "KelThuzad";                                            
+ NPC_KYRA = "Kyra <The Unending>";                                   
+ NPC_PAINSMITH_RAZNAL = "Painsmith_Raznal";                                      
+ NPC_REMNANT_OF_NERZHUL = "Remnant_of_Nerzhul";                                    
+ NPC_SOULRENDER_DORMAZAIN = "Soulrender_Dormazain";                                  
+ NPC_SYLVANAS_WINDRUNNER = "Sylvanas_Windrunner";                                   
+ NPC_THE_TARRAGRUE = "The_Tarragrue";                                         
+ NPC_FATESPAWN_ANOMALY = "Fatespawn_Anomaly";                                    
+ NPC_FATESPAWN_MONSTROSITY = "Fatespawn_Monstrosity";                                
+ NPC_FROSTBOUND_DEVOTED = "Frostbound_Devoted";                                    
+ NPC_HIGHLORD_BOLVAR_FORDRAGON = "Highlord_Bolvar_Fordragon <Knights of the Ebon Blade>";
+ NPC_INFUSED_GOLIATH = "Infused_Goliath";                                       
+ NPC_MAWSWORN_AGONIZER = "Mawsworn_Agonizer";                                    
+ NPC_MAWSWORN_COMMANDER = "Mawsworn_Commander";                                    
+ NPC_MAWSWORN_DARKCASTER = "Mawsworn_Darkcaster";                                   
+ NPC_MAWSWORN_GUARD = "Mawsworn_Guard";                                       
+ NPC_MAWSWORN_INTERCEPTOR = "Mawsworn_Interceptor";                                    
+ NPC_MAWSWORN OVEERLORD = "Mawsworn Overlord";                                     
+ NPC_ORB_OF_TORMENT = "Orb_of_Torment";                                        
+ NPC_REMNANT_OF_KELTHUZAD = "Remnant_of_KelThuzad";                                  
+ NPC_SHADE_OF_DESTINY = "Shade_of_Destiny";                                      
+ NPC_SIGNE = "Signe <The Voice>";                                     
+ NPC_SKYJA = "Skyja <The First>";                                     
+ NPC_SOUL_REAVER = "Soul_Reaver";                                           
+ NPC_SPIKED_BALL = "Spiked_Ball";                                                                                     
+ NPC_UNSTOPPABLE_ABOMINATION = "Unstoppable_Abomination"                               
+
+};
+
 enum Creatures
 {
 
- NPC_Eye_of_the_Jailer                 = 180018,
- NPC_  = 101976,
- NPC_  = 169769,
- NPC_  = 167964,
- NPC_  = 151843,
- NPC_  = 151846,
- NPC_  = 170480,
- NPC_  = 170483,
- NPC_  = 170486,171333,
- NPC_  = 170490,
- NPC_  = 170572,
- NPC_  = 171341,
- NPC_  = 171343,
- NPC_  = 166281,168141,171472,
- NPC_  = 164450,
- NPC_  = 168942,
- NPC_  = 167962,
- NPC_  = 168932,
- NPC_  = 169912,
- NPC_  = 168934,
- NPC_  = 149596,
- NPC_  = 167966,
- NPC_  = 169421,
- NPC_  = 169425,
- NPC_  = 175581,
- NPC_  = 175665,
- NPC_  = 175692,
- NPC_  = 164558,
- NPC_  = 167963,
- NPC_  = 169426,
- NPC_  = 171342,
- NPC_  = 167965,
- NPC_  = 173729,
- NPC_  = 174327,
- NPC_  = 173458,
- NPC_  = 142668,
- NPC_  = 164556,
- NPC_  = 164555,
- NPC_  = 166608,
- NPC_  = 171184,
- NPC_  = 175513,
- NPC_  = 168949,
- NPC_  = 168992,
- NPC_  = 169905,
- NPC_  = 164873,
- NPC_  = 167967,
- NPC_  = 169501,
- NPC_  = 168326,
- NPC_  = 169429,
- NPC_  = 168986,
- NPC_  = 165905,170488,
- NPC_  = 174773,
- NPC_  = 164861,
- NPC_  = 164857,
- NPC_  = 171181,
- NPC_  = 65310,
- NPC_  = 169430,
- NPC_  = 170147,
- NPC_  = 164862,
- NPC_  = 169428,
+ NPC_EYE_OF_THE_JAILER                                      = 180018,
+ NPC_FATESCRIBE_ROH_KALO                                    = 179390,
+ NPC_GUARDIAN_OF_THE_FIRST_ONES                             = 175731,
+ NPC_KELTHUZAD                                              = 175559,
+ NPC_KYRA                                                   = 178738,
+ NPC_PAINSMITH_RAZNAL                                       = 176523,
+ NPC_REMNANT_OF_NERZHUL                                     = 175729,
+ NPC_SOULRENDER_DORMAZAIN                                   = 175727,
+ NPC_SYLVANAS_WINDRUNNER                                    = 180828,
+ NPC_THE_TARRAGRUE                                          = 152253,175611,
+ NPC_FATESPAWN_ANOMALY                                      = 179010,
+ NPC_FATESPAWN_MONSTROSITY                                  = 180323,                         
+ NPC_FROSTBOUND_DEVOTED                                     = 180840,                       
+ NPC_Highlord_Bolvar_Fordragon <Knights of the Ebon Blade>  = 178592,                        
+ NPC_Infused_Goliath                                        = 176535,176537,176538,176539,     
+ NPC_Mawsworn_Agonizer                                      = 177594,
+ NPC_Mawsworn_Commander                                     = 178631,
+ NPC_Mawsworn_Darkcaster                                    = 178628,
+ NPC_Mawsworn_Guard                                         = 178623,
+ NPC_Mawsworn_Interceptor                                   = 178661,
+ NPC_Mawsworn Overlord                                      = 179177,
+ NPC_Orb_of_Torment                                         = 177117,
+ NPC_Remnant_of_KelThuzad                                   = 176929,
+ NPC_Shade_of_Destiny                                       = 179124,
+ NPC_Signe <The Voice>                                      = 178736,
+ NPC_Skyja <The First>                                      = 178684,
+ NPC_Soul_Reaver                                            = 180474,
+ NPC_Spiked_Ball                                            = 176581,
+ NPC_Unstoppable_Abomination                                = 180473,
+
 };
+
+enum Quests
+{
+     Quests_Sanctum_of_Domination - Damned_If_You_Dont      = 64597,64598,
+     Quests_Storming_the_Sanctum                            = 63903,
+}
 
 void OnCreatureCreate(Creature* creature) override
 {
