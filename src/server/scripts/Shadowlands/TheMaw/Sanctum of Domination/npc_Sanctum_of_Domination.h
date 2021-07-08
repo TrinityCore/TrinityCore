@@ -1,5 +1,4 @@
-
-/*
+/* 
  * Copyright 2021 Frozen
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -245,3 +244,10 @@ void OnCreatureCreate(Creature* creature) override
      };                             
 };                                               
 
+void AddSC_Sanctum_of_Domination()
+{
+   RegisterInstanceScript(mode_LFR);
+   RegisterInstanceScript(mode_N);
+   RegisterInstanceScript(mode_HC;
+   RegisterInstanceScript(mode_Mythic);
+};

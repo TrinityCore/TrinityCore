@@ -48,6 +48,35 @@
 #include "Boss_KelThuzad.cpp"
 #include "Boss_Sylvanas_Windrunner.cpp"
 
+enum Raid_mode
+{
+    mode_LFR;
+    mode_N;
+    mode_HC;
+    mode_Mythic;
+}
+                                                               
+enum Loot_mode                                                 
+{                                                              
+  void Fatescribe_Roh_Kalo()                                 
+  mode_LFR()                                                   
+  {                                                            
+    item_1                                                     = 1,
+  };                                                           
+  mode_N()                                                     
+  {                                                          
+    item_1                                                     = 1,
+  };
+  mode_HC()
+  {                                                          
+    item_1                                                     = 1,
+  };
+  mode_Mythic()
+  {
+    item_1                                                     = 1,
+  };
+};
+
 struct instance_Sanctum_of_Domination : public InstanceScript
 {
     instance_Sanctum_of_Domination(InstanceMap* map) : InstanceScript(map) { }
@@ -57,3 +86,14 @@ void AddSC_instance_Sanctum_of_Domination()
 {
     RegisterInstanceScript(instance_Sanctum_of_Domination, 13561);
 }
+
+void AddSC_Sanctum_of_Domination()
+{
+   RegisterInstanceScript(mode_LFR);
+   RegisterInstanceScript(mode_N);
+   RegisterInstanceScript(mode_HC;
+   RegisterInstanceScript(mode_Mythic);
+};
+
+
+    
