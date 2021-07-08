@@ -23,7 +23,7 @@
 
 enum Creatures
 {
-	NPC_1
+	NPC_PAINSMITH_RAZNAL                                       = 176523,
 };
 
 enum Raid_mode
@@ -36,7 +36,7 @@ enum Raid_mode
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void Fatescribe_Roh_Kalo()                                 
+  void Painsmith_Raznal()                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
