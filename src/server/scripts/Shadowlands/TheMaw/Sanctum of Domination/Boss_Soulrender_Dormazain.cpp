@@ -23,7 +23,7 @@
 
 enum Creatures
 {
-	NPC_1
+	NPC_SOULRENDER_DORMAZAIN                                   = 175727,
 };
 
 enum Raid_mode
@@ -36,7 +36,7 @@ enum Raid_mode
                                                                
 enum Loot_mode                                                 
 {                                                              
-  void Fatescribe_Roh_Kalo()                                 
+  void Soulrender_Dormazain()                                 
   mode_LFR()                                                   
   {                                                            
    	item_1                                                     = 1,
