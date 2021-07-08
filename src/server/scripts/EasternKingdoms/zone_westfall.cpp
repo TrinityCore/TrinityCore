@@ -737,9 +737,9 @@ private:
     ObjectGuid _westPlainsDrifter;
 };
 
-struct npc_westfall_west_plains_drifter : public ScriptedAI
+struct npc_westfall_west_plains_drifter_walk_to_sentinel : public ScriptedAI
 {
-    npc_westfall_west_plains_drifter(Creature* creature) : ScriptedAI(creature) { }
+    npc_westfall_west_plains_drifter_walk_to_sentinel(Creature* creature) : ScriptedAI(creature) { }
 
     void JustSummoned(Creature* summon) override
     {
@@ -1273,6 +1273,275 @@ private:
     ObjectGuid _eventInvokerGUID;
 };
 
+enum WestFallStewNpc
+{
+    NPC_WESTFALL_STEW = 42617
+};
+
+enum WestFallStewSpell
+{
+    SPELL_FULL_BELLY     = 79451,
+    SPELL_COSMETIC_SLEEP = 78677
+};
+
+enum WestFallStewEvent
+{
+    EVENT_START = 1,
+    EVENT_MOVE_TO_STEW,
+    EVENT_RETURN_TO_HOME
+};
+
+enum WestFallText
+{
+    SAY_NPC_HOMELESS_STORMWIND_CITIZEN_1 = 11,
+    SAY_NPC_HOMELESS_STORMWIND_CITIZEN_2 = 12,
+    SAY_NPC_TRANSIENT                    = 17,
+    SAY_NPC_WEST_PLAINS_DRIFTER          = 11,
+    SAY_NPC_WEST_PLAINS_DRIFTER_FOLLOWER = 6     
+};
+
+struct npc_westfall_westfall_stew: public ScriptedAI
+{
+    npc_westfall_westfall_stew(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (!summoner)
+            return;
+
+        std::vector<Creature*> homelessCitizens;
+        me->GetCreatureListWithEntryInGrid(homelessCitizens, NPC_HOMELESS_STORMWIND_CITIZEN_1, 8.f);
+        me->GetCreatureListWithEntryInGrid(homelessCitizens, NPC_HOMELESS_STORMWIND_CITIZEN_2, 8.f);
+        me->GetCreatureListWithEntryInGrid(homelessCitizens, NPC_TRANSIENT, 8.f);
+        me->GetCreatureListWithEntryInGrid(homelessCitizens, NPC_WEST_PLAINS_DRIFTER, 8.f);
+        me->GetCreatureListWithEntryInGrid(homelessCitizens, NPC_WEST_PLAINS_DRIFTER_FOLLOWER, 8.f);
+        for (Creature* homelessCitizen : homelessCitizens)
+        {
+            if (homelessCitizen->HasAura(SPELL_FULL_BELLY))
+                continue;
+
+            homelessCitizen->AI()->SetGUID(me->GetGUID());
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_westfall_homless_stormwind_citizen : public ScriptedAI
+{
+    npc_westfall_homless_stormwind_citizen(Creature* creature) : ScriptedAI(creature) { }
+
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    {
+        if (!_westfallStewGUID.IsEmpty())
+            return;
+
+        _westfallStewGUID = guid;
+
+        _events.ScheduleEvent(EVENT_START, 0);
+    }
+
+    void MovementInform(uint32 MotionType, uint32 PointId) override
+    {
+        if ((MotionType == POINT_MOTION_TYPE) && (PointId == 1))
+        {
+            me->CastSpell(me, SPELL_FULL_BELLY);
+
+            if (Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID))
+            {
+                if (Unit* summoner = stew->ToTempSummon()->GetSummoner())
+                    if (Player* player = summoner->ToPlayer())
+                        player->KilledMonsterCredit(NPC_WESTFALL_STEW);
+
+                if (roll_chance_i(50))
+                {
+                    switch (me->GetEntry())
+                    {
+                        case NPC_HOMELESS_STORMWIND_CITIZEN_1:
+                            Talk(SAY_NPC_HOMELESS_STORMWIND_CITIZEN_1, stew);
+                            break;
+                        case NPC_HOMELESS_STORMWIND_CITIZEN_2:
+                            Talk(SAY_NPC_HOMELESS_STORMWIND_CITIZEN_2, stew);
+                            break;
+                        case NPC_TRANSIENT:
+                            Talk(SAY_NPC_TRANSIENT, stew);
+                            break;
+                        case NPC_WEST_PLAINS_DRIFTER:
+                            Talk(SAY_NPC_WEST_PLAINS_DRIFTER, stew);
+                            break;
+                        case NPC_WEST_PLAINS_DRIFTER_FOLLOWER:
+                            Talk(SAY_NPC_WEST_PLAINS_DRIFTER_FOLLOWER, stew);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            _events.ScheduleEvent(EVENT_RETURN_TO_HOME, 5s + 500ms);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START:
+                {
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                
+                    if (me->HasAura(SPELL_COSMETIC_SLEEP))
+                        me->RemoveAurasDueToSpell(SPELL_COSMETIC_SLEEP);
+                
+                    _events.ScheduleEvent(EVENT_MOVE_TO_STEW, 2s);
+                    break;
+                }
+                case EVENT_MOVE_TO_STEW:
+                {
+                    Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID);
+                    if (stew)
+                    {
+                        float x, y, z;
+                        stew->GetContactPoint(me, x, y, z, 0.2f);
+                        me->GetMotionMaster()->MovePoint(1, x, y, z);
+                    }
+                    else
+                        me->GetMotionMaster()->MoveTargetedHome();
+                    break;
+                }
+                case EVENT_RETURN_TO_HOME:
+                {
+                    me->GetMotionMaster()->MoveTargetedHome();
+                }
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _westfallStewGUID;
+};
+
+struct npc_westfall_west_plains_drifter : public ScriptedAI
+{
+    npc_westfall_west_plains_drifter(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_HOBO_CART)
+            summon->SetDisplayId(DISPLAY_HOBO_CART);
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    {
+        if (!_westfallStewGUID.IsEmpty())
+            return;
+
+        _westfallStewGUID = guid;
+
+        _events.ScheduleEvent(EVENT_START, 0);
+    }
+
+    void MovementInform(uint32 MotionType, uint32 PointId) override
+    {
+        if ((MotionType == POINT_MOTION_TYPE) && (PointId == 1))
+        {
+            me->CastSpell(me, SPELL_FULL_BELLY);
+
+            if (Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID))
+            {
+                if (Unit* summoner = stew->ToTempSummon()->GetSummoner())
+                    if (Player* player = summoner->ToPlayer())
+                        player->KilledMonsterCredit(NPC_WESTFALL_STEW);
+
+                if (roll_chance_i(50))
+                {
+                    switch (me->GetEntry())
+                    {
+                    case NPC_HOMELESS_STORMWIND_CITIZEN_1:
+                        Talk(SAY_NPC_HOMELESS_STORMWIND_CITIZEN_1, stew);
+                        break;
+                    case NPC_HOMELESS_STORMWIND_CITIZEN_2:
+                        Talk(SAY_NPC_HOMELESS_STORMWIND_CITIZEN_2, stew);
+                        break;
+                    case NPC_TRANSIENT:
+                        Talk(SAY_NPC_TRANSIENT, stew);
+                        break;
+                    case NPC_WEST_PLAINS_DRIFTER:
+                        Talk(SAY_NPC_WEST_PLAINS_DRIFTER, stew);
+                        break;
+                    case NPC_WEST_PLAINS_DRIFTER_FOLLOWER:
+                        Talk(SAY_NPC_WEST_PLAINS_DRIFTER_FOLLOWER, stew);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            _events.ScheduleEvent(EVENT_RETURN_TO_HOME, 5s + 500ms);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START:
+                {
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                
+                    if (me->HasAura(SPELL_COSMETIC_SLEEP))
+                        me->RemoveAurasDueToSpell(SPELL_COSMETIC_SLEEP);
+                
+                    _events.ScheduleEvent(EVENT_MOVE_TO_STEW, 2s);
+                    break;
+                }
+                case EVENT_MOVE_TO_STEW:
+                {
+                    Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID);
+                    if (stew)
+                    {
+                        float x, y, z;
+                        stew->GetContactPoint(me, x, y, z, 0.2f);
+                        me->GetMotionMaster()->MovePoint(1, x, y, z);
+                    }
+                    else
+                        me->GetMotionMaster()->MoveTargetedHome();
+                    break;
+                }
+                case EVENT_RETURN_TO_HOME:
+                {
+                    me->GetMotionMaster()->MoveTargetedHome();
+                }
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _westfallStewGUID;
+};
+
 void AddSC_westfall()
 {
     RegisterSpellScript(spell_westfall_unbound_energy);
@@ -1284,11 +1553,14 @@ void AddSC_westfall()
     RegisterSpellScript(spell_westfall_summon_ragamuffin_looter);
     RegisterSpellScript(spell_westfall_aggro_hobo);
     RegisterCreatureAI(npc_westfall_refugee_bridge_to_sentinelhill);
-    RegisterCreatureAI(npc_westfall_west_plains_drifter);
+    RegisterCreatureAI(npc_westfall_west_plains_drifter_walk_to_sentinel);
     RegisterCreatureAI(npc_westfall_sentinel_hill_guard);
     new at_westfall_two_shoed_lou_thugs();
     RegisterCreatureAI(npc_westfall_thug);
     RegisterCreatureAI(npc_westfall_lous_parting_thoughts_trigger);
     new at_westfall_small_time_hustler();
     RegisterCreatureAI(npc_westfall_small_time_hustler);
+    RegisterCreatureAI(npc_westfall_westfall_stew);
+    RegisterCreatureAI(npc_westfall_homless_stormwind_citizen);
+    RegisterCreatureAI(npc_westfall_west_plains_drifter);
 }
