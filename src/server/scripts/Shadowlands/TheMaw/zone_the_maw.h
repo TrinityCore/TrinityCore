@@ -30,8 +30,14 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "zone_the_maw.cpp"
-#include "zone_Sanctum_of_Domination"
-#include "zone_torghast_tower_of_the_damned"
+#include "instance_Sanctum_of_Domination.h"
+#include "instance_Sanctum_of_Domination.cpp"
+#include "zone_Sanctum_of_Domination.cpp"
+#include "zone_Sanctum_of_Domination.h"
+#include "instance_torghast_tower_of_the_damned.cpp"
+#include "instance_torghast_tower_of_the_damned.h"
+#include "zone_torghast_tower_of_the_damned.cpp"
+#include "zone_torghast_tower_of_the_damned.h"
 
 void AddSC_Zone_the_maw()
 {
