@@ -52,3 +52,11 @@ void AddSC_Sanctum_of_Domination()
 void AddSC_zone_torghast_tower_of_the_damned()
 {
 }
+
+void AddSC_instance_torgast_tower_of_the_damned()
+{
+}
+
+void AddSC_torgast_tower_of_the_damned()
+{
+}
