@@ -33,10 +33,12 @@ ChunkedFile::~ChunkedFile()
     free();
 }
 
-bool ChunkedFile::loadFile(std::shared_ptr<CASC::Storage const> mpq, std::string const& fileName, bool log)
+bool ChunkedFile::loadFile(std::shared_ptr<CASC::Storage const> mpq,tdb,adt, std::string const& fileName, bool log)
 {
     free();
     std::unique_ptr<CASC::File> file(mpq->OpenFile(fileName.c_str(), CASC_LOCALE_ALL_WOW, log));
+    std::unique_ptr<CASC::File> file(tdb->OpenFile(fileName.c_str(), CASC_LOCALE_ALL_WOW, log));
+    std::unique_ptr<CASC::File> file(adt->OpenFile(fileName.c_str(), CASC_LOCALE_ALL_WOW, log));
     if (!file)
         return false;
 
@@ -60,10 +62,12 @@ bool ChunkedFile::loadFile(std::shared_ptr<CASC::Storage const> mpq, std::string
     return false;
 }
 
-bool ChunkedFile::loadFile(std::shared_ptr<CASC::Storage const> mpq, uint32 fileDataId, std::string const& description, bool log)
+bool ChunkedFile::loadFile(std::shared_ptr<CASC::Storage const> mpq,tdb,adt, uint32 fileDataId, std::string const& description, bool log)
 {
     free();
     std::unique_ptr<CASC::File> file(mpq->OpenFile(fileDataId, CASC_LOCALE_ALL_WOW, log));
+    std::unique_ptr<CASC::File> file(tdb->OpenFile(fileDataId, CASC_LOCALE_ALL_WOW, log));
+    std::unique_ptr<CASC::File> file(adt->OpenFile(fileDataId, CASC_LOCALE_ALL_WOW, log));
     if (!file)
         return false;
 
