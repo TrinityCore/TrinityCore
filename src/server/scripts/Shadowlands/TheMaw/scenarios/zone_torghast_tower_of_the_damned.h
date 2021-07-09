@@ -14,7 +14,8 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "zone_the_maw.cpp"
-#include "torghast_tower_of_the_damned.h" 
+#include "torghast_tower_of_the_damned.h"
+#include "zone_torghast_tower_of_the_damned.cpp" 
 #include "instance_torgast_tower_of_the_damned.cpp"
 
 enum torgast_tower_of_the_damned
