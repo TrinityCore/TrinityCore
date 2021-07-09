@@ -53,100 +53,126 @@
 
 enum Objects
 {
-    Objects_unu = 0,
-    Objects_doi = 0,
-    Objects_trei = 0,
-    Objects_patru = 0,
-    Objects_cinci = 0,
-    Objects_sase = 0,
+    Obj_Chaotic_Concoctions = 368373,
+    Obj_Gate = 271809,
+    Obj_trei = 0,
+    Obj_patru = 0,
+    Obj_cinci = 0,
+    Obj_sase = 0,
 }   
 
-void Objects_unu
-ObjectGuid unu;
-
-void Objects_doi
-ObjectGuid doi;
-
-void Objects_trei
-ObjectGuid trei;
-
-void Objects_patru
-ObjectGuid patru;
-
-void Objects_cinci
-ObjectGuid cinci;
-
-void Objects_sase
-ObjectGuid sase;
-
-void OnGameObjectCreate(GameObject* go) override
+class Chaotic_Concoctions : public ObjectsScript
 {
+public:
+    Obj_Chaotic_Concoctions() : ObjectsScript("Obj_Chaotic_Concoctions") { }
+
+    ObjectsAI* GetAI(Objects* Objects) const override
     {
-        switch (go->GetEntry())
+        return GetObj_Chaotic_ConcoctionsAI<Obj_Chaotic_ConcoctionsAI>(Objects);
+    }
+
+    struct Obj_Chaotic_ConcoctionsAI : public ObjectsAI
+    {
+        Obj_Chaotic_ConcoctionsAI(Objects* Objects) : ObjectsAI(Objects)
         {
-        case GO_Objects_unu:
-            unu = go->GetGUID();
-            break;
+            instance = object->GetObjectsScript();
+            Objects->ObjectsID();
+            Reset();
+        }
+
+        InstanceScript* instance;
+
+        uint8 uiPhase;
+        uint32 uiTimer;
+
+        GuidList SummonList;
+        GuidList GoSummonList;
+
+        void Reset() override
+        {
+            if (!HasSpawn(Spawn_Obj_Chaotic_Concoctions))
+            {
+                Obj_Chaotic_Concoctions = object;
+                uiPhase = 0;
+
+                return true;
+
+                SpawnObject.spawn();
+                GO_Objects.Go();
+            }
+            if (!IsObjects(SpawnObject() to Position SpawnPosition[] = {-35.9f, -11.3f; -54.1f, -18.7f; -53.6f, -20.5f;}, ))
+        }
+
+        bool ObjectSelect(Player* player, uint32 /*ObjectsId*/, uint32 ObjectsListId) override
+        {
+            if (ObjectsListId == 0)
+            {
+                Start(true, false, player->GetGUID());
+
+                me->SetObjects(player->GetObjects());
+                SetData(1, 0);
+
+                player->PlayerUseObject->UseObject();
+            }
+            return true;
         }
     }
-};
+}
 
-void OnGameObjectCreate(GameObject* go) override
+class Obj_Gate : public ObjectsScript
 {
-    {
-        switch (go->GetEntry())
-        {
-        case GO_Objects_doi:
-            doi = go->GetGUID();
-            break;
-        }
-    }
-};
+public:
+    Obj_Gate() : ObjectsScript("Obj_Gate") { }
 
-void OnGameObjectCreate(GameObject* go) override
-{
+    ObjectsAI* GetAI(Objects* Objects) const override
     {
-        switch (go->GetEntry())
-        {
-        case GO_Objects_trei:
-            trei = go->GetGUID();
-            break;
-        }
+        return GetObj_GateAI<Obj_GateAI>(Objects);
     }
-};
 
-void OnGameObjectCreate(GameObject* go) override
-{
+    struct Obj_GateAI : public ObjectsAI
     {
-        switch (go->GetEntry())
+        Obj_GateAI(Objects* Objects) : ObjectsAI(Objects)
         {
-        case GO_Objects_patru:
-            patru = go->GetGUID();
-            break;
+            instance = object->GetObjectsScript();
+            Objects->ObjectsID();
+            Reset();
         }
-    }
-};
 
-void OnGameObjectCreate(GameObject* go) override
-{
-    {
-        switch (go->GetEntry())
+        InstanceScript* instance;
+
+        uint8 uiPhase;
+        uint32 uiTimer;
+
+        GuidList SummonList;
+        GuidList GoSummonList;
+
+        void Reset() override
         {
-        case GO_Objects_cinci:
-            cinci = go->GetGUID();
-            break;
-        }
-    }
-};
+            if (!HasSpawn(Spawn_Obj_Gate))
+            {
+                Obj_Gate = object;
+                uiPhase = 0;
 
-void OnGameObjectCreate(GameObject* go) override
-{ 
-    {
-       swich (go->GetEntry())
-       {
-        case GO_Objects_sase:
-            sase = go->GetGUID();
-            break;
+                return true;
+
+                SpawnObject.spawn();
+                GO_Objects.Go();
+            }
+            if (!IsObjects(SpawnObject() to Position SpawnPosition[] = {-57.1f, -59.8f; -57.2f, -71.1f;}, ))
+        }
+
+        bool ObjectSelect(Player* player, uint32 /*ObjectsId*/, uint32 ObjectsListId) override
+        {
+            if (ObjectsListId == 0)
+            {
+                Start(true, false, player->GetGUID());
+
+                me->SetObjects(player->GetObjects());
+                SetData(1, 0);
+
+                player->PlayerUseObject->UseObject();
+            }
+            return true;
         }
     }
-};
+}
