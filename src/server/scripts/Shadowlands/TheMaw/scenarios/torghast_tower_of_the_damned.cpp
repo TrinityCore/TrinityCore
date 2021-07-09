@@ -17,14 +17,24 @@
 #include "torghast_tower_of_the_damned.h" 
 #include "instance_torgast_tower_of_the_damned.cpp"
 
-enum torgast_tower_of_the_damned
- {
- }
+enum 
+{
+    
+};
 
-void torgast_tower_of_the_damned();
+class torgast_tower_of_the_damned
+{
+    void torgast_tower_of_the_damned();
+};
+
+void AddSC_instance_torgast_tower_of_the_damned()
 {
 }
 
-void zone_the_maw();
+void AddSC_zone_torghast_tower_of_the_damned()
+{
+}
+
+void AddSC_zone_the_maw()
 {
 }
