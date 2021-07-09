@@ -54,6 +54,27 @@ struct file_MWMO
     char FileList[1];
 };
 
+struct file_TDB
+{
+    u_map_fcc fcc;
+    uint32 size;
+    char FileList[1];
+};
+
+struct file_WMO
+{
+    u_map_fcc fcc;
+    uint32 size;
+    char FileList[1];
+};
+
+struct file_ADT
+{
+    u_map_fcc fcc;
+    uint32 size;
+    char FileList[1];
+};
+
 class FileChunk
 {
 public:
