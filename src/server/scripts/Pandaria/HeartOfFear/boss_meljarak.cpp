@@ -444,6 +444,36 @@ public:
                     if ((*itr)->HasFlag(GO_FLAG_NOT_SELECTABLE))
                         (*itr)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
+            me->DeleteThreatList();
+            me->CombatStop(true);
+            me->SetFullHealth();
+            me->RemoveAllAuras();
+            me->RemoveAllDynObjects();
+            me->SetReactState(REACT_PASSIVE);
+            windBombScheduled = false;
+            inCombat = false;
+
+            // Removing wind bombs, amber prisons, whirling blades and Resin pools NPC
+            uint32 addEntries[4] = {NPC_AMBER_PRISON, NPC_WIND_BOMB, NPC_WHIRLING_BLADE, NPC_CORROSIVE_RESIN_POOL};
+            for (uint8 i = 0; i < 4; ++i)
+            {
+                std::list<Creature*> addList;
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 100.0f);
+
+                if (!addList.empty())
+                    for (Creature* add : addList)
+                        add->DespawnOrUnsummon();
+            }
+
+            // Resetting weapons rack available
+            std::list<GameObject*> rackList;
+            GetGameObjectListWithEntryInGrid(rackList, me, GOB_WEAPON_RACK, 100.0f);
+
+            if (!rackList.empty())
+                for (std::list<GameObject*>::iterator itr = rackList.begin(); itr != rackList.end(); ++itr)
+                    if ((*itr)->HasFlag(GO_FLAG_NOT_SELECTABLE))
+                        (*itr)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+
             ResetThreatList();
             me->CombatStop(true);
             me->SetFullHealth();

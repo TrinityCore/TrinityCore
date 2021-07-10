@@ -500,7 +500,7 @@ public:
 
         void SetData(uint32 action, uint32 value) override
         {
-            if (action == ACTION_LEG_IS_DEAD)
+            if (p_Id == ACTION_LEG_IS_DEAD)
             {
                 // Crash check, should always be true
                 if (legs.size() < 4)
@@ -550,7 +550,7 @@ public:
                     break;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetGUID(ObjectGuid p_Guid, int32 p_Id) override

@@ -1114,6 +1114,21 @@ class mob_set_thik_gustwing : public CreatureScript
                 }
             }
 
+            void JustDied(Unit* /*killer*/) override
+            {
+                if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 200.0f))
+                {
+                    if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_ZEPHYRIAN, 200.0f))
+                    {
+                        if (pInstance)
+                        {
+                            if (Creature* garalon = pInstance->GetCreature(NPC_GARALON))
+                                garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
+                        }
+                    }
+                }
+            }
+
             void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
@@ -1322,6 +1337,685 @@ class mob_kor_thik_silentwing : public CreatureScript
         {
             return new mob_kor_thik_silentwingAI(creature);
         }
+};
+
+// 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
+class mob_zephyr : public CreatureScript
+{
+    public:
+        mob_zephyr() : CreatureScript("mob_zephyr") { }
+
+        struct mob_zephyrAI : public ScriptedAI
+        {
+            mob_zephyrAI(Creature* creature) : ScriptedAI(creature)
+            {
+                creature->SetDisplayId(38493);
+                me->SetSpeed(MOVE_RUN, 5.0f);
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+                me->CastSpell(me, SPELL_ZEPHYR, false);
+                me->DespawnOrUnsummon(30000);
+                m_Events.ScheduleEvent(EVENT_ZEPHYR_MOVE, 500);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == EVENT_ZEPHYR_MOVE)
+                {
+                    float l_PosX = me->GetPositionX() + 100.0f * cos(me->GetOrientation());
+                    float l_PosY = me->GetPositionY() + 100.0f * sin(me->GetOrientation());
+                    Position targetPoint = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
+                    me->GetMotionMaster()->MovePoint(0, targetPoint);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_zephyrAI(creature);
+        }
+};
+
+enum eSwarmGuardType
+{
+    TYPE_SWARM_LOWGUID = 1,
+    TYPE_AMBER_USED
+};
+
+// 64916 - Kor'thik Swarmguard
+class mob_korthik_swarmguard : public CreatureScript
+{
+public:
+    mob_korthik_swarmguard() : CreatureScript("mob_korthik_swarmguard") { }
+
+    struct mob_korthik_swarmguardAI : public ScriptedAI
+    {
+        mob_korthik_swarmguardAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        uint32 protectedAmberCallerLowGuid;
+        ObjectGuid protectedAmberGuid;
+        InstanceScript* pInstance;
+        bool inCombat;
+        bool isProtecting;
+
+        void Reset() override
+        {
+            events.Reset();
+            me->SetVirtualItem(0, EQUIP_TRASH_7);
+            me->SetReactState(REACT_AGGRESSIVE);
+            protectedAmberCallerLowGuid = 0;
+            protectedAmberGuid = ObjectGuid::Empty;
+            inCombat = false;
+            isProtecting = false;
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            protectedAmberCallerLowGuid = 0;
+            inCombat = false;
+        }
+
+        void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/) override
+        {
+            if (!inCombat)
+                EnterCombat(p_Attacker);
+        }
+
+        void EnterCombat(Unit* /*p_Attacker*/) override
+        {
+            if (!inCombat)
+            {
+                events.ScheduleEvent(EVENT_CARAPACE, 2000);
+                inCombat = true;
+
+                if (isProtecting)
+                    return;
+
+                // Retreiving list of ambercallers (maximum: 2 if all is alright)
+                std::list<Creature*> amberCallerList;
+                GetCreatureListWithEntryInGrid(amberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
+                amberCallerList.sort(Trinity::DistanceCompareOrderPred(me));
+
+                if (amberCallerList.size() > 1)
+                {
+                    for (std::list<Creature*>::iterator itr = amberCallerList.begin(); itr != amberCallerList.end(); ++itr)
+                    {
+                        Creature* amberCaller = *itr;
+
+                        if (amberCaller)
+                        {
+                            if (!amberCaller->AI()->GetData(TYPE_AMBER_USED))
+                            {
+                                protectedAmberGuid = amberCaller->GetGUID();
+                                isProtecting = true;
+                                DoCast(amberCaller, SPELL_SWARMGUARDS_AEGIS);
+                                amberCaller->AI()->SetData(TYPE_AMBER_USED, 1);
+                                amberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 diff) override
+        {
+            if (!inCombat)
+                return;
+
+            if (pInstance)
+            {
+                if (pInstance->IsWipe())
+                {
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    me->SetFullHealth();
+                    me->RemoveAllAuras();
+                    Reset();
+                    return;
+                }
+            }
+
+            events.Update(diff);
+
+            // Looking for Sra'thik Ambercaller to protect
+            Creature* amberCaller = nullptr;
+
+            if (!protectedAmberGuid.IsEmpty())
+                amberCaller = ObjectAccessor::GetCreature(*me, protectedAmberGuid);
+
+            // Ambercaller not found, dead or too far
+            if (!amberCaller || !amberCaller->IsAlive() || me->GetDistance(amberCaller) > 30.0f)
+            {
+                if (!me->HasAura(SPELL_SEPARATION_ANXIETY))
+                    me->AddAura(SPELL_SEPARATION_ANXIETY, me);
+            }
+            // Ambercaller is here: we remove anxiety aura if set
+            else if (me->HasAura(SPELL_SEPARATION_ANXIETY))
+                me->RemoveAura(SPELL_SEPARATION_ANXIETY);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                if (eventId == EVENT_CARAPACE)
+                {
+                    DoCast(me, SPELL_CARAPACE);
+                    events.ScheduleEvent(EVENT_CARAPACE, urand(10000, 20000));
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_korthik_swarmguardAI(creature);
+    }
+};
+
+// 64917 - Sra'thik Ambercaller
+class mob_srathik_ambercaller : public CreatureScript
+{
+public:
+    mob_srathik_ambercaller() : CreatureScript("mob_srathik_ambercaller") { }
+
+    struct mob_srathik_ambercallerAI : public ScriptedAI
+    {
+        mob_srathik_ambercallerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        InstanceScript* pInstance;
+        bool isProtected;
+
+        void Reset() override
+        {
+            events.Reset();
+            me->SetVirtualItem(0, EQUIP_TRASH_9);
+            me->SetReactState(REACT_PASSIVE);
+            isProtected = false;
+        }
+
+        void DoAction(int32 const action) override
+        {
+            if (action == ACTION_AMBER_VOLLEY)
+            {
+                DoCast(SPELL_AMBER_VOLLEY);
+                isProtected = true;
+                events.ScheduleEvent(EVENT_AMBER_VOLLEY, 2000);
+            }
+        }
+
+        uint32 GetData(uint32 p_Type) const override
+        {
+            if (p_Type == TYPE_AMBER_USED)
+                return isProtected ? 1 : 0;
+
+            return 0;
+        }
+
+        void UpdateAI(const uint32 diff) override
+        {
+            if (pInstance)
+            {
+                if (pInstance->IsWipe())
+                {
+                    me->RemoveAllAuras();
+                    me->SetFullHealth();
+                    Reset();
+                    return;
+                }
+            }
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_AMBER_VOLLEY)
+            {
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 100.0f);
+
+                if (!playerList.empty())
+                {
+                    // Pick a random player to target
+                    Trinity::Containers::RandomResize(playerList, 1);
+                    me->CastSpell(playerList.front(), SPELL_AMBER_VOLLEY_MISSILE, true);
+                    events.ScheduleEvent(EVENT_AMBER_VOLLEY, IsLFR() ? 3000 : Is25ManRaid() ? 2000 : 5000);
+                }
+            }
+            // No melee attack
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_srathik_ambercallerAI(creature);
+    }
+};
+
+Position atriumPath[9] =
+{
+    { -2429.16f, 431.90f, 554.52f, 0.0f },
+    { -2417.22f, 456.37f, 554.52f, 0.0f },
+    { -2417.60f, 498.18f, 554.52f, 0.0f },
+    { -2436.80f, 524.51f, 554.52f, 0.0f },
+    { -2451.77f, 531.64f, 554.52f, 0.0f },
+    { -2504.65f, 534.39f, 554.52f, 0.0f },
+    { -2538.70f, 508.50f, 554.52f, 0.0f },
+    { -2543.00f, 454.06f, 554.52f, 0.0f },
+    { -2528.75f, 432.90f, 554.52f, 0.0f }
+};
+
+// 64902 - Kor'thik Fleshrender
+class mob_korthik_fleshrender : public CreatureScript
+{
+public:
+    mob_korthik_fleshrender() : CreatureScript("mob_korthik_fleshrender") { }
+
+    struct mob_korthik_fleshrenderAI : ScriptedAI
+    {
+        mob_korthik_fleshrenderAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+        uint8 point;
+        int8 direction;
+        uint32 walkTimer;
+
+        void Reset() override
+        {
+            events.Reset();
+            me->SetVirtualItem(0, EQUIP_TAYAK_MELJARAK);
+            point = me->GetPositionY() < 460.0f ? 0 : 1;
+            direction = -1;
+            me->SetWalk(true);
+            if (me->IsAlive())
+                me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
+            walkTimer = 0;
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type != POINT_MOTION_TYPE || !id)
+                return;
+
+            walkTimer = 1;
+
+            point += direction;
+            // Turning back
+            if (point < 0 || point > 8)
+            {
+                direction *= -1;
+                point += 2 * direction;
+            }
+        }
+
+        void EnterCombat(Unit* /*attacker*/) override
+        {
+            events.ScheduleEvent(EVENT_GREVIOUS_WHIRL, 5000);
+            events.ScheduleEvent(EVENT_MORTAL_REND,    12000);
+        }
+
+        void UpdateAI(const uint32 diff) override
+        {
+            if (walkTimer)
+            {
+                if (walkTimer > diff)
+                    walkTimer -= diff;
+                else
+                {
+                    me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
+                    walkTimer = 0;
+                }
+            }
+
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_GREVIOUS_WHIRL:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_GREVIOUS_WHIRL, true);
+                        events.ScheduleEvent(EVENT_GREVIOUS_WHIRL, 20000);
+                        break;
+                    }
+                    case EVENT_MORTAL_REND:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_MORTAL_REND, true);
+                        events.ScheduleEvent(EVENT_MORTAL_REND, 20000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_korthik_fleshrenderAI(creature);
+    }
+
+};
+
+// 63569 - Amber Searsting
+class mob_amber_searsting : public CreatureScript
+{
+public:
+    mob_amber_searsting() : CreatureScript("mob_amber_searsting") { }
+
+    struct mob_amber_searstingAI : public ScriptedAI
+    {
+        mob_amber_searstingAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset() override
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(EVENT_BURNING_STING, 8000);
+            events.ScheduleEvent(EVENT_SEARING_SLASH, 4000);
+        }
+
+        void UpdateAI(const uint32 diff) override
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_BURNING_STING:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(target, SPELL_BURNING_STING, true);
+                        events.ScheduleEvent(EVENT_BURNING_STING, 15000);
+                        break;
+                    }
+                    case EVENT_SEARING_SLASH:
+                    {
+                        DoCast(SPELL_SEARING_SLASH);
+                        events.ScheduleEvent(EVENT_SEARING_SLASH, 12000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_amber_searstingAI(creature);
+    }
+};
+
+// 63568 - Amber-Ridden Mushan
+class mob_amberridden_mushan : public CreatureScript
+{
+public:
+    mob_amberridden_mushan() : CreatureScript("mob_amberridden_mushan") { }
+
+    struct mob_amberridden_mushanAI : public ScriptedAI
+    {
+        mob_amberridden_mushanAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset() override
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(EVENT_AMBER_SPEW, 9000);
+            events.ScheduleEvent(EVENT_SLAM,       4000);
+        }
+
+        void UpdateAI(const uint32 diff) override
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_AMBER_SPEW:
+                    {
+                        DoCast(SPELL_AMBER_SPEW);
+                        events.ScheduleEvent(EVENT_AMBER_SPEW, 10000);
+                        break;
+                    }
+                    case EVENT_SLAM:
+                    {
+                        DoCast(SPELL_SLAM);
+                        events.ScheduleEvent(EVENT_SLAM, 22000);
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_amberridden_mushanAI(creature);
+    }
+};
+
+// 63570 - Sra'thik Pool-Tender
+class mob_srathik_pooltender : public CreatureScript
+{
+public:
+    mob_srathik_pooltender() : CreatureScript("mob_srathik_pooltender") { }
+
+    struct mob_srathik_pooltenderAI : public ScriptedAI
+    {
+        mob_srathik_pooltenderAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset() override
+        {
+            events.Reset();
+            DoCast(SPELL_AMBER_EMANATION);
+            events.ScheduleEvent(EVENT_AMBER_INFUSION, 20000);
+        }
+
+        void UpdateAI(const uint32 diff) override
+        {
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_AMBER_INFUSION)
+            {
+                DoCast(SPELL_AMBER_INFUSION);
+                events.ScheduleEvent(EVENT_AMBER_INFUSION, urand(25000, 30000));
+            }
+
+            if (UpdateVictim())
+                DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_srathik_pooltenderAI(creature);
+    }
+};
+
+void ShekZeerTrashBuff(Creature* me)
+{
+    uint32 addEntries[3] = {NPC_SETTHIK_WINDBLADE_TRASH, NPC_KORTHIK_WARSINGER, NPC_ZARTHIK_AUGURER};
+
+    bool buff = false;
+    uint8 stacks = 0;
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        std::list<Creature*> addList;
+        GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 8.0f);
+
+        // Retaining only alive mobs who aren't me
+        if (addList.empty())
+            continue;
+
+        for (Creature* mob : addList)
+        {
+            if (mob->IsAlive() && mob != me)
+            {
+                if (!buff)
+                    buff = true;
+                ++stacks;
+            }
+        }
+    }
+
+    // If buff should be applied, we have to check that we have the right number of stacks
+    if (buff)
+    {
+        if (Aura* aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
+        {
+            if (aura->GetStackAmount() != stacks)
+                aura->SetStackAmount(stacks);
+        }
+    }
+
+    // Remove aura if applied and there's no add around
+    else if (!buff && me->HasAura(SPELL_BAND_OF_VALOR))
+        me->RemoveAura(SPELL_BAND_OF_VALOR);
+}
+
+// Returns true if no trash remain before Shek'zeer, else returns false
+bool ShekZeerCheckTrash(Creature* me)
+{
+    if (!GetClosestCreatureWithEntry(me, NPC_ZARTHIK_AUGURER, 200.0f))
+    {
+        if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_WINDBLADE_TRASH, 200.0f))
+        {
+            if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_WARSINGER, 200.0f))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+// 64454 - Zar'thik Augurer
+class mob_zarthik_augurer : public CreatureScript
+{
+public:
+    mob_zarthik_augurer() : CreatureScript("mob_zarthik_augurer") { }
+
+    struct mob_zarthik_augurerAI : public ScriptedAI
+    {
+        mob_zarthik_augurerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        EventMap events;
+        InstanceScript* pInstance;
+
+        void Reset() override
+        {
+            events.Reset();
+            me->SetVirtualItem(0, EQUIP_ZORLOK);
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(EVENT_TOXIC_HIVEBOMB, urand(2000, 4000));
+            events.ScheduleEvent(EVENT_TOXIC_SPEW,     urand(15000, 20000));
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            if (ShekZeerCheckTrash(me))
+            {
+                if (pInstance)
+                {
+                    if (Creature* Shekzeer = pInstance->GetCreature(NPC_SHEKZEER))
+                        Shekzeer->AI()->DoAction(ACTION_SHEKZEER_COMBAT);
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 diff) override
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            // Buff
+            ShekZeerTrashBuff(me);
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_TOXIC_HIVEBOMB:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(target, SPELL_TOXIC_HIVEBOMB, true);
+                        events.ScheduleEvent(EVENT_TOXIC_HIVEBOMB, urand(2000, 4000));
+                        break;
+                    }
+                    case EVENT_TOXIC_SPEW:
+                    {
+                        DoCast(SPELL_TOXIC_SPEW);
+                        events.ScheduleEvent(EVENT_TOXIC_SPEW, urand(15000, 20000));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_zarthik_augurerAI(creature);
+    }
 };
 
 // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)

@@ -1493,7 +1493,7 @@ void AddSC_boss_tayak()
     new mob_gale_winds_stalker();           // 63292
     new spell_wind_step();                  // 123175
     new spell_tayak_wind_step();            // 123459
-    new spell_tayak_storms_vehicle();       // 124258
+    //new spell_tayak_storms_vehicle();       // 124258
     new spell_tayak_storm_unleashed_dmg();  // 124783
     new spell_tempest_slash();              // 122853
     new spell_unseen_strike_aura();         // 122982

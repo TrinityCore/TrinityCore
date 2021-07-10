@@ -73,6 +73,15 @@ class instance_heart_of_fear : public InstanceMapScript
             ObjectGuid unsokEntranceDoorGuid;
             ObjectGuid shekzeerEntranceDoorGuid;
 
+            // Special Doors GUIDs
+            ObjectGuid zorlokEntranceDoorGuid;
+            ObjectGuid tayakEntranceDoorGuid;
+            ObjectGuid tayakExitDoorGuid;
+            ObjectGuid garalonEntranceDoorGuid;
+            ObjectGuid meljarakExitDoorGuid;
+            ObjectGuid unsokEntranceDoorGuid;
+            ObjectGuid shekzeerEntranceDoorGuid;
+
             // Shek'zeer Gameobjects
             ObjectGuid empressChamberGuid;
             ObjectGuid mandidQueenCeilGuid;
