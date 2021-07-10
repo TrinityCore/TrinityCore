@@ -17,6 +17,8 @@
 
 #include "WorldSession.h"
 #include "InspectPackets.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 
 void WorldSession::HandleRequestHonorStatsOpcode(WorldPackets::Inspect::RequestHonorStats& packet) 
