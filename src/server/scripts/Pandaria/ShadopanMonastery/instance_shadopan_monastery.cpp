@@ -2,6 +2,7 @@
  * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
  * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
  * Copyright 2023 AzgathCore
+ * Copyright 2021 ShadowCore
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -282,6 +283,16 @@ public:
                             player->RemoveAurasDueToSpell(SPELL_HAZE_OF_HATE);
                             player->RemoveAurasDueToSpell(SPELL_HAZE_OF_HATE_VISUAL);
                         });
+                        Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+                        if (!PlayerList.isEmpty())
+                            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                                if (Player* player = i->GetSource())
+                                {
+                                    player->RemoveAurasDueToSpell(SPELL_HATE);
+                                    player->RemoveAurasDueToSpell(SPELL_HAZE_OF_HATE);
+                                    player->RemoveAurasDueToSpell(SPELL_HAZE_OF_HATE_VISUAL);
+                                }
                     }
                     break;
                 }
