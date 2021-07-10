@@ -552,9 +552,8 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.farthest.playerOnly);
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.farthest.isInLos);
             break;
-        case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_CLOSEST_CREATURE:
-            TC_SAI_IS_BOOLEAN_VALID(e, e.target.closest.dead);
+            TC_SAI_IS_BOOLEAN_VALID(e, e.target.unitClosest.dead);
             break;
         case SMART_TARGET_CLOSEST_ENEMY:
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.closestAttackable.playerOnly);
@@ -565,6 +564,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_OWNER_OR_SUMMONER:
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.owner.useCharmerOrOwner);
             break;
+        case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_PLAYER_RANGE:
         case SMART_TARGET_SELF:
         case SMART_TARGET_VICTIM:
@@ -1012,20 +1012,20 @@ bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
             case SMART_TARGET_GAMEOBJECT_GUID: return sizeof(SmartTarget::goGUID);
             case SMART_TARGET_GAMEOBJECT_DISTANCE: return sizeof(SmartTarget::goDistance);
             case SMART_TARGET_INVOKER_PARTY: return NO_PARAMS;
-            //case SMART_TARGET_PLAYER_RANGE: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_PLAYER_DISTANCE: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_CLOSEST_CREATURE: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_CLOSEST_GAMEOBJECT: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_CLOSEST_PLAYER: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_ACTION_INVOKER_VEHICLE: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_OWNER_OR_SUMMONER: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_THREAT_LIST: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_CLOSEST_ENEMY: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_CLOSEST_FRIENDLY: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_LOOT_RECIPIENTS: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_FARTHEST: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_VEHICLE_PASSENGER: return sizeof(SmartTarget::raw);
-            //case SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT: return sizeof(SmartTarget::raw);
+            case SMART_TARGET_PLAYER_RANGE: return sizeof(SmartTarget::playerRange);
+            case SMART_TARGET_PLAYER_DISTANCE: return sizeof(SmartTarget::playerDistance);
+            case SMART_TARGET_CLOSEST_CREATURE: return sizeof(SmartTarget::unitClosest);
+            case SMART_TARGET_CLOSEST_GAMEOBJECT: return sizeof(SmartTarget::goClosest);
+            case SMART_TARGET_CLOSEST_PLAYER: return sizeof(SmartTarget::playerDistance);
+            case SMART_TARGET_ACTION_INVOKER_VEHICLE: return NO_PARAMS;
+            case SMART_TARGET_OWNER_OR_SUMMONER: return sizeof(SmartTarget::owner);
+            case SMART_TARGET_THREAT_LIST: return sizeof(SmartTarget::threatList);
+            case SMART_TARGET_CLOSEST_ENEMY: return sizeof(SmartTarget::closestAttackable);
+            case SMART_TARGET_CLOSEST_FRIENDLY: return sizeof(SmartTarget::closestFriendly);
+            case SMART_TARGET_LOOT_RECIPIENTS: return NO_PARAMS;
+            case SMART_TARGET_FARTHEST: return sizeof(SmartTarget::farthest);
+            case SMART_TARGET_VEHICLE_PASSENGER: return sizeof(SmartTarget::vehicle);
+            case SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT: return sizeof(SmartTarget::goClosest);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using a target with no unused params specified in SmartAIMgr::CheckUnusedTargetParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());

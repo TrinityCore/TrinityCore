@@ -1371,15 +1371,16 @@ struct SmartTarget
 
         struct
         {
-            uint32 map;
-        } position;
+            uint32 entry;
+            uint32 dist;
+            SAIBool dead;
+        } unitClosest;
 
         struct
         {
             uint32 entry;
             uint32 dist;
-            SAIBool dead;
-        } closest;
+        } goClosest;
 
         struct
         {
@@ -1400,16 +1401,21 @@ struct SmartTarget
 
         struct
         {
+            uint32 seatMask;
+        } vehicle;
+
+        struct
+        {
+            uint32 maxDist;
+        } threatList;
+
+        struct
+        {
             uint32 param1;
             uint32 param2;
             uint32 param3;
             uint32 param4;
         } raw;
-
-        struct
-        {
-            uint32 seatMask;
-        } vehicle;
     };
 };
 
