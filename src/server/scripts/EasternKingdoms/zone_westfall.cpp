@@ -24,6 +24,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SharedDefines.h"
 #include "TemporarySummon.h"
@@ -44,22 +45,25 @@ enum WestfallCreature
     NPC_TRANSIENT                     = 42383,
     NPC_THUG                          = 42387,
     MPC_LOUS_PARTING_THOUGHTS_TRIGGER = 42562,
-    NPC_SMALL_TIME_HUSTLER            = 42390
+    NPC_SMALL_TIME_HUSTLER            = 42390,
+    NPC_MERCENARY                     = 42656,
+    NPC_AGENT_KEARNEN                 = 7024
 };
 
 enum WestfallSpell
 {
-    SPELL_HOBO_INFORMATION_1 = 79181,
-    SPELL_HOBO_INFORMATION_2 = 79182,
-    SPELL_HOBO_INFORMATION_3 = 79183,
-    SPELL_HOBO_INFORMATION_4 = 79184,
-    SPELL_SUMMON_RAGAMUFFIN_LOOTER = 79169,
+    SPELL_HOBO_INFORMATION_1         = 79181,
+    SPELL_HOBO_INFORMATION_2         = 79182,
+    SPELL_HOBO_INFORMATION_3         = 79183,
+    SPELL_HOBO_INFORMATION_4         = 79184,
+    SPELL_SUMMON_RAGAMUFFIN_LOOTER   = 79169,
     SPELL_SUMMON_RAGAMUFFIN_LOOTER_1 = 79170,
     SPELL_SUMMON_RAGAMUFFIN_LOOTER_2 = 79171,
     SPELL_SUMMON_RAGAMUFFIN_LOOTER_3 = 79172,
     SPELL_SUMMON_RAGAMUFFIN_LOOTER_4 = 79173,
-    SPELL_AGGRO_HOBO = 79168,
-    SPELL_HOBO_INFORMATION = 79184
+    SPELL_AGGRO_HOBO                 = 79168,
+    SPELL_HOBO_INFORMATION           = 79184,
+    SPELL_KILL_SHOT_TRIGGERED        = 79525
 };
 
 class spell_westfall_unbound_energy : public SpellScript
@@ -1544,6 +1548,62 @@ private:
     ObjectGuid _westfallStewGUID;
 };
 
+class spell_westfall_sniper_fire_proc : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        _target = (eventInfo.GetProcTarget() == GetTarget() ? eventInfo.GetActor() : eventInfo.GetProcTarget());
+        return _target && _target->IsCreature() && _target->GetEntry() == NPC_MERCENARY;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(_target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
+
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_westfall_sniper_fire_proc::CheckProc);
+        OnEffectProc.Register(&spell_westfall_sniper_fire_proc::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+
+private:
+    Unit* _target = nullptr;
+};
+
+enum AgentKearnenText
+{
+    SAY_0 = 0
+};
+
+class spell_westfall_sniper_fire : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KILL_SHOT_TRIGGERED });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        Unit* caster = GetCaster();
+        if (caster && target)
+            if (Creature* agent = caster->FindNearestCreature(NPC_AGENT_KEARNEN, 100.f))
+            {
+                agent->CastSpell(target, SPELL_KILL_SHOT_TRIGGERED); // 79525
+                if (agent->IsAIEnabled)
+                    agent->AI()->Talk(SAY_0, caster);
+            }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_westfall_sniper_fire::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_westfall()
 {
     RegisterSpellScript(spell_westfall_unbound_energy);
@@ -1565,4 +1625,6 @@ void AddSC_westfall()
     RegisterCreatureAI(npc_westfall_westfall_stew);
     RegisterCreatureAI(npc_westfall_homless_stormwind_citizen);
     RegisterCreatureAI(npc_westfall_west_plains_drifter);
+    RegisterSpellScript(spell_westfall_sniper_fire_proc);
+    RegisterSpellScript(spell_westfall_sniper_fire);
 }
