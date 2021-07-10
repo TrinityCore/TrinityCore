@@ -49,6 +49,7 @@ void AddSC_boss_ventunax();
 void AddSC_boss_oryphrion();
 void AddSC_boss_devos();
 void AddSC_zone_revendreth();
+void AddSC_zone_Sanctum_of_Domination();
 //Darkmaul Citadel
 void AddSC_instance_darkmaul_citadel();
 void AddSC_boss_tunk();
@@ -165,6 +166,27 @@ void AddSC_Boss_Sylvanas_Windrunner();
 void AddSC_boss_sire_denathrius();
  
 void AddShadowlandsScripts() 
+//Halls of Atonement
+void AddSC_instance_halls_of_attonement();
+//Sanctum of Domination
+void AddSC_instance_Sanctum_of_Domination();
+void AddSC_Sanctum_of_Domination();
+//Shackles of Fate
+void AddSC_Boss_Fatescriber_Roh_Kalo();
+void AddSC_Boss_Guardian_of_the_First_Ones();
+void AddSC_Boss_Kel_Thuzad();
+//The Dark Bastille
+void AddSC_Boss_Painsmith_Raznal();
+void AddSC_Boss_Remnant_of_Ner_zhul();
+void AddSC_Boss_Soulrender_Dormazain();
+//The Jailer's Vanguard
+void AddSC_Boss_Eye_of_the_Jailer();
+void AddSC_Boss_The_Nine();
+void AddSC_Boss_The_Tarragrue();
+//The Reckoning
+void AddSC_Boss_Sylvanas_Windrunner();
+//Shadowland
+void AddShadowlandsScripts()
 {
 	//Zones
 	AddSC_zone_exiles_reach();
@@ -249,3 +271,23 @@ void AddShadowlandsScripts()
 	     AddSC_Boss_KelThuzad();
 	     AddSC_Boss_Sylvanas_Windrunner();
 };
+	//Sanctum of Domination
+    AddSC_instance_Sanctum_of_Domination();
+    AddSC_Sanctum_of_Domination();
+    //Shackles of Fate
+    AddSC_Boss_Fatescriber_Roh_Kalo();
+    AddSC_Boss_Guardian_of_the_First_Ones();
+    AddSC_Boss_Kel_Thuzad();
+    //The Dark Bastille
+    AddSC_Boss_Painsmith_Raznal();
+    AddSC_Boss_Remnant_of_Ner_zhul();
+    AddSC_Boss_Soulrender_Dormazain();
+    //The Jailer's Vanguard
+    AddSC_Boss_Eye_of_the_Jailer();
+    AddSC_Boss_The_Nine();
+    AddSC_Boss_The_Tarragrue();
+    //The Reckoning
+    AddSC_Boss_Sylvanas_Windrunner();
+    //Shadowland
+    AddShadowlandsScripts()
+}
