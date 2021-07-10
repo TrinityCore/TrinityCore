@@ -480,7 +480,7 @@ public:
                     if (player)
                         player->GroupEventHappens(QUEST_TOOGA, me);
 
-                    TortaGUID = who->GetGUID();
+                    TortaGUID = who->GetTortaGUID();
                     SetFollowComplete(true);
                 }
             }
@@ -719,7 +719,7 @@ public:
         {
             if (Player* player = summoner->ToPlayer())
             {
-                playerGUID = player->GetGUID();
+                playerGUID = player->GetplayerGUID();
                 me->CastSpell(player, SPELL_SUMMON_ADARRAH);
                 me->CastSpell(player, SPELL_SUMMON_CARAVAN);
                 me->CastSpell(player, SPELL_SUMMON_LADY_HUMPS);
@@ -737,48 +737,48 @@ public:
             switch (summon->GetEntry())
             {
                 case NPC_ADARRAH:
-                    adarrahGUID = summon->GetGUID();
+                    AdarrahGUID = summon->GetGUID();
                     if (Player* player = sObjectAccessor->GetPlayer(*me, playerGUID))
                         summon->SetFacingToObject(player);
                     break;
                 case NPC_HARNISH:
-                    harnishGUID = summon->GetGUID();
+                    HarnishGUID = summon->GetGUID();
                     summon->SetWalk(true);
                     summon->SetSpeed(MOVE_WALK, 0.4f);
                     summon->SetFacingToObject(me);
                     break;
                 case NPC_LADY_HUMPS:
-                    lady_humpsGUID = summon->GetGUID();
+                    Lady_humpsGUID = summon->GetGUID();
                     summon->SetWalk(true);
                     summon->SetSpeed(MOVE_WALK, 0.4f);
                     summon->SetFacingToObject(me);
                     break;
                 case NPC_PACK_MULE:
-                    pack_muleGUID = summon->GetGUID();
+                    Pack_muleGUID = summon->GetGUID();
                     summon->SetWalk(true);
                     summon->SetSpeed(MOVE_WALK, 0.4f);
                     summon->SetFacingToObject(me);
                     break;
                 case NPC_BUDDS_CAMEL:
-                    budds_camelGUID = summon->GetGUID();
+                    Budds_camelGUID = summon->GetGUID();
                     summon->SetWalk(true);
                     summon->SetSpeed(MOVE_WALK, 0.4f);
                     summon->SetFacingToObject(me);
                     break;
                 case NPC_SAMIRS_CAMEL:
-                    samirs_camelGUID = summon->GetGUID();
+                    Samirs_camelGUID = summon->GetGUID();
                     summon->SetWalk(true);
                     summon->SetSpeed(MOVE_WALK, 0.4f);
                     summon->SetFacingToObject(me);
                     break;
                 case NPC_MACKS_CAMEL:
-                    macks_camelGUID = summon->GetGUID();
+                    Macks_camelGUID = summon->GetGUID();
                     summon->SetWalk(true);
                     summon->SetSpeed(MOVE_WALK, 0.4f);
                     summon->SetFacingToObject(me);
                     break;
                 case NPC_ADARRAHS_CAMEL:
-                    adarrahs_camelGUID = summon->GetGUID();
+                    Adarrahs_camelGUID = summon->GetGUID();
                     summon->SetWalk(true);
                     summon->SetSpeed(MOVE_WALK, 0.4f);
                     summon->SetFacingToObject(me);
