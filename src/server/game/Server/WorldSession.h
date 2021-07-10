@@ -143,6 +143,12 @@ namespace WorldPackets
         class SetGuildMaster;
     }
 
+    namespace Inspect
+    {
+        class RequestHonorStats;
+        class RequestInspectRatedBgStats;
+    }
+
     namespace Misc
     {
         class CompleteCinematic;
@@ -657,7 +663,9 @@ class TC_GAME_API WorldSession
         void HandleInspectOpcode(WorldPacket& recvPacket);
 
         // new party stats
-        void HandleInspectHonorStatsOpcode(WorldPacket& recvPacket);
+        void HandleRequestHonorStatsOpcode(WorldPackets::Inspect::RequestHonorStats& packet);
+        void HandleRequestInspectRatedBgStatsOpcode(WorldPackets::Inspect::RequestInspectRatedBgStats& packet);
+
 
         void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
         void HandleFeatherFallAck(WorldPacket& recvData);
