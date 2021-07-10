@@ -1556,7 +1556,7 @@ class spell_westfall_sniper_fire_proc : public AuraScript
         return _target && _target->IsCreature() && _target->GetEntry() == NPC_MERCENARY;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(_target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
