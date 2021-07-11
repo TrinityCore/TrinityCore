@@ -32,63 +32,41 @@ enum PriestSpells
     SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
 };
 
-class npc_pet_pri_lightwell : public CreatureScript
+struct npc_pet_pri_lightwell : public PassiveAI
 {
-    public:
-        npc_pet_pri_lightwell() : CreatureScript("npc_pet_pri_lightwell") { }
+    npc_pet_pri_lightwell(Creature* creature) : PassiveAI(creature)
+    {
+        DoCast(me, SPELL_PRIEST_LIGHTWELL_CHARGES, false);
+    }
 
-        struct npc_pet_pri_lightwellAI : public PassiveAI
-        {
-            npc_pet_pri_lightwellAI(Creature* creature) : PassiveAI(creature)
-            {
-                DoCast(me, SPELL_PRIEST_LIGHTWELL_CHARGES, false);
-            }
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (!me->IsAlive())
+            return;
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                if (!me->IsAlive())
-                    return;
-
-                me->CombatStop(true);
-                EngagementOver();
-                me->ResetPlayerDamageReq();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_pet_pri_lightwellAI(creature);
-        }
+        me->CombatStop(true);
+        EngagementOver();
+        me->ResetPlayerDamageReq();
+    }
 };
 
-class npc_pet_pri_shadowfiend : public CreatureScript
+struct npc_pet_pri_shadowfiend : public PetAI
 {
-    public:
-        npc_pet_pri_shadowfiend() : CreatureScript("npc_pet_pri_shadowfiend") { }
+    npc_pet_pri_shadowfiend(Creature* creature) : PetAI(creature) { }
 
-        struct npc_pet_pri_shadowfiendAI : public PetAI
-        {
-            npc_pet_pri_shadowfiendAI(Creature* creature) : PetAI(creature) { }
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Unit* summoner = summonerWO->ToUnit();
+        if (!summoner)
+            return;
 
-            void IsSummonedBy(WorldObject* summonerWO) override
-            {
-                Unit* summoner = summonerWO->ToUnit();
-                if (!summoner)
-                    return;
-
-                if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
-                    DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_pet_pri_shadowfiendAI(creature);
-        }
+        if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
+            DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);
+    }
 };
 
 void AddSC_priest_pet_scripts()
 {
-    new npc_pet_pri_lightwell();
-    new npc_pet_pri_shadowfiend();
+    RegisterCreatureAI(npc_pet_pri_lightwell);
+    RegisterCreatureAI(npc_pet_pri_shadowfiend);
 }
