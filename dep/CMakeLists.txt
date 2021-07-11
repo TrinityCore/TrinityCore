@@ -46,4 +46,7 @@ if(BUILD_TESTING)
     GIT_TAG        v2.13.9
     GIT_SHALLOW    1)
   FetchContent_MakeAvailable(Catch2)
+
+if (USE_EXTRACTORS)
+  add_subdirectory(libmpq)
 endif()

@@ -1,0 +1,10 @@
+Features and functionality which should be added in the future.
+
+	* Porting for big endian systems.
+	* Porting for Windows? :)
+	* Creating mpq archives.
+	* Brute all unknown filenames, Blizzard uses in their
+	  archives.
+
+Look at the AUTHORS file if you want help me with 'libmpq', or
+if you have other interesting features which should be added.
