@@ -103,7 +103,6 @@ class instance_black_temple : public InstanceMapScript
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
                 AkamaState = AKAMA_INTRO;
-                TeronGorefiendIntro = 1;
                 AkamaIllidanIntro = 1;
             }
 
@@ -144,8 +143,6 @@ class instance_black_temple : public InstanceMapScript
                 {
                     case DATA_AKAMA:
                         return AkamaState;
-                    case DATA_TERON_GOREFIEND_INTRO:
-                        return TeronGorefiendIntro;
                     case DATA_AKAMA_ILLIDAN_INTRO:
                         return AkamaIllidanIntro;
                     default:
@@ -163,9 +160,6 @@ class instance_black_temple : public InstanceMapScript
                     case ACTION_OPEN_DOOR:
                         if (GameObject* illidanGate = GetGameObject(DATA_GO_ILLIDAN_GATE))
                             HandleGameObject(ObjectGuid::Empty, true, illidanGate);
-                        break;
-                    case DATA_TERON_GOREFIEND_INTRO:
-                        TeronGorefiendIntro = data;
                         break;
                     case DATA_AKAMA_ILLIDAN_INTRO:
                         AkamaIllidanIntro = data;
@@ -228,7 +222,6 @@ class instance_black_temple : public InstanceMapScript
         protected:
             GuidVector AshtongueGUIDs;
             uint8 AkamaState;
-            uint8 TeronGorefiendIntro;
             uint8 AkamaIllidanIntro;
         };
 
