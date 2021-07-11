@@ -37,6 +37,7 @@
 #include "QueryPackets.h"
 #include "SpellPackets.h"
 #include "SystemPackets.h"
+#include "TradePackets.h"
 #include "VehiclePackets.h"
 #include "WhoPackets.h"
 #include "WorldStatePackets.h"

@@ -4057,38 +4057,38 @@ enum SpellFamilyNames
 
 enum TradeStatus
 {
-    TRADE_STATUS_OPEN_WINDOW = 0,
+    TRADE_STATUS_INITIATED              = 0,
     // 1 - Related to EVENT_PLAYER_MONEY
-    TRADE_STATUS_NOT_ON_TAPLIST = 2,           // Related to trading soulbound loot items
-    TRADE_STATUS_YOU_LOGOUT = 3,
-    TRADE_STATUS_IGNORE_YOU = 4,
-    TRADE_STATUS_TARGET_DEAD = 5,
-    TRADE_STATUS_TRADE_ACCEPT = 6,
-    TRADE_STATUS_TARGET_LOGOUT = 7,
+    TRADE_STATUS_NOT_ON_TAPLIST         = 2,           // Related to trading soulbound loot items
+    TRADE_STATUS_YOU_LOGOUT             = 3,
+    TRADE_STATUS_IGNORE_YOU             = 4,
+    TRADE_STATUS_TARGET_DEAD            = 5,
+    TRADE_STATUS_TRADE_ACCEPT           = 6,
+    TRADE_STATUS_TARGET_LOGOUT          = 7,
     // 8 - nonexistent
-    TRADE_STATUS_TRADE_COMPLETE = 9,
-    TRADE_STATUS_TRIAL_ACCOUNT = 10,         // Trial accounts can not perform that action
+    TRADE_STATUS_TRADE_COMPLETE         = 9,
+    TRADE_STATUS_TRIAL_ACCOUNT          = 10, // Trial accounts can not perform that action
     // 11 - nonexistent
-    TRADE_STATUS_BEGIN_TRADE = 12,
-    TRADE_STATUS_YOU_DEAD = 13,
+    TRADE_STATUS_BEGIN_TRADE            = 12,
+    TRADE_STATUS_YOU_DEAD               = 13,
     // 14 - nonexistent
     // 15 - nonexistent
-    TRADE_STATUS_TARGET_TO_FAR = 16,
-    TRADE_STATUS_NO_TARGET = 17,
-    TRADE_STATUS_BUSY_2 = 18,
-    TRADE_STATUS_CURRENCY_NOT_TRADABLE = 19, // new 4.x
-    TRADE_STATUS_WRONG_FACTION = 20,
-    TRADE_STATUS_BUSY = 21,
-    // 22 - equivalent to 335 unk status 9
-    TRADE_STATUS_TRADE_CANCELED = 23,
-    TRADE_STATUS_CURRENCY = 24,              // new 4.x
-    TRADE_STATUS_BACK_TO_TRADE = 25,
-    TRADE_STATUS_WRONG_REALM = 26,         // You can only trade conjured items... (cross realm BG related).
-    TRADE_STATUS_YOU_STUNNED = 27,
+    TRADE_STATUS_TARGET_TO_FAR          = 16,
+    TRADE_STATUS_NO_TARGET              = 17,
+    TRADE_STATUS_BUSY_2                 = 18,
+    TRADE_STATUS_CURRENCY_NOT_TRADABLE  = 19, // new 4.x
+    TRADE_STATUS_WRONG_FACTION          = 20,
+    TRADE_STATUS_BUSY                   = 21,
+    TRADE_STATUS_STATE_CHANGED          = 22,
+    TRADE_STATUS_TRADE_CANCELED         = 23,
+    TRADE_STATUS_CURRENCY               = 24, // new 4.x
+    TRADE_STATUS_UNACCEPTED             = 25,
+    TRADE_STATUS_WRONG_REALM            = 26, // You can only trade conjured items... (cross realm BG related).
+    TRADE_STATUS_YOU_STUNNED            = 27,
     // 28 - nonexistent
-    TRADE_STATUS_TARGET_STUNNED = 29,
+    TRADE_STATUS_TARGET_STUNNED         = 29,
     // 30 - nonexistent
-    TRADE_STATUS_CLOSE_WINDOW = 31,
+    TRADE_STATUS_FAILED                 = 31
 };
 
 enum XPColorChar : uint8

@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
+#include "ItemPacketsCommon.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -28,62 +29,16 @@
 #include "Spell.h"
 #include "SpellMgr.h"
 #include "TradeData.h"
+#include "TradePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 
-void WorldSession::SendTradeStatus(TradeStatusInfo const& info)
+void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
 {
-    Player* trader = GetPlayer()->GetTrader();
-
-    WorldPacket data(SMSG_TRADE_STATUS, 13);
-    data.WriteBit(trader ? (trader->GetSession()->GetBattlenetAccountId() == GetBattlenetAccountId()) : 0); // IsSameBnetAccount, used for trading heirlooms and other battle.net bound items with your other accounts
-    data.WriteBits(info.Status, 5);
-
-    switch (info.Status)
-    {
-        case TRADE_STATUS_BEGIN_TRADE:
-            data.WriteBit(info.TraderGuid[2]);
-            data.WriteBit(info.TraderGuid[4]);
-            data.WriteBit(info.TraderGuid[6]);
-            data.WriteBit(info.TraderGuid[0]);
-            data.WriteBit(info.TraderGuid[1]);
-            data.WriteBit(info.TraderGuid[3]);
-            data.WriteBit(info.TraderGuid[7]);
-            data.WriteBit(info.TraderGuid[5]);
-
-            data.WriteByteSeq(info.TraderGuid[4]);
-            data.WriteByteSeq(info.TraderGuid[1]);
-            data.WriteByteSeq(info.TraderGuid[2]);
-            data.WriteByteSeq(info.TraderGuid[3]);
-            data.WriteByteSeq(info.TraderGuid[0]);
-            data.WriteByteSeq(info.TraderGuid[7]);
-            data.WriteByteSeq(info.TraderGuid[6]);
-            data.WriteByteSeq(info.TraderGuid[5]);
-            break;
-        case TRADE_STATUS_OPEN_WINDOW:
-            data << uint32(0);                              // CGTradeInfo::m_tradeID
-            break;
-        case TRADE_STATUS_CLOSE_WINDOW:
-            data.WriteBit(info.IsTargetResult);             // bool isTargetError; used for: EQUIP_ERR_BAG_FULL, EQUIP_ERR_CANT_CARRY_MORE_OF_THIS, EQUIP_ERR_MISSING_REAGENT, EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED
-            data << uint32(info.Result);                    // InventoryResult
-            data << uint32(info.ItemLimitCategoryId);       // ItemLimitCategory.dbc entry
-            break;
-        case TRADE_STATUS_WRONG_REALM:
-        case TRADE_STATUS_NOT_ON_TAPLIST:
-            data << uint8(info.Slot);                       // Trade slot; -1 here clears CGTradeInfo::m_tradeMoney
-            break;
-        case TRADE_STATUS_CURRENCY:                         // Not implemented
-        case TRADE_STATUS_CURRENCY_NOT_TRADABLE:            // Not implemented
-            // Blizzard never implemented these, you can only trade currency with the field9 & 1 in CurrencyTypes.DBC, and only two test currencies have that flag
-            data << uint32(0);                              // Trading Currency Id
-            data << uint32(0);                              // Trading Currency Amount
-            break;
-        default:
-            data.FlushBits();
-            break;
-    }
-
-    SendPacket(&data);
+    info.Clear();   // reuse packet
+    Player* trader = _player->GetTrader();
+    info.PartnerIsSameBnetAccount = trader && trader->GetSession()->GetBattlenetAccountId() == GetBattlenetAccountId();
+    SendPacket(info.Write());
 }
 
 void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
@@ -100,107 +55,42 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 {
     TradeData* view_trade = trader_data ? _player->GetTradeData()->GetTraderData() : _player->GetTradeData();
 
-    ByteBuffer itemData(7*2 + 7*4 + 3*4 + 3*4 + 1);
-
-    uint8 count = 0;
-    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-        if (view_trade->GetItem(TradeSlots(i)))
-            ++count;
-
-    WorldPacket data(SMSG_TRADE_STATUS_EXTENDED, 4*6 + 8 + 1 + 3 + count * 70);
-    data << uint32(0);                                      // CGTradeInfo::m_tradeID
-    data << uint32(0);                                      // unk 2
-    data << uint64(view_trade->GetMoney());                 // trader gold
-    data << uint32(view_trade->GetSpell());                 // spell casted on lowest slot item
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
-    data << uint32(0);                                      // unk 5
-    data << uint8(trader_data);                             // 1 means traders data, 0 means own
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = prev field in most cases
-    data.WriteBits(count, 22);
+    WorldPackets::Trade::TradeUpdated tradeUpdated;
+    tradeUpdated.WhichPlayer = trader_data;
+    tradeUpdated.ClientStateIndex = view_trade->GetClientStateIndex();
+    tradeUpdated.CurrentStateIndex = view_trade->GetServerStateIndex();
+    tradeUpdated.Gold = view_trade->GetMoney();
+    tradeUpdated.ProposedEnchantment = view_trade->GetSpell();
 
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
     {
-        Item* item = view_trade->GetItem(TradeSlots(i));
-        if (!item)
-            continue;
-
-        ObjectGuid giftCreatorGuid = item->GetGuidValue(ITEM_FIELD_GIFTCREATOR);
-        ObjectGuid creatorGuid = item->GetGuidValue(ITEM_FIELD_CREATOR);
-
-        data.WriteBit(giftCreatorGuid[7]);
-        data.WriteBit(giftCreatorGuid[1]);
-        bool notWrapped = data.WriteBit(!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED));
-        data.WriteBit(giftCreatorGuid[3]);
-
-        if (notWrapped)
+        if (Item const* item = view_trade->GetItem(TradeSlots(i)))
         {
-            data.WriteBit(creatorGuid[7]);
-            data.WriteBit(creatorGuid[1]);
-            data.WriteBit(creatorGuid[4]);
-            data.WriteBit(creatorGuid[6]);
-            data.WriteBit(creatorGuid[2]);
-            data.WriteBit(creatorGuid[3]);
-            data.WriteBit(creatorGuid[5]);
-            data.WriteBit(item->GetTemplate()->GetLockID() != 0);
-            data.WriteBit(creatorGuid[0]);
+            WorldPackets::Trade::TradeItem tradeItem;
+            tradeItem.Slot = i;
+            tradeItem.EntryID = item->GetEntry();
+            tradeItem.StackCount = item->GetCount();
+            tradeItem.GiftCreator = item->GetGuidValue(ITEM_FIELD_GIFTCREATOR);
+            if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+            {
+                WorldPackets::Trade::UnwrappedTradeItem& unwrappedItem = tradeItem.Unwrapped.emplace();
+                unwrappedItem.Item.Initialize(item);
+                unwrappedItem.EnchantID = item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
+                unwrappedItem.ReforgeEnchantmentID = item->GetEnchantmentId(REFORGE_ENCHANTMENT_SLOT);
+                unwrappedItem.Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
+                unwrappedItem.Charges = item->GetSpellCharges();
+                unwrappedItem.Lock = item->GetTemplate()->GetLockID() && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED);
+                unwrappedItem.MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
+                unwrappedItem.Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
+                for (uint32 s = SOCK_ENCHANTMENT_SLOT; s < MAX_GEM_SOCKETS; ++s)
+                    unwrappedItem.SocketEnchant[s] = item->GetEnchantmentId(EnchantmentSlot(s + SOCK_ENCHANTMENT_SLOT));
+            }
 
-            itemData.WriteByteSeq(creatorGuid[1]);
-
-            itemData << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
-            for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS /*3*/; ++enchant_slot)
-                itemData << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
-            itemData << uint32(item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
-
-            itemData.WriteByteSeq(creatorGuid[6]);
-            itemData.WriteByteSeq(creatorGuid[2]);
-            itemData.WriteByteSeq(creatorGuid[7]);
-            itemData.WriteByteSeq(creatorGuid[4]);
-
-            itemData << uint32(item->GetEnchantmentId(REFORGE_ENCHANTMENT_SLOT));
-            itemData << uint32(item->GetUInt32Value(ITEM_FIELD_DURABILITY));
-            itemData << uint32(item->GetItemRandomPropertyId());
-
-            itemData.WriteByteSeq(creatorGuid[3]);
-
-            itemData << uint32(0); // unk7
-
-            itemData.WriteByteSeq(creatorGuid[0]);
-
-            itemData << uint32(item->GetSpellCharges());
-            itemData << uint32(item->GetItemSuffixFactor());
-
-            itemData.WriteByteSeq(creatorGuid[5]);
+            tradeUpdated.Items.push_back(tradeItem);
         }
-
-        data.WriteBit(giftCreatorGuid[6]);
-        data.WriteBit(giftCreatorGuid[4]);
-        data.WriteBit(giftCreatorGuid[2]);
-        data.WriteBit(giftCreatorGuid[0]);
-        data.WriteBit(giftCreatorGuid[5]);
-
-        itemData.WriteByteSeq(giftCreatorGuid[6]);
-        itemData.WriteByteSeq(giftCreatorGuid[1]);
-        itemData.WriteByteSeq(giftCreatorGuid[7]);
-        itemData.WriteByteSeq(giftCreatorGuid[4]);
-
-        itemData << uint32(item->GetTemplate()->GetId());
-
-        itemData.WriteByteSeq(giftCreatorGuid[0]);
-
-        itemData << uint32(item->GetCount());
-
-        itemData.WriteByteSeq(giftCreatorGuid[5]);
-
-        itemData << uint8(i);
-
-        itemData.WriteByteSeq(giftCreatorGuid[2]);
-        itemData.WriteByteSeq(giftCreatorGuid[3]);
     }
 
-    data.FlushBits();
-    data.append(itemData);
-
-    SendPacket(&data);
+    SendPacket(tradeUpdated.Write());
 }
 
 //==============================================================
@@ -332,7 +222,7 @@ static void clearAcceptTradeMode(Item* *myItems, Item* *hisItems)
     }
 }
 
-void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acceptTrade)
 {
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
@@ -350,7 +240,15 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // set before checks for propertly undo at problems (it already set in to client)
     my_trade->SetAccepted(true);
 
-    TradeStatusInfo info;
+    WorldPackets::Trade::TradeStatus info;
+    if (his_trade->GetServerStateIndex() != acceptTrade.StateIndex)
+    {
+        info.Status = TRADE_STATUS_STATE_CHANGED;
+        SendTradeStatus(info);
+        my_trade->SetAccepted(false);
+        return;
+    }
+
     if (!_player->IsWithinDistInMap(trader, TRADE_DISTANCE, false))
     {
         info.Status = TRADE_STATUS_TARGET_TO_FAR;
@@ -362,8 +260,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // not accept case incorrect money amount
     if (!_player->HasEnoughMoney(my_trade->GetMoney()))
     {
-        info.Status = TRADE_STATUS_CLOSE_WINDOW;
-        info.Result = EQUIP_ERR_NOT_ENOUGH_MONEY;
+        info.Status = TRADE_STATUS_FAILED;
+        info.BagResult = EQUIP_ERR_NOT_ENOUGH_MONEY;
         SendTradeStatus(info);
         my_trade->SetAccepted(false, true);
         return;
@@ -372,8 +270,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // not accept case incorrect money amount
     if (!trader->HasEnoughMoney(his_trade->GetMoney()))
     {
-        info.Status = TRADE_STATUS_CLOSE_WINDOW;
-        info.Result = EQUIP_ERR_NOT_ENOUGH_MONEY;
+        info.Status = TRADE_STATUS_FAILED;
+        info.BagResult = EQUIP_ERR_NOT_ENOUGH_MONEY;
         trader->GetSession()->SendTradeStatus(info);
         his_trade->SetAccepted(false, true);
         return;
@@ -381,8 +279,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
 
     if (_player->GetMoney() > uint64(MAX_MONEY_AMOUNT) - his_trade->GetMoney())
     {
-        info.Status = TRADE_STATUS_CLOSE_WINDOW;
-        info.Result = EQUIP_ERR_TOO_MUCH_GOLD;
+        info.Status = TRADE_STATUS_FAILED;
+        info.BagResult = EQUIP_ERR_TOO_MUCH_GOLD;
         SendTradeStatus(info);
         my_trade->SetAccepted(false, true);
         return;
@@ -390,8 +288,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
 
     if (trader->GetMoney() > uint64(MAX_MONEY_AMOUNT) - my_trade->GetMoney())
     {
-        info.Status = TRADE_STATUS_CLOSE_WINDOW;
-        info.Result = EQUIP_ERR_TOO_MUCH_GOLD;
+        info.Status = TRADE_STATUS_FAILED;
+        info.BagResult = EQUIP_ERR_TOO_MUCH_GOLD;
         trader->GetSession()->SendTradeStatus(info);
         his_trade->SetAccepted(false, true);
         return;
@@ -411,8 +309,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
 
             if (item->IsBindedNotWith(trader))
             {
-                info.Status = TRADE_STATUS_CLOSE_WINDOW;
-                info.Result = EQUIP_ERR_TRADE_BOUND_ITEM;
+                info.Status = TRADE_STATUS_FAILED;
+                info.BagResult = EQUIP_ERR_TRADE_BOUND_ITEM;
                 SendTradeStatus(info);
                 return;
             }
@@ -522,20 +420,20 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         trader->GetSession()->SendTradeStatus(info);
 
         // test if item will fit in each inventory
-        TradeStatusInfo myCanCompleteInfo, hisCanCompleteInfo;
-        hisCanCompleteInfo.Result = trader->CanStoreItems(myItems, TRADE_SLOT_TRADED_COUNT, &hisCanCompleteInfo.ItemLimitCategoryId);
-        myCanCompleteInfo.Result = _player->CanStoreItems(hisItems, TRADE_SLOT_TRADED_COUNT, &myCanCompleteInfo.ItemLimitCategoryId);
+        WorldPackets::Trade::TradeStatus myCanCompleteInfo, hisCanCompleteInfo;
+        hisCanCompleteInfo.BagResult = trader->CanStoreItems(myItems, TRADE_SLOT_TRADED_COUNT, &hisCanCompleteInfo.ItemID);
+        myCanCompleteInfo.BagResult = _player->CanStoreItems(hisItems, TRADE_SLOT_TRADED_COUNT, &myCanCompleteInfo.ItemID);
 
         clearAcceptTradeMode(myItems, hisItems);
 
         // in case of missing space report error
-        if (myCanCompleteInfo.Result != EQUIP_ERR_OK)
+        if (myCanCompleteInfo.BagResult != EQUIP_ERR_OK)
         {
             clearAcceptTradeMode(my_trade, his_trade);
 
-            myCanCompleteInfo.Status = TRADE_STATUS_CLOSE_WINDOW;
+            myCanCompleteInfo.Status = TRADE_STATUS_FAILED;
             trader->GetSession()->SendTradeStatus(myCanCompleteInfo);
-            myCanCompleteInfo.IsTargetResult = true;
+            myCanCompleteInfo.FailureForYou = true;
             SendTradeStatus(myCanCompleteInfo);
             my_trade->SetAccepted(false);
             his_trade->SetAccepted(false);
@@ -543,13 +441,13 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
             delete his_spell;
             return;
         }
-        else if (hisCanCompleteInfo.Result != EQUIP_ERR_OK)
+        else if (hisCanCompleteInfo.BagResult != EQUIP_ERR_OK)
         {
             clearAcceptTradeMode(my_trade, his_trade);
 
-            hisCanCompleteInfo.Status = TRADE_STATUS_CLOSE_WINDOW;
+            hisCanCompleteInfo.Status = TRADE_STATUS_FAILED;
             SendTradeStatus(hisCanCompleteInfo);
-            hisCanCompleteInfo.IsTargetResult = true;
+            hisCanCompleteInfo.FailureForYou = true;
             trader->GetSession()->SendTradeStatus(hisCanCompleteInfo);
             my_trade->SetAccepted(false);
             his_trade->SetAccepted(false);
@@ -647,8 +545,8 @@ void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
     if (!my_trade)
         return;
 
-    TradeStatusInfo info;
-    info.Status = TRADE_STATUS_OPEN_WINDOW;
+    WorldPackets::Trade::TradeStatus info;
+    info.Status = TRADE_STATUS_INITIATED;
     my_trade->GetTrader()->GetSession()->SendTradeStatus(info);
     SendTradeStatus(info);
 }
@@ -658,7 +556,7 @@ void WorldSession::SendCancelTrade()
     if (PlayerRecentlyLoggedOut() || PlayerLogout())
         return;
 
-    TradeStatusInfo info;
+    WorldPackets::Trade::TradeStatus info;
     info.Status = TRADE_STATUS_TRADE_CANCELED;
     SendTradeStatus(info);
 }
@@ -670,32 +568,12 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
         _player->TradeCancel(true);
 }
 
-void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade& initiateTrade)
 {
-    ObjectGuid guid;
-
-    guid[0] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[0]);
-
     if (GetPlayer()->m_trade)
         return;
 
-    TradeStatusInfo info;
+    WorldPackets::Trade::TradeStatus info;
     if (!GetPlayer()->IsAlive())
     {
         info.Status = TRADE_STATUS_YOU_DEAD;
@@ -730,7 +608,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Player* pOther = ObjectAccessor::FindPlayer(guid);
+    Player* pOther = ObjectAccessor::FindPlayer(initiateTrade.Guid);
 
     if (!pOther)
     {
@@ -808,7 +686,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     pOther->m_trade = new TradeData(pOther, _player);
 
     info.Status = TRADE_STATUS_BEGIN_TRADE;
-    info.TraderGuid = _player->GetGUID();
+    info.Partner = _player->GetGUID();
     pOther->GetSession()->SendTradeStatus(info);
 }
 
@@ -821,6 +699,7 @@ void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
     if (!my_trade)
         return;
 
+    my_trade->UpdateClientStateIndex();
     my_trade->SetMoney(gold);
 }
 
@@ -839,7 +718,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     if (!my_trade)
         return;
 
-    TradeStatusInfo info;
+    WorldPackets::Trade::TradeStatus info;
     // invalid slot number
     if (tradeSlot >= TRADE_SLOT_COUNT)
     {
@@ -868,10 +747,12 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    my_trade->UpdateClientStateIndex();
+
     if (tradeSlot != TRADE_SLOT_NONTRADED && item->IsBindedNotWith(my_trade->GetTrader()))
     {
         info.Status = TRADE_STATUS_NOT_ON_TAPLIST;
-        info.Slot = tradeSlot;
+        info.TradeSlot = tradeSlot;
         SendTradeStatus(info);
         return;
     }
@@ -887,6 +768,8 @@ void WorldSession::HandleClearTradeItemOpcode(WorldPacket& recvPacket)
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
         return;
+
+    my_trade->UpdateClientStateIndex();
 
     // invalid slot number
     if (tradeSlot >= TRADE_SLOT_COUNT)

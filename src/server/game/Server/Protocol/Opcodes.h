@@ -1254,7 +1254,7 @@ enum OpcodeServer
     SMSG_TOGGLE_XP_GAIN                               = 0x6704,
     SMSG_TOTEM_CREATED                                = 0x2414,
     SMSG_TRADE_STATUS                                 = 0x5CA3,
-    SMSG_TRADE_STATUS_EXTENDED                        = 0x70A2,
+    SMSG_TRADE_UPDATED                                = 0x70A2,
     SMSG_TRAINER_BUY_FAILED                           = 0x0004,
     SMSG_TRAINER_BUY_SUCCEEDED                        = 0x6A05,
     SMSG_TRAINER_LIST                                 = 0x4414,
