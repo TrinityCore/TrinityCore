@@ -973,44 +973,33 @@ enum Mistletoe
 };
 
 // 26218 - Mistletoe
-class spell_winter_veil_mistletoe : public SpellScriptLoader
+class spell_winter_veil_mistletoe : public SpellScript
 {
-    public:
-        spell_winter_veil_mistletoe() : SpellScriptLoader("spell_winter_veil_mistletoe") { }
+    PrepareSpellScript(spell_winter_veil_mistletoe);
 
-        class spell_winter_veil_mistletoe_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_winter_veil_mistletoe_SpellScript);
+            SPELL_CREATE_MISTLETOE,
+            SPELL_CREATE_HOLLY,
+            SPELL_CREATE_SNOWFLAKES
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_CREATE_MISTLETOE,
-                    SPELL_CREATE_HOLLY,
-                    SPELL_CREATE_SNOWFLAKES
-                });
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* target = GetHitPlayer())
-                {
-                    uint32 spellId = RAND(SPELL_CREATE_HOLLY, SPELL_CREATE_MISTLETOE, SPELL_CREATE_SNOWFLAKES);
-                    GetCaster()->CastSpell(target, spellId, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_winter_veil_mistletoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* target = GetHitPlayer())
         {
-            return new spell_winter_veil_mistletoe_SpellScript();
+            uint32 spellId = RAND(SPELL_CREATE_HOLLY, SPELL_CREATE_MISTLETOE, SPELL_CREATE_SNOWFLAKES);
+            GetCaster()->CastSpell(target, spellId, true);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_winter_veil_mistletoe::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 26275 - PX-238 Winter Wondervolt TRAP
@@ -1031,44 +1020,33 @@ uint32 const WonderboltTransformSpells[] =
 };
 
 // 26275 - PX-238 Winter Wondervolt TRAP
-class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
+class spell_winter_veil_px_238_winter_wondervolt : public SpellScript
 {
-    public:
-        spell_winter_veil_px_238_winter_wondervolt() : SpellScriptLoader("spell_winter_veil_px_238_winter_wondervolt") { }
+    PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt);
 
-        class spell_winter_veil_px_238_winter_wondervolt_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(WonderboltTransformSpells);
+    }
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        if (Unit* target = GetHitUnit())
         {
-            PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt_SpellScript);
+            for (uint32 spell : WonderboltTransformSpells)
+                if (target->HasAura(spell))
+                    return;
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(WonderboltTransformSpells);
-            }
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-
-                if (Unit* target = GetHitUnit())
-                {
-                    for (uint32 spell : WonderboltTransformSpells)
-                        if (target->HasAura(spell))
-                            return;
-
-                    target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_winter_veil_px_238_winter_wondervolt_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_winter_veil_px_238_winter_wondervolt_SpellScript();
+            target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_winter_veil_px_238_winter_wondervolt::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 enum RamBlaBla
@@ -1959,8 +1937,8 @@ void AddSC_holiday_spell_scripts()
     new spell_pilgrims_bounty_a_serving_of("spell_pilgrims_bounty_a_serving_of_potatoes", SPELL_A_SERVING_OF_SWEET_POTATOES_PLATE);
     new spell_pilgrims_bounty_a_serving_of("spell_pilgrims_bounty_a_serving_of_pie", SPELL_A_SERVING_OF_PIE_PLATE);
     // Winter Veil
-    new spell_winter_veil_mistletoe();
-    new spell_winter_veil_px_238_winter_wondervolt();
+    RegisterSpellScript(spell_winter_veil_mistletoe);
+    RegisterSpellScript(spell_winter_veil_px_238_winter_wondervolt);
     // Brewfest
     new spell_brewfest_giddyup();
     new spell_brewfest_ram();
