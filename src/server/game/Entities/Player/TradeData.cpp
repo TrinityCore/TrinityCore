@@ -18,6 +18,7 @@
 #include "TradeData.h"
 #include "Item.h"
 #include "Player.h"
+#include "Random.h"
 #include "TradePackets.h"
 #include "WorldSession.h"
 
@@ -121,6 +122,11 @@ void TradeData::SetMoney(uint64 money)
     UpdateServerStateIndex();
 
     Update(true);
+}
+
+void TradeData::UpdateServerStateIndex()
+{
+    m_serverStateIndex = rand32();
 }
 
 void TradeData::Update(bool forTrader /*= true*/) const
