@@ -7931,6 +7931,10 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
 
         (*scritr)->_FinishScriptCall();
     }
+    FIRE_MAP(m_spellInfo->events
+        , SpellOnCheckCast
+        , TSSpell(this)
+        , TSMutable<uint8>(reinterpret_cast<uint8_t*>(&retVal)));
     return retVal;
 }
 
