@@ -40,4 +40,6 @@ inline AI* GetManaTombsAI(T* obj)
     return GetInstanceAI<AI>(obj, MTScriptName);
 }
 
+#define RegisterManaTombsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetManaTombsAI)
+
 #endif // MANA_TOMBS_H_
