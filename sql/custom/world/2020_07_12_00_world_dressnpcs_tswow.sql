@@ -1,0 +1,1 @@
+INSERT INTO `creature_template_outfits` VALUES (0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "tswow");
