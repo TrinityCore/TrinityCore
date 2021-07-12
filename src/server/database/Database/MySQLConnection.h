@@ -82,7 +82,11 @@ class TC_DATABASE_API MySQLConnection
         void Ping();
 
         uint32 GetLastError();
-
+        // @tswow-begin
+        bool HasCustomStatement(uint32 id);
+        void PrepareCustomStatement(uint32 id, std::string const& sql);
+        PreparedResultSet* QueryCustomStatement(uint32 id, PreparedStatementBase* values);
+        // @tswow-end
     protected:
         /// Tries to acquire lock. If lock is acquired by another thread
         /// the calling parent will just try another connection
@@ -115,6 +119,9 @@ class TC_DATABASE_API MySQLConnection
 
         MySQLConnection(MySQLConnection const& right) = delete;
         MySQLConnection& operator=(MySQLConnection const& right) = delete;
+        // @tswow-begin
+        std::vector<std::unique_ptr<MySQLPreparedStatement>> m_customStmts;
+        // @tswow-end
 };
 
 #endif

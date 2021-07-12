@@ -17,12 +17,10 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_Transmogrification();
-void AddSC_tswow_commandscript();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
-    AddSC_tswow_commandscript();
     AddSC_Transmogrification();
 }

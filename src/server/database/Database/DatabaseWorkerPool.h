@@ -24,6 +24,9 @@
 #include <array>
 #include <string>
 #include <vector>
+// @tswow-begin
+#include <map>
+// @tswow-end
 
 template <typename T>
 class ProducerConsumerQueue;
@@ -212,6 +215,10 @@ class DatabaseWorkerPool
             _warnSyncQueries = warn;
 #endif
         }
+        // @tswow-begin
+        PreparedQueryResult QueryCustomStatement(uint32 id, PreparedStatementBase * values);
+        uint32 PrepareCustomStatement(std::string const& sql);
+        // @tswow-end
 
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
@@ -235,6 +242,10 @@ class DatabaseWorkerPool
 #ifdef TRINITY_DEBUG
         static inline thread_local bool _warnSyncQueries = false;
 #endif
+        // @tswow-begin
+        uint32 m_curId = 0;
+        std::map<std::string, uint32> m_customIds;
+        // @tswow-end
 };
 
 #endif

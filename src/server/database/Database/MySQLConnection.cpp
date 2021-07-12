@@ -618,3 +618,83 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/, co
             return false;
     }
 }
+
+// @tswow-begin
+bool MySQLConnection::HasCustomStatement(uint32 id)
+{
+    return id < m_customStmts.size() && m_customStmts[id] != nullptr;
+}
+
+void MySQLConnection::PrepareCustomStatement(uint32 id, std::string const& sql)
+{
+    if (id >= m_customStmts.size())
+    {
+        m_customStmts.resize(id+1);
+    }
+
+    MYSQL_STMT* stmt = mysql_stmt_init(m_Mysql);
+    if (!stmt)
+    {
+        TC_LOG_ERROR("sql.sql", "In mysql_stmt_init(), sql: \"%s\"", sql.c_str());
+        TC_LOG_ERROR("sql.sql", "%s", mysql_error(m_Mysql));
+        return;
+    }
+    else
+    {
+        if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.size())))
+        {
+            TC_LOG_ERROR("sql.sql", "In mysql_stmt_prepare(), sql: \"%s\" error %s", sql.c_str(),mysql_stmt_error(stmt));
+            mysql_stmt_close(stmt);
+            return;
+        }
+        else
+            (m_customStmts[id] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql)).get();
+    }
+}
+
+PreparedResultSet* MySQLConnection::QueryCustomStatement(uint32 id, PreparedStatementBase* values)
+{
+    MySQLPreparedStatement* stmnt = m_customStmts[id].get();
+    stmnt->BindParameters(values);
+    MYSQL_STMT* msql_STMT = stmnt->GetSTMT();
+    MYSQL_BIND* msql_BIND = stmnt->GetBind();
+    uint32 _s = getMSTime();
+
+    MySQLResult* result = nullptr;
+    uint64 rowCount = 0;
+    uint32 fieldCount = 0;
+
+    if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
+    {
+        uint32 lErrno = mysql_errno(m_Mysql);
+        TC_LOG_ERROR("sql.sql", "SQL(p): %s\n [ERROR]: [%u] %s", stmnt->getQueryString().c_str(), lErrno, mysql_stmt_error(msql_STMT));
+        // TODO: exit(?)
+        stmnt->ClearParameters();
+        return nullptr;
+    }
+
+    if (mysql_stmt_execute(msql_STMT))
+    {
+        uint32 lErrno = mysql_errno(m_Mysql);
+        TC_LOG_ERROR("sql.sql", "SQL(p): %s\n [ERROR]: [%u] %s",
+            stmnt->getQueryString().c_str(), lErrno, mysql_stmt_error(msql_STMT));
+        // TODO: exit(?)
+        stmnt->ClearParameters();
+        return nullptr;
+    }
+
+
+    TC_LOG_DEBUG("sql.sql", "[%u ms] SQL(p): %s", getMSTimeDiff(_s, getMSTime()), stmnt->getQueryString().c_str());
+    stmnt->ClearParameters();
+
+    result = reinterpret_cast<MySQLResult*>(mysql_stmt_result_metadata(msql_STMT));
+    rowCount = mysql_stmt_num_rows(msql_STMT);
+    fieldCount = mysql_stmt_field_count(msql_STMT);
+
+    if (mysql_more_results(m_Mysql))
+    {
+        mysql_next_result(m_Mysql);
+    }
+    return new PreparedResultSet(stmnt->GetSTMT(), result, rowCount, fieldCount);
+}
+// @tswow-end

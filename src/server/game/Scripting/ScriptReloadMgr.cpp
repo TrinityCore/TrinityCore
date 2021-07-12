@@ -235,7 +235,7 @@ public:
     {
         if(_addTSScripts && TSShouldLoadEventHandler(GetModulePath()))
         {
-            _addTSScripts(TSLoadEventHandler(GetModulePath()));
+            _addTSScripts(TSLoadEventHandler(GetModulePath(),GetScriptModule()));
         }
     }
     // @tswow-end

@@ -503,6 +503,46 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, PreparedSt
         trans->Append(stmt);
 }
 
+// @tswow-begin
+template <class T>
+uint32 DatabaseWorkerPool<T>::PrepareCustomStatement(std::string const& sql)
+{
+    auto res = m_customIds.find(sql);
+    if (res != m_customIds.end())
+    {
+        return res->second;
+    }
+    m_customIds[sql] = m_curId;
+    return m_curId++;
+}
+
+template <class T>
+PreparedQueryResult DatabaseWorkerPool<T>::QueryCustomStatement(uint32 id, PreparedStatementBase* values)
+{
+    auto connection = GetFreeConnection();
+    if (!connection->HasCustomStatement(id))
+    {
+        // make reverse lookup if this is somehow too slow
+        for (auto& pair: m_customIds)
+        {
+            if (pair.second == id)
+            {
+                connection->PrepareCustomStatement(id, pair.first);
+            }
+        }
+    }
+
+    PreparedResultSet* ret = connection->QueryCustomStatement(id, values);
+    connection->Unlock();
+    if (!ret || !ret->GetRowCount())
+    {
+        delete ret;
+        return PreparedQueryResult(nullptr);
+    }
+    return PreparedQueryResult(ret);
+}
+// @tswow-end
+
 template class TC_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<WorldDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<CharacterDatabaseConnection>;
