@@ -412,59 +412,48 @@ struct dummy_dragonAI : public ScriptedAI
 ## Tenebron
 ######*/
 
-class npc_tenebron : public CreatureScript
+struct npc_tenebron : public dummy_dragonAI
 {
-public:
-    npc_tenebron() : CreatureScript("npc_tenebron") { }
+    npc_tenebron(Creature* creature) : dummy_dragonAI(creature) { }
 
-    struct npc_tenebronAI : public dummy_dragonAI
+    void Reset() override
     {
-        npc_tenebronAI(Creature* creature) : dummy_dragonAI(creature) { }
+        dummy_dragonAI::Reset();
+    }
 
-        void Reset() override
-        {
-            dummy_dragonAI::Reset();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            dummy_dragonAI::JustEngagedWith(who);
-
-            events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // if no target, update dummy and return
-            if (!UpdateVictim())
-            {
-                dummy_dragonAI::UpdateAI(diff);
-                return;
-            }
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_HATCH_EGGS:
-                        OpenPortal();
-                        events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
-                        break;
-                    default:
-                        dummy_dragonAI::ExecuteEvent(eventId);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustEngagedWith(Unit* who) override
     {
-        return GetObsidianSanctumAI<npc_tenebronAI>(creature);
+        dummy_dragonAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // if no target, update dummy and return
+        if (!UpdateVictim())
+        {
+            dummy_dragonAI::UpdateAI(diff);
+            return;
+        }
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HATCH_EGGS:
+                    OpenPortal();
+                    events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
+                    break;
+                default:
+                    dummy_dragonAI::ExecuteEvent(eventId);
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -472,78 +461,67 @@ public:
 ## Shadron
 ######*/
 
-class npc_shadron : public CreatureScript
+struct npc_shadron : public dummy_dragonAI
 {
-public:
-    npc_shadron() : CreatureScript("npc_shadron") { }
+    npc_shadron(Creature* creature) : dummy_dragonAI(creature) { }
 
-    struct npc_shadronAI : public dummy_dragonAI
+    void Reset() override
     {
-        npc_shadronAI(Creature* creature) : dummy_dragonAI(creature) { }
+        dummy_dragonAI::Reset();
 
-        void Reset() override
-        {
-            dummy_dragonAI::Reset();
+        if (me->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
+            me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
 
-            if (me->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
-                me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
+        if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
+            me->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
 
-            if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
-                me->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
+        instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
+    }
 
-            instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            dummy_dragonAI::JustEngagedWith(who);
-
-            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 1min);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // if no target, update dummy and return
-            if (!UpdateVictim())
-            {
-                dummy_dragonAI::UpdateAI(diff);
-                return;
-            }
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_ACOLYTE_SHADRON:
-                        if (instance->GetBossState(DATA_PORTAL_OPEN) == NOT_STARTED)
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10s);
-                        else
-                        {
-                            if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
-                                return;
-
-                            OpenPortal();
-
-                            instance->SetBossState(DATA_PORTAL_OPEN, IN_PROGRESS);
-
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60s, 65s);
-                        }
-                        break;
-                    default:
-                        dummy_dragonAI::ExecuteEvent(eventId);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustEngagedWith(Unit* who) override
     {
-        return GetObsidianSanctumAI<npc_shadronAI>(creature);
+        dummy_dragonAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 1min);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // if no target, update dummy and return
+        if (!UpdateVictim())
+        {
+            dummy_dragonAI::UpdateAI(diff);
+            return;
+        }
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ACOLYTE_SHADRON:
+                    if (instance->GetBossState(DATA_PORTAL_OPEN) == NOT_STARTED)
+                        events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10s);
+                    else
+                    {
+                        if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
+                            return;
+
+                        OpenPortal();
+
+                        instance->SetBossState(DATA_PORTAL_OPEN, IN_PROGRESS);
+
+                        events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60s, 65s);
+                    }
+                    break;
+                default:
+                    dummy_dragonAI::ExecuteEvent(eventId);
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -551,65 +529,54 @@ public:
 ## Vesperon
 ######*/
 
-class npc_vesperon : public CreatureScript
+struct npc_vesperon : public dummy_dragonAI
 {
-public:
-    npc_vesperon() : CreatureScript("npc_vesperon") { }
+    npc_vesperon(Creature* creature) : dummy_dragonAI(creature) { }
 
-    struct npc_vesperonAI : public dummy_dragonAI
+    void Reset() override
     {
-        npc_vesperonAI(Creature* creature) : dummy_dragonAI(creature) { }
+        dummy_dragonAI::Reset();
+    }
 
-        void Reset() override
-        {
-            dummy_dragonAI::Reset();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            dummy_dragonAI::JustEngagedWith(who);
-
-            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 1min);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // if no target, update dummy and return
-            if (!UpdateVictim())
-            {
-                dummy_dragonAI::UpdateAI(diff);
-                return;
-            }
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_ACOLYTE_VESPERON:
-                        if (instance->GetBossState(DATA_PORTAL_OPEN) == IN_PROGRESS)
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10s);
-                        else
-                        {
-                            OpenPortal();
-                            DoCastVictim(SPELL_TWILIGHT_TORMENT_VESP);
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60s, 70s);
-                        }
-                        break;
-                    default:
-                        dummy_dragonAI::ExecuteEvent(eventId);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustEngagedWith(Unit* who) override
     {
-        return GetObsidianSanctumAI<npc_vesperonAI>(creature);
+        dummy_dragonAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 1min);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // if no target, update dummy and return
+        if (!UpdateVictim())
+        {
+            dummy_dragonAI::UpdateAI(diff);
+            return;
+        }
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ACOLYTE_VESPERON:
+                    if (instance->GetBossState(DATA_PORTAL_OPEN) == IN_PROGRESS)
+                        events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10s);
+                    else
+                    {
+                        OpenPortal();
+                        DoCastVictim(SPELL_TWILIGHT_TORMENT_VESP);
+                        events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60s, 70s);
+                    }
+                    break;
+                default:
+                    dummy_dragonAI::ExecuteEvent(eventId);
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -617,166 +584,144 @@ public:
 ## Acolyte of Shadron
 ######*/
 
-class npc_acolyte_of_shadron : public CreatureScript
+struct npc_acolyte_of_shadron : public ScriptedAI
 {
-    public:
-        npc_acolyte_of_shadron() : CreatureScript("npc_acolyte_of_shadron") { }
+    npc_acolyte_of_shadron(Creature* creature) : ScriptedAI(creature)
+    {
+        instance = creature->GetInstanceScript();
+    }
 
-        struct npc_acolyte_of_shadronAI : public ScriptedAI
+    void Reset() override
+    {
+        // Despawn the NPC automatically after 28 seconds
+        me->DespawnOrUnsummon(28s);
+
+        //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
+        if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
         {
-            npc_acolyte_of_shadronAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            void Reset() override
-            {
-                // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28s);
-
-                //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
-                if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
-                {
-                    if (Creature* sartharion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
-                        sartharion->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, sartharion);
-                }
-                else
-                {
-                    if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
-                        shadron->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, shadron);
-                }
-
-                me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
-                    instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
-
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                {
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
-                    {
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
-                    }
-                }
-
-                // not solo fight, so main boss has debuff
-                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
-                    if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SAR))
-                        debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SAR);
-
-                // event not in progress, then solo fight and must remove debuff mini-boss
-                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
-                    if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
-                        debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            InstanceScript* instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetObsidianSanctumAI<npc_acolyte_of_shadronAI>(creature);
+            if (Creature* sartharion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
+                sartharion->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, sartharion);
         }
+        else
+        {
+            if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
+                shadron->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, shadron);
+        }
+
+        me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
+            instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
+
+        Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
+
+        if (PlayerList.isEmpty())
+            return;
+
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        {
+            if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
+            {
+                i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
+                i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
+                i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
+            }
+        }
+
+        // not solo fight, so main boss has debuff
+        if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
+            if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SAR))
+                debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SAR);
+
+        // event not in progress, then solo fight and must remove debuff mini-boss
+        if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
+            if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
+                debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    InstanceScript* instance;
 };
 
 /*######
 ## Acolyte of Vesperon
 ######*/
 
-class npc_acolyte_of_vesperon : public CreatureScript
+struct npc_acolyte_of_vesperon : public ScriptedAI
 {
-    public:
-        npc_acolyte_of_vesperon() : CreatureScript("npc_acolyte_of_vesperon") { }
+    npc_acolyte_of_vesperon(Creature* creature) : ScriptedAI(creature)
+    {
+        instance = creature->GetInstanceScript();
+    }
 
-        struct npc_acolyte_of_vesperonAI : public ScriptedAI
+    void Reset() override
+    {
+        // Despawn the NPC automatically after 28 seconds
+        me->DespawnOrUnsummon(28s);
+
+        me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
+
+        DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
+
+        // remove twilight torment on Vesperon
+        if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
         {
-            npc_acolyte_of_vesperonAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
+            instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
-            void Reset() override
-            {
-                // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28s);
-
-                me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
-
-                DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
-
-                // remove twilight torment on Vesperon
-                if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
-                {
-                    instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
-
-                    if (vesperon->IsAlive() && vesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
-                        vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
-                }
-
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                {
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
-                    {
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
-                    }
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_TORMENT_VESP) && !i->GetSource()->GetVictim())
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
-                }
-
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO, true, true);
-                instance->DoRemoveAurasDueToSpellOnPlayers(57935, true, true);
-                instance->DoRemoveAurasDueToSpellOnPlayers(58835, true, true); // Components of spell Twilight Torment
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            InstanceScript* instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetObsidianSanctumAI<npc_acolyte_of_vesperonAI>(creature);
+            if (vesperon->IsAlive() && vesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
+                vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
         }
+
+        Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
+
+        if (PlayerList.isEmpty())
+            return;
+
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        {
+            if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
+            {
+                i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
+                i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
+                i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
+            }
+            if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_TORMENT_VESP) && !i->GetSource()->GetVictim())
+                i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
+        }
+
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO, true, true);
+        instance->DoRemoveAurasDueToSpellOnPlayers(57935, true, true);
+        instance->DoRemoveAurasDueToSpellOnPlayers(58835, true, true); // Components of spell Twilight Torment
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    InstanceScript* instance;
 };
 
 /*######
@@ -788,64 +733,53 @@ enum TwilightEggs
     EVENT_TWILIGHT_EGGS           = 11
 };
 
-class npc_twilight_eggs : public CreatureScript
+struct npc_twilight_eggs : public ScriptedAI
 {
-public:
-    npc_twilight_eggs() : CreatureScript("npc_twilight_eggs") { }
-
-    struct npc_twilight_eggsAI : public ScriptedAI
+    npc_twilight_eggs(Creature* creature) : ScriptedAI(creature)
     {
-        npc_twilight_eggsAI(Creature* creature) : ScriptedAI(creature)
-        {
-            SetCombatMovement(false);
-            instance = creature->GetInstanceScript();
-        }
-
-        void Reset() override
-        {
-            me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
-
-            events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20s);
-        }
-
-        void SpawnWhelps()
-        {
-            me->RemoveAllAuras();
-
-            if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
-            else
-                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
-            me->KillSelf();
-        }
-
-        void JustSummoned(Creature* who) override
-        {
-            DoZoneInCombat(who);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            if (events.ExecuteEvent() == EVENT_TWILIGHT_EGGS)
-            {
-                if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
-                    instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
-
-                SpawnWhelps();
-            }
-        }
-
-    private:
-        InstanceScript* instance;
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetObsidianSanctumAI<npc_twilight_eggsAI>(creature);
+        SetCombatMovement(false);
+        instance = creature->GetInstanceScript();
     }
+
+    void Reset() override
+    {
+        me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
+
+        events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20s);
+    }
+
+    void SpawnWhelps()
+    {
+        me->RemoveAllAuras();
+
+        if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+            me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
+        else
+            me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
+        me->KillSelf();
+    }
+
+    void JustSummoned(Creature* who) override
+    {
+        DoZoneInCombat(who);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        if (events.ExecuteEvent() == EVENT_TWILIGHT_EGGS)
+        {
+            if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
+                instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
+
+            SpawnWhelps();
+        }
+    }
+
+private:
+    InstanceScript* instance;
+    EventMap events;
 };
 
 /*######
@@ -858,56 +792,45 @@ enum FlameTsunami
     EVENT_TSUNAMI_BUFF            = 13
 };
 
-class npc_flame_tsunami : public CreatureScript
+struct npc_flame_tsunami : public ScriptedAI
 {
-public:
-    npc_flame_tsunami() : CreatureScript("npc_flame_tsunami") { }
-
-    struct npc_flame_tsunamiAI : public ScriptedAI
+    npc_flame_tsunami(Creature* creature) : ScriptedAI(creature)
     {
-        npc_flame_tsunamiAI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetDisplayId(11686);
-            me->AddAura(SPELL_FLAME_TSUNAMI, me);
-        }
+        me->SetDisplayId(11686);
+        me->AddAura(SPELL_FLAME_TSUNAMI, me);
+    }
 
-        void Reset() override
-        {
-            me->SetReactState(REACT_PASSIVE);
-            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100ms);
-            events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-        }
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100ms);
+        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+    }
 
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                    case EVENT_TSUNAMI_TIMER:
-                        DoCast(me, SPELL_FLAME_TSUNAMI_DMG_AURA);
-                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500ms);
-                        break;
-                    case EVENT_TSUNAMI_BUFF:
-                        if (Unit* lavaBlaze = GetClosestCreatureWithEntry(me, NPC_LAVA_BLAZE, 10.0f, true))
-                            lavaBlaze->CastSpell(lavaBlaze, SPELL_FLAME_TSUNAMI_BUFF, true);
-                        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
-                        break;
-                }
+                case EVENT_TSUNAMI_TIMER:
+                    DoCast(me, SPELL_FLAME_TSUNAMI_DMG_AURA);
+                    events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500ms);
+                    break;
+                case EVENT_TSUNAMI_BUFF:
+                    if (Unit* lavaBlaze = GetClosestCreatureWithEntry(me, NPC_LAVA_BLAZE, 10.0f, true))
+                        lavaBlaze->CastSpell(lavaBlaze, SPELL_FLAME_TSUNAMI_BUFF, true);
+                    events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
+                    break;
             }
         }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetObsidianSanctumAI<npc_flame_tsunamiAI>(creature);
     }
+
+private:
+    EventMap events;
 };
 
 /*######
@@ -919,49 +842,38 @@ enum TwilightFissure
     EVENT_VOID_BLAST              = 14
 };
 
-class npc_twilight_fissure : public CreatureScript
+struct npc_twilight_fissure : public ScriptedAI
 {
-public:
-    npc_twilight_fissure() : CreatureScript("npc_twilight_fissure") { }
-
-    struct npc_twilight_fissureAI : public ScriptedAI
+    npc_twilight_fissure(Creature* creature) : ScriptedAI(creature)
     {
-        npc_twilight_fissureAI(Creature* creature) : ScriptedAI(creature)
-        {
-            SetCombatMovement(false);
-        }
-
-        void Reset() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->AddAura(46265, me); // Wrong, can't find proper visual
-            me->AddAura(69422, me);
-            events.ScheduleEvent(EVENT_VOID_BLAST, 5s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            if (events.ExecuteEvent() == EVENT_VOID_BLAST)
-            {
-                DoCastAOE(SPELL_VOID_BLAST);
-                ////twilight realm
-                //DoCastVictim(57620, true);
-                //DoCastVictim(57874, true);
-                me->RemoveAllAuras();
-                me->KillSelf();
-            }
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetObsidianSanctumAI<npc_twilight_fissureAI>(creature);
+        SetCombatMovement(false);
     }
+
+    void Reset() override
+    {
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->AddAura(46265, me); // Wrong, can't find proper visual
+        me->AddAura(69422, me);
+        events.ScheduleEvent(EVENT_VOID_BLAST, 5s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        if (events.ExecuteEvent() == EVENT_VOID_BLAST)
+        {
+            DoCastAOE(SPELL_VOID_BLAST);
+            ////twilight realm
+            //DoCastVictim(57620, true);
+            //DoCastVictim(57874, true);
+            me->RemoveAllAuras();
+            me->KillSelf();
+        }
+    }
+
+private:
+    EventMap events;
 };
 
 /*######
@@ -973,49 +885,38 @@ enum TwilightWhelps
     EVENT_FADE_ARMOR              = 15
 };
 
-class npc_twilight_whelp : public CreatureScript
+struct npc_twilight_whelp : public ScriptedAI
 {
-public:
-    npc_twilight_whelp() : CreatureScript("npc_twilight_whelp") { }
-
-    struct npc_twilight_whelpAI : public ScriptedAI
+    npc_twilight_whelp(Creature* creature) : ScriptedAI(creature)
     {
-        npc_twilight_whelpAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        void Reset() override
-        {
-            me->RemoveAllAuras();
-            DoZoneInCombat();
-            events.ScheduleEvent(EVENT_FADE_ARMOR, 1s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            // twilight torment
-            events.Update(diff);
-
-            if (events.ExecuteEvent() == EVENT_FADE_ARMOR)
-            {
-                DoCastVictim(SPELL_FADE_ARMOR);
-                events.ScheduleEvent(EVENT_FADE_ARMOR, 5s, 10s);
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetObsidianSanctumAI<npc_twilight_whelpAI>(creature);
     }
+
+    void Reset() override
+    {
+        me->RemoveAllAuras();
+        DoZoneInCombat();
+        events.ScheduleEvent(EVENT_FADE_ARMOR, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        // twilight torment
+        events.Update(diff);
+
+        if (events.ExecuteEvent() == EVENT_FADE_ARMOR)
+        {
+            DoCastVictim(SPELL_FADE_ARMOR);
+            events.ScheduleEvent(EVENT_FADE_ARMOR, 5s, 10s);
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap events;
 };
 
 class achievement_twilight_assist : public AchievementCriteriaScript
@@ -1053,15 +954,15 @@ class achievement_twilight_zone : public AchievementCriteriaScript
 
 void AddSC_obsidian_sanctum()
 {
-    new npc_vesperon();
-    new npc_shadron();
-    new npc_tenebron();
-    new npc_acolyte_of_shadron();
-    new npc_acolyte_of_vesperon();
-    new npc_twilight_eggs();
-    new npc_flame_tsunami();
-    new npc_twilight_fissure();
-    new npc_twilight_whelp();
+    RegisterObsidianSanctumCreatureAI(npc_vesperon);
+    RegisterObsidianSanctumCreatureAI(npc_shadron);
+    RegisterObsidianSanctumCreatureAI(npc_tenebron);
+    RegisterObsidianSanctumCreatureAI(npc_acolyte_of_shadron);
+    RegisterObsidianSanctumCreatureAI(npc_acolyte_of_vesperon);
+    RegisterObsidianSanctumCreatureAI(npc_twilight_eggs);
+    RegisterObsidianSanctumCreatureAI(npc_flame_tsunami);
+    RegisterObsidianSanctumCreatureAI(npc_twilight_fissure);
+    RegisterObsidianSanctumCreatureAI(npc_twilight_whelp);
     new achievement_twilight_assist();
     new achievement_twilight_duo();
     new achievement_twilight_zone();
