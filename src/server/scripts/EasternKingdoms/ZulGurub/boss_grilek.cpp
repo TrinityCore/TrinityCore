@@ -31,81 +31,70 @@ enum Events
     EVENT_GROUND_TREMOR = 2
 };
 
-class boss_grilek : public CreatureScript // grilek
+struct boss_grilek : public BossAI
 {
-    public:
-        boss_grilek() : CreatureScript("boss_grilek") { }
+    boss_grilek(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
 
-        struct boss_grilekAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_AVATAR, 15s, 25s);
+        events.ScheduleEvent(EVENT_GROUND_TREMOR, 15s, 25s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_grilekAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_AVATAR, 15s, 25s);
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, 15s, 25s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_AVATAR:
+                    DoCast(me, SPELL_AVATAR);
+                    if (Unit* victim = me->GetVictim())
                     {
-                        case EVENT_AVATAR:
-                            DoCast(me, SPELL_AVATAR);
-                            if (Unit* victim = me->GetVictim())
-                            {
-                                if (GetThreat(victim))
-                                    ModifyThreatByPercent(victim, -50);
-                            }
-
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                                AttackStart(target);
-                            events.ScheduleEvent(EVENT_AVATAR, 25s, 35s);
-                            break;
-                        case EVENT_GROUND_TREMOR:
-                            DoCastVictim(SPELL_GROUND_TREMOR, true);
-                            events.ScheduleEvent(EVENT_GROUND_TREMOR, 12s, 16s);
-                            break;
-                        default:
-                            break;
+                        if (GetThreat(victim))
+                            ModifyThreatByPercent(victim, -50);
                     }
 
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                        AttackStart(target);
+                    events.ScheduleEvent(EVENT_AVATAR, 25s, 35s);
+                    break;
+                case EVENT_GROUND_TREMOR:
+                    DoCastVictim(SPELL_GROUND_TREMOR, true);
+                    events.ScheduleEvent(EVENT_GROUND_TREMOR, 12s, 16s);
+                    break;
+                default:
+                    break;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulGurubAI<boss_grilekAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_grilek()
 {
-    new boss_grilek();
+    RegisterZulGurubCreatureAI(boss_grilek);
 }
