@@ -22,6 +22,7 @@
 #include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
+#include <array>
 
 namespace WorldPackets
 {
