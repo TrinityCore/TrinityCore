@@ -165,7 +165,6 @@ class boss_alar : public CreatureScript
                 me->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
                 //me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                 //me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                 me->SetDisableGravity(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setActive(false);
@@ -221,7 +220,6 @@ class boss_alar : public CreatureScript
             {
                 if (spellInfo->Id == SPELL_DIVE_BOMB_VISUAL)
                 {
-                    me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                     me->SetDisplayId(11686);
                     //me->SendUpdateObjectToAllExcept(nullptr);
                 }
@@ -304,7 +302,6 @@ class boss_alar : public CreatureScript
                                 Phase1 = false;
                                 break;
                             case WE_METEOR:
-                                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
                                 DoCast(me, SPELL_DIVE_BOMB_VISUAL, false);
                                 WaitEvent = WE_DIVE;
                                 WaitTimer = 4000;
