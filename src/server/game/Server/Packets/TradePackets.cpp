@@ -193,3 +193,20 @@ void WorldPackets::Trade::AcceptTrade::Read()
 {
     _worldPacket >> StateIndex;
 }
+
+void WorldPackets::Trade::ClearTradeItem::Read()
+{
+    _worldPacket >> TradeSlot;
+}
+
+void WorldPackets::Trade::SetTradeItem::Read()
+{
+    _worldPacket >> ItemSlotInPack;
+    _worldPacket >> TradeSlot;
+    _worldPacket >> PackSlot;
+}
+
+void WorldPackets::Trade::SetTradeGold::Read()
+{
+    _worldPacket >> Coinage;
+}

@@ -106,6 +106,78 @@ namespace WorldPackets
 
             uint32 StateIndex = 0;
         };
+
+        class ClearTradeItem final : public ClientPacket
+        {
+        public:
+            ClearTradeItem(WorldPacket&& packet) : ClientPacket(CMSG_CLEAR_TRADE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 TradeSlot = 0;
+        };
+
+        class SetTradeItem final : public ClientPacket
+        {
+        public:
+            SetTradeItem(WorldPacket&& packet) : ClientPacket(CMSG_SET_TRADE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 TradeSlot = 0;
+            uint8 ItemSlotInPack = 0;
+            uint8 PackSlot = 0;
+        };
+
+        class SetTradeGold final : public ClientPacket
+        {
+        public:
+            SetTradeGold(WorldPacket&& packet) : ClientPacket(CMSG_SET_TRADE_GOLD, std::move(packet)) { }
+
+            void Read() override;
+
+            uint64 Coinage = 0;
+        };
+
+        class CancelTrade final : public ClientPacket
+        {
+        public:
+            CancelTrade(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_TRADE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class BeginTrade final : public ClientPacket
+        {
+        public:
+            BeginTrade(WorldPacket&& packet) : ClientPacket(CMSG_BEGIN_TRADE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class BusyTrade final : public ClientPacket
+        {
+        public:
+            BusyTrade(WorldPacket&& packet) : ClientPacket(CMSG_BUSY_TRADE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class IgnoreTrade final : public ClientPacket
+        {
+        public:
+            IgnoreTrade(WorldPacket&& packet) : ClientPacket(CMSG_IGNORE_TRADE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class UnacceptTrade final : public ClientPacket
+        {
+        public:
+            UnacceptTrade(WorldPacket&& packet) : ClientPacket(CMSG_UNACCEPT_TRADE, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

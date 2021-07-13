@@ -211,8 +211,16 @@ namespace WorldPackets
     namespace Trade
     {
         class AcceptTrade;
+        class BeginTrade;
+        class BusyTrade;
+        class CancelTrade;
+        class ClearTradeItem;
+        class IgnoreTrade;
         class InitiateTrade;
+        class SetTradeGold;
+        class SetTradeItem;
         class TradeStatus;
+        class UnacceptTrade;
     }
 
     namespace Who
@@ -885,15 +893,15 @@ class TC_GAME_API WorldSession
         void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
 
         void HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& packet);
-        void HandleBeginTradeOpcode(WorldPacket& recvPacket);
-        void HandleBusyTradeOpcode(WorldPacket& recvPacket);
-        void HandleCancelTradeOpcode(WorldPacket& recvPacket);
-        void HandleClearTradeItemOpcode(WorldPacket& recvPacket);
-        void HandleIgnoreTradeOpcode(WorldPacket& recvPacket);
+        void HandleBeginTradeOpcode(WorldPackets::Trade::BeginTrade& packet);
+        void HandleBusyTradeOpcode(WorldPackets::Trade::BusyTrade& packet);
+        void HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& packet);
+        void HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeItem& packet);
+        void HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& packet);
         void HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade& packet);
-        void HandleSetTradeGoldOpcode(WorldPacket& recvPacket);
-        void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
-        void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
+        void HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold& packet);
+        void HandleSetTradeItemOpcode(WorldPackets::Trade::SetTradeItem& packet);
+        void HandleUnacceptTradeOpcode(WorldPackets::Trade::UnacceptTrade& packet);
 
         void HandleAuctionHelloOpcode(WorldPacket& recvPacket);
         void HandleAuctionListItems(WorldPacket& recvData);

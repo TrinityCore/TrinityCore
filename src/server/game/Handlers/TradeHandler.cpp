@@ -41,14 +41,12 @@ void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
     SendPacket(info.Write());
 }
 
-void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade& /*ignoreTrade*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Ignore Trade %u", _player->GetGUID().GetCounter());
 }
 
-void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleBusyTradeOpcode(WorldPackets::Trade::BusyTrade& /*busyTRade*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Busy Trade %u", _player->GetGUID().GetCounter());
 }
 
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
@@ -530,7 +528,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
     }
 }
 
-void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleUnacceptTradeOpcode(WorldPackets::Trade::UnacceptTrade& /*unacceptTrade*/)
 {
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
@@ -539,7 +537,7 @@ void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
     my_trade->SetAccepted(false, true);
 }
 
-void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleBeginTradeOpcode(WorldPackets::Trade::BeginTrade& /*beginTrade*/)
 {
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
@@ -561,7 +559,7 @@ void WorldSession::SendCancelTrade()
     SendTradeStatus(info);
 }
 
-void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade& /*cancelTrade*/)
 {
     // sent also after LOGOUT COMPLETE
     if (_player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
@@ -690,37 +688,25 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
     pOther->GetSession()->SendTradeStatus(info);
 }
 
-void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold& setTradeGold)
 {
-    uint64 gold;
-    recvPacket >> gold;
-
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
         return;
 
     my_trade->UpdateClientStateIndex();
-    my_trade->SetMoney(gold);
+    my_trade->SetMoney(setTradeGold.Coinage);
 }
 
-void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetTradeItemOpcode(WorldPackets::Trade::SetTradeItem& setTradeItem)
 {
-    // send update
-    uint8 tradeSlot;
-    uint8 bag;
-    uint8 slot;
-
-    recvPacket >> slot;
-    recvPacket >> tradeSlot;
-    recvPacket >> bag;
-
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
         return;
 
     WorldPackets::Trade::TradeStatus info;
     // invalid slot number
-    if (tradeSlot >= TRADE_SLOT_COUNT)
+    if (setTradeItem.TradeSlot >= TRADE_SLOT_COUNT)
     {
         info.Status = TRADE_STATUS_TRADE_CANCELED;
         SendTradeStatus(info);
@@ -728,8 +714,8 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     }
 
     // check cheating, can't fail with correct client operations
-    Item* item = _player->GetItemByPos(bag, slot);
-    if (!item || (tradeSlot != TRADE_SLOT_NONTRADED && !item->CanBeTraded(false, true)))
+    Item* item = _player->GetItemByPos(setTradeItem.PackSlot, setTradeItem.ItemSlotInPack);
+    if (!item || (setTradeItem.TradeSlot != TRADE_SLOT_NONTRADED && !item->CanBeTraded(false, true)))
     {
         info.Status = TRADE_STATUS_TRADE_CANCELED;
         SendTradeStatus(info);
@@ -749,22 +735,19 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
 
     my_trade->UpdateClientStateIndex();
 
-    if (tradeSlot != TRADE_SLOT_NONTRADED && item->IsBindedNotWith(my_trade->GetTrader()))
+    if (setTradeItem.TradeSlot != TRADE_SLOT_NONTRADED && item->IsBindedNotWith(my_trade->GetTrader()))
     {
         info.Status = TRADE_STATUS_NOT_ON_TAPLIST;
-        info.TradeSlot = tradeSlot;
+        info.TradeSlot = setTradeItem.TradeSlot;
         SendTradeStatus(info);
         return;
     }
 
-    my_trade->SetItem(TradeSlots(tradeSlot), item);
+    my_trade->SetItem(TradeSlots(setTradeItem.TradeSlot), item);
 }
 
-void WorldSession::HandleClearTradeItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeItem& clearTradeItem)
 {
-    uint8 tradeSlot;
-    recvPacket >> tradeSlot;
-
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
         return;
@@ -772,8 +755,8 @@ void WorldSession::HandleClearTradeItemOpcode(WorldPacket& recvPacket)
     my_trade->UpdateClientStateIndex();
 
     // invalid slot number
-    if (tradeSlot >= TRADE_SLOT_COUNT)
+    if (clearTradeItem.TradeSlot >= TRADE_SLOT_COUNT)
         return;
 
-    my_trade->SetItem(TradeSlots(tradeSlot), nullptr);
+    my_trade->SetItem(TradeSlots(clearTradeItem.TradeSlot), nullptr);
 }
