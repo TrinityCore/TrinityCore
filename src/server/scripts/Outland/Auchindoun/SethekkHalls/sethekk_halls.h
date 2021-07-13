@@ -54,4 +54,6 @@ inline AI* GetSethekkHallsAI(T* obj)
     return GetInstanceAI<AI>(obj, SHScriptName);
 }
 
+#define RegisterSethekkHallsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSethekkHallsAI)
+
 #endif // SETHEKK_HALLS_H_
