@@ -313,121 +313,6 @@ Position const TransitionPos[6] =
     { 792.419f, -0.504778f, 50.0505f, 3.130386f }
 };
 
-struct advisorbase_ai : public ScriptedAI
-{
-    advisorbase_ai(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-        instance = creature->GetInstanceScript();
-    }
-
-    void Initialize()
-    {
-        _hasRessurrected = false;
-        _inFakeDeath = false;
-        DelayRes_Target.Clear();
-    }
-
-    void Reset() override
-    {
-        Initialize();
-
-        me->SetStandState(UNIT_STAND_STATE_STAND);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-
-        //reset encounter
-        if (instance->GetBossState(DATA_KAELTHAS) == IN_PROGRESS)
-            if (Creature* Kaelthas = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KAELTHAS)))
-                Kaelthas->AI()->EnterEvadeMode();
-    }
-
-    void MoveInLineOfSight(Unit* who) override
-    {
-        if (!who || _inFakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            return;
-
-        ScriptedAI::MoveInLineOfSight(who);
-    }
-
-    void AttackStart(Unit* who) override
-    {
-        if (!who || _inFakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            return;
-
-        ScriptedAI::AttackStart(who);
-    }
-
-    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-    {
-        if (spellInfo->Id == SPELL_RESSURECTION)
-        {
-            _hasRessurrected = true;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            events.ScheduleEvent(EVENT_DELAYED_RESSURECTION, 2s);
-        }
-    }
-
-    void DamageTaken(Unit* killer, uint32 &damage) override
-    {
-        if (damage >= me->GetHealth() && !_inFakeDeath && !_hasRessurrected)
-        {
-            //prevent death
-            damage = 0;
-            _inFakeDeath = true;
-
-            me->InterruptNonMeleeSpells(false);
-            me->SetHealth(0);
-            me->ClearComboPointHolders();
-            me->RemoveAllAurasOnDeath();
-            me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
-            me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-            me->SetTarget(ObjectGuid::Empty);
-            me->SetStandState(UNIT_STAND_STATE_DEAD);
-            me->GetMotionMaster()->Clear();
-            JustDied(killer);
-        }
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (Creature* kael = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KAELTHAS)))
-            kael->AI()->DoAction(ACTION_ACTIVE_ADVISOR);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (_hasRessurrected)
-            events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            if (eventId == EVENT_DELAYED_RESSURECTION)
-            {
-                _inFakeDeath = false;
-
-                Unit* Target = ObjectAccessor::GetUnit(*me, DelayRes_Target);
-                if (!Target)
-                    Target = me->GetVictim();
-
-                ResetThreatList();
-                AttackStart(Target);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveChase(Target);
-                AddThreat(Target, 0.0f);
-            }
-        }
-    }
-    public:
-        EventMap events;
-        InstanceScript* instance;
-        bool _hasRessurrected;
-        bool _inFakeDeath;
-        ObjectGuid DelayRes_Target;
-};
-
 struct boss_kaelthas : public BossAI
 {
     boss_kaelthas(Creature* creature) : BossAI(creature, DATA_KAELTHAS)
@@ -860,6 +745,121 @@ private:
     uint8 _netherbeamsCast;
     bool _hasFullPower;
     ObjectGuid _advisorGuid[MAX_ADVISORS];
+};
+
+struct advisorbase_ai : public ScriptedAI
+{
+    advisorbase_ai(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+        instance = creature->GetInstanceScript();
+    }
+
+    void Initialize()
+    {
+        _hasRessurrected = false;
+        _inFakeDeath = false;
+        DelayRes_Target.Clear();
+    }
+
+    void Reset() override
+    {
+        Initialize();
+
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+
+        //reset encounter
+        if (instance->GetBossState(DATA_KAELTHAS) == IN_PROGRESS)
+            if (Creature* Kaelthas = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KAELTHAS)))
+                Kaelthas->AI()->EnterEvadeMode();
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!who || _inFakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            return;
+
+        ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (!who || _inFakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            return;
+
+        ScriptedAI::AttackStart(who);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_RESSURECTION)
+        {
+            _hasRessurrected = true;
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            events.ScheduleEvent(EVENT_DELAYED_RESSURECTION, 2s);
+        }
+    }
+
+    void DamageTaken(Unit* killer, uint32 &damage) override
+    {
+        if (damage >= me->GetHealth() && !_inFakeDeath && !_hasRessurrected)
+        {
+            //prevent death
+            damage = 0;
+            _inFakeDeath = true;
+
+            me->InterruptNonMeleeSpells(false);
+            me->SetHealth(0);
+            me->ClearComboPointHolders();
+            me->RemoveAllAurasOnDeath();
+            me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
+            me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+            me->SetTarget(ObjectGuid::Empty);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
+            me->GetMotionMaster()->Clear();
+            JustDied(killer);
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* kael = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KAELTHAS)))
+            kael->AI()->DoAction(ACTION_ACTIVE_ADVISOR);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_hasRessurrected)
+            events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            if (eventId == EVENT_DELAYED_RESSURECTION)
+            {
+                _inFakeDeath = false;
+
+                Unit* Target = ObjectAccessor::GetUnit(*me, DelayRes_Target);
+                if (!Target)
+                    Target = me->GetVictim();
+
+                ResetThreatList();
+                AttackStart(Target);
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveChase(Target);
+                AddThreat(Target, 0.0f);
+            }
+        }
+    }
+    public:
+        EventMap events;
+        InstanceScript* instance;
+        bool _hasRessurrected;
+        bool _inFakeDeath;
+        ObjectGuid DelayRes_Target;
 };
 
 struct boss_thaladred_the_darkener : public advisorbase_ai
