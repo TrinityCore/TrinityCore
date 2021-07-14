@@ -826,6 +826,23 @@ class spell_gen_chaos_blast : public SpellScript
     }
 };
 
+// 28471 - ClearAll
+class spell_clear_all : public SpellScript
+{
+    PrepareSpellScript(spell_clear_all);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->RemoveAllAurasOnDeath();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_clear_all::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum Clone
 {
     SPELL_NIGHTMARE_FIGMENT_MIRROR_IMAGE        = 57528
@@ -4768,6 +4785,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_cannibalize);
     RegisterSpellScript(spell_gen_chains_of_ice);
     RegisterSpellScript(spell_gen_chaos_blast);
+    RegisterSpellScript(spell_clear_all);
     RegisterSpellScript(spell_gen_clone);
     RegisterSpellScript(spell_gen_clone_weapon);
     RegisterSpellScript(spell_gen_clone_weapon_aura);
