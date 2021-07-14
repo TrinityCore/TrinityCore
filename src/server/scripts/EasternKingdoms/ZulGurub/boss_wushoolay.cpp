@@ -31,56 +31,45 @@ enum Events
 {
 };
 
-class boss_wushoolay : public CreatureScript
+struct boss_wushoolay : public BossAI
 {
-    public:
-        boss_wushoolay() : CreatureScript("boss_wushoolay") { }
+    boss_wushoolay(Creature* creature) : BossAI(creature, DATA_HAZZARAH)
+    {
+    }
 
-        struct boss_wushoolayAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+        /*
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_wushoolayAI(Creature* creature) : BossAI(creature, DATA_HAZZARAH)
+            switch (eventId)
             {
+                default:
+                    break;
             }
 
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-                /*
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-                */
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulGurubAI<boss_wushoolayAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+        */
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_wushoolay()
 {
-    new boss_wushoolay();
+    RegisterZulGurubCreatureAI(boss_wushoolay);
 }
