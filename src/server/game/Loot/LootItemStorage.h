@@ -56,7 +56,7 @@ class StoredLootContainer
         void AddMoney(uint32 money, CharacterDatabaseTransaction trans);
 
         void RemoveMoney();
-        void RemoveItem(uint32 itemId, uint32 count, uint32 itemIndex, uint32 lootIndex);
+        void RemoveItem(uint32 itemId, uint32 count, uint32 itemIndex);
 
         uint32 GetContainer() const { return _containerId; }
         uint32 GetMoney() const { return _money; }
