@@ -55,167 +55,145 @@ enum Events
     EVENT_IMMOLATE              = 8,
 };
 
-class boss_sulfuron : public CreatureScript
+struct boss_sulfuron : public BossAI
 {
-    public:
-        boss_sulfuron() : CreatureScript("boss_sulfuron") { }
+    boss_sulfuron(Creature* creature) : BossAI(creature, BOSS_SULFURON_HARBINGER)
+    {
+    }
 
-        struct boss_sulfuronAI : public BossAI
+    void JustEngagedWith(Unit* victim) override
+    {
+        BossAI::JustEngagedWith(victim);
+        events.ScheduleEvent(EVENT_DARK_STRIKE, 10s);
+        events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15s);
+        events.ScheduleEvent(EVENT_INSPIRE, 13s);
+        events.ScheduleEvent(EVENT_KNOCKDOWN, 6s);
+        events.ScheduleEvent(EVENT_FLAMESPEAR, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_sulfuronAI(Creature* creature) : BossAI(creature, BOSS_SULFURON_HARBINGER)
+            switch (eventId)
             {
-            }
-
-            void JustEngagedWith(Unit* victim) override
-            {
-                BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_DARK_STRIKE, 10s);
-                events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15s);
-                events.ScheduleEvent(EVENT_INSPIRE, 13s);
-                events.ScheduleEvent(EVENT_KNOCKDOWN, 6s);
-                events.ScheduleEvent(EVENT_FLAMESPEAR, 2s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                case EVENT_DARK_STRIKE:
+                    DoCast(me, SPELL_DARK_STRIKE);
+                    events.ScheduleEvent(EVENT_DARK_STRIKE, 15s, 18s);
+                    break;
+                case EVENT_DEMORALIZING_SHOUT:
+                    DoCastVictim(SPELL_DEMORALIZING_SHOUT);
+                    events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15s, 20s);
+                    break;
+                case EVENT_INSPIRE:
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_DARK_STRIKE:
-                            DoCast(me, SPELL_DARK_STRIKE);
-                            events.ScheduleEvent(EVENT_DARK_STRIKE, 15s, 18s);
-                            break;
-                        case EVENT_DEMORALIZING_SHOUT:
-                            DoCastVictim(SPELL_DEMORALIZING_SHOUT);
-                            events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 15s, 20s);
-                            break;
-                        case EVENT_INSPIRE:
-                        {
-                            std::list<Creature*> healers = DoFindFriendlyMissingBuff(45.0f, SPELL_INSPIRE);
-                            if (!healers.empty())
-                                DoCast(Trinity::Containers::SelectRandomContainerElement(healers), SPELL_INSPIRE);
+                    std::list<Creature*> healers = DoFindFriendlyMissingBuff(45.0f, SPELL_INSPIRE);
+                    if (!healers.empty())
+                        DoCast(Trinity::Containers::SelectRandomContainerElement(healers), SPELL_INSPIRE);
 
-                            DoCast(me, SPELL_INSPIRE);
-                            events.ScheduleEvent(EVENT_INSPIRE, 20s, 26s);
-                            break;
-                        }
-                        case EVENT_KNOCKDOWN:
-                            DoCastVictim(SPELL_KNOCKDOWN);
-                            events.ScheduleEvent(EVENT_KNOCKDOWN, 12s, 15s);
-                            break;
-                        case EVENT_FLAMESPEAR:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                                DoCast(target, SPELL_FLAMESPEAR);
-                            events.ScheduleEvent(EVENT_FLAMESPEAR, 12s, 16s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
+                    DoCast(me, SPELL_INSPIRE);
+                    events.ScheduleEvent(EVENT_INSPIRE, 20s, 26s);
+                    break;
                 }
-
-                DoMeleeAttackIfReady();
+                case EVENT_KNOCKDOWN:
+                    DoCastVictim(SPELL_KNOCKDOWN);
+                    events.ScheduleEvent(EVENT_KNOCKDOWN, 12s, 15s);
+                    break;
+                case EVENT_FLAMESPEAR:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                        DoCast(target, SPELL_FLAMESPEAR);
+                    events.ScheduleEvent(EVENT_FLAMESPEAR, 12s, 16s);
+                    break;
+                default:
+                    break;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetMoltenCoreAI<boss_sulfuronAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-class npc_flamewaker_priest : public CreatureScript
+struct npc_flamewaker_priest : public ScriptedAI
 {
-    public:
-        npc_flamewaker_priest() : CreatureScript("npc_flamewaker_priest") { }
+    npc_flamewaker_priest(Creature* creature) : ScriptedAI(creature)
+    {
+    }
 
-        struct npc_flamewaker_priestAI : public ScriptedAI
+    void Reset() override
+    {
+        events.Reset();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        events.Reset();
+    }
+
+    void JustEngagedWith(Unit* victim) override
+    {
+        ScriptedAI::JustEngagedWith(victim);
+        events.ScheduleEvent(EVENT_HEAL, 15s, 30s);
+        events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2s);
+        events.ScheduleEvent(EVENT_IMMOLATE, 8s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            npc_flamewaker_priestAI(Creature* creature) : ScriptedAI(creature)
+            switch (eventId)
             {
+                case EVENT_HEAL:
+                    if (Unit* target = DoSelectLowestHpFriendly(60.0f, 1))
+                        DoCast(target, SPELL_HEAL);
+                    events.ScheduleEvent(EVENT_HEAL, 15s, 20s);
+                    break;
+                case EVENT_SHADOW_WORD_PAIN:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_SHADOWWORDPAIN))
+                        DoCast(target, SPELL_SHADOWWORDPAIN);
+                    events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 18s, 26s);
+                    break;
+                case EVENT_IMMOLATE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_IMMOLATE))
+                        DoCast(target, SPELL_IMMOLATE);
+                    events.ScheduleEvent(EVENT_IMMOLATE, 15s, 25s);
+                    break;
+                default:
+                    break;
             }
 
-            void Reset() override
-            {
-                events.Reset();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                events.Reset();
-            }
-
-            void JustEngagedWith(Unit* victim) override
-            {
-                ScriptedAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_HEAL, 15s, 30s);
-                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2s);
-                events.ScheduleEvent(EVENT_IMMOLATE, 8s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_HEAL:
-                            if (Unit* target = DoSelectLowestHpFriendly(60.0f, 1))
-                                DoCast(target, SPELL_HEAL);
-                            events.ScheduleEvent(EVENT_HEAL, 15s, 20s);
-                            break;
-                        case EVENT_SHADOW_WORD_PAIN:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_SHADOWWORDPAIN))
-                                DoCast(target, SPELL_SHADOWWORDPAIN);
-                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 18s, 26s);
-                            break;
-                        case EVENT_IMMOLATE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_IMMOLATE))
-                                DoCast(target, SPELL_IMMOLATE);
-                            events.ScheduleEvent(EVENT_IMMOLATE, 15s, 25s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetMoltenCoreAI<npc_flamewaker_priestAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap events;
 };
 
 void AddSC_boss_sulfuron()
 {
-    new boss_sulfuron();
-    new npc_flamewaker_priest();
+    RegisterMoltenCoreCreatureAI(boss_sulfuron);
+    RegisterMoltenCoreCreatureAI(npc_flamewaker_priest);
 }
