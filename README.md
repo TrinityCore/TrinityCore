@@ -5,7 +5,8 @@
 
 4.3.4 
 :------------:
-[![4.3.4 Build Status](https://travis-ci.com/The-Cataclysm-Preservation-Project/TrinityCore.svg?branch=master)](https://travis-ci.com/The-Cataclysm-Preservation-Project/TrinityCore)
+[![CircleCI Status](https://circleci.com/gh/The-Cataclysm-Preservation-Project/TrinityCore.svg?style=shield&branch=master)](https://app.circleci.com/pipelines/github/The-Cataclysm-Preservation-Project/TrinityCore?branch=master)
+[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/github/The-Cataclysm-Preservation-Project/TrinityCore?branch=master&svg=true)](https://ci.appveyor.com/project/Ovahlord/trinitycore)
 
 ## Introduction
 
