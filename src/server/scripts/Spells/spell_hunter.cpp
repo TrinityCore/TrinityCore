@@ -531,6 +531,12 @@ class spell_hun_tame_beast : public SpellScript
 
             if (!caster->GetCharmedGUID().IsEmpty())
                 return SPELL_FAILED_ALREADY_HAVE_CHARM;
+
+            if (!target->GetOwnerGUID().IsEmpty())
+            {
+                caster->SendTameFailure(PetTameResult::CreatureAlreadyOwned);
+                return SPELL_FAILED_DONT_REPORT;
+            }
         }
         else
             return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
