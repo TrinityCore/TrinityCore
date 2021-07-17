@@ -215,7 +215,8 @@ public:
             auto end = boost::filesystem::directory_iterator();
             std::size_t folderSize = std::accumulate(boost::filesystem::directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, boost::filesystem::path const& mapFile)
             {
-                if (boost::filesystem::is_regular_file(mapFile))
+                boost::system::error_code ec;
+                if (boost::filesystem::is_regular_file(mapFile, ec))
                     val += boost::filesystem::file_size(mapFile);
                 return val;
             });
