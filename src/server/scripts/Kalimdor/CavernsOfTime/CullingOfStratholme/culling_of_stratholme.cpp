@@ -30,7 +30,6 @@
 #include "QuestDef.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "SmartAI.h"
 #include "SpellInfo.h"
 #include "SplineChainMovementGenerator.h"
 #include "StringFormat.h"
