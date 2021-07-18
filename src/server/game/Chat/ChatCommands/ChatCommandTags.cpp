@@ -24,6 +24,8 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "World.h"
+#include "WorldSession.h"
 
 using namespace Trinity::Impl::ChatCommands;
 
@@ -58,6 +60,9 @@ ChatCommandResult Trinity::ChatCommands::QuotedString::TryConsume(ChatHandler co
     return std::nullopt;
 }
 
+Trinity::ChatCommands::AccountIdentifier::AccountIdentifier(WorldSession& session)
+    : _id(session.GetAccountId()), _name(session.GetAccountName()), _session(&session) {}
+
 ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     std::string_view text;
@@ -70,6 +75,7 @@ ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandl
     if (!Utf8ToUpperOnlyLatin(_name))
         return GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
     _id = AccountMgr::GetId(_name);
+    _session = sWorld->FindSession(_id);
     if (_id) // account with name exists, we are done
         return next;
 
@@ -78,11 +84,21 @@ ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandl
     if (!id)
         return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
     _id = *id;
+    _session = sWorld->FindSession(_id);
 
     if (AccountMgr::GetName(_id, _name))
         return next;
     else
         return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_ID_NO_EXIST, _id);
+}
+
+Optional<Trinity::ChatCommands::AccountIdentifier> Trinity::ChatCommands::AccountIdentifier::FromTarget(ChatHandler* handler)
+{
+    if (Player* player = handler->GetPlayer())
+        if (Player* target = player->GetSelectedPlayer())
+            if (WorldSession* session = target->GetSession())
+            return { *session };
+    return std::nullopt;
 }
 
 ChatCommandResult Trinity::ChatCommands::PlayerIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)

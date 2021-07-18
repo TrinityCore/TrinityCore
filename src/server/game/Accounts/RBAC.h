@@ -111,8 +111,8 @@ enum RBACPermissions
     RBAC_ROLE_MODERATOR                                      = 198,
     RBAC_ROLE_PLAYER                                         = 199,
 
-    RBAC_PERM_COMMAND_RBAC                                   = 200,
-    RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
+    // 200 previously used, do not reuse
+    // 201 previously used, do not reuse
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST                     = 202,
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT                    = 203,
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 204,
