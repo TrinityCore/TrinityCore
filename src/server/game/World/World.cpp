@@ -1540,6 +1540,9 @@ void World::LoadConfigSettings(bool reload)
     // Anti movement cheat measure. Time each client have to acknowledge a movement change until they are kicked
     m_int_configs[CONFIG_PENDING_MOVE_CHANGES_TIMEOUT] = sConfigMgr->GetIntDefault("AntiCheat.PendingMoveChangesTimeoutTime", 0);
 
+    // Specifies if IP addresses can be logged to the database
+    m_bool_configs[CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE] = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
