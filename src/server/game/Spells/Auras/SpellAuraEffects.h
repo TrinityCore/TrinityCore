@@ -75,6 +75,8 @@ class TC_GAME_API AuraEffect
 
         void Update(uint32 diff, Unit* caster);
 
+        void OnTargetHeartbeat(AuraApplication* aurApp);
+
         uint32 GetTickNumber() const { return _ticksDone; }
         uint32 GetRemainingTicks() const { return GetTotalTicks() - _ticksDone; }
         uint32 GetTotalTicks() const;

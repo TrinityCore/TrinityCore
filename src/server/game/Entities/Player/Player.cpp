@@ -200,7 +200,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_regenTimer = 0;
     m_regenTimerCount = 0;
-    m_foodEmoteTimerCount = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
@@ -401,8 +400,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
-
-    m_groupUpdateTimer.Reset(5000);
 }
 
 Player::~Player()
@@ -1318,14 +1315,6 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    // group update
-    m_groupUpdateTimer.Update(p_time);
-    if (m_groupUpdateTimer.Passed())
-    {
-        SendUpdateToOutOfRangeGroupMembers();
-        m_groupUpdateTimer.Reset(5000);
-    }
-
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
@@ -1994,7 +1983,6 @@ void Player::RegenerateAll()
     //    return;
 
     m_regenTimerCount += m_regenTimer;
-    m_foodEmoteTimerCount += m_regenTimer;
 
     Regenerate(POWER_ENERGY);
 
@@ -2024,37 +2012,6 @@ void Player::RegenerateAll()
     }
 
     m_regenTimer = 0;
-
-    // Handles the emotes for drinking and eating.
-    // According to sniffs there is a background timer going on that repeats independed from the time window where the aura applies.
-    // That's why we dont need to reset the timer on apply. In sniffs I have seen that the first call for the spell visual is totally random, then after
-    // 5 seconds over and over again which confirms my theory that we have a independed timer.
-    if (m_foodEmoteTimerCount >= 5000)
-    {
-        std::vector<AuraEffect*> auraList;
-        AuraEffectList const& ModRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_REGEN);
-        AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
-
-        auraList.reserve(ModRegenAuras.size() + ModPowerRegenAuras.size());
-        auraList.insert(auraList.end(), ModRegenAuras.begin(), ModRegenAuras.end());
-        auraList.insert(auraList.end(), ModPowerRegenAuras.begin(), ModPowerRegenAuras.end());
-
-        for (auto itr = auraList.begin(); itr != auraList.end(); ++itr)
-        {
-            // Food emote comes above drinking emote if we have to decide (mage regen food for example)
-            if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
-            {
-                SendPlaySpellVisual(SPELL_VISUAL_KIT_FOOD);
-                break;
-            }
-            else if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_POWER_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
-            {
-                SendPlaySpellVisual(SPELL_VISUAL_KIT_DRINK);
-                break;
-            }
-        }
-        m_foodEmoteTimerCount -= 5000;
-    }
 }
 
 void Player::Regenerate(Powers power)
@@ -19156,6 +19113,13 @@ bool Player::IsInstanceLoginGameMasterException() const
     }
     else
         return false;
+}
+
+void Player::Heartbeat()
+{
+    Unit::Heartbeat();
+    SendUpdateToOutOfRangeGroupMembers();
+    sScriptMgr->OnHeartbeat(this);
 }
 
 bool Player::CheckInstanceValidity(bool /*isLogin*/)

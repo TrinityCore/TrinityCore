@@ -1834,10 +1834,13 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEngage(Unit* /*target*/) {}
         virtual void AtDisengage() {}
 
+        void Heartbeat() override;
+
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
+        void SendFlightSplineSyncIfNeeded();
         void InterruptMovementBasedAuras();
         void CheckPendingMovementAcks();
 
@@ -1860,7 +1863,6 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_lastManaUse;                               // msecs
-        TimeTracker m_splineSyncTimer;
 
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
 
