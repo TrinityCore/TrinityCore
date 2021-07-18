@@ -177,6 +177,15 @@ MySQLExecutable = ""
 IPLocationFile = ""
 
 #
+#    AllowLoggingIPAddressesInDatabase
+#        Description: Specifies if IP addresses can be logged to the database
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+
+AllowLoggingIPAddressesInDatabase = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
