@@ -2065,6 +2065,7 @@ CREATE TABLE `item_loot_items` (
   `container_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
   `item_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'loot item entry (item_instance.itemEntry)',
   `item_count` int(10) NOT NULL DEFAULT '0' COMMENT 'stack size',
+  `item_index` int(10) unsigned NOT NULL DEFAULT '0',
   `follow_rules` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'follow loot rules',
   `ffa` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'free-for-all',
   `blocked` tinyint(1) NOT NULL DEFAULT '0',
@@ -2663,7 +2664,8 @@ INSERT INTO `updates` VALUES
 ('2021_04_16_00_characters.sql','0EBBF50CE3EB1197973E403C2F1D60881BB497FD','ARCHIVED','2021-04-16 21:23:03',0),
 ('2021_05_14_00_characters.sql','9834A657E1E1F650E9A7E4E793BAB3E2AFF65293','ARCHIVED','2021-05-14 12:20:33',0),
 ('2021_06_15_00_characters.sql','4432846E2B0769C01E2B333EEDD90ABA44BF2BC1','ARCHIVED','2021-06-15 11:53:33',0),
-('2021_07_15_00_characters.sql','2ACFF71253DEA0F059476AEA52A55196E6D5DCFE','ARCHIVED','2021-07-15 07:32:48',0);
+('2021_07_15_00_characters.sql','2ACFF71253DEA0F059476AEA52A55196E6D5DCFE','RELEASED','2021-07-15 07:32:48',0),
+('2021_07_18_00_characters.sql','0BA579ED21F4E75AC2B4797421B5029568B3F6E2','ARCHIVED','2021-07-18 11:55:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

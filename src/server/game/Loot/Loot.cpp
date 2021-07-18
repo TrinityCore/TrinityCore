@@ -151,6 +151,7 @@ void Loot::AddItem(LootStoreItem const& item)
     {
         LootItem generatedLoot(item);
         generatedLoot.count = std::min(count, proto->GetMaxStackSize());
+        generatedLoot.itemIndex = lootItems.size();
         lootItems.push_back(generatedLoot);
         count -= proto->GetMaxStackSize();
 
