@@ -25511,6 +25511,15 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     if (HasSpell(spellid))
         return;
 
+    // @tswow-begin
+    bool cancel = false;
+    FIRE(PlayerOnLearnTalent, TSPlayer(this), tTab, talentId, talentRank, spellid, TSMutable<bool>(&cancel));
+    if (cancel)
+    {
+        return;
+    }
+    // @tswow-end
+
     // learn! (other talent ranks will unlearned at learning)
     LearnSpell(spellid, false);
     AddTalent(spellid, m_activeSpec, true);
