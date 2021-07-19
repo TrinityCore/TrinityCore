@@ -27,17 +27,20 @@
 class Unit;
 class WorldObject;
 
-// 74*4.0f=296y number_of_points*interval = max_path_len
+// 592*0.5f=296y  number_of_points*interval = max_path_len
 // this is way more than actual evade range
 // I think we can safely cut those down even more
-#define MAX_PATH_LENGTH         74
-#define MAX_POINT_PATH_LENGTH   74
+constexpr uint32 const MAX_PATH_LENGTH          = 592;
+constexpr uint32 const MAX_POINT_PATH_LENGTH    = 592;
 
-#define SMOOTH_PATH_STEP_SIZE   4.0f
-#define SMOOTH_PATH_SLOP        0.3f
+// Retail spline points are 4yrds apart from each other so we use a multiplier of 4 / RECAST_PATH_STEP_SIZE to skip unneeded generated points
+constexpr uint8 const  SMOOTH_PATH_MULTIPLIER   = 8;
 
-#define VERTEX_SIZE       3
-#define INVALID_POLYREF   0
+constexpr float const  RECAST_PATH_STEP_SIZE    = 0.5f;
+constexpr float const  SMOOTH_PATH_SLOP         = 0.3f;
+
+constexpr uint8 const VERTEX_SIZE               = 3;
+constexpr uint8 const INVALID_POLYREF           = 0;
 
 enum PathType
 {
@@ -66,7 +69,7 @@ class TC_GAME_API PathGenerator
 
         // option setters - use optional
         void SetUseStraightPath(bool useStraightPath) { _useStraightPath = useStraightPath; }
-        void SetPathLengthLimit(float distance) { _pointPathLimit = std::min<uint32>(uint32(distance/SMOOTH_PATH_STEP_SIZE), MAX_POINT_PATH_LENGTH); }
+        void SetPathLengthLimit(float distance) { _pointPathLimit = std::min<uint32>(uint32(ceilf(distance / RECAST_PATH_STEP_SIZE)), MAX_POINT_PATH_LENGTH); }
         void SetUseRaycast(bool useRaycast) { _useRaycast = useRaycast; }
 
         // result getters
