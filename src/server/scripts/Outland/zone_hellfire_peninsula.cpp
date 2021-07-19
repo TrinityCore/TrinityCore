@@ -655,6 +655,7 @@ struct npc_watch_commander_leonus : public ScriptedAI
     {
         if (eventId == GAME_EVENT_HELLFIRE && start)
         {
+            _events.Reset();
             _events.ScheduleEvent(EVENT_START, 1s);
         }
     }
