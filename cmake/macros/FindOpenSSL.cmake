@@ -199,6 +199,36 @@ if(NOT OPENSSL_INCLUDE_DIR)
     OPENSSL_INCLUDE_DIR
   )
 endif()
+function(from_hex HEX DEC)
+  string(TOUPPER "${HEX}" HEX)
+  set(_res 0)
+  string(LENGTH "${HEX}" _strlen)
+
+  while (_strlen GREATER 0)
+    math(EXPR _res "${_res} * 16")
+    string(SUBSTRING "${HEX}" 0 1 NIBBLE) 
+    string(SUBSTRING "${HEX}" 1 -1 HEX) 
+    if (NIBBLE STREQUAL "A")
+      math(EXPR _res "${_res} + 10")
+    elseif (NIBBLE STREQUAL "B")
+      math(EXPR _res "${_res} + 11")
+    elseif (NIBBLE STREQUAL "C")
+      math(EXPR _res "${_res} + 12")
+    elseif (NIBBLE STREQUAL "D")
+      math(EXPR _res "${_res} + 13")
+    elseif (NIBBLE STREQUAL "E")
+      math(EXPR _res "${_res} + 14")
+    elseif (NIBBLE STREQUAL "F")
+      math(EXPR _res "${_res} + 15")
+    else()  
+      math(EXPR _res "${_res} + ${NIBBLE}")
+    endif() 
+
+    string(LENGTH "${HEX}" _strlen)
+  endwhile()
+
+  set(${DEC} ${_res} PARENT_SCOPE)
+endfunction(from_hex)
 
 if(OPENSSL_INCLUDE_DIR)
   message(STATUS "Found OpenSSL library: ${OPENSSL_LIBRARIES}")
@@ -220,15 +250,19 @@ if(OPENSSL_INCLUDE_DIR)
            "\\1;\\2;\\3;\\4;\\5" OPENSSL_VERSION_LIST "${openssl_version_str}")
     list(GET OPENSSL_VERSION_LIST 0 OPENSSL_VERSION_MAJOR)
     list(GET OPENSSL_VERSION_LIST 1 OPENSSL_VERSION_MINOR)
+    from_hex("${OPENSSL_VERSION_MINOR}" OPENSSL_VERSION_MINOR)
     list(GET OPENSSL_VERSION_LIST 2 OPENSSL_VERSION_FIX)
+    from_hex("${OPENSSL_VERSION_FIX}" OPENSSL_VERSION_FIX)
     list(GET OPENSSL_VERSION_LIST 3 OPENSSL_VERSION_PATCH)
 
     string(REGEX REPLACE "^0(.)" "\\1" OPENSSL_VERSION_MINOR "${OPENSSL_VERSION_MINOR}")
     string(REGEX REPLACE "^0(.)" "\\1" OPENSSL_VERSION_FIX "${OPENSSL_VERSION_FIX}")
 
     if(NOT OPENSSL_VERSION_PATCH STREQUAL "00")
+      from_hex("${OPENSSL_VERSION_PATCH}" _tmp)
       # 96 is the ASCII code of 'a' minus 1
-      math(EXPR OPENSSL_VERSION_PATCH_ASCII "${OPENSSL_VERSION_PATCH} + 96")
+      math(EXPR OPENSSL_VERSION_PATCH_ASCII "${_tmp} + 96")
+      unset(_tmp)
       # Once anyone knows how OpenSSL would call the patch versions beyond 'z'
       # this should be updated to handle that, too. This has not happened yet
       # so it is simply ignored here for now.
