@@ -414,6 +414,12 @@ void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
 }
 
 template <class T>
+size_t DatabaseWorkerPool<T>::QueueSize() const
+{
+    return _queue->Size();
+}
+
+template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
 #ifdef TRINITY_DEBUG

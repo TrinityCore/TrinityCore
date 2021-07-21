@@ -251,6 +251,10 @@ public:
         handler->PSendSysMessage("Using %s DBC Locale as default. All available DBC locales: %s", localeNames[defaultLocale], availableLocales.c_str());
 
         handler->PSendSysMessage("Using World DB: %s", sWorld->GetDBVersion());
+
+        handler->PSendSysMessage("LoginDatabase queue size: %zu", LoginDatabase.QueueSize());
+        handler->PSendSysMessage("CharacterDatabase queue size: %zu", CharacterDatabase.QueueSize());
+        handler->PSendSysMessage("WorldDatabase queue size: %zu", WorldDatabase.QueueSize());
         return true;
     }
 

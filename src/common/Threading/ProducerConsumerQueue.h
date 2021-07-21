@@ -32,15 +32,19 @@ private:
     std::queue<T> _queue;
     std::condition_variable _condition;
     std::atomic<bool> _shutdown;
+    // thread-safe local copy of _queue.size()
+    std::atomic<size_t> _queueSize;
 
 public:
 
-    ProducerConsumerQueue<T>() : _shutdown(false) { }
+    ProducerConsumerQueue<T>() : _shutdown(false), _queueSize(0) { }
 
     void Push(const T& value)
     {
         std::lock_guard<std::mutex> lock(_queueLock);
         _queue.push(std::move(value));
+
+        UpdateQueueSize();
 
         _condition.notify_one();
     }
@@ -50,6 +54,11 @@ public:
         std::lock_guard<std::mutex> lock(_queueLock);
 
         return _queue.empty();
+    }
+
+    size_t Size() const
+    {
+        return _queueSize;
     }
 
     bool Pop(T& value)
@@ -62,6 +71,8 @@ public:
         value = _queue.front();
 
         _queue.pop();
+
+        UpdateQueueSize();
 
         return true;
     }
@@ -81,6 +92,8 @@ public:
         value = _queue.front();
 
         _queue.pop();
+
+        UpdateQueueSize();
     }
 
     void Cancel()
@@ -96,6 +109,8 @@ public:
             _queue.pop();
         }
 
+        UpdateQueueSize();
+
         _shutdown = true;
 
         _condition.notify_all();
@@ -107,6 +122,14 @@ private:
 
     template<typename E = T>
     typename std::enable_if<!std::is_pointer<E>::value>::type DeleteQueuedObject(E const& /*packet*/) { }
+
+    /// <summary>
+    /// Call this only after having acquired a lock for _queueLock
+    /// </summary>
+    void UpdateQueueSize()
+    {
+        _queueSize = _queue.size();
+    }
 };
 
 #endif
