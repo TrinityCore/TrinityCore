@@ -5903,6 +5903,12 @@ void Unit::SetMinion(Minion *minion, bool apply)
             return;
         }
 
+        if (!IsInWorld())
+        {
+            TC_LOG_FATAL("entities.unit", "SetMinion: Minion being added to owner not in world. Minion: %s, Owner: %s", minion->GetGUID().ToString().c_str(), GetDebugInfo().c_str());
+            return;
+        }
+
         minion->SetOwnerGUID(GetGUID());
 
         m_Controlled.insert(minion);
