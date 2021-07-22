@@ -2404,7 +2404,7 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
         Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
 
         // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-        units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
+        units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetDynobjOwner()); }), units.end());
 
         for (Unit* unit : units)
         {
