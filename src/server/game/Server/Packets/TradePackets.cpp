@@ -66,6 +66,7 @@ WorldPacket const* WorldPackets::Trade::TradeStatus::Write()
             _worldPacket.WriteByteSeq(Partner[5]);
             break;
         case TRADE_STATUS_INITIATED:
+            _worldPacket.FlushBits();
             _worldPacket << uint32(ID);
             break;
         case TRADE_STATUS_FAILED:
@@ -77,10 +78,12 @@ WorldPacket const* WorldPackets::Trade::TradeStatus::Write()
             break;
         case TRADE_STATUS_WRONG_REALM:
         case TRADE_STATUS_NOT_ON_TAPLIST:
+            _worldPacket.FlushBits();
             _worldPacket << uint8(TradeSlot);
             break;
         case TRADE_STATUS_CURRENCY:                 // Not implemented
         case TRADE_STATUS_CURRENCY_NOT_TRADABLE:    // Not implemented
+            _worldPacket.FlushBits();
             // Blizzard never implemented these, you can only trade currency with the field9 & 1 in CurrencyTypes.DBC, and only two test currencies have that flag
             _worldPacket << int32(CurrencyType);
             _worldPacket << int32(CurrencyQuantity);
