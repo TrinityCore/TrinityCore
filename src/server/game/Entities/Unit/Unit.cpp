@@ -2581,7 +2581,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     if (!victim->IsAlive() && !victim->IsPlayer())
         return SPELL_MISS_NONE;
 
-    if (!spellInfo->HasAttribute(SPELL_ATTR7_CANT_MISS))
+    if (spellInfo->HasAttribute(SPELL_ATTR7_CANT_MISS))
         return SPELL_MISS_NONE;
 
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
