@@ -231,7 +231,7 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     if (_specialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
-    _allowableRaces = fields[18].GetUInt16();
+    _allowableRaces = fields[18].GetUInt32();
     _timeAllowed = fields[19].GetInt32();
 }
 
