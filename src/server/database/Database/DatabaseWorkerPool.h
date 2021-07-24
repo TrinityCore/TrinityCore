@@ -213,6 +213,8 @@ class DatabaseWorkerPool
 #endif
         }
 
+        size_t QueueSize() const;
+
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 
