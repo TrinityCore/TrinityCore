@@ -35,6 +35,7 @@
 LootItem::LootItem(LootStoreItem const& li)
 {
     itemid = li.itemid;
+    itemIndex = 0;
     conditions = li.conditions;
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
