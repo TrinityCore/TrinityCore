@@ -11326,6 +11326,10 @@ void Unit::SetStunned(bool apply)
 
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
+
+        // sends a unit back home in case the effect ends and the unit is not in combat
+        if (IsAlive() && !IsPlayer() && !IsInCombat())
+            GetMotionMaster()->MoveTargetedHome();
     }
 }
 
