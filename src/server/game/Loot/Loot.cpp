@@ -36,8 +36,9 @@
 // Constructor, copies most fields from LootStoreItem and generates random count
 LootItem::LootItem(LootStoreItem const& li)
 {
-    itemid      = li.itemid;
-    conditions   = li.conditions;
+    itemid = li.itemid;
+    itemIndex = 0;
+    conditions = li.conditions;
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
     freeforall = proto && proto->HasFlag(ITEM_FLAG_MULTI_DROP);
