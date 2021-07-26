@@ -181,8 +181,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
 
-        float GetSparringHealthLimit() const;
-
         std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
@@ -374,6 +372,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         CreatureMovementInfo const& GetCreatureMovementInfo() const { return _creatureMovementInfo; }
 
+        // Sets the the max health percentage threshold at which uncontrolled/unowned creatures can no longer deal damage to the creature
+        void SetNoNpcDamageBelowPctHealthValue(float value) { _noNpcDamageBelowPctHealth = std::min<float>(value, 100.f); }
+        void ResetNoNpcDamageBelowPctHealthValue() { _noNpcDamageBelowPctHealth = 0.f; }
+        float const GetNoNpcDamageBelowPctHealthValue() const { return _noNpcDamageBelowPctHealth; }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -464,6 +467,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool _isMissingSwimmingFlagOutOfCombat;
 
         CreatureMovementInfo _creatureMovementInfo;
+
+        float _noNpcDamageBelowPctHealth;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent
