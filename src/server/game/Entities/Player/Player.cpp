@@ -16392,14 +16392,14 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
             {
                 QuestStatusData& q_status = m_QuestStatus[questid];
 
-                uint32 reqitemcount = qInfo->RequiredItemCount[j];
-                uint16 curitemcount = q_status.ItemCount[j];
+                uint32 reqItemCount = qInfo->RequiredItemCount[j];
+                uint16 questStatusItemCount = q_status.ItemCount[j];
+                uint16 newItemCount = (count > questStatusItemCount) ? 0 : questStatusItemCount - count;
 
-                if (q_status.ItemCount[j] >= reqitemcount) // we may have more than what the status shows
-                    curitemcount = GetItemCount(entry, false);
+                if (questStatusItemCount >= reqItemCount) // we may have more than what the status shows, we don't need reduce by count
+                    newItemCount = GetItemCount(entry, false);
 
-                uint16 newItemCount = (count > curitemcount) ? 0 : curitemcount - count;
-                newItemCount = std::min<uint16>(newItemCount, reqitemcount);
+                newItemCount = std::min<uint16>(newItemCount, reqItemCount);
                 if (newItemCount != q_status.ItemCount[j])
                 {
                     q_status.ItemCount[j] = newItemCount;
