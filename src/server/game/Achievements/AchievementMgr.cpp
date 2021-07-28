@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSAchievementTemplate.h"
+// @tswow-end
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
@@ -1417,6 +1420,22 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
             m_timedAchievements.erase(timedIter);
     }
 
+    // @tswow-begin
+    auto ach = const_cast<AchievementEntry*>(
+        sAchievementStore.LookupEntry(entry->AchievementID));
+    auto events = GetAchievementEvent(entry->AchievementID);
+    FIRE_MAP(
+        events
+        , AchievementOnUpdate
+        , TSPlayer(m_player)
+        , TSAchievementEntry(ach)
+        , TSAchievementCriteriaEntry(const_cast<AchievementCriteriaEntry*>(entry))
+        , ptype
+        , timeElapsed
+        , timedCompleted
+        );
+    // @tswow-end
+
     SendCriteriaUpdate(entry, progress, timeElapsed, timedCompleted);
 }
 
@@ -1525,6 +1544,16 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement);
+
+    // @tswow-begin
+    auto nonConstAchievement = const_cast<AchievementEntry*>(achievement);
+    auto events = GetAchievementEvent(achievement->ID);
+    FIRE_MAP(
+        events
+        , AchievementOnComplete
+        , TSPlayer(m_player), TSAchievementEntry(nonConstAchievement)
+    );
+    // @tswow-end
 
     // no rewards
     if (!reward)
