@@ -1685,6 +1685,9 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_CALL_TO_ARMS_10_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct10", 0.7f);
     m_float_configs[CONFIG_CALL_TO_ARMS_20_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct20", 0.8f);
 
+    // Specifies if IP addresses can be logged to the database
+    m_bool_configs[CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE] = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);

@@ -1357,6 +1357,15 @@ FeatureSystem.CharacterUndelete.Enabled = 0
 FeatureSystem.CharacterUndelete.Cooldown = 2592000
 
 #
+#    AllowLoggingIPAddressesInDatabase
+#        Description: Specifies if IP addresses can be logged to the database
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+
+AllowLoggingIPAddressesInDatabase = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
