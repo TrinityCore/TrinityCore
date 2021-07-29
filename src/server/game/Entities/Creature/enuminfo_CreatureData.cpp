@@ -53,7 +53,7 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS: return { "CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS", "CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS", "Taunt is subject to diminishing returns on this creature" };
         case CREATURE_FLAG_EXTRA_ALL_DIMINISH: return { "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "creature is subject to all diminishing returns as players are" };
         case CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ: return { "CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ", "CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ", "creature does not need to take player damage for kill credit" };
-        case CREATURE_FLAG_EXTRA_IGNORE_COMBAT: return { "CREATURE_FLAG_EXTRA_IGNORE_COMBAT", "CREATURE_FLAG_EXTRA_IGNORE_COMBAT", "changes react state to REACT_PASSIVE, based on original difficulty flag" };
+        case CREATURE_FLAG_EXTRA_UNUSED_22: return { "CREATURE_FLAG_EXTRA_UNUSED_22", "CREATURE_FLAG_EXTRA_UNUSED_22", "" };
         case CREATURE_FLAG_EXTRA_UNUSED_23: return { "CREATURE_FLAG_EXTRA_UNUSED_23", "CREATURE_FLAG_EXTRA_UNUSED_23", "" };
         case CREATURE_FLAG_EXTRA_UNUSED_24: return { "CREATURE_FLAG_EXTRA_UNUSED_24", "CREATURE_FLAG_EXTRA_UNUSED_24", "" };
         case CREATURE_FLAG_EXTRA_UNUSED_25: return { "CREATURE_FLAG_EXTRA_UNUSED_25", "CREATURE_FLAG_EXTRA_UNUSED_25", "" };
@@ -97,7 +97,7 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 19: return CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS;
         case 20: return CREATURE_FLAG_EXTRA_ALL_DIMINISH;
         case 21: return CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ;
-        case 22: return CREATURE_FLAG_EXTRA_IGNORE_COMBAT;
+        case 22: return CREATURE_FLAG_EXTRA_UNUSED_22;
         case 23: return CREATURE_FLAG_EXTRA_UNUSED_23;
         case 24: return CREATURE_FLAG_EXTRA_UNUSED_24;
         case 25: return CREATURE_FLAG_EXTRA_UNUSED_25;
@@ -138,7 +138,7 @@ TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::ToIndex(CreatureFlagsExtra v
         case CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS: return 19;
         case CREATURE_FLAG_EXTRA_ALL_DIMINISH: return 20;
         case CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ: return 21;
-        case CREATURE_FLAG_EXTRA_IGNORE_COMBAT: return 22;
+        case CREATURE_FLAG_EXTRA_UNUSED_22: return 22;
         case CREATURE_FLAG_EXTRA_UNUSED_23: return 23;
         case CREATURE_FLAG_EXTRA_UNUSED_24: return 24;
         case CREATURE_FLAG_EXTRA_UNUSED_25: return 25;

@@ -1182,7 +1182,7 @@ Unit* Creature::SelectVictim()
 
 void Creature::InitializeReactState()
 {
-    if (IsTotem() || IsTrigger() || IsCritter() || IsSpiritService() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_COMBAT))
+    if (IsTotem() || IsTrigger() || IsCritter() || IsSpiritService())
         SetReactState(REACT_PASSIVE);
     /*
     else if (IsCivilian())
