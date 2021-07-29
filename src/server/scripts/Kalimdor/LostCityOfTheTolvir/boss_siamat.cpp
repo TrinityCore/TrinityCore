@@ -37,31 +37,34 @@ enum Texts
 enum Spells
 {
     // Siamat
-    SPELL_STATIC_SHOCK_1            = 84546,
-    SPELL_STATIC_SHOCK_2            = 84555,
-    SPELL_STATIC_SHOCK_3            = 84556,
-    SPELL_STORM_BOLT                = 73564,
-    SPELL_DEFLECTING_WINDS          = 84589,
-    SPELL_WAILING_WINDS             = 83066,
-    SPELL_WAILING_WINDS_DAMAGE      = 83094,
-    SPELL_CLOUD_BURST               = 83790,
-    SPELL_CALL_OF_SKY               = 84956,
-    SPELL_STORM_BOLT_PHASE_2        = 91853,
-    SPELL_ABSORB_STORMS             = 83151,
+    SPELL_STATIC_SHOCK_1                    = 84546,
+    SPELL_STATIC_SHOCK_2                    = 84555,
+    SPELL_STATIC_SHOCK_3                    = 84556,
+    SPELL_STORM_BOLT                        = 73564,
+    SPELL_DEFLECTING_WINDS                  = 84589,
+    SPELL_WAILING_WINDS                     = 83066,
+    SPELL_WAILING_WINDS_DAMAGE              = 83094,
+    SPELL_CLOUD_BURST                       = 83790,
+    SPELL_CALL_OF_SKY                       = 84956,
+    SPELL_STORM_BOLT_PHASE_2                = 91853,
+    SPELL_ABSORB_STORMS                     = 83151,
 
     // Servant of Siamat
-    SPELL_SHRINK                    = 59632, // Serverside spell
-    SPELL_THUNDER_CRASH             = 84521,
-    SPELL_LIGHTNING_NOVA            = 84544,
-    SPELL_LIGHTNING_CHARGE          = 91872,
-    SPELL_SUICIDE                   = 43388,
+    SPELL_SHRINK                            = 59632, // Serverside spell
+    SPELL_THUNDER_CRASH                     = 84521,
+    SPELL_LIGHTNING_NOVA                    = 84544,
+    SPELL_LIGHTNING_CHARGE                  = 91872,
+    SPELL_SUICIDE                           = 43388,
 
     // Minion of Siamat
-    SPELL_DEPLETION                 = 84550,
-    SPELL_CHAIN_LIGHTNING           = 83455,
-    SPELL_TEMPEST_STORM_SUMMON      = 83414,
-    SPELL_TEMPEST_STORM_TRANSFORM   = 83170,
-    SPELL_TEMPEST_STORM_AURA        = 83406
+    SPELL_DEPLETION                         = 84550,
+    SPELL_CHAIN_LIGHTNING                   = 83455,
+    SPELL_TEMPEST_STORM_SUMMON              = 83414,
+    SPELL_TEMPEST_STORM_TRANSFORM           = 83170,
+    SPELL_TEMPEST_STORM_AURA                = 83406,
+
+    // Player
+    SPELL_LIGHTNING_CHARGE_ACHIEVEMENT_AURA = 93957
 };
 
 enum Events
@@ -619,6 +622,25 @@ class spell_siamat_absorb_storms : public AuraScript
     }
 };
 
+class spell_siamat_lightning_charge : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LIGHTNING_CHARGE_ACHIEVEMENT_AURA });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (GetStackAmount() == GetSpellInfo()->StackAmount)
+            GetTarget()->CastSpell(nullptr, SPELL_LIGHTNING_CHARGE_ACHIEVEMENT_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic.Register(&spell_siamat_lightning_charge::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_boss_siamat()
 {
     RegisterLostCityOfTheTolvirAI(boss_siamat);
@@ -630,4 +652,5 @@ void AddSC_boss_siamat()
     RegisterSpellScript(spell_siamat_wailing_winds_knockback);
     RegisterSpellScript(spell_siamat_gathered_storms);
     RegisterSpellScript(spell_siamat_absorb_storms);
+    RegisterSpellScript(spell_siamat_lightning_charge);
 }
