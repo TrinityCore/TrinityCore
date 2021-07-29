@@ -249,7 +249,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             player->ModifyMoney(loot->gold);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
 
-            if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+            if (Guild* guild = player->GetGuild())
                 if (uint32 guildGold = CalculatePct(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                     guild->HandleMemberDepositMoney(this, guildGold, true);
 

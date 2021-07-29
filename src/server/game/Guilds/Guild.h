@@ -794,6 +794,7 @@ public:
     uint32 GetMemberCount() const { return m_members.size(); }
     time_t GetCreatedDate() const { return m_createdDate; }
     uint64 GetBankMoney() const { return m_bankMoney; }
+    uint64 GetWeeklyBonusMoney() const { return _weeklyBonusMoney; }
 
     bool SetName(std::string const& name);
 
@@ -931,6 +932,7 @@ protected:
     EmblemInfo m_emblemInfo;
     uint32 m_accountsNumber;
     uint64 m_bankMoney;
+    uint64 _weeklyBonusMoney; // Bonus money from the Cash Flow guild perk
 
     Ranks m_ranks;
     Members m_members;
@@ -999,7 +1001,7 @@ private:
     void _UpdateAccountsNumber();
     bool _IsLeader(Player* player) const;
     void _DeleteBankItems(CharacterDatabaseTransaction& trans, bool removeItemsFromDB = false);
-    bool _ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add);
+    bool _ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add, bool fromCashFlow = false);
     void _SetLeader(CharacterDatabaseTransaction& trans, Member* pLeader);
 
     void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);

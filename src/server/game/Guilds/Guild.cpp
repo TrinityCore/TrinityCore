@@ -1302,6 +1302,7 @@ Guild::Guild():
     m_createdDate(0),
     m_accountsNumber(0),
     m_bankMoney(0),
+    _weeklyBonusMoney(0),
     m_eventLog(nullptr),
     m_newsLog(nullptr),
     _level(1),
@@ -2194,7 +2195,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     sScriptMgr->OnGuildMemberDepositMoney(this, player, amount);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    _ModifyBankMoney(trans, amount, true);
+    _ModifyBankMoney(trans, amount, true, cashFlow);
     if (!cashFlow)
     {
         player->ModifyMoney(-int64(amount));
@@ -2397,8 +2398,9 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
         WorldPackets::Guild::GuildBankLogQueryResults packet;
         packet.Tab = int32(tabId);
 
-        //if (tabId == GUILD_BANK_MAX_TABS && hasCashFlow)
-        //    packet.WeeklyBonusMoney.Set(uint64(weeklyBonusMoney));
+        // If we have a weekly bonus money value, we can safely assume that Cash Flow has been unlocked.
+        if (tabId == GUILD_BANK_MAX_TABS && GetWeeklyBonusMoney())
+            packet.WeeklyBonusMoney.emplace(GetWeeklyBonusMoney());
 
         packet.Entry.reserve(m_bankEventLog[tabId]->GetSize());
         for (GuildLog::const_iterator itr = logs->begin(); itr != logs->end(); ++itr)
@@ -2563,7 +2565,7 @@ bool Guild::LoadFromDB(Field* fields)
     _currChallengeCount[GUILD_CHALLENGE_TYPE_DUNGEON] = uint8(fields[16].GetUInt32());
     _currChallengeCount[GUILD_CHALLENGE_TYPE_RAID] = uint8(fields[17].GetUInt32());
     _currChallengeCount[GUILD_CHALLENGE_TYPE_RATED_BG] = uint8(fields[18].GetUInt32());
-
+    _weeklyBonusMoney = fields[19].GetUInt64();
 
     _CreateLogHolders();
     return true;
@@ -3236,10 +3238,14 @@ void Guild::_DeleteBankItems(CharacterDatabaseTransaction& trans, bool removeIte
     m_bankTabs.clear();
 }
 
-bool Guild::_ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add)
+bool Guild::_ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add, bool fromCashFlow /*= false*/)
 {
     if (add)
+    {
         m_bankMoney += amount;
+        if (fromCashFlow)
+            _weeklyBonusMoney += amount;
+    }
     else
     {
         // Check if there is enough money in bank.
@@ -3250,7 +3256,8 @@ bool Guild::_ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount,
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_BANK_MONEY);
     stmt->setUInt64(0, m_bankMoney);
-    stmt->setUInt32(1, m_id);
+    stmt->setUInt64(1, _weeklyBonusMoney);
+    stmt->setUInt32(2, m_id);
     trans->Append(stmt);
     return true;
 }
@@ -3803,7 +3810,7 @@ void Guild::CompleteChallenge(uint8 challengeType, Player* source)
     SaveToDB(); // Save xp
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    _ModifyBankMoney(trans, uint64(gold * 10000), true);
+    _ModifyBankMoney(trans, uint64(gold * 10000), true, false);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_CHALLENGE);
     stmt->setUInt32(0, _currChallengeCount[GUILD_CHALLENGE_TYPE_DUNGEON]);
@@ -3936,6 +3943,9 @@ void Guild::ResetTimes(bool weekly)
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_CHALLENGE);
         stmt->setInt32(0, m_id);
         CharacterDatabase.Execute(stmt);
+
+        // Reset weekly bonus money from Cash Flow perk
+        _weeklyBonusMoney = 0;
     }
 
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
