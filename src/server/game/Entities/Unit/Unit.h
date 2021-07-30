@@ -1861,10 +1861,10 @@ class TC_GAME_API Unit : public WorldObject
         uint16 GetVirtualItemAppearanceMod(uint32 slot) const;
         void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0, uint16 itemVisual = 0);
 
-        // returns if the unit is ignoring any combat interaction
-        bool IsIgnoringCombat() const { return _isIgnoringCombat; }
-        // enables/disables combat interaction of this unit.
-        void SetIgnoringCombat(bool apply) { _isIgnoringCombat = apply; }
+        // returns if the unit can't enter combat
+        bool IsCombatDisallowed() const { return _isCombatDisallowed; }
+        // enables / disables combat interaction of this unit
+        void SetIsCombatDisallowed(bool apply) { _isCombatDisallowed = apply; }
 
         std::string GetDebugInfo() const override;
 
@@ -2046,7 +2046,7 @@ class TC_GAME_API Unit : public WorldObject
         std::unique_ptr<MovementForces> _movementForces;
         PositionUpdateInfo _positionUpdateInfo;
 
-        bool _isIgnoringCombat;
+        bool _isCombatDisallowed;
 };
 
 namespace Trinity
