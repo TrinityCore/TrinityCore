@@ -56,6 +56,8 @@ void TCSoapThread(const std::string& host, uint16 port)
         process_message(thread_soap);
     }
 
+    soap_destroy(&soap);
+    soap_end(&soap);
     soap_done(&soap);
 }
 
