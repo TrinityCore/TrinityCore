@@ -130,7 +130,6 @@ class instance_deadmines : public InstanceMapScript
                 SetBossNumber(map->IsHeroic() ? EncounterCount : EncounterCount - 1); // Vanessa van Cleef only in heroic mode
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameobjectData);
-                _teamInInstance = 0;
                 _foeReaper5000Intro = 0;
                 _ironCladDoorState = 0;
                 _goblinEventState = 0;
@@ -146,12 +145,6 @@ class instance_deadmines : public InstanceMapScript
             void OnPlayerEnter(Player* player) override
             {
                 instance->LoadGrid(-205.75f, -579.09f);
-                if (!_teamInInstance && !instance->IsHeroic())
-                {
-                    _teamInInstance = player->GetTeam();
-                    instance->SpawnGroupSpawn(_teamInInstance == ALLIANCE ? SPAWN_GROUP_ALLIANCE_ENTRANCE : SPAWN_GROUP_HORDE_ENTRANCE);
-                }
-
                 if (!_cookieSpawnChecked)
                 {
                     if (GetBossState(DATA_ADMIRAL_RIPSNARL) == DONE && GetBossState(DATA_CAPTAIN_COOKIE) != DONE)
@@ -914,7 +907,6 @@ class instance_deadmines : public InstanceMapScript
             uint8 _activatedVentCounter;
             uint8 _deadEnragedWorgen;
             uint8 _goblinEventState;
-            uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
             uint32 _ironCladDoorState;
             uint32 _vanessaVanCleefEncounterState;
