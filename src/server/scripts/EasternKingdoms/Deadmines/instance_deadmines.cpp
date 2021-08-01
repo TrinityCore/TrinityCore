@@ -142,7 +142,7 @@ class instance_deadmines : public InstanceMapScript
                 _ropesSpawned = false;
             }
 
-            void OnPlayerEnter(Player* player) override
+            void OnPlayerEnter(Player* /*player*/) override
             {
                 instance->LoadGrid(-205.75f, -579.09f);
                 if (!_cookieSpawnChecked)
