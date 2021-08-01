@@ -5239,7 +5239,7 @@ void ObjectMgr::LoadQuests()
                 TC_LOG_ERROR("sql.sql", "Quest %u has PrevQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->_prevQuestId);
             else if (prevQuestItr->second._breadcrumbForQuestId)
                 TC_LOG_ERROR("sql.sql", "Quest %u should not be unlocked by breadcrumb quest %u", qinfo->_id, prevQuestId);
-            else
+            else if (qinfo->_prevQuestId > 0)
                 qinfo->DependentPreviousQuests.push_back(prevQuestId);
         }
 
