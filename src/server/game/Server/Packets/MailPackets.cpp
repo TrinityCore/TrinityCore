@@ -213,7 +213,6 @@ void WorldPackets::Mail::MailMarkAsRead::Read()
 {
     _worldPacket >> Mailbox;
     _worldPacket >> MailID;
-    BiReceipt = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Mail::MailDelete::Read()

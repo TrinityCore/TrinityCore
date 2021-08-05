@@ -41,6 +41,7 @@ void WorldPackets::Chat::ChatMessageWhisper::Read()
 void WorldPackets::Chat::ChatMessageChannel::Read()
 {
     _worldPacket >> Language;
+    _worldPacket >> ChannelGUID;
     uint32 targetLen = _worldPacket.ReadBits(9);
     uint32 textLen = _worldPacket.ReadBits(9);
     Target = _worldPacket.ReadString(targetLen);
@@ -70,6 +71,7 @@ void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
     _worldPacket.ResetBitPos();
 
     _worldPacket >> Params;
+    _worldPacket >> *ChannelGUID;
     Target = _worldPacket.ReadString(targetLen);
 }
 
@@ -180,6 +182,7 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
     _worldPacket.WriteBit(Unused_801.is_initialized());
+    _worldPacket.WriteBit(ChannelGUID.is_initialized());
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(SenderName);
@@ -190,6 +193,9 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
 
     if (Unused_801)
         _worldPacket << uint32(*Unused_801);
+
+    if (ChannelGUID)
+        _worldPacket << *ChannelGUID;
 
     return &_worldPacket;
 }

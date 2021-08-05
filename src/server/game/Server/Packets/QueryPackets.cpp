@@ -80,6 +80,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.RequiredExpansion);
         _worldPacket << int32(Stats.VignetteID);
         _worldPacket << int32(Stats.Class);
+        _worldPacket << int32(Stats.CreatureDifficultyID);
         _worldPacket << int32(Stats.WidgetSetID);
         _worldPacket << int32(Stats.WidgetSetUnitConditionID);
 

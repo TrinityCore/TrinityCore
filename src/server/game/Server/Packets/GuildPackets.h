@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ItemPacketsCommon.h"
 #include "Guild.h"
+#include "MythicPlusPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 
@@ -120,6 +121,7 @@ namespace WorldPackets
             bool Authenticated = false;
             bool SorEligible = false;
             GuildRosterProfessionData Profession[2];
+            MythicPlus::DungeonScoreSummary DungeonScore;
         };
 
         class GuildRoster final : public ServerPacket
@@ -203,6 +205,7 @@ namespace WorldPackets
             void Read() override;
 
             std::string Name;
+            Optional<int32> Unused910;
         };
 
         class GuildInvite final : public ServerPacket

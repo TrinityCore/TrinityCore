@@ -223,6 +223,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberStats c
     data.WriteBit(memberStats.PetStats.is_initialized());
     data.FlushBits();
 
+    data << memberStats.DungeonScore;
+
     if (memberStats.PetStats.is_initialized())
         data << *memberStats.PetStats;
 

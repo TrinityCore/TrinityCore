@@ -150,6 +150,15 @@ WorldPacket const* FeatureSystemStatus::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* FeatureSystemStatus2::Write()
+{
+    _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+
 WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 {
     _worldPacket.WriteBit(BpayStoreEnabled);

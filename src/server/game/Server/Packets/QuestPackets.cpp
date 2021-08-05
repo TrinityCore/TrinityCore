@@ -128,6 +128,7 @@ WorldPacket const* QueryQuestInfoResponse::Write()
 
         _worldPacket << int32(Info.PortraitGiver);
         _worldPacket << int32(Info.PortraitGiverMount);
+        _worldPacket << int32(Info.PortraitGiverModelSceneID);
         _worldPacket << int32(Info.PortraitTurnIn);
 
         for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
@@ -337,6 +338,7 @@ WorldPacket const* QuestGiverOfferRewardMessage::Write()
     _worldPacket << int32(QuestPackageID);
     _worldPacket << int32(PortraitGiver);
     _worldPacket << int32(PortraitGiverMount);
+    _worldPacket << int32(PortraitGiverModelSceneID);
     _worldPacket << int32(PortraitTurnIn);
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
@@ -401,6 +403,7 @@ WorldPacket const* QuestGiverQuestDetails::Write()
     _worldPacket << int32(QuestPackageID);
     _worldPacket << int32(PortraitGiver);
     _worldPacket << int32(PortraitGiverMount);
+    _worldPacket << int32(PortraitGiverModelSceneID);
     _worldPacket << int32(PortraitTurnIn);
     _worldPacket << uint32(QuestFlags[0]); // Flags
     _worldPacket << uint32(QuestFlags[1]); // FlagsEx
@@ -733,6 +736,7 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket << SenderGUID;
     _worldPacket << int32(UiTextureKitID);
     _worldPacket << uint32(SoundKitID);
+    _worldPacket << uint8(NumRerolls);
     _worldPacket.WriteBits(Question.length(), 8);
     _worldPacket.WriteBit(CloseChoiceFrame);
     _worldPacket.WriteBit(HideWarboardHeader);
@@ -750,6 +754,7 @@ void ChoiceResponse::Read()
 {
     _worldPacket >> ChoiceID;
     _worldPacket >> ResponseID;
+    IsReroll = _worldPacket.ReadBit();
 }
 }
 }

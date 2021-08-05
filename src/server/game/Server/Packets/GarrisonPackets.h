@@ -174,6 +174,12 @@ namespace WorldPackets
             std::vector<GarrisonEventEntry> Events;
         };
 
+        struct GarrisonSpecGroup
+        {
+            int32 ChrSpecializationID = 0;
+            int32 SoulbindID = 0;
+        };
+
         struct GarrisonInfo
         {
             int32 GarrTypeID = 0;
@@ -193,6 +199,7 @@ namespace WorldPackets
             std::vector<GarrisonTalent> Talents;
             std::vector<GarrisonCollection> Collections;
             std::vector<GarrisonEventList> EventLists;
+            std::vector<GarrisonSpecGroup> SpecGroups;
             std::vector<bool> CanStartMission;
             std::vector<int32> ArchivedMissions;
         };

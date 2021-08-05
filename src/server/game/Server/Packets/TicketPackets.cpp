@@ -250,6 +250,17 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketUnused910>& unused)
+{
+    unused = boost::in_place();
+
+    uint32 field_0Length = data.ReadBits(7);
+    data >> unused->field_104;
+    unused->field_0 = data.ReadString(field_0Length);
+
+    return data;
+}
+
 void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
@@ -266,6 +277,7 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     bool hasLFGListApplicant = _worldPacket.ReadBit();
     bool hasClubMessage = _worldPacket.ReadBit();
     bool hasClubFinderResult = _worldPacket.ReadBit();
+    bool hasUnk910 = _worldPacket.ReadBit();
 
     _worldPacket.ResetBitPos();
 
@@ -300,6 +312,9 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 
     if (hasClubFinderResult)
         _worldPacket >> ClubFinderResult;
+
+    if (hasUnk910)
+        _worldPacket >> Unused910;
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintOffender& complaintOffender)

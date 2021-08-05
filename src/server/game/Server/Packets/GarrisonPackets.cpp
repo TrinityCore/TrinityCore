@@ -190,6 +190,14 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonEventList const& eventList)
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, GarrisonSpecGroup const& specGroup)
+{
+    data << int32(specGroup.ChrSpecializationID);
+    data << int32(specGroup.SoulbindID);
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
 {
     ASSERT(garrison.Missions.size() == garrison.MissionRewards.size());
@@ -210,6 +218,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     data << uint32(garrison.Talents.size());
     data << uint32(garrison.Collections.size());
     data << uint32(garrison.EventLists.size());
+    data << uint32(garrison.SpecGroups.size());
     data << uint32(garrison.CanStartMission.size());
     data << uint32(garrison.ArchivedMissions.size());
     data << int32(garrison.NumFollowerActivationsRemaining);
@@ -236,6 +245,9 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
 
     for (GarrisonEventList const& eventList : garrison.EventLists)
         data << eventList;
+
+    for (GarrisonSpecGroup const& specGroup : garrison.SpecGroups)
+        data << specGroup;
 
     if (!garrison.ArchivedMissions.empty())
         data.append(garrison.ArchivedMissions.data(), garrison.ArchivedMissions.size());

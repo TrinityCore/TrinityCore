@@ -3673,6 +3673,57 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerMythicPlusRatingEqualOrGreaterThan: // 321 NYI
         case ModifierTreeType::PlayerMythicPlusRunCountInCurrentExpansionEqualOrGreaterThan: // 322 NYI
             return false;
+        case ModifierTreeType::PlayerHasCustomizationChoice: // 323
+        {
+            int32 customizationChoiceIndex = referencePlayer->m_playerData->Customizations.FindIndexIf([reqValue](UF::ChrCustomizationChoice const& choice)
+            {
+                return choice.ChrCustomizationChoiceID == reqValue;
+            });
+            if (customizationChoiceIndex < 0)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerBestWeeklyWinPvpTier: // 324
+        {
+            PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(reqValue);
+            if (!pvpTier)
+                return false;
+            if (std::size_t(pvpTier->BracketID) >= referencePlayer->m_activePlayerData->PvpInfo.size())
+                return false;
+            UF::PVPInfo const& pvpInfo = referencePlayer->m_activePlayerData->PvpInfo[pvpTier->BracketID];
+            if (pvpTier->ID != pvpInfo.WeeklyBestWinPvpTierID || *pvpInfo.Disqualified)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerBestWeeklyWinPvpTierInBracketEqualOrGreaterThan: // 325
+        {
+            if (secondaryAsset >= referencePlayer->m_activePlayerData->PvpInfo.size())
+                return false;
+            UF::PVPInfo const& pvpInfo = referencePlayer->m_activePlayerData->PvpInfo[secondaryAsset];
+            PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(pvpInfo.WeeklyBestWinPvpTierID);
+            if (!pvpTier)
+                return false;
+            if (pvpTier->Rank < int32(reqValue))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasVanillaCollectorsEdition: // 326
+            return false;
+        case ModifierTreeType::PlayerHasItemWithKeystoneLevelModifierEqualOrGreaterThan: // 327
+        {
+            bool bagScanReachedEnd = referencePlayer->ForEachItem(ItemSearchLocation::Inventory, [reqValue, secondaryAsset](Item const* item)
+            {
+                if (item->GetEntry() != reqValue)
+                    return ItemSearchCallbackResult::Continue;
+
+                if (item->GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL) < secondaryAsset)
+                    return ItemSearchCallbackResult::Continue;
+
+                return ItemSearchCallbackResult::Stop;
+            });
+            if (bagScanReachedEnd)
+                return false;
+        }
         default:
             return false;
     }

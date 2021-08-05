@@ -19,6 +19,7 @@
 #define UpdateFields_h__
 
 #include "EnumFlag.h"
+#include "MythicPlusPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "QuaternionData.h"
@@ -251,7 +252,7 @@ struct PassiveSpellHistory : public IsUpdateFieldStructureTag
     bool operator!=(PassiveSpellHistory const& right) const { return !(*this == right); }
 };
 
-struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<189>
+struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<190>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
     DynamicUpdateField<UF::PassiveSpellHistory, 0, 2> PassiveSpells;
@@ -373,20 +374,21 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<189>
     UpdateField<ObjectGuid, 96, 116> GuildGUID;
     UpdateField<ObjectGuid, 96, 117> SkinningOwnerGUID;
     UpdateField<uint32, 96, 118> SilencedSchoolMask;
-    UpdateFieldArray<uint32, 2, 119, 120> NpcFlags;
+    UpdateField<ObjectGuid, 96, 119> NameplateAttachToGUID;                     // When set, nameplate of this unit will instead appear on that object
+    UpdateFieldArray<uint32, 2, 120, 121> NpcFlags;
     struct NpcFlagsTag : ViewerDependentValueTag<uint32> {};
-    UpdateFieldArray<int32, 6, 122, 123> Power;
-    UpdateFieldArray<int32, 6, 122, 129> MaxPower;
-    UpdateFieldArray<float, 6, 122, 135> PowerRegenFlatModifier;
-    UpdateFieldArray<float, 6, 122, 141> PowerRegenInterruptedFlatModifier;
-    UpdateFieldArray<UF::VisibleItem, 3, 147, 148> VirtualItems;
-    UpdateFieldArray<uint32, 2, 151, 152> AttackRoundBaseTime;
-    UpdateFieldArray<int32, 4, 154, 155> Stats;
-    UpdateFieldArray<int32, 4, 154, 159> StatPosBuff;
-    UpdateFieldArray<int32, 4, 154, 163> StatNegBuff;
-    UpdateFieldArray<int32, 7, 167, 168> Resistances;
-    UpdateFieldArray<int32, 7, 167, 175> BonusResistanceMods;
-    UpdateFieldArray<int32, 7, 167, 182> ManaCostModifier;
+    UpdateFieldArray<int32, 6, 123, 124> Power;
+    UpdateFieldArray<int32, 6, 123, 130> MaxPower;
+    UpdateFieldArray<float, 6, 123, 136> PowerRegenFlatModifier;
+    UpdateFieldArray<float, 6, 123, 142> PowerRegenInterruptedFlatModifier;
+    UpdateFieldArray<UF::VisibleItem, 3, 148, 149> VirtualItems;
+    UpdateFieldArray<uint32, 2, 152, 153> AttackRoundBaseTime;
+    UpdateFieldArray<int32, 4, 155, 156> Stats;
+    UpdateFieldArray<int32, 4, 155, 160> StatPosBuff;
+    UpdateFieldArray<int32, 4, 155, 164> StatNegBuff;
+    UpdateFieldArray<int32, 7, 168, 169> Resistances;
+    UpdateFieldArray<int32, 7, 168, 176> BonusResistanceMods;
+    UpdateFieldArray<int32, 7, 168, 183> ManaCostModifier;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
@@ -448,7 +450,7 @@ struct CTROptions : public IsUpdateFieldStructureTag
     bool operator!=(CTROptions const& right) const { return !(*this == right); }
 };
 
-struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<185>
+struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<188>
 {
     UpdateField<bool, 0, 1> HasQuestSession;
     UpdateField<bool, 0, 2> HasLevelLink;
@@ -482,9 +484,10 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<185>
     UpdateField<UF::CTROptions, 0, 30> CtrOptions;
     UpdateField<int32, 0, 31> CovenantID;
     UpdateField<int32, 32, 33> SoulbindID;
-    UpdateFieldArray<UF::QuestLog, 125, 34, 35> QuestLog;
-    UpdateFieldArray<UF::VisibleItem, 19, 160, 161> VisibleItems;
-    UpdateFieldArray<float, 4, 180, 181> AvgItemLevel;
+    UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 34> DungeonScore;
+    UpdateFieldArray<UF::QuestLog, 125, 35, 36> QuestLog;
+    UpdateFieldArray<UF::VisibleItem, 19, 161, 162> VisibleItems;
+    UpdateFieldArray<float, 6, 181, 182> AvgItemLevel;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
@@ -520,7 +523,7 @@ struct RestInfo : public IsUpdateFieldStructureTag, public HasChangesMask<3>
     void ClearChangesMask();
 };
 
-struct PVPInfo : public IsUpdateFieldStructureTag, public HasChangesMask<10>
+struct PVPInfo : public IsUpdateFieldStructureTag, public HasChangesMask<11>
 {
     UpdateField<bool, 0, 1> Disqualified;
     UpdateField<uint32, 0, 2> WeeklyPlayed;
@@ -531,6 +534,7 @@ struct PVPInfo : public IsUpdateFieldStructureTag, public HasChangesMask<10>
     UpdateField<uint32, 0, 7> WeeklyBestRating;
     UpdateField<uint32, 0, 8> SeasonBestRating;
     UpdateField<uint32, 0, 9> PvpTierID;
+    UpdateField<uint32, 0, 10> WeeklyBestWinPvpTierID;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -647,7 +651,7 @@ struct ReplayedQuest : public IsUpdateFieldStructureTag, public HasChangesMask<3
     void ClearChangesMask();
 };
 
-struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1512>
+struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1557>
 {
     UpdateField<bool, 0, 1> BackpackAutoSortDisabled;
     UpdateField<bool, 0, 2> BankAutoSortDisabled;
@@ -685,7 +689,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<UF::SkillInfo, 34, 36> Skill;
     UpdateField<int32, 34, 37> CharacterPoints;
     UpdateField<int32, 34, 38> MaxTalentTiers;
-    UpdateField<int32, 34, 39> TrackCreatureMask;
+    UpdateField<uint32, 34, 39> TrackCreatureMask;
     UpdateField<float, 34, 40> MainhandExpertise;
     UpdateField<float, 34, 41> OffhandExpertise;
     UpdateField<float, 34, 42> RangedExpertise;
@@ -748,36 +752,33 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<uint64, 98, 101> GuildClubMemberID;
     UpdateField<int32, 98, 102> Honor;
     UpdateField<int32, 98, 103> HonorNextLevel;
-    UpdateField<int64, 98, 104> PvpRewardAchieved;
-    UpdateField<int32, 98, 105> PvpTierMaxFromWins;
-    UpdateField<int64, 98, 106> PvpLastWeeksRewardAchieved;
-    UpdateField<int32, 98, 107> PvpLastWeeksTierMaxFromWins;
-    UpdateField<int64, 98, 108> PvpLastWeeksRewardClaimed;
-    UpdateField<uint8, 98, 109> NumBankSlots;
-    UpdateField<UF::ActivePlayerUnk901, 98, 111> Field_1410;
-    OptionalUpdateField<UF::QuestSession, 98, 110> QuestSession;
-    UpdateField<int32, 98, 112> UiChromieTimeExpansionID;
-    UpdateField<int32, 98, 113> TransportServerTime;
-    UpdateField<uint32, 98, 114> WeeklyRewardsPeriodSinceOrigin;                // week count since Cfg_RegionsEntry::ChallengeOrigin
-    UpdateFieldArray<ObjectGuid, 199, 115, 116> InvSlots;
-    UpdateFieldArray<uint32, 2, 315, 316> TrackResourceMask;
-    UpdateFieldArray<uint64, 192, 318, 319> ExploredZones;
-    UpdateFieldArray<UF::RestInfo, 2, 511, 512> RestInfo;
-    UpdateFieldArray<int32, 7, 514, 515> ModDamageDonePos;
-    UpdateFieldArray<int32, 7, 514, 522> ModDamageDoneNeg;
-    UpdateFieldArray<float, 7, 514, 529> ModDamageDonePercent;
-    UpdateFieldArray<float, 7, 514, 536> ModHealingDonePercent;
-    UpdateFieldArray<float, 3, 543, 544> WeaponDmgMultipliers;
-    UpdateFieldArray<float, 3, 543, 547> WeaponAtkSpeedMultipliers;
-    UpdateFieldArray<uint32, 12, 550, 551> BuybackPrice;
-    UpdateFieldArray<uint32, 12, 550, 563> BuybackTimestamp;
-    UpdateFieldArray<int32, 32, 575, 576> CombatRatings;
-    UpdateFieldArray<UF::PVPInfo, 6, 608, 609> PvpInfo;
-    UpdateFieldArray<uint32, 4, 615, 616> NoReagentCostMask;
-    UpdateFieldArray<int32, 2, 620, 621> ProfessionSkillLine;
-    UpdateFieldArray<uint32, 4, 623, 624> BagSlotFlags;
-    UpdateFieldArray<uint32, 7, 628, 629> BankBagSlotFlags;
-    UpdateFieldArray<uint64, 875, 636, 637> QuestCompleted;
+    UpdateField<uint8, 98, 104> NumBankSlots;
+    UpdateField<UF::ActivePlayerUnk901, 98, 106> Field_1410;
+    OptionalUpdateField<UF::QuestSession, 98, 105> QuestSession;
+    UpdateField<int32, 98, 107> UiChromieTimeExpansionID;
+    UpdateField<int32, 98, 108> TransportServerTime;
+    UpdateField<uint32, 98, 109> WeeklyRewardsPeriodSinceOrigin;                // week count since Cfg_RegionsEntry::ChallengeOrigin
+    UpdateField<int16, 98, 110> DEBUGSoulbindConduitRank;
+    UpdateField<WorldPackets::MythicPlus::DungeonScoreData, 98, 111> DungeonScore;
+    UpdateFieldArray<ObjectGuid, 199, 112, 113> InvSlots;
+    UpdateFieldArray<uint32, 2, 312, 313> TrackResourceMask;
+    UpdateFieldArray<uint64, 240, 315, 316> ExploredZones;
+    UpdateFieldArray<UF::RestInfo, 2, 556, 557> RestInfo;
+    UpdateFieldArray<int32, 7, 559, 560> ModDamageDonePos;
+    UpdateFieldArray<int32, 7, 559, 567> ModDamageDoneNeg;
+    UpdateFieldArray<float, 7, 559, 574> ModDamageDonePercent;
+    UpdateFieldArray<float, 7, 559, 581> ModHealingDonePercent;
+    UpdateFieldArray<float, 3, 588, 589> WeaponDmgMultipliers;
+    UpdateFieldArray<float, 3, 588, 592> WeaponAtkSpeedMultipliers;
+    UpdateFieldArray<uint32, 12, 595, 596> BuybackPrice;
+    UpdateFieldArray<uint32, 12, 595, 608> BuybackTimestamp;
+    UpdateFieldArray<int32, 32, 620, 621> CombatRatings;
+    UpdateFieldArray<UF::PVPInfo, 6, 653, 654> PvpInfo;
+    UpdateFieldArray<uint32, 4, 660, 661> NoReagentCostMask;
+    UpdateFieldArray<int32, 2, 665, 666> ProfessionSkillLine;
+    UpdateFieldArray<uint32, 4, 668, 669> BagSlotFlags;
+    UpdateFieldArray<uint32, 7, 673, 674> BankBagSlotFlags;
+    UpdateFieldArray<uint64, 875, 681, 682> QuestCompleted;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
@@ -931,12 +932,13 @@ struct ConversationActor : public IsUpdateFieldStructureTag
     bool operator!=(ConversationActor const& right) const { return !(*this == right); }
 };
 
-struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMask<5>
+struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMask<6>
 {
-    UpdateField<std::vector<UF::ConversationLine>, 0, 1> Lines;
-    DynamicUpdateField<UF::ConversationActor, 0, 2> Actors;
-    UpdateField<int32, 0, 3> LastLineEndTime;
-    UpdateField<uint32, 0, 4> Progress;
+    UpdateField<bool, 0, 1> DontPlayBroadcastTextSounds;
+    UpdateField<std::vector<UF::ConversationLine>, 0, 2> Lines;
+    DynamicUpdateField<UF::ConversationActor, 0, 3> Actors;
+    UpdateField<int32, 0, 4> LastLineEndTime;
+    UpdateField<uint32, 0, 5> Progress;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const;

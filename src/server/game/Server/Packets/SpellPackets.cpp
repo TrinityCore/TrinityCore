@@ -209,7 +209,6 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Spells::SpellOptionalReag
 {
     data >> optionalReagent.ItemID;
     data >> optionalReagent.Slot;
-    data >> optionalReagent.Count;
     return data;
 }
 

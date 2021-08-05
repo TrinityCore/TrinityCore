@@ -155,6 +155,7 @@ namespace WorldPackets
             int32 RewardNumSkillUps         = 0; // reward skill points
             int32 PortraitGiver             = 0; // quest giver entry ?
             int32 PortraitGiverMount        = 0;
+            int32 PortraitGiverModelSceneID = 0;
             int32 PortraitTurnIn            = 0; // quest turn in entry ?
             std::string PortraitGiverText;
             std::string PortraitGiverName;
@@ -299,6 +300,7 @@ namespace WorldPackets
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
             int32 PortraitGiverMount = 0;
+            int32 PortraitGiverModelSceneID = 0;
             std::string QuestTitle;
             std::string RewardText;
             std::string PortraitGiverText;
@@ -390,6 +392,7 @@ namespace WorldPackets
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
             int32 PortraitGiverMount = 0;
+            int32 PortraitGiverModelSceneID = 0;
             int32 QuestStartItemID = 0;
             int32 QuestSessionBonus = 0;
             std::string PortraitGiverText;
@@ -714,6 +717,7 @@ namespace WorldPackets
             int32 ChoiceID = 0;
             int32 UiTextureKitID = 0;
             uint32 SoundKitID = 0;
+            uint8 NumRerolls = 0;
             std::string Question;
             std::vector<PlayerChoiceResponse> Responses;
             bool CloseChoiceFrame = false;
@@ -730,6 +734,7 @@ namespace WorldPackets
 
             int32 ChoiceID = 0;
             int32 ResponseID = 0;
+            bool IsReroll = false;
         };
     }
 }

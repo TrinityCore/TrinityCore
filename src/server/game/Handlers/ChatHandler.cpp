@@ -87,7 +87,7 @@ void WorldSession::HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessag
 
 void WorldSession::HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel& chatMessageChannel)
 {
-    HandleChatMessage(CHAT_MSG_CHANNEL, Language(chatMessageChannel.Language), chatMessageChannel.Text, chatMessageChannel.Target);
+    HandleChatMessage(CHAT_MSG_CHANNEL, Language(chatMessageChannel.Language), chatMessageChannel.Text, chatMessageChannel.Target, chatMessageChannel.ChannelGUID);
 }
 
 void WorldSession::HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& chatMessageEmote)
@@ -95,7 +95,7 @@ void WorldSession::HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageE
     HandleChatMessage(CHAT_MSG_EMOTE, LANG_UNIVERSAL, chatMessageEmote.Text);
 }
 
-void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string msg, std::string target /*= ""*/)
+void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string msg, std::string target /*= ""*/, Optional<ObjectGuid> channelGuid /*= {}*/)
 {
     Player* sender = GetPlayer();
 
@@ -374,7 +374,10 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
                 }
             }
 
-            if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
+            Channel* chn = channelGuid
+                ? ChannelMgr::GetChannelForPlayerByGuid(*channelGuid, sender)
+                : ChannelMgr::GetChannelForPlayerByNamePart(target, sender);
+            if (chn)
             {
                 sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
                 chn->Say(sender->GetGUID(), msg, lang);
@@ -411,10 +414,10 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
 void WorldSession::HandleChatAddonMessageTargetedOpcode(WorldPackets::Chat::ChatAddonMessageTargeted& chatAddonMessageTargeted)
 {
     HandleChatAddonMessage(chatAddonMessageTargeted.Params.Type, chatAddonMessageTargeted.Params.Prefix, chatAddonMessageTargeted.Params.Text,
-        chatAddonMessageTargeted.Params.IsLogged, chatAddonMessageTargeted.Target);
+        chatAddonMessageTargeted.Params.IsLogged, chatAddonMessageTargeted.Target, chatAddonMessageTargeted.ChannelGUID);
 }
 
-void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, bool isLogged, std::string target /*= ""*/)
+void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, bool isLogged, std::string target /*= ""*/, Optional<ObjectGuid> channelGuid /*= {}*/)
 {
     Player* sender = GetPlayer();
 
@@ -480,7 +483,10 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         }
         case CHAT_MSG_CHANNEL:
         {
-            if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
+            Channel* chn = channelGuid
+                ? ChannelMgr::GetChannelForPlayerByGuid(*channelGuid, sender)
+                : ChannelMgr::GetChannelForPlayerByNamePart(target, sender);
+            if (chn)
                 chn->AddonSay(sender->GetGUID(), prefix, text.c_str(), isLogged);
             break;
         }

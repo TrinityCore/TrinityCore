@@ -98,7 +98,7 @@ namespace WorldPackets
                 uint32 DaysInCycle = 0;
             };
 
-            FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }
+            FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 200) { }
 
             WorldPacket const* Write() override;
 
@@ -152,10 +152,20 @@ namespace WorldPackets
             RafSystemFeatureInfo RAFSystem;
         };
 
+        class FeatureSystemStatus2 final : ServerPacket
+        {
+        public:
+            FeatureSystemStatus2() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS2, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool TextToSpeechFeatureEnabled = false;
+        };
+
         class FeatureSystemStatusGlueScreen final : public ServerPacket
         {
         public:
-            FeatureSystemStatusGlueScreen() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 1) { }
+            FeatureSystemStatusGlueScreen() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 64) { }
 
             WorldPacket const* Write() override;
 

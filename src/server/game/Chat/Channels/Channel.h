@@ -180,6 +180,8 @@ class TC_GAME_API Channel
         uint32 GetChannelId() const { return _channelId; }
         bool IsConstant() const { return _channelId != 0; }
 
+        ObjectGuid GetGUID() const { return _channelGuid; }
+
         bool IsLFG() const { return (GetFlags() & CHANNEL_FLAG_LFG) != 0; }
 
         bool IsAnnounce() const { return _announceEnabled; }

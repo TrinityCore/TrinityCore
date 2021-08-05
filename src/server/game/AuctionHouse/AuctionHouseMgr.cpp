@@ -244,6 +244,10 @@ void AuctionPosting::BuildAuctionItem(WorldPackets::AuctionHouse::AuctionItem* a
     // SMSG_AUCTION_LIST_BIDDER_ITEMS_RESULT, SMSG_AUCTION_LIST_OWNER_ITEMS_RESULT, SMSG_AUCTION_REPLICATE_RESPONSE (if commodity)
     if (sendKey)
         auctionItem->AuctionBucketKey.emplace(AuctionsBucketKey::ForItem(Items[0]));
+
+    // all
+    if (!Items[0]->m_itemData->Creator->IsEmpty())
+        auctionItem->Creator = *Items[0]->m_itemData->Creator;
 }
 
 uint64 AuctionPosting::CalculateMinIncrement(uint64 bidAmount)

@@ -195,6 +195,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuctionItem const& auctionItem)
     data.WriteBit(auctionItem.CensorServerSideInfo);
     data.WriteBit(auctionItem.CensorBidInfo);
     data.WriteBit(auctionItem.AuctionBucketKey.is_initialized());
+    data.WriteBit(auctionItem.Creator.is_initialized());
     if (!auctionItem.CensorBidInfo)
     {
         data.WriteBit(auctionItem.Bidder.is_initialized());
@@ -235,6 +236,9 @@ ByteBuffer& operator<<(ByteBuffer& data, AuctionItem const& auctionItem)
         data << auctionItem.OwnerAccountID;
         data << int32(auctionItem.EndTime);
     }
+
+    if (auctionItem.Creator)
+        data << *auctionItem.Creator;
 
     if (!auctionItem.CensorBidInfo)
     {

@@ -89,7 +89,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 CaseID;
+            int32 CaseID = 0;
         };
 
         class SubmitUserFeedback final : public ClientPacket
@@ -156,8 +156,8 @@ namespace WorldPackets
 
             struct SupportTicketCalendarEventInfo
             {
-                uint64 EventID;
-                uint64 InviteID;
+                uint64 EventID = 0;
+                uint64 InviteID = 0;
                 std::string EventTitle;
             };
 
@@ -200,10 +200,16 @@ namespace WorldPackets
 
             struct SupportTicketClubFinderResult
             {
-                uint64 ClubFinderPostingID;
-                uint64 ClubID;
+                uint64 ClubFinderPostingID = 0;
+                uint64 ClubID = 0;
                 ObjectGuid ClubFinderGUID;
                 std::string ClubName;
+            };
+
+            struct SupportTicketUnused910
+            {
+                std::string field_0;
+                ObjectGuid field_104;
             };
 
             SupportTicketSubmitComplaint(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT, std::move(packet)) { }
@@ -224,6 +230,7 @@ namespace WorldPackets
             Optional<SupportTicketLFGListApplicant> LFGListApplicant;
             Optional<SupportTicketCommunityMessage> CommunityMessage;
             Optional<SupportTicketClubFinderResult> ClubFinderResult;
+            Optional<SupportTicketUnused910> Unused910;
         };
 
         class Complaint final : public ClientPacket

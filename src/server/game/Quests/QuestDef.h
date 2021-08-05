@@ -562,6 +562,7 @@ class TC_GAME_API Quest
         int32 GetQuestSessionBonus() const { return _questSessionBonus; }
         uint32 GetQuestGiverPortrait() const { return _questGiverPortrait; }
         int32 GetQuestGiverPortraitMount() const { return _questGiverPortraitMount; }
+        int32 GetQuestGiverPortraitModelSceneId() const { return _questGiverPortraitModelSceneId; }
         uint32 GetQuestTurnInPortrait() const { return _questTurnInPortrait; }
         bool   IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
         bool   IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
@@ -652,6 +653,7 @@ class TC_GAME_API Quest
         uint32 _rewardSkillPoints = 0;
         uint32 _questGiverPortrait = 0;
         int32 _questGiverPortraitMount = 0;
+        int32 _questGiverPortraitModelSceneId = 0;
         uint32 _questTurnInPortrait = 0;
         uint32 _rewardReputationMask;
         uint32 _soundAccept = 0;

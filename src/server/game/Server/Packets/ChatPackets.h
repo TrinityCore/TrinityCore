@@ -72,6 +72,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 Language = LANG_UNIVERSAL;
+            ObjectGuid ChannelGUID;
             std::string Text;
             std::string Target;
         };
@@ -99,12 +100,16 @@ namespace WorldPackets
         class ChatAddonMessageTargeted final : public ClientPacket
         {
         public:
-            ChatAddonMessageTargeted(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_TARGETED, std::move(packet)) { }
+            ChatAddonMessageTargeted(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_TARGETED, std::move(packet))
+            {
+                ChannelGUID.emplace();
+            }
 
             void Read() override;
 
             std::string Target;
             ChatAddonMessageParams Params;
+            Optional<ObjectGuid> ChannelGUID; // not optional in the packet. Optional for api reasons
         };
 
         class ChatMessageDND final : public ClientPacket
@@ -144,7 +149,8 @@ namespace WorldPackets
             Chat() : ServerPacket(SMSG_CHAT, 100) { }
             Chat(Chat const& chat);
 
-            void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
+            void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0,
+                std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
             void SetSender(WorldObject const* sender, LocaleConstant locale);
             void SetReceiver(WorldObject const* receiver, LocaleConstant locale);
 
@@ -170,6 +176,7 @@ namespace WorldPackets
             Optional<uint32> Unused_801;
             bool HideChatLog = false;
             bool FakeSenderName = false;
+            Optional<ObjectGuid> ChannelGUID;
         };
 
         class Emote final : public ServerPacket

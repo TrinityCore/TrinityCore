@@ -74,9 +74,8 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
     TargetLevel = target->getLevel();
     Expansion = creatureTemplate->HealthScalingExpansion;
-    TargetMinScalingLevel = uint8(creatureScaling->MinLevel);
-    TargetMaxScalingLevel = uint8(creatureScaling->MaxLevel);
     TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
+    TargetContentTuningID = creatureScaling->ContentTuningID;
     return true;
 }
 
@@ -93,9 +92,8 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
     TargetLevel = target->getLevel();
     Expansion = creatureTemplate->HealthScalingExpansion;
-    TargetMinScalingLevel = uint8(creatureScaling->MinLevel);
-    TargetMaxScalingLevel = uint8(creatureScaling->MaxLevel);
     TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
+    TargetContentTuningID = creatureScaling->ContentTuningID;
     return true;
 }
 
@@ -111,9 +109,8 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
     PlayerItemLevel = 0;
     TargetLevel = target->getLevel();
     Expansion = creatureTemplate->HealthScalingExpansion;
-    TargetMinScalingLevel = uint8(creatureScaling->MinLevel);
-    TargetMaxScalingLevel = uint8(creatureScaling->MaxLevel);
     TargetScalingLevelDelta = int8(accessor->m_unitData->ScalingLevelDelta);
+    TargetContentTuningID = creatureScaling->ContentTuningID;
     return true;
 }
 
@@ -174,10 +171,10 @@ ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTunin
     data << uint16(contentTuningParams.ScalingHealthItemLevelCurveID);
     data << uint8(contentTuningParams.TargetLevel);
     data << uint8(contentTuningParams.Expansion);
-    data << uint8(contentTuningParams.TargetMinScalingLevel);
-    data << uint8(contentTuningParams.TargetMaxScalingLevel);
     data << int8(contentTuningParams.TargetScalingLevelDelta);
     data << uint32(contentTuningParams.Flags);
+    data << int32(contentTuningParams.PlayerContentTuningID);
+    data << int32(contentTuningParams.TargetContentTuningID);
     data.WriteBits(contentTuningParams.Type, 4);
     data.FlushBits();
     return data;

@@ -131,6 +131,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData c
     data << int32(bracket.WeeklyBestRating);
     data << int32(bracket.SeasonBestRating);
     data << int32(bracket.PvpTierID);
+    data << int32(bracket.WeeklyBestWinPvpTierID);
     data.WriteBit(bracket.Disqualified);
     data.FlushBits();
 

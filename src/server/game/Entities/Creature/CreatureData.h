@@ -327,8 +327,6 @@ struct CreatureModel
 
 struct CreatureLevelScaling
 {
-    uint16 MinLevel;
-    uint16 MaxLevel;
     int16 DeltaLevelMin;
     int16 DeltaLevelMax;
     int32 ContentTuningID;
@@ -395,6 +393,7 @@ struct TC_GAME_API CreatureTemplate
     float   ModExperience;
     bool    RacialLeader;
     uint32  movementId;
+    int32   CreatureDifficultyID;
     int32   WidgetSetID;
     int32   WidgetSetUnitConditionID;
     bool    RegenHealth;

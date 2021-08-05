@@ -118,7 +118,13 @@ void WorldPackets::Guild::DeclineGuildInvites::Read()
 void WorldPackets::Guild::GuildInviteByName::Read()
 {
     uint32 nameLen = _worldPacket.ReadBits(9);
+    if (_worldPacket.ReadBit())
+        Unused910.emplace();
+
     Name = _worldPacket.ReadString(nameLen);
+
+    if (Unused910)
+        _worldPacket >> *Unused910;
 }
 
 WorldPacket const* WorldPackets::Guild::GuildInvite::Write()
@@ -180,6 +186,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     data.WriteBit(rosterMemberData.Authenticated);
     data.WriteBit(rosterMemberData.SorEligible);
     data.FlushBits();
+
+    data << rosterMemberData.DungeonScore;
 
     data.WriteString(rosterMemberData.Name);
     data.WriteString(rosterMemberData.Note);

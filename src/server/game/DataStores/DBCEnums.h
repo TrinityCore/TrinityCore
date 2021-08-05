@@ -1299,6 +1299,11 @@ enum class ModifierTreeType : int32
     RapidRenownCatchupActive                                            = 320, /*NYI*/ // Rapid Renown Catchup Active
     PlayerMythicPlusRatingEqualOrGreaterThan                            = 321, /*NYI*/ // Player has Mythic+ Rating of at least "{#DungeonScore}"
     PlayerMythicPlusRunCountInCurrentExpansionEqualOrGreaterThan        = 322, /*NYI*/ // Player has completed at least "{#MythicKeystoneRuns}" Mythic+ runs in current expansion
+    PlayerHasCustomizationChoice                                        = 323, // (Mainline) Player has Customization Choice "{ChrCustomizationChoice}"
+    PlayerBestWeeklyWinPvpTier                                          = 324, // (Mainline) Player has best weekly win in PVP tier {PvpTier}
+    PlayerBestWeeklyWinPvpTierInBracketEqualOrGreaterThan               = 325, // (Mainline) Player has best weekly win at or above "{@PVP_TIER_ENUM}" for "{@PVP_BRACKET}"
+    PlayerHasVanillaCollectorsEdition                                   = 326, // Player has Vanilla Collector's Edition
+    PlayerHasItemWithKeystoneLevelModifierEqualOrGreaterThan            = 327,
 };
 
 enum class ModifierTreeOperator : int8

@@ -211,6 +211,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     stats.HealthScalingExpansion = HealthScalingExpansion;
     stats.VignetteID = VignetteID;
     stats.Class = unit_class;
+    stats.CreatureDifficultyID = CreatureDifficultyID;
     stats.WidgetSetID = WidgetSetID;
     stats.WidgetSetUnitConditionID = WidgetSetUnitConditionID;
 
@@ -243,8 +244,6 @@ CreatureLevelScaling const* CreatureTemplate::GetLevelScaling(Difficulty difficu
     {
         DefaultCreatureLevelScaling()
         {
-            MinLevel = 0;
-            MaxLevel = 0;
             DeltaLevelMin = 0;
             DeltaLevelMax = 0;
             ContentTuningID = 0;
@@ -1535,8 +1534,11 @@ void Creature::SelectLevel()
 
     CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), scaling->MinLevel);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), scaling->MaxLevel);
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(scaling->ContentTuningID, 0))
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), levels->MinLevel);
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), levels->MaxLevel);
+    }
 
     int32 mindelta = std::min(scaling->DeltaLevelMax, scaling->DeltaLevelMin);
     int32 maxdelta = std::max(scaling->DeltaLevelMax, scaling->DeltaLevelMin);
@@ -2798,7 +2800,7 @@ bool Creature::HasScalableLevels() const
     CreatureTemplate const* cinfo = GetCreatureTemplate();
     CreatureLevelScaling const* scaling = cinfo->GetLevelScaling(GetMap()->GetDifficultyID());
 
-    return (scaling->MinLevel != 0 && scaling->MaxLevel != 0);
+    return scaling->ContentTuningID != 0;
 }
 
 uint64 Creature::GetMaxHealthByLevel(uint8 level) const
