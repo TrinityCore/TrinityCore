@@ -30,6 +30,7 @@
 #include "IteratorPair.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Packet.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"

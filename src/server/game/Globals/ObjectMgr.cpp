@@ -3069,14 +3069,10 @@ void ObjectMgr::LoadItemTemplates()
     }
 
     // Load item effects (spells)
-    for (ItemEffectEntry const* effectEntry : sItemEffectStore)
-    {
-        auto itemItr = _itemTemplateStore.find(effectEntry->ParentItemID);
-        if (itemItr == _itemTemplateStore.end())
-            continue;
-
-        itemItr->second.Effects.push_back(effectEntry);
-    }
+    for (ItemXItemEffectEntry const* effectEntry : sItemXItemEffectStore)
+        if (ItemTemplate* item = Trinity::Containers::MapGetValuePtr(_itemTemplateStore, effectEntry->ItemID))
+            if (ItemEffectEntry const* effect = sItemEffectStore.LookupEntry(effectEntry->ItemEffectID))
+                item->Effects.push_back(effect);
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " item templates in %u ms", _itemTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }

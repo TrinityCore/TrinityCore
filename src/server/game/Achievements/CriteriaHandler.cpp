@@ -2055,7 +2055,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::BattlePetType: // 78
         {
             BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(miscValue1);
-            if (!speciesEntry || speciesEntry->PetTypeEnum != reqValue)
+            if (!speciesEntry || speciesEntry->PetTypeEnum != int32(reqValue))
                 return false;
             break;
         }
@@ -2656,7 +2656,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             uint32 count = 0;
             for (WorldPackets::BattlePet::BattlePetSlot const& slot : referencePlayer->GetSession()->GetBattlePetMgr()->GetSlots())
                 if (BattlePetSpeciesEntry const* species = sBattlePetSpeciesStore.LookupEntry(slot.Pet.Species))
-                    if (species->PetTypeEnum == secondaryAsset)
+                    if (species->PetTypeEnum == int32(secondaryAsset))
                         ++count;
             if (count < reqValue)
                 return false;

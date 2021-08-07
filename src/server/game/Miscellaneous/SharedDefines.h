@@ -1372,6 +1372,8 @@ enum SpellEffectName
     SPELL_EFFECT_LEARN_SOULBIND_CONDUIT             = 281,
     SPELL_EFFECT_CONVERT_ITEMS_TO_CURRENCY          = 282,
     SPELL_EFFECT_COMPLETE_CAMPAIGN                  = 283, // Flags all quests as completed that are assigned to campaign (MiscValueA)
+    SPELL_EFFECT_SEND_CHAT_MESSAGE                  = 284, // MiscValue[0] = BroadcastTextID, MiscValue[1] = ChatType
+    SPELL_EFFECT_MODIFY_KEYSTONE_2                  = 285,
     TOTAL_SPELL_EFFECTS
 };
 

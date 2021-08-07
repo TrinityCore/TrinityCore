@@ -291,6 +291,7 @@ public:
     // SpellScalingEntry
     struct ScalingInfo
     {
+        int32 Class;
         float Coefficient;
         float Variance;
         float ResourceCoefficient;
@@ -463,7 +464,6 @@ class TC_GAME_API SpellInfo
         // SpellScalingEntry
         struct ScalingInfo
         {
-            int32 Class = 0;
             uint32 MinScalingLevel = 0;
             uint32 MaxScalingLevel = 0;
             uint32 ScalesFromItemLevel = 0;
