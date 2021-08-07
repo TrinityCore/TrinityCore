@@ -292,9 +292,11 @@ public:
     {
         enum class Status : uint8
         {
+            NotSet          = 0,
             Valid           = 1,
             RecordRemoved   = 2,
-            Invalid         = 3
+            Invalid         = 3,
+            NotPublic       = 4
         };
 
         uint32 TableHash = 0;
