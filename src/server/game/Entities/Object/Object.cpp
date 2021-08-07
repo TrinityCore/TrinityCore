@@ -1650,8 +1650,10 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth, bool che
     if (Unit const* thisUnit = ToUnit())
     {
         if (thisUnit->isPossessing())
+        {
             if (Unit* charmed = thisUnit->GetCharmed())
                 seer = charmed;
+        }
         else if (Unit* controller = thisUnit->GetCharmerOrOwner())
             seer = controller;
     }
