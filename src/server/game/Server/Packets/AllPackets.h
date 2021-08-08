@@ -52,6 +52,7 @@
 #include "InspectPackets.h"
 #include "InstancePackets.h"
 #include "ItemPackets.h"
+#include "LegendaryCraftingPackets.h"
 #include "LFGPackets.h"
 #include "LootPackets.h"
 #include "MailPackets.h"
