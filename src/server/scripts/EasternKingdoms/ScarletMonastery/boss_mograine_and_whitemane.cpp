@@ -149,7 +149,7 @@ public:
         }
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && !_fakeDeath)
         {
@@ -348,7 +348,7 @@ public:
             DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // When Whitemane falls below 50% cast Deep sleep and schedule to ressurrect
         if (me->HealthBelowPctDamaged(50, damage) && !_ressurectionInProgress)

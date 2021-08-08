@@ -164,7 +164,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!done_by || done_by->GetGUID() != malchezaar)
                 damage = 0;

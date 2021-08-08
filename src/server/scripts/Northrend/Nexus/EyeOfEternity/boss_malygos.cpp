@@ -718,7 +718,7 @@ struct boss_malygos : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*cause*/, uint32& damage) override
+    void DamageTaken(Unit* /*cause*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage > me->GetHealth() && _phase != PHASE_THREE)
             damage = me->GetHealth() - 1;

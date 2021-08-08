@@ -342,7 +342,7 @@ struct boss_professor_putricide : public BossAI
             DoZoneInCombat(summon);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;

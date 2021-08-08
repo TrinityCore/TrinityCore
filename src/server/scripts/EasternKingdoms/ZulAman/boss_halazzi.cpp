@@ -129,7 +129,7 @@ class boss_halazzi : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+            void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth() && Phase != PHASE_ENRAGE)
                     damage = 0;
@@ -363,7 +363,7 @@ class npc_halazzi_lynx : public CreatureScript
                 Initialize();
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+            void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                     damage = 0;

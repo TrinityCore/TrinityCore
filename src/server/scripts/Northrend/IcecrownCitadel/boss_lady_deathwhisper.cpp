@@ -403,7 +403,7 @@ struct boss_lady_deathwhisper : public BossAI
             Talk(SAY_KILL);
     }
 
-    void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
+    void DamageTaken(Unit* /*damageDealer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // phase transition
         if (_phase == PHASE_ONE && damage > me->GetPower(POWER_MANA))

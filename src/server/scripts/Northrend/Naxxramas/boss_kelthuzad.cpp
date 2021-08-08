@@ -273,7 +273,7 @@ struct boss_kelthuzad : public BossAI
             Talk(SAY_DEATH);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (events.IsInPhase(PHASE_ONE))
                 damage = 0;

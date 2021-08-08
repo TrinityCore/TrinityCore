@@ -69,7 +69,7 @@ struct boss_eck : public BossAI
         events.ScheduleEvent(EVENT_BERSERK, 60s, 90s); // 60-90 secs according to wowwiki
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_berserk && me->HealthBelowPctDamaged(20, damage))
         {

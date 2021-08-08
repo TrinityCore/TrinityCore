@@ -180,7 +180,7 @@ struct boss_ionar : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+    void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!me->IsVisible())
             uiDamage = 0;

@@ -124,7 +124,7 @@ struct boss_darkweaver_syth : public BossAI
         summons.Summon(summoned);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(90, damage) && !_summon90)
         {

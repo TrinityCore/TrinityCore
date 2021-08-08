@@ -456,7 +456,7 @@ struct boss_headless_horseman : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* who, uint32& damage) override
+    void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && who != me)
         {

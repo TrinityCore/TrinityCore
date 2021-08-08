@@ -110,7 +110,7 @@ struct boss_razorgore : public BossAI
             DoChangePhase();
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // @todo this is wrong - razorgore should still take damage, he should just nuke the whole room and respawn if he dies during P1
         if (!secondPhase)

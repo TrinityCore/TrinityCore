@@ -129,7 +129,7 @@ struct npc_firesworn : public ScriptedAI
         ScheduleTasks();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         uint32 const health10pct = me->CountPctFromMaxHealth(10);
         uint32 health = me->GetHealth();

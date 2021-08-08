@@ -342,7 +342,7 @@ struct boss_anub_arak : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*source*/, uint32& damage) override
+    void DamageTaken(Unit* /*source*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HasAura(SPELL_SUBMERGE))
             damage = 0;

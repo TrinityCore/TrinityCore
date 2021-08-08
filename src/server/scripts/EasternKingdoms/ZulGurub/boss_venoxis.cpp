@@ -136,7 +136,7 @@ struct boss_venoxis : public BossAI
         DoZoneInCombat();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // check if venoxis is ready to transform
         if (!_transformed && !HealthAbovePct(50))

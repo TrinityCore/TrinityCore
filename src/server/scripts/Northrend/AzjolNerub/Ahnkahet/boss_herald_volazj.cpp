@@ -138,7 +138,7 @@ struct boss_volazj : public BossAI
         return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
     }
 
-    void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*pAttacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             damage = 0;

@@ -185,7 +185,7 @@ class boss_janalai : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void DamageDealt(Unit* target, uint32 &damage, DamageEffectType /*damagetype*/) override
+            void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damagetype*/) override
             {
                 if (isFlameBreathing)
                 {
