@@ -1634,11 +1634,15 @@ void Unit::HandleEmoteCommand(uint32 anim_id, Trinity::IteratorPair<int32 const*
     if (G3D::fuzzyLe(armor, 0.0f))
         return damage;
 
+    Classes attackerClass = CLASS_WARRIOR;
     if (attacker)
+    {
         attackerLevel = attacker->GetLevelForTarget(victim);
+        attackerClass = Classes(attacker->getClass());
+    }
 
     // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
-    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, Classes(attacker->getClass()));
+    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, attackerClass);
 
     if (!(armor + armorConstant))
         return damage;
