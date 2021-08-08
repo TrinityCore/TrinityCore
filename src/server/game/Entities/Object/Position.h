@@ -19,6 +19,7 @@
 #define Trinity_game_Position_h__
 
 #include "Define.h"
+#include "Optional.h"
 #include <string>
 #include <cmath>
 
@@ -215,8 +216,8 @@ public:
     search using this relation: dist2d < radius && abs(dz) < height
     */
     bool IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const;
-    bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
-    bool HasInLine(Position const* pos, float objSize, float width) const;
+    bool HasInArc(float arcangle, Position const* pos, float border = 2.0f, Optional<float> orientation = Optional<float>()) const;
+    bool HasInLine(Position const* pos, float objSize, float width, Optional<float> orientation = Optional<float>()) const;
     std::string ToString() const;
 
     // modulos a radian orientation to the range of 0..2PI

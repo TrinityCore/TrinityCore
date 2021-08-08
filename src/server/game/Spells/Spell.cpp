@@ -852,6 +852,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_SELECT_CATEGORY_NEARBY:
         case TARGET_SELECT_CATEGORY_CONE:
         case TARGET_SELECT_CATEGORY_AREA:
+        case TARGET_SELECT_CATEGORY_LINE:
             // targets for effect already selected
             if (effectMask & processedEffectMask)
                 return;
@@ -899,6 +900,9 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             CheckDst();
 
             SelectImplicitTrajTargets(effIndex, targetType);
+            break;
+        case TARGET_SELECT_CATEGORY_LINE:
+            SelectImplicitLineTargets(effIndex, targetType, effectMask);
             break;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetType.GetObjectType())
@@ -1729,6 +1733,69 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
     if (Vehicle* veh = m_caster->GetVehicleKit())
         veh->SetLastShootPos(*m_targets.GetDstPos());
+}
+
+void Spell::SelectImplicitLineTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
+{
+    std::list<WorldObject*> targets;
+    SpellTargetObjectTypes objectType = targetType.GetObjectType();
+    SpellTargetCheckTypes selectionType = targetType.GetCheckType();
+    SpellEffectInfo const* effect = m_spellInfo->GetEffect(effIndex);
+    if (!effect)
+        return;
+
+    Position const* dst = nullptr;
+    switch (targetType.GetReferenceType())
+    {
+        case TARGET_REFERENCE_TYPE_SRC:
+            dst = m_targets.GetSrcPos();
+            break;
+        case TARGET_REFERENCE_TYPE_DEST:
+            dst = m_targets.GetDstPos();
+            break;
+        case TARGET_REFERENCE_TYPE_CASTER:
+            dst = m_caster;
+            break;
+        case TARGET_REFERENCE_TYPE_TARGET:
+            dst = m_targets.GetUnitTarget();
+            break;
+        default:
+            ASSERT(false, "Spell::SelectImplicitLineTargets: received not implemented target reference type");
+            return;
+    }
+
+    ConditionContainer* condList = effect->ImplicitTargetConditions;
+    float radius = effect->CalcRadius(m_caster) * m_spellValue->RadiusMod;
+
+    if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
+    {
+        Trinity::WorldObjectSpellLineTargetCheck check(m_caster, dst, m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
+        Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
+        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck>>(searcher, containerTypeMask, m_caster, m_caster, radius);
+
+        CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
+
+        if (!targets.empty())
+        {
+            // Other special target selection goes here
+            if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
+            {
+                if (maxTargets < targets.size())
+                {
+                    targets.sort(Trinity::ObjectDistanceOrderPred(m_caster));
+                    targets.resize(maxTargets);
+                }
+            }
+
+            for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            {
+                if (Unit* unit = (*itr)->ToUnit())
+                    AddUnitTarget(unit, effMask, false);
+                else if (GameObject* gObjTarget = (*itr)->ToGameObject())
+                    AddGOTarget(gObjTarget, effMask);
+            }
+        }
+    }
 }
 
 void Spell::SelectEffectTypeImplicitTargets(uint32 effIndex)
@@ -8176,6 +8243,22 @@ bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
         return false;
 
     if (target->GetExactDist2d(_position) > _range)
+        return false;
+
+    return WorldObjectSpellTargetCheck::operator ()(target);
+}
+
+WorldObjectSpellLineTargetCheck::WorldObjectSpellLineTargetCheck(Position const* srcPosition, Position const* dstPosition, float lineWidth, float range, Unit* caster,
+    SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList, SpellTargetObjectTypes objectType)
+    : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList, objectType), _srcPosition(srcPosition), _dstPosition(dstPosition), _lineWidth(lineWidth) { }
+
+bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target)
+{
+    float angle = _caster->GetOrientation();
+    if (*_srcPosition != *_dstPosition)
+        angle = _srcPosition->GetAngle(_dstPosition);
+
+    if (!_caster->HasInLine(target, target->GetCombatReach(), _lineWidth, angle))
         return false;
 
     return WorldObjectSpellTargetCheck::operator ()(target);
