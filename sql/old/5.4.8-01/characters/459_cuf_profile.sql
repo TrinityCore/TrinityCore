@@ -1,0 +1,1 @@
+DELETE FROM cuf_profile;

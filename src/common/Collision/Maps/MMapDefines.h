@@ -58,11 +58,18 @@ enum NavArea
     NAV_AREA_MAX_VALUE      = NAV_AREA_GROUND,
     NAV_AREA_MIN_VALUE      = NAV_AREA_MAGMA_SLIME,
     NAV_AREA_ALL_MASK       = 0x3F // max allowed value
+    NAV_AREA_GROUND         = 63,
+    NAV_AREA_WATER          = 62,
+    NAV_AREA_MAGMA_SLIME    = 61 // don't need to differentiate between them
 };
 
 enum NavTerrainFlag
 {
-    NAV_EMPTY        = 0x00,
+    NAV_EMPTY       = 0x00,
+    
+   
+    
+  
     NAV_GROUND       = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_GROUND),
     NAV_GROUND_STEEP = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_GROUND_STEEP),
     NAV_WATER        = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_WATER),

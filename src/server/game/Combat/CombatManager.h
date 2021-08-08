@@ -29,12 +29,14 @@ class Unit;
  *                                            (future devs: please keep this up-to-date if you change the system)                                       *
  * CombatManager maintains a list of dynamically allocated CombatReference entries. Each entry represents a combat state between two distinct units.    *
  * A unit is "in combat" iff it has one or more non-suppressed CombatReference entries in its CombatManager. No exceptions.                             *
+ *   - Note: Only PvP combat references can be suppressed, and only because Vanish is a very silly spell. Sue Blizzard.                                 *
  *                                                                                                                                                      *
  * A CombatReference object carries the following implicit guarantees by existing:                                                                      *
  *  - Both CombatReference.first and CombatReference.second are valid Units, distinct, not nullptr and currently in the world.                          *
  *  - If the CombatReference was retrieved from the CombatManager of Unit* A, then exactly one of .first and .second is equal to A.                     *
  *    - Note: Use CombatReference::GetOther to quickly get the other unit for a given reference.                                                        *
  *  - Both .first and .second are currently in combat (IsInCombat will always be true) if either of the following hold:                                 *
+ *    - The reference is a PvE combat reference (_isPvP is false)                                                                                       *
  *    - IsSuppressedFor returns false for the respective unit                                                                                           *
  *                                                                                                                                                      *
  * To end combat between two units, find their CombatReference and call EndCombat.                                                                      *
@@ -83,13 +85,22 @@ struct TC_GAME_API PvPCombatReference : public CombatReference
 {
     static const uint32 PVP_COMBAT_TIMEOUT = 5 * IN_MILLISECONDS;
 
+    // suppressed combat refs do not generate a combat state for one side of the relation
+    // (used by: vanish, feign death)
+    void SuppressFor(Unit* who);
+    bool IsSuppressedFor(Unit const* who) const { return (who == first) ? _suppressFirst : _suppressSecond; }
+
 private:
     PvPCombatReference(Unit* first, Unit* second) : CombatReference(first, second, true) { }
 
     bool Update(uint32 tdiff);
+    void Refresh();
+    void Suppress(Unit* who) { (who == first ? _suppressFirst : _suppressSecond) = true; }
     void RefreshTimer();
 
     uint32 _combatTimer = PVP_COMBAT_TIMEOUT;
+    bool _suppressFirst = false;
+    bool _suppressSecond = false;
 
     friend class CombatManager;
 };
@@ -108,6 +119,7 @@ class TC_GAME_API CombatManager
         bool HasCombat() const { return HasPvECombat() || HasPvPCombat(); }
         bool HasPvECombat() const;
         bool HasPvECombatWithPlayers() const;
+        bool HasPvECombat() const { return !_pveRefs.empty(); }
         std::unordered_map<ObjectGuid, CombatReference*> const& GetPvECombatRefs() const { return _pveRefs; }
         bool HasPvPCombat() const;
         std::unordered_map<ObjectGuid, PvPCombatReference*> const& GetPvPCombatRefs() const { return _pvpRefs; }
@@ -116,6 +128,7 @@ class TC_GAME_API CombatManager
 
         // return value is the same as calling IsInCombatWith immediately after this returns
         bool SetInCombatWith(Unit* who, bool addSecondUnitSuppressed = false);
+        bool SetInCombatWith(Unit* who);
         bool IsInCombatWith(ObjectGuid const& who) const;
         bool IsInCombatWith(Unit const* who) const;
         void InheritCombatStatesFrom(Unit const* who);
@@ -138,6 +151,7 @@ class TC_GAME_API CombatManager
         Unit* const _owner;
         std::unordered_map<ObjectGuid, CombatReference*> _pveRefs;
         std::unordered_map<ObjectGuid, PvPCombatReference*> _pvpRefs;
+
 
     friend struct CombatReference;
     friend struct PvPCombatReference;

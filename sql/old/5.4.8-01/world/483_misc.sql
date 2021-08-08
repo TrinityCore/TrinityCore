@@ -1,0 +1,12 @@
+ALTER TABLE `creature_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `disenchant_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `fishing_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `gameobject_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `item_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `mail_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `milling_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `pickpocketing_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `prospecting_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `reference_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `skinning_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;
+ALTER TABLE `spell_loot_template`  CHANGE COLUMN `item` `item` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `entry`;

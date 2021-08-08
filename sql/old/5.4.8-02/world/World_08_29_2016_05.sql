@@ -1,0 +1,84 @@
+REPLACE INTO spell_script_names VALUE (20711, 'spell_pri_spirit_of_redemption');
+REPLACE INTO spell_script_names VALUES (585, 'spell_pri_train_of_thought'), (2060, 'spell_pri_train_of_thought');
+REPLACE INTO spell_script_names VALUE (527, 'spell_pri_purify');
+REPLACE INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES (-32379,'spell_pri_shadow_word_death');
+REPLACE INTO spell_script_names VALUE (104232, 'spell_warl_rain_of_fire');
+REPLACE INTO spell_script_names VALUE (108501, 'spell_warl_grimoire_of_service');
+REPLACE INTO spell_script_names VALUES (78, 'spell_warr_taste_for_blood_aura'), (845, 'spell_warr_taste_for_blood_aura');
+REPLACE INTO spell_script_names (spell_id, ScriptName) VALUES (6552, 'spell_warr_glyph_of_gag_order'), (114028, 'spell_warr_glyph_of_gag_order');
+REPLACE INTO spell_script_names VALUES (133, 'spell_mastery_ignite'), (2948, 'spell_mastery_ignite'), (11366, 'spell_mastery_ignite'), (44614,'spell_mastery_ignite'), (108853, 'spell_mastery_ignite');
+REPLACE INTO spell_script_names VALUE (50662, 'spell_q12512_resuscitate');
+REPLACE INTO spell_script_names VALUE (122816, 'spell_q31112_ping_bunny');
+REPLACE INTO spell_script_names VALUE (69453, 'spell_q14491_soothe_earth_spirit');
+REPLACE INTO spell_script_names VALUE (71898, 'spell_q24861_funeral_offering');
+REPLACE INTO spell_script_names VALUE (62506, 'spell_q13595_bottle_of_wildfire');
+
+REPLACE INTO spell_script_names VALUE (62517, 'spell_q13523_elune_s_presence_dummy');
+REPLACE INTO `spell_script_names` (`spell_id` ,`ScriptName`) VALUES (55516, 'spell_q12919_gymers_grab'),(55421, 'spell_q12919_gymers_throw');
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (78838,'spell_item_enohar_explosive_arrows');
+REPLACE INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES (44436, 'spell_tricky_treat');
+UPDATE creature_template SET ScriptName = "npc_gilthares_firebough" WHERE entry = 3465;
+UPDATE gameobject_template SET ScriptName='go_tele_to_violet_stand' WHERE entry=191229;
+UPDATE gameobject_template SET ScriptName='npc_doom_guard_warlock' WHERE entry=11859;
+UPDATE creature_template SET ScriptName='npc_air_force_bots' WHERE entry IN (2614, 2615, 21974, 21993, 21996, 21997, 21999, 22001, 22002, 22003, 22063, 22065, 22066, 22068, 22069, 22070, 22071, 22078, 22079, 22080, 22086, 22087, 22088, 22090, 22124, 22125, 22126);
+UPDATE `creature_template` SET `unit_flags` = 0x4|0x40000, ScriptName = 'npc_fungal_growth' WHERE `entry` = 43484;
+UPDATE `creature_template` SET `ScriptName` = 'npc_mini_tyrael' WHERE `entry` = 29089;
+UPDATE `creature_template` SET `ScriptName` = 'npc_pengu' WHERE `entry` = 32595;
+UPDATE `creature_template` SET `ScriptName`='npc_puzzle_box_of_yogg_saron' WHERE `entry`=49634;
+UPDATE `creature_template` SET `ScriptName` = 'mob_fel_crystal' WHERE `entry` = 24722;
+UPDATE creature_template SET ScriptName='npc_koltira_deathweaver' WHERE entry=28912;
+REPLACE INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES (114460, 'spell_scorched_earth');
+UPDATE `creature_template` SET `ScriptName` = 'mob_book_case' WHERE `entry` = 59155;
+UPDATE `creature_template` SET `ScriptName` = 'mob_obedient_hound' WHERE `entry` = 59309;
+
+-- instance
+REPLACE INTO `instance_template` VALUES (959, 0, 'instance_shadopan', 0);
+REPLACE INTO `instance_template` VALUES (960, 0, 'instance_temple_of_jade', 0);
+REPLACE INTO `instance_template` VALUES (961, 0, 'instance_stormstout_brewery', 0);
+REPLACE INTO `instance_template` VALUES (962, 0, 'instance_gate_of_setting_sun', 0);
+REPLACE INTO `instance_template` VALUES (994, 0, 'instance_mogushan_palace', 0);
+REPLACE INTO `instance_template` VALUES (995, 0, 'instance_the_depths', 0);
+REPLACE INTO `instance_template` VALUES (996, 0, 'instance_terrace_of_endless_spring', 0);
+REPLACE INTO `instance_template` VALUES (999, 0, 'instance_battle_for_theramore_a', 0);
+REPLACE INTO `instance_template` VALUES (1000, 0, 'instance_battle_for_theramore_h', 0);
+REPLACE INTO `instance_template` VALUES (1001, 0, 'instance_scarlet_halls', 0);
+REPLACE INTO `instance_template` VALUES (1004, 0, 'instance_scarlet_monastery', 0);
+REPLACE INTO `instance_template` VALUES (1007, 0, 'instance_scholomance', 0);
+REPLACE INTO `instance_template` VALUES (1008, 0, 'instance_mogushan_vaults', 0);
+REPLACE INTO `instance_template` VALUES (1009, 0, 'instance_heart_of_fear', 0);
+REPLACE INTO `instance_template` VALUES (1011, 0, 'instance_siege_of_niuzao_temple', 0);
+
+UPDATE `creature_template` SET `ScriptName` = 'mob_chia_hui_autumnleaf' WHERE `entry` = 60248;
+UPDATE `creature_template` SET `ScriptName` = 'mob_aspiring_trainee' WHERE `entry` = 53565;
+UPDATE `creature_template` SET `ScriptName` = 'mob_ji_firepaw' WHERE `entry` = 56418;
+UPDATE `creature_template` SET `ScriptName` = 'npc_merchant_lorvo' WHERE `entry` = 54943;
+UPDATE `creature_template` SET `ScriptName` = 'mob_huojin_monk' WHERE `entry` = 60176;
+UPDATE `creature_template` SET `ScriptName` = 'mob_brewer_lin' WHERE `entry` = 60253;
+UPDATE `creature_template` SET `ScriptName` = 'mob_delivery_cart_tender' WHERE `entry` = 57712;
+UPDATE `creature_template` SET `ScriptName` = 'mob_master_shang_xi_temple' WHERE `entry` = 54786;
+UPDATE `creature_template` SET `ScriptName` = 'mob_instructors' WHERE `entry` = 65469;
+UPDATE `creature_template` SET `ScriptName` = 'mob_jaomin_ro' WHERE `entry` = 54611;
+
+UPDATE `creature_template` SET `ScriptName` = 'mob_huojin_trainee' WHERE `entry` = 54586;
+UPDATE `creature_template` SET `ScriptName` = 'mob_huojin_trainee' WHERE `entry` = 65470;
+UPDATE `creature_template` SET `ScriptName` = 'mob_master_shang_xi' WHERE `entry` = 53566;
+UPDATE `creature_template` SET `ScriptName` = 'mob_big_bao' WHERE `entry` = 58508;
+UPDATE `creature_template` SET `ScriptName` = 'mob_pandriarch_goldendraft' WHERE `entry` = 56210;
+UPDATE `creature_template` SET `ScriptName` = 'mob_pandriarch_bramblestaff' WHERE `entry` = 56209;
+UPDATE `creature_template` SET `ScriptName` = 'mob_pandriarch_windfur' WHERE `entry` = 56206;
+UPDATE `creature_template` SET `ScriptName` = 'mob_go_kan' WHERE `entry` = 50331;
+UPDATE `creature_template` SET `ScriptName` = 'mob_ik_thik_warrior' WHERE `entry` = 56722;
+UPDATE `creature_template` SET `ScriptName`='mob_hisek_the_swarmkeeper' WHERE `entry`=71153;
+UPDATE `creature_template` SET `ScriptName`='mob_restless_leng' WHERE `entry`=65698;
+UPDATE `creature_template` SET `ScriptName` = 'npc_sikthik_soldier' WHERE `entry` = 62348;
+UPDATE `creature_template` SET `ScriptName` = 'npc_siege_explosive' WHERE `entry` = 61452;
+UPDATE `creature_template` SET `ScriptName`='mob_jiang_xiang' WHERE (`entry`='65317');
+UPDATE `creature_template` SET `ScriptName`='mob_songbird_queen' WHERE (`entry`='59553');
+
+UPDATE `creature_template` SET `ScriptName`='mob_peril' WHERE (`entry`='59726');
+UPDATE `creature_template` SET `ScriptName`='mob_strife' WHERE (`entry`='59051');
+UPDATE `creature_template` SET `ScriptName`='mob_nodding_tiger' WHERE (`entry`='59544');
+UPDATE `creature_template` SET `ScriptName`='mob_golden_beetle' WHERE (`entry`='59545');
+UPDATE `creature_template` SET `ScriptName`='mob_talking_fish' WHERE (`entry`='59546');
+UPDATE `creature_template` SET `ScriptName` = 'mob_yeast_brew_elemental' WHERE `entry` = 59494;
+

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/psdb-cata/!svn/ver/2/DB_Optimizer
+END
+optimizer.exe
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/psdb-cata/!svn/ver/2/DB_Optimizer/optimizer.exe
+END
+scriptdev2_optimize.sql
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/psdb-cata/!svn/ver/2/DB_Optimizer/scriptdev2_optimize.sql
+END
+optimize.sql
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/psdb-cata/!svn/ver/2/DB_Optimizer/optimize.sql
+END

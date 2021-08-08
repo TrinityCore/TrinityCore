@@ -1,0 +1,20 @@
+/* 2016-08-12 - Correcting NPC flag */
+UPDATE `creature_template` SET `npcflag`=2 WHERE  `entry`=39701 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=21599 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=22733 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=31950 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=3 WHERE  `entry`=31994 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=22699 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=31963 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=3 WHERE  `entry`=31982 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=22684 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=32043 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=22734 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=31951 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=3 WHERE  `entry`=31826 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=22712 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=32049 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=22528 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=31924 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=2 WHERE  `entry`=39699 LIMIT 1;
+UPDATE `creature_template` SET `npcflag`=0 WHERE  `entry`=22730 LIMIT 1;

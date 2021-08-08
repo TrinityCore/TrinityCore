@@ -1,0 +1,22 @@
+/* Fix for creatures phase */
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340898 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340897 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340896 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340895 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340894 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340893 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340892 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340891 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340890 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340889 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340888 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340887 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340886 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340885 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340884 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340883 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340882 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340881 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340880 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340879 LIMIT 1;
+UPDATE `creature` SET `phaseMask`=1 WHERE  `guid`=340878 LIMIT 1;
