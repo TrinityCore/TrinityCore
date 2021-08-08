@@ -16,23 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: 
-SDAuthor: Frozen
-SD%Complete: %
-SDComment: still working on structure.
-Script Data End */
-
 #include "ScriptMgr.h"
 #include "GameObject.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
-#include "PassiveAI.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "TaskScheduler.h"
-#include "TemporarySummon.h"
 #include "GameObjectAI.h"
+#include "torghast_tower_of_the_damned.h"
+#include "instance_torgast_tower_of_the_damned"
+#include "Scenario_Coldheart_Interstitia"
+#include "Scenario_Mort'regar"
+#include "Scenario_Skoldus_Hall"
+#include "Scenario_The_Fracture_Chambers"
+#include "Scenario_The_Soulforges"
+#include "Scenario_The_Upper_Reaches"
 
 enum TheMaw
 {
@@ -44,8 +38,6 @@ enum TheMaw
     SPELL_DOMINATING = 345180,
     QUEST_THE_LIONS_CAGE = 59759,
     QUEST_FIELD_SEANCE = 59757,
-    QUEST_THE_AFFLICTORS_KEY = 59760,
-    QUEST_AN_UNDESERVED_FATE = 59761,
 };
 
 //166963
@@ -59,9 +51,8 @@ struct npc_knight_of_the_ebon_blade_166963 : public ScriptedAI
         {
             if (player->GetQuestStatus(QUEST_A_FRACTURED_BLADE) == QUEST_STATUS_INCOMPLETE)
             {
-                clicker->ToPlayer()->KilledMonsterCredit(166605);
-               // me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                _scheduler.Schedule(1500ms, [this, player](TaskContext /*context*/)
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                player->GetScheduler().Schedule(1500ms, [this, player](TaskContext /*context*/)
                 {
                     if (me && player)
                     {
@@ -72,11 +63,7 @@ struct npc_knight_of_the_ebon_blade_166963 : public ScriptedAI
             }
         }
     }
-private:
-    TaskScheduler _scheduler;
-    std::unordered_set<uint32> _randomEmotes;
 };
-
 
 //165918
 struct npc_highlord_darion_mograine_165918 : public ScriptedAI
@@ -177,9 +164,9 @@ struct npc_lady_jaina_proudmoore_166980 : public ScriptedAI
 
     void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_ON_BLACKENED_WINGS)
+        if (quest->ID == QUEST_ON_BLACKENED_WINGS)
         {
-            _scheduler.Schedule(15s, [this, player](TaskContext /*context*/)
+            player->GetScheduler().Schedule(15s, [this, player](TaskContext /*context*/)
             {
                 if (me && player)
                 {
@@ -189,9 +176,6 @@ struct npc_lady_jaina_proudmoore_166980 : public ScriptedAI
             });
         }
     };
-private:
-    TaskScheduler _scheduler;
-    std::unordered_set<uint32> _randomEmotes;
 };
 
 //326260
@@ -272,11 +256,11 @@ struct go_portal_to_torghast : public GameObjectAI
 
     void Reset() override
     {
-        me->GetScheduler().CancelAll();
-        _scheduler.Schedule(1s, [this](TaskContext context)
+        go->GetScheduler().CancelAll();
+        go->GetScheduler().Schedule(1s, [this] (TaskContext context)
         {
             std::list<Player*> playerList;
-            me->GetPlayerListInGrid(playerList, 3.0f);
+            go->GetPlayerListInGrid(playerList, 3.0f);
             if (playerList.empty())
                 return;
 
@@ -286,40 +270,9 @@ struct go_portal_to_torghast : public GameObjectAI
                     players->TeleportTo(2162, 1646.942f, 2315.244f, 383.060f, 4.733f);
             }
 
-            if (me->IsInWorld())
+            if (go->IsInWorld())
                 context.Repeat(3s);
         });
-    }
-private:
-    TaskScheduler _scheduler;
-    std::unordered_set<uint32> _randomEmotes;
-};
-
-//Mawforged Lock  351722
-struct go_mawforged_lock : public GameObjectAI
-{
-    go_mawforged_lock(GameObject* go) : GameObjectAI(go) { }
-
-    bool GossipHello(Player* player) override
-    {
-        if (player->GetQuestStatus(QUEST_THE_AFFLICTORS_KEY) == QUEST_STATUS_INCOMPLETE)
-            player->ForceCompleteQuest(QUEST_THE_AFFLICTORS_KEY);
-
-        return true;
-    }
-};
-
-//Mawsteel cage 351761
-struct go_mawsteel_cage : public GameObjectAI
-{
-    go_mawsteel_cage(GameObject* go) : GameObjectAI(go) { }
-
-    bool GossipHello(Player* player) override
-    {
-        if (player->GetQuestStatus(QUEST_AN_UNDESERVED_FATE) == QUEST_STATUS_INCOMPLETE)
-            player->ForceCompleteQuest(QUEST_AN_UNDESERVED_FATE);
-
-        return true;
     }
 };
 
@@ -334,6 +287,4 @@ void AddSC_zone_the_maw()
     RegisterSpellScript(spell_dominating);
     RegisterCreatureAI(npc_dnt_credit_tremaculum);
     RegisterGameObjectAI(go_portal_to_torghast);
-    RegisterGameObjectAI(go_mawforged_lock);
-    RegisterGameObjectAI(go_mawsteel_cage);
 }
