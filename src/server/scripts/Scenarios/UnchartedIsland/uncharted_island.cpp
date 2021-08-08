@@ -1,4 +1,5 @@
 /*
+ * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +41,26 @@ public:
 
     bool OnGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*uiSender*/, uint32 /*uiAction*/)
     {
-        
+        lfg::LfgDungeonSet newDungeons;
+        newDungeons.insert(1768);
+        sLFGMgr->JoinLfg(player, ROLE_DAMAGE, newDungeons);
+
+        //alliance
+        player->KilledMonsterCredit(139310);
+        //horde
+        player->KilledMonsterCredit(139309);
+
+        // 1768 map 1955 spawndiff 12
+
+        // 1724 spawndiff 38
+        // 1743 spawndiff 39 heroic
+        // 1746 spawndiff 40
+        // 1763 spawndiff 45
+
+        // 1726 1736 1737 1762
+
+
+        return true;
     }
 };
 

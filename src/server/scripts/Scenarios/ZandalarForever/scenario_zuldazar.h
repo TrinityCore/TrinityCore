@@ -1,4 +1,5 @@
 ﻿/*
+ * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
