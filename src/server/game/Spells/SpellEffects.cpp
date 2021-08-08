@@ -5865,5 +5865,5 @@ void Spell::EffectSendChatMessage(SpellEffIndex /*effIndex*/)
         return;
 
     ChatMsg chatType = ChatMsg(effectInfo->MiscValueB);
-    unitTarget->Talk(broadcastTextId, chatType, CreatureTextMgr::GetRangeForChatType(chatType), unitTarget);
+    m_caster->Talk(broadcastTextId, chatType, CreatureTextMgr::GetRangeForChatType(chatType), unitTarget);
 }
