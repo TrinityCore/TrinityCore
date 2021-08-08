@@ -680,12 +680,9 @@ bool AuthSession::HandleReconnectProof()
     if (_accountInfo.Login.empty())
         return false;
 
-    BigNumber t1;
-    t1.SetBinary(reconnectProof->R1, 16);
-
     Trinity::Crypto::SHA1 sha;
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateData(t1.ToByteArray<16>());
+    sha.UpdateData(reconnectProof->R1, 16);
     sha.UpdateData(_reconnectProof);
     sha.UpdateData(_sessionKey);
     sha.Finalize();
