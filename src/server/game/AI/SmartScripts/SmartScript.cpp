@@ -1965,13 +1965,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     target->ToGameObject()->SendCustomAnim(e.action.sendGoCustomAnim.anim);
             break;
         }
-        case SMART_ACTION_SET_DYNAMIC_FLAG:
-        {
-            for (WorldObject* target : targets)
-                target->SetDynamicFlags(e.action.flag.flag);
-
-            break;
-        }
         case SMART_ACTION_ADD_DYNAMIC_FLAG:
         {
             for (WorldObject* target : targets)
