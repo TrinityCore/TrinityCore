@@ -1,0 +1,1 @@
+DELETE FROM `spell_proc_event` WHERE (`entry`='77486') AND (`effectmask`='7');

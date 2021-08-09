@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='100780') AND (`ScriptName`='spell_mastery_combo_breaker');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('125195', 'spell_mastery_bottled_fury');

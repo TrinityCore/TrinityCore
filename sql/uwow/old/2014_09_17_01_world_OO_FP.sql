@@ -1,0 +1,2 @@
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('143027', 'spell_OO_clash');
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('143019', 'spell_OO_corrupted_brew');

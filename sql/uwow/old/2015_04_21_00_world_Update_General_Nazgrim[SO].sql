@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_korkron_sniper' WHERE `entry`='71656'; 

@@ -1,0 +1,9 @@
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '31589');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '50274');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '73975');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '58604');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '90315');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '109466');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '109468');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '116198');
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2225', '126406');

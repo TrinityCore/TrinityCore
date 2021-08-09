@@ -1,0 +1,1 @@
+update creature_template set unit_flags2 = 1075838976, unit_class = 4 where entry in (45870,45871,45872);

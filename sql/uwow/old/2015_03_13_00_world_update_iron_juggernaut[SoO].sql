@@ -1,0 +1,2 @@
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('144218','spell_borer_drill'); 
+UPDATE `creature_template` SET `modelid2`='0',`modelid3`='0',`ScriptName`='npc_borer_drill' WHERE `entry`='71906'; 

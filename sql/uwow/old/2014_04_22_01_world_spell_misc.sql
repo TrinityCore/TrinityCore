@@ -1,0 +1,2 @@
+ALTER TABLE spell_linked_spell ADD COLUMN hitmask MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER type2;
+UPDATE `spell_linked_spell` SET `hitmask`='64' WHERE (`spell_trigger`='64382') AND (`spell_effect`='64380') AND (`type`='0') AND (`hastalent`='0');

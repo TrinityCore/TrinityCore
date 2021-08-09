@@ -1,0 +1,1 @@
+UPDATE `spell_trigger` SET `bp1`='2' WHERE (`spell_id`='77485') AND (`spell_trigger`='77489') AND (`option`='3') AND (`effectmask`='1') AND (`aura`='0') AND (`check_spell_id`='0');

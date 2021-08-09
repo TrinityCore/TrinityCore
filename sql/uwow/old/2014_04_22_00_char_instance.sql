@@ -1,0 +1,1 @@
+ALTER TABLE  `instance` ADD  `challenge` INT( 11 ) NOT NULL COMMENT  'Start of challenge in sec' AFTER  `difficulty`;

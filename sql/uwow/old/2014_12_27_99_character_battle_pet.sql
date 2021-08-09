@@ -1,0 +1,1 @@
+﻿ALTER TABLE `character_battle_pet` DROP COLUMN `locked`;

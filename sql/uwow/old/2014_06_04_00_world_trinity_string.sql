@@ -1,0 +1,2 @@
+UPDATE `trinity_string` SET `content_default` = '|cffff0000[Arena Queue Announcer]:|r Joined : %ux%u : %u|r', `content_loc8` = '|cffff0000[Анонс Арены]:|r Вход : %ux%u : %u|r' WHERE `entry` = 718;
+UPDATE `trinity_string` SET `content_default` = '|cffff0000[Arena Queue Announcer]:|r Exited : %ux%u : %u|r', `content_loc8` = '|cffff0000[Анонс Арены]:|r Выход : %ux%u : %u|r' WHERE `entry` = 719;

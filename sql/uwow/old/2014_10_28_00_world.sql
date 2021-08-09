@@ -1,0 +1,1 @@
+DROP TABLE zone_skip_update;

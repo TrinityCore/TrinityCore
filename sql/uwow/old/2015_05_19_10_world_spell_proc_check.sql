@@ -1,0 +1,2 @@
+DELETE FROM `spell_proc_check` WHERE (`entry`='124974') AND (`entry2`='0') AND (`entry3`='0') AND (`checkspell`='-124991') AND (`hastalent`='0') AND (`powertype`='-1') AND (`dmgclass`='-1') AND (`specId`='0');
+DELETE FROM `spell_proc_check` WHERE (`entry`='124974') AND (`entry2`='0') AND (`entry3`='0') AND (`checkspell`='-124988') AND (`hastalent`='0') AND (`powertype`='-1') AND (`dmgclass`='-1') AND (`specId`='0');

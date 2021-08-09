@@ -1,0 +1,1 @@
+ALTER TABLE `phase_definitions` CHANGE `phaseId` `phaseId` SMALLINT(6) UNSIGNED NOT NULL DEFAULT '0';
