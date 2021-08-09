@@ -64,7 +64,7 @@ public:
             });
         }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if ((!who || who->GetTypeId() == TYPEID_UNIT) && me->HealthBelowPctDamaged(82, damage))
                 damage = 0;
@@ -99,7 +99,7 @@ public:
     {
         npc_big_earlAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if ((!who || who->GetTypeId() == TYPEID_UNIT) && me->HealthBelowPctDamaged(82, damage))
                 damage = 0;

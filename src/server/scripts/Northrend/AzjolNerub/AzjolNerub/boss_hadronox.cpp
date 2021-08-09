@@ -353,7 +353,7 @@ struct boss_hadronox : public BossAI
     }
 
     // Safeguard to prevent Hadronox dying to NPCs
-    void DamageTaken(Unit* who, uint32& damage) override
+    void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if ((!who || !who->IsControlledByPlayer()) && me->HealthBelowPct(70))
         {
@@ -514,7 +514,7 @@ struct npc_anub_ar_crusher : public npc_hadronox_crusherPackAI
         Talk(CRUSHER_SAY_AGGRO);
     }
 
-    void DamageTaken(Unit* /*source*/, uint32& damage) override
+    void DamageTaken(Unit* /*source*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (_hadFrenzy || !me->HealthBelowPctDamaged(25, damage))
             return;

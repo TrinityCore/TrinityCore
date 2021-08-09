@@ -117,7 +117,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 events.ScheduleEvent(EVENT_FEAR, 8s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;

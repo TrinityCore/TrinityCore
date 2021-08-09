@@ -232,7 +232,7 @@ struct npc_vrykul_skeleton : public ScriptedAI
         events.ScheduleEvent(EVENT_DECREPIFY, 4s, 6s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {

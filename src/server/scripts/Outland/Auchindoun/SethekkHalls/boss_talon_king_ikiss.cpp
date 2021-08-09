@@ -124,7 +124,7 @@ struct boss_talon_king_ikiss : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!ManaShield && me->HealthBelowPctDamaged(20, damage))
         {

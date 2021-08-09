@@ -212,7 +212,7 @@ struct boss_skarvald_the_constructor : public generic_boss_controllerAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!Enraged && !IsInGhostForm && me->HealthBelowPctDamaged(15, damage))
         {

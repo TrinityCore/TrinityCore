@@ -165,7 +165,7 @@ struct boss_mandokir : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(20, damage) && !me->HasAura(SPELL_FRENZY))
         {
@@ -301,7 +301,7 @@ struct npc_ohgan : public ScriptedAI
         DoCastAOE(SPELL_OHGAN_ORDERS, true);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
          {

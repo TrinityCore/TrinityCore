@@ -80,7 +80,7 @@ struct boss_interrogator_vishas : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(60, damage) && _yellCount < 1)
         {

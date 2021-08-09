@@ -502,7 +502,7 @@ struct npc_scourge_hulk : public ScriptedAI
         return type == DATA_INCREDIBLE_HULK ? killedByRitualStrike : 0;
     }
 
-    void DamageTaken(Unit* attacker, uint32 &damage) override
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && attacker && attacker->GetEntry() == NPC_SVALA_SORROWGRAVE)
             killedByRitualStrike = true;

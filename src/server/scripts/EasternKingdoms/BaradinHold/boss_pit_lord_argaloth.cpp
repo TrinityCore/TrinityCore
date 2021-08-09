@@ -66,7 +66,7 @@ class boss_pit_lord_argaloth : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HealthBelowPctDamaged(33, damage) ||
                     me->HealthBelowPctDamaged(66, damage))

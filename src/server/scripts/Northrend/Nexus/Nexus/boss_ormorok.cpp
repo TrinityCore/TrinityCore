@@ -92,7 +92,7 @@ struct boss_ormorok : public BossAI
         Talk(SAY_AGGRO);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!frenzy && HealthBelowPct(25))
         {

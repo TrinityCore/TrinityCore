@@ -53,7 +53,7 @@ struct boss_azshir_the_sleepless : public BossAI
         events.ScheduleEvent(EVENT_TERRIFY, 20s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_siphon && me->HealthBelowPctDamaged(50, damage))
         {

@@ -397,7 +397,7 @@ struct npc_akama_shade : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*who*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPct(20) && !_hasYelledOnce)
         {
@@ -982,7 +982,7 @@ struct npc_ashtongue_spiritbinder : public ScriptedAI
         _events.ScheduleEvent(EVENT_SPIRIT_HEAL, 5s, 6s);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*who*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_spiritMend)
             if (HealthBelowPct(30))

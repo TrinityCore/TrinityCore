@@ -163,7 +163,7 @@ struct boss_noth : public BossAI
         Talk(SAY_DEATH);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override // prevent noth from somehow dying in the balcony phase
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override // prevent noth from somehow dying in the balcony phase
     {
         if (!events.IsInPhase(PHASE_BALCONY))
             return;

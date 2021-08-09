@@ -88,7 +88,7 @@ public:
             instance->SetData(DATA_DISTILLER, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (me->GetHealth() <= damage)
                 instance->SetData(DATA_DISTILLER, DONE);

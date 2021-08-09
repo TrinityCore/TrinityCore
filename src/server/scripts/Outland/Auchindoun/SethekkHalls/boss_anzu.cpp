@@ -92,7 +92,7 @@ struct boss_anzu : public BossAI
         _JustDied();
     }
 
-    void DamageTaken(Unit* /*killer*/, uint32 &damage) override
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(33, damage) && !_under33Percent)
         {

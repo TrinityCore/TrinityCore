@@ -110,7 +110,7 @@ class boss_ozruk : public CreatureScript
                 BossAI::JustSummoned(summon);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!me->HealthBelowPctDamaged(25, damage) || me->HasAura(SPELL_ENRAGE))
                     return;

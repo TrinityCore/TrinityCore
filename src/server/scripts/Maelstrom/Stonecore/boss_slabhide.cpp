@@ -146,7 +146,7 @@ class boss_slabhide : public CreatureScript
                 events.ScheduleEvent(EVENT_AIR_PHASE, 10s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (_isFlying && damage >= me->GetHealth())
                     damage = me->GetHealth() - 1; // Let creature health fall to 1 hp but prevent it from dying during air phase.
