@@ -347,7 +347,7 @@ struct boss_deathbringer_saurfang : public BossAI
             Talk(SAY_KILL);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
             damage = me->GetHealth() - 1;

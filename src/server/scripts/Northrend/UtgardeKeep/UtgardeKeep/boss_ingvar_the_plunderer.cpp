@@ -114,7 +114,7 @@ struct boss_ingvar_the_plunderer : public BossAI
         _Reset();
     }
 
-    void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+    void DamageTaken(Unit* /*doneBy*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
         {

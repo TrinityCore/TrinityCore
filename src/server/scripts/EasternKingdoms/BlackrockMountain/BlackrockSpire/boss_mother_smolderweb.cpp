@@ -53,7 +53,7 @@ struct boss_mother_smolderweb : public BossAI
         _JustDied();
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->GetHealth() <= damage)
             DoCast(me, SPELL_SUMMON_SPIRE_SPIDERLING, true);

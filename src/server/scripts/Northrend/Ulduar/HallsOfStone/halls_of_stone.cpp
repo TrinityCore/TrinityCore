@@ -386,7 +386,7 @@ struct npc_brann_hos : public EscortAI
         Start();
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) == IN_PROGRESS)
             brannSparklinNews = false;

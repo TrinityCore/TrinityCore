@@ -688,7 +688,7 @@ struct npc_crok_scourgebane : public EscortAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // check wipe
         if (!_wipeCheckTimer)

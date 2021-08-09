@@ -379,7 +379,7 @@ struct boss_gothik : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!events.IsInPhase(PHASE_TWO))
             damage = 0;
@@ -568,7 +568,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             return IsOnSameSide(me, who);
         }
 
-        void DamageTaken(Unit* attacker, uint32 &damage) override
+        void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         { // do not allow minions to take damage before the gate is opened
             if (!_gateIsOpen && (!attacker || !isOnSameSide(attacker)))
                 damage = 0;
@@ -800,7 +800,7 @@ struct npc_gothik_trigger : public ScriptedAI
     void EnterEvadeMode(EvadeReason /*why*/) override { }
     void UpdateAI(uint32 /*diff*/) override { }
     void JustEngagedWith(Unit* /*who*/) override { }
-    void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0;  }
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override { damage = 0;  }
 
     Creature* SelectRandomSkullPile()
     {

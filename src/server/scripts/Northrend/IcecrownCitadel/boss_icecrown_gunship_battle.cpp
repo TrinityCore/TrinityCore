@@ -675,7 +675,7 @@ class npc_gunship : public CreatureScript
                 me->SetRegenerateHealth(false);
             }
 
-            void DamageTaken(Unit* /*source*/, uint32& damage) override
+            void DamageTaken(Unit* /*source*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -966,7 +966,7 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
         return false;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(65, damage) && !me->HasAura(SPELL_TASTE_OF_BLOOD))
             DoCast(me, SPELL_TASTE_OF_BLOOD, true);
@@ -1220,7 +1220,7 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
         return false;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(65, damage) && me->HasAura(SPELL_TASTE_OF_BLOOD))
             DoCast(me, SPELL_TASTE_OF_BLOOD, true);
@@ -1451,7 +1451,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (_usedDesperateResolve)
             return;

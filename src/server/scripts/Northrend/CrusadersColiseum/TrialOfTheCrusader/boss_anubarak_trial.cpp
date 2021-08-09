@@ -594,7 +594,7 @@ struct npc_frost_sphere : public ScriptedAI
         me->GetMotionMaster()->MoveRandom(20.0f);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->GetHealth() <= damage)
         {
@@ -677,7 +677,7 @@ struct npc_anubarak_spike : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& uiDamage) override
+    void DamageTaken(Unit* /*who*/, uint32& uiDamage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         uiDamage = 0;
     }

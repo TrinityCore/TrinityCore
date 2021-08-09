@@ -112,7 +112,7 @@ struct boss_twinemperorsAI : public BossAI
         return instance->GetCreature(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR);
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         Unit* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)

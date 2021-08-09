@@ -124,7 +124,7 @@ struct boss_garfrost : public BossAI
             tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(66))
         {

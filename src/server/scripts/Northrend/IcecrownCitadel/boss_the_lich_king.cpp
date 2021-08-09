@@ -682,7 +682,7 @@ struct boss_the_lich_king : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
         {
@@ -1304,7 +1304,7 @@ struct npc_shambling_horror_icc : public ScriptedAI
         _events.ScheduleEvent(EVENT_ENRAGE, 11s, 14s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_frenzied && IsHeroic() && me->HealthBelowPctDamaged(20, damage))
         {
@@ -1461,7 +1461,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
         _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500ms);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!IsHeroic())
             return;
@@ -1730,7 +1730,7 @@ struct npc_terenas_menethil : public ScriptedAI
         EngagementOver();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {

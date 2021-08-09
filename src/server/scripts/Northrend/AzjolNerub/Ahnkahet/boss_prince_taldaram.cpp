@@ -221,7 +221,7 @@ struct boss_prince_taldaram : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+    void DamageTaken(Unit* /*doneBy*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         Unit* embraceTarget = GetEmbraceTarget();
 
