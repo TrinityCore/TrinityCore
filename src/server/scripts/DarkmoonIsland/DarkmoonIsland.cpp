@@ -92,11 +92,11 @@ public:
 
         void Register() override
         {
-            OnAuraUpdate += AuraUpdateFn(spell_darkmoon_carousel_whee_AuraScript::OnUpdate);
-        }
+          //  OnAuraUpdate += AuraUpdateFn(spell_darkmoon_carousel_whee_AuraScript::OnUpdate);
+        };
     };
 
-    AuraScript* GetAuraScript() const override
+    AuraScript* GetAuraScript() const
     {
         return new spell_darkmoon_carousel_whee_AuraScript();
     }
@@ -179,7 +179,7 @@ class npc_jessica_rogers : public CreatureScript
 public:
     npc_jessica_rogers() : CreatureScript("npc_jessica_rogers") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -374,7 +374,7 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -612,7 +612,7 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -1032,7 +1032,7 @@ public:
 void AddSC_darkmoon_island()
 {
     new playerscript_darkmoon_carousel();
-    new npc_jessica_rogers();
+    //new npc_jessica_rogers();
     new npc_selina_dourman();
     new npc_rinling();
     new spell_ring_toss();
@@ -1047,3 +1047,7 @@ void AddSC_darkmoon_island()
     new spell_darkmoon_deathmatch();
     new spell_shoot_gallery_shoot();
 };
+
+void spell_darkmoon_carousel_whee::spell_darkmoon_carousel_whee_AuraScript::Register()
+{
+}

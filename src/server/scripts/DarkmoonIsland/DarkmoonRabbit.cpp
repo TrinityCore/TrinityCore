@@ -38,7 +38,7 @@ public:
     {
         npc_darkmoon_rabbit_irdAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) 
         {
             me->CastSpell(who, SPELL_HUGE_SHARP_TEETH);
         }

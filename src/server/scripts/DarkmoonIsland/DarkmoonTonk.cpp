@@ -39,7 +39,7 @@ class go_tonk_console : public GameObjectScript
 public:
     go_tonk_console() : GameObjectScript("go_tonk_console") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* /*go*/) override
+    bool OnGossipHello(Player* /*player*/, GameObject* /*go*/)
     {
         return false;
     }
@@ -279,7 +279,7 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -377,5 +377,5 @@ void AddSC_darkmoon_tonk()
     //npc
     new npc_finlay_coolshot();
     //go
-    new go_tonk_console();
+    //new go_tonk_console();
 };

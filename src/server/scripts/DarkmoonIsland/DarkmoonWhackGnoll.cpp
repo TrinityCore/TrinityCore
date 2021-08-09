@@ -207,7 +207,7 @@ class npc_whack_gnoll_mola : public CreatureScript
     public:
         npc_whack_gnoll_mola() : CreatureScript("npc_whack_gnoll_mola") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        bool OnGossipHello(Player* player, Creature* creature)
         {
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
@@ -219,7 +219,7 @@ class npc_whack_gnoll_mola : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
         {
             if (!player->HasItemCount(ITEM_DARKMOON_TOKEN))
             {
@@ -310,8 +310,8 @@ class spell_whack_gnoll_whack : public SpellScriptLoader
                 // Todo : On peut rendre le code plus propre en changant la TargetA du spell par 46 et ajouter des conditions, mais perso j'ai la flemme
                 std::list<Creature*> targetList;
                 caster->GetCreatureListWithEntryInGrid(targetList, NPC_GNOLL, 3.0f);
-                caster->GetCreatureListWithEntryInGridAppend(targetList, NPC_DOLL, 3.0f);
-                caster->GetCreatureListWithEntryInGridAppend(targetList, NPC_BOSS, 3.0f);
+                //caster->GetCreatureListWithEntryInGridAppend(targetList, NPC_DOLL, 3.0f);
+                //caster->GetCreatureListWithEntryInGridAppend(targetList, NPC_BOSS, 3.0f);
 
                 targetList.remove_if(PositionCheck(GetCaster()));
 
@@ -341,7 +341,7 @@ class spell_whack_gnoll_whack : public SpellScriptLoader
                     }
                 }
 
-                caster->Kill(target);
+                //caster->Kill(target);
                 return SPELL_CAST_OK;
             }
 
@@ -421,7 +421,7 @@ class AreaTrigger_at_whack_a_gnoll_entrance : public AreaTriggerScript
 void AddSC_darkmoon_whack_gnoll()
 {
     new npc_whack_gnoll_bunny();
-    new npc_whack_gnoll_mola();
+    //new npc_whack_gnoll_mola();
     new npc_whack_gnoll_barrel();
     new spell_whack_gnoll_whack();
     new spell_whack_gnoll_override_action();
