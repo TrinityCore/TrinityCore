@@ -996,7 +996,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     uint32 crTypeMask = victim->GetCreatureTypeMask();
 
     // @tswow-begin
-    FIRE(FormulaOnSpellDamageEarly
+    FIRE_MAP(
+          spellInfo->events
+        , SpellOnDamageEarly
         , TSSpellDamageInfo(damageInfo)
         , TSSpell(spell)
         , attackType
@@ -1117,12 +1119,15 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
     damageInfo->damage = dmgInfo.GetDamage();
     // @tswow-begin
-    FIRE(FormulaOnSpellDamageLate
+    FIRE_MAP(
+          spellInfo->events
+        , SpellOnDamageLate
         , TSSpellDamageInfo(damageInfo)
         , TSSpell(spell)
         , attackType
         , crit
-        , TSMutable<uint32>(&damageInfo->damage));
+        , TSMutable<uint32>(&damageInfo->damage)
+    );
     // @tswow-end
 }
 

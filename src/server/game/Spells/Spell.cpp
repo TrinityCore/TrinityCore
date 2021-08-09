@@ -7717,7 +7717,12 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, uin
         critChance = unit->SpellCritChanceTaken(m_originalCaster, m_spellInfo, m_spellSchoolMask, critChance, m_attackType);
     }
     // @tswow-begin
-    FIRE(FormulaOnSpellCrit,TSSpell(this),TSMutable<float>(&critChance));
+    FIRE_MAP(
+        this->m_spellInfo->events
+        , SpellOnCritFormula
+        , TSSpell(this)
+        , TSMutable<float>(&critChance)
+    );
     // @tswow-end
     targetInfo.IsCrit = roll_chance_f(critChance);
 }

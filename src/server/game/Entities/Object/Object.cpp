@@ -2506,12 +2506,14 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
         HitChance += int32(unit->m_modSpellHitChance * 100.0f);
 
     // @tswow-begin
-    FIRE(FormulaOnSpellReflect
+    FIRE_MAP(
+          spellInfo->events
+        , SpellOnHitFormula
         , TSWorldObject(const_cast<WorldObject*>(this))
         , TSUnit(victim)
         , TSSpellInfo(spellInfo)
         , TSMutable<int32>(&HitChance)
-        );
+    );
     // @tswow-end
 
     RoundToInterval(HitChance, 0, 10000);
@@ -2547,12 +2549,14 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     }
 
     // @tswow-begin
-    FIRE(FormulaOnSpellResist
+    FIRE_MAP(
+        spellInfo->events
+        , SpellOnResistFormula
         , TSWorldObject(const_cast<WorldObject*>(this))
         , TSUnit(victim)
         , TSSpellInfo(spellInfo)
         , TSMutable<int32>(&resist_chance)
-        );
+    );
     // @tswow-end
 
     // Roll chance
@@ -2564,12 +2568,14 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     {
         int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         // @tswow-begin
-        FIRE(FormulaOnSpellResist
+        FIRE_MAP(
+              spellInfo->events
+            , SpellOnResistFormula
             , TSWorldObject(const_cast<WorldObject*>(this))
             , TSUnit(victim)
             , TSSpellInfo(spellInfo)
-            , TSMutable<int32>(&deflect_chance)
-            );
+            , TSMutable<int32>(&resist_chance)
+        );
         // @tswow-end
         if (deflect_chance > 0 && rand < (tmp += deflect_chance))
             return SPELL_MISS_DEFLECT;
@@ -2615,12 +2621,14 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         reflectchance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_REFLECT_SPELLS_SCHOOL, spellInfo->GetSchoolMask());
         // @tswow-begin
-        FIRE(FormulaOnSpellReflect
+        FIRE_MAP(
+            spellInfo->events
+            , SpellOnReflectFormula
             , TSWorldObject(const_cast<WorldObject*>(this))
             , TSUnit(victim)
             , TSSpellInfo(spellInfo)
             , TSMutable<int32>(&reflectchance)
-            );
+        );
         // @tswow-end
         if (reflectchance > 0 && roll_chance_i(reflectchance))
             return SPELL_MISS_REFLECT;
