@@ -32,7 +32,7 @@ namespace
     std::unordered_map<uint32, StoredLootContainer> _lootItemStore;
 }
 
-StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), FollowRules(lootItem.follow_loot_rules),
+StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), ItemIndex(lootItem.itemIndex), FollowRules(lootItem.follow_loot_rules),
 FFA(lootItem.freeforall), Blocked(lootItem.is_blocked), Counted(lootItem.is_counted), UnderThreshold(lootItem.is_underthreshold),
 NeedsQuest(lootItem.needs_quest), RandomPropertyId(lootItem.randomPropertyId), RandomSuffix(lootItem.randomSuffix)
 {
@@ -157,6 +157,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
             LootItem li;
             li.itemid = storedItemPair.first;
             li.count = storedItemPair.second.Count;
+            li.itemIndex = storedItemPair.second.ItemIndex;
             li.follow_loot_rules = storedItemPair.second.FollowRules;
             li.freeforall = storedItemPair.second.FFA;
             li.is_blocked = storedItemPair.second.Blocked;

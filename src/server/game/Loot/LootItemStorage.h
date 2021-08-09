@@ -35,6 +35,7 @@ struct StoredLootItem
 
     uint32 ItemId;
     uint32 Count;
+    uint32 ItemIndex;
     bool FollowRules;
     bool FFA;
     bool Blocked;
