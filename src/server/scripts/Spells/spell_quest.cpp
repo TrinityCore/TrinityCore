@@ -687,37 +687,6 @@ class spell_q10041_q10040_who_are_they : public SpellScript
     }
 };
 
-enum symboloflife
-{
-    SPELL_PERMANENT_FEIGN_DEATH = 29266,
-};
-
-// 8593 - Symbol of Life (Dummy)
-class spell_symbol_of_life_dummy : public SpellScript
-{
-    PrepareSpellScript(spell_symbol_of_life_dummy);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Creature* target = GetHitCreature())
-        {
-            if (target->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
-            {
-                target->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                target->SetDynamicFlags(0);
-                target->SetUnitFlags2(UnitFlags2(0));
-                target->SetHealth(target->GetMaxHealth() / 2);
-                target->SetPower(POWER_MANA, uint32(target->GetMaxPower(POWER_MANA) * 0.75f));
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_symbol_of_life_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // http://www.wowhead.com/quest=12659 Scalps!
 enum Quest12659Data
 {
@@ -2470,7 +2439,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q12851_going_bearback);
     RegisterSpellScript(spell_q12937_relief_for_the_fallen);
     RegisterSpellScript(spell_q10041_q10040_who_are_they);
-    RegisterSpellScript(spell_symbol_of_life_dummy);
     RegisterSpellScript(spell_q12659_ahunaes_knife);
     RegisterSpellScript(spell_q9874_liquid_fire);
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
