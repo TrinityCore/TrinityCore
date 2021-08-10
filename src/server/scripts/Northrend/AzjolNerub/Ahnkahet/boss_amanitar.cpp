@@ -147,7 +147,7 @@ struct boss_amanitar : public BossAI
             switch (eventId)
             {
                 case EVENT_SPAWN:
-                    for (Position const pos : MushroomPositions)
+                    for (Position const& pos : MushroomPositions)
                         SpawnMushroom(pos);
                     break;
                 case EVENT_MINI:
@@ -192,8 +192,8 @@ struct boss_amanitar : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    private:
-        std::deque<Position> _mushroomsDeque;
+private:
+    std::deque<Position> _mushroomsDeque;
 };
 
 struct npc_amanitar_mushrooms : public ScriptedAI
@@ -209,12 +209,34 @@ struct npc_amanitar_mushrooms : public ScriptedAI
         DoCastSelf(SPELL_GROW, true);
 
         if (me->GetEntry() == NPC_HEALTHY_MUSHROOM)
-        {
             DoCastSelf(SPELL_POWER_MUSHROOM_VISUAL_AURA);
-            _active = true;
-        }
         else
+        {
             DoCastSelf(SPELL_POISONOUS_MUSHROOM_VISUAL_AURA);
+
+            _scheduler.Schedule(1s, [this](TaskContext checkRangeContext)
+            {
+                std::vector<Player*> playersNearby;
+                GetPlayerListInGrid(playersNearby, me, 2.0f);
+                if (!playersNearby.empty())
+                {
+                    _active = true;
+
+                    for (Player* foundPlayer : playersNearby)
+                        foundPlayer->RemoveAurasDueToSpell(SPELL_POTENT_FUNGUS);
+
+                    DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
+
+                    _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+                    {
+                        me->SetObjectScale(0.1f);
+                        me->DespawnOrUnsummon(Seconds(4));
+                    });
+                }
+                else
+                    checkRangeContext.Repeat(1s);
+            });
+        }
 
         _scheduler.Schedule(Milliseconds(800), [this](TaskContext /*context*/)
         {
@@ -222,27 +244,12 @@ struct npc_amanitar_mushrooms : public ScriptedAI
         });
     }
 
-    void MoveInLineOfSight(Unit* target) override
-    {
-        if (_active || target->GetTypeId() != TYPEID_PLAYER || me->GetDistance2d(target) > 2.0f)
-            return;
-
-        _active = true;
-
-        target->RemoveAurasDueToSpell(SPELL_POTENT_FUNGUS);
-        DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
-
-        _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
-        {
-            me->SetObjectScale(0.1f);
-            me->DespawnOrUnsummon(Seconds(4));
-        });
-    }
-
     void JustDied(Unit* /*killer*/) override
     {
         if (me->GetEntry() == NPC_HEALTHY_MUSHROOM)
             DoCastAOE(SPELL_POTENT_FUNGUS, true);
+        else if (!_active)
+            DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
     }
 
     void UpdateAI(uint32 diff) override
