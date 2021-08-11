@@ -232,7 +232,7 @@ struct UnitChannel : public IsUpdateFieldStructureTag
 struct VisibleItem : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
     UpdateField<int32, 0, 1> ItemID;
-    UpdateField<int32, 0, 2> ItemModifiedAppearanceID;
+    UpdateField<int32, 0, 2> SecondaryItemModifiedAppearanceID;
     UpdateField<uint16, 0, 3> ItemAppearanceModID;
     UpdateField<uint16, 0, 4> ItemVisual;
 

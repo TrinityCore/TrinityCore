@@ -108,10 +108,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
 
         if (transmogItem.ItemModifiedAppearanceID || transmogItem.SecondaryItemModifiedAppearanceID)
         {
-            if (!validateAndStoreTransmogItem(itemTransmogrified, transmogItem.ItemModifiedAppearanceID, false))
+            if (transmogItem.ItemModifiedAppearanceID && !validateAndStoreTransmogItem(itemTransmogrified, transmogItem.ItemModifiedAppearanceID, false))
                 return;
 
-            if (!validateAndStoreTransmogItem(itemTransmogrified, transmogItem.SecondaryItemModifiedAppearanceID, true))
+            if (transmogItem.SecondaryItemModifiedAppearanceID && !validateAndStoreTransmogItem(itemTransmogrified, transmogItem.SecondaryItemModifiedAppearanceID, true))
                 return;
 
             // add cost

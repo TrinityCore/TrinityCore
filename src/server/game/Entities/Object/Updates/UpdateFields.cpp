@@ -868,7 +868,7 @@ bool UnitChannel::operator==(UnitChannel const& right) const
 void VisibleItem::WriteCreate(ByteBuffer& data, Unit const* owner, Player const* receiver) const
 {
     data << int32(ItemID);
-    data << int32(ItemModifiedAppearanceID);
+    data << int32(SecondaryItemModifiedAppearanceID);
     data << uint16(ItemAppearanceModID);
     data << uint16(ItemVisual);
 }
@@ -890,7 +890,7 @@ void VisibleItem::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Unit con
         }
         if (changesMask[2])
         {
-            data << int32(ItemModifiedAppearanceID);
+            data << int32(SecondaryItemModifiedAppearanceID);
         }
         if (changesMask[3])
         {
@@ -906,7 +906,7 @@ void VisibleItem::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Unit con
 void VisibleItem::ClearChangesMask()
 {
     Base::ClearChangesMask(ItemID);
-    Base::ClearChangesMask(ItemModifiedAppearanceID);
+    Base::ClearChangesMask(SecondaryItemModifiedAppearanceID);
     Base::ClearChangesMask(ItemAppearanceModID);
     Base::ClearChangesMask(ItemVisual);
     _changesMask.ResetAll();

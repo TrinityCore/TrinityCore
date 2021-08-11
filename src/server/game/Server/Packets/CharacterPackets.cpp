@@ -142,11 +142,12 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
-        uint32 visualBase = slot * 4;
+        uint32 visualBase = slot * 5;
         VisualItems[slot].InvType = Player::GetUInt32ValueFromArray(equipment, visualBase);
         VisualItems[slot].DisplayID = Player::GetUInt32ValueFromArray(equipment, visualBase + 1);
         VisualItems[slot].DisplayEnchantID = Player::GetUInt32ValueFromArray(equipment, visualBase + 2);
         VisualItems[slot].Subclass = Player::GetUInt32ValueFromArray(equipment, visualBase + 3);
+        VisualItems[slot].SecondaryItemModifiedAppearanceID = Player::GetUInt32ValueFromArray(equipment, visualBase + 4);
     }
 }
 
@@ -154,7 +155,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo::Vi
 {
     data << uint32(visualItem.DisplayID);
     data << uint32(visualItem.DisplayEnchantID);
-    data << int32(visualItem.ItemModifiedAppearanceID);
+    data << int32(visualItem.SecondaryItemModifiedAppearanceID);
     data << uint8(visualItem.InvType);
     data << uint8(visualItem.Subclass);
 

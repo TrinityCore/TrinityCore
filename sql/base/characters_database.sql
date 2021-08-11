@@ -3193,11 +3193,19 @@ CREATE TABLE `item_instance_transmog` (
   `itemModifiedAppearanceSpec2` int(11) NOT NULL DEFAULT '0',
   `itemModifiedAppearanceSpec3` int(11) NOT NULL DEFAULT '0',
   `itemModifiedAppearanceSpec4` int(11) NOT NULL DEFAULT '0',
+  `itemModifiedAppearanceSpec5` int(11) NOT NULL DEFAULT '0',
   `spellItemEnchantmentAllSpecs` int(11) NOT NULL DEFAULT '0',
   `spellItemEnchantmentSpec1` int(11) NOT NULL DEFAULT '0',
   `spellItemEnchantmentSpec2` int(11) NOT NULL DEFAULT '0',
   `spellItemEnchantmentSpec3` int(11) NOT NULL DEFAULT '0',
   `spellItemEnchantmentSpec4` int(11) NOT NULL DEFAULT '0',
+  `spellItemEnchantmentSpec5` int(11) NOT NULL DEFAULT '0',
+  `secondaryItemModifiedAppearanceAllSpecs` int(11) NOT NULL DEFAULT '0',
+  `secondaryItemModifiedAppearanceSpec1` int(11) NOT NULL DEFAULT '0',
+  `secondaryItemModifiedAppearanceSpec2` int(11) NOT NULL DEFAULT '0',
+  `secondaryItemModifiedAppearanceSpec3` int(11) NOT NULL DEFAULT '0',
+  `secondaryItemModifiedAppearanceSpec4` int(11) NOT NULL DEFAULT '0',
+  `secondaryItemModifiedAppearanceSpec5` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`itemGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3858,7 +3866,8 @@ INSERT INTO `updates` VALUES
 ('2021_04_05_00_characters.sql','33D656995E0F3578FFE1A658ED1692CA5310AB30','ARCHIVED','2021-04-05 23:44:54',0),
 ('2021_05_10_00_characters.sql','0A406242BC18BDA5A65CDE3E2AFEE760D79F819F','ARCHIVED','2021-05-10 23:30:34',0),
 ('2021_05_11_00_characters.sql','C3F0337CE8363F970AB4FDB9D23BBB7C650A0B0E','ARCHIVED','2021-05-11 15:39:26',0),
-('2021_07_04_00_characters.sql','E0E7AD664DDB553E96B457DD9ED8976665E94007','ARCHIVED','2021-07-04 22:23:24',0);
+('2021_07_04_00_characters.sql','E0E7AD664DDB553E96B457DD9ED8976665E94007','ARCHIVED','2021-07-04 22:23:24',0),
+('2021_08_11_00_characters.sql','2137A52A45B045104B97D39626CE3C0214625B17','RELEASED','2021-08-11 21:48:57',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
