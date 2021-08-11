@@ -15,44 +15,47 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "ahnkahet.h"
+#include "AreaBoundary.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "ahnkahet.h"
 
 enum NadoxTexts
 {
-    SAY_AGGRO       = 0,
-    SAY_SLAY        = 1,
-    SAY_DEATH       = 2,
-    SAY_EGG_SAC     = 3,
-    EMOTE_HATCHES   = 4
+    SAY_AGGRO = 0,
+    SAY_SLAY = 1,
+    SAY_DEATH = 2,
+    SAY_EGG_SAC = 3,
+    EMOTE_HATCHES = 4
 };
 
 enum NadoxSpells
 {
     // Elder Nadox
-    SPELL_BROOD_PLAGUE          = 56130,
-    H_SPELL_BROOD_RAGE          = 59465,
-    SPELL_ENRAGE                = 26662, // Enraged if too far away from home
-    SPELL_SUMMON_SWARMERS       = 56119, // 2x 30178  -- 2x every 10secs
-    SPELL_SUMMON_SWARM_GUARD    = 56120, // 1x 30176
+    SPELL_BROOD_PLAGUE = 56130,
+    SPELL_BROOD_RAGE = 59465,
+    SPELL_BERSERK = 26662, // Enraged if too far away from home
+    SPELL_SUMMON_SWARMERS = 56119, // 2x 30178  -- 2x every 10secs
+    SPELL_SUMMON_SWARM_GUARD = 56120, // 1x 30176
 
     // Adds
-    SPELL_SWARM_BUFF            = 56281,
-    SPELL_SPRINT                = 56354
+    SPELL_SWARM_BUFF = 56281,
+    SPELL_SPRINT = 56354
 };
 
 enum NadoxEvents
 {
     EVENT_PLAGUE = 1,
-    EVENT_RAGE,
+    EVENT_BROOD_RAGE,
     EVENT_SUMMON_SWARMER,
     EVENT_CHECK_ENRAGE,
     EVENT_SPRINT,
     DATA_RESPECT_YOUR_ELDERS
 };
+
+ParallelogramBoundary const ElderNadoxRoomBoundary = ParallelogramBoundary(Position(690.96f, -858.93f, -25.69f), Position(571.f, -937.f, -25.69f), Position(722.93f, -908.05f, -25.69f));
 
 struct boss_elder_nadox : public BossAI
 {
@@ -63,8 +66,8 @@ struct boss_elder_nadox : public BossAI
 
     void Initialize()
     {
-        GuardianSummoned = false;
-        GuardianDied = false;
+        _guardianSummoned = false;
+        _guardianDied = false;
     }
 
     void Reset() override
@@ -83,7 +86,7 @@ struct boss_elder_nadox : public BossAI
 
         if (IsHeroic())
         {
-            events.ScheduleEvent(EVENT_RAGE, 12s);
+            events.ScheduleEvent(EVENT_BROOD_RAGE, 12s);
             events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5s);
         }
     }
@@ -91,13 +94,13 @@ struct boss_elder_nadox : public BossAI
     void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
     {
         if (summon->GetEntry() == NPC_AHNKAHAR_GUARDIAN)
-            GuardianDied = true;
+            _guardianDied = true;
     }
 
     uint32 GetData(uint32 type) const override
     {
         if (type == DATA_RESPECT_YOUR_ELDERS)
-            return !GuardianDied ? 1 : 0;
+            return !_guardianDied ? 1 : 0;
 
         return 0;
     }
@@ -126,46 +129,51 @@ struct boss_elder_nadox : public BossAI
             switch (eventId)
             {
                 case EVENT_PLAGUE:
-                    DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_BROOD_PLAGUE, true);
-                    events.ScheduleEvent(EVENT_PLAGUE, 15s);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                        DoCast(target, SPELL_BROOD_PLAGUE, true);
+                    events.Repeat(15s);
                     break;
-                case EVENT_RAGE:
-                    DoCast(H_SPELL_BROOD_RAGE);
-                    events.ScheduleEvent(EVENT_RAGE, 10s, 50s);
+                case EVENT_BROOD_RAGE:
+                    DoCast(SPELL_BROOD_RAGE);
+                    events.Repeat(10s, 50s);
                     break;
                 case EVENT_SUMMON_SWARMER:
                     /// @todo: summoned by egg
                     DoCast(me, SPELL_SUMMON_SWARMERS);
-                    if (urand(1, 3) == 3) // 33% chance of dialog
+                    if (roll_chance_i(33)) // 33% chance of dialog
                         Talk(SAY_EGG_SAC);
-                    events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10s);
+                    events.Repeat(10s);
                     break;
                 case EVENT_CHECK_ENRAGE:
-                    if (me->HasAura(SPELL_ENRAGE))
+                    if (me->HasAura(SPELL_BERSERK))
                         return;
-                    if (me->GetPositionZ() < 24.0f)
-                        DoCast(me, SPELL_ENRAGE, true);
-                    events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5s);
+                    if (!ElderNadoxRoomBoundary.IsWithinBoundary(me))
+                        DoCast(me, SPELL_BERSERK, true);
+                    else
+                        events.Repeat(5s);
                     break;
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
-        if (!GuardianSummoned && me->HealthBelowPct(50))
+        if (!_guardianSummoned && me->HealthBelowPct(50))
         {
             /// @todo: summoned by egg
             Talk(EMOTE_HATCHES, me);
-            DoCast(me, SPELL_SUMMON_SWARM_GUARD);
-            GuardianSummoned = true;
+            DoCastSelf(SPELL_SUMMON_SWARM_GUARD);
+            _guardianSummoned = true;
         }
 
         DoMeleeAttackIfReady();
     }
 
 private:
-    bool GuardianSummoned;
-    bool GuardianDied;
+    bool _guardianSummoned;
+    bool _guardianDied;
 };
 
 struct npc_ahnkahar_nerubian : public ScriptedAI
