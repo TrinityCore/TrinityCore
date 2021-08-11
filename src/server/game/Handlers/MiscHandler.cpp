@@ -65,6 +65,7 @@
 #include "TSMacros.h"
 #include "TSPlayer.h"
 #include "TSGameObject.h"
+#include "TSAreaTrigger.h"
 // @tswow-end
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
@@ -700,6 +701,21 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     if (player->isDebugAreaTriggers)
         ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, triggerId);
 
+    // @tswow-begin
+    bool canceled = false;
+    auto events = GetAreaTriggerEvents(triggerId);
+    FIRE_MAP(
+          events
+        , AreaTriggerOnTrigger
+        , TSAreaTriggerEntry(const_cast<AreaTriggerEntry*>(atEntry))
+        , TSPlayer(player)
+        , TSMutable<bool>(&canceled)
+        );
+    if (canceled)
+    {
+        return;
+    }
+    // @tswow-end
     if (sScriptMgr->OnAreaTrigger(player, atEntry))
         return;
 
