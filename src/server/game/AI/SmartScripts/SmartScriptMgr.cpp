@@ -486,9 +486,6 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has abs(`target.o` = %f) > 2*PI (orientation is expressed in radians)",
             e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.o);
 
-    if (e.GetActionType() == SMART_ACTION_INSTALL_AI_TEMPLATE)
-        return true; // AI template has special handling
-
     switch (e.GetTargetType())
     {
         case SMART_TARGET_CREATURE_DISTANCE:
@@ -877,7 +874,6 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_WP_STOP: return sizeof(SmartAction::wpStop);
             case SMART_ACTION_ADD_ITEM: return sizeof(SmartAction::item);
             case SMART_ACTION_REMOVE_ITEM: return sizeof(SmartAction::item);
-            case SMART_ACTION_INSTALL_AI_TEMPLATE: return sizeof(SmartAction::installTtemplate);
             case SMART_ACTION_SET_RUN: return sizeof(SmartAction::setRun);
             case SMART_ACTION_SET_DISABLE_GRAVITY: return sizeof(SmartAction::setDisableGravity);
             case SMART_ACTION_SET_SWIM: return sizeof(SmartAction::setSwim);
@@ -1792,13 +1788,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!sMapStore.LookupEntry(e.action.teleport.mapID))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Map entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.teleport.mapID);
-                return false;
-            }
-            break;
-        case SMART_ACTION_INSTALL_AI_TEMPLATE:
-            if (e.action.installTtemplate.id >= SMARTAI_TEMPLATE_END)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature %d Event %u Action %u uses non-existent AI template id %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.installTtemplate.id);
                 return false;
             }
             break;
