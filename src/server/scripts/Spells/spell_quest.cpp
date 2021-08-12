@@ -610,45 +610,6 @@ class spell_q12851_going_bearback : public AuraScript
     }
 };
 
-// http://www.wowhead.com/quest=12937 Relief for the Fallen
-enum Quest12937Data
-{
-    SPELL_TRIGGER_AID_OF_THE_EARTHEN    = 55809,
-    NPC_FALLEN_EARTHEN_DEFENDER         = 30035,
-};
-
-// 55804 - Healing Finished
-class spell_q12937_relief_for_the_fallen : public SpellScript
-{
-    PrepareSpellScript(spell_q12937_relief_for_the_fallen);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TRIGGER_AID_OF_THE_EARTHEN });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (Creature* target = GetHitCreature())
-        {
-            caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true);
-            caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER);
-            target->DespawnOrUnsummon();
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12937_relief_for_the_fallen::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum Whoarethey
 {
     SPELL_MALE_DISGUISE = 38080,
@@ -2326,7 +2287,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q12634_despawn_fruit_tosser);
     RegisterSpellScript(spell_q12683_take_sputum_sample);
     RegisterSpellScript(spell_q12851_going_bearback);
-    RegisterSpellScript(spell_q12937_relief_for_the_fallen);
     RegisterSpellScript(spell_q10041_q10040_who_are_they);
     RegisterSpellScript(spell_q12659_ahunaes_knife);
     RegisterSpellScript(spell_q9874_liquid_fire);
