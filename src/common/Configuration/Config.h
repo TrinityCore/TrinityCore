@@ -34,6 +34,9 @@ public:
     bool LoadInitial(std::string file, std::vector<std::string> args, std::string& error);
     bool LoadAdditionalFile(std::string file, bool keepOnReload, std::string& error);
 
+    /// Overrides configuration with environment variables and returns overridden keys
+    std::vector<std::string> OverrideWithEnvVariablesIfAny();
+
     static ConfigMgr* instance();
 
     bool Reload(std::vector<std::string>& errors);

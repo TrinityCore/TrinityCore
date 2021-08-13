@@ -146,6 +146,8 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
+    std::vector<std::string> overriddenKeys = sConfigMgr->OverrideWithEnvVariablesIfAny();
+
     std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
 
     sLog->RegisterAppender<AppenderDB>();
@@ -164,6 +166,9 @@ extern int main(int argc, char** argv)
             TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
+
+    for (std::string const& key : overriddenKeys)
+        TC_LOG_INFO("server.worldserver", "Configuration field '%s' was overridden with environment variable.", key.c_str());
 
     OpenSSLCrypto::threadsSetup();
 
