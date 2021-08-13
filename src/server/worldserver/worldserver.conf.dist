@@ -3901,7 +3901,7 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 
 Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
-Appender.GM=2,2,15,gm/gm_%s.log
+Appender.GM=2,2,1,GM.log
 Appender.DBErrors=2,2,0,DBErrors.log
 
 #  Logger config values: Given a logger "name"
