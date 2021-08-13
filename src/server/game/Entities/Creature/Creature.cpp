@@ -1519,6 +1519,17 @@ void Creature::UpdateLevelDependantStats()
     uint32 basehp = stats->GenerateHealth(cInfo);
     uint32 health = uint32(basehp * healthmod);
 
+    // @tswow-begin
+    FIRE_MAP(
+        this->GetCreatureTemplate()->events
+        , CreatureOnMaxHealth
+        , TSCreature(this)
+        , healthmod
+        , basehp
+        , TSMutable<uint32>(&health)
+        );
+    // @tswow-end
+
     SetCreateHealth(health);
     SetMaxHealth(health);
     SetHealth(health);
@@ -1526,6 +1537,15 @@ void Creature::UpdateLevelDependantStats()
 
     // mana
     uint32 mana = stats->GenerateMana(cInfo);
+    // @tswow-begin
+    FIRE_MAP(
+        this->GetCreatureTemplate()->events
+        , CreatureOnMaxMana
+        , TSCreature(this)
+        , stats->BaseMana
+        , TSMutable<uint32>(&mana)
+    );
+    // @tswow-end
     SetCreateMana(mana);
 
     switch (GetClass())
@@ -1547,6 +1567,17 @@ void Creature::UpdateLevelDependantStats()
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
 
+    // @tswow-begin
+    FIRE_MAP(
+        this->GetCreatureTemplate()->events
+        , CreatureOnBaseDamage
+        , TSCreature(this)
+        , basedamage
+        , TSMutable<float>(&weaponBaseMinDamage)
+        , TSMutable<float>(&weaponBaseMaxDamage)
+    );
+    // @tswow-end
+
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
 
@@ -1556,10 +1587,30 @@ void Creature::UpdateLevelDependantStats()
     SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
-    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+    // @tswow-begin
+    uint32 attackPower = stats->AttackPower;
+    uint32 rangedAttackPower = stats->RangedAttackPower;
+    FIRE_MAP(
+        this->GetCreatureTemplate()->events
+        , CreatureOnAttackPower
+        , TSCreature(this)
+        , TSMutable<uint32>(&attackPower)
+        , TSMutable<uint32>(&rangedAttackPower)
+    );
+    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, attackPower);
+    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, rangedAttackPower);
+    // @tswow-end
 
     float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
+    // @tswow-begin
+    FIRE_MAP(
+        this->GetCreatureTemplate()->events
+        , CreatureOnArmor
+        , TSCreature(this)
+        , stats->BaseArmor
+        , TSMutable<float>(&armor)
+    );
+    // @tswow-end
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
 }
 
