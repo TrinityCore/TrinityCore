@@ -1331,50 +1331,65 @@ class go_wind_stone : public GameObjectScript
                     switch (action)
                     {
                         case GOSSIP_ACTION_INFO_DEF + 1:
+                            player->CastSpell(player, SPELL_TEMPLAR_RANDOM);
                             SummonNPC(me, player, RAND(NPC_TEMPLAR_WATER, NPC_TEMPLAR_FIRE, NPC_TEMPLAR_EARTH, NPC_TEMPLAR_AIR), SPELL_TEMPLAR_RANDOM);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 2:
+                            player->CastSpell(player, SPELL_TEMPLAR_FIRE);
                             SummonNPC(me, player, NPC_TEMPLAR_FIRE, SPELL_TEMPLAR_FIRE);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 3:
+                            player->CastSpell(player, SPELL_TEMPLAR_WATER);
                             SummonNPC(me, player, NPC_TEMPLAR_WATER, SPELL_TEMPLAR_WATER);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 4:
+                            player->CastSpell(player, SPELL_TEMPLAR_EARTH);
                             SummonNPC(me, player, NPC_TEMPLAR_EARTH, SPELL_TEMPLAR_EARTH);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 5:
+                            player->CastSpell(player, SPELL_TEMPLAR_AIR);
                             SummonNPC(me, player, NPC_TEMPLAR_AIR, SPELL_TEMPLAR_AIR);
                             break;
 
                         case GOSSIP_ACTION_INFO_DEF + 6:
+                            player->CastSpell(player, SPELL_DUKE_RANDOM);
                             SummonNPC(me, player, RAND(NPC_DUKE_FIRE, NPC_DUKE_WATER, NPC_DUKE_EARTH, NPC_DUKE_AIR), SPELL_DUKE_RANDOM);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 7:
+                            player->CastSpell(player, SPELL_DUKE_FIRE);
                             SummonNPC(me, player, NPC_DUKE_FIRE, SPELL_DUKE_FIRE);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 8:
+                            player->CastSpell(player, SPELL_DUKE_WATER);
                             SummonNPC(me, player, NPC_DUKE_WATER, SPELL_DUKE_WATER);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 9:
+                            player->CastSpell(player, SPELL_DUKE_EARTH);
                             SummonNPC(me, player, NPC_DUKE_EARTH, SPELL_DUKE_EARTH);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 10:
+                            player->CastSpell(player, SPELL_DUKE_AIR);
                             SummonNPC(me, player, NPC_DUKE_AIR, SPELL_DUKE_AIR);
                             break;
 
                         case GOSSIP_ACTION_INFO_DEF + 11:
+                            player->CastSpell(player, SPELL_ROYAL_RANDOM);
                             SummonNPC(me, player, RAND(NPC_ROYAL_FIRE, NPC_ROYAL_AIR, NPC_ROYAL_EARTH, NPC_ROYAL_WATER), SPELL_ROYAL_RANDOM);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 12:
+                            player->CastSpell(player, SPELL_ROYAL_FIRE);
                             SummonNPC(me, player, NPC_ROYAL_FIRE, SPELL_ROYAL_FIRE);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 13:
+                            player->CastSpell(player, SPELL_ROYAL_WATER);
                             SummonNPC(me, player, NPC_ROYAL_WATER, SPELL_ROYAL_WATER);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 14:
+                            player->CastSpell(player, SPELL_ROYAL_EARTH);
                             SummonNPC(me, player, NPC_ROYAL_EARTH, SPELL_ROYAL_EARTH);
                             break;
                         case GOSSIP_ACTION_INFO_DEF + 15:
+                            player->CastSpell(player, SPELL_ROYAL_AIR);
                             SummonNPC(me, player, NPC_ROYAL_AIR, SPELL_ROYAL_AIR);
                             break;
 
