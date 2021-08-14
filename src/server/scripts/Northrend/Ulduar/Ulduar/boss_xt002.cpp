@@ -347,6 +347,7 @@ struct boss_xt002 : public BossAI
                     break;
                 case EVENT_SUBMERGE:
                     DoCastSelf(SPELL_SUBMERGE);
+                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     Talk(EMOTE_HEART_OPENED);
                     if (Creature* heart = instance->GetCreature(DATA_XT002_HEART))
                         heart->AI()->DoAction(ACTION_START_PHASE_HEART);
@@ -875,12 +876,8 @@ class spell_xt002_submerged : public SpellScript
 
     void HandleScript(SpellEffIndex /*eff*/)
     {
-        Creature* target = GetHitCreature();
-        if (!target)
-            return;
-
-        target->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-        target->SetStandState(UNIT_STAND_STATE_SUBMERGED);
+        if (Creature* target = GetHitCreature())
+            target->SetStandState(UNIT_STAND_STATE_SUBMERGED);
     }
 
     void Register() override
