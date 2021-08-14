@@ -37,7 +37,6 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
-#include <G3D/AABox.h>
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
@@ -388,30 +387,16 @@ void AreaTrigger::SearchUnitInSphere(std::vector<Unit*>& targetList)
 
 void AreaTrigger::SearchUnitInBox(std::vector<Unit*>& targetList)
 {
+    SearchUnits(targetList, GetTemplate()->MaxSearchRadius, false);
+
+    Position const& boxCenter = GetPosition();
     float extentsX = GetTemplate()->BoxDatas.Extents[0];
     float extentsY = GetTemplate()->BoxDatas.Extents[1];
     float extentsZ = GetTemplate()->BoxDatas.Extents[2];
 
-    SearchUnits(targetList, GetTemplate()->MaxSearchRadius, false);
-
-    float halfExtentsX = extentsX / 2.0f;
-    float halfExtentsY = extentsY / 2.0f;
-    float halfExtentsZ = extentsZ / 2.0f;
-
-    float minX = GetPositionX() - halfExtentsX;
-    float maxX = GetPositionX() + halfExtentsX;
-
-    float minY = GetPositionY() - halfExtentsY;
-    float maxY = GetPositionY() + halfExtentsY;
-
-    float minZ = GetPositionZ() - halfExtentsZ;
-    float maxZ = GetPositionZ() + halfExtentsZ;
-
-    G3D::AABox const box({ minX, minY, minZ }, { maxX, maxY, maxZ });
-
-    targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [&box](Unit* unit) -> bool
+    targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [boxCenter, extentsX, extentsY, extentsZ](Unit* unit) -> bool
     {
-        return !box.contains({ unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ() });
+        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, extentsZ);
     }), targetList.end());
 }
 
