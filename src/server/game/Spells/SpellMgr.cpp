@@ -4944,6 +4944,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
     });
 
+    // Sacred Cleansing
+    ApplySpellFix({ 53659 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
