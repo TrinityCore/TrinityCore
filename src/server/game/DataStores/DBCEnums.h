@@ -202,7 +202,7 @@ enum class BattlemasterListFlags : uint32
     ShowInPvpBattlegroundList   = 0x10,
     IsBrawl                     = 0x20,
     IsFactional                 = 0x40,
-    Unknown80                   = 0x80
+    IsEpic                      = 0x80
 };
 
 DEFINE_ENUM_FLAG(BattlemasterListFlags);
