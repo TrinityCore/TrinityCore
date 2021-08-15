@@ -1470,7 +1470,14 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
                 Position pos = caster->GetPosition();
-                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);
+
+                SummonCreatureExtraArgs extraArgs;
+                extraArgs.SummonProperties = properties;
+                extraArgs.SummonDuration = duration;
+                extraArgs.Summoner = caster;
+                extraArgs.SummonSpellId = GetSpellInfo()->Id;
+
+                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, extraArgs);
                 if (!summon || !summon->IsVehicle())
                     return;
 

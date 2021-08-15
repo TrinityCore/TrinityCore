@@ -333,6 +333,25 @@ inline bool CompareRespawnInfo::operator()(RespawnInfo const* a, RespawnInfo con
     return a->type < b->type;
 }
 
+struct TC_GAME_API SummonCreatureExtraArgs
+{
+public:
+    SummonCreatureExtraArgs() { }
+
+    SummonCreatureExtraArgs& SetSummonDuration(uint32 duration) { SummonDuration = duration; return *this; }
+
+    SummonPropertiesEntry const* SummonProperties = nullptr;
+    Unit* Summoner = nullptr;
+    uint32 SummonDuration = 0;
+    uint32 SummonSpellId = 0;
+    uint32 VehicleRecID = 0;
+    uint32 SummonHealth = 0;
+    uint32 RideSpell = 0;
+    uint8 SeatNumber = 0;
+    uint8 CreatureLevel = 0;
+    ObjectGuid PrivateObjectOwner;
+};
+
 class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
@@ -539,7 +558,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty, uint32 health = 0);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonCreatureExtraArgs const& summonArgs = { });
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
         Player* GetPlayer(ObjectGuid const& guid);
         AreaTrigger* GetAreaTrigger(ObjectGuid const& guid);

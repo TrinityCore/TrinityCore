@@ -1856,79 +1856,74 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
-    // determine how many units should be summoned
-    uint32 numSummons = 0;
+    SummonCreatureExtraArgs extraArgs;
+    extraArgs.SummonProperties = properties;
+    extraArgs.SummonDuration = duration;
+    extraArgs.Summoner = m_originalCaster;
+    extraArgs.SummonSpellId = m_spellInfo->Id;
+    extraArgs.PrivateObjectOwner = privateObjectOwner;
 
-    // some spells need to summon many units, for those spells number of summons is stored in effect value
-    // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
-    // and in spell attributes, possibly we need to add a table for those)
-    // so here's a list of MiscValueB values, which is currently most generic check
-    switch (properties->ID)
+    uint32 summonCount = 1;
+
+    if (uint8 const* parameter = sObjectMgr->GetSummonPropertiesParameter(properties->ID))
     {
-        case 64:
-        case 61:
-        case 1101:
-        case 66:
-        case 648:
-        case 2301:
-        case 1061:
-        case 1261:
-        case 629:
-        case 181:
-        case 715:
-        case 1562:
-        case 833:
-        case 1161:
-        case 713:
-        case 3097:
-        case 2929:
-            numSummons = (damage > 0) ? damage : 1;
-            break;
-        default:
-            numSummons = 1;
-            break;
-    }
-
-    // Some totems are being summoned with a certain amount of health
-    uint32 health = (properties->Flags & SUMMON_PROP_FLAG_TOTEM) != 0 && damage ? damage : 0;
-
-    if (numSummons == 1)
-    {
-        if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner, health))
+        switch (SummonPropertiesParamType(*parameter))
         {
-            // Summoned vehicles shall be mounted right away if possible
-            if (properties->Control == SUMMON_CATEGORY_VEHICLE && summon->IsVehicle())
-            {
-                // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
-                uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
-                int32 basePoints = m_spellInfo->Effects[effIndex].CalcValue();
-                if (basePoints > MAX_VEHICLE_SEATS)
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(basePoints);
-                    if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                        spellId = spellInfo->Id;
-                }
-
-                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-
-                // if we have small value, it indicates seat position
-                if (basePoints > 0 && basePoints < MAX_VEHICLE_SEATS)
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, basePoints);
-
-                m_originalCaster->CastSpell(summon, spellId, args);
-            }
-            ExecuteLogEffectSummonObject(effIndex, summon);
+            case SummonPropertiesParamType::None: // Default behavior
+                break;
+            case SummonPropertiesParamType::Health:
+                extraArgs.SummonHealth = damage;
+                break;
+            case SummonPropertiesParamType::NumUnitsMin: // Minimum 1
+                summonCount = std::max<int32>(damage, 1);
+                break;
+            case SummonPropertiesParamType::SeatNumber:
+                if (damage > 0 && damage < MAX_VEHICLE_SEATS)
+                    extraArgs.SeatNumber = damage;
+                break;
+            case SummonPropertiesParamType::RideSpell:
+                if (sSpellMgr->GetSpellInfo(damage))
+                    extraArgs.RideSpell = damage;
+                else // There is one spell with RecID 161 (52200) that uses bp as ride spell while most spells do not so we can assume that this parameter falls back to the hardcoded spell
+                    extraArgs.RideSpell = VEHICLE_SPELL_RIDE_HARDCODED;
+                break;
+            case SummonPropertiesParamType::CreatureLevel:
+                extraArgs.CreatureLevel = damage;
+                break;
+            case SummonPropertiesParamType::MaxSummons: // @todo: handle and research (number of allowed units in one summon slot?)
+                break;
+            case SummonPropertiesParamType::NumUnitsMax: // Fails if less than 1
+                if (damage <= 0)
+                    return;
+                summonCount = damage;
+                break;
+            default:
+                break;
         }
     }
-    else
+
+    for (uint32 i = 0; i < summonCount; ++i)
     {
-        float radius = m_spellInfo->Effects[effIndex].CalcRadius();
-        for (uint8 i = 0; i < numSummons; ++i)
+        Position dest = *destTarget;
+        if (summonCount > 1)
         {
             // Multiple summons are summoned at random points within the destination radius
-            Position pos = m_caster->GetRandomPoint(*destTarget, radius);
-            if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner, health))
-                ExecuteLogEffectSummonObject(effIndex, summon);
+            float radius = m_spellInfo->Effects[effIndex].CalcRadius();
+            dest = m_caster->GetRandomPoint(*destTarget, radius);
+        }
+
+        if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, extraArgs))
+        {
+            ExecuteLogEffectSummonObject(effIndex, summon);
+
+            if (summonCount == 1 && summon->IsVehicle())
+            {
+                if (extraArgs.SeatNumber)
+                    m_originalCaster->CastSpell(summon, VEHICLE_SPELL_RIDE_HARDCODED, CastSpellExtraArgs(true).AddSpellBP0(extraArgs.SeatNumber));
+                else if (extraArgs.RideSpell)
+                    m_originalCaster->CastSpell(summon, extraArgs.RideSpell, true);
+
+            }
         }
     }
 }
@@ -2512,8 +2507,16 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     if (!owner)
     {
         if (SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(67))
-            if (TempSummon* summon = m_caster->GetMap()->SummonCreature(petentry, *destTarget, properties, m_spellInfo->GetDuration(), m_originalCaster, m_spellInfo->Id, false))
+        {
+            SummonCreatureExtraArgs extraArgs;
+            extraArgs.SummonProperties = properties;
+            extraArgs.SummonDuration = m_spellInfo->GetDuration();
+            extraArgs.Summoner = m_originalCaster;
+            extraArgs.SummonSpellId = m_spellInfo->Id;
+
+            if (TempSummon* summon = m_caster->GetMap()->SummonCreature(petentry, *destTarget, extraArgs))
                 ExecuteLogEffectSummonObject(effIndex, summon);
+        }
         return;
     }
 
@@ -2543,7 +2546,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             {
                 OldSummon->SetHealth(OldSummon->GetMaxHealth());
                 OldSummon->SetPower(OldSummon->GetPowerType(),
-                    OldSummon->GetMaxPower(OldSummon->GetPowerType()));
+                OldSummon->GetMaxPower(OldSummon->GetPowerType()));
             }
 
             if (owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled())

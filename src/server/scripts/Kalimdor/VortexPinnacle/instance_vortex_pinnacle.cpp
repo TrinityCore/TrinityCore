@@ -213,10 +213,10 @@ class instance_vortex_pinnacle : public InstanceMapScript
                     {
                         case EVENT_SUMMON_ZEPHYRS:
                             if (instance->IsGridLoaded(SouthZephyrSummonLocation))
-                                if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, SouthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
+                                if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, SouthZephyrSummonLocation, SummonCreatureExtraArgs().SetSummonDuration(18 * IN_MILLISECONDS)))
                                     zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_SOUTH, false);
                             if (instance->IsGridLoaded(NorthZephyrSummonLocation))
-                                if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, NorthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
+                                if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, NorthZephyrSummonLocation, SummonCreatureExtraArgs().SetSummonDuration(18 * IN_MILLISECONDS)))
                                     zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_NORTH, false);
                             _events.Repeat(10s);
                             break;

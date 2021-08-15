@@ -2021,12 +2021,13 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, Unit* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/, uint32 health /*= 0*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonCreatureExtraArgs const& summonArgs /*= { }*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
-    if (properties)
+
+    if (summonArgs.SummonProperties)
     {
-        switch (properties->Control)
+        switch (summonArgs.SummonProperties->Control)
         {
             case SUMMON_CATEGORY_PET:
                 mask = UNIT_MASK_GUARDIAN;
@@ -2041,7 +2042,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             case SUMMON_CATEGORY_ALLY:
             case SUMMON_CATEGORY_UNK:
             {
-                switch (SummonTitle(properties->Title))
+                switch (SummonTitle(summonArgs.SummonProperties->Title))
                 {
                     case SummonTitle::Minion:
                     case SummonTitle::Guardian:
@@ -2060,7 +2061,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
                         mask = UNIT_MASK_MINION;
                         break;
                     default:
-                        if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
+                        if (summonArgs.SummonProperties->Flags & 512) // Mirror Image, Summon Gargoyle
                             mask = UNIT_MASK_GUARDIAN;
                         break;
                 }
@@ -2075,33 +2076,33 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     switch (mask)
     {
         case UNIT_MASK_SUMMON:
-            summon = new TempSummon(properties, summoner, false);
+            summon = new TempSummon(summonArgs.SummonProperties, summonArgs.Summoner, false);
             break;
         case UNIT_MASK_GUARDIAN:
-            summon = new Guardian(properties, summoner, false);
+            summon = new Guardian(summonArgs.SummonProperties, summonArgs.Summoner, false);
             break;
         case UNIT_MASK_PUPPET:
-            summon = new Puppet(properties, summoner);
+            summon = new Puppet(summonArgs.SummonProperties, summonArgs.Summoner);
             break;
         case UNIT_MASK_TOTEM:
-            summon = new Totem(properties, summoner);
+            summon = new Totem(summonArgs.SummonProperties, summonArgs.Summoner);
             break;
         case UNIT_MASK_MINION:
-            summon = new Minion(properties, summoner, false);
+            summon = new Minion(summonArgs.SummonProperties, summonArgs.Summoner, false);
             break;
     }
 
     // Create creature entity
-    if (!summon->Create(GenerateLowGuid<HighGuid::Unit>(), this, entry, pos, nullptr, vehId, true))
+    if (!summon->Create(GenerateLowGuid<HighGuid::Unit>(), this, entry, pos, nullptr, summonArgs.VehicleRecID, true))
     {
         delete summon;
         return nullptr;
     }
 
     // Add summon to transport if summoner is on a transport as well
-    if (summon->GetTransGUID().IsEmpty() && summoner)
+    if (summon->GetTransGUID().IsEmpty() && summonArgs.Summoner)
     {
-        if (Transport* transport = summoner->GetTransport())
+        if (Transport* transport = summonArgs.Summoner->GetTransport())
         {
             float x, y, z, o;
             pos.GetPosition(x, y, z, o);
@@ -2113,21 +2114,25 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     }
 
     // Inherit summoner's Phaseshift
-    if (summoner)
-        PhasingHandler::InheritPhaseShift(summon, summoner);
+    if (summonArgs.Summoner)
+        PhasingHandler::InheritPhaseShift(summon, summonArgs.Summoner);
 
     // Initialize tempsummon fields
-    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, summonArgs.SummonSpellId);
     summon->SetHomePosition(pos);
-    summon->InitStats(duration);
-    summon->SetPrivateObjectOwner(privateObjectOwner);
+    summon->InitStats(summonArgs.SummonDuration);
+    summon->SetPrivateObjectOwner(summonArgs.PrivateObjectOwner);
 
-    // Handle health argument (totem health via base points)
-    if (health)
+    // Handle health argument
+    if (summonArgs.SummonHealth)
     {
-        summon->SetMaxHealth(health);
-        summon->SetHealth(health);
+        summon->SetMaxHealth(summonArgs.SummonHealth);
+        summon->SetHealth(summonArgs.SummonHealth);
     }
+
+    // Handle creature level argument
+    if (summonArgs.CreatureLevel)
+        summon->SetLevel(summonArgs.CreatureLevel);
 
     AddToMap(summon->ToCreature());
     summon->InitSummon();
@@ -2153,7 +2158,7 @@ void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= null
         return;
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, nullptr, itr->time))
+        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, SummonCreatureExtraArgs().SetSummonDuration(itr->time)))
             if (list)
                 list->push_back(summon);
 }
@@ -2183,7 +2188,13 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit(), 0, vehId, privateObjectOwner))
+        SummonCreatureExtraArgs extraArgs;
+        extraArgs.SummonDuration = despawnTime;
+        extraArgs.Summoner = ToUnit();
+        extraArgs.VehicleRecID = vehId;
+        extraArgs.PrivateObjectOwner = privateObjectOwner;
+
+        if (TempSummon* summon = map->SummonCreature(entry, pos, extraArgs))
         {
             summon->SetTempSummonType(despawnType);
             return summon;

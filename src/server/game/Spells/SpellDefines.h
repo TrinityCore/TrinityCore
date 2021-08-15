@@ -237,4 +237,16 @@ struct TC_GAME_API CastSpellExtraArgs
     } SpellValueOverrides;
 };
 
+enum class SummonPropertiesParamType : uint8
+{
+    None            = 0,
+    Health          = 1,
+    NumUnitsMin     = 2, // Minimum 1
+    SeatNumber      = 3,
+    RideSpell       = 4,
+    CreatureLevel   = 5,
+    MaxSummons      = 6, // Totem Slot
+    NumUnitsMax     = 7  // Fail if less than 1
+};
+
 #endif // TRINITY_SPELLDEFINES_H

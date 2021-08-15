@@ -488,7 +488,12 @@ struct boss_ascendant_council_controller final : public BossAI
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
 
                     if (SummonPropertiesEntry const* entry = sSummonPropertiesStore.LookupEntry(PROPERTY_DEFAULT))
-                        me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition(), entry, 0, me);
+                    {
+                        SummonCreatureExtraArgs extraArgs;
+                        extraArgs.Summoner = me;
+                        extraArgs.SummonProperties = entry;
+                        me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition(), extraArgs);
+                    }
                     break;
                 case EVENT_PREPARE_ULTIMATE_ABILITY:
                     if (events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))

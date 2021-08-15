@@ -1265,6 +1265,8 @@ class TC_GAME_API ObjectMgr
 
         void LoadTaxiNodeLevelData();
 
+        void LoadSummonPropertiesParameters();
+
         std::string GeneratePetName(uint32 entry) const;
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1608,6 +1610,8 @@ class TC_GAME_API ObjectMgr
             return &itr->second;
         }
 
+        uint8 const* GetSummonPropertiesParameter(uint32 summonPropertiesRecID) const;
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1790,6 +1794,9 @@ class TC_GAME_API ObjectMgr
 
         HotfixData _hotfixData;
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
+
+        typedef std::unordered_map<uint32, uint8> SummonPropertiesParametersContainer; // [recID][ParameterType]
+        SummonPropertiesParametersContainer _summonPropertiesParametersStore;
 };
 
 #define sObjectMgr ObjectMgr::instance()

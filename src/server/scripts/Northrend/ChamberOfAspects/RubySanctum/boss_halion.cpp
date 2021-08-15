@@ -1590,7 +1590,14 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
                 Position pos = caster->GetPosition();
-                if (Creature* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
+
+                SummonCreatureExtraArgs extraArgs;
+                extraArgs.SummonProperties = properties;
+                extraArgs.SummonDuration = duration;
+                extraArgs.Summoner = caster;
+                extraArgs.SummonSpellId = GetSpellInfo()->Id;
+
+                if (Creature* summon = caster->GetMap()->SummonCreature(entry, pos, extraArgs))
                     if (summon->IsAIEnabled)
                         summon->AI()->SetData(DATA_STACKS_DISPELLED, GetSpellValue()->EffectBasePoints[EFFECT_1]);
             }

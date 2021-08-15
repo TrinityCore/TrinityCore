@@ -10285,3 +10285,46 @@ ByteBuffer QuestPOIWrapper::BuildQueryData() const
 
     return tempBuffer;
 }
+
+void ObjectMgr::LoadSummonPropertiesParameters()
+{
+    _summonPropertiesParametersStore.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                                0        1
+    QueryResult result = WorldDatabase.Query("SELECT `RecID`, `ParamType` FROM summon_properties_parameters");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 summon properties parameters. DB table `summon_properties_parameters` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 recID = fields[0].GetUInt32();
+        uint8 parameterType = fields[1].GetUInt8();
+
+        if (!sSummonPropertiesStore.LookupEntry(recID))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `summon_properties_parameters` has data for nonexistent summon properties record (ID: %u), skipped", recID);
+            continue;
+        };
+
+        _summonPropertiesParametersStore[recID] = parameterType;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u summon properties parameters in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+uint8 const* ObjectMgr::GetSummonPropertiesParameter(uint32 summonPropertiesRecID) const
+{
+    return Trinity::Containers::MapGetValuePtr(_summonPropertiesParametersStore, summonPropertiesRecID);
+}
