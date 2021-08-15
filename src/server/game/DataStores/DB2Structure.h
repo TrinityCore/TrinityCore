@@ -509,6 +509,8 @@ struct BattlemasterListEntry
     int32 IconFileDataID;
     int32 RequiredPlayerConditionID;
     int16 MapID[16];
+
+    EnumFlag<BattlemasterListFlags> GetFlags() const { return static_cast<BattlemasterListFlags>(Flags); }
 };
 
 #define MAX_BROADCAST_TEXT_EMOTES 3

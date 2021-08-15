@@ -193,16 +193,19 @@ enum AzeriteTierUnlockSetFlags
 
 #define BATTLE_PET_SPECIES_MAX_ID 3159
 
-enum BattlemasterListFlags
+enum class BattlemasterListFlags : uint32
 {
-    BATTLEMASTER_LIST_FLAG_DISABLED             = 0x01,
-    BATTLEMASTER_LIST_FLAG_SKIP_ROLE_CHECK      = 0x02,
-    BATTLEMASTER_LIST_FLAG_UNK04                = 0x04,
-    BATTLEMASTER_LIST_FLAG_CAN_INIT_WAR_GAME    = 0x08,
-    BATTLEMASTER_LIST_FLAG_CAN_SPECIFIC_QUEUE   = 0x10,
-    BATTLEMASTER_LIST_FLAG_BRAWL                = 0x20,
-    BATTLEMASTER_LIST_FLAG_FACTIONAL            = 0x40
+    InternalOnly                = 0x01,
+    RatedOnly                   = 0x02, // Only set for rated battlegrounds
+    ObsoleteDoNotList           = 0x04,
+    ShowInWarGames              = 0x08,
+    ShowInPvpBattlegroundList   = 0x10,
+    IsBrawl                     = 0x20,
+    IsFactional                 = 0x40,
+    IsEpic                      = 0x80
 };
+
+DEFINE_ENUM_FLAG(BattlemasterListFlags);
 
 enum class ChrRacesFlag : int32
 {

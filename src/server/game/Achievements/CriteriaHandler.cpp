@@ -3037,7 +3037,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerIsInPvpBrawl: // 220
         {
             BattlemasterListEntry const* bg = sBattlemasterListStore.LookupEntry(referencePlayer->GetBattlegroundTypeId());
-            if (!bg || !(bg->Flags & BATTLEMASTER_LIST_FLAG_BRAWL))
+            if (!bg || !(bg->GetFlags().HasFlag(BattlemasterListFlags::IsBrawl)))
                 return false;
             break;
         }
