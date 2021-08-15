@@ -154,7 +154,7 @@ bool Position::IsWithinDoubleVerticalCylinder(Position const* center, float radi
     return IsInDist2d(center, radius) && std::abs(verticalDelta) <= height;
 }
 
-bool Position::HasInArc(float arc, Position const* obj, float border) const
+bool Position::HasInArc(float arc, Position const* obj, float border, Optional<float> orientation) const
 {
     // always have self in arc
     if (obj == this)
@@ -164,7 +164,7 @@ bool Position::HasInArc(float arc, Position const* obj, float border) const
     arc = NormalizeOrientation(arc);
 
     float angle = GetAngle(obj);
-    angle -= m_orientation;
+    angle -= orientation.is_initialized() ? *orientation : GetOrientation();
 
     // move angle to range -pi ... +pi
     angle = NormalizeOrientation(angle);
@@ -176,13 +176,13 @@ bool Position::HasInArc(float arc, Position const* obj, float border) const
     return ((angle >= lborder) && (angle <= rborder));
 }
 
-bool Position::HasInLine(Position const* pos, float objSize, float width) const
+bool Position::HasInLine(Position const* pos, float objSize, float width, Optional<float> orientation) const
 {
-    if (!HasInArc(float(M_PI), pos))
+    if (!HasInArc(float(M_PI), pos, 2.0f, orientation))
         return false;
 
     width += objSize;
-    float angle = GetRelativeAngle(pos);
+    float angle = GetAngle(pos) - (orientation.is_initialized() ? *orientation : GetOrientation());
     return std::fabs(std::sin(angle)) * GetExactDist2d(pos->GetPositionX(), pos->GetPositionY()) < width;
 }
 

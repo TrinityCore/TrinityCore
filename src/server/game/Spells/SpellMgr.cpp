@@ -4553,6 +4553,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
+
+        if (spellInfo->IsSingleTarget())
+            spellInfo->MaxAffectedTargets = 1;
     }
 
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121)))
