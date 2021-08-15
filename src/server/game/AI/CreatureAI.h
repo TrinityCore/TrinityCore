@@ -115,7 +115,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void TriggerAlert(Unit const* who) const;
 
         // Called for reaction at stopping attack at no attackers or targets
-        virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
+        virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER, bool walk = false);
 
         // Called for reaction whenever we start being in combat (overridden from base UnitAI)
         void JustEnteredCombat(Unit* /*who*/) override;

@@ -211,7 +211,7 @@ void CreatureAI::JustEnteredCombat(Unit* who)
         EngagementStart(who);
 }
 
-void CreatureAI::EnterEvadeMode(EvadeReason why)
+void CreatureAI::EnterEvadeMode(EvadeReason why, bool walk)
 {
     if (!_EnterEvadeMode(why))
         return;
@@ -230,7 +230,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
             // Required to prevent attacking creatures that are evading and cause them to reenter combat
             // Does not apply to MoveFollow
             me->AddUnitState(UNIT_STATE_EVADE);
-            me->GetMotionMaster()->MoveTargetedHome();
+            me->GetMotionMaster()->MoveTargetedHome(walk);
         }
     }
 
