@@ -344,15 +344,19 @@ private:
         return ValidateSpellInfo({ SPELL_DK_ANTI_MAGIC_SHELL_TALENT });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         SpellInfo const* talentSpell = sSpellMgr->AssertSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
-        amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
-        if (Player* player = GetCaster()->ToPlayer())
+        Unit* owner = GetCaster()->GetOwner();
+        if (!owner)
+            return;
+
+        amount = talentSpell->Effects[EFFECT_0].CalcValue(owner);
+        if (Player* player = owner->ToPlayer())
             amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
     }
 
-    void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+    void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32 &absorbAmount)
     {
         absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
     }
