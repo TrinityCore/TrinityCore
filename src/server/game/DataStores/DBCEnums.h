@@ -195,14 +195,14 @@ enum AzeriteTierUnlockSetFlags
 
 enum class BattlemasterListFlags : uint32
 {
-    Disabled            = 0x01,
-    SkipRoleCheck       = 0x02,
-    ObsoleteDoNotList   = 0x04,
-    CanInitWarGame      = 0x08,
-    CanSpecificQueue    = 0x10,
-    Brawl               = 0x20,
-    Factional           = 0x40,
-    Unknown80           = 0x80
+    InternalOnly                = 0x01,
+    RatedOnly                   = 0x02, // Only set for rated battlegrounds
+    ObsoleteDoNotList           = 0x04,
+    ShowInWarGames              = 0x08,
+    ShowInPvpBattlegroundList   = 0x10,
+    IsBrawl                     = 0x20,
+    IsFactional                 = 0x40,
+    Unknown80                   = 0x80
 };
 
 DEFINE_ENUM_FLAG(BattlemasterListFlags);
