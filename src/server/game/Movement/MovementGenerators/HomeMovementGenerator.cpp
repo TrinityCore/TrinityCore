@@ -26,15 +26,16 @@
 #include "Vehicle.h"
 
 template<class T>
-HomeMovementGenerator<T>::HomeMovementGenerator()
+HomeMovementGenerator<T>::HomeMovementGenerator(bool walk)
 {
     this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
+    this->Walk = walk;
 }
 
-template HomeMovementGenerator<Creature>::HomeMovementGenerator();
+template HomeMovementGenerator<Creature>::HomeMovementGenerator(bool walk);
 
 template<class T>
 MovementGeneratorType HomeMovementGenerator<T>::GetMovementGeneratorType() const
@@ -76,7 +77,7 @@ void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
     owner->UpdateAllowedPositionZ(destination.m_positionX, destination.m_positionY, destination.m_positionZ);
     init.MoveTo(PositionToVector3(destination));
     init.SetFacing(destination.GetOrientation());
-    init.SetWalk(false);
+    init.SetWalk(Walk);
     init.Launch();
 }
 

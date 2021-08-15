@@ -24,7 +24,7 @@ template <class T>
 class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGenerator<T> >
 {
     public:
-        explicit HomeMovementGenerator();
+        explicit HomeMovementGenerator(bool walk);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
@@ -36,6 +36,7 @@ class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGen
 
     private:
         void SetTargetLocation(T*);
+        bool Walk;
 };
 
 #endif

@@ -152,7 +152,7 @@ class TC_GAME_API MotionMaster
         bool StopOnDeath();
 
         void MoveIdle();
-        void MoveTargetedHome();
+        void MoveTargetedHome(bool walk = false);
         void MoveRandom(float wanderDistance = 0.0f);
         void MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});

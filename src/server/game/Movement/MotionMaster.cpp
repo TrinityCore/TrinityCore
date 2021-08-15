@@ -570,7 +570,7 @@ void MotionMaster::MoveIdle()
     Add(GetIdleMovementGenerator(), MOTION_SLOT_DEFAULT);
 }
 
-void MotionMaster::MoveTargetedHome()
+void MotionMaster::MoveTargetedHome(bool walk)
 {
     Creature* owner = _owner->ToCreature();
     if (!owner)
@@ -585,7 +585,7 @@ void MotionMaster::MoveTargetedHome()
     if (!target)
     {
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTargetedHome: '%s', targeted home.", _owner->GetGUID().ToString().c_str());
-        Add(new HomeMovementGenerator<Creature>());
+        Add(new HomeMovementGenerator<Creature>(walk));
     }
     else
     {
