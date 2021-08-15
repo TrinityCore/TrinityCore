@@ -408,7 +408,7 @@ void SmartAI::MovementInform(uint32 type, uint32 id)
         _OOCReached = true;
 }
 
-void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
+void SmartAI::EnterEvadeMode(EvadeReason /*why*/, bool /*walk*/)
 {
     if (_evadeDisabled)
     {

@@ -50,7 +50,7 @@ bool GuardAI::CanSeeAlways(WorldObject const* obj)
     return false;
 }
 
-void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
+void GuardAI::EnterEvadeMode(EvadeReason /*why*/, bool /*walk*/)
 {
     if (!me->IsAlive())
     {

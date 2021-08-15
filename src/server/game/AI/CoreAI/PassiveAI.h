@@ -43,7 +43,7 @@ class TC_GAME_API PossessedAI : public CreatureAI
         void JustExitedCombat() override { EngagementOver(); }
         void JustStartedThreateningMe(Unit*) override { }
         void UpdateAI(uint32) override;
-        void EnterEvadeMode(EvadeReason /*why*/) override { }
+        void EnterEvadeMode(EvadeReason /*why*/, bool /*walk*/) override { }
 
         void JustDied(Unit*) override;
 
@@ -61,7 +61,7 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
         void JustEnteredCombat(Unit*) override { }
         void UpdateAI(uint32) override { }
         void JustAppeared() override { }
-        void EnterEvadeMode(EvadeReason /*why*/) override { }
+        void EnterEvadeMode(EvadeReason /*why*/, bool /*walk*/) override { }
         void OnCharmed(bool /*isNew*/) override { }
 
         static int32 Permissible(Creature const* creature);
@@ -73,7 +73,7 @@ class TC_GAME_API CritterAI : public PassiveAI
         explicit CritterAI(Creature* creature) : PassiveAI(creature) { }
 
         void JustEngagedWith(Unit* /*who*/) override;
-        void EnterEvadeMode(EvadeReason why) override;
+        void EnterEvadeMode(EvadeReason why, bool walk) override;
 
         void MovementInform(uint32 type, uint32 id) override;
 

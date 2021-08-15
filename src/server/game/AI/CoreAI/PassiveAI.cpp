@@ -82,14 +82,14 @@ void CritterAI::JustEngagedWith(Unit* /*who*/)
 void CritterAI::MovementInform(uint32 type, uint32 /*id*/)
 {
     if (type == TIMED_FLEEING_MOTION_TYPE)
-        EnterEvadeMode(EVADE_REASON_OTHER);
+        EnterEvadeMode(EVADE_REASON_OTHER, false);
 }
 
-void CritterAI::EnterEvadeMode(EvadeReason why)
+void CritterAI::EnterEvadeMode(EvadeReason why, bool walk)
 {
     if (me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(false, UNIT_STATE_FLEEING);
-    CreatureAI::EnterEvadeMode(why);
+    CreatureAI::EnterEvadeMode(why, walk);
 }
 
 int32 CritterAI::Permissible(Creature const* creature)

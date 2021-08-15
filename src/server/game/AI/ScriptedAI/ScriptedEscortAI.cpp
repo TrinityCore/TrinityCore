@@ -92,7 +92,7 @@ void EscortAI::ReturnToLastPoint()
     me->GetMotionMaster()->MovePoint(POINT_LAST_POINT, me->GetHomePosition());
 }
 
-void EscortAI::EnterEvadeMode(EvadeReason /*why*/)
+void EscortAI::EnterEvadeMode(EvadeReason /*why*/, bool /*walk*/)
 {
     me->RemoveAllAuras();
     me->CombatStop(true);
