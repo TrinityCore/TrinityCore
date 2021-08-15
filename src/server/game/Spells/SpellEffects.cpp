@@ -4381,7 +4381,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     float ratio = 0.1f;
     float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue) * ratio;
     float speedz = float(damage) * ratio;
-    if (speedxy < 0.01f && speedz < 0.01f)
+    if (speedxy == 0.0f && speedz < 0.01f)
         return;
 
     float x, y;
