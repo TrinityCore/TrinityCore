@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "ahnkahet.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -25,10 +24,11 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellScript.h"
 
-enum Spells
+enum PrinceTaldaramSpells
 {
     SPELL_BLOODTHIRST                       = 55968, // Trigger Spell + add aura
     SPELL_CONJURE_FLAME_SPHERE              = 55931,
@@ -51,18 +51,14 @@ enum Spells
     SPELL_HOVER_FALL                        = 60425
 };
 
-enum Misc
+enum PrinceTaldaramMisc
 {
     DATA_EMBRACE_DMG                        = 20000,
     H_DATA_EMBRACE_DMG                      = 40000,
     SUMMON_GROUP_CONTROLLERS                = 1
 };
 
-#define DATA_SPHERE_DISTANCE                25.0f
-#define DATA_SPHERE_ANGLE_OFFSET            float(M_PI) / 2
-#define DATA_GROUND_POSITION_Z              11.30809f
-
-enum Yells
+enum PrinceTaldaramYells
 {
     SAY_1                                   = 0,
     SAY_WARNING                             = 1,
@@ -73,7 +69,7 @@ enum Yells
     SAY_VANISH                              = 6
 };
 
-enum Events
+enum PrinceTaldaramEvents
 {
     EVENT_CONJURE_FLAME_SPHERES             = 1,
     EVENT_BLOODTHIRST,
@@ -85,6 +81,10 @@ enum Events
     EVENT_START_MOVE,
     EVENT_DESPAWN
 };
+
+float constexpr PrinceTaldaramSphereDistance = 25.f;
+float constexpr PrinceTaldaramSphereAngleOffset = float(M_PI) / 2.f;
+float constexpr PrinceTaldaramGroundPositionZ = 11.30809f;
 
 struct boss_prince_taldaram : public BossAI
 {
@@ -276,7 +276,7 @@ struct boss_prince_taldaram : public BossAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         summons.DespawnEntry(NPC_JEDOGA_CONTROLLER);
         me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
-        me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
+        me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), PrinceTaldaramGroundPositionZ, me->GetOrientation());
         DoCast(SPELL_HOVER_FALL);
         me->SetDisableGravity(false);
         me->GetMotionMaster()->MoveLand(0, me->GetHomePosition());
@@ -332,17 +332,17 @@ struct npc_prince_taldaram_flame_sphere : public ScriptedAI
 
                     /// @todo: find correct values
                     float angleOffset = 0.0f;
-                    float distOffset = DATA_SPHERE_DISTANCE;
+                    float distOffset = PrinceTaldaramSphereDistance;
 
                     switch (me->GetEntry())
                     {
                         case NPC_FLAME_SPHERE_1:
                             break;
                         case NPC_FLAME_SPHERE_2:
-                            angleOffset = DATA_SPHERE_ANGLE_OFFSET;
+                            angleOffset = PrinceTaldaramSphereAngleOffset;
                             break;
                         case NPC_FLAME_SPHERE_3:
-                            angleOffset = -DATA_SPHERE_ANGLE_OFFSET;
+                            angleOffset = -PrinceTaldaramSphereAngleOffset;
                             break;
                         default:
                             return;
