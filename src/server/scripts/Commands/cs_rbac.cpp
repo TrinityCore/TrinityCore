@@ -34,15 +34,15 @@ EndScriptData */
 
 struct RBACCommandData
 {
-    RBACCommandData() : rbac(nullptr), needDelete(false) {}
+    RBACCommandData(RBACCommandData const&) = delete;
     ~RBACCommandData()
     {
         if (needDelete)
             delete rbac;
     }
 
-    rbac::RBACData* rbac;
-    bool needDelete;
+    rbac::RBACData* rbac = nullptr;
+    bool needDelete = false;
 };
 
 using namespace Trinity::ChatCommands;
@@ -78,18 +78,13 @@ public:
 
     static RBACCommandData GetRBACData(AccountIdentifier account)
     {
-        RBACCommandData data = RBACCommandData();
-
         if (account.IsConnected())
-            data.rbac = account.GetConnectedSession()->GetRBACData();
-        else
-        {
-            data.rbac = new rbac::RBACData(account.GetID(), account.GetName(), realm.Id.Realm, AccountMgr::GetSecurity(account.GetID(), realm.Id.Realm));
-            data.rbac->LoadFromDB();
-            data.needDelete = true;
-        }
+            return { account.GetConnectedSession()->GetRBACData(), false };
 
-        return data;
+        rbac::RBACData* rbac = new rbac::RBACData(account.GetID(), account.GetName(), realm.Id.Realm, AccountMgr::GetSecurity(account.GetID(), realm.Id.Realm));
+        rbac->LoadFromDB();
+
+        return { rbac, true };
     }
 
     static bool HandleRBACPermGrantCommand(ChatHandler* handler, Optional<AccountIdentifier> account, uint32 permId, Optional<int32> realmId)
