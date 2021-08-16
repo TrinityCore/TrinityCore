@@ -1036,7 +1036,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInWater() const override { return m_isInWater; }
         bool IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const;
 
-        void SendInitialPacketsBeforeAddToMap();
+        void SendInitialPacketsBeforeAddToMap(bool firstLogin = false);
         void SendInitialPacketsAfterAddToMap();
         void SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const;
         void SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg = 0) const;
@@ -1575,7 +1575,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;
-        void SendKnownSpells();
+        void SendKnownSpells(bool firstLogin = false);
         bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, uint32 fromSkill = 0);
         void LearnSpell(uint32 spell_id, bool dependent, uint32 fromSkill = 0);
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);

@@ -862,7 +862,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();
     SendPacket(hotfixInfo.Write());
 
-    pCurrChar->SendInitialPacketsBeforeAddToMap();
+    pCurrChar->SendInitialPacketsBeforeAddToMap(true);
 
     // Send MOTD
     {

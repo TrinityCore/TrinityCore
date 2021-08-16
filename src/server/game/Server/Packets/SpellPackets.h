@@ -506,6 +506,28 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> ImpactPos;
             Optional<MovementInfo> Status;
         };
+
+        class ClearCooldown final : public ServerPacket
+        {
+        public:
+            ClearCooldown() : ServerPacket(SMSG_CLEAR_COOLDOWN, 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            int32 SpellID = 0;
+        };
+
+        class ClearCooldowns final : public ServerPacket
+        {
+        public:
+            ClearCooldowns() : ServerPacket(SMSG_CLEAR_COOLDOWNS, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            std::vector<int32> SpellID;
+        };
     }
 }
 

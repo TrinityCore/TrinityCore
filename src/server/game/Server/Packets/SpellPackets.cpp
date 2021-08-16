@@ -981,3 +981,39 @@ void WorldPackets::Spells::UpdateMissileTrajectory::Read()
         _worldPacket.ReadByteSeq(Status->guid[6]);
     }
 }
+
+WorldPacket const* WorldPackets::Spells::ClearCooldown::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << CasterGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ClearCooldowns::Write()
+{
+    _worldPacket.WriteBit(Guid[1]);
+    _worldPacket.WriteBit(Guid[3]);
+    _worldPacket.WriteBit(Guid[6]);
+    _worldPacket.WriteBits(SpellID.size(), 24);
+    _worldPacket.WriteBit(Guid[7]);
+    _worldPacket.WriteBit(Guid[5]);
+    _worldPacket.WriteBit(Guid[2]);
+    _worldPacket.WriteBit(Guid[4]);
+    _worldPacket.WriteBit(Guid[0]);
+
+    _worldPacket.WriteByteSeq(Guid[7]);
+    _worldPacket.WriteByteSeq(Guid[2]);
+    _worldPacket.WriteByteSeq(Guid[4]);
+    _worldPacket.WriteByteSeq(Guid[5]);
+    _worldPacket.WriteByteSeq(Guid[1]);
+    _worldPacket.WriteByteSeq(Guid[3]);
+
+    if (!SpellID.empty())
+        _worldPacket.append(SpellID.data(), SpellID.size());
+
+    _worldPacket.WriteByteSeq(Guid[0]);
+    _worldPacket.WriteByteSeq(Guid[6]);
+
+    return &_worldPacket;
+}

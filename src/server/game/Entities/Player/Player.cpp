@@ -2614,10 +2614,10 @@ void Player::InitStatsForLevel(bool reapplyMods)
         pet->SynchronizeLevelWithOwner();
 }
 
-void Player::SendKnownSpells()
+void Player::SendKnownSpells(bool firstLogin /*= false*/)
 {
     WorldPackets::Spells::SendKnownSpells knownSpells;
-    knownSpells.InitialLogin = false; /// @todo
+    knownSpells.InitialLogin = firstLogin;
 
     knownSpells.KnownSpells.reserve(m_spells.size());
     for (PlayerSpellMap::value_type const& spell : m_spells)
@@ -23341,7 +23341,7 @@ void Player::SetGroup(Group* group, int8 subgroup)
     UpdateObjectVisibility(false);
 }
 
-void Player::SendInitialPacketsBeforeAddToMap()
+void Player::SendInitialPacketsBeforeAddToMap(bool firstLogin /*= false*/)
 {
     /// SMSG_CONTROL_UPDATE
     SetClientControl(this, true);
