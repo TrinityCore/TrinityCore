@@ -23,7 +23,7 @@ namespace GameTime
 {
     time_t const StartTime = time(nullptr);
 
-    time_t GameTime = 0;
+    time_t GameTime = time(nullptr);
     uint32 GameMSTime = 0;
 
     std::chrono::system_clock::time_point GameTimeSystemPoint = std::chrono::system_clock::time_point::min();
