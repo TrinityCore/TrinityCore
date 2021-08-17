@@ -2973,6 +2973,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_AGGRO:
         case SMART_EVENT_DEATH:
         case SMART_EVENT_EVADE:
+        case SMART_EVENT_RESPAWN:
         case SMART_EVENT_REACHED_HOME:
         case SMART_EVENT_CHARMED_TARGET:
         case SMART_EVENT_CORPSE_REMOVED:
@@ -3092,14 +3093,6 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                     ProcessAction(e, unit);
                 }
             }
-            break;
-        }
-        case SMART_EVENT_RESPAWN:
-        {
-            if (!GetBaseObject())
-                return;
-
-            ProcessAction(e);
             break;
         }
         case SMART_EVENT_SUMMONED_UNIT:
