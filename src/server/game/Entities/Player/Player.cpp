@@ -23363,7 +23363,7 @@ void Player::SendInitialPacketsBeforeAddToMap(bool firstLogin /*= false*/)
     SendProficiency(ITEM_CLASS_ARMOR, m_ArmorProficiency);
 
     /// SMSG_SEND_KNOWN_SPELLS
-    SendKnownSpells();
+    SendKnownSpells(firstLogin);
 
     /// SMSG_SEND_UNLEARN_SPELLS
     SendDirectMessage(WorldPackets::Spells::SendUnlearnSpells().Write());
