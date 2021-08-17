@@ -103,6 +103,9 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
                         hotfixData.Size = blobData->size();
                         hotfixQueryResponse.HotfixContent.append(blobData->data(), blobData->size());
                     }
+                    else
+                        // Do not send Status::Valid when we don't have a hotfix blob for current locale
+                        hotfixData.Record.HotfixStatus = storage ? DB2Manager::HotfixRecord::Status::RecordRemoved : DB2Manager::HotfixRecord::Status::Invalid;
                 }
             }
         }
