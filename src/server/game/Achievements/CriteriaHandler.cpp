@@ -823,6 +823,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_MYTHIC_KEYSTONE_COMPLETED:
             case CRITERIA_TYPE_APPLY_CONDUIT:
             case CRITERIA_TYPE_CONVERT_ITEMS_TO_CURRENCY:
+            case CRITERIA_TYPE_EXPANSION_LEVEL:
+            case CRITERIA_TYPE_OWN_ITEM_MODIFIED_APPEARANCE:
                 break;                                   // Not implemented yet :(
         }
 
