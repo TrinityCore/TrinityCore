@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.34, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.35, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.7.34
+-- Server version	5.7.35
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -792,6 +792,7 @@ CREATE TABLE `creature_template` (
   `ExperienceModifier` float NOT NULL DEFAULT '1',
   `RacialLeader` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `movementId` int(11) unsigned NOT NULL DEFAULT '0',
+  `CreatureDifficultyID` int(11) NOT NULL DEFAULT '0',
   `WidgetSetID` int(11) NOT NULL DEFAULT '0',
   `WidgetSetUnitConditionID` int(11) NOT NULL DEFAULT '0',
   `RegenHealth` tinyint(3) unsigned NOT NULL DEFAULT '1',
@@ -874,8 +875,6 @@ DROP TABLE IF EXISTS `creature_template_scaling`;
 CREATE TABLE `creature_template_scaling` (
   `Entry` mediumint(8) unsigned NOT NULL,
   `DifficultyID` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `LevelScalingMin` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `LevelScalingMax` smallint(5) unsigned NOT NULL DEFAULT '0',
   `LevelScalingDeltaMin` smallint(5) NOT NULL DEFAULT '0',
   `LevelScalingDeltaMax` smallint(5) NOT NULL DEFAULT '0',
   `ContentTuningID` int(10) NOT NULL DEFAULT '0',
@@ -1417,6 +1416,21 @@ CREATE TABLE `gameobject_loot_template` (
   `Comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`Entry`,`Item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gameobject_overrides`
+--
+
+DROP TABLE IF EXISTS `gameobject_overrides`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gameobject_overrides` (
+  `spawnId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `faction` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spawnId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2611,6 +2625,7 @@ CREATE TABLE `points_of_interest` (
   `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `PositionX` float NOT NULL DEFAULT '0',
   `PositionY` float NOT NULL DEFAULT '0',
+  `PositionZ` float NOT NULL DEFAULT '0',
   `Icon` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Flags` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Importance` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3092,6 +3107,7 @@ CREATE TABLE `quest_template` (
   `RewardNumSkillUps` int(10) unsigned NOT NULL DEFAULT '0',
   `PortraitGiver` int(10) unsigned NOT NULL DEFAULT '0',
   `PortraitGiverMount` int(11) NOT NULL DEFAULT '0',
+  `PortraitGiverModelSceneID` int(11) NOT NULL DEFAULT '0',
   `PortraitTurnIn` int(10) unsigned NOT NULL DEFAULT '0',
   `RewardFactionID1` int(10) unsigned NOT NULL DEFAULT '0',
   `RewardFactionValue1` int(11) NOT NULL DEFAULT '0',
@@ -4434,4 +4450,4 @@ CREATE TABLE `world_safe_locs` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-04 22:23:27
+-- Dump completed on 2021-08-18 15:14:19
