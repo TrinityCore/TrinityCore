@@ -437,6 +437,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
         if (!_worldSession)
         {
             TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+            delete packetToQueue;
             return ReadDataHandlerResult::Error;
         }
 

@@ -117,7 +117,7 @@ namespace Movement
         friend class PacketSender;
 
     public:
-        ExtraMovementStatusElement(MovementStatusElements const* elements) : _elements(elements), _index(0) { }
+        ExtraMovementStatusElement(MovementStatusElements const* elements) : _elements(elements) { }
 
         void ReadNextElement(ByteBuffer& packet);
         void WriteNextElement(ByteBuffer& packet);
@@ -125,8 +125,8 @@ namespace Movement
         struct
         {
             ObjectGuid guid;
-            float floatData;
-            int8  byteData;
+            float floatData = 0.f;
+            int8  byteData = 0;
         } Data;
 
     protected:
@@ -134,7 +134,7 @@ namespace Movement
 
     private:
         MovementStatusElements const* _elements;
-        uint32 _index;
+        uint32 _index = 0;
     };
 
     class PacketSender

@@ -3789,7 +3789,7 @@ void Guild::CompleteChallenge(uint8 challengeType, Player* source)
         return;
 
     _currChallengeCount[challengeType]++;
-    uint32 gold = GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL) ? _challengeGoldMaxLevel[challengeType] : _challengeGold[challengeType];
+    uint64 gold = GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL) ? _challengeGoldMaxLevel[challengeType] : _challengeGold[challengeType];
     uint32 xp = GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL) ? _challengeXp[challengeType] : 0;
 
     WorldPackets::Guild::GuildChallengeCompleted completed;
@@ -3810,7 +3810,11 @@ void Guild::CompleteChallenge(uint8 challengeType, Player* source)
     SaveToDB(); // Save xp
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    _ModifyBankMoney(trans, uint64(gold * 10000), true, false);
+    uint64 money = gold * 10000;
+    if (money / 10000 != gold)
+        money = std::numeric_limits<uint64>::max();
+
+    _ModifyBankMoney(trans, money, true, false);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_CHALLENGE);
     stmt->setUInt32(0, _currChallengeCount[GUILD_CHALLENGE_TYPE_DUNGEON]);
