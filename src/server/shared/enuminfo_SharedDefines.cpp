@@ -415,7 +415,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr1>::ToString(SpellAttr1 value)
         case SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY: return { "SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY", "Immunity cancels preapplied auras", "For immunity spells, cancel all auras that this spell would make you immune to when the spell is applied" };
         case SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE: return { "SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE", "Unaffected by school immunities", "Will not pierce Divine Shield, Ice Block and other full invulnerabilities" };
         case SPELL_ATTR1_UNAUTOCASTABLE_BY_PET: return { "SPELL_ATTR1_UNAUTOCASTABLE_BY_PET", "Cannot be autocast by pet", "" };
-        case SPELL_ATTR1_UNK18: return { "SPELL_ATTR1_UNK18", "Unknown attribute 18@Attr1", "Stun, Polymorph, Daze, Hex - CC?" };
+        case SPELL_ATTR1_PREVENTS_ANIM: return { "SPELL_ATTR1_PREVENTS_ANIM", "NYI, auras apply UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT", "" };
         case SPELL_ATTR1_CANT_TARGET_SELF: return { "SPELL_ATTR1_CANT_TARGET_SELF", "Cannot be self-cast", "" };
         case SPELL_ATTR1_REQ_COMBO_POINTS1: return { "SPELL_ATTR1_REQ_COMBO_POINTS1", "Requires combo points (type 1)", "" };
         case SPELL_ATTR1_UNK21: return { "SPELL_ATTR1_UNK21", "Unknown attribute 21@Attr1", "" };
@@ -459,7 +459,7 @@ TC_API_EXPORT SpellAttr1 EnumUtils<SpellAttr1>::FromIndex(size_t index)
         case 15: return SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
         case 16: return SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE;
         case 17: return SPELL_ATTR1_UNAUTOCASTABLE_BY_PET;
-        case 18: return SPELL_ATTR1_UNK18;
+        case 18: return SPELL_ATTR1_PREVENTS_ANIM;
         case 19: return SPELL_ATTR1_CANT_TARGET_SELF;
         case 20: return SPELL_ATTR1_REQ_COMBO_POINTS1;
         case 21: return SPELL_ATTR1_UNK21;
@@ -500,7 +500,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr1>::ToIndex(SpellAttr1 value)
         case SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY: return 15;
         case SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE: return 16;
         case SPELL_ATTR1_UNAUTOCASTABLE_BY_PET: return 17;
-        case SPELL_ATTR1_UNK18: return 18;
+        case SPELL_ATTR1_PREVENTS_ANIM: return 18;
         case SPELL_ATTR1_CANT_TARGET_SELF: return 19;
         case SPELL_ATTR1_REQ_COMBO_POINTS1: return 20;
         case SPELL_ATTR1_UNK21: return 21;
@@ -1194,9 +1194,9 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
         case SPELL_ATTR7_UNK20: return { "SPELL_ATTR7_UNK20", "Unknown attribute 20@Attr7", "Invulnerability related?" };
         case SPELL_ATTR7_UNK21: return { "SPELL_ATTR7_UNK21", "Unknown attribute 21@Attr7", "" };
         case SPELL_ATTR7_IGNORE_COLD_WEATHER_FLYING: return { "SPELL_ATTR7_IGNORE_COLD_WEATHER_FLYING", "Ignore cold weather flying restriction", "Set for loaner mounts, allows them to be used despite lacking required flight skill" };
-        case SPELL_ATTR7_UNK23: return { "SPELL_ATTR7_UNK23", "Unknown attribute 23@Attr7", "" };
-        case SPELL_ATTR7_UNK24: return { "SPELL_ATTR7_UNK24", "Unknown attribute 24@Attr7", "" };
-        case SPELL_ATTR7_UNK25: return { "SPELL_ATTR7_UNK25", "Unknown attribute 25@Attr7", "" };
+        case SPELL_ATTR7_CANT_DODGE: return { "SPELL_ATTR7_CANT_DODGE", "Spell cannot be dodged", "" };
+        case SPELL_ATTR7_CANT_PARRY: return { "SPELL_ATTR7_CANT_PARRY", "Spell cannot be parried", "" };
+        case SPELL_ATTR7_CANT_MISS: return { "SPELL_ATTR7_CANT_MISS", "Spell cannot be missed", "" };
         case SPELL_ATTR7_UNK26: return { "SPELL_ATTR7_UNK26", "Unknown attribute 26@Attr7", "" };
         case SPELL_ATTR7_UNK27: return { "SPELL_ATTR7_UNK27", "Unknown attribute 27@Attr7", "" };
         case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return { "SPELL_ATTR7_CONSOLIDATED_RAID_BUFF", "Consolidate in raid buff frame (client only)", "" };
@@ -1238,9 +1238,9 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 20: return SPELL_ATTR7_UNK20;
         case 21: return SPELL_ATTR7_UNK21;
         case 22: return SPELL_ATTR7_IGNORE_COLD_WEATHER_FLYING;
-        case 23: return SPELL_ATTR7_UNK23;
-        case 24: return SPELL_ATTR7_UNK24;
-        case 25: return SPELL_ATTR7_UNK25;
+        case 23: return SPELL_ATTR7_CANT_DODGE;
+        case 24: return SPELL_ATTR7_CANT_PARRY;
+        case 25: return SPELL_ATTR7_CANT_MISS;
         case 26: return SPELL_ATTR7_UNK26;
         case 27: return SPELL_ATTR7_UNK27;
         case 28: return SPELL_ATTR7_CONSOLIDATED_RAID_BUFF;
@@ -1279,9 +1279,9 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
         case SPELL_ATTR7_UNK20: return 20;
         case SPELL_ATTR7_UNK21: return 21;
         case SPELL_ATTR7_IGNORE_COLD_WEATHER_FLYING: return 22;
-        case SPELL_ATTR7_UNK23: return 23;
-        case SPELL_ATTR7_UNK24: return 24;
-        case SPELL_ATTR7_UNK25: return 25;
+        case SPELL_ATTR7_CANT_DODGE: return 23;
+        case SPELL_ATTR7_CANT_PARRY: return 24;
+        case SPELL_ATTR7_CANT_MISS: return 25;
         case SPELL_ATTR7_UNK26: return 26;
         case SPELL_ATTR7_UNK27: return 27;
         case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return 28;

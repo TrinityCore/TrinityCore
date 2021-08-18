@@ -621,7 +621,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    SetIgnoringCombat((cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_COMBAT) != 0);
+    SetIsCombatDisallowed((cInfo->flags_extra & CREATURE_FLAG_EXTRA_CANNOT_ENTER_COMBAT) != 0);
 
     LoadTemplateRoot();
     InitializeMovementFlags();
@@ -1062,7 +1062,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     }
 
     // Allow players to see those units while dead, do it here (mayby altered by addon auras)
-    if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
+    if (cinfo->type_flags & CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS)
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
 
     if (!CreateFromProto(guidlow, entry, data, vehId))
@@ -1665,9 +1665,12 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
                 return false;
             }
         }
+        else
+        {
+            // compatibility mode creatures will be respawned in ::Update()
+            m_deathState = DEAD;
+        }
 
-        // compatibility mode creatures will be respawned in ::Update()
-        m_deathState = DEAD;
         if (CanFly())
         {
             float tz = map->GetHeight(GetPhaseMask(), data->spawnPoint, true, MAX_FALL_DISTANCE);
@@ -2405,8 +2408,8 @@ bool Creature::_IsTargetAcceptable(Unit const* target) const
 
     if (target->HasUnitState(UNIT_STATE_DIED))
     {
-        // guards can detect fake death
-        if (IsGuard() && target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
+        // some creatures can detect fake death
+        if (CanIgnoreFeignDeath() && target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
             return true;
         else
             return false;
@@ -2652,7 +2655,7 @@ void Creature::InitializeMovementFlags()
 void Creature::UpdateMovementFlags()
 {
     // Do not update movement flags if creature is controlled by a player (charm/vehicle)
-    if (m_playerMovingMe)
+    if (IsMovedByClient())
         return;
 
     // Creatures with CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE should control MovementFlags in your own scripts
@@ -2779,7 +2782,7 @@ uint32 Creature::GetScriptId() const
         if (uint32 scriptId = creatureData->scriptId)
             return scriptId;
 
-    return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
+    return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptID;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
@@ -3170,7 +3173,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     _spellFocusInfo.Spell = focusSpell;
 
     bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
-    bool const turnDisabled = HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+    bool const turnDisabled = HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CANNOT_TURN);
     // set target, then force send update packet to players if it changed to provide appropriate facing
     ObjectGuid newTarget = (target && !noTurnDuringCast && !turnDisabled) ? target->GetGUID() : ObjectGuid::Empty;
     if (GetGuidValue(UNIT_FIELD_TARGET) != newTarget)
@@ -3216,7 +3219,7 @@ void Creature::ReleaseSpellFocus(Spell const* focusSpell, bool withDelay)
 
     if (IsPet()) // player pets do not use delay system
     {
-        if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+        if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CANNOT_TURN))
             ReacquireSpellFocusTarget();
     }
     else // don't allow re-target right away to prevent visual bugs
@@ -3235,7 +3238,7 @@ void Creature::ReacquireSpellFocusTarget()
 
     SetGuidValue(UNIT_FIELD_TARGET, _spellFocusInfo.Target);
 
-    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CANNOT_TURN))
     {
         if (_spellFocusInfo.Target)
         {
@@ -3315,7 +3318,7 @@ bool Creature::CanGiveExperience() const
     return !IsCritter()
         && !IsPet()
         && !IsTotem()
-        && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
+        && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP);
 }
 
 bool Creature::IsEngaged() const
@@ -3329,7 +3332,7 @@ void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
 
-    if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
+    if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT))
         Dismount();
 
     RefreshSwimmingFlag();
@@ -3343,7 +3346,19 @@ void Creature::AtEngage(Unit* target)
 
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
     if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled() && AI()->IsEscorted()))
+    {
         SetHomePosition(GetPosition());
+
+        // if its a vehicle, set the home positon of every creature passenger at engage
+        // so that they are in combat range if hostile
+        if (Vehicle* vehicle = GetVehicleKit())
+        {
+            for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); ++seat)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
+                    if (Creature* creature = passenger->ToCreature())
+                        creature->SetHomePosition(GetPosition());
+        }
+    }
 
     if (CreatureAI* ai = AI())
         ai->JustEngagedWith(target);
@@ -3381,4 +3396,13 @@ std::string Creature::GetDebugInfo() const
         << "AIName: " << GetAIName() << " ScriptName: " << GetScriptName()
         << " WaypointPath: " << GetWaypointPath() << " SpawnId: " << GetSpawnId();
     return sstr.str();
+}
+
+void Creature::ExitVehicle(Position const* /*exitPosition*/)
+{
+    Unit::ExitVehicle();
+
+    // if the creature exits a vehicle, set it's home position to the
+    // exited position so it won't run away (home) and evade if it's hostile
+    SetHomePosition(GetPosition());
 }

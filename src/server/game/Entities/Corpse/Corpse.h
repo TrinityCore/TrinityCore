@@ -19,6 +19,7 @@
 #define TRINITYCORE_CORPSE_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "DatabaseEnvFwd.h"
 #include "GridDefines.h"
 #include "Loot.h"

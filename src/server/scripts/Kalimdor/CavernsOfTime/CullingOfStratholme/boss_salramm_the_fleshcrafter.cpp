@@ -139,6 +139,7 @@ class boss_salramm : public CreatureScript
         }
 };
 
+// 52708 - Steal Flesh
 class spell_salramm_steal_flesh : public AuraScript
 {
     PrepareAuraScript(spell_salramm_steal_flesh);

@@ -342,7 +342,7 @@ struct boss_professor_putricide : public BossAI
             DoZoneInCombat(summon);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
@@ -808,6 +808,7 @@ private:
     uint32 _newTargetSelectTimer;
 };
 
+// 70672, 72455, 72832, 72833 - Gaseous Bloat
 class spell_putricide_gaseous_bloat : public AuraScript
 {
     PrepareAuraScript(spell_putricide_gaseous_bloat);
@@ -849,6 +850,8 @@ class spell_putricide_gaseous_bloat : public AuraScript
     }
 };
 
+// 70447, 72836, 72837, 72838 - Volatile Ooze Adhesive
+// 70672, 72455, 72832, 72833 - Gaseous Bloat
 class spell_putricide_ooze_channel : public SpellScript
 {
     PrepareSpellScript(spell_putricide_ooze_channel);
@@ -923,6 +926,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
+// 70346, 72456, 72868, 72869 - Slime Puddle
 class spell_putricide_slime_puddle : public SpellScript
 {
     PrepareSpellScript(spell_putricide_slime_puddle);
@@ -940,6 +944,7 @@ class spell_putricide_slime_puddle : public SpellScript
 };
 
 // this is here only because on retail you dont actually enter HEROIC mode for ICC
+// 72868, 72869 - Slime Puddle
 class spell_putricide_slime_puddle_aura : public SpellScript
 {
     PrepareSpellScript(spell_putricide_slime_puddle_aura);
@@ -956,6 +961,7 @@ class spell_putricide_slime_puddle_aura : public SpellScript
     }
 };
 
+// 70351, 71966, 71967, 71968 - Unstable Experiment
 class spell_putricide_unstable_experiment : public SpellScript
 {
     PrepareSpellScript(spell_putricide_unstable_experiment);
@@ -993,6 +999,7 @@ class spell_putricide_unstable_experiment : public SpellScript
     }
 };
 
+// 70459 - Ooze Eruption Search Effect
 class spell_putricide_ooze_eruption_searcher : public SpellScript
 {
     PrepareSpellScript(spell_putricide_ooze_eruption_searcher);
@@ -1038,6 +1045,7 @@ class spell_putricide_ooze_tank_protection : public AuraScript
     }
 };
 
+// 71255 - Choking Gas Bomb
 class spell_putricide_choking_gas_bomb : public SpellScript
 {
     PrepareSpellScript(spell_putricide_choking_gas_bomb);
@@ -1061,6 +1069,7 @@ class spell_putricide_choking_gas_bomb : public SpellScript
     }
 };
 
+// 70920 - Unbound Plague Search Effect
 class spell_putricide_unbound_plague : public SpellScript
 {
     PrepareSpellScript(spell_putricide_unbound_plague);
@@ -1124,6 +1133,7 @@ class spell_putricide_unbound_plague : public SpellScript
     }
 };
 
+// 70360, 72527 - Eat Ooze
 class spell_putricide_eat_ooze : public SpellScript
 {
     PrepareSpellScript(spell_putricide_eat_ooze);
@@ -1165,6 +1175,7 @@ class spell_putricide_eat_ooze : public SpellScript
     }
 };
 
+// 72451, 72463, 72671, 72672 - Mutated Plague
 class spell_putricide_mutated_plague : public AuraScript
 {
     PrepareAuraScript(spell_putricide_mutated_plague);
@@ -1215,6 +1226,7 @@ class spell_putricide_mutated_plague : public AuraScript
     }
 };
 
+// 70308 - Mutated Transformation (Init)
 class spell_putricide_mutation_init : public SpellScript
 {
     PrepareSpellScript(spell_putricide_mutation_init);
@@ -1288,6 +1300,7 @@ class spell_putricide_mutation_init_aura : public AuraScript
     }
 };
 
+// 70405, 72508, 72509, 72510 - Mutated Transformation (Dismiss)
 class spell_putricide_mutated_transformation_dismiss : public AuraScript
 {
     PrepareAuraScript(spell_putricide_mutated_transformation_dismiss);
@@ -1304,6 +1317,7 @@ class spell_putricide_mutated_transformation_dismiss : public AuraScript
     }
 };
 
+// 70311, 71503 - Mutated Transformation
 class spell_putricide_mutated_transformation : public SpellScript
 {
     PrepareSpellScript(spell_putricide_mutated_transformation);
@@ -1354,6 +1368,7 @@ class spell_putricide_mutated_transformation : public SpellScript
     }
 };
 
+// 70402, 72511, 72512, 72513 - Mutated Transformation (Damage)
 class spell_putricide_mutated_transformation_dmg : public SpellScript
 {
     PrepareSpellScript(spell_putricide_mutated_transformation_dmg);
@@ -1370,6 +1385,7 @@ class spell_putricide_mutated_transformation_dmg : public SpellScript
     }
 };
 
+// 70539, 72457, 72875, 72876 - Regurgitated Ooze
 class spell_putricide_regurgitated_ooze : public SpellScript
 {
     PrepareSpellScript(spell_putricide_regurgitated_ooze);
@@ -1388,6 +1404,8 @@ class spell_putricide_regurgitated_ooze : public SpellScript
 };
 
 // Removes aura with id stored in effect value
+// 71620 - Tear Gas Cancel
+// 72618 - Mutated Plague Clear
 class spell_putricide_clear_aura_effect_value : public SpellScript
 {
     PrepareSpellScript(spell_putricide_clear_aura_effect_value);
@@ -1412,6 +1430,7 @@ class spell_putricide_clear_aura_effect_value : public SpellScript
 };
 
 // Stinky and Precious spell, it's here because its used for both (Festergut and Rotface "pets")
+// 71123 - Decimate
 class spell_stinky_precious_decimate : public SpellScript
 {
     PrepareSpellScript(spell_stinky_precious_decimate);

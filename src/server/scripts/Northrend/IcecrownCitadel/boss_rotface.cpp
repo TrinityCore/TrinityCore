@@ -412,6 +412,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 69782, 69796, 69798, 69801 - Ooze Flood
 class spell_rotface_ooze_flood : public SpellScript
 {
     PrepareSpellScript(spell_rotface_ooze_flood);
@@ -451,6 +452,7 @@ class spell_rotface_ooze_flood : public SpellScript
     }
 };
 
+// 69674, 71224, 73022, 73023 - Mutated Infection
 class spell_rotface_mutated_infection : public SpellScript
 {
     PrepareSpellScript(spell_rotface_mutated_infection);
@@ -503,6 +505,7 @@ class spell_rotface_mutated_infection_aura : public AuraScript
     }
 };
 
+// 69538 - Small Ooze Combine
 class spell_rotface_little_ooze_combine : public SpellScript
 {
     PrepareSpellScript(spell_rotface_little_ooze_combine);
@@ -526,6 +529,7 @@ class spell_rotface_little_ooze_combine : public SpellScript
     }
 };
 
+// 69553 - Large Ooze Combine
 class spell_rotface_large_ooze_combine : public SpellScript
 {
     PrepareSpellScript(spell_rotface_large_ooze_combine);
@@ -571,6 +575,7 @@ class spell_rotface_large_ooze_combine : public SpellScript
     }
 };
 
+// 69610 - Large Ooze Buff Combine
 class spell_rotface_large_ooze_buff_combine : public SpellScript
 {
     PrepareSpellScript(spell_rotface_large_ooze_buff_combine);
@@ -636,6 +641,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScript
     }
 };
 
+// 69839 - Unstable Ooze Explosion
 class spell_rotface_unstable_ooze_explosion_init : public SpellScript
 {
     PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init);
@@ -663,6 +669,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScript
     }
 };
 
+// 69832 - Unstable Ooze Explosion
 class spell_rotface_unstable_ooze_explosion : public SpellScript
 {
     PrepareSpellScript(spell_rotface_unstable_ooze_explosion);
@@ -689,6 +696,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScript
     }
 };
 
+// 71441 - Unstable Ooze Explosion Suicide Trigger
 class spell_rotface_unstable_ooze_explosion_suicide : public AuraScript
 {
     PrepareAuraScript(spell_rotface_unstable_ooze_explosion_suicide);
@@ -711,6 +719,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public AuraScript
     }
 };
 
+// 72285, 72288 - Vile Gas Trigger
 class spell_rotface_vile_gas_trigger : public SpellScript
 {
     PrepareSpellScript(spell_rotface_vile_gas_trigger);
@@ -765,6 +774,7 @@ class spell_rotface_vile_gas_trigger : public SpellScript
     }
 };
 
+// 69507, 71213, 73189, 73190 - Slime Spray
 class spell_rotface_slime_spray : public SpellScript
 {
     PrepareSpellScript(spell_rotface_slime_spray);

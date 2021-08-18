@@ -263,6 +263,7 @@ public:
 
 };
 
+// 38196 - Vampiric Aura
 class spell_anetheron_vampiric_aura : public SpellScriptLoader
 {
     public:

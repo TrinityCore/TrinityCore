@@ -323,7 +323,7 @@ class npc_iron_construct : public CreatureScript
                 Initialize();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HasAura(RAID_MODE(SPELL_BRITTLE, SPELL_BRITTLE_25)) && damage >= 5000)
                 {
@@ -446,6 +446,7 @@ class npc_scorch_ground : public CreatureScript
         }
 };
 
+// 62717, 63477 - Slag Pot
 class spell_ignis_slag_pot : public SpellScriptLoader
 {
     public:

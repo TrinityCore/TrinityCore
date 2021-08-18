@@ -515,6 +515,7 @@ private:
 // helper for shortened code
 typedef boss_blood_queen_lana_thel LanaThelAI;
 
+// 70946, 71475, 71476, 71477 - Vampiric Bite
 class spell_blood_queen_vampiric_bite : public SpellScript
 {
     PrepareSpellScript(spell_blood_queen_vampiric_bite);
@@ -575,6 +576,7 @@ class spell_blood_queen_vampiric_bite : public SpellScript
     }
 };
 
+// 70877, 71474 - Frenzied Bloodthirst
 class spell_blood_queen_frenzied_bloodthirst : public AuraScript
 {
     PrepareAuraScript(spell_blood_queen_frenzied_bloodthirst);
@@ -623,6 +625,7 @@ class BloodboltHitCheck
         LanaThelAI* _ai;
 };
 
+// 71899, 71900, 71901, 71902 - Bloodbolt Whirl
 class spell_blood_queen_bloodbolt : public SpellScript
 {
     PrepareSpellScript(spell_blood_queen_bloodbolt);
@@ -688,6 +691,7 @@ class spell_blood_queen_essence_of_the_blood_queen : public AuraScript
     }
 };
 
+// 71390 - Pact of the Darkfallen
 class spell_blood_queen_pact_of_the_darkfallen : public SpellScript
 {
     PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen);
@@ -725,6 +729,7 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScript
     }
 };
 
+// 71340 - Pact of the Darkfallen
 class spell_blood_queen_pact_of_the_darkfallen_dmg : public AuraScript
 {
     PrepareAuraScript(spell_blood_queen_pact_of_the_darkfallen_dmg);
@@ -753,6 +758,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public AuraScript
     }
 };
 
+// 71341 - Pact of the Darkfallen
 class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScript
 {
     PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_dmg_target);

@@ -61,6 +61,7 @@ public:
             { "list",    rbac::RBAC_PERM_COMMAND_GROUP_LIST,      false, &HandleGroupListCommand,    "" },
             { "summon",  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,    false, &HandleGroupSummonCommand,  "" },
             { "revive",  rbac::RBAC_PERM_COMMAND_REVIVE,          true,  &HandleGroupReviveCommand,  "" },
+            { "repair",  rbac::RBAC_PERM_COMMAND_REPAIRITEMS,     true,  &HandleGroupRepairCommand,  "" },
             { "level",   rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL, true,  &HandleGroupLevelCommand,   "" }
         };
 
@@ -117,8 +118,7 @@ public:
     static bool HandleGroupReviveCommand(ChatHandler* handler, char const* args)
     {
         Player* playerTarget;
-        ObjectGuid playerTargetGuid;
-        if (!handler->extractPlayerTarget((char*)args, &playerTarget, &playerTargetGuid))
+        if (!handler->extractPlayerTarget((char*)args, &playerTarget))
             return false;
 
         Group* groupTarget = playerTarget->GetGroup();
@@ -133,6 +133,29 @@ public:
                 target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
                 target->SpawnCorpseBones();
                 target->SaveToDB();
+            }
+        }
+
+        return true;
+    }
+
+    // Repair group of players
+    static bool HandleGroupRepairCommand(ChatHandler* handler, char const* args)
+    {
+        Player* playerTarget;
+        if (!handler->extractPlayerTarget((char*)args, &playerTarget))
+            return false;
+
+        Group* groupTarget = playerTarget->GetGroup();
+        if (!groupTarget)
+            return false;
+
+        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        {
+            Player* target = it->GetSource();
+            if (target)
+            {
+                target->DurabilityRepairAll(false, 0, false);
             }
         }
 

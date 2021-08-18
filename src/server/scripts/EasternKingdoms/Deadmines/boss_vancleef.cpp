@@ -89,7 +89,7 @@ struct boss_vancleef : public BossAI
                 DoSummon(NPC_BLACKGUARD, BlackguardPosition, 1min, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!_guardsCalled && HealthBelowPct(50))
             {

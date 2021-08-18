@@ -21,12 +21,12 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum Say
+enum AzuregosTexts
 {
     SAY_TELEPORT             = 0
 };
 
-enum Spells
+enum AzuregosSpells
 {
     SPELL_MARK_OF_FROST      = 23182,
     SPELL_AURA_OF_FROST      = 23186,
@@ -39,7 +39,7 @@ enum Spells
     SPELL_ENRAGE             = 23537
 };
 
-enum Events
+enum AzuregosEvents
 {
     EVENT_MARK_OF_FROST      = 1,
     EVENT_MANA_STORM,
@@ -51,114 +51,103 @@ enum Events
     EVENT_ENRAGE
 };
 
-class boss_azuregos : public CreatureScript
+struct boss_azuregos : public WorldBossAI
 {
-    public:
-        boss_azuregos() : CreatureScript("boss_azuregos") { }
+    boss_azuregos(Creature* creature) : WorldBossAI(creature)
+    {
+        _enraged = false;
+    }
 
-        struct boss_azuregosAI : public WorldBossAI
+    void Reset() override
+    {
+        _Reset();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        DoCast(me, SPELL_MARK_OF_FROST_AURA, true);
+        _enraged = false;
+
+        events.ScheduleEvent(EVENT_MARK_OF_FROST, 35s);
+        events.ScheduleEvent(EVENT_MANA_STORM, 5s, 17s);
+        events.ScheduleEvent(EVENT_CHILL, 10s, 30s);
+        events.ScheduleEvent(EVENT_BREATH, 2s, 8s);
+        events.ScheduleEvent(EVENT_TELEPORT, 30s);
+        events.ScheduleEvent(EVENT_REFLECT, 15s, 30s);
+        events.ScheduleEvent(EVENT_CLEAVE, 7s);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            who->CastSpell(who, SPELL_MARK_OF_FROST, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_azuregosAI(Creature* creature) : WorldBossAI(creature)
+            switch (eventId)
             {
-                _enraged = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                DoCast(me, SPELL_MARK_OF_FROST_AURA, true);
-                _enraged = false;
-
-                events.ScheduleEvent(EVENT_MARK_OF_FROST, 35s);
-                events.ScheduleEvent(EVENT_MANA_STORM, 5s, 17s);
-                events.ScheduleEvent(EVENT_CHILL, 10s, 30s);
-                events.ScheduleEvent(EVENT_BREATH, 2s, 8s);
-                events.ScheduleEvent(EVENT_TELEPORT, 30s);
-                events.ScheduleEvent(EVENT_REFLECT, 15s, 30s);
-                events.ScheduleEvent(EVENT_CLEAVE, 7s);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    who->CastSpell(who, SPELL_MARK_OF_FROST, true);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                case EVENT_MANA_STORM:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
+                        DoCast(target, SPELL_MANA_STORM);
+                    events.ScheduleEvent(EVENT_MANA_STORM, 7500ms, 12500ms);
+                    break;
+                case EVENT_CHILL:
+                    DoCastVictim(SPELL_CHILL);
+                    events.ScheduleEvent(EVENT_CHILL, 13s, 25s);
+                    break;
+                case EVENT_BREATH:
+                    DoCastVictim(SPELL_FROST_BREATH);
+                    events.ScheduleEvent(EVENT_BREATH, 10s, 15s);
+                    break;
+                case EVENT_TELEPORT:
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_MANA_STORM:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
-                                DoCast(target, SPELL_MANA_STORM);
-                            events.ScheduleEvent(EVENT_MANA_STORM, 7500ms, 12500ms);
-                            break;
-                        case EVENT_CHILL:
-                            DoCastVictim(SPELL_CHILL);
-                            events.ScheduleEvent(EVENT_CHILL, 13s, 25s);
-                            break;
-                        case EVENT_BREATH:
-                            DoCastVictim(SPELL_FROST_BREATH);
-                            events.ScheduleEvent(EVENT_BREATH, 10s, 15s);
-                            break;
-                        case EVENT_TELEPORT:
-                        {
-                            Talk(SAY_TELEPORT);
-                            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
-                                if (Player* player = pair.second->GetOther(me)->ToPlayer())
-                                    DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, player->GetOrientation());
+                    Talk(SAY_TELEPORT);
+                    for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+                        if (Player* player = pair.second->GetOther(me)->ToPlayer())
+                            DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, player->GetOrientation());
 
-                            ResetThreatList();
-                            events.ScheduleEvent(EVENT_TELEPORT, 30s);
-                            break;
-                        }
-                        case EVENT_REFLECT:
-                            DoCast(me, SPELL_REFLECT);
-                            events.ScheduleEvent(EVENT_REFLECT, 20s, 35s);
-                            break;
-                        case EVENT_CLEAVE:
-                            DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 7s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
+                    ResetThreatList();
+                    events.ScheduleEvent(EVENT_TELEPORT, 30s);
+                    break;
                 }
-
-                if (HealthBelowPct(26) && !_enraged)
-                {
-                    DoCast(me, SPELL_ENRAGE);
-                    _enraged = true;
-                }
-
-                DoMeleeAttackIfReady();
+                case EVENT_REFLECT:
+                    DoCast(me, SPELL_REFLECT);
+                    events.ScheduleEvent(EVENT_REFLECT, 20s, 35s);
+                    break;
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    events.ScheduleEvent(EVENT_CLEAVE, 7s);
+                    break;
+                default:
+                    break;
             }
 
-        private:
-            bool _enraged;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new boss_azuregosAI(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        if (HealthBelowPct(26) && !_enraged)
+        {
+            DoCast(me, SPELL_ENRAGE);
+            _enraged = true;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _enraged;
 };
 
 class MarkOfFrostTargetSelector
@@ -174,46 +163,36 @@ class MarkOfFrostTargetSelector
         }
 };
 
-class spell_mark_of_frost : public SpellScriptLoader
+// 23183 - Mark of Frost - Triggered spell
+class spell_mark_of_frost : public SpellScript
 {
-    public:
-        spell_mark_of_frost() : SpellScriptLoader("spell_mark_of_frost") { }
+    PrepareSpellScript(spell_mark_of_frost);
 
-        class spell_mark_of_frost_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mark_of_frost_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MARK_OF_FROST, SPELL_AURA_OF_FROST });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MARK_OF_FROST, SPELL_AURA_OF_FROST });
-            }
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(MarkOfFrostTargetSelector());
+    }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(MarkOfFrostTargetSelector());
-            }
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_AURA_OF_FROST, true);
+    }
 
-            void HandleEffect(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_AURA_OF_FROST, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_frost_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_mark_of_frost_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mark_of_frost_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_frost::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_mark_of_frost::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
 void AddSC_boss_azuregos()
 {
-    new boss_azuregos();
-    new spell_mark_of_frost();
+    RegisterCreatureAI(boss_azuregos);
+    RegisterSpellScript(spell_mark_of_frost);
 }

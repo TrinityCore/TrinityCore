@@ -29,7 +29,6 @@
 #include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "SmartAI.h"
 #include "SpellInfo.h"
 #include "ScriptMgr.h"
 #include "SplineChainMovementGenerator.h"

@@ -1464,11 +1464,16 @@ struct npc_training_dummy : NullCreatureAI
 {
     npc_training_dummy(Creature* creature) : NullCreatureAI(creature) { }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void JustEnteredCombat(Unit* who) override
+    {
+        _combatTimer[who->GetGUID()] = 5s;
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType damageType, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         damage = 0;
 
-        if (!attacker)
+        if (!attacker || damageType == DOT)
             return;
 
         _combatTimer[attacker->GetGUID()] = 5s;

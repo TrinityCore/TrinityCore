@@ -330,7 +330,7 @@ class boss_freya : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* who, uint32& damage) override
+            void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -838,7 +838,7 @@ class boss_elder_stonebark : public CreatureScript
                     Talk(SAY_ELDER_AGGRO);
             }
 
-            void DamageTaken(Unit* who, uint32& damage) override
+            void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!who || who == me)
                     return;
@@ -1530,6 +1530,9 @@ class npc_unstable_sun_beam : public CreatureScript
         }
 };
 
+// 62521 - Attuned to Nature 25 Dose Reduction
+// 62524 - Attuned to Nature 2 Dose Reduction
+// 62525 - Attuned to Nature 10 Dose Reduction
 class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
 {
     public:
@@ -1577,6 +1580,8 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
         }
 };
 
+// 65158 - Strengthened Iron Roots Summon Effect
+// 65160 - Iron Roots Summon Effect
 class spell_freya_iron_roots : public SpellScriptLoader
 {
     public:

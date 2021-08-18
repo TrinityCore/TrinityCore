@@ -162,6 +162,7 @@ enum SPSpells
     SPELL_SHADOW_PORTAL_VAULTOFTHERAVENIAN     = 17948
 };
 
+// 17950 - Shadow Portal
 class spell_shadow_portal : public SpellScriptLoader
 {
     public:
@@ -280,6 +281,7 @@ enum ScriptEventId
     SPELL_EVENT_VAULTOFTHERAVENIAN     = 5623
 };
 
+// 17863, 17939, 17943, 17944, 17946, 17948 - Shadow Portal
 class spell_shadow_portal_rooms : public SpellScriptLoader
 {
     public:

@@ -131,588 +131,566 @@ static Position SpawnLocations[]=
     {960.748f, 382.944f, 208.374f, 0.0f},
 };
 
-class npc_tribuna_controller : public CreatureScript
+struct npc_tribuna_controller : public ScriptedAI
 {
-public:
-    npc_tribuna_controller() : CreatureScript("npc_tribuna_controller") { }
-
-    struct npc_tribuna_controllerAI : public ScriptedAI
+    npc_tribuna_controller(Creature* creature) : ScriptedAI(creature)
     {
-        npc_tribuna_controllerAI(Creature* creature) : ScriptedAI(creature)
+        Initialize();
+        instance = creature->GetInstanceScript();
+        SetCombatMovement(false);
+    }
+
+    void Initialize()
+    {
+        uiKaddrakEncounterTimer = 1500;
+        uiMarnakEncounterTimer = 10000;
+        uiAbedneumEncounterTimer = 10000;
+
+        bKaddrakActivated = false;
+        bMarnakActivated = false;
+        bAbedneumActivated = false;
+    }
+
+    InstanceScript* instance;
+
+    uint32 uiKaddrakEncounterTimer;
+    uint32 uiMarnakEncounterTimer;
+    uint32 uiAbedneumEncounterTimer;
+
+    bool bKaddrakActivated;
+    bool bMarnakActivated;
+    bool bAbedneumActivated;
+
+    GuidList KaddrakGUIDList;
+
+    void Reset() override
+    {
+        Initialize();
+
+        instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), false);
+        instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), false);
+        instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), false);
+        instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), false);
+
+        KaddrakGUIDList.clear();
+    }
+
+    void UpdateFacesList()
+    {
+        /*GetCreatureListWithEntryInGrid(lKaddrakGUIDList, me, CREATURE_KADDRAK, 50.0f);
+        if (!lKaddrakGUIDList.empty())
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            SetCombatMovement(false);
-        }
-
-        void Initialize()
-        {
-            uiKaddrakEncounterTimer = 1500;
-            uiMarnakEncounterTimer = 10000;
-            uiAbedneumEncounterTimer = 10000;
-
-            bKaddrakActivated = false;
-            bMarnakActivated = false;
-            bAbedneumActivated = false;
-        }
-
-        InstanceScript* instance;
-
-        uint32 uiKaddrakEncounterTimer;
-        uint32 uiMarnakEncounterTimer;
-        uint32 uiAbedneumEncounterTimer;
-
-        bool bKaddrakActivated;
-        bool bMarnakActivated;
-        bool bAbedneumActivated;
-
-        GuidList KaddrakGUIDList;
-
-        void Reset() override
-        {
-            Initialize();
-
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), false);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), false);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), false);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), false);
-
-            KaddrakGUIDList.clear();
-        }
-
-        void UpdateFacesList()
-        {
-            /*GetCreatureListWithEntryInGrid(lKaddrakGUIDList, me, CREATURE_KADDRAK, 50.0f);
-            if (!lKaddrakGUIDList.empty())
+            uint32 uiPositionCounter = 0;
+            for (std::list<Creature*>::const_iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
             {
-                uint32 uiPositionCounter = 0;
-                for (std::list<Creature*>::const_iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
+                if ((*itr)->IsAlive())
                 {
-                    if ((*itr)->IsAlive())
+                    if (uiPositionCounter == 0)
                     {
-                        if (uiPositionCounter == 0)
-                        {
-                            (*itr)->GetMap()->CreatureRelocation((*itr), 927.265f, 333.200f, 218.780f, (*itr)->GetOrientation());
-                            (*itr)->SendMonsterMove(927.265f, 333.200f, 218.780f, 0, (*itr)->GetMovementFlags(), 1);
-                        }
-                        else
-                        {
-                            (*itr)->GetMap()->CreatureRelocation((*itr), 921.745f, 328.076f, 218.780f, (*itr)->GetOrientation());
-                            (*itr)->SendMonsterMove(921.745f, 328.076f, 218.780f, 0, (*itr)->GetMovementFlags(), 1);
-                        }
+                        (*itr)->GetMap()->CreatureRelocation((*itr), 927.265f, 333.200f, 218.780f, (*itr)->GetOrientation());
+                        (*itr)->SendMonsterMove(927.265f, 333.200f, 218.780f, 0, (*itr)->GetMovementFlags(), 1);
                     }
-                    ++uiPositionCounter;
+                    else
+                    {
+                        (*itr)->GetMap()->CreatureRelocation((*itr), 921.745f, 328.076f, 218.780f, (*itr)->GetOrientation());
+                        (*itr)->SendMonsterMove(921.745f, 328.076f, 218.780f, 0, (*itr)->GetMovementFlags(), 1);
+                    }
                 }
-            }*/
-        }
+                ++uiPositionCounter;
+            }
+        }*/
+    }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (bKaddrakActivated)
-            {
-                if (uiKaddrakEncounterTimer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
-                        if (!KaddrakGUIDList.empty())
-                            for (GuidList::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
-                            {
-                                if (Creature* pKaddrak = ObjectAccessor::GetCreature(*me, *itr))
-                                {
-                                    if (pKaddrak->IsAlive())
-                                        pKaddrak->CastSpell(target, SPELL_GLARE_OF_THE_TRIBUNAL, true);
-                                }
-                            }
-                    uiKaddrakEncounterTimer = 1500;
-                } else uiKaddrakEncounterTimer -= diff;
-            }
-            if (bMarnakActivated)
-            {
-                if (uiMarnakEncounterTimer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
-                    {
-                        if (Creature* summon = me->SummonCreature(NPC_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1s))
-                        {
-                            summon->SetDisplayId(11686);
-                            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            summon->CastSpell(target, SPELL_DARK_MATTER, true);
-                        }
-                    }
-                    uiMarnakEncounterTimer = urand(30000, 31000);
-                } else uiMarnakEncounterTimer -= diff;
-            }
-            if (bAbedneumActivated)
-            {
-                if (uiAbedneumEncounterTimer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
-                    {
-                        if (Creature* summon = me->SummonCreature(NPC_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1s))
-                        {
-                            summon->SetDisplayId(11686);
-                            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            summon->CastSpell(target, SPELL_SEARING_GAZE, true);
-                        }
-                    }
-                    uiAbedneumEncounterTimer = urand(30000, 31000);
-                } else uiAbedneumEncounterTimer -= diff;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return GetHallsOfStoneAI<npc_tribuna_controllerAI>(creature);
+        if (bKaddrakActivated)
+        {
+            if (uiKaddrakEncounterTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                    if (!KaddrakGUIDList.empty())
+                        for (GuidList::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
+                        {
+                            if (Creature* pKaddrak = ObjectAccessor::GetCreature(*me, *itr))
+                            {
+                                if (pKaddrak->IsAlive())
+                                    pKaddrak->CastSpell(target, SPELL_GLARE_OF_THE_TRIBUNAL, true);
+                            }
+                        }
+                uiKaddrakEncounterTimer = 1500;
+            } else uiKaddrakEncounterTimer -= diff;
+        }
+        if (bMarnakActivated)
+        {
+            if (uiMarnakEncounterTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                {
+                    if (Creature* summon = me->SummonCreature(NPC_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1s))
+                    {
+                        summon->SetDisplayId(11686);
+                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        summon->CastSpell(target, SPELL_DARK_MATTER, true);
+                    }
+                }
+                uiMarnakEncounterTimer = urand(30000, 31000);
+            } else uiMarnakEncounterTimer -= diff;
+        }
+        if (bAbedneumActivated)
+        {
+            if (uiAbedneumEncounterTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                {
+                    if (Creature* summon = me->SummonCreature(NPC_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1s))
+                    {
+                        summon->SetDisplayId(11686);
+                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        summon->CastSpell(target, SPELL_SEARING_GAZE, true);
+                    }
+                }
+                uiAbedneumEncounterTimer = urand(30000, 31000);
+            } else uiAbedneumEncounterTimer -= diff;
+        }
     }
 };
 
-class npc_brann_hos : public CreatureScript
+struct npc_brann_hos : public EscortAI
 {
-public:
-    npc_brann_hos() : CreatureScript("npc_brann_hos") { }
-
-    struct npc_brann_hosAI : public EscortAI
+    npc_brann_hos(Creature* creature) : EscortAI(creature)
     {
-        npc_brann_hosAI(Creature* creature) : EscortAI(creature)
+        Initialize();
+        instance = creature->GetInstanceScript();
+    }
+
+    void Initialize()
+    {
+        bIsLowHP = false;
+        bIsBattle = false;
+        uiStep = 0;
+        uiPhaseTimer = 0;
+        uiControllerGUID.Clear();
+        brannSparklinNews = true;
+    }
+
+    uint32 uiStep;
+    uint32 uiPhaseTimer;
+
+    ObjectGuid uiControllerGUID;
+    GuidList lDwarfGUIDList;
+
+    InstanceScript* instance;
+
+    bool bIsBattle;
+    bool bIsLowHP;
+    bool brannSparklinNews;
+
+    void Reset() override
+    {
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
         {
             Initialize();
-            instance = creature->GetInstanceScript();
+
+            DespawnDwarf();
+
+            instance->SetBossState(DATA_TRIBUNAL_OF_AGES, NOT_STARTED);
         }
+    }
 
-        void Initialize()
+    void DespawnDwarf()
+    {
+        if (lDwarfGUIDList.empty())
+            return;
+        for (GuidList::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
         {
-            bIsLowHP = false;
-            bIsBattle = false;
-            uiStep = 0;
-            uiPhaseTimer = 0;
-            uiControllerGUID.Clear();
-            brannSparklinNews = true;
+            Creature* temp = ObjectAccessor::GetCreature(*me, instance ? (*itr) : ObjectGuid::Empty);
+            if (temp && temp->IsAlive())
+                temp->DespawnOrUnsummon();
         }
+        lDwarfGUIDList.clear();
+    }
 
-        uint32 uiStep;
-        uint32 uiPhaseTimer;
-
-        ObjectGuid uiControllerGUID;
-        GuidList lDwarfGUIDList;
-
-        InstanceScript* instance;
-
-        bool bIsBattle;
-        bool bIsLowHP;
-        bool brannSparklinNews;
-
-        void Reset() override
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+    {
+        switch (waypointId)
         {
-            if (!HasEscortState(STATE_ESCORT_ESCORTING))
+            case 7:
+                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_TRIBUNAL_OF_THE_AGES, 100.0f))
+                {
+                    if (!creature->IsAlive())
+                        creature->Respawn();
+                    ENSURE_AI(npc_tribuna_controller, creature->AI())->UpdateFacesList();
+                    uiControllerGUID = creature->GetGUID();
+                }
+                break;
+            case 13:
+                Talk(SAY_EVENT_INTRO_1);
+                instance->SetBossState(DATA_TRIBUNAL_OF_AGES, IN_PROGRESS);
+                SetEscortPaused(true);
+                JumpToNextStep(20000);
+                // @todo: There should be a pause here and a gossip should start the next step.
+                break;
+            case 17:
+                Talk(SAY_EVENT_INTRO_2);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_TRIBUNAL_CONSOLE), true);
+                me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                SetEscortPaused(true);
+                JumpToNextStep(8500);
+                break;
+            case 18:
+                SetEscortPaused(true);
+                break;
+        }
+     }
+
+     void SpawnDwarf(uint32 uiType)
+     {
+       switch (uiType)
+       {
+           case 1:
+           {
+               uint32 uiSpawnNumber = DUNGEON_MODE(2, 3);
+               for (uint8 i = 0; i < uiSpawnNumber; ++i)
+                   me->SummonCreature(NPC_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+               me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+               break;
+           }
+           case 2:
+               for (uint8 i = 0; i < 2; ++i)
+                   me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+               break;
+           case 3:
+               me->SummonCreature(NPC_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+               break;
+       }
+     }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        lDwarfGUIDList.push_back(summoned->GetGUID());
+        AddThreat(me, 0.0f, summoned);
+        summoned->AI()->AttackStart(me);
+    }
+
+    void JumpToNextStep(uint32 uiTimer)
+    {
+      uiPhaseTimer = uiTimer;
+      ++uiStep;
+    }
+
+    void StartWP()
+    {
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        SetEscortPaused(false);
+        uiStep = 1;
+        Start();
+    }
+
+    void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) == IN_PROGRESS)
+            brannSparklinNews = false;
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_BRANN_SPARKLIN_NEWS)
+            return brannSparklinNews ? 1 : 0;
+
+        return 0;
+    }
+
+    void UpdateEscortAI(uint32 uiDiff) override
+    {
+        if (uiPhaseTimer <= uiDiff)
+        {
+            switch (uiStep)
             {
-                Initialize();
-
-                DespawnDwarf();
-
-                instance->SetBossState(DATA_TRIBUNAL_OF_AGES, NOT_STARTED);
-            }
-        }
-
-        void DespawnDwarf()
-        {
-            if (lDwarfGUIDList.empty())
-                return;
-            for (GuidList::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
-            {
-                Creature* temp = ObjectAccessor::GetCreature(*me, instance ? (*itr) : ObjectGuid::Empty);
-                if (temp && temp->IsAlive())
-                    temp->DespawnOrUnsummon();
-            }
-            lDwarfGUIDList.clear();
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 7:
-                    if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_TRIBUNAL_OF_THE_AGES, 100.0f))
-                    {
-                        if (!creature->IsAlive())
-                            creature->Respawn();
-                        ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, creature->AI())->UpdateFacesList();
-                        uiControllerGUID = creature->GetGUID();
-                    }
+                case 1:
+                    if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) != NOT_STARTED)
+                        return;
+                    bIsBattle = false;
+                    Talk(SAY_ESCORT_START);
+                    SetRun(true);
+                    JumpToNextStep(0);
                     break;
-                case 13:
-                    Talk(SAY_EVENT_INTRO_1);
-                    instance->SetBossState(DATA_TRIBUNAL_OF_AGES, IN_PROGRESS);
-                    SetEscortPaused(true);
-                    JumpToNextStep(20000);
-                    // @todo: There should be a pause here and a gossip should start the next step.
+                case 3:
+                    SetEscortPaused(false);
+                    JumpToNextStep(0);
                     break;
-                case 17:
-                    Talk(SAY_EVENT_INTRO_2);
-                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_TRIBUNAL_CONSOLE), true);
-                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    SetEscortPaused(true);
+                case 5:
+                    if (Creature* temp = (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM))))
+                        temp->AI()->Talk(SAY_EVENT_INTRO_3_ABED);
                     JumpToNextStep(8500);
                     break;
+                case 6:
+                    Talk(SAY_EVENT_A_1);
+                    JumpToNextStep(6500);
+                    break;
+                case 7:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
+                        temp->AI()->Talk(SAY_EVENT_A_2_KADD);
+                    JumpToNextStep(12500);
+                    break;
+                case 8:
+                    Talk(SAY_EVENT_A_3);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), true);
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
+                        ENSURE_AI(npc_tribuna_controller, temp->AI())->bKaddrakActivated = true;
+                    JumpToNextStep(5000);
+                    break;
+                case 9:
+                    me->SetReactState(REACT_PASSIVE);
+                    SpawnDwarf(1);
+                    JumpToNextStep(20000);
+                    break;
+                case 10:
+                    Talk(SAY_EVENT_B_1);
+                    JumpToNextStep(6000);
+                    break;
+                case 11:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
+                        temp->AI()->Talk(SAY_EVENT_B_2_MARN);
+                    SpawnDwarf(1);
+                    JumpToNextStep(20000);
+                    break;
+                case 12:
+                    Talk(SAY_EVENT_B_3);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), true);
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
+                        ENSURE_AI(npc_tribuna_controller, temp->AI())->bMarnakActivated = true;
+                    JumpToNextStep(10000);
+                    break;
+                case 13:
+                    SpawnDwarf(1);
+                    JumpToNextStep(10000);
+                    break;
+                case 14:
+                    SpawnDwarf(2);
+                    JumpToNextStep(20000);
+                    break;
+                case 15:
+                    Talk(SAY_EVENT_C_1);
+                    SpawnDwarf(1);
+                    JumpToNextStep(10000);
+                    break;
+                case 16:
+                    SpawnDwarf(2);
+                    JumpToNextStep(20000);
+                    break;
+                case 17:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
+                        temp->AI()->Talk(SAY_EVENT_C_2_ABED);
+                    SpawnDwarf(1);
+                    JumpToNextStep(20000);
+                    break;
                 case 18:
-                    SetEscortPaused(true);
+                    Talk(SAY_EVENT_C_3);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), true);
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
+                        ENSURE_AI(npc_tribuna_controller, temp->AI())->bAbedneumActivated = true;
+                    JumpToNextStep(5000);
+                    break;
+                case 19:
+                    SpawnDwarf(2);
+                    JumpToNextStep(10000);
+                    break;
+                case 20:
+                    SpawnDwarf(1);
+                    JumpToNextStep(15000);
+                    break;
+                case 21:
+                    Talk(SAY_EVENT_D_1);
+                    SpawnDwarf(3);
+                    JumpToNextStep(20000);
+                    break;
+                case 22:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
+                        temp->AI()->Talk(SAY_EVENT_D_2_ABED);
+                    SpawnDwarf(1);
+                    JumpToNextStep(5000);
+                    break;
+                case 23:
+                    SpawnDwarf(2);
+                    JumpToNextStep(15000);
+                    break;
+                case 24:
+                    Talk(SAY_EVENT_D_3);
+                    SpawnDwarf(3);
+                    JumpToNextStep(5000);
+                    break;
+                case 25:
+                    SpawnDwarf(1);
+                    JumpToNextStep(5000);
+                    break;
+                case 26:
+                    SpawnDwarf(2);
+                    JumpToNextStep(10000);
+                    break;
+                case 27:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
+                        temp->AI()->Talk(SAY_EVENT_D_4_ABED);
+                    SpawnDwarf(1);
+                    JumpToNextStep(10000);
+                    break;
+                case 28:
+                    me->SetReactState(REACT_DEFENSIVE);
+                    Talk(SAY_EVENT_END_01);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), true);
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
+                        temp->KillSelf();
+                    bIsBattle = true;
+                    SetEscortPaused(false);
+                    JumpToNextStep(6500);
+                    break;
+                case 29:
+                    Talk(SAY_EVENT_END_02);
+                    instance->SetBossState(DATA_TRIBUNAL_OF_AGES, DONE);
+                    me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
+                    JumpToNextStep(5500);
+                    break;
+                case 30:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
+                        temp->AI()->Talk(SAY_EVENT_END_03_ABED);
+                    JumpToNextStep(8500);
+                    break;
+                case 31:
+                    Talk(SAY_EVENT_END_04);
+                    JumpToNextStep(11500);
+                    break;
+                case 32:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
+                        temp->AI()->Talk(SAY_EVENT_END_05_ABED);
+                    JumpToNextStep(11500);
+                    break;
+                case 33:
+                    Talk(SAY_EVENT_END_06);
+                    JumpToNextStep(4500);
+                    break;
+                case 34:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
+                        temp->AI()->Talk(SAY_EVENT_END_07_ABED);
+                    JumpToNextStep(22500);
+                    break;
+                case 35:
+                    Talk(SAY_EVENT_END_08);
+                    JumpToNextStep(7500);
+                    break;
+                case 36:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
+                        temp->AI()->Talk(SAY_EVENT_END_09_KADD);
+                    JumpToNextStep(18500);
+                    break;
+                case 37:
+                    Talk(SAY_EVENT_END_10);
+                    JumpToNextStep(5500);
+                    break;
+                case 38:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
+                        temp->AI()->Talk(SAY_EVENT_END_11_KADD);
+                    JumpToNextStep(20500);
+                    break;
+                case 39:
+                    Talk(SAY_EVENT_END_12);
+                    JumpToNextStep(2500);
+                    break;
+                case 40:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
+                        temp->AI()->Talk(SAY_EVENT_END_13_KADD);
+                    JumpToNextStep(19500);
+                    break;
+                case 41:
+                    Talk(SAY_EVENT_END_14);
+                    JumpToNextStep(10500);
+                    break;
+                case 42:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
+                        temp->AI()->Talk(SAY_EVENT_END_15_MARN);
+                    JumpToNextStep(6500);
+                    break;
+                case 43:
+                    Talk(SAY_EVENT_END_16);
+                    JumpToNextStep(6500);
+                    break;
+                case 44:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
+                        temp->AI()->Talk(SAY_EVENT_END_17_MARN);
+                    JumpToNextStep(25500);
+                    break;
+                case 45:
+                    Talk(SAY_EVENT_END_18);
+                    JumpToNextStep(23500);
+                    break;
+                case 46:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
+                        temp->AI()->Talk(SAY_EVENT_END_19_MARN);
+                    JumpToNextStep(3500);
+                    break;
+                case 47:
+                    Talk(SAY_EVENT_END_20);
+                    JumpToNextStep(8500);
+                    break;
+                case 48:
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
+                        temp->AI()->Talk(SAY_EVENT_END_21_ABED);
+                    JumpToNextStep(5500);
+                    break;
+                case 49:
+                {
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), false);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), false);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), false);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), false);
+                    Player* player = GetPlayerForEscort();
+                    if (player)
+                        player->GroupEventHappens(QUEST_HALLS_OF_STONE, me);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    JumpToNextStep(180000);
+                    break;
+                }
+                case 50:
+                    SetEscortPaused(false);
                     break;
             }
-         }
+        } else uiPhaseTimer -= uiDiff;
 
-         void SpawnDwarf(uint32 uiType)
-         {
-           switch (uiType)
-           {
-               case 1:
-               {
-                   uint32 uiSpawnNumber = DUNGEON_MODE(2, 3);
-                   for (uint8 i = 0; i < uiSpawnNumber; ++i)
-                       me->SummonCreature(NPC_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-                   me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-                   break;
-               }
-               case 2:
-                   for (uint8 i = 0; i < 2; ++i)
-                       me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-                   break;
-               case 3:
-                   me->SummonCreature(NPC_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-                   break;
-           }
-         }
-
-        void JustSummoned(Creature* summoned) override
+        if (!bIsLowHP && HealthBelowPct(30))
         {
-            lDwarfGUIDList.push_back(summoned->GetGUID());
-            AddThreat(me, 0.0f, summoned);
-            summoned->AI()->AttackStart(me);
+            Talk(SAY_LOW_HEALTH);
+            bIsLowHP = true;
         }
+        else if (bIsLowHP && !HealthBelowPct(30))
+            bIsLowHP = false;
 
-        void JumpToNextStep(uint32 uiTimer)
-        {
-          uiPhaseTimer = uiTimer;
-          ++uiStep;
-        }
+        if (!UpdateVictim())
+            return;
 
-        void StartWP()
-        {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            SetEscortPaused(false);
-            uiStep = 1;
-            Start();
-        }
+        DoMeleeAttackIfReady();
+    }
 
-        void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) override
-        {
-            if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) == IN_PROGRESS)
-                brannSparklinNews = false;
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-            if (type == DATA_BRANN_SPARKLIN_NEWS)
-                return brannSparklinNews ? 1 : 0;
-
-            return 0;
-        }
-
-        void UpdateEscortAI(uint32 uiDiff) override
-        {
-            if (uiPhaseTimer <= uiDiff)
-            {
-                switch (uiStep)
-                {
-                    case 1:
-                        if (instance->GetBossState(DATA_TRIBUNAL_OF_AGES) != NOT_STARTED)
-                            return;
-                        bIsBattle = false;
-                        Talk(SAY_ESCORT_START);
-                        SetRun(true);
-                        JumpToNextStep(0);
-                        break;
-                    case 3:
-                        SetEscortPaused(false);
-                        JumpToNextStep(0);
-                        break;
-                    case 5:
-                        if (Creature* temp = (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM))))
-                            temp->AI()->Talk(SAY_EVENT_INTRO_3_ABED);
-                        JumpToNextStep(8500);
-                        break;
-                    case 6:
-                        Talk(SAY_EVENT_A_1);
-                        JumpToNextStep(6500);
-                        break;
-                    case 7:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
-                            temp->AI()->Talk(SAY_EVENT_A_2_KADD);
-                        JumpToNextStep(12500);
-                        break;
-                    case 8:
-                        Talk(SAY_EVENT_A_3);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), true);
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
-                            ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bKaddrakActivated = true;
-                        JumpToNextStep(5000);
-                        break;
-                    case 9:
-                        me->SetReactState(REACT_PASSIVE);
-                        SpawnDwarf(1);
-                        JumpToNextStep(20000);
-                        break;
-                    case 10:
-                        Talk(SAY_EVENT_B_1);
-                        JumpToNextStep(6000);
-                        break;
-                    case 11:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
-                            temp->AI()->Talk(SAY_EVENT_B_2_MARN);
-                        SpawnDwarf(1);
-                        JumpToNextStep(20000);
-                        break;
-                    case 12:
-                        Talk(SAY_EVENT_B_3);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), true);
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
-                            ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bMarnakActivated = true;
-                        JumpToNextStep(10000);
-                        break;
-                    case 13:
-                        SpawnDwarf(1);
-                        JumpToNextStep(10000);
-                        break;
-                    case 14:
-                        SpawnDwarf(2);
-                        JumpToNextStep(20000);
-                        break;
-                    case 15:
-                        Talk(SAY_EVENT_C_1);
-                        SpawnDwarf(1);
-                        JumpToNextStep(10000);
-                        break;
-                    case 16:
-                        SpawnDwarf(2);
-                        JumpToNextStep(20000);
-                        break;
-                    case 17:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
-                            temp->AI()->Talk(SAY_EVENT_C_2_ABED);
-                        SpawnDwarf(1);
-                        JumpToNextStep(20000);
-                        break;
-                    case 18:
-                        Talk(SAY_EVENT_C_3);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), true);
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
-                            ENSURE_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bAbedneumActivated = true;
-                        JumpToNextStep(5000);
-                        break;
-                    case 19:
-                        SpawnDwarf(2);
-                        JumpToNextStep(10000);
-                        break;
-                    case 20:
-                        SpawnDwarf(1);
-                        JumpToNextStep(15000);
-                        break;
-                    case 21:
-                        Talk(SAY_EVENT_D_1);
-                        SpawnDwarf(3);
-                        JumpToNextStep(20000);
-                        break;
-                    case 22:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
-                            temp->AI()->Talk(SAY_EVENT_D_2_ABED);
-                        SpawnDwarf(1);
-                        JumpToNextStep(5000);
-                        break;
-                    case 23:
-                        SpawnDwarf(2);
-                        JumpToNextStep(15000);
-                        break;
-                    case 24:
-                        Talk(SAY_EVENT_D_3);
-                        SpawnDwarf(3);
-                        JumpToNextStep(5000);
-                        break;
-                    case 25:
-                        SpawnDwarf(1);
-                        JumpToNextStep(5000);
-                        break;
-                    case 26:
-                        SpawnDwarf(2);
-                        JumpToNextStep(10000);
-                        break;
-                    case 27:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
-                            temp->AI()->Talk(SAY_EVENT_D_4_ABED);
-                        SpawnDwarf(1);
-                        JumpToNextStep(10000);
-                        break;
-                    case 28:
-                        me->SetReactState(REACT_DEFENSIVE);
-                        Talk(SAY_EVENT_END_01);
-                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), true);
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, uiControllerGUID))
-                            temp->KillSelf();
-                        bIsBattle = true;
-                        SetEscortPaused(false);
-                        JumpToNextStep(6500);
-                        break;
-                    case 29:
-                        Talk(SAY_EVENT_END_02);
-                        instance->SetBossState(DATA_TRIBUNAL_OF_AGES, DONE);
-                        me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
-                        JumpToNextStep(5500);
-                        break;
-                    case 30:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
-                            temp->AI()->Talk(SAY_EVENT_END_03_ABED);
-                        JumpToNextStep(8500);
-                        break;
-                    case 31:
-                        Talk(SAY_EVENT_END_04);
-                        JumpToNextStep(11500);
-                        break;
-                    case 32:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
-                            temp->AI()->Talk(SAY_EVENT_END_05_ABED);
-                        JumpToNextStep(11500);
-                        break;
-                    case 33:
-                        Talk(SAY_EVENT_END_06);
-                        JumpToNextStep(4500);
-                        break;
-                    case 34:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
-                            temp->AI()->Talk(SAY_EVENT_END_07_ABED);
-                        JumpToNextStep(22500);
-                        break;
-                    case 35:
-                        Talk(SAY_EVENT_END_08);
-                        JumpToNextStep(7500);
-                        break;
-                    case 36:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
-                            temp->AI()->Talk(SAY_EVENT_END_09_KADD);
-                        JumpToNextStep(18500);
-                        break;
-                    case 37:
-                        Talk(SAY_EVENT_END_10);
-                        JumpToNextStep(5500);
-                        break;
-                    case 38:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
-                            temp->AI()->Talk(SAY_EVENT_END_11_KADD);
-                        JumpToNextStep(20500);
-                        break;
-                    case 39:
-                        Talk(SAY_EVENT_END_12);
-                        JumpToNextStep(2500);
-                        break;
-                    case 40:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KADDRAK)))
-                            temp->AI()->Talk(SAY_EVENT_END_13_KADD);
-                        JumpToNextStep(19500);
-                        break;
-                    case 41:
-                        Talk(SAY_EVENT_END_14);
-                        JumpToNextStep(10500);
-                        break;
-                    case 42:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
-                            temp->AI()->Talk(SAY_EVENT_END_15_MARN);
-                        JumpToNextStep(6500);
-                        break;
-                    case 43:
-                        Talk(SAY_EVENT_END_16);
-                        JumpToNextStep(6500);
-                        break;
-                    case 44:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
-                            temp->AI()->Talk(SAY_EVENT_END_17_MARN);
-                        JumpToNextStep(25500);
-                        break;
-                    case 45:
-                        Talk(SAY_EVENT_END_18);
-                        JumpToNextStep(23500);
-                        break;
-                    case 46:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MARNAK)))
-                            temp->AI()->Talk(SAY_EVENT_END_19_MARN);
-                        JumpToNextStep(3500);
-                        break;
-                    case 47:
-                        Talk(SAY_EVENT_END_20);
-                        JumpToNextStep(8500);
-                        break;
-                    case 48:
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ABEDNEUM)))
-                            temp->AI()->Talk(SAY_EVENT_END_21_ABED);
-                        JumpToNextStep(5500);
-                        break;
-                    case 49:
-                    {
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_KADDRAK), false);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_MARNAK), false);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_ABEDNEUM), false);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_SKY_FLOOR), false);
-                        Player* player = GetPlayerForEscort();
-                        if (player)
-                            player->GroupEventHappens(QUEST_HALLS_OF_STONE, me);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        JumpToNextStep(180000);
-                        break;
-                    }
-                    case 50:
-                        SetEscortPaused(false);
-                        break;
-                }
-            } else uiPhaseTimer -= uiDiff;
-
-            if (!bIsLowHP && HealthBelowPct(30))
-            {
-                Talk(SAY_LOW_HEALTH);
-                bIsLowHP = true;
-            }
-            else if (bIsLowHP && !HealthBelowPct(30))
-                bIsLowHP = false;
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF + 1 || action == GOSSIP_ACTION_INFO_DEF + 2)
-            {
-                CloseGossipMenuFor(player);
-                StartWP();
-            }
-
-            return true;
-        }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, TEXT_ID_START, me->GetGUID());
-
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
-        return GetHallsOfStoneAI<npc_brann_hosAI>(creature);
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        ClearGossipMenuFor(player);
+        if (action == GOSSIP_ACTION_INFO_DEF + 1 || action == GOSSIP_ACTION_INFO_DEF + 2)
+        {
+            CloseGossipMenuFor(player);
+            StartWP();
+        }
+
+        return true;
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (me->IsQuestGiver())
+            player->PrepareQuestMenu(me->GetGUID());
+
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        SendGossipMenuFor(player, TEXT_ID_START, me->GetGUID());
+
+        return true;
     }
 };
 
@@ -736,7 +714,7 @@ class achievement_brann_spankin_new : public AchievementCriteriaScript
 
 void AddSC_halls_of_stone()
 {
-    new npc_brann_hos();
-    new npc_tribuna_controller();
+    RegisterHallsOfStoneCreatureAI(npc_brann_hos);
+    RegisterHallsOfStoneCreatureAI(npc_tribuna_controller);
     new achievement_brann_spankin_new();
 }

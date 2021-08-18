@@ -39,73 +39,62 @@ enum Events
     EVENT_INTIMIDATING_ROAR         = 3
 };
 
-class boss_urok_doomhowl : public CreatureScript
+struct boss_urok_doomhowl : public BossAI
 {
-public:
-    boss_urok_doomhowl() : CreatureScript("boss_urok_doomhowl") { }
+    boss_urok_doomhowl(Creature* creature) : BossAI(creature, DATA_UROK_DOOMHOWL) { }
 
-    struct boss_urok_doomhowlAI : public BossAI
+    void Reset() override
     {
-        boss_urok_doomhowlAI(Creature* creature) : BossAI(creature, DATA_UROK_DOOMHOWL) { }
+        _Reset();
+    }
 
-        void Reset() override
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(SPELL_REND, 17s, 20s);
+        events.ScheduleEvent(SPELL_STRIKE, 10s, 12s);
+        Talk(SAY_AGGRO);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(SPELL_REND, 17s, 20s);
-            events.ScheduleEvent(SPELL_STRIKE, 10s, 12s);
-            Talk(SAY_AGGRO);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case SPELL_REND:
+                    DoCastVictim(SPELL_REND);
+                    events.ScheduleEvent(SPELL_REND, 8s, 10s);
+                    break;
+                case SPELL_STRIKE:
+                    DoCastVictim(SPELL_STRIKE);
+                    events.ScheduleEvent(SPELL_STRIKE, 8s, 10s);
+                    break;
+                default:
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case SPELL_REND:
-                        DoCastVictim(SPELL_REND);
-                        events.ScheduleEvent(SPELL_REND, 8s, 10s);
-                        break;
-                    case SPELL_STRIKE:
-                        DoCastVictim(SPELL_STRIKE);
-                        events.ScheduleEvent(SPELL_STRIKE, 8s, 10s);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackrockSpireAI<boss_urok_doomhowlAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_urok_doomhowl()
 {
-    new boss_urok_doomhowl();
+    RegisterBlackrockSpireCreatureAI(boss_urok_doomhowl);
 }

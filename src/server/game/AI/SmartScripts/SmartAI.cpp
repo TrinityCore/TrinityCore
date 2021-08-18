@@ -244,14 +244,15 @@ void SmartAI::EndPath(bool fail)
     if (fail)
         return;
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+    uint32 pathid = GetScript()->GetPathId();
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, _currentWaypointNode, pathid);
 
     if (_repeatWaypointPath)
     {
         if (IsAIControlled())
             StartPath(_run, GetScript()->GetPathId(), _repeatWaypointPath);
     }
-    else
+    else if (pathid == GetScript()->GetPathId()) // if it's not the same pathid, our script wants to start another path; don't override it
         GetScript()->SetPathId(0);
 
     if (_despawnState == 1)
@@ -623,7 +624,7 @@ void SmartAI::SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target->ToUnit(), 0, 0, false, spellInfo, target->ToGameObject());
 }
 
-void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
+void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
 

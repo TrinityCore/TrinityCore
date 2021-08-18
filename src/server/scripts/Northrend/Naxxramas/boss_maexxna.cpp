@@ -90,169 +90,145 @@ struct WebTargetSelector
         Unit const* _maexxna;
 };
 
-class boss_maexxna : public CreatureScript
+struct boss_maexxna : public BossAI
 {
-public:
-    boss_maexxna() : CreatureScript("boss_maexxna") { }
+    boss_maexxna(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)  {  }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustEngagedWith(Unit* who) override
     {
-        return GetNaxxramasAI<boss_maexxnaAI>(creature);
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_WRAP, 20s);
+        events.ScheduleEvent(EVENT_SPRAY, 40s);
+        events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
+        events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
+        events.ScheduleEvent(EVENT_SUMMON, 30s);
     }
 
-    struct boss_maexxnaAI : public BossAI
+    void Reset() override
     {
-        boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)  {  }
+        _Reset();
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WEB_WRAP);
+    }
 
-        void JustEngagedWith(Unit* who) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (HealthBelowPct(30) && !me->HasAura(SPELL_FRENZY_HELPER))
         {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_WRAP, 20s);
-            events.ScheduleEvent(EVENT_SPRAY, 40s);
-            events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
-            events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
-            events.ScheduleEvent(EVENT_SUMMON, 30s);
+            DoCast(SPELL_FRENZY);
         }
 
-        void Reset() override
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WEB_WRAP);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (HealthBelowPct(30) && !me->HasAura(SPELL_FRENZY_HELPER))
+            switch (eventId)
             {
-                DoCast(SPELL_FRENZY);
-            }
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
+                case EVENT_WRAP:
                 {
-                    case EVENT_WRAP:
+                    std::list<Unit*> targets;
+                    SelectTargetList(targets, RAID_MODE(1, 2), SelectTargetMethod::Random, 1, WebTargetSelector(me));
+                    if (!targets.empty())
                     {
-                        std::list<Unit*> targets;
-                        SelectTargetList(targets, RAID_MODE(1, 2), SelectTargetMethod::Random, 1, WebTargetSelector(me));
-                        if (!targets.empty())
+                        Talk(EMOTE_WEB_WRAP);
+                        int8 wrapPos = -1;
+                        for (Unit* target : targets)
                         {
-                            Talk(EMOTE_WEB_WRAP);
-                            int8 wrapPos = -1;
-                            for (Unit* target : targets)
-                            {
-                                if (wrapPos == -1) // allow all positions on the first target
-                                    wrapPos = urand(0, MAX_WRAP_POSITION - 1);
-                                else // on subsequent iterations, only allow positions that are not equal to the previous one (this is sufficient since we should only have two targets at most, ever)
-                                    wrapPos = (wrapPos + urand(1, MAX_WRAP_POSITION - 1)) % MAX_WRAP_POSITION;
+                            if (wrapPos == -1) // allow all positions on the first target
+                                wrapPos = urand(0, MAX_WRAP_POSITION - 1);
+                            else // on subsequent iterations, only allow positions that are not equal to the previous one (this is sufficient since we should only have two targets at most, ever)
+                                wrapPos = (wrapPos + urand(1, MAX_WRAP_POSITION - 1)) % MAX_WRAP_POSITION;
 
-                                target->RemoveAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_WEB_SPRAY, me));
-                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70s, TEMPSUMMON_TIMED_DESPAWN))
-                                {
-                                    wrap->AI()->SetGUID(target->GetGUID()); // handles application of debuff
-                                    target->GetMotionMaster()->MoveJump(WrapPositions[wrapPos], WEB_WRAP_MOVE_SPEED, WEB_WRAP_MOVE_SPEED); // move after stun to avoid stun cancelling move
-                                }
+                            target->RemoveAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_WEB_SPRAY, me));
+                            if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70s, TEMPSUMMON_TIMED_DESPAWN))
+                            {
+                                wrap->AI()->SetGUID(target->GetGUID()); // handles application of debuff
+                                target->GetMotionMaster()->MoveJump(WrapPositions[wrapPos], WEB_WRAP_MOVE_SPEED, WEB_WRAP_MOVE_SPEED); // move after stun to avoid stun cancelling move
                             }
                         }
-                        events.Repeat(Seconds(40));
-                        break;
                     }
-                    case EVENT_SPRAY:
-                        Talk(EMOTE_WEB_SPRAY);
-                        DoCastAOE(SPELL_WEB_SPRAY);
-                        events.Repeat(Seconds(40));
-                        break;
-                    case EVENT_SHOCK:
-                        DoCastAOE(SPELL_POISON_SHOCK);
-                        events.Repeat(randtime(Seconds(10), Seconds(20)));
-                        break;
-                    case EVENT_POISON:
-                        DoCastVictim(SPELL_NECROTIC_POISON);
-                        events.Repeat(randtime(Seconds(10), Seconds(20)));
-                        break;
-                    case EVENT_SUMMON:
-                        Talk(EMOTE_SPIDERS);
-                        uint8 amount = urand(8, 10);
-                        for (uint8 i = 0; i < amount; ++i)
-                            DoSummon(NPC_SPIDERLING, me, 4.0f, 5s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                        events.Repeat(Seconds(40));
-                        break;
+                    events.Repeat(Seconds(40));
+                    break;
                 }
+                case EVENT_SPRAY:
+                    Talk(EMOTE_WEB_SPRAY);
+                    DoCastAOE(SPELL_WEB_SPRAY);
+                    events.Repeat(Seconds(40));
+                    break;
+                case EVENT_SHOCK:
+                    DoCastAOE(SPELL_POISON_SHOCK);
+                    events.Repeat(randtime(Seconds(10), Seconds(20)));
+                    break;
+                case EVENT_POISON:
+                    DoCastVictim(SPELL_NECROTIC_POISON);
+                    events.Repeat(randtime(Seconds(10), Seconds(20)));
+                    break;
+                case EVENT_SUMMON:
+                    Talk(EMOTE_SPIDERS);
+                    uint8 amount = urand(8, 10);
+                    for (uint8 i = 0; i < amount; ++i)
+                        DoSummon(NPC_SPIDERLING, me, 4.0f, 5s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    events.Repeat(Seconds(40));
+                    break;
             }
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
 };
 
-class npc_webwrap : public CreatureScript
+struct npc_webwrap : public NullCreatureAI
 {
-public:
-    npc_webwrap() : CreatureScript("npc_webwrap") { }
+    npc_webwrap(Creature* creature) : NullCreatureAI(creature), visibleTimer(0) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    ObjectGuid victimGUID;
+    uint32 visibleTimer;
+
+    void InitializeAI() override
     {
-        return GetNaxxramasAI<npc_webwrapAI>(creature);
+        me->SetVisible(false);
     }
 
-    struct npc_webwrapAI : public NullCreatureAI
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
     {
-        npc_webwrapAI(Creature* creature) : NullCreatureAI(creature), visibleTimer(0) { }
-
-        ObjectGuid victimGUID;
-        uint32 visibleTimer;
-
-        void InitializeAI() override
+        if (!guid)
+            return;
+        victimGUID = guid;
+        if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
         {
-            me->SetVisible(false);
+            visibleTimer = (me->GetDistance2d(victim)/WEB_WRAP_MOVE_SPEED + 0.5f) * IN_MILLISECONDS;
+            victim->CastSpell(victim, SPELL_WEB_WRAP, me->GetGUID());
         }
+    }
 
-        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!visibleTimer)
+            return;
+
+        if (diff >= visibleTimer)
         {
-            if (!guid)
-                return;
-            victimGUID = guid;
+            visibleTimer = 0;
+            me->SetVisible(true);
+        }
+        else
+            visibleTimer -= diff;
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (victimGUID)
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
-            {
-                visibleTimer = (me->GetDistance2d(victim)/WEB_WRAP_MOVE_SPEED + 0.5f) * IN_MILLISECONDS;
-                victim->CastSpell(victim, SPELL_WEB_WRAP, me->GetGUID());
-            }
-        }
+                victim->RemoveAurasDueToSpell(SPELL_WEB_WRAP, me->GetGUID());
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!visibleTimer)
-                return;
-
-            if (diff >= visibleTimer)
-            {
-                visibleTimer = 0;
-                me->SetVisible(true);
-            }
-            else
-                visibleTimer -= diff;
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (victimGUID)
-                if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
-                    victim->RemoveAurasDueToSpell(SPELL_WEB_WRAP, me->GetGUID());
-
-            me->DespawnOrUnsummon(5s);
-        }
-    };
-
+        me->DespawnOrUnsummon(5s);
+    }
 };
 
 void AddSC_boss_maexxna()
 {
-    new boss_maexxna();
-    new npc_webwrap();
+    RegisterNaxxramasCreatureAI(boss_maexxna);
+    RegisterNaxxramasCreatureAI(npc_webwrap);
 }

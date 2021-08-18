@@ -478,6 +478,7 @@ private:
     bool _hasTrappedUnit;
 };
 
+// 69140 - Coldflame
 class spell_marrowgar_coldflame : public SpellScript
 {
     PrepareSpellScript(spell_marrowgar_coldflame);
@@ -509,6 +510,7 @@ class spell_marrowgar_coldflame : public SpellScript
     }
 };
 
+// 72705 - Coldflame (Bonestorm)
 class spell_marrowgar_coldflame_bonestorm : public SpellScript
 {
     PrepareSpellScript(spell_marrowgar_coldflame_bonestorm);
@@ -526,6 +528,7 @@ class spell_marrowgar_coldflame_bonestorm : public SpellScript
     }
 };
 
+// 69146, 70823, 70824, 70825 - Coldflame (Damage)
 class spell_marrowgar_coldflame_damage : public AuraScript
 {
     PrepareAuraScript(spell_marrowgar_coldflame_damage);
@@ -551,6 +554,7 @@ class spell_marrowgar_coldflame_damage : public AuraScript
     }
 };
 
+// 69057, 70826, 72088, 72089 - Bone Spike Graveyard
 class spell_marrowgar_bone_spike_graveyard : public SpellScript
 {
     PrepareSpellScript(spell_marrowgar_bone_spike_graveyard);
@@ -610,6 +614,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScript
     }
 };
 
+// 69075, 70834, 70835, 70836 - Bone Storm
 class spell_marrowgar_bone_storm : public SpellScript
 {
     PrepareSpellScript(spell_marrowgar_bone_storm);
@@ -625,6 +630,7 @@ class spell_marrowgar_bone_storm : public SpellScript
     }
 };
 
+// 69055, 70814 - Bone Slice
 class spell_marrowgar_bone_slice : public SpellScript
 {
     PrepareSpellScript(spell_marrowgar_bone_slice);

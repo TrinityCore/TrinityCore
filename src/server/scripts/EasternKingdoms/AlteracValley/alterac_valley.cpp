@@ -77,116 +77,105 @@ SpellPair const _auraPairs[MAX_SPELL_PAIRS] =
     { NPC_ICEBLOOD_WARMASTER,       SPELL_ICEBLOOD_WARMASTER }
 };
 
-class npc_av_marshal_or_warmaster : public CreatureScript
+struct npc_av_marshal_or_warmaster : public ScriptedAI
 {
-    public:
-        npc_av_marshal_or_warmaster() : CreatureScript("npc_av_marshal_or_warmaster") { }
+    npc_av_marshal_or_warmaster(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_av_marshal_or_warmasterAI : public ScriptedAI
+    void Initialize()
+    {
+        _hasAura = false;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+
+        events.Reset();
+        events.ScheduleEvent(EVENT_CHARGE_TARGET, 2s, 12s);
+        events.ScheduleEvent(EVENT_CLEAVE, 1s, 11s);
+        events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 2s);
+        events.ScheduleEvent(EVENT_WHIRLWIND, 5s, 20s);
+        events.ScheduleEvent(EVENT_ENRAGE, 5s, 20s);
+        events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
+    }
+
+    void JustAppeared() override
+    {
+        Reset();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // I have a feeling this isn't blizzlike, but owell, I'm only passing by and cleaning up.
+        if (!_hasAura)
         {
-            npc_av_marshal_or_warmasterAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            for (uint8 i = 0; i < MAX_SPELL_PAIRS; ++i)
+                if (_auraPairs[i].npcEntry == me->GetEntry())
+                    DoCast(me, _auraPairs[i].spellId);
 
-            void Initialize()
-            {
-                _hasAura = false;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-
-                events.Reset();
-                events.ScheduleEvent(EVENT_CHARGE_TARGET, 2s, 12s);
-                events.ScheduleEvent(EVENT_CLEAVE, 1s, 11s);
-                events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 2s);
-                events.ScheduleEvent(EVENT_WHIRLWIND, 5s, 20s);
-                events.ScheduleEvent(EVENT_ENRAGE, 5s, 20s);
-                events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
-            }
-
-            void JustAppeared() override
-            {
-                Reset();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                // I have a feeling this isn't blizzlike, but owell, I'm only passing by and cleaning up.
-                if (!_hasAura)
-                {
-                    for (uint8 i = 0; i < MAX_SPELL_PAIRS; ++i)
-                        if (_auraPairs[i].npcEntry == me->GetEntry())
-                            DoCast(me, _auraPairs[i].spellId);
-
-                    _hasAura = true;
-                }
-
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CHARGE_TARGET:
-                            DoCastVictim(SPELL_CHARGE);
-                            events.ScheduleEvent(EVENT_CHARGE, 10s, 25s);
-                            break;
-                        case EVENT_CLEAVE:
-                            DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 10s, 16s);
-                            break;
-                        case EVENT_DEMORALIZING_SHOUT:
-                            DoCast(me, SPELL_DEMORALIZING_SHOUT);
-                            events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 10s, 15s);
-                            break;
-                        case EVENT_WHIRLWIND:
-                            DoCast(me, SPELL_WHIRLWIND);
-                            events.ScheduleEvent(EVENT_WHIRLWIND, 10s, 25s);
-                            break;
-                        case EVENT_ENRAGE:
-                            DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 10s, 30s);
-                            break;
-                        case EVENT_CHECK_RESET:
-                        {
-                            Position const& _homePosition = me->GetHomePosition();
-                            if (me->GetDistance2d(_homePosition.GetPositionX(), _homePosition.GetPositionY()) > 50.0f)
-                            {
-                                EnterEvadeMode();
-                                return;
-                            }
-                            events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
-                            break;
-                        }
-                    }
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap events;
-            bool _hasAura;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_av_marshal_or_warmasterAI(creature);
+            _hasAura = true;
         }
+
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHARGE_TARGET:
+                    DoCastVictim(SPELL_CHARGE);
+                    events.ScheduleEvent(EVENT_CHARGE, 10s, 25s);
+                    break;
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    events.ScheduleEvent(EVENT_CLEAVE, 10s, 16s);
+                    break;
+                case EVENT_DEMORALIZING_SHOUT:
+                    DoCast(me, SPELL_DEMORALIZING_SHOUT);
+                    events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 10s, 15s);
+                    break;
+                case EVENT_WHIRLWIND:
+                    DoCast(me, SPELL_WHIRLWIND);
+                    events.ScheduleEvent(EVENT_WHIRLWIND, 10s, 25s);
+                    break;
+                case EVENT_ENRAGE:
+                    DoCast(me, SPELL_ENRAGE);
+                    events.ScheduleEvent(EVENT_ENRAGE, 10s, 30s);
+                    break;
+                case EVENT_CHECK_RESET:
+                {
+                    Position const& _homePosition = me->GetHomePosition();
+                    if (me->GetDistance2d(_homePosition.GetPositionX(), _homePosition.GetPositionY()) > 50.0f)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                    events.ScheduleEvent(EVENT_CHECK_RESET, 5s);
+                    break;
+                }
+            }
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap events;
+    bool _hasAura;
 };
 
 void AddSC_alterac_valley()
 {
-    new npc_av_marshal_or_warmaster();
+    RegisterCreatureAI(npc_av_marshal_or_warmaster);
 }

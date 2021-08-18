@@ -242,6 +242,7 @@ class npc_buru_egg : public CreatureScript
         }
 };
 
+// 19593 - Egg Explosion
 class spell_egg_explosion : public SpellScriptLoader
 {
     public:

@@ -143,7 +143,7 @@ class achievement_arena_kills : public AchievementCriteriaScript
             if (!source->InArena())
                 return false;
 
-            return source->GetBattleground()->GetArenaType() == _arenaType;
+            return ASSERT_NOTNULL(source->GetBattleground())->GetArenaType() == _arenaType;
         }
 
     private:

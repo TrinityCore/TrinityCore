@@ -1137,7 +1137,7 @@ class spell_gormok_snobolled : public AuraScript
     }
 };
 
-// 66823 - Paralytic Toxin
+// 66823, 67618, 67619, 67620 - Paralytic Toxin
 class spell_jormungars_paralytic_toxin : public AuraScript
 {
     PrepareAuraScript(spell_jormungars_paralytic_toxin);
@@ -1191,7 +1191,7 @@ class spell_jormungars_paralytic_toxin : public AuraScript
     }
 };
 
-// 66870 - Burning Bile
+// 66870, 67621, 67622, 67623 - Burning Bile
 class spell_jormungars_burning_bile : public SpellScript
 {
     PrepareSpellScript(spell_jormungars_burning_bile);
@@ -1236,42 +1236,29 @@ class spell_jormungars_slime_pool : public AuraScript
 
 /* 66869 - Burning Bile
    66823 - Paralytic Toxin */
-class spell_jormungars_snakes_spray : public SpellScriptLoader
+class spell_jormungars_snakes_spray : public SpellScript
 {
+    PrepareSpellScript(spell_jormungars_snakes_spray);
+
 public:
-    spell_jormungars_snakes_spray(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
-
-    class spell_jormungars_snakes_spray_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_jormungars_snakes_spray_SpellScript);
-
-    public:
-        spell_jormungars_snakes_spray_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
-
-    private:
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            return ValidateSpellInfo({ _spellId });
-        }
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-        uint32 _spellId;
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_jormungars_snakes_spray_SpellScript(_spellId);
-    }
+    spell_jormungars_snakes_spray(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
 private:
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ _spellId });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
     uint32 _spellId;
 };
 
@@ -1381,8 +1368,8 @@ void AddSC_boss_northrend_beasts()
     RegisterSpellScript(spell_jormungars_paralytic_toxin);
     RegisterSpellScript(spell_jormungars_burning_bile);
     RegisterSpellScript(spell_jormungars_slime_pool);
-    new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
-    new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
+    RegisterSpellScriptWithArgs(spell_jormungars_snakes_spray, "spell_jormungars_burning_spray", SPELL_BURNING_BILE);
+    RegisterSpellScriptWithArgs(spell_jormungars_snakes_spray, "spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
     RegisterSpellScript(spell_jormungars_paralysis);
     RegisterSpellScript(spell_icehowl_arctic_breath);
     RegisterSpellScript(spell_icehowl_trample);

@@ -83,6 +83,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recvData)
             recvData >> guid.ReadAsPacked();
 
             MovementInfo movementInfo;
+            movementInfo.guid = guid;
             ReadMovementInfo(recvData, &movementInfo);
             vehicle_base->m_movementInfo = movementInfo;
 

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.32, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.35, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	5.7.32-0ubuntu0.18.04.1
+-- Server version	5.7.35
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -521,8 +521,11 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (195,49),
 (195,199),
 (196,7),
-(196,200),
-(196,201),
+(196,202),
+(196,203),
+(196,204),
+(196,205),
+(196,206),
 (196,226),
 (196,227),
 (196,230),
@@ -1983,7 +1986,13 @@ INSERT INTO `updates` VALUES
 ('2020_12_31_00_auth.sql','05C9C105D55C6588CDA0D75AE3B135B7E6B54C06','ARCHIVED','2020-12-31 12:58:21',0),
 ('2021_01_15_00_auth.sql','604B8B799F031C1074314D4D8081797CC8B22FE2','ARCHIVED','2021-01-15 08:29:32',0),
 ('2021_02_15_00_auth.sql','652C38A140C0B2C7E898A2F7A7AC799CA2440315','ARCHIVED','2021-02-15 12:37:46',0),
-('2021_03_15_00_auth.sql','571D2FD6A62F066CC789C73A4ECDD613C6FF5F10','ARCHIVED','2021-03-15 17:31:39',0);
+('2021_03_15_00_auth.sql','571D2FD6A62F066CC789C73A4ECDD613C6FF5F10','ARCHIVED','2021-03-15 17:31:39',0),
+('2021_04_16_00_auth.sql','737670762C2AE4E04BFC2C2B0B6F3C71DCDF6C44','ARCHIVED','2021-04-16 21:23:03',0),
+('2021_05_14_00_auth.sql','B89998D90CCFEB2480838D417AC9661372A6B959','ARCHIVED','2021-05-14 12:20:33',0),
+('2021_06_15_00_auth.sql','DAFFA7699D3BF0A15AE72321AFC9F7D22F33B65C','ARCHIVED','2021-06-15 11:53:33',0),
+('2021_06_20_00_auth.sql','7CA418D570DC1444C19AAD18F4A50FF187642310','ARCHIVED','2021-06-20 17:29:17',0),
+('2021_07_15_00_auth.sql','C8B29D477A5A6704775517EF8203871BFE3D4906','ARCHIVED','2021-07-15 07:32:48',0),
+('2021_08_15_00_auth.sql','256E06BF052C246B92B61AD7DD6233D98EEA6E9E','ARCHIVED','2021-08-15 16:59:31',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2059,6 +2068,21 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Temporary table structure for view `vw_rbac`
+--
+
+DROP TABLE IF EXISTS `vw_rbac`;
+/*!50001 DROP VIEW IF EXISTS `vw_rbac`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `vw_rbac` AS SELECT 
+ 1 AS `Permission ID`,
+ 1 AS `Permission Group`,
+ 1 AS `Security Level`,
+ 1 AS `Permission`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Dumping routines for database 'auth'
 --
 
@@ -2079,6 +2103,24 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `vw_rbac`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_rbac`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 */
+/*!50001 VIEW `vw_rbac` AS (select `t1`.`linkedId` AS `Permission ID`,`t1`.`id` AS `Permission Group`,ifnull(`t2`.`secId`,'linked') AS `Security Level`,`t3`.`name` AS `Permission` from ((`rbac_linked_permissions` `t1` left join `rbac_default_permissions` `t2` on((`t1`.`id` = `t2`.`permissionId`))) left join `rbac_permissions` `t3` on((`t1`.`linkedId` = `t3`.`id`)))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -2089,4 +2131,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-15 17:31:41
+-- Dump completed on 2021-08-15 16:59:38

@@ -960,3 +960,30 @@ Milliseconds Vehicle::GetDespawnDelay()
 
     return 1ms;
 }
+
+std::string Vehicle::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << "Vehicle seats:\n";
+    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); itr++)
+    {
+        sstr << "seat " << std::to_string(itr->first) << ": " << (itr->second.IsEmpty() ? "empty" : itr->second.Passenger.Guid.ToString()) << "\n";
+    }
+
+    sstr << "Vehicle pending events:";
+
+    if (_pendingJoinEvents.empty())
+    {
+        sstr << " none";
+    }
+    else
+    {
+        sstr << "\n";
+        for (PendingJoinEventContainer::const_iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end(); ++itr)
+        {
+            sstr << "seat " << std::to_string((*itr)->Seat->first) << ": " << (*itr)->Passenger->GetGUID().ToString() << "\n";
+        }
+    }
+
+    return sstr.str();
+}

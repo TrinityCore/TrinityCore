@@ -103,7 +103,7 @@ namespace FactorySelector
     {
         MovementGeneratorType type = unit->GetDefaultMovementType();
         if (Creature* creature = unit->ToCreature())
-            if (!creature->GetPlayerMovingMe())
+            if (!creature->GetCharmerOrSelfPlayer())
                 type = creature->GetDefaultMovementType();
 
         MovementGeneratorCreator const* mv_factory = sMovementGeneratorRegistry->GetRegistryItem(type);

@@ -86,7 +86,7 @@ class boss_commander_sarannis : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage) override
+            void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HealthBelowPctDamaged(50, damage) && _phase)
                 {
@@ -161,6 +161,7 @@ enum Creatures
     NPC_SUMMONED_BLOODWARDER_RESERVIST  = 20078
 };
 
+// 34803 - Summon Reinforcements
 class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
 {
     public:

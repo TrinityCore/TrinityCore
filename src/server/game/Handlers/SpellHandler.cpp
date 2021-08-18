@@ -68,7 +68,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     Player* pUser = _player;
 
     // ignore for remote control state
-    if (pUser->GetUnitBeingMoved() != pUser)
+    if (pUser->IsCharming())
         return;
 
     uint8 bagIndex, slot, castFlags;
@@ -179,7 +179,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     Player* player = GetPlayer();
 
     // ignore for remote control state
-    if (player->GetUnitBeingMoved() != player)
+    if (player->IsCharming())
         return;
 
     // additional check, client outputs message on its own
@@ -299,8 +299,8 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
     if (GameObject* obj = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
     {
         // ignore for remote control state
-        if (GetPlayer()->GetUnitBeingMoved() != GetPlayer())
-            if (!(GetPlayer()->IsOnVehicle(GetPlayer()->GetUnitBeingMoved()) || GetPlayer()->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
+        if (GetPlayer()->IsCharming())
+            if (!(GetPlayer()->IsOnVehicle(GetPlayer()->GetCharmed()) || GetPlayer()->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
                 return;
 
         obj->Use(GetPlayer());
@@ -315,7 +315,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [%s]", guid.ToString().c_str());
 
     // ignore for remote control state
-    if (_player->GetUnitBeingMoved() != _player)
+    if (_player->IsCharming())
         return;
 
     if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
@@ -337,7 +337,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u, data length = %u", castCount, spellId, castFlags, (uint32)recvPacket.size());
 
     // ignore for remote control state (for player case)
-    Unit* mover = _player->GetUnitBeingMoved();
+    Unit* mover = _player->GetCharmedOrSelf();
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
     {
         recvPacket.rfinish(); // prevent spam at ignore packet
@@ -547,9 +547,10 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::Cance
 
 void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& cancelChanneling)
 {
+    Unit* mover = _player->GetCharmedOrSelf();
+
     // ignore for remote control state (for player case)
-    Unit* mover = _player->GetUnitBeingMoved();
-    if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+    if (_player->GetCharmed() && _player->GetCharmed()->GetTypeId() == TYPEID_PLAYER)
         return;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cancelChanneling.ChannelSpell);
@@ -570,7 +571,7 @@ void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannellin
 void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)
 {
     // ignore for remote control state
-    if (_player->GetUnitBeingMoved() != _player)
+    if (_player->IsCharming())
         return;
 
     uint8 slotId = totemDestroyed.Slot;

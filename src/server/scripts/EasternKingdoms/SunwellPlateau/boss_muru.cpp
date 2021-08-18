@@ -132,609 +132,493 @@ class VoidSpawnSummon : public BasicEvent
         Creature* _owner;
 };
 
-class boss_entropius : public CreatureScript
+struct boss_entropius : public BossAI
 {
-public:
-    boss_entropius() : CreatureScript("boss_entropius") { }
+    boss_entropius(Creature* creature) : BossAI(creature, DATA_MURU) { }
 
-    struct boss_entropiusAI : public BossAI
+    void Reset() override
     {
-        boss_entropiusAI(Creature* creature) : BossAI(creature, DATA_MURU) { }
+        _Reset();
+        DoCast(me, SPELL_ENTROPIUS_COSMETIC_SPAWN, true);
+    }
 
-        void Reset() override
+    void ScheduleTasks() override
+    {
+        scheduler.Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
         {
-            _Reset();
-            DoCast(me, SPELL_ENTROPIUS_COSMETIC_SPAWN, true);
-        }
-
-        void ScheduleTasks() override
-        {
-            scheduler.Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
-            {
-                DoResetPortals();
-                DoCastAOE(SPELL_NEGATIVE_ENERGY_PERIODIC_E, true);
-            });
-
-            scheduler.Schedule(Seconds(15), [this](TaskContext context)
-            {
-                DoCastAOE(SPELL_DARKNESS_E, true);
-                DoCastAOE(SPELL_BLACKHOLE, true);
-
-                context.Repeat();
-            });
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            switch (summon->GetEntry())
-            {
-                case NPC_DARK_FIENDS:
-                    summon->CastSpell(summon, SPELL_DARKFIEND_VISUAL);
-                    break;
-                case NPC_DARKNESS:
-                    summon->SetReactState(REACT_PASSIVE);
-                    summon->CastSpell(summon, SPELL_BLACKHOLE);
-                    summon->CastSpell(summon, SPELL_SUMMON_DARKFIEND_E, true);
-                    break;
-            }
-            summons.Summon(summon);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            if (Creature* muru = instance->GetCreature(DATA_MURU))
-                muru->AI()->EnterEvadeMode();
-
             DoResetPortals();
-            summons.DespawnAll();
-            me->DespawnOrUnsummon();
-        }
+            DoCastAOE(SPELL_NEGATIVE_ENERGY_PERIODIC_E, true);
+        });
 
-        void JustDied(Unit* /*killer*/) override
+        scheduler.Schedule(Seconds(15), [this](TaskContext context)
         {
-            _JustDied();
+            DoCastAOE(SPELL_DARKNESS_E, true);
+            DoCastAOE(SPELL_BLACKHOLE, true);
 
-            if (Creature* muru = instance->GetCreature(DATA_MURU))
-                muru->DisappearAndDie();
-        }
+            context.Repeat();
+        });
+    }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
-        }
-
-        void DoResetPortals()
-        {
-            std::list<Creature*> portals;
-            me->GetCreatureListWithEntryInGrid(portals, NPC_MURU_PORTAL_TARGET, 100.0f);
-            for (Creature* portal : portals)
-                portal->RemoveAllAuras();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustSummoned(Creature* summon) override
     {
-        return GetSunwellPlateauAI<boss_entropiusAI>(creature);
+        switch (summon->GetEntry())
+        {
+            case NPC_DARK_FIENDS:
+                summon->CastSpell(summon, SPELL_DARKFIEND_VISUAL);
+                break;
+            case NPC_DARKNESS:
+                summon->SetReactState(REACT_PASSIVE);
+                summon->CastSpell(summon, SPELL_BLACKHOLE);
+                summon->CastSpell(summon, SPELL_SUMMON_DARKFIEND_E, true);
+                break;
+        }
+        summons.Summon(summon);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (Creature* muru = instance->GetCreature(DATA_MURU))
+            muru->AI()->EnterEvadeMode();
+
+        DoResetPortals();
+        summons.DespawnAll();
+        me->DespawnOrUnsummon();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+
+        if (Creature* muru = instance->GetCreature(DATA_MURU))
+            muru->DisappearAndDie();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
+    }
+
+    void DoResetPortals()
+    {
+        std::list<Creature*> portals;
+        me->GetCreatureListWithEntryInGrid(portals, NPC_MURU_PORTAL_TARGET, 100.0f);
+        for (Creature* portal : portals)
+            portal->RemoveAllAuras();
     }
 };
 
-class boss_muru : public CreatureScript
+struct boss_muru : public BossAI
 {
-public:
-    boss_muru() : CreatureScript("boss_muru") { }
-
-    struct boss_muruAI : public BossAI
+    boss_muru(Creature* creature) : BossAI(creature, DATA_MURU)
     {
-        boss_muruAI(Creature* creature) : BossAI(creature, DATA_MURU)
-        {
-            Initialize();
-            SetCombatMovement(false);
-        }
+        Initialize();
+        SetCombatMovement(false);
+    }
 
-        void Initialize()
-        {
-            _hasEnraged = false;
-            _phase = PHASE_ONE;
-            _entropiusGUID.Clear();
-        }
+    void Initialize()
+    {
+        _hasEnraged = false;
+        _phase = PHASE_ONE;
+        _entropiusGUID.Clear();
+    }
 
-        void Reset() override
-        {
-            _Reset();
-            Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetVisible(true);
-        }
+    void Reset() override
+    {
+        _Reset();
+        Initialize();
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetVisible(true);
+    }
 
-        void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        BossAI::EnterEvadeMode();
+        if (Creature* entropius = ObjectAccessor::GetCreature(*me, _entropiusGUID))
+            entropius->AI()->EnterEvadeMode();
+    }
+
+    void ScheduleTasks() override
+    {
+        scheduler.Schedule(Minutes(10), [this](TaskContext /*context*/)
         {
-            BossAI::EnterEvadeMode();
             if (Creature* entropius = ObjectAccessor::GetCreature(*me, _entropiusGUID))
-                entropius->AI()->EnterEvadeMode();
-        }
+                entropius->CastSpell(entropius, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
+            _hasEnraged = true;
+        });
 
-        void ScheduleTasks() override
+        scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
         {
-            scheduler.Schedule(Minutes(10), [this](TaskContext /*context*/)
-            {
-                if (Creature* entropius = ObjectAccessor::GetCreature(*me, _entropiusGUID))
-                    entropius->CastSpell(entropius, SPELL_ENRAGE);
-                DoCast(me, SPELL_ENRAGE);
-                _hasEnraged = true;
-            });
-
-            scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
-            {
-                DoCast(me, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
-                DoCast(me, SPELL_SUMMON_BLOOD_ELVES_PERIODIC, true);
-            });
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            DoCast(me, SPELL_OPEN_PORTAL_PERIODIC, true);
-            DoCast(me, SPELL_DARKNESS_PERIODIC, true);
-            DoCast(me, SPELL_NEGATIVE_ENERGY_PERIODIC, true);
-        }
-
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
-        {
-            if (damage >= me->GetHealth())
-            {
-                damage = me->GetHealth() - 1;
-                if (_phase != PHASE_ONE)
-                    return;
-
-                _phase = PHASE_TWO;
-                me->RemoveAllAuras();
-                DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
-                {
-                    DoCast(me, SPELL_SUMMON_ENTROPIUS, true);
-                });
-            }
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            if (summon->GetEntry() == NPC_ENTROPIUS)
-            {
-                me->SetVisible(false);
-                _entropiusGUID = summon->GetGUID();
-                if (_hasEnraged)
-                    summon->CastSpell(summon, SPELL_ENRAGE, true);
-                return;
-            }
-            BossAI::JustSummoned(summon);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff);
-        }
-
-    private:
-        ObjectGuid _entropiusGUID;
-        bool _hasEnraged;
-        uint8 _phase;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetSunwellPlateauAI<boss_muruAI>(creature);
+            DoCast(me, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
+            DoCast(me, SPELL_SUMMON_BLOOD_ELVES_PERIODIC, true);
+        });
     }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        DoCast(me, SPELL_OPEN_PORTAL_PERIODIC, true);
+        DoCast(me, SPELL_DARKNESS_PERIODIC, true);
+        DoCast(me, SPELL_NEGATIVE_ENERGY_PERIODIC, true);
+    }
+
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (damage >= me->GetHealth())
+        {
+            damage = me->GetHealth() - 1;
+            if (_phase != PHASE_ONE)
+                return;
+
+            _phase = PHASE_TWO;
+            me->RemoveAllAuras();
+            DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+            scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
+            {
+                DoCast(me, SPELL_SUMMON_ENTROPIUS, true);
+            });
+        }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_ENTROPIUS)
+        {
+            me->SetVisible(false);
+            _entropiusGUID = summon->GetGUID();
+            if (_hasEnraged)
+                summon->CastSpell(summon, SPELL_ENRAGE, true);
+            return;
+        }
+        BossAI::JustSummoned(summon);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        scheduler.Update(diff);
+    }
+
+private:
+    ObjectGuid _entropiusGUID;
+    bool _hasEnraged;
+    uint8 _phase;
 };
 
-class npc_muru_portal : public CreatureScript
+struct npc_muru_portal : public ScriptedAI
 {
-public:
-    npc_muru_portal() : CreatureScript("npc_muru_portal") { }
+    npc_muru_portal(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_muru_portalAI : public ScriptedAI
+    void JustSummoned(Creature* summon) override
     {
-        npc_muru_portalAI(Creature* creature) : ScriptedAI(creature) { }
+        DoCast(summon, SPELL_SUMMON_VOID_SENTINEL_SUMMONER_VISUAL, true);
 
-        void JustSummoned(Creature* summon) override
+        summon->m_Events.AddEvent(new VoidSpawnSummon(summon), summon->m_Events.CalculateTime(1500ms));
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
         {
-            DoCast(summon, SPELL_SUMMON_VOID_SENTINEL_SUMMONER_VISUAL, true);
-
-            summon->m_Events.AddEvent(new VoidSpawnSummon(summon), summon->m_Events.CalculateTime(1500ms));
+            case SPELL_OPEN_ALL_PORTALS:
+                DoCastAOE(SPELL_OPEN_PORTAL, true);
+                DoCastAOE(SPELL_TRANSFORM_VISUAL_MISSILE, true);
+                break;
+            case SPELL_OPEN_PORTAL_2:
+                DoCastAOE(SPELL_OPEN_PORTAL, true);
+                _scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
+                {
+                    DoCastAOE(SPELL_SUMMON_VOID_SENTINEL_SUMMONER, true);
+                });
+                break;
+            default:
+                break;
         }
+    }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+struct npc_dark_fiend : public ScriptedAI
+{
+    npc_dark_fiend(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        me->SetReactState(REACT_PASSIVE);
+        DoCast(me, SPELL_DARKFIEND_SKIN, true);
+
+        _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
-            switch (spellInfo->Id)
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+            if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
+                if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0))
+                    AttackStart(target);
+        });
+
+        _scheduler.Schedule(Seconds(3), [this](TaskContext context)
+        {
+            if (me->IsWithinDist(me->GetVictim(), 5.0f) && me->HasAura(SPELL_DARKFIEND_SKIN))
             {
-                case SPELL_OPEN_ALL_PORTALS:
-                    DoCastAOE(SPELL_OPEN_PORTAL, true);
-                    DoCastAOE(SPELL_TRANSFORM_VISUAL_MISSILE, true);
+                DoCastAOE(SPELL_DARKFIEND_DAMAGE, false);
+                me->DisappearAndDie();
+            }
+
+            context.Repeat(Milliseconds(500));
+        });
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        _summonerGUID = summoner->GetGUID();
+    }
+
+    bool CanAIAttack(Unit const* /*target*/) const override
+    {
+        return me->HasAura(SPELL_DARKFIEND_SKIN);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    ObjectGuid _summonerGUID;
+};
+
+struct npc_void_sentinel : public ScriptedAI
+{
+    npc_void_sentinel(Creature* creature) : ScriptedAI(creature)
+    {
+        _instance = me->GetInstanceScript();
+    }
+
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        if (Creature* muru = _instance->GetCreature(DATA_MURU))
+            muru->AI()->JustSummoned(me);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        DoCast(me, SPELL_SHADOW_PULSE_PERIODIC, true);
+
+        _scheduler.Schedule(Seconds(45), [this](TaskContext context)
+        {
+            DoCastVictim(SPELL_VOID_BLAST, false);
+
+            context.Repeat();
+        });
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        for (uint8 i = 0; i < MAX_VOID_SPAWNS; ++i)
+            DoCastAOE(SPELL_SUMMON_VOID_SPAWN, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
+    InstanceScript* _instance;
+};
+
+struct npc_blackhole : public ScriptedAI
+{
+    npc_blackhole(Creature* creature) : ScriptedAI(creature)
+    {
+        _instance = creature->GetInstanceScript();
+    }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL);
+
+        _scheduler.Schedule(Seconds(15), [this](TaskContext /*context*/)
+        {
+            me->DisappearAndDie();
+        });
+
+        _scheduler.Schedule(Seconds(1), [this](TaskContext context)
+        {
+            switch (context.GetRepeatCounter())
+            {
+                case 0:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL_2);
+                    if (Unit* victim = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(DATA_PLAYER_GUID)))
+                        AttackStart(victim);
+                    context.Repeat(Milliseconds(1200));
                     break;
-                case SPELL_OPEN_PORTAL_2:
-                    DoCastAOE(SPELL_OPEN_PORTAL, true);
-                    _scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
-                    {
-                        DoCastAOE(SPELL_SUMMON_VOID_SENTINEL_SUMMONER, true);
-                    });
+                case 1:
+                    DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL);
+                    context.Repeat(Seconds(2));
+                    break;
+                case 2:
+                    DoCast(SPELL_BLACKHOLE_PASSIVE);
+                    DoCast(SPELL_BLACK_HOLE_VISUAL_2);
                     break;
                 default:
                     break;
             }
-        }
+        });
+    }
 
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
-
-    private:
-        TaskScheduler _scheduler;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return GetSunwellPlateauAI<npc_muru_portalAI>(creature);
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    InstanceScript* _instance;
+};
+
+// 46050 - Summon Blood Elves Script
+class spell_summon_blood_elves_script : public SpellScript
+{
+    PrepareSpellScript(spell_summon_blood_elves_script);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(SummonBloodElvesSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        for (uint8 i = 0; i < MAX_SUMMON_BLOOD_ELVES; ++i)
+            GetCaster()->CastSpell(nullptr, SummonBloodElvesSpells[urand(0,3)], true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_summon_blood_elves_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
-class npc_dark_fiend : public CreatureScript
+// 45996 - Darkness
+class spell_muru_darkness : public SpellScript
 {
-public:
-    npc_dark_fiend() : CreatureScript("npc_dark_fiend") { }
+    PrepareSpellScript(spell_muru_darkness);
 
-    struct npc_dark_fiendAI : public ScriptedAI
+    bool Validate(SpellInfo const* /*spell*/) override
     {
-        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
+        return ValidateSpellInfo(SummonDarkFiendSpells);
+    }
 
-        void Initialize()
-        {
-            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-            me->SetReactState(REACT_PASSIVE);
-            DoCast(me, SPELL_DARKFIEND_SKIN, true);
-
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
-            {
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
-                    if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0))
-                        AttackStart(target);
-            });
-
-            _scheduler.Schedule(Seconds(3), [this](TaskContext context)
-            {
-                if (me->IsWithinDist(me->GetVictim(), 5.0f) && me->HasAura(SPELL_DARKFIEND_SKIN))
-                {
-                    DoCastAOE(SPELL_DARKFIEND_DAMAGE, false);
-                    me->DisappearAndDie();
-                }
-
-                context.Repeat(Milliseconds(500));
-            });
-        }
-
-        void IsSummonedBy(WorldObject* summoner) override
-        {
-            _summonerGUID = summoner->GetGUID();
-        }
-
-        bool CanAIAttack(Unit const* /*target*/) const override
-        {
-            return me->HasAura(SPELL_DARKFIEND_SKIN);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
-
-    private:
-        TaskScheduler _scheduler;
-        ObjectGuid _summonerGUID;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void HandleAfterCast()
     {
-        return GetSunwellPlateauAI<npc_dark_fiendAI>(creature);
+        for (uint8 i = 0; i < MAX_SUMMON_DARK_FIEND; ++i)
+            GetCaster()->CastSpell(nullptr, SummonDarkFiendSpells[i], true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_muru_darkness::HandleAfterCast);
     }
 };
 
-class npc_void_sentinel : public CreatureScript
+// 45934 - Dark Fiend
+class spell_dark_fiend_skin : public AuraScript
 {
-public:
-    npc_void_sentinel() : CreatureScript("npc_void_sentinel") { }
+    PrepareAuraScript(spell_dark_fiend_skin);
 
-    struct npc_void_sentinelAI : public ScriptedAI
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature)
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+            return;
+
+        if (Creature* target = GetTarget()->ToCreature())
         {
-            _instance = me->GetInstanceScript();
+            target->SetReactState(REACT_PASSIVE);
+            target->AttackStop();
+            target->StopMoving();
+            target->CastSpell(target, SPELL_DARKFIEND_VISUAL, true);
+            target->DespawnOrUnsummon(3s);
         }
+    }
 
-        void IsSummonedBy(WorldObject* /*summoner*/) override
-        {
-            if (Creature* muru = _instance->GetCreature(DATA_MURU))
-                muru->AI()->JustSummoned(me);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            DoCast(me, SPELL_SHADOW_PULSE_PERIODIC, true);
-
-            _scheduler.Schedule(Seconds(45), [this](TaskContext context)
-            {
-                DoCastVictim(SPELL_VOID_BLAST, false);
-
-                context.Repeat();
-            });
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            for (uint8 i = 0; i < MAX_VOID_SPAWNS; ++i)
-                DoCastAOE(SPELL_SUMMON_VOID_SPAWN, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
-        }
-
-    private:
-        TaskScheduler _scheduler;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Register() override
     {
-        return GetSunwellPlateauAI<npc_void_sentinelAI>(creature);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dark_fiend_skin::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-class npc_blackhole : public CreatureScript
+// 46205 - Transform Visual Missile Periodic
+class spell_transform_visual_missile_periodic : public AuraScript
 {
-public:
-    npc_blackhole() : CreatureScript("npc_blackhole") { }
+    PrepareAuraScript(spell_transform_visual_missile_periodic);
 
-    struct npc_blackholeAI : public ScriptedAI
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
-        npc_blackholeAI(Creature* creature) : ScriptedAI(creature)
-        {
-            _instance = creature->GetInstanceScript();
-        }
+        GetTarget()->CastSpell(nullptr, RAND(TRANSFORM_VISUAL_MISSILE_1, TRANSFORM_VISUAL_MISSILE_2), true);
+    }
 
-        void Reset() override
-        {
-            me->SetReactState(REACT_PASSIVE);
-            DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL);
-
-            _scheduler.Schedule(Seconds(15), [this](TaskContext /*context*/)
-            {
-                me->DisappearAndDie();
-            });
-
-            _scheduler.Schedule(Seconds(1), [this](TaskContext context)
-            {
-                switch (context.GetRepeatCounter())
-                {
-                    case 0:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL_2);
-                        if (Unit* victim = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(DATA_PLAYER_GUID)))
-                            AttackStart(victim);
-                        context.Repeat(Milliseconds(1200));
-                        break;
-                    case 1:
-                        DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL);
-                        context.Repeat(Seconds(2));
-                        break;
-                    case 2:
-                        DoCast(SPELL_BLACKHOLE_PASSIVE);
-                        DoCast(SPELL_BLACK_HOLE_VISUAL_2);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
-
-    private:
-        TaskScheduler _scheduler;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Register() override
     {
-        return GetSunwellPlateauAI<npc_blackholeAI>(creature);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_transform_visual_missile_periodic::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
-class spell_summon_blood_elves_script : SpellScriptLoader
+// 46041 - Summon Blood Elves Periodic
+class spell_summon_blood_elves_periodic : public AuraScript
 {
-    public:
-        spell_summon_blood_elves_script() : SpellScriptLoader("spell_summon_blood_elves_script") { }
+    PrepareAuraScript(spell_summon_blood_elves_periodic);
 
-        class spell_summon_blood_elves_script_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_summon_blood_elves_script_SpellScript);
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo(SummonBloodElvesSpells);
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                for (uint8 i = 0; i < MAX_SUMMON_BLOOD_ELVES; ++i)
-                    GetCaster()->CastSpell(nullptr, SummonBloodElvesSpells[urand(0,3)], true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_summon_blood_elves_script_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_summon_blood_elves_script_SpellScript();
-        }
-};
-
-class spell_muru_darkness : SpellScriptLoader
-{
-    public:
-        spell_muru_darkness() : SpellScriptLoader("spell_muru_darkness") { }
-
-        class spell_muru_darkness_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_muru_darkness_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo(SummonDarkFiendSpells);
-            }
-
-            void HandleAfterCast()
-            {
-                for (uint8 i = 0; i < MAX_SUMMON_DARK_FIEND; ++i)
-                    GetCaster()->CastSpell(nullptr, SummonDarkFiendSpells[i], true);
-            }
-
-            void Register() override
-            {
-                AfterCast += SpellCastFn(spell_muru_darkness_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_muru_darkness_SpellScript();
-        }
-};
-
-class spell_dark_fiend_skin : public SpellScriptLoader
-{
-    public:
-        spell_dark_fiend_skin() : SpellScriptLoader("spell_dark_fiend_skin") { }
-
-        class spell_dark_fiend_skin_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dark_fiend_skin_AuraScript);
-
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
-                    return;
-
-                if (Creature* target = GetTarget()->ToCreature())
-                {
-                    target->SetReactState(REACT_PASSIVE);
-                    target->AttackStop();
-                    target->StopMoving();
-                    target->CastSpell(target, SPELL_DARKFIEND_VISUAL, true);
-                    target->DespawnOrUnsummon(3s);
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dark_fiend_skin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dark_fiend_skin_AuraScript();
-        }
-};
-
-class spell_transform_visual_missile_periodic : public SpellScriptLoader
-{
-    public:
-        spell_transform_visual_missile_periodic() : SpellScriptLoader("spell_transform_visual_missile_periodic") { }
-
-        class spell_transform_visual_missile_periodic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_transform_visual_missile_periodic_AuraScript);
-
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                GetTarget()->CastSpell(nullptr, RAND(TRANSFORM_VISUAL_MISSILE_1, TRANSFORM_VISUAL_MISSILE_2), true);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_transform_visual_missile_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_transform_visual_missile_periodic_AuraScript();
-        }
-};
-
-class spell_summon_blood_elves_periodic : public SpellScriptLoader
-{
-    public:
-        spell_summon_blood_elves_periodic() : SpellScriptLoader("spell_summon_blood_elves_periodic") { }
-
-        class spell_summon_blood_elves_periodic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_summon_blood_elves_periodic_AuraScript);
-
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                GetTarget()->CastSpell(nullptr, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_summon_blood_elves_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_summon_blood_elves_periodic_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_summon_blood_elves_periodic::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 void AddSC_boss_muru()
 {
-    new boss_muru();
-    new boss_entropius();
-    new npc_muru_portal();
-    new npc_dark_fiend();
-    new npc_void_sentinel();
-    new npc_blackhole();
-    new spell_summon_blood_elves_script();
-    new spell_muru_darkness();
-    new spell_dark_fiend_skin();
-    new spell_transform_visual_missile_periodic();
-    new spell_summon_blood_elves_periodic();
+    RegisterSunwellPlateauCreatureAI(boss_muru);
+    RegisterSunwellPlateauCreatureAI(boss_entropius);
+    RegisterSunwellPlateauCreatureAI(npc_muru_portal);
+    RegisterSunwellPlateauCreatureAI(npc_dark_fiend);
+    RegisterSunwellPlateauCreatureAI(npc_void_sentinel);
+    RegisterSunwellPlateauCreatureAI(npc_blackhole);
+    RegisterSpellScript(spell_summon_blood_elves_script);
+    RegisterSpellScript(spell_muru_darkness);
+    RegisterSpellScript(spell_dark_fiend_skin);
+    RegisterSpellScript(spell_transform_visual_missile_periodic);
+    RegisterSpellScript(spell_summon_blood_elves_periodic);
 }

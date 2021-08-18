@@ -684,6 +684,8 @@ class npc_the_etymidian : public CreatureScript
                 Talk(SAY_ACTIVATION);
             }
 
+            // doesn't trigger if creature is stunned. Restore aura 25900 when it will be possible or
+            // find another way to start event(from orphan script)
             void MoveInLineOfSight(Unit* who) override
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)

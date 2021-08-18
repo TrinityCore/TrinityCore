@@ -138,7 +138,7 @@ struct boss_volazj : public BossAI
         return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
     }
 
-    void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*pAttacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             damage = 0;
@@ -344,6 +344,13 @@ private:
     uint32 _insanityHandled;
 };
 
+/* 60291 - Volazj Whisper: Aggro
+   60292 - Volazj Whisper: Insanity
+   60293 - Volazj Whisper: Slay 01
+   60294 - Volazj Whisper: Slay 02
+   60295 - Volazj Whisper: Slay 03
+   60296 - Volazj Whisper: Death 01
+   60297 - Volazj Whisper: Death 02 */
 class spell_volazj_whisper : public SpellScript
 {
     PrepareSpellScript(spell_volazj_whisper);

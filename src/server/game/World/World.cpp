@@ -1509,8 +1509,6 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
 
-    m_bool_configs[CONFIG_SET_SHAPASSHASH] = sConfigMgr->GetBoolDefault("SetDeprecatedExternalPasswords", false, true);
-
     m_bool_configs[CONFIG_IP_BASED_ACTION_LOGGING] = sConfigMgr->GetBoolDefault("Allow.IP.Based.Action.Logging", false);
 
     // AHBot
@@ -1538,6 +1536,12 @@ void World::LoadConfigSettings(bool reload)
 
     // Whether to use LoS from game objects
     m_bool_configs[CONFIG_CHECK_GOBJECT_LOS] = sConfigMgr->GetBoolDefault("CheckGameObjectLoS", true);
+
+    // Anti movement cheat measure. Time each client have to acknowledge a movement change until they are kicked
+    m_int_configs[CONFIG_PENDING_MOVE_CHANGES_TIMEOUT] = sConfigMgr->GetIntDefault("AntiCheat.PendingMoveChangesTimeoutTime", 0);
+
+    // Specifies if IP addresses can be logged to the database
+    m_bool_configs[CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE] = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -2236,7 +2240,7 @@ void World::DetectDBCLang()
         m_lang_confid = LOCALE_enUS;
     }
 
-    ChrRacesEntry const* race = sChrRacesStore.LookupEntry(1);
+    ChrRacesEntry const* race = sChrRacesStore.AssertEntry(1);
 
     std::string availableLocalsStr;
 

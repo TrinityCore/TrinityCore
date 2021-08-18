@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "AreaBoundary.h"
 #include "ahnkahet.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 

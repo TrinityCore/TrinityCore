@@ -163,6 +163,15 @@ void AppenderConsole::ResetColor(bool stdout_stream)
     #endif
 }
 
+void AppenderConsole::Print(std::string const& str, bool error)
+{
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    WriteWinConsole(str + "\n", error);
+#else
+    utf8printf(error ? stderr : stdout, "%s\n", str.c_str());
+#endif
+}
+
 void AppenderConsole::_write(LogMessage const* message)
 {
     bool stdout_stream = !(message->level == LOG_LEVEL_ERROR || message->level == LOG_LEVEL_FATAL);
@@ -195,9 +204,9 @@ void AppenderConsole::_write(LogMessage const* message)
         }
 
         SetColor(stdout_stream, _colors[index]);
-        utf8printf(stdout_stream ? stdout : stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+        Print(message->prefix + message->text, !stdout_stream);
         ResetColor(stdout_stream);
     }
     else
-        utf8printf(stdout_stream ? stdout : stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+        Print(message->prefix + message->text, !stdout_stream);
 }

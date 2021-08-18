@@ -173,7 +173,7 @@ struct boss_felblood_kaelthas : public BossAI
         _DespawnAtEvade();
     }
 
-    void DamageTaken(Unit* attacker, uint32 &damage) override
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // Checking for lethal damage first so we trigger the outro phase without triggering phase two in case of oneshot attacks
         if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_OUTRO))
@@ -403,7 +403,7 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override { }
 
-    void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -486,6 +486,7 @@ private:
     ObjectGuid _eggGUID;
 };
 
+// 44191 - Flame Strike
 class spell_felblood_kaelthas_flame_strike : public AuraScript
 {
     PrepareAuraScript(spell_felblood_kaelthas_flame_strike);

@@ -73,5 +73,6 @@ inline AI* GetSlavePensAI(T* obj)
 }
 
 #define RegisterSlavePensCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSlavePensAI)
+#define RegisterSlavePensGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetSlavePensAI)
 
 #endif // SLAVE_PENS_H

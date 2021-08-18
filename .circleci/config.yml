@@ -2,7 +2,7 @@ version: 2
 jobs:
   codestyle_and_sql:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-hirsute
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -38,7 +38,7 @@ jobs:
             cat sql/updates/world/3.3.5/*.sql | mysql -h 127.0.0.1 -uroot world
   pch:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-hirsute
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -97,7 +97,7 @@ jobs:
           path: docker.tar.gz
   nopch:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-hirsute
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -125,6 +125,7 @@ jobs:
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
             export PATH=/usr/lib/ccache:$PATH
+            export CCACHE_DIR=$HOME/.ccache
             ccache -z
             ccache -s
             git config user.email "circleci@build.bot" && git config user.name "Circle CI"

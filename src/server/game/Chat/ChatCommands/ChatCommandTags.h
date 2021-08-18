@@ -38,6 +38,7 @@
 
 class ChatHandler;
 class Player;
+class WorldSession;
 
 namespace Trinity::Impl::ChatCommands
 {
@@ -152,18 +153,26 @@ namespace Trinity::ChatCommands
     {
         using value_type = uint32;
 
+        AccountIdentifier() : _id(), _name(), _session(nullptr) {}
+        AccountIdentifier(WorldSession& session);
+
         operator uint32() const { return _id; }
         operator std::string const& () const { return _name; }
         operator std::string_view() const { return { _name }; }
 
         uint32 GetID() const { return _id; }
         std::string const& GetName() const { return _name; }
+        bool IsConnected() { return _session != nullptr; }
+        WorldSession* GetConnectedSession() { return _session; }
 
         ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args);
+
+        static Optional<AccountIdentifier> FromTarget(ChatHandler* handler);
 
         private:
             uint32 _id;
             std::string _name;
+            WorldSession* _session;
     };
 
     struct TC_GAME_API PlayerIdentifier : Trinity::Impl::ChatCommands::ContainerTag

@@ -474,8 +474,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
         return;
 
     ByteBuffer fieldBuffer;
-    UpdateMask updateMask;
-    updateMask.SetCount(m_valuesCount);
+    UpdateMaskPacketBuilder updateMask(m_valuesCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
@@ -491,7 +490,6 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
         }
     }
 
-    *data << uint8(updateMask.GetBlockCount());
     updateMask.AppendToPacket(data);
     data->append(fieldBuffer);
 }
@@ -1647,10 +1645,18 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth, bool che
 {
     WorldObject const* seer = this;
 
+    // If a unit is possessing another one, it uses the detection of the latter
     // Pets don't have detection, they use the detection of their masters
     if (Unit const* thisUnit = ToUnit())
-        if (Unit* controller = thisUnit->GetCharmerOrOwner())
+    {
+        if (thisUnit->isPossessing())
+        {
+            if (Unit* charmed = thisUnit->GetCharmed())
+                seer = charmed;
+        }
+        else if (Unit* controller = thisUnit->GetCharmerOrOwner())
             seer = controller;
+    }
 
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
@@ -2449,6 +2455,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     if (!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER)
         return SPELL_MISS_NONE;
 
+    if (spellInfo->HasAttribute(SPELL_ATTR7_CANT_MISS))
+        return SPELL_MISS_NONE;
+
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
     // PvP - PvE spell misschances per leveldif > 2
     int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
@@ -3139,9 +3148,9 @@ void WorldObject::GetCreatureListWithEntryInGrid(Container& creatureContainer, u
 }
 
 template <typename Container>
-void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearchRange) const
+void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive /*= true*/) const
 {
-    Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
+    Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange, alive);
     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerContainer, checker);
     Cell::VisitWorldObjects(this, searcher, maxSearchRange);
 }
@@ -3589,6 +3598,6 @@ template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::list<
 template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::deque<Creature*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::vector<Creature*>&, uint32, float) const;
 
-template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::list<Player*>&, float) const;
-template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::deque<Player*>&, float) const;
-template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::vector<Player*>&, float) const;
+template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::list<Player*>&, float, bool) const;
+template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::deque<Player*>&, float, bool) const;
+template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::vector<Player*>&, float, bool) const;

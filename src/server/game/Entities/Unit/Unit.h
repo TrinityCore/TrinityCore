@@ -28,6 +28,7 @@
 #include <map>
 #include <memory>
 #include <stack>
+#include <queue>
 
 #define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs
 #define WORLD_TRIGGER 12999
@@ -71,6 +72,7 @@ class AuraApplication;
 class AuraEffect;
 class Creature;
 class DynamicObject;
+class GameClient;
 class GameObject;
 class Guardian;
 class Item;
@@ -259,23 +261,54 @@ enum UnitState : uint32
     UNIT_STATE_ALL_STATE           = 0xffffffff
 };
 
-enum UnitMoveType
-{
-    MOVE_WALK           = 0,
-    MOVE_RUN            = 1,
-    MOVE_RUN_BACK       = 2,
-    MOVE_SWIM           = 3,
-    MOVE_SWIM_BACK      = 4,
-    MOVE_TURN_RATE      = 5,
-    MOVE_FLIGHT         = 6,
-    MOVE_FLIGHT_BACK    = 7,
-    MOVE_PITCH_RATE     = 8
-};
-
-#define MAX_MOVE_TYPE     9
-
 TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
 TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
+
+enum class MovementChangeType : uint8
+{
+    INVALID,
+
+    ROOT,
+    WATER_WALK,
+    SET_HOVER,
+    SET_CAN_FLY,
+    SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY,
+    FEATHER_FALL,
+    GRAVITY_DISABLE,
+
+    SPEED_CHANGE_WALK,
+    SPEED_CHANGE_RUN,
+    SPEED_CHANGE_RUN_BACK,
+    SPEED_CHANGE_SWIM,
+    SPEED_CHANGE_SWIM_BACK,
+    RATE_CHANGE_TURN,
+    SPEED_CHANGE_FLIGHT_SPEED,
+    SPEED_CHANGE_FLIGHT_BACK_SPEED,
+    RATE_CHANGE_PITCH,
+
+    SET_COLLISION_HGT,
+    TELEPORT,
+    KNOCK_BACK
+};
+
+struct PlayerMovementPendingChange
+{
+    PlayerMovementPendingChange();
+
+    uint32 movementCounter = 0;
+    MovementChangeType movementChangeType = MovementChangeType::INVALID;
+    uint32 time;
+
+    float newValue = 0.0f; // used if speed or height change
+    bool apply = false; // used if movement flag change
+    struct KnockbackInfo
+    {
+        float vcos = 0.0f;
+        float vsin = 0.0f;
+        float speedXY = 0.0f;
+        float speedZ = 0.0f;
+    } knockbackInfo; // used if knockback
+};
 
 enum CombatRating
 {
@@ -733,6 +766,7 @@ struct PositionUpdateInfo
 
 class TC_GAME_API Unit : public WorldObject
 {
+    friend class WorldSession;
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
@@ -1184,6 +1218,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAllControlled();
 
         bool IsCharmed() const { return !GetCharmerGUID().IsEmpty(); }
+        bool IsCharming() const { return !GetCharmedGUID().IsEmpty(); }
         bool isPossessed() const { return HasUnitState(UNIT_STATE_POSSESSED); }
         bool isPossessedByPlayer() const;
         bool isPossessing() const;
@@ -1193,12 +1228,17 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
 
-        // all of these are for DIRECT CLIENT CONTROL only
-        void SetMovedUnit(Unit* target);
-        // returns the unit that this player IS CONTROLLING
-        Unit* GetUnitBeingMoved() const { return m_unitMovedByMe; }
-        // returns the player that this unit is BEING CONTROLLED BY
-        Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
+        // base client control of this unit (possess effects, vehicles and similar). Not affected by temporary CC.
+        bool IsCharmerOrSelfPlayer() const { return GetCharmerOrSelf()->IsPlayer(); }
+        Unit* GetCharmerOrSelf() const;
+        Player* GetCharmerOrSelfPlayer() const { return ToPlayer(GetCharmerOrSelf());}
+        Unit* GetCharmedOrSelf() const { return IsCharming() ? GetCharmed() : const_cast<Unit*>(this); }
+
+        // real time client control status of this unit (possess effects, vehicles and similar). For example, if this unit is a player temporarly under fear, it will return false.
+        bool IsMovedByClient() const { return _gameClientMovingMe != nullptr; }
+        bool IsMovedByServer() const { return !IsMovedByClient(); }
+        GameClient* GetGameClientMovingMe() const { return _gameClientMovingMe; }
+        void SetGameClientMovingMe(GameClient* gameClientMovingMe) { _gameClientMovingMe = gameClientMovingMe; }
 
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
@@ -1539,7 +1579,10 @@ class TC_GAME_API Unit : public WorldObject
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float newValue);
         void SetSpeedRate(UnitMoveType mtype, float rate);
+    private:
+        void SetSpeedRateReal(UnitMoveType mtype, float rate);
 
+    public:
         float CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInfo) const;
 
         void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
@@ -1624,7 +1667,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void HandleSpellClick(Unit* clicker, int8 seatId = -1);
         void EnterVehicle(Unit* base, int8 seatId = -1);
-        void ExitVehicle(Position const* exitPosition = nullptr);
+        virtual void ExitVehicle(Position const* exitPosition = nullptr);
         void ChangeSeat(int8 seatId, bool next = true);
 
         // Should only be called by AuraEffect::HandleAuraControlVehicle(AuraApplication const* auraApp, uint8 mode, bool apply) const;
@@ -1646,6 +1689,14 @@ class TC_GAME_API Unit : public WorldObject
         {
             return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f;
         }
+
+        uint32 GetMovementCounterAndInc() { return m_movementCounter++; }
+        PlayerMovementPendingChange& PeakFirstPendingMovementChange();
+        PlayerMovementPendingChange PopPendingMovementChange();
+        void PushPendingMovementChange(PlayerMovementPendingChange newChange);
+        bool HasPendingMovementChange() const { return !m_pendingMovementChanges.empty(); }
+        bool HasPendingMovementChange(MovementChangeType changeType) const;
+        void PurgeAndApplyPendingMovementChanges(bool informObservers = true);
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 
@@ -1690,10 +1741,10 @@ class TC_GAME_API Unit : public WorldObject
 
         float GetCollisionHeight() const override;
 
-        // returns if the unit is ignoring any combat interaction
-        bool IsIgnoringCombat() const { return _isIgnoringCombat; }
-        // enables/disables combat interaction of this unit.
-        void SetIgnoringCombat(bool apply) { _isIgnoringCombat = apply; }
+        // returns if the unit can't enter combat
+        bool IsCombatDisallowed() const { return _isCombatDisallowed; }
+        // enables / disables combat interaction of this unit
+        void SetIsCombatDisallowed(bool apply) { _isCombatDisallowed = apply; }
 
         std::string GetDebugInfo() const override;
     protected:
@@ -1751,12 +1802,11 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_speed_rate[MAX_MOVE_TYPE];
 
-        Unit* m_unitMovedByMe;    // only ever set for players, and only for direct client control
-        Player* m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)
         Unit* m_charmer; // Unit that is charming ME
         Unit* m_charmed; // Unit that is being charmed BY ME
         CharmInfo* m_charmInfo;
         SharedVisionList m_sharedVision;
+        GameClient* _gameClientMovingMe;
 
         MotionMaster* i_motionMaster;
 
@@ -1789,6 +1839,7 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
         void InterruptMovementBasedAuras();
+        void CheckPendingMovementAcks();
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
@@ -1842,7 +1893,15 @@ class TC_GAME_API Unit : public WorldObject
         SpellHistory* m_spellHistory;
         PositionUpdateInfo _positionUpdateInfo;
 
-        bool _isIgnoringCombat;
+        bool _isCombatDisallowed;
+
+        /* Player Movement fields START*/
+
+        // when a player controls this unit, and when change is made to this unit which requires an ack from the client to be acted (change of speed for example), this movementCounter is incremented
+        uint32 m_movementCounter;
+        std::deque<PlayerMovementPendingChange> m_pendingMovementChanges;
+
+        /* Player Movement fields END*/
 };
 
 namespace Trinity

@@ -295,7 +295,7 @@ class npc_ice_block : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& /*damage*/) override
+            void DamageTaken(Unit* who, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (Creature* helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
@@ -390,7 +390,7 @@ class boss_hodir : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* who, uint32& damage) override
+            void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -980,6 +980,7 @@ class npc_toasty_fire : public CreatureScript
         };
 };
 
+// 62038 - Biting Cold
 class spell_biting_cold : public SpellScriptLoader
 {
     public:
@@ -1036,6 +1037,7 @@ class spell_biting_cold : public SpellScriptLoader
         }
 };
 
+// 62039 - Biting Cold
 class spell_biting_cold_dot : public SpellScriptLoader
 {
 public:

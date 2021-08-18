@@ -77,215 +77,183 @@ enum SphereActions
     ACTION_SUMMON                               = 1,
 };
 
-class boss_xevozz : public CreatureScript
+struct boss_xevozz : public BossAI
 {
-    public:
-        boss_xevozz() : CreatureScript("boss_xevozz") { }
+    boss_xevozz(Creature* creature) : BossAI(creature, DATA_XEVOZZ) { }
 
-        struct boss_xevozzAI : public BossAI
+    void Reset() override
+    {
+        BossAI::Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+    }
+
+    void JustReachedHome() override
+    {
+        BossAI::JustReachedHome();
+        instance->SetData(DATA_HANDLE_CELLS, DATA_XEVOZZ);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        BossAI::JustSummoned(summon);
+        summon->GetMotionMaster()->MoveFollow(me, 0.0f, 0.0f);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_ARCANE_POWER || spellInfo->Id == H_SPELL_ARCANE_POWER)
+            Talk(SAY_SUMMON_ENERGY);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        scheduler.Update(diff,
+            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+    }
+
+    void ScheduleTasks() override
+    {
+        scheduler.Schedule(Seconds(8), Seconds(10), [this](TaskContext task)
         {
-            boss_xevozzAI(Creature* creature) : BossAI(creature, DATA_XEVOZZ) { }
+            DoCastAOE(SPELL_ARCANE_BARRAGE_VOLLEY);
+            task.Repeat(Seconds(8), Seconds(10));
+        });
 
-            void Reset() override
-            {
-                BossAI::Reset();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-            }
-
-            void JustReachedHome() override
-            {
-                BossAI::JustReachedHome();
-                instance->SetData(DATA_HANDLE_CELLS, DATA_XEVOZZ);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                BossAI::JustSummoned(summon);
-                summon->GetMotionMaster()->MoveFollow(me, 0.0f, 0.0f);
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                Talk(SAY_DEATH);
-                _JustDied();
-            }
-
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id == SPELL_ARCANE_POWER || spellInfo->Id == H_SPELL_ARCANE_POWER)
-                    Talk(SAY_SUMMON_ENERGY);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
-            }
-
-            void ScheduleTasks() override
-            {
-                scheduler.Schedule(Seconds(8), Seconds(10), [this](TaskContext task)
-                {
-                    DoCastAOE(SPELL_ARCANE_BARRAGE_VOLLEY);
-                    task.Repeat(Seconds(8), Seconds(10));
-                });
-
-                scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
-                        DoCast(target, SPELL_ARCANE_BUFFET);
-                    task.Repeat(Seconds(15), Seconds(20));
-                });
-
-                scheduler.Schedule(Seconds(5), [this](TaskContext task)
-                {
-                    Talk(SAY_REPEAT_SUMMON);
-
-                    std::list<uint8> summonSpells = { 0, 1, 2 };
-
-                    uint8 spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
-                    DoCast(me, EtherealSphereSummonSpells[spell]);
-                    summonSpells.remove(spell);
-
-                    if (IsHeroic())
-                    {
-                        spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
-                        task.Schedule(Milliseconds(2500), [this, spell](TaskContext /*task*/)
-                        {
-                            DoCast(me, EtherealSphereHeroicSummonSpells[spell]);
-                        });
-                    }
-
-                    task.Schedule(Seconds(33), Seconds(35), [this](TaskContext /*task*/)
-                    {
-                        DummyEntryCheckPredicate pred;
-                        summons.DoAction(ACTION_SUMMON, pred);
-                    });
-
-                    task.Repeat(Seconds(45), Seconds(47));
-                });
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
+        scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
         {
-            return GetVioletHoldAI<boss_xevozzAI>(creature);
-        }
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
+                DoCast(target, SPELL_ARCANE_BUFFET);
+            task.Repeat(Seconds(15), Seconds(20));
+        });
+
+        scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        {
+            Talk(SAY_REPEAT_SUMMON);
+
+            std::list<uint8> summonSpells = { 0, 1, 2 };
+
+            uint8 spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
+            DoCast(me, EtherealSphereSummonSpells[spell]);
+            summonSpells.remove(spell);
+
+            if (IsHeroic())
+            {
+                spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
+                task.Schedule(Milliseconds(2500), [this, spell](TaskContext /*task*/)
+                {
+                    DoCast(me, EtherealSphereHeroicSummonSpells[spell]);
+                });
+            }
+
+            task.Schedule(Seconds(33), Seconds(35), [this](TaskContext /*task*/)
+            {
+                DummyEntryCheckPredicate pred;
+                summons.DoAction(ACTION_SUMMON, pred);
+            });
+
+            task.Repeat(Seconds(45), Seconds(47));
+        });
+    }
 };
 
-class npc_ethereal_sphere : public CreatureScript
+struct npc_ethereal_sphere : public ScriptedAI
 {
-    public:
-        npc_ethereal_sphere() : CreatureScript("npc_ethereal_sphere") { }
+    npc_ethereal_sphere(Creature* creature) : ScriptedAI(creature)
+    {
+        instance = creature->GetInstanceScript();
+    }
 
-        struct npc_ethereal_sphereAI : public ScriptedAI
+    void Reset() override
+    {
+        scheduler.CancelAll();
+        ScheduledTasks();
+
+        DoCast(me, SPELL_POWER_BALL_VISUAL);
+        DoCast(me, SPELL_POWER_BALL_DAMAGE_TRIGGER);
+
+        me->DespawnOrUnsummon(40s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_SUMMON)
         {
-            npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
+            Talk(SAY_ETHEREAL_SPHERE_SUMMON);
+            DoCastAOE(SPELL_SUMMON_PLAYERS);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        scheduler.Update(diff);
+    }
+
+    void ScheduledTasks()
+    {
+        scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        {
+            if (Creature* xevozz = instance->GetCreature(DATA_XEVOZZ))
             {
-                instance = creature->GetInstanceScript();
-            }
-
-            void Reset() override
-            {
-                scheduler.CancelAll();
-                ScheduledTasks();
-
-                DoCast(me, SPELL_POWER_BALL_VISUAL);
-                DoCast(me, SPELL_POWER_BALL_DAMAGE_TRIGGER);
-
-                me->DespawnOrUnsummon(40s);
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_SUMMON)
+                if (me->IsWithinDist(xevozz, 3.0f))
                 {
-                    Talk(SAY_ETHEREAL_SPHERE_SUMMON);
-                    DoCastAOE(SPELL_SUMMON_PLAYERS);
+                    DoCastAOE(SPELL_ARCANE_POWER);
+                    me->DespawnOrUnsummon(8s);
+                    return;
                 }
             }
+            task.Repeat();
+        });
+    }
 
-            void UpdateAI(uint32 diff) override
-            {
-                scheduler.Update(diff);
-            }
-
-            void ScheduledTasks()
-            {
-                scheduler.Schedule(Seconds(1), [this](TaskContext task)
-                {
-                    if (Creature* xevozz = instance->GetCreature(DATA_XEVOZZ))
-                    {
-                        if (me->IsWithinDist(xevozz, 3.0f))
-                        {
-                            DoCastAOE(SPELL_ARCANE_POWER);
-                            me->DespawnOrUnsummon(8s);
-                            return;
-                        }
-                    }
-                    task.Repeat();
-                });
-            }
-
-        private:
-            InstanceScript* instance;
-            TaskScheduler scheduler;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVioletHoldAI<npc_ethereal_sphereAI>(creature);
-        }
+private:
+    InstanceScript* instance;
+    TaskScheduler scheduler;
 };
 
-class spell_xevozz_summon_players : public SpellScriptLoader
+// 54164 - Summon Players
+class spell_xevozz_summon_players : public SpellScript
 {
-    public:
-        spell_xevozz_summon_players() : SpellScriptLoader("spell_xevozz_summon_players") { }
+    PrepareSpellScript(spell_xevozz_summon_players);
 
-        class spell_xevozz_summon_players_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_xevozz_summon_players_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGIC_PULL });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MAGIC_PULL });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGIC_PULL, true);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGIC_PULL, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_xevozz_summon_players_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_xevozz_summon_players_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_xevozz_summon_players::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_boss_xevozz()
 {
-    new boss_xevozz();
-    new npc_ethereal_sphere();
-    new spell_xevozz_summon_players();
+    RegisterVioletHoldCreatureAI(boss_xevozz);
+    RegisterVioletHoldCreatureAI(npc_ethereal_sphere);
+    RegisterSpellScript(spell_xevozz_summon_players);
 }

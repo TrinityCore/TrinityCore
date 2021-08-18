@@ -349,35 +349,24 @@ class instance_gundrak : public InstanceMapScript
         }
 };
 
-class go_gundrak_altar : public GameObjectScript
+struct go_gundrak_altar : public GameObjectAI
 {
-    public:
-        go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
+    go_gundrak_altar(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        struct go_gundrak_altarAI : public GameObjectAI
-        {
-            go_gundrak_altarAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+    InstanceScript* instance;
 
-            InstanceScript* instance;
+    bool OnGossipHello(Player* /*player*/) override
+    {
+        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->SetGoState(GO_STATE_ACTIVE);
 
-            bool OnGossipHello(Player* /*player*/) override
-            {
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                me->SetGoState(GO_STATE_ACTIVE);
-
-                instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetGundrakAI<go_gundrak_altarAI>(go);
-        }
+        instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());
+        return true;
+    }
 };
 
 void AddSC_instance_gundrak()
 {
     new instance_gundrak();
-    new go_gundrak_altar();
+    RegisterGundrakGameObjectAI(go_gundrak_altar);
 }

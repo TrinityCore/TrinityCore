@@ -301,7 +301,7 @@ class TC_GAME_API UnitAI
 
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) { }
 
         // Called when the creature receives heal
         virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }
@@ -333,8 +333,6 @@ class TC_GAME_API UnitAI
 
         // Called when a game event starts or ends
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
-
-        virtual void OnMovementGeneratorFinalized(MovementGeneratorType /*type*/) { }
 
         virtual std::string GetDebugInfo() const;
 

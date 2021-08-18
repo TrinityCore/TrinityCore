@@ -342,7 +342,7 @@ struct boss_anub_arak : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*source*/, uint32& damage) override
+    void DamageTaken(Unit* /*source*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HasAura(SPELL_SUBMERGE))
             damage = 0;
@@ -600,6 +600,7 @@ struct npc_anubarak_impale_target : public NullCreatureAI
     }
 };
 
+// 53472, 59433 - Pound
 class spell_anubarak_pound : public AuraScript
 {
     PrepareAuraScript(spell_anubarak_pound);
@@ -621,6 +622,7 @@ class spell_anubarak_pound : public AuraScript
     }
 };
 
+// 53520 - Carrion Beetles
 class spell_anubarak_carrion_beetles : public AuraScript
 {
     PrepareAuraScript(spell_anubarak_carrion_beetles);
@@ -644,13 +646,13 @@ class spell_anubarak_carrion_beetles : public AuraScript
 
 void AddSC_boss_anub_arak()
 {
-    RegisterCreatureAIWithFactory(boss_anub_arak, GetAzjolNerubAI);
+    RegisterAzjolNerubCreatureAI(boss_anub_arak);
 
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_darter, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_assassin, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_guardian, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_venomancer, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_darter);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_assassin);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_guardian);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_venomancer);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_impale_target);
 
     RegisterSpellScript(spell_anubarak_pound);
     RegisterSpellScript(spell_anubarak_carrion_beetles);

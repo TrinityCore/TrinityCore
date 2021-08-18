@@ -44,8 +44,8 @@
         return false;
     if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return false;
-    // ... both units must not be ignoring combat
-    if (a->IsIgnoringCombat() || b->IsIgnoringCombat())
+    // ... both units must be allowed to enter combat
+    if (a->IsCombatDisallowed() || b->IsCombatDisallowed())
         return false;
     if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
         return false;
@@ -237,14 +237,11 @@ void CombatManager::InheritCombatStatesFrom(Unit const* who)
     }
     for (auto& ref : mgr._pvpRefs)
     {
-        if (!IsInCombatWith(ref.first))
-        {
-            Unit* target = ref.second->GetOther(who);
-            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) ||
-                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)))
-                continue;
-            SetInCombatWith(target);
-        }
+        Unit* target = ref.second->GetOther(who);
+        if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) ||
+            (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)))
+            continue;
+        SetInCombatWith(target);
     }
 }
 

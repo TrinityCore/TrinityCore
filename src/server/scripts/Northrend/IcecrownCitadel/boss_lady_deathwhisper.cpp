@@ -403,7 +403,7 @@ struct boss_lady_deathwhisper : public BossAI
             Talk(SAY_KILL);
     }
 
-    void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
+    void DamageTaken(Unit* /*damageDealer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // phase transition
         if (_phase == PHASE_ONE && damage > me->GetPower(POWER_MANA))
@@ -942,6 +942,7 @@ private:
     bool _canShatter;
 };
 
+// 70842 - Mana Barrier
 class spell_deathwhisper_mana_barrier : public AuraScript
 {
     PrepareAuraScript(spell_deathwhisper_mana_barrier);
@@ -963,6 +964,7 @@ class spell_deathwhisper_mana_barrier : public AuraScript
     }
 };
 
+// 71289 - Dominate Mind
 class spell_deathwhisper_dominated_mind : public AuraScript
 {
     PrepareAuraScript(spell_deathwhisper_dominated_mind);
@@ -984,6 +986,7 @@ class spell_deathwhisper_dominated_mind : public AuraScript
     }
 };
 
+// 72478 - Summon Spirits
 class spell_deathwhisper_summon_spirits : public SpellScript
 {
     PrepareSpellScript(spell_deathwhisper_summon_spirits);

@@ -278,7 +278,7 @@ class boss_halion : public CreatureScript
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
                     damage = me->GetHealth() - 1;
@@ -464,7 +464,7 @@ class boss_twilight_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
                     damage = me->GetHealth() - 1;
@@ -572,6 +572,7 @@ class npc_halion_controller : public CreatureScript
                 _materialCorporealityValue = 5;
                 _materialDamageTaken = 0;
                 _twilightDamageTaken = 0;
+                SetBoundary(_instance->GetBossBoundary(DATA_HALION));
             }
 
             void JustAppeared() override
@@ -1398,6 +1399,7 @@ class go_twilight_portal : public GameObjectScript
         }
 };
 
+// 74641 - Meteor Strike
 class spell_halion_meteor_strike_marker : public SpellScriptLoader
 {
     public:
@@ -1485,6 +1487,8 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
         uint32 _spellID;
 };
 
+// 74629 - Combustion Periodic
+// 74803 - Consumption Periodic
 class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 {
     public:
@@ -1589,6 +1593,8 @@ class spell_halion_marks : public SpellScriptLoader
         uint32 _removeSpell;
 };
 
+// 74610 - Fiery Combustion
+// 74800 - Soul Consumption
 class spell_halion_damage_aoe_summon : public SpellScriptLoader
 {
     public:
@@ -1689,6 +1695,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
         bool _isApplyHandler;
 };
 
+// 75396 - Clear Debuffs
 class spell_halion_clear_debuffs : public SpellScriptLoader
 {
     public:
@@ -1736,6 +1743,7 @@ class TwilightCutterSelector
         Unit* _channelTarget;
 };
 
+// 74769, 77844, 77845, 77846 - Twilight Cutter
 class spell_halion_twilight_cutter : public SpellScriptLoader
 {
     public:
@@ -1773,6 +1781,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         }
 };
 
+// 74808 - Twilight Phasing
 class spell_halion_twilight_phasing : public SpellScriptLoader
 {
     public:
@@ -1841,6 +1850,7 @@ class spell_halion_summon_exit_portals : public SpellScriptLoader
         }
 };
 
+// 75880 - Spawn Living Embers
 class spell_halion_spawn_living_embers : public SpellScriptLoader
 {
     public:
@@ -1874,6 +1884,7 @@ class spell_halion_spawn_living_embers : public SpellScriptLoader
         }
 };
 
+// 75886, 75887 - Blazing Aura
 class spell_halion_blazing_aura : public SpellScriptLoader
 {
     public:

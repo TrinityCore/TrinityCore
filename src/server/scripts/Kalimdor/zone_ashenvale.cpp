@@ -373,6 +373,7 @@ enum KingoftheFoulwealdMisc
     GO_BANNER = 178205
 };
 
+// 20783 - Destroy Karang's Banner
 class spell_destroy_karangs_banner : public SpellScriptLoader
 {
     public:

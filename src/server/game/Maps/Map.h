@@ -89,7 +89,7 @@ union u_map_magic
 struct map_fileheader
 {
     u_map_magic mapMagic;
-    u_map_magic versionMagic;
+    uint32 versionMagic;
     u_map_magic buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
@@ -615,7 +615,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
         Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
         void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity);
-        void SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, uint32 transitionMilliseconds);
+        void SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, Milliseconds transitionTime);
 
         void UpdateAreaDependentAuras();
 

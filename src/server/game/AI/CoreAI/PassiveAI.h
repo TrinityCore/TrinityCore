@@ -75,7 +75,7 @@ class TC_GAME_API CritterAI : public PassiveAI
         void JustEngagedWith(Unit* /*who*/) override;
         void EnterEvadeMode(EvadeReason why) override;
 
-        void OnMovementGeneratorFinalized(MovementGeneratorType type) override;
+        void MovementInform(uint32 type, uint32 id) override;
 
         static int32 Permissible(Creature const* creature);
 };

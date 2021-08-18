@@ -36,53 +36,31 @@ enum Spells
 
 const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
 
-class go_blackfathom_altar : public GameObjectScript
+struct go_blackfathom_altar : public GameObjectAI
 {
-    public:
-        go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
+    go_blackfathom_altar(GameObject* go) : GameObjectAI(go) { }
 
-        struct go_blackfathom_altarAI : public GameObjectAI
-        {
-            go_blackfathom_altarAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool OnGossipHello(Player* player) override
-            {
-                if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
-                    player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetBlackfathomDeepsAI<go_blackfathom_altarAI>(go);
-        }
+    bool OnGossipHello(Player* player) override
+    {
+        if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
+            player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
+        return true;
+    }
 };
 
-class go_blackfathom_fire : public GameObjectScript
+struct go_blackfathom_fire : public GameObjectAI
 {
-    public:
-        go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
+    go_blackfathom_fire(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        struct go_blackfathom_fireAI : public GameObjectAI
-        {
-            go_blackfathom_fireAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+    InstanceScript* instance;
 
-            InstanceScript* instance;
-
-            bool OnGossipHello(Player* /*player*/) override
-            {
-                me->SetGoState(GO_STATE_ACTIVE);
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetBlackfathomDeepsAI<go_blackfathom_fireAI>(go);
-        }
+    bool OnGossipHello(Player* /*player*/) override
+    {
+        me->SetGoState(GO_STATE_ACTIVE);
+        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
+        return true;
+    }
 };
 
 enum Events
@@ -131,7 +109,7 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
             _instance->SetData(DATA_EVENT, _instance->GetData(DATA_EVENT) + 1);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->GetEntry() != NPC_MURKSHALLOW_SOFTSHELL && me->GetEntry() != NPC_BARBED_CRUSTACEAN)
             return;
@@ -190,52 +168,41 @@ enum Morridune
     SAY_MORRIDUNE_2 = 1
 };
 
-class npc_morridune : public CreatureScript
+struct npc_morridune : public EscortAI
 {
-public:
-    npc_morridune() : CreatureScript("npc_morridune") { }
+    npc_morridune(Creature* creature) : EscortAI(creature) { }
 
-    struct npc_morriduneAI : public EscortAI
+    void Reset() override
     {
-        npc_morriduneAI(Creature* creature) : EscortAI(creature) { }
+        Talk(SAY_MORRIDUNE_1);
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        Start(false);
+    }
 
-        void Reset() override
-        {
-            Talk(SAY_MORRIDUNE_1);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            Start(false);
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 4:
-                    SetEscortPaused(true);
-                    me->SetFacingTo(1.775791f);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    Talk(SAY_MORRIDUNE_2);
-                    break;
-            }
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-        {
-            DoCast(player, SPELL_TELEPORT_DARNASSUS);
-            return false;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
-        return GetBlackfathomDeepsAI<npc_morriduneAI>(creature);
+        switch (waypointId)
+        {
+            case 4:
+                SetEscortPaused(true);
+                me->SetFacingTo(1.775791f);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                Talk(SAY_MORRIDUNE_2);
+                break;
+        }
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        DoCast(player, SPELL_TELEPORT_DARNASSUS);
+        return false;
     }
 };
 
 void AddSC_blackfathom_deeps()
 {
-    new go_blackfathom_altar();
-    new go_blackfathom_fire();
+    RegisterBlackfathomDeepsGameObjectAI(go_blackfathom_altar);
+    RegisterBlackfathomDeepsGameObjectAI(go_blackfathom_fire);
     RegisterBlackfathomDeepsCreatureAI(npc_blackfathom_deeps_event);
-    new npc_morridune();
+    RegisterBlackfathomDeepsCreatureAI(npc_morridune);
 }

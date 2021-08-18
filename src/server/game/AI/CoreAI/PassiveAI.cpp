@@ -79,7 +79,7 @@ void CritterAI::JustEngagedWith(Unit* /*who*/)
         me->SetControlled(true, UNIT_STATE_FLEEING);
 }
 
-void CritterAI::OnMovementGeneratorFinalized(MovementGeneratorType type)
+void CritterAI::MovementInform(uint32 type, uint32 /*id*/)
 {
     if (type == TIMED_FLEEING_MOTION_TYPE)
         EnterEvadeMode(EVADE_REASON_OTHER);

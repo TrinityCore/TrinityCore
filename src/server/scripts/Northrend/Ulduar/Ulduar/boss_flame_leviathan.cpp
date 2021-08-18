@@ -735,7 +735,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
         {
             boss_flame_leviathan_defense_turretAI(Creature* creature) : TurretAI(creature) { }
 
-            void DamageTaken(Unit* who, uint32 &damage) override
+            void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!CanAIAttack(who))
                     damage = 0;
@@ -906,7 +906,7 @@ class npc_pool_of_tar : public CreatureScript
                 me->CastSpell(me, SPELL_TAR_PASSIVE, true);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 damage = 0;
             }
@@ -1495,7 +1495,7 @@ class achievement_orbit_uary : public AchievementCriteriaScript
         }
 };
 
-// 62399 Overload Circuit
+// 62399 - Overload Circuit
 class spell_overload_circuit : public AuraScript
 {
     PrepareAuraScript(spell_overload_circuit);
@@ -1521,7 +1521,7 @@ class spell_overload_circuit : public AuraScript
     }
 };
 
-// 62292 Blaze
+// 62292 - Blaze
 class spell_tar_blaze : public AuraScript
 {
     PrepareAuraScript(spell_tar_blaze);
@@ -1543,6 +1543,7 @@ class spell_tar_blaze : public AuraScript
     }
 };
 
+// 64414 - Load into Catapult
 class spell_load_into_catapult : public SpellScriptLoader
 {
     enum Spells
@@ -1588,6 +1589,7 @@ class spell_load_into_catapult : public SpellScriptLoader
         }
 };
 
+// 62705 - Auto-repair
 class spell_auto_repair : public SpellScriptLoader
 {
     enum Spells
@@ -1657,6 +1659,7 @@ class spell_auto_repair : public SpellScriptLoader
         }
 };
 
+// 62475 - Systems Shutdown
 class spell_systems_shutdown : public SpellScriptLoader
 {
     public:
@@ -1739,6 +1742,7 @@ class FlameLeviathanPursuedTargetSelector
         }
 };
 
+// 62374 - Pursued
 class spell_pursue : public SpellScriptLoader
 {
     public:
@@ -1786,6 +1790,7 @@ class spell_pursue : public SpellScriptLoader
         }
 };
 
+// 62324 - Throw Passenger
 class spell_vehicle_throw_passenger : public SpellScriptLoader
 {
     public:

@@ -26,13 +26,8 @@
 #include "SpellScript.h"
 #include "shadow_labyrinth.h"
 
-enum BlackheartTheInciter
+enum BlackheartTexts
 {
-    SPELL_INCITE_CHAOS      = 33676,
-    SPELL_INCITE_CHAOS_B    = 33684,                         //debuff applied to each member of party
-    SPELL_CHARGE            = 33709,
-    SPELL_WAR_STOMP         = 33707,
-
     SAY_INTRO               = 0,
     SAY_AGGRO               = 1,
     SAY_SLAY                = 2,
@@ -47,11 +42,19 @@ enum BlackheartTheInciter
     SAY2_DEATH              = 9
 };
 
-enum Events
+enum BlackheartSpells
 {
-    EVENT_INCITE_CHAOS          = 1,
-    EVENT_CHARGE_ATTACK         = 2,
-    EVENT_WAR_STOMP             = 3
+    SPELL_INCITE_CHAOS      = 33676,
+    SPELL_INCITE_CHAOS_B    = 33684,                         //debuff applied to each member of party
+    SPELL_CHARGE            = 33709,
+    SPELL_WAR_STOMP         = 33707
+};
+
+enum BlackheartEvents
+{
+    EVENT_INCITE_CHAOS      = 1,
+    EVENT_CHARGE_ATTACK,
+    EVENT_WAR_STOMP
 };
 
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
@@ -187,20 +190,24 @@ struct boss_blackheart_the_inciter_mc_dummy : public NullCreatureAI
                         }
                     }
     }
+
     void UpdateAI(uint32 /*diff*/) override
     {
         if (me->m_Controlled.empty())
             me->DespawnOrUnsummon();
     }
+
     PlayerAI* GetAIForCharmedPlayer(Player* player) override
     {
         return new BlackheartCharmedPlayerAI(player);
     }
 };
 
+// 33676 - Incite Chaos
 class spell_blackheart_incite_chaos : public SpellScript
 {
     PrepareSpellScript(spell_blackheart_incite_chaos);
+
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_INCITE_CHAOS_B });
@@ -227,7 +234,7 @@ const uint32 spell_blackheart_incite_chaos::INCITE_SPELLS[spell_blackheart_incit
 
 void AddSC_boss_blackheart_the_inciter()
 {
-    RegisterCreatureAIWithFactory(boss_blackheart_the_inciter, GetShadowLabyrinthAI);
-    RegisterCreatureAIWithFactory(boss_blackheart_the_inciter_mc_dummy, GetShadowLabyrinthAI);
+    RegisterShadowLabyrinthCreatureAI(boss_blackheart_the_inciter);
+    RegisterShadowLabyrinthCreatureAI(boss_blackheart_the_inciter_mc_dummy);
     RegisterSpellScript(spell_blackheart_incite_chaos);
 }

@@ -168,135 +168,113 @@ struct generic_boss_controllerAI : public BossAI
         bool IsInGhostForm;
 };
 
-class boss_skarvald_the_constructor : public CreatureScript
+struct boss_skarvald_the_constructor : public generic_boss_controllerAI
 {
-    public:
-        boss_skarvald_the_constructor() : CreatureScript("boss_skarvald_the_constructor") { }
+    boss_skarvald_the_constructor(Creature* creature) : generic_boss_controllerAI(creature)
+    {
+        OtherBossData = DATA_DALRONN;
+        Enraged = false;
+    }
 
-        struct boss_skarvald_the_constructorAI : public generic_boss_controllerAI
+    void Reset() override
+    {
+        Enraged = false;
+        generic_boss_controllerAI::Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        generic_boss_controllerAI::JustEngagedWith(who);
+
+        if (!IsInGhostForm)
+            Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_SKARVALD_CHARGE, 5s);
+        events.ScheduleEvent(EVENT_STONE_STRIKE, 10s);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
         {
-            boss_skarvald_the_constructorAI(Creature* creature) : generic_boss_controllerAI(creature)
-            {
-                OtherBossData = DATA_DALRONN;
-                Enraged = false;
-            }
-
-            void Reset() override
-            {
-                Enraged = false;
-                generic_boss_controllerAI::Reset();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                generic_boss_controllerAI::JustEngagedWith(who);
-
-                if (!IsInGhostForm)
-                    Talk(SAY_AGGRO);
-
-                events.ScheduleEvent(EVENT_SKARVALD_CHARGE, 5s);
-                events.ScheduleEvent(EVENT_STONE_STRIKE, 10s);
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_SKARVALD_CHARGE:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SkarvaldChargePredicate(me)))
-                            DoCast(target, SPELL_CHARGE);
-                        events.ScheduleEvent(EVENT_CHARGE, 5s, 10s);
-                        break;
-                    case EVENT_STONE_STRIKE:
-                        DoCastVictim(SPELL_STONE_STRIKE);
-                        events.ScheduleEvent(EVENT_STONE_STRIKE, 5s, 10s);
-                        break;
-                    default:
-                        generic_boss_controllerAI::ExecuteEvent(eventId);
-                        break;
-                }
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (!Enraged && !IsInGhostForm && me->HealthBelowPctDamaged(15, damage))
-                {
-                    Enraged = true;
-                    DoCast(me, SPELL_ENRAGE);
-                }
-            }
-            private:
-                bool Enraged;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetUtgardeKeepAI<boss_skarvald_the_constructorAI>(creature);
+            case EVENT_SKARVALD_CHARGE:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SkarvaldChargePredicate(me)))
+                    DoCast(target, SPELL_CHARGE);
+                events.ScheduleEvent(EVENT_CHARGE, 5s, 10s);
+                break;
+            case EVENT_STONE_STRIKE:
+                DoCastVictim(SPELL_STONE_STRIKE);
+                events.ScheduleEvent(EVENT_STONE_STRIKE, 5s, 10s);
+                break;
+            default:
+                generic_boss_controllerAI::ExecuteEvent(eventId);
+                break;
         }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!Enraged && !IsInGhostForm && me->HealthBelowPctDamaged(15, damage))
+        {
+            Enraged = true;
+            DoCast(me, SPELL_ENRAGE);
+        }
+    }
+    private:
+        bool Enraged;
 };
 
-class boss_dalronn_the_controller : public CreatureScript
+struct boss_dalronn_the_controller : public generic_boss_controllerAI
 {
-    public:
-        boss_dalronn_the_controller() : CreatureScript("boss_dalronn_the_controller") { }
+    boss_dalronn_the_controller(Creature* creature) : generic_boss_controllerAI(creature)
+    {
+        OtherBossData = DATA_SKARVALD;
+    }
 
-        struct boss_dalronn_the_controllerAI : public generic_boss_controllerAI
+    void JustEngagedWith(Unit* who) override
+    {
+        generic_boss_controllerAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_SHADOW_BOLT, 1s);
+        events.ScheduleEvent(EVENT_DEBILITATE, 5s);
+
+        if (!IsInGhostForm)
+            events.ScheduleEvent(EVENT_DELAYED_AGGRO_SAY, 5s);
+
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
         {
-            boss_dalronn_the_controllerAI(Creature* creature) : generic_boss_controllerAI(creature)
-            {
-                OtherBossData = DATA_SKARVALD;
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                generic_boss_controllerAI::JustEngagedWith(who);
-
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1s);
-                events.ScheduleEvent(EVENT_DEBILITATE, 5s);
-
-                if (!IsInGhostForm)
-                    events.ScheduleEvent(EVENT_DELAYED_AGGRO_SAY, 5s);
-
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s);
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_SHADOW_BOLT:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
-                            DoCast(target, SPELL_SHADOW_BOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2100ms); //give a 100ms pause to try cast other spells
-                        break;
-                    case EVENT_DEBILITATE:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
-                            DoCast(target, SPELL_DEBILITATE);
-                        events.ScheduleEvent(EVENT_DEBILITATE, 5s, 10s);
-                        break;
-                    case EVENT_SUMMON_SKELETONS:
-                        DoCast(me, SPELL_SUMMON_SKELETONS);
-                        events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s, 30s);
-                        break;
-                    case EVENT_DELAYED_AGGRO_SAY:
-                        Talk(SAY_AGGRO);
-                        break;
-                    default:
-                        generic_boss_controllerAI::ExecuteEvent(eventId);
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetUtgardeKeepAI<boss_dalronn_the_controllerAI>(creature);
+            case EVENT_SHADOW_BOLT:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
+                    DoCast(target, SPELL_SHADOW_BOLT);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2100ms); //give a 100ms pause to try cast other spells
+                break;
+            case EVENT_DEBILITATE:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
+                    DoCast(target, SPELL_DEBILITATE);
+                events.ScheduleEvent(EVENT_DEBILITATE, 5s, 10s);
+                break;
+            case EVENT_SUMMON_SKELETONS:
+                DoCast(me, SPELL_SUMMON_SKELETONS);
+                events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s, 30s);
+                break;
+            case EVENT_DELAYED_AGGRO_SAY:
+                Talk(SAY_AGGRO);
+                break;
+            default:
+                generic_boss_controllerAI::ExecuteEvent(eventId);
+                break;
         }
+    }
 };
 
 void AddSC_boss_skarvald_dalronn()
 {
-    new boss_skarvald_the_constructor();
-    new boss_dalronn_the_controller();
+    RegisterUtgardeKeepCreatureAI(boss_skarvald_the_constructor);
+    RegisterUtgardeKeepCreatureAI(boss_dalronn_the_controller);
 }

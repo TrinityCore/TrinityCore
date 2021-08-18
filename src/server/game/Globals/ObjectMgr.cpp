@@ -5953,8 +5953,8 @@ void ObjectMgr::LoadPageTexts()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID FROM page_text");
+    //                                               0    1      2
+    QueryResult result = WorldDatabase.Query("SELECT ID, `Text`, NextPageID FROM page_text");
 
     if (!result)
     {
@@ -6005,8 +6005,8 @@ void ObjectMgr::LoadPageTextLocales()
 
     _pageTextLocaleStore.clear();                             // need for reload case
 
-    //                                               0   1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text FROM page_text_locale");
+    //                                               0   1        2
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale");
 
     if (!result)
         return;
@@ -9755,8 +9755,8 @@ void ObjectMgr::LoadBroadcastTexts()
 
     _broadcastTextStore.clear(); // for reload case
 
-    //                                               0   1           2     3      4         5         6         7            8            9            10              11        12
-    QueryResult result = WorldDatabase.Query("SELECT ID, LanguageID, Text, Text1, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, EmoteDelay3, SoundEntriesID, EmotesID, Flags FROM broadcast_text");
+    //                                               0   1            2      3      4         5         6         7            8            9            10              11        12
+    QueryResult result = WorldDatabase.Query("SELECT ID, LanguageID, `Text`, Text1, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, EmoteDelay3, SoundEntriesID, EmotesID, Flags FROM broadcast_text");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast texts. DB table `broadcast_text` is empty.");
@@ -9838,8 +9838,8 @@ void ObjectMgr::LoadBroadcastTextLocales()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text, Text1 FROM broadcast_text_locale");
+    //                                               0   1        2     3
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text`, Text1 FROM broadcast_text_locale");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");

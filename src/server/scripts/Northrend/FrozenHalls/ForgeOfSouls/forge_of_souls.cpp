@@ -76,210 +76,188 @@ enum ForgeSpells
     SPELL_LETHARGY = 69133
 };
 
-class npc_sylvanas_fos : public CreatureScript
+struct npc_sylvanas_fos : public ScriptedAI
 {
-public:
-    npc_sylvanas_fos() : CreatureScript("npc_sylvanas_fos") { }
-
-    struct npc_sylvanas_fosAI : public ScriptedAI
+    npc_sylvanas_fos(Creature* creature) : ScriptedAI(creature)
     {
-        npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
+        Initialize();
+        instance = me->GetInstanceScript();
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void Initialize()
+    {
+        phase = PHASE_NORMAL;
+    }
+
+    InstanceScript* instance;
+
+    EventMap events;
+    Phase phase;
+
+    void Reset() override
+    {
+        events.Reset();
+        Initialize();
+    }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        if (menuId == MENU_ID_SYLVANAS && gossipListId == GOSSIP_OPTION_ID)
         {
-            Initialize();
-            instance = me->GetInstanceScript();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        }
-
-        void Initialize()
-        {
-            phase = PHASE_NORMAL;
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
-        Phase phase;
-
-        void Reset() override
-        {
+            CloseGossipMenuFor(player);
+            phase = PHASE_INTRO;
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             events.Reset();
-            Initialize();
+            events.ScheduleEvent(EVENT_INTRO_1, 1s);
         }
+        return false;
+    }
 
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-        {
-            if (menuId == MENU_ID_SYLVANAS && gossipListId == GOSSIP_OPTION_ID)
-            {
-                CloseGossipMenuFor(player);
-                phase = PHASE_INTRO;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                events.Reset();
-                events.ScheduleEvent(EVENT_INTRO_1, 1s);
-            }
-            return false;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (phase == PHASE_INTRO)
-            {
-                events.Update(diff);
-                switch (events.ExecuteEvent())
-                {
-                    case EVENT_INTRO_1:
-                        Talk(SAY_SYLVANAS_INTRO_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 11500ms);
-                        break;
-
-                    case EVENT_INTRO_2:
-                        Talk(SAY_SYLVANAS_INTRO_2);
-                        events.ScheduleEvent(EVENT_INTRO_3, 10500ms);
-                        break;
-
-                    case EVENT_INTRO_3:
-                        Talk(SAY_SYLVANAS_INTRO_3);
-                        events.ScheduleEvent(EVENT_INTRO_4, 9500ms);
-                        break;
-
-                    case EVENT_INTRO_4:
-                        Talk(SAY_SYLVANAS_INTRO_4);
-                        events.ScheduleEvent(EVENT_INTRO_5, 10500ms);
-                        break;
-
-                    case EVENT_INTRO_5:
-                        Talk(SAY_SYLVANAS_INTRO_5);
-                        events.ScheduleEvent(EVENT_INTRO_6, 9500ms);
-                        break;
-
-                    case EVENT_INTRO_6:
-                        Talk(SAY_SYLVANAS_INTRO_6);
-                        // End of Intro
-                        phase = PHASE_NORMAL;
-                        break;
-                }
-            }
-
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return GetForgeOfSoulsAI<npc_sylvanas_fosAI>(creature);
+        if (phase == PHASE_INTRO)
+        {
+            events.Update(diff);
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_INTRO_1:
+                    Talk(SAY_SYLVANAS_INTRO_1);
+                    events.ScheduleEvent(EVENT_INTRO_2, 11500ms);
+                    break;
+
+                case EVENT_INTRO_2:
+                    Talk(SAY_SYLVANAS_INTRO_2);
+                    events.ScheduleEvent(EVENT_INTRO_3, 10500ms);
+                    break;
+
+                case EVENT_INTRO_3:
+                    Talk(SAY_SYLVANAS_INTRO_3);
+                    events.ScheduleEvent(EVENT_INTRO_4, 9500ms);
+                    break;
+
+                case EVENT_INTRO_4:
+                    Talk(SAY_SYLVANAS_INTRO_4);
+                    events.ScheduleEvent(EVENT_INTRO_5, 10500ms);
+                    break;
+
+                case EVENT_INTRO_5:
+                    Talk(SAY_SYLVANAS_INTRO_5);
+                    events.ScheduleEvent(EVENT_INTRO_6, 9500ms);
+                    break;
+
+                case EVENT_INTRO_6:
+                    Talk(SAY_SYLVANAS_INTRO_6);
+                    // End of Intro
+                    phase = PHASE_NORMAL;
+                    break;
+            }
+        }
+
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+        DoMeleeAttackIfReady();
     }
 };
 
-class npc_jaina_fos : public CreatureScript
+struct npc_jaina_fos: public ScriptedAI
 {
-public:
-    npc_jaina_fos() : CreatureScript("npc_jaina_fos") { }
-
-    struct npc_jaina_fosAI: public ScriptedAI
+    npc_jaina_fos(Creature* creature) : ScriptedAI(creature)
     {
-        npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
+        Initialize();
+        instance = me->GetInstanceScript();
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void Initialize()
+    {
+        phase = PHASE_NORMAL;
+    }
+
+    InstanceScript* instance;
+
+    EventMap events;
+    Phase phase;
+
+    void Reset() override
+    {
+        events.Reset();
+        Initialize();
+    }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        if (menuId == MENU_ID_JAINA && gossipListId == GOSSIP_OPTION_ID)
         {
-            Initialize();
-            instance = me->GetInstanceScript();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        }
-
-        void Initialize()
-        {
-            phase = PHASE_NORMAL;
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
-        Phase phase;
-
-        void Reset() override
-        {
+            CloseGossipMenuFor(player);
+            phase = PHASE_INTRO;
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             events.Reset();
-            Initialize();
+            events.ScheduleEvent(EVENT_INTRO_1, 1s);
         }
+        return false;
+    }
 
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-        {
-            if (menuId == MENU_ID_JAINA && gossipListId == GOSSIP_OPTION_ID)
-            {
-                CloseGossipMenuFor(player);
-                phase = PHASE_INTRO;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                events.Reset();
-                events.ScheduleEvent(EVENT_INTRO_1, 1s);
-            }
-            return false;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (phase == PHASE_INTRO)
-            {
-                events.Update(diff);
-                switch (events.ExecuteEvent())
-                {
-                    case EVENT_INTRO_1:
-                        Talk(SAY_JAINA_INTRO_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 8s);
-                        break;
-
-                    case EVENT_INTRO_2:
-                        Talk(SAY_JAINA_INTRO_2);
-                        events.ScheduleEvent(EVENT_INTRO_3, 8500ms);
-                        break;
-
-                    case EVENT_INTRO_3:
-                        Talk(SAY_JAINA_INTRO_3);
-                        events.ScheduleEvent(EVENT_INTRO_4, 8s);
-                        break;
-
-                    case EVENT_INTRO_4:
-                        Talk(SAY_JAINA_INTRO_4);
-                        events.ScheduleEvent(EVENT_INTRO_5, 10s);
-                        break;
-
-                    case EVENT_INTRO_5:
-                        Talk(SAY_JAINA_INTRO_5);
-                        events.ScheduleEvent(EVENT_INTRO_6, 8s);
-                        break;
-
-                    case EVENT_INTRO_6:
-                        Talk(SAY_JAINA_INTRO_6);
-                        events.ScheduleEvent(EVENT_INTRO_7, 12s);
-                        break;
-
-                    case EVENT_INTRO_7:
-                        Talk(SAY_JAINA_INTRO_7);
-                        events.ScheduleEvent(EVENT_INTRO_8, 8s);
-                        break;
-
-                    case EVENT_INTRO_8:
-                        Talk(SAY_JAINA_INTRO_8);
-                        // End of Intro
-                        phase = PHASE_NORMAL;
-                        break;
-                }
-            }
-
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return GetForgeOfSoulsAI<npc_jaina_fosAI>(creature);
+        if (phase == PHASE_INTRO)
+        {
+            events.Update(diff);
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_INTRO_1:
+                    Talk(SAY_JAINA_INTRO_1);
+                    events.ScheduleEvent(EVENT_INTRO_2, 8s);
+                    break;
+
+                case EVENT_INTRO_2:
+                    Talk(SAY_JAINA_INTRO_2);
+                    events.ScheduleEvent(EVENT_INTRO_3, 8500ms);
+                    break;
+
+                case EVENT_INTRO_3:
+                    Talk(SAY_JAINA_INTRO_3);
+                    events.ScheduleEvent(EVENT_INTRO_4, 8s);
+                    break;
+
+                case EVENT_INTRO_4:
+                    Talk(SAY_JAINA_INTRO_4);
+                    events.ScheduleEvent(EVENT_INTRO_5, 10s);
+                    break;
+
+                case EVENT_INTRO_5:
+                    Talk(SAY_JAINA_INTRO_5);
+                    events.ScheduleEvent(EVENT_INTRO_6, 8s);
+                    break;
+
+                case EVENT_INTRO_6:
+                    Talk(SAY_JAINA_INTRO_6);
+                    events.ScheduleEvent(EVENT_INTRO_7, 12s);
+                    break;
+
+                case EVENT_INTRO_7:
+                    Talk(SAY_JAINA_INTRO_7);
+                    events.ScheduleEvent(EVENT_INTRO_8, 8s);
+                    break;
+
+                case EVENT_INTRO_8:
+                    Talk(SAY_JAINA_INTRO_8);
+                    // End of Intro
+                    phase = PHASE_NORMAL;
+                    break;
+            }
+        }
+
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -310,7 +288,7 @@ class spell_forge_of_souls_soul_sickness : public AuraScript
 
 void AddSC_forge_of_souls()
 {
-    new npc_sylvanas_fos();
-    new npc_jaina_fos();
+    RegisterForgeOfSoulsCreatureAI(npc_sylvanas_fos);
+    RegisterForgeOfSoulsCreatureAI(npc_jaina_fos);
     RegisterSpellScript(spell_forge_of_souls_soul_sickness);
 }

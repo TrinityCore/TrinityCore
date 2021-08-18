@@ -846,7 +846,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     lichking->AI()->EnterEvadeMode(); // event failed
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth() && _invincibility)
                     damage = me->GetHealth() - 1;
@@ -1196,7 +1196,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 _despawn = false;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
@@ -2477,7 +2477,7 @@ class npc_uther_quel_delar : public CreatureScript
                 _events.ScheduleEvent(EVENT_UTHER_1, 1ms);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;

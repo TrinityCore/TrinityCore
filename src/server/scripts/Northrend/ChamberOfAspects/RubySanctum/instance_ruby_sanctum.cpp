@@ -30,7 +30,7 @@ Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0
 BossBoundaryData const boundaries =
 {
     { DATA_GENERAL_ZARITHRIAN, new EllipseBoundary(Position(3013.409f, 529.492f), 45.0, 100.0) },
-    { DATA_HALION,             new CircleBoundary(Position(3156.037f, 533.2656f), 48.5)        }
+    { DATA_HALION,             new CircleBoundary(Position(3156.037f, 533.2656f), 52.5)        }
 };
 
 DoorData const doorData[] =

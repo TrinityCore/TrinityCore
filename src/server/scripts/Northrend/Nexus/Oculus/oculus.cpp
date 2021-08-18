@@ -119,585 +119,464 @@ enum Says
     WHISPER_GPS_END                   = 10
 };
 
-class npc_verdisa_beglaristrasz_eternos : public CreatureScript
+struct npc_verdisa_beglaristrasz_eternos : public ScriptedAI
 {
-    public:
-        npc_verdisa_beglaristrasz_eternos() : CreatureScript("npc_verdisa_beglaristrasz_eternos") { }
+    npc_verdisa_beglaristrasz_eternos(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_verdisa_beglaristrasz_eternosAI : public ScriptedAI
+    void StoreEssence(Player* player, uint32 itemId)
+    {
+        /// @todo: implement with spells
+        uint32 count = 1;
+        ItemPosCountVec dest;
+        uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count);
+        if (msg == EQUIP_ERR_OK)
+            if (Item* item = player->StoreNewItem(dest, itemId, true))
+                player->SendNewItem(item, count, true, true);
+    }
+
+    void RemoveEssence(Player* player, uint32 itemId)
+    {
+        player->DestroyItemCount(itemId, 1, true, false);
+    }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        switch (menuId)
         {
-            npc_verdisa_beglaristrasz_eternosAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void StoreEssence(Player* player, uint32 itemId)
-            {
-                /// @todo: implement with spells
-                uint32 count = 1;
-                ItemPosCountVec dest;
-                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count);
-                if (msg == EQUIP_ERR_OK)
-                    if (Item* item = player->StoreNewItem(dest, itemId, true))
-                        player->SendNewItem(item, count, true, true);
-            }
-
-            void RemoveEssence(Player* player, uint32 itemId)
-            {
-                player->DestroyItemCount(itemId, 1, true, false);
-            }
-
-            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-            {
-                switch (menuId)
+            case GOSSIP_MENU_VERDISA:
+                if (gossipListId >= 1 && gossipListId <= 3)
                 {
-                    case GOSSIP_MENU_VERDISA:
-                        if (gossipListId >= 1 && gossipListId <= 3)
-                        {
-                            if (gossipListId == 2)
-                                RemoveEssence(player, ITEM_AMBER_ESSENCE);
-                            else if (gossipListId == 3)
-                                RemoveEssence(player, ITEM_RUBY_ESSENCE);
+                    if (gossipListId == 2)
+                        RemoveEssence(player, ITEM_AMBER_ESSENCE);
+                    else if (gossipListId == 3)
+                        RemoveEssence(player, ITEM_RUBY_ESSENCE);
 
-                            StoreEssence(player, ITEM_EMERALD_ESSENCE);
-                            break;
-                        }
-                        return false;
-                    case GOSSIP_MENU_ETERNOS:
-                        if (gossipListId >= 1 && gossipListId <= 3)
-                        {
-                            if (gossipListId == 2)
-                                RemoveEssence(player, ITEM_EMERALD_ESSENCE);
-                            else if (gossipListId == 3)
-                                RemoveEssence(player, ITEM_RUBY_ESSENCE);
-
-                            StoreEssence(player, ITEM_AMBER_ESSENCE);
-                            break;
-                        }
-                        return false;
-                    case GOSSIP_MENU_BELGARISTRASZ:
-                        if (gossipListId <= 2)
-                        {
-                            if (gossipListId == 1)
-                                RemoveEssence(player, ITEM_AMBER_ESSENCE);
-                            else if (gossipListId == 2)
-                                RemoveEssence(player, ITEM_EMERALD_ESSENCE);
-
-                            StoreEssence(player, ITEM_RUBY_ESSENCE);
-                            break;
-                        }
-                        return false;
-                    default:
-                        return false;
+                    StoreEssence(player, ITEM_EMERALD_ESSENCE);
+                    break;
                 }
-                player->PlayerTalkClass->SendCloseGossip();
                 return false;
-            }
+            case GOSSIP_MENU_ETERNOS:
+                if (gossipListId >= 1 && gossipListId <= 3)
+                {
+                    if (gossipListId == 2)
+                        RemoveEssence(player, ITEM_EMERALD_ESSENCE);
+                    else if (gossipListId == 3)
+                        RemoveEssence(player, ITEM_RUBY_ESSENCE);
 
-            void MovementInform(uint32 /*type*/, uint32 id) override
-            {
-                if (id != POINT_MOVE_OUT)
-                    return;
+                    StoreEssence(player, ITEM_AMBER_ESSENCE);
+                    break;
+                }
+                return false;
+            case GOSSIP_MENU_BELGARISTRASZ:
+                if (gossipListId <= 2)
+                {
+                    if (gossipListId == 1)
+                        RemoveEssence(player, ITEM_AMBER_ESSENCE);
+                    else if (gossipListId == 2)
+                        RemoveEssence(player, ITEM_EMERALD_ESSENCE);
 
-                // When Belgaristraz finish his moving say grateful text
-                if (me->GetEntry() == NPC_BELGARISTRASZ)
-                    Talk(SAY_BELGARISTRASZ);
-
-                // The gossip flag should activate when Drakos die and not from DB
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetOculusAI<npc_verdisa_beglaristrasz_eternosAI>(creature);
+                    StoreEssence(player, ITEM_RUBY_ESSENCE);
+                    break;
+                }
+                return false;
+            default:
+                return false;
         }
+        player->PlayerTalkClass->SendCloseGossip();
+        return false;
+    }
+
+    void MovementInform(uint32 /*type*/, uint32 id) override
+    {
+        if (id != POINT_MOVE_OUT)
+            return;
+
+        // When Belgaristraz finish his moving say grateful text
+        if (me->GetEntry() == NPC_BELGARISTRASZ)
+            Talk(SAY_BELGARISTRASZ);
+
+        // The gossip flag should activate when Drakos die and not from DB
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    }
 };
 
-class npc_image_belgaristrasz : public CreatureScript
+struct npc_image_belgaristrasz : public ScriptedAI
 {
-    public:
-        npc_image_belgaristrasz() : CreatureScript("npc_image_belgaristrasz") { }
+    npc_image_belgaristrasz(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_image_belgaristraszAI : public ScriptedAI
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (summoner->GetEntry() == NPC_VAROS)
         {
-            npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(WorldObject* summoner) override
-            {
-                if (summoner->GetEntry() == NPC_VAROS)
-                {
-                   Talk(SAY_VAROS);
-                   me->DespawnOrUnsummon(60s);
-                }
-
-                if (summoner->GetEntry() == NPC_UROM)
-                {
-                   Talk(SAY_UROM);
-                   me->DespawnOrUnsummon(60s);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetOculusAI<npc_image_belgaristraszAI>(creature);
+           Talk(SAY_VAROS);
+           me->DespawnOrUnsummon(60s);
         }
+
+        if (summoner->GetEntry() == NPC_UROM)
+        {
+           Talk(SAY_UROM);
+           me->DespawnOrUnsummon(60s);
+        }
+    }
 };
 
-class npc_ruby_emerald_amber_drake : public CreatureScript
+struct npc_ruby_emerald_amber_drake : public VehicleAI
 {
-    public:
-        npc_ruby_emerald_amber_drake() : CreatureScript("npc_ruby_emerald_amber_drake") { }
+    npc_ruby_emerald_amber_drake(Creature* creature) : VehicleAI(creature)
+    {
+        Initialize();
+        _instance = creature->GetInstanceScript();
+    }
 
-        struct npc_ruby_emerald_amber_drakeAI : public VehicleAI
+    void Initialize()
+    {
+        _healthWarning = true;
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        Initialize();
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+            if (spellInfo->Id == SPELL_GPS)
+            {
+                if (_instance->GetBossState(DATA_EREGOS) == DONE)
+                    Talk(WHISPER_GPS_END, creator);
+                else if (_instance->GetBossState(DATA_UROM) == DONE)
+                    Talk(WHISPER_GPS_EREGOS, creator);
+                else if (_instance->GetBossState(DATA_VAROS) == DONE)
+                    Talk(WHISPER_GPS_UROM, creator);
+                else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_NO_CONSTRUCT)
+                    Talk(WHISPER_GPS_VAROS, creator);
+                else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_ONE_CONSTRUCT)
+                    Talk(WHISPER_GPS_1_CONSTRUCT, creator);
+                else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_MORE_CONSTRUCT)
+                    Talk(WHISPER_GPS_10_CONSTRUCTS, creator);
+            }
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (_instance->GetBossState(DATA_EREGOS) == IN_PROGRESS)
+            if (Creature* eregos = me->FindNearestCreature(NPC_EREGOS, 450.0f, true))
+                eregos->DespawnOrUnsummon(); // On retail this kills abusive call of drake during engaged Eregos
+
+        me->SetFacingToObject(summoner);
+
+        switch (me->GetEntry())
         {
-            npc_ruby_emerald_amber_drakeAI(Creature* creature) : VehicleAI(creature)
-            {
-                Initialize();
-                _instance = creature->GetInstanceScript();
-            }
-
-            void Initialize()
-            {
-                _healthWarning = true;
-            }
-
-            void Reset() override
-            {
-                _events.Reset();
-                Initialize();
-            }
-
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-            {
-                if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                    if (spellInfo->Id == SPELL_GPS)
-                    {
-                        if (_instance->GetBossState(DATA_EREGOS) == DONE)
-                            Talk(WHISPER_GPS_END, creator);
-                        else if (_instance->GetBossState(DATA_UROM) == DONE)
-                            Talk(WHISPER_GPS_EREGOS, creator);
-                        else if (_instance->GetBossState(DATA_VAROS) == DONE)
-                            Talk(WHISPER_GPS_UROM, creator);
-                        else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_NO_CONSTRUCT)
-                            Talk(WHISPER_GPS_VAROS, creator);
-                        else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_ONE_CONSTRUCT)
-                            Talk(WHISPER_GPS_1_CONSTRUCT, creator);
-                        else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_MORE_CONSTRUCT)
-                            Talk(WHISPER_GPS_10_CONSTRUCTS, creator);
-                    }
-            }
-
-            void IsSummonedBy(WorldObject* summoner) override
-            {
-                if (_instance->GetBossState(DATA_EREGOS) == IN_PROGRESS)
-                    if (Creature* eregos = me->FindNearestCreature(NPC_EREGOS, 450.0f, true))
-                        eregos->DespawnOrUnsummon(); // On retail this kills abusive call of drake during engaged Eregos
-
-                me->SetFacingToObject(summoner);
-
-                switch (me->GetEntry())
-                {
-                    case NPC_RUBY_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE, true);
-                        break;
-                    case NPC_EMERALD_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE, true);
-                        break;
-                    case NPC_AMBER_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE, true);
-                        break;
-                    default:
-                        return;
-                }
-
-                Position pos = summoner->GetPosition();
-                me->GetMotionMaster()->MovePoint(POINT_LAND, pos);
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type == POINT_MOTION_TYPE && id == POINT_LAND)
-                    me->SetDisableGravity(false); // Needed this for proper animation after spawn, the summon in air fall to ground bug leave no other option for now, if this isn't used the drake will only walk on move.
-            }
-
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
-            {
-                if (passenger->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (apply)
-                {
-                    if (_instance->GetBossState(DATA_VAROS) != DONE)
-                        _events.ScheduleEvent(EVENT_WELCOME, 10s);
-
-                    else if (_instance->GetBossState(DATA_UROM) == DONE)
-                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10s);
-                }
-                else
-                {
-                    _events.Reset();
-                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2s);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (_healthWarning)
-                {
-                    if (me->GetHealthPct() <= 40.0f)
-                        _events.ScheduleEvent(EVENT_LOW_HEALTH, 0ms);
-                }
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_WELCOME:
-                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                                Talk(WHISPER_DRAKES_WELCOME, creator);
-                            _events.ScheduleEvent(EVENT_ABILITIES, 5s);
-                            break;
-                        case EVENT_ABILITIES:
-                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                                Talk(WHISPER_DRAKES_ABILITIES, creator);
-                            break;
-                        case EVENT_SPECIAL_ATTACK:
-                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                                Talk(WHISPER_DRAKES_SPECIAL, creator);
-                            break;
-                        case EVENT_LOW_HEALTH:
-                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                                Talk(WHISPER_DRAKES_LOWHEALTH, creator);
-                            _healthWarning = false;
-                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25s);
-                            break;
-                        case EVENT_RESET_LOW_HEALTH:
-                            _healthWarning = true;
-                            break;
-                        case EVENT_TAKE_OFF:
-                        {
-                            me->DespawnOrUnsummon(2050ms);
-                            me->SetOrientation(2.5f);
-                            me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
-                            Talk(SAY_DRAKES_TAKEOFF);
-                            Position pos = me->GetPosition();
-                            Position offset = { 10.0f, 10.0f, 12.0f, 0.0f };
-                            pos.RelocateOffset(offset);
-                            me->SetDisableGravity(true);
-                            me->GetMotionMaster()->MovePoint(POINT_TAKE_OFF, pos);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            };
-
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
-            bool _healthWarning;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetOculusAI<npc_ruby_emerald_amber_drakeAI>(creature);
+            case NPC_RUBY_DRAKE_VEHICLE:
+                me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE, true);
+                break;
+            case NPC_EMERALD_DRAKE_VEHICLE:
+                me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE, true);
+                break;
+            case NPC_AMBER_DRAKE_VEHICLE:
+                me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE, true);
+                break;
+            default:
+                return;
         }
+
+        Position pos = summoner->GetPosition();
+        me->GetMotionMaster()->MovePoint(POINT_LAND, pos);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == POINT_MOTION_TYPE && id == POINT_LAND)
+            me->SetDisableGravity(false); // Needed this for proper animation after spawn, the summon in air fall to ground bug leave no other option for now, if this isn't used the drake will only walk on move.
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (passenger->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (apply)
+        {
+            if (_instance->GetBossState(DATA_VAROS) != DONE)
+                _events.ScheduleEvent(EVENT_WELCOME, 10s);
+
+            else if (_instance->GetBossState(DATA_UROM) == DONE)
+                _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10s);
+        }
+        else
+        {
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_TAKE_OFF, 2s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_healthWarning)
+        {
+            if (me->GetHealthPct() <= 40.0f)
+                _events.ScheduleEvent(EVENT_LOW_HEALTH, 0ms);
+        }
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_WELCOME:
+                    if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                        Talk(WHISPER_DRAKES_WELCOME, creator);
+                    _events.ScheduleEvent(EVENT_ABILITIES, 5s);
+                    break;
+                case EVENT_ABILITIES:
+                    if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                        Talk(WHISPER_DRAKES_ABILITIES, creator);
+                    break;
+                case EVENT_SPECIAL_ATTACK:
+                    if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                        Talk(WHISPER_DRAKES_SPECIAL, creator);
+                    break;
+                case EVENT_LOW_HEALTH:
+                    if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                        Talk(WHISPER_DRAKES_LOWHEALTH, creator);
+                    _healthWarning = false;
+                    _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25s);
+                    break;
+                case EVENT_RESET_LOW_HEALTH:
+                    _healthWarning = true;
+                    break;
+                case EVENT_TAKE_OFF:
+                {
+                    me->DespawnOrUnsummon(2050ms);
+                    me->SetOrientation(2.5f);
+                    me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
+                    Talk(SAY_DRAKES_TAKEOFF);
+                    Position pos = me->GetPosition();
+                    Position offset = { 10.0f, 10.0f, 12.0f, 0.0f };
+                    pos.RelocateOffset(offset);
+                    me->SetDisableGravity(true);
+                    me->GetMotionMaster()->MovePoint(POINT_TAKE_OFF, pos);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    };
+
+private:
+    InstanceScript* _instance;
+    EventMap _events;
+    bool _healthWarning;
 };
 
 // 49345 - Call Emerald Drake
 // 49461 - Call Amber Drake
 // 49462 - Call Ruby Drake
-class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
+class spell_oculus_call_ruby_emerald_amber_drake : public SpellScript
 {
-    public:
-        spell_oculus_call_ruby_emerald_amber_drake() : SpellScriptLoader("spell_oculus_call_ruby_emerald_amber_drake") { }
+    PrepareSpellScript(spell_oculus_call_ruby_emerald_amber_drake);
 
-        class spell_oculus_call_ruby_emerald_amber_drake_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_oculus_call_ruby_emerald_amber_drake_SpellScript);
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position
+        Position const offset = { 0.0f, 0.0f, 12.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
 
-            void SetDest(SpellDestination& dest)
-            {
-                // Adjust effect summon position
-                Position const offset = { 0.0f, 0.0f, 12.0f, 0.0f };
-                dest.RelocateOffset(offset);
-            }
-
-            void Register() override
-            {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_oculus_call_ruby_emerald_amber_drake_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_oculus_call_ruby_emerald_amber_drake_SpellScript();
-        }
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_oculus_call_ruby_emerald_amber_drake::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
+    }
 };
 
 // 49427 - Ride Emerald Drake Que
 // 49459 - Ride Amber Drake Que
 // 49463 - Ride Ruby Drake Que
-class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
+class spell_oculus_ride_ruby_emerald_amber_drake_que : public AuraScript
 {
-    public:
-        spell_oculus_ride_ruby_emerald_amber_drake_que() : SpellScriptLoader("spell_oculus_ride_ruby_emerald_amber_drake_que") { }
+    PrepareAuraScript(spell_oculus_ride_ruby_emerald_amber_drake_que);
 
-        class spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript);
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        // caster of the triggered spell is wrong for an unknown reason, handle it here correctly
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            GetTarget()->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+    }
 
-            void HandlePeriodic(AuraEffect const* aurEff)
-            {
-                // caster of the triggered spell is wrong for an unknown reason, handle it here correctly
-                PreventDefaultAction();
-                if (Unit* caster = GetCaster())
-                    GetTarget()->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_oculus_ride_ruby_emerald_amber_drake_que::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
 };
 
 // 50240 - Evasive Maneuvers
-class spell_oculus_evasive_maneuvers : public SpellScriptLoader
+class spell_oculus_evasive_maneuvers : public AuraScript
 {
-    public:
-        spell_oculus_evasive_maneuvers() : SpellScriptLoader("spell_oculus_evasive_maneuvers") { }
+    PrepareAuraScript(spell_oculus_evasive_maneuvers);
 
-        class spell_oculus_evasive_maneuvers_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_oculus_evasive_maneuvers_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
-            }
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->RemoveAuraFromStack(SPELL_RUBY_EVASIVE_CHARGES);
+        if (!GetTarget()->HasAura(SPELL_RUBY_EVASIVE_CHARGES))
+            Remove();
+    }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->RemoveAuraFromStack(SPELL_RUBY_EVASIVE_CHARGES);
-                if (!GetTarget()->HasAura(SPELL_RUBY_EVASIVE_CHARGES))
-                    Remove();
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_oculus_evasive_maneuvers_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_oculus_evasive_maneuvers_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_oculus_evasive_maneuvers::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
 };
 
 // 49840 - Shock Lance
-class spell_oculus_shock_lance : public SpellScriptLoader
+class spell_oculus_shock_lance : public SpellScript
 {
-    public:
-        spell_oculus_shock_lance() : SpellScriptLoader("spell_oculus_shock_lance") { }
+    PrepareSpellScript(spell_oculus_shock_lance);
 
-        class spell_oculus_shock_lance_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
+    }
+
+    void CalcDamage(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = GetEffectValue();
+        if (Unit* target = GetHitUnit())
         {
-            PrepareSpellScript(spell_oculus_shock_lance_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            if (AuraEffect const* shockCharges = target->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
             {
-                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
+                damage += shockCharges->GetAmount();
+                shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
             }
-
-            void CalcDamage(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetEffectValue();
-                if (Unit* target = GetHitUnit())
-                {
-                    if (AuraEffect const* shockCharges = target->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
-                    {
-                        damage += shockCharges->GetAmount();
-                        shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                    }
-                }
-
-                SetEffectValue(damage);
-            }
-
-            void Register() override
-            {
-                OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_oculus_shock_lance_SpellScript();
         }
+
+        SetEffectValue(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 49838 - Stop Time
-class spell_oculus_stop_time : public SpellScriptLoader
+class spell_oculus_stop_time : public AuraScript
 {
-    public:
-        spell_oculus_stop_time() : SpellScriptLoader("spell_oculus_stop_time") { }
+    PrepareAuraScript(spell_oculus_stop_time);
 
-        class spell_oculus_stop_time_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_oculus_stop_time_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
-            }
+    void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
+        Unit* target = GetTarget();
+        for (uint32 i = 0; i < 5; ++i)
+            caster->CastSpell(target, SPELL_AMBER_SHOCK_CHARGE, true);
+    }
 
-                Unit* target = GetTarget();
-                for (uint32 i = 0; i < 5; ++i)
-                    caster->CastSpell(target, SPELL_AMBER_SHOCK_CHARGE, true);
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_oculus_stop_time_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_oculus_stop_time_AuraScript();
-        }
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_oculus_stop_time::Apply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 49592 - Temporal Rift
-class spell_oculus_temporal_rift : public SpellScriptLoader
+class spell_oculus_temporal_rift : public AuraScript
 {
-    public:
-        spell_oculus_temporal_rift() : SpellScriptLoader("spell_oculus_temporal_rift") { }
+    PrepareAuraScript(spell_oculus_temporal_rift);
 
-        class spell_oculus_temporal_rift_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return;
+
+        int32 amount = aurEff->GetAmount() + damageInfo->GetDamage();
+        if (amount >= 15000)
         {
-            PrepareAuraScript(spell_oculus_temporal_rift_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo || !damageInfo->GetDamage())
-                    return;
-
-                int32 amount = aurEff->GetAmount() + damageInfo->GetDamage();
-                if (amount >= 15000)
-                {
-                    if (Unit* caster = GetCaster())
-                        caster->CastSpell(GetTarget(), SPELL_AMBER_SHOCK_CHARGE, true);
-                    amount -= 15000;
-                }
-
-                const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_oculus_temporal_rift_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_oculus_temporal_rift_AuraScript();
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(GetTarget(), SPELL_AMBER_SHOCK_CHARGE, true);
+            amount -= 15000;
         }
+
+        const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_oculus_temporal_rift::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
+    }
 };
 
 // 50341 - Touch the Nightmare
-class spell_oculus_touch_the_nightmare : public SpellScriptLoader
+class spell_oculus_touch_the_nightmare : public SpellScript
 {
-    public:
-        spell_oculus_touch_the_nightmare() : SpellScriptLoader("spell_oculus_touch_the_nightmare") { }
+    PrepareSpellScript(spell_oculus_touch_the_nightmare);
 
-        class spell_oculus_touch_the_nightmare_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_oculus_touch_the_nightmare_SpellScript);
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        SetHitDamage(int32(GetCaster()->CountPctFromMaxHealth(30)));
+    }
 
-            void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-            {
-                SetHitDamage(int32(GetCaster()->CountPctFromMaxHealth(30)));
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_oculus_touch_the_nightmare_SpellScript::HandleDamageCalc, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_oculus_touch_the_nightmare_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_oculus_touch_the_nightmare::HandleDamageCalc, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 50344 - Dream Funnel
-class spell_oculus_dream_funnel : public SpellScriptLoader
+class spell_oculus_dream_funnel : public AuraScript
 {
-    public:
-        spell_oculus_dream_funnel() : SpellScriptLoader("spell_oculus_dream_funnel") { }
+    PrepareAuraScript(spell_oculus_dream_funnel);
 
-        class spell_oculus_dream_funnel_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_oculus_dream_funnel_AuraScript);
+    void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        if (Unit* caster = GetCaster())
+            amount = int32(caster->CountPctFromMaxHealth(5));
 
-            void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                if (Unit* caster = GetCaster())
-                    amount = int32(caster->CountPctFromMaxHealth(5));
+        canBeRecalculated = false;
+    }
 
-                canBeRecalculated = false;
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_oculus_dream_funnel_AuraScript();
-        }
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
+    }
 };
 
 void AddSC_oculus()
 {
-    new npc_verdisa_beglaristrasz_eternos();
-    new npc_image_belgaristrasz();
-    new npc_ruby_emerald_amber_drake();
-    new spell_oculus_call_ruby_emerald_amber_drake();
-    new spell_oculus_ride_ruby_emerald_amber_drake_que();
-    new spell_oculus_evasive_maneuvers();
-    new spell_oculus_shock_lance();
-    new spell_oculus_stop_time();
-    new spell_oculus_temporal_rift();
-    new spell_oculus_touch_the_nightmare();
-    new spell_oculus_dream_funnel();
+    RegisterOculusCreatureAI(npc_verdisa_beglaristrasz_eternos);
+    RegisterOculusCreatureAI(npc_image_belgaristrasz);
+    RegisterOculusCreatureAI(npc_ruby_emerald_amber_drake);
+    RegisterSpellScript(spell_oculus_call_ruby_emerald_amber_drake);
+    RegisterSpellScript(spell_oculus_ride_ruby_emerald_amber_drake_que);
+    RegisterSpellScript(spell_oculus_evasive_maneuvers);
+    RegisterSpellScript(spell_oculus_shock_lance);
+    RegisterSpellScript(spell_oculus_stop_time);
+    RegisterSpellScript(spell_oculus_temporal_rift);
+    RegisterSpellScript(spell_oculus_touch_the_nightmare);
+    RegisterSpellScript(spell_oculus_dream_funnel);
 }

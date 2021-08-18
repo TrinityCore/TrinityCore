@@ -28,4 +28,6 @@ inline AI* GetTheUnderbogAI(T* obj)
     return GetInstanceAI<AI>(obj, TheUndebogScriptName);
 }
 
+#define RegisterTheUnderbogCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetTheUnderbogAI)
+
 #endif // the_underbog_h__

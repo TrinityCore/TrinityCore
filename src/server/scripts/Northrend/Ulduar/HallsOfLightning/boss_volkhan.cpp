@@ -86,406 +86,384 @@ enum Phases
 /*######
 ## Boss Volkhan
 ######*/
-class boss_volkhan : public CreatureScript
+struct boss_volkhan : public BossAI
 {
-public:
-    boss_volkhan() : CreatureScript("boss_volkhan") { }
-
-    struct boss_volkhanAI : public BossAI
+    boss_volkhan(Creature* creature) : BossAI(creature, DATA_VOLKHAN)
     {
-        boss_volkhanAI(Creature* creature) : BossAI(creature, DATA_VOLKHAN)
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        m_bIsStriking      = false;
+        m_bHasTemper       = false;
+        m_bCanShatterGolem = false;
+        m_uiDelay_Timer    = 1000;
+        m_uiSummonPhase    = 0;
+        GolemsShattered    = 0;
+
+        m_uiHealthAmountModifier = 1;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        _Reset();
+        DespawnGolem();
+        m_lGolemGUIDList.clear();
+        events.SetPhase(PHASE_INTRO);
+        events.ScheduleEvent(EVENT_FORGE_CAST, 2s, 0, PHASE_INTRO);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO);
+        events.SetPhase(PHASE_NORMAL);
+        events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
+        events.ScheduleEvent(EVENT_SHATTERING_STOMP, 0s, 0, PHASE_NORMAL);
+        events.ScheduleEvent(EVENT_SHATTER, 5s, 0, PHASE_NORMAL);
+        BossAI::JustEngagedWith(who);
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (me->Attack(who, true))
         {
-            Initialize();
+            AddThreat(who, 0.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
+
+            if (!m_bHasTemper)
+                me->GetMotionMaster()->MoveChase(who);
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        DespawnGolem();
+
+        _JustDied();
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void DespawnGolem()
+    {
+        if (m_lGolemGUIDList.empty())
+            return;
+
+        for (ObjectGuid guid : m_lGolemGUIDList)
+        {
+            if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
+                if (temp->IsAlive())
+                    temp->DespawnOrUnsummon();
         }
 
-        void Initialize()
-        {
-            m_bIsStriking      = false;
-            m_bHasTemper       = false;
-            m_bCanShatterGolem = false;
-            m_uiDelay_Timer    = 1000;
-            m_uiSummonPhase    = 0;
-            GolemsShattered    = 0;
+        m_lGolemGUIDList.clear();
+    }
 
-            m_uiHealthAmountModifier = 1;
-        }
+    void ShatterGolem()
+    {
+        if (m_lGolemGUIDList.empty())
+            return;
 
-        void Reset() override
+        for (ObjectGuid guid : m_lGolemGUIDList)
         {
-            Initialize();
-            _Reset();
-            DespawnGolem();
-            m_lGolemGUIDList.clear();
-            events.SetPhase(PHASE_INTRO);
-            events.ScheduleEvent(EVENT_FORGE_CAST, 2s, 0, PHASE_INTRO);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            Talk(SAY_AGGRO);
-            events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTERING_STOMP, 0s, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTER, 5s, 0, PHASE_NORMAL);
-            BossAI::JustEngagedWith(who);
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (me->Attack(who, true))
+            if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
             {
-                AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-
-                if (!m_bHasTemper)
-                    me->GetMotionMaster()->MoveChase(who);
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-            DespawnGolem();
-
-            _JustDied();
-        }
-
-        void KilledUnit(Unit* who) override
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-
-        void DespawnGolem()
-        {
-            if (m_lGolemGUIDList.empty())
-                return;
-
-            for (ObjectGuid guid : m_lGolemGUIDList)
-            {
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
-                    if (temp->IsAlive())
-                        temp->DespawnOrUnsummon();
-            }
-
-            m_lGolemGUIDList.clear();
-        }
-
-        void ShatterGolem()
-        {
-            if (m_lGolemGUIDList.empty())
-                return;
-
-            for (ObjectGuid guid : m_lGolemGUIDList)
-            {
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
+                // Only shatter brittle golems
+                if (temp->IsAlive() && temp->GetEntry() == NPC_BRITTLE_GOLEM)
                 {
-                    // Only shatter brittle golems
-                    if (temp->IsAlive() && temp->GetEntry() == NPC_BRITTLE_GOLEM)
+                    temp->CastSpell(temp, SPELL_SHATTER, false);
+                    GolemsShattered += 1;
+                }
+            }
+        }
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        if (summoned->GetEntry() == NPC_MOLTEN_GOLEM)
+        {
+            m_lGolemGUIDList.push_back(summoned->GetGUID());
+
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+
+            // Why healing when just summoned?
+            summoned->CastSpell(summoned, SPELL_HEAT, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 data) override
+    {
+        if (type == POINT_MOTION_TYPE && data == EVENT_FORGE_CAST)
+        {
+            if (m_uiSummonPhase == 2)
+            {
+                me->SetOrientation(2.29f);
+                m_uiSummonPhase = 3;
+            }
+        }
+    }
+
+    uint32 GetData(uint32 data) const override
+    {
+        if (data == DATA_SHATTER_RESISTANT)
+            return GolemsShattered;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // Return since we have no target and are in CombatPhase
+        if (events.IsInPhase(PHASE_NORMAL) && !UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PAUSE:
+                    if (m_bIsStriking)
                     {
-                        temp->CastSpell(temp, SPELL_SHATTER, false);
-                        GolemsShattered += 1;
+                        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
+                            if (me->GetVictim())
+                                me->GetMotionMaster()->MoveChase(me->GetVictim());
+
+                        m_bHasTemper = false;
+                        m_bIsStriking = false;
+                        events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
                     }
-                }
+                    break;
+                case EVENT_SHATTERING_STOMP:
+                    if (!m_bHasTemper && m_uiHealthAmountModifier >= 3)
+                    {
+                        // Should he stomp even if he has no brittle golem to shatter?
+                        Talk(SAY_STOMP);
+
+                        DoCast(me, SPELL_SHATTERING_STOMP);
+
+                        Talk(EMOTE_SHATTER);
+                        m_bCanShatterGolem = true;
+                    }
+                    events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30s, 0, PHASE_NORMAL);
+                    break;
+                case EVENT_SHATTER:
+                    if (m_bCanShatterGolem)
+                    {
+                        ShatterGolem();
+                        events.ScheduleEvent(EVENT_SHATTER, 3s, 0, PHASE_NORMAL);
+                        m_bCanShatterGolem = false;
+                    }
+                    break;
+                case EVENT_FORGE_CAST:
+                    DoCast(me, SPELL_FORGE_VISUAL);
+                    events.ScheduleEvent(EVENT_FORGE_CAST, 15s, 0, PHASE_INTRO);
+                    break;
+                default:
+                    break;
             }
-        }
-
-        void JustSummoned(Creature* summoned) override
-        {
-            if (summoned->GetEntry() == NPC_MOLTEN_GOLEM)
-            {
-                m_lGolemGUIDList.push_back(summoned->GetGUID());
-
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
-
-                // Why healing when just summoned?
-                summoned->CastSpell(summoned, SPELL_HEAT, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
-            }
-        }
-
-        void MovementInform(uint32 type, uint32 data) override
-        {
-            if (type == POINT_MOTION_TYPE && data == EVENT_FORGE_CAST)
-            {
-                if (m_uiSummonPhase == 2)
-                {
-                    me->SetOrientation(2.29f);
-                    m_uiSummonPhase = 3;
-                }
-            }
-        }
-
-        uint32 GetData(uint32 data) const override
-        {
-            if (data == DATA_SHATTER_RESISTANT)
-                return GolemsShattered;
-
-            return 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Return since we have no target and are in CombatPhase
-            if (events.IsInPhase(PHASE_NORMAL) && !UpdateVictim())
-                return;
-
-            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_PAUSE:
-                        if (m_bIsStriking)
-                        {
-                            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
-                                if (me->GetVictim())
-                                    me->GetMotionMaster()->MoveChase(me->GetVictim());
-
-                            m_bHasTemper = false;
-                            m_bIsStriking = false;
-                            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
-                        }
-                        break;
-                    case EVENT_SHATTERING_STOMP:
-                        if (!m_bHasTemper && m_uiHealthAmountModifier >= 3)
-                        {
-                            // Should he stomp even if he has no brittle golem to shatter?
-                            Talk(SAY_STOMP);
-
-                            DoCast(me, SPELL_SHATTERING_STOMP);
-
-                            Talk(EMOTE_SHATTER);
-                            m_bCanShatterGolem = true;
-                        }
-                        events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30s, 0, PHASE_NORMAL);
-                        break;
-                    case EVENT_SHATTER:
-                        if (m_bCanShatterGolem)
-                        {
-                            ShatterGolem();
-                            events.ScheduleEvent(EVENT_SHATTER, 3s, 0, PHASE_NORMAL);
-                            m_bCanShatterGolem = false;
-                        }
-                        break;
-                    case EVENT_FORGE_CAST:
-                        DoCast(me, SPELL_FORGE_VISUAL);
-                        events.ScheduleEvent(EVENT_FORGE_CAST, 15s, 0, PHASE_INTRO);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            // All the events below happen during the PHASE_NORMAL phase and shouldn't be executed before that
-            if (!events.IsInPhase(PHASE_NORMAL))
-                return;
-
-            // Health check
-            if (!m_bCanShatterGolem && me->HealthBelowPct(100 - 20 * m_uiHealthAmountModifier))
-            {
-                ++m_uiHealthAmountModifier;
-
-                if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(false);
-
-                Talk(SAY_FORGE);
-
-                m_bHasTemper = true;
-
-                m_uiSummonPhase = 1;
-            }
-
-            switch (m_uiSummonPhase)
-            {
-                case 1:
-                    // 1 - Start run to Anvil
-                    Talk(EMOTE_TO_ANVIL);
-                    me->GetMotionMaster()->MovePoint(EVENT_FORGE_CAST, me->GetHomePosition());
-                    m_uiSummonPhase = 2;        // Set Next Phase
-                    break;
-                case 2:
-                    // 2 - Check if reached Anvil
-                    // This is handled in: void MovementInform(uint32, uint32) override
-                    break;
-                case 3:
-                    // 3 - Cast Temper on the Anvil
-                    if (Unit* target = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
-                    {
-                        me->SetOrientation(2.29f);
-                        DoCast(target, SPELL_TEMPER, false);
-                        DoCast(target, SPELL_TEMPER_DUMMY, false);
-                    }
-                    m_uiDelay_Timer = 1000;     // Delay 2 seconds before next phase can begin
-                    m_uiSummonPhase = 4;        // Set Next Phase
-                    break;
-                case 4:
-                    // 4 - Wait for delay to expire
-                    if (m_uiDelay_Timer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
-                        {
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            me->SetInCombatWith(target);
-                            me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
-                        }
-                        m_uiSummonPhase = 5;
-                    }
-                    else
-                        m_uiDelay_Timer -= diff;
-                    break;
-                case 5:
-                    // 5 - Spawn the Golems
-                    if (Creature* creatureTarget = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
-                        for (uint8 i = 0; i < MAX_GOLEM; ++i)
-                            me->CastSpell(creatureTarget, SPELL_SUMMON_MOLTEN_GOLEM, true);
-
-                    m_bIsStriking = true;
-                    m_uiSummonPhase = 0;        // Reset back to Phase 0 for next time
-                    break;
-            }
-
-            DoMeleeAttackIfReady();
         }
 
-        private:
-            GuidList m_lGolemGUIDList;
-            uint32 m_uiHealthAmountModifier;
-            uint8 GolemsShattered;
-            uint32 m_uiDelay_Timer;
-            uint32 m_uiSummonPhase;
+        // All the events below happen during the PHASE_NORMAL phase and shouldn't be executed before that
+        if (!events.IsInPhase(PHASE_NORMAL))
+            return;
 
-            bool m_bHasTemper;
-            bool m_bIsStriking;
-            bool m_bCanShatterGolem;
-    };
+        // Health check
+        if (!m_bCanShatterGolem && me->HealthBelowPct(100 - 20 * m_uiHealthAmountModifier))
+        {
+            ++m_uiHealthAmountModifier;
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetHallsOfLightningAI<boss_volkhanAI>(creature);
+            if (me->IsNonMeleeSpellCast(false))
+                me->InterruptNonMeleeSpells(false);
+
+            Talk(SAY_FORGE);
+
+            m_bHasTemper = true;
+
+            m_uiSummonPhase = 1;
+        }
+
+        switch (m_uiSummonPhase)
+        {
+            case 1:
+                // 1 - Start run to Anvil
+                Talk(EMOTE_TO_ANVIL);
+                me->GetMotionMaster()->MovePoint(EVENT_FORGE_CAST, me->GetHomePosition());
+                m_uiSummonPhase = 2;        // Set Next Phase
+                break;
+            case 2:
+                // 2 - Check if reached Anvil
+                // This is handled in: void MovementInform(uint32, uint32) override
+                break;
+            case 3:
+                // 3 - Cast Temper on the Anvil
+                if (Unit* target = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
+                {
+                    me->SetOrientation(2.29f);
+                    DoCast(target, SPELL_TEMPER, false);
+                    DoCast(target, SPELL_TEMPER_DUMMY, false);
+                }
+                m_uiDelay_Timer = 1000;     // Delay 2 seconds before next phase can begin
+                m_uiSummonPhase = 4;        // Set Next Phase
+                break;
+            case 4:
+                // 4 - Wait for delay to expire
+                if (m_uiDelay_Timer <= diff)
+                {
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
+                    {
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetInCombatWith(target);
+                        me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+                    }
+                    m_uiSummonPhase = 5;
+                }
+                else
+                    m_uiDelay_Timer -= diff;
+                break;
+            case 5:
+                // 5 - Spawn the Golems
+                if (Creature* creatureTarget = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
+                    for (uint8 i = 0; i < MAX_GOLEM; ++i)
+                        me->CastSpell(creatureTarget, SPELL_SUMMON_MOLTEN_GOLEM, true);
+
+                m_bIsStriking = true;
+                m_uiSummonPhase = 0;        // Reset back to Phase 0 for next time
+                break;
+        }
+
+        DoMeleeAttackIfReady();
     }
+
+    private:
+        GuidList m_lGolemGUIDList;
+        uint32 m_uiHealthAmountModifier;
+        uint8 GolemsShattered;
+        uint32 m_uiDelay_Timer;
+        uint32 m_uiSummonPhase;
+
+        bool m_bHasTemper;
+        bool m_bIsStriking;
+        bool m_bCanShatterGolem;
 };
 
 /*######
 ## npc_molten_golem
 ######*/
 
-class npc_molten_golem : public CreatureScript
+struct npc_molten_golem : public ScriptedAI
 {
-public:
-    npc_molten_golem() : CreatureScript("npc_molten_golem") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    npc_molten_golem(Creature* creature) : ScriptedAI(creature)
     {
-        return GetHallsOfLightningAI<npc_molten_golemAI>(creature);
+        Initialize();
     }
 
-    struct npc_molten_golemAI : public ScriptedAI
+    void Initialize()
     {
-        npc_molten_golemAI(Creature* creature) : ScriptedAI(creature)
+        m_bIsFrozen = false;
+        events.ScheduleEvent(EVENT_BLAST, 20s);
+        events.ScheduleEvent(EVENT_IMMOLATION, 5s);
+    }
+
+    bool m_bIsFrozen;
+
+    void Reset() override
+    {
+        Initialize();
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (me->Attack(who, true))
         {
-            Initialize();
+            AddThreat(who, 0.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
+
+            if (!m_bIsFrozen)
+                me->GetMotionMaster()->MoveChase(who);
         }
+    }
 
-        void Initialize()
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (damage >= me->GetHealth())
         {
-            m_bIsFrozen = false;
-            events.ScheduleEvent(EVENT_BLAST, 20s);
-            events.ScheduleEvent(EVENT_IMMOLATION, 5s);
+            me->UpdateEntry(NPC_BRITTLE_GOLEM);
+            me->SetHealth(1);
+            damage = 0;
+            me->RemoveAllAuras();
+            me->AttackStop();
+            // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
+            // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
+            if (me->IsNonMeleeSpellCast(false))
+                me->InterruptNonMeleeSpells(false);
+
+            me->GetMotionMaster()->Clear();
+            m_bIsFrozen = true;
         }
+    }
 
-        bool m_bIsFrozen;
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        // This is the dummy effect of the spells
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
+            if (me->GetEntry() == NPC_BRITTLE_GOLEM)
+                me->DespawnOrUnsummon();
+    }
 
-        void Reset() override
+    void UpdateAI(uint32 diff) override
+    {
+        // Return since we have no target or if we are frozen
+        if (!UpdateVictim() || m_bIsFrozen)
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Initialize();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (me->Attack(who, true))
+            switch (eventId)
             {
-                AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-
-                if (!m_bIsFrozen)
-                    me->GetMotionMaster()->MoveChase(who);
+                case EVENT_BLAST:
+                    DoCast(me, SPELL_BLAST_WAVE);
+                    events.ScheduleEvent(EVENT_BLAST, 20s);
+                    break;
+                case EVENT_IMMOLATION:
+                    DoCastVictim(SPELL_IMMOLATION_STRIKE);
+                    events.ScheduleEvent(EVENT_BLAST, 5s);
+                    break;
+                default:
+                    break;
             }
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (damage >= me->GetHealth())
-            {
-                me->UpdateEntry(NPC_BRITTLE_GOLEM);
-                me->SetHealth(1);
-                damage = 0;
-                me->RemoveAllAuras();
-                me->AttackStop();
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
-                if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(false);
-
-                me->GetMotionMaster()->Clear();
-                m_bIsFrozen = true;
-            }
-        }
-
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-        {
-            // This is the dummy effect of the spells
-            if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
-                if (me->GetEntry() == NPC_BRITTLE_GOLEM)
-                    me->DespawnOrUnsummon();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Return since we have no target or if we are frozen
-            if (!UpdateVictim() || m_bIsFrozen)
-                return;
-
-            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_BLAST:
-                        DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST, 20s);
-                        break;
-                    case EVENT_IMMOLATION:
-                        DoCastVictim(SPELL_IMMOLATION_STRIKE);
-                        events.ScheduleEvent(EVENT_BLAST, 5s);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
         }
 
-        private:
-            EventMap events;
-    };
+        DoMeleeAttackIfReady();
+    }
+
+    private:
+        EventMap events;
 };
 
 class achievement_shatter_resistant : public AchievementCriteriaScript
@@ -501,7 +479,7 @@ class achievement_shatter_resistant : public AchievementCriteriaScript
 
 void AddSC_boss_volkhan()
 {
-    new boss_volkhan();
-    new npc_molten_golem();
+    RegisterHallsOfLightningCreatureAI(boss_volkhan);
+    RegisterHallsOfLightningCreatureAI(npc_molten_golem);
     new achievement_shatter_resistant();
 }

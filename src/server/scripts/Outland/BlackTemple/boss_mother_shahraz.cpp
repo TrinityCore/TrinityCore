@@ -134,7 +134,7 @@ struct boss_mother_shahraz : public BossAI
         _DespawnAtEvade();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_enraged && me->HealthBelowPctDamaged(10, damage))
         {

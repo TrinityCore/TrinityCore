@@ -349,6 +349,7 @@ class go_acherus_soul_prison : public GameObjectScript
         }
 };
 
+// 51519 - Death Knight Initiate Visual
 class spell_death_knight_initiate_visual : public SpellScript
 {
     PrepareSpellScript(spell_death_knight_initiate_visual);
@@ -581,7 +582,7 @@ public:
             }
         }
 
-       void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
+       void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (m_bIsDuelInProgress && pDoneBy && pDoneBy->IsControlledByPlayer())
             {
@@ -842,6 +843,7 @@ enum HorseSeats
     SEAT_ID_0   = 0
 };
 
+// 52265 - Repo
 class spell_stable_master_repo : public AuraScript
 {
     PrepareAuraScript(spell_stable_master_repo);
@@ -865,6 +867,7 @@ class spell_stable_master_repo : public AuraScript
     }
 };
 
+// 52264 - Deliver Stolen Horse
 class spell_deliver_stolen_horse : public SpellScript
 {
     PrepareSpellScript(spell_deliver_stolen_horse);
@@ -1078,6 +1081,7 @@ enum GiftOfTheHarvester
     SPELL_GHOST_TRANSFORM   = 52505
 };
 
+// 52479 - Gift of the Harvester
 class spell_gift_of_the_harvester : public SpellScript
 {
     PrepareSpellScript(spell_gift_of_the_harvester);
@@ -1085,10 +1089,10 @@ class spell_gift_of_the_harvester : public SpellScript
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
-                {
-                        SPELL_GHOUL_TRANFORM,
-                        SPELL_GHOST_TRANSFORM
-                });
+        {
+            SPELL_GHOUL_TRANFORM,
+            SPELL_GHOST_TRANSFORM
+        });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)

@@ -346,6 +346,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 69195, 71219, 73031, 73032 - Pungent Blight
 class spell_festergut_pungent_blight : public SpellScript
 {
     PrepareSpellScript(spell_festergut_pungent_blight);
@@ -371,6 +372,7 @@ class spell_festergut_pungent_blight : public SpellScript
     }
 };
 
+// 72219, 72551, 72552, 72553 - Gastric Bloat
 class spell_festergut_gastric_bloat : public SpellScript
 {
     PrepareSpellScript(spell_festergut_gastric_bloat);
@@ -396,6 +398,7 @@ class spell_festergut_gastric_bloat : public SpellScript
     }
 };
 
+// 69290, 71222, 73033, 73034 - Blighted Spores
 class spell_festergut_blighted_spores : public AuraScript
 {
     PrepareAuraScript(spell_festergut_blighted_spores);

@@ -326,6 +326,7 @@ class boss_kologarn : public CreatureScript
         }
 };
 
+// 63633 - Summon Rubble
 class spell_ulduar_rubble_summon : public SpellScriptLoader
 {
     public:
@@ -380,6 +381,7 @@ class StoneGripTargetSelector
         Unit const* _victim;
 };
 
+// 62166, 63981 - Stone Grip
 class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 {
     public:
@@ -440,6 +442,7 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
         }
 };
 
+// 65594 - Cancel Stone Grip
 class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 {
     public:
@@ -480,6 +483,7 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
         }
 };
 
+// 64702 - Squeezed Lifeless
 class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 {
     public:
@@ -518,6 +522,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
         }
 };
 
+// 64224, 64225 - Stone Grip Absorb
 class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 {
     public:
@@ -555,6 +560,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
         }
 };
 
+// 62056, 63985 - Stone Grip
 class spell_ulduar_stone_grip : public SpellScriptLoader
 {
     public:
@@ -608,6 +614,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
         }
 };
 
+// 63720, 64004 - Stone Shout
 class spell_kologarn_stone_shout : public SpellScriptLoader
 {
     public:
@@ -643,6 +650,7 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
         }
 };
 
+// 63342 - Focused Eyebeam Summon Trigger
 class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
 {
     public:
