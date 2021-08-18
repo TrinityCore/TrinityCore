@@ -303,7 +303,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     }
 
     me->RemoveAurasOnEvade();
-
+    me->ClearComboPointHolders(); // Remove all combo points targeting this unit
     me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
