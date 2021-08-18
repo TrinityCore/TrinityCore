@@ -311,9 +311,11 @@ void SmartAIMgr::LoadSmartAIFromDB()
             case SMART_EVENT_UPDATE_OOC:
             case SMART_EVENT_UPDATE_IC:
             case SMART_EVENT_HEALTH_PCT:
+            case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
             case SMART_EVENT_TARGET_MANA_PCT:
             case SMART_EVENT_RANGE:
+            case SMART_EVENT_FRIENDLY_HEALTH:
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
             case SMART_EVENT_FRIENDLY_MISSING_BUFF:
             case SMART_EVENT_HAS_AURA:
@@ -326,6 +328,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                 }
                 break;
             case SMART_EVENT_VICTIM_CASTING:
+            case SMART_EVENT_IS_BEHIND_TARGET:
                 if (temp.event.minMaxRepeat.min == 0 && temp.event.minMaxRepeat.max == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
                 {
                     temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
@@ -457,14 +460,17 @@ SmartScriptHolder& SmartAIMgr::FindLinkedEvent(SmartAIEventList& list, uint32 li
         case SMART_EVENT_IC_LOS:
         case SMART_EVENT_OOC_LOS:
         case SMART_EVENT_DISTANCE_CREATURE:
+        case SMART_EVENT_FRIENDLY_HEALTH:
         case SMART_EVENT_FRIENDLY_HEALTH_PCT:
         case SMART_EVENT_FRIENDLY_IS_CC:
         case SMART_EVENT_FRIENDLY_MISSING_BUFF:
         case SMART_EVENT_ACTION_DONE:
+        case SMART_EVENT_TARGET_HEALTH_PCT:
         case SMART_EVENT_TARGET_MANA_PCT:
         case SMART_EVENT_RANGE:
         case SMART_EVENT_VICTIM_CASTING:
         case SMART_EVENT_TARGET_BUFFED:
+        case SMART_EVENT_IS_BEHIND_TARGET:
         case SMART_EVENT_INSTANCE_PLAYER_ENTER:
         case SMART_EVENT_TRANSPORT_ADDCREATURE:
         case SMART_EVENT_DATA_SET:
@@ -706,8 +712,10 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_SPELLHIT: return sizeof(SmartEvent::spellHit);
             case SMART_EVENT_RANGE: return sizeof(SmartEvent::minMaxRepeat);
             case SMART_EVENT_OOC_LOS: return sizeof(SmartEvent::los);
-            case SMART_EVENT_RESPAWN: return NO_PARAMS;
+            case SMART_EVENT_RESPAWN: return sizeof(SmartEvent::respawn);
+            case SMART_EVENT_TARGET_HEALTH_PCT: return sizeof(SmartEvent::minMaxRepeat);
             case SMART_EVENT_VICTIM_CASTING: return sizeof(SmartEvent::targetCasting);
+            case SMART_EVENT_FRIENDLY_HEALTH: return sizeof(SmartEvent::friendlyHealth);
             case SMART_EVENT_FRIENDLY_IS_CC: return sizeof(SmartEvent::friendlyCC);
             case SMART_EVENT_FRIENDLY_MISSING_BUFF: return sizeof(SmartEvent::missingBuff);
             case SMART_EVENT_SUMMONED_UNIT: return sizeof(SmartEvent::summoned);
@@ -760,6 +768,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_GOSSIP_HELLO: return sizeof(SmartEvent::gossipHello);
             case SMART_EVENT_FOLLOW_COMPLETED: return NO_PARAMS;
             case SMART_EVENT_EVENT_PHASE_CHANGE: return sizeof(SmartEvent::eventPhaseChange);
+            case SMART_EVENT_IS_BEHIND_TARGET: return sizeof(SmartEvent::behindTarget);
             case SMART_EVENT_GAME_EVENT_START: return sizeof(SmartEvent::gameEvent);
             case SMART_EVENT_GAME_EVENT_END: return sizeof(SmartEvent::gameEvent);
             case SMART_EVENT_GO_LOOT_STATE_CHANGED: return sizeof(SmartEvent::goLootStateChanged);
@@ -1094,6 +1103,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_UPDATE_OOC:
             case SMART_EVENT_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
+            case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_TARGET_MANA_PCT:
             case SMART_EVENT_RANGE:
             case SMART_EVENT_DAMAGED:
@@ -1136,6 +1146,25 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
 
                 TC_SAI_IS_BOOLEAN_VALID(e, e.event.los.playerOnly);
+                break;
+            case SMART_EVENT_RESPAWN:
+                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_MAP && !sMapStore.LookupEntry(e.event.respawn.map))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Map entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.respawn.map);
+                    return false;
+                }
+                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_AREA && !sAreaTableStore.LookupEntry(e.event.respawn.area))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Area entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.respawn.area);
+                    return false;
+                }
+                break;
+            case SMART_EVENT_FRIENDLY_HEALTH:
+                if (!NotNULL(e, e.event.friendlyHealth.radius))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.friendlyHealth.repeatMin, e.event.friendlyHealth.repeatMax))
+                    return false;
                 break;
             case SMART_EVENT_FRIENDLY_IS_CC:
                 if (!IsMinMaxValid(e, e.event.friendlyCC.repeatMin, e.event.friendlyCC.repeatMax))
@@ -1263,6 +1292,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses event phasemask %u and incompatible event_param1 %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.event_phase_mask, e.event.eventPhaseChange.phasemask);
                     return false;
                 }
+                break;
+            }
+            case SMART_EVENT_IS_BEHIND_TARGET:
+            {
+                if (!IsMinMaxValid(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax))
+                    return false;
                 break;
             }
             case SMART_EVENT_GAME_EVENT_START:

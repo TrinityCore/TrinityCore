@@ -109,10 +109,10 @@ enum SMART_EVENT
     SMART_EVENT_SPELLHIT                 = 8,       // SpellID, School, CooldownMin, CooldownMax
     SMART_EVENT_RANGE                    = 9,       // MinDist, MaxDist, RepeatMin, RepeatMax
     SMART_EVENT_OOC_LOS                  = 10,      // HostilityMode, MaxRnage, CooldownMin, CooldownMax
-    SMART_EVENT_RESPAWN                  = 11,      // NONE
-    SMART_EVENT_UNUSED_12                = 12,      // do not reuse
+    SMART_EVENT_RESPAWN                  = 11,      // type, MapId, ZoneId
+    SMART_EVENT_TARGET_HEALTH_PCT        = 12,      // HPMin%, HPMax%, RepeatMin, RepeatMax
     SMART_EVENT_VICTIM_CASTING           = 13,      // RepeatMin, RepeatMax, spellid
-    SMART_EVENT_UNUSED_14                = 14,      // do not reuse
+    SMART_EVENT_FRIENDLY_HEALTH          = 14,      // HPDeficit, Radius, RepeatMin, RepeatMax
     SMART_EVENT_FRIENDLY_IS_CC           = 15,      // Radius, RepeatMin, RepeatMax
     SMART_EVENT_FRIENDLY_MISSING_BUFF    = 16,      // SpellId, Radius, RepeatMin, RepeatMax
     SMART_EVENT_SUMMONED_UNIT            = 17,      // CreatureId(0 all), CooldownMin, CooldownMax
@@ -165,7 +165,7 @@ enum SMART_EVENT
     SMART_EVENT_GOSSIP_HELLO             = 64,      // noReportUse (for GOs)
     SMART_EVENT_FOLLOW_COMPLETED         = 65,      // none
     SMART_EVENT_EVENT_PHASE_CHANGE       = 66,      // event phase mask (<= SMART_EVENT_PHASE_ALL)
-    SMART_EVENT_UNUSED_67                = 67,      // do not reuse
+    SMART_EVENT_IS_BEHIND_TARGET         = 67,      // cooldownMin, CooldownMax
     SMART_EVENT_GAME_EVENT_START         = 68,      // game_event.Entry
     SMART_EVENT_GAME_EVENT_END           = 69,      // game_event.Entry
     SMART_EVENT_GO_LOOT_STATE_CHANGED    = 70,      // go LootState
@@ -231,6 +231,13 @@ struct SmartEvent
 
         struct
         {
+            uint32 type;
+            uint32 map;
+            uint32 area;
+        } respawn;
+
+        struct
+        {
             uint32 repeatMin;
             uint32 repeatMax;
         } minMax;
@@ -241,6 +248,14 @@ struct SmartEvent
             uint32 repeatMax;
             uint32 spellId;
         } targetCasting;
+
+        struct
+        {
+            uint32 hpDeficit;
+            uint32 radius;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendlyHealth;
 
         struct
         {
@@ -362,6 +377,12 @@ struct SmartEvent
 
         struct
         {
+            uint32 cooldownMin;
+            uint32 cooldownMax;
+        } behindTarget;
+
+        struct
+        {
             uint32 gameEventId;
         } gameEvent;
 
@@ -422,6 +443,14 @@ struct SmartEvent
         Any = 2,
         End
     };
+};
+
+enum SMART_SCRIPT_RESPAWN_CONDITION
+{
+    SMART_SCRIPT_RESPAWN_CONDITION_NONE = 0,
+    SMART_SCRIPT_RESPAWN_CONDITION_MAP = 1,
+    SMART_SCRIPT_RESPAWN_CONDITION_AREA = 2,
+    SMART_SCRIPT_RESPAWN_CONDITION_END = 3
 };
 
 enum SMART_ACTION
@@ -1432,9 +1461,9 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_RANGE,                     SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_OOC_LOS,                   SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_RESPAWN,                   SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
-    {SMART_EVENT_UNUSED_12,                 0 },
+    {SMART_EVENT_TARGET_HEALTH_PCT,         SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_VICTIM_CASTING,            SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_UNUSED_14,                 0 },
+    {SMART_EVENT_FRIENDLY_HEALTH,           SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_FRIENDLY_IS_CC,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_FRIENDLY_MISSING_BUFF,     SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_SUMMONED_UNIT,             SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
@@ -1487,7 +1516,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_GOSSIP_HELLO,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_FOLLOW_COMPLETED,          SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_EVENT_PHASE_CHANGE,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
-    {SMART_EVENT_UNUSED_67,                 0 },
+    {SMART_EVENT_IS_BEHIND_TARGET,          SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_GAME_EVENT_START,          SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GAME_EVENT_END,            SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GO_LOOT_STATE_CHANGED,     SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
