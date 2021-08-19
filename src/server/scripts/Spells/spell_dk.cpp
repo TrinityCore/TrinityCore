@@ -2717,7 +2717,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_bloodworms);
     RegisterSpellScript(spell_dk_butchery);
     RegisterSpellScript(spell_dk_corpse_explosion);
-    RegisterSpellScript(spell_dk_dancing_rune_weapon);
     RegisterSpellScript(spell_dk_death_and_decay);
     RegisterSpellScript(spell_dk_death_coil);
     RegisterSpellScript(spell_dk_death_gate);
