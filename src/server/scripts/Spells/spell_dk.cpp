@@ -2642,6 +2642,28 @@ public:
     }
 };
 
+// 51963 - Gargoyle Strike
+class spell_pet_dk_gargoyle_strike : public SpellScript
+{
+    PrepareSpellScript(spell_pet_dk_gargoyle_strike);
+
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = 60;
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->GetLevel() >= 60)
+                damage += (caster->GetLevel() - 60) * 4;
+        }
+
+        SetEffectValue(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_pet_dk_gargoyle_strike::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_acclimation);
@@ -2699,4 +2721,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_raise_ally();
     RegisterSpellScript(spell_dk_ghoul_thrash);
     new spell_dk_blood_tap();
+    RegisterSpellScript(spell_pet_dk_gargoyle_strike);
 }
