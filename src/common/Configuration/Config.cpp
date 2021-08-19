@@ -69,7 +69,7 @@ namespace
         std::string result;
 
         const char *str = key.c_str();
-        int n = key.length();
+        size_t n = key.length();
 
         char curr;
         bool isEnd;
@@ -77,7 +77,7 @@ namespace
         bool currIsNumeric;
         bool nextIsNumeric;
 
-        for (int i = 0; i < n; ++i)
+        for (size_t i = 0; i < n; ++i)
         {
             curr = str[i];
             if (curr == ' ' || curr == '.' || curr == '-')
