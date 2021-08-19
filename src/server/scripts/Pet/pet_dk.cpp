@@ -128,12 +128,19 @@ struct npc_pet_dk_guardian : public AggressorAI
     }
 };
 
+enum DancingRuneWeaponMisc
+{
+    TASK_GROUP_COMBAT = 1
+};
+
 struct npc_pet_dk_rune_weapon : ScriptedAI
 {
     npc_pet_dk_rune_weapon(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
+        me->SetReactState(REACT_PASSIVE);
+
         if (summoner->GetTypeId() != TYPEID_UNIT)
             return;
 
@@ -148,12 +155,9 @@ struct npc_pet_dk_rune_weapon : ScriptedAI
         DoCastSelf(SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
         DoCastSelf(SPELL_DK_PET_SCALING_03, true);
 
-        // Investigate further if these casts are done by any owned aura, eitherway SMSG_SPELL_GO is sent every X seconds.
-        _scheduler.Schedule(6s, [this](TaskContext visual)
+        _scheduler.Schedule(1s, [this](TaskContext activate)
         {
-            // Cast every 6 seconds
-            DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
-            visual.Repeat();
+            me->SetReactState(REACT_AGGRESSIVE);
         });
     }
 
@@ -166,8 +170,12 @@ struct npc_pet_dk_rune_weapon : ScriptedAI
             return;
         }
 
+        _scheduler.Update(diff);
+
         if (!UpdateRuneWeaponVictim())
             return;
+
+        DoMeleeAttackIfReady();
     }
 
     bool CanAIAttack(Unit const* who) const override
@@ -181,6 +189,8 @@ struct npc_pet_dk_rune_weapon : ScriptedAI
     {
         if (me->IsInEvadeMode())
             return;
+
+        _scheduler.CancelGroup(TASK_GROUP_COMBAT);
 
         if (!me->IsAlive())
             return;
