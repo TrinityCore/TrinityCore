@@ -17,6 +17,7 @@
 
 #include "Common.h"
 #include "DuelPackets.h"
+#include "GameTime.h"
 #include "WorldSession.h"
 #include "Log.h"
 #include "Player.h"
@@ -68,7 +69,7 @@ void WorldSession::HandleDuelAccepted()
     TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
     TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 

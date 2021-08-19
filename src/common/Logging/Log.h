@@ -97,6 +97,9 @@ class TC_COMMON_API Log
         std::string const& GetLogsDir() const { return m_logsDir; }
         std::string const& GetLogsTimestamp() const { return m_logsTimestamp; }
 
+        void CreateAppenderFromConfigLine(std::string const& name, std::string const& options);
+        void CreateLoggerFromConfigLine(std::string const& name, std::string const& options);
+
     private:
         static std::string GetTimestampStr();
         void write(std::unique_ptr<LogMessage>&& msg) const;
@@ -140,7 +143,9 @@ class TC_COMMON_API Log
         } \
     }
 
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#ifdef PERFORMANCE_PROFILING
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
+#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 void check_args(char const*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 

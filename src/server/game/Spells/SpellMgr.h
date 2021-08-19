@@ -50,6 +50,7 @@ struct SpellCooldownsEntry;
 struct SpellEffectEntry;
 struct SpellEquippedItemsEntry;
 struct SpellInterruptsEntry;
+struct SpellLabelEntry;
 struct SpellLevelsEntry;
 struct SpellMiscEntry;
 struct SpellNameEntry;
@@ -192,9 +193,8 @@ enum ProcFlags
                                                 | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS
                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG
+                                                | PROC_FLAG_DONE_PERIODIC | PROC_FLAG_TAKEN_PERIODIC
                                                 | PROC_FLAG_DONE_TRAP_ACTIVATION,
-
-    PERIODIC_PROC_FLAG_MASK                    = PROC_FLAG_DONE_PERIODIC | PROC_FLAG_TAKEN_PERIODIC,
 
     DONE_HIT_PROC_FLAG_MASK                    = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_RANGED_AUTO_ATTACK
                                                  | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS
@@ -261,13 +261,14 @@ enum ProcFlagsHit
 
 enum ProcAttributes
 {
-    PROC_ATTR_REQ_EXP_OR_HONOR   = 0x0000001, // requires proc target to give exp or honor for aura proc
-    PROC_ATTR_TRIGGERED_CAN_PROC = 0x0000002, // aura can proc even with triggered spells
-    PROC_ATTR_REQ_POWER_COST     = 0x0000004, // requires triggering spell to have a power cost for aura proc
-    PROC_ATTR_REQ_SPELLMOD       = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
+    PROC_ATTR_REQ_EXP_OR_HONOR          = 0x0000001, // requires proc target to give exp or honor for aura proc
+    PROC_ATTR_TRIGGERED_CAN_PROC        = 0x0000002, // aura can proc even with triggered spells
+    PROC_ATTR_REQ_POWER_COST            = 0x0000004, // requires triggering spell to have a power cost for aura proc
+    PROC_ATTR_REQ_SPELLMOD              = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
+    PROC_ATTR_USE_STACKS_FOR_CHARGES    = 0x0000010, // consuming proc drops a stack from proccing aura instead of charge
 
 
-    PROC_ATTR_REDUCE_PROC_60     = 0x0000080  // aura should have a reduced chance to proc if level of proc Actor > 60
+    PROC_ATTR_REDUCE_PROC_60            = 0x0000080  // aura should have a reduced chance to proc if level of proc Actor > 60
 };
 
 struct SpellProcEntry
@@ -356,7 +357,7 @@ struct SpellThreatEntry
     float       apPctMod;                                   // Pct of AP that is added as Threat - default: 0.0f
 };
 
-typedef std::map<uint32, SpellThreatEntry> SpellThreatMap;
+typedef std::unordered_map<uint32, SpellThreatEntry> SpellThreatMap;
 
 // coordinates for spells (accessed using SpellMgr functions)
 struct SpellTargetPosition
@@ -589,12 +590,12 @@ bool IsWeaponSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
-    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING;
+    return IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING;
 }
 
 inline bool IsProfessionOrRidingSkill(uint32 skill)
 {
-    return  IsProfessionSkill(skill) || skill == SKILL_RIDING;
+    return IsProfessionSkill(skill) || skill == SKILL_RIDING;
 }
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
@@ -612,6 +613,7 @@ struct SpellInfoLoadHelper
     std::array<SpellEffectEntry const*, MAX_SPELL_EFFECTS> Effects = { };
     SpellEquippedItemsEntry const* EquippedItems = nullptr;
     SpellInterruptsEntry const* Interrupts = nullptr;
+    std::vector<SpellLabelEntry const*> Labels;
     SpellLevelsEntry const* Levels = nullptr;
     SpellMiscEntry const* Misc = nullptr;
     std::array<SpellPowerEntry const*, MAX_POWERS_PER_SPELL> Powers;
@@ -748,6 +750,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoStore();
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
+        void LoadSpellInfoServerside();
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
         void LoadSpellInfoSpellSpecificAndAuraState();

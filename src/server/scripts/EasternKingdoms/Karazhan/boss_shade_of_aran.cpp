@@ -193,7 +193,7 @@ public:
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -479,7 +479,7 @@ public:
                         Unit* unit = ObjectAccessor::GetUnit(*me, FlameWreathTarget[i]);
                         if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
-                            unit->CastSpell(unit, 20476, true, nullptr, nullptr, me->GetGUID());
+                            unit->CastSpell(unit, 20476, me->GetGUID());
                             unit->CastSpell(unit, 11027, true);
                             FlameWreathTarget[i].Clear();
                         }
@@ -584,7 +584,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

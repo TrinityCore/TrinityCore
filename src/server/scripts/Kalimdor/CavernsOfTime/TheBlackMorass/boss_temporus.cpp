@@ -61,7 +61,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_HASTE, urand(15000, 23000));
             events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
@@ -93,7 +93,7 @@ public:
                 {
                     Talk(SAY_BANISH);
 
-                    me->DealDamage(who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    Unit::DealDamage(me, who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 }
             }
 

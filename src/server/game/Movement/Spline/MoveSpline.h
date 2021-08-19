@@ -81,6 +81,7 @@ namespace Movement
         int32           point_Idx;
         int32           point_Idx_offset;
         Optional<SpellEffectExtraData> spell_effect_extra;
+        Optional<AnimTierTransition> anim_tier;
 
         void init_spline(MoveSplineInitArgs const& args);
 

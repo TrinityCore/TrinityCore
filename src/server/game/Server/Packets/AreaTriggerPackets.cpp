@@ -55,6 +55,14 @@ ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerOrbitInfo const& areaTrigger
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AreaTrigger::AreaTriggerMovementScriptInfo const& areaTriggerMovementScript)
+{
+    data << int32(areaTriggerMovementScript.SpellScriptID);
+    data << areaTriggerMovementScript.Center;
+
+    return data;
+}
+
 void WorldPackets::AreaTrigger::AreaTrigger::Read()
 {
     _worldPacket >> AreaTriggerID;
@@ -77,10 +85,14 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
 
     _worldPacket.WriteBit(AreaTriggerSpline.is_initialized());
     _worldPacket.WriteBit(AreaTriggerOrbit.is_initialized());
+    _worldPacket.WriteBit(AreaTriggerMovementScript.is_initialized());
     _worldPacket.FlushBits();
 
     if (AreaTriggerSpline)
         _worldPacket << *AreaTriggerSpline;
+
+    if (AreaTriggerMovementScript)
+        _worldPacket << *AreaTriggerMovementScript;
 
     if (AreaTriggerOrbit)
         _worldPacket << *AreaTriggerOrbit;

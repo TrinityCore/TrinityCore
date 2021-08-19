@@ -352,9 +352,9 @@ struct boss_razorscale : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         ScheduleAirPhaseEvents();
         summons.DoAction(ACTION_START_FIGHT, DummyEntryCheckPredicate());
@@ -590,12 +590,12 @@ struct boss_razorscale : public BossAI
                     break;
                 case EVENT_SUMMON_MINIONS:
                 {
-                    uint8 random = urand(2, 4);
+                    uint8 random = RAID_MODE<uint8>(2, urand(2, 4));
                     uint8 time = 5;
                     for (uint8 n = 0; n < random; ++n)
                     {
                         events.ScheduleEvent(EVENT_SUMMON_MINIONS_2, Seconds(time), 0, PHASE_AIR);
-                        time += 5;
+                        time += urand(2, 5);
                     }
                     events.Repeat(Seconds(40));
                     break;
@@ -640,7 +640,9 @@ struct boss_razorscale : public BossAI
                     DoCastSelf(SPELL_FIREBOLT);
                     break;
                 case EVENT_FUSE_ARMOR:
-                    DoCastVictim(SPELL_FUSE_ARMOR);
+                    if (Unit* victim = me->GetVictim())
+                        if (!victim->HasAura(SPELL_FUSED_ARMOR))
+                            DoCast(victim, SPELL_FUSE_ARMOR);
                     events.Repeat(Seconds(10), Seconds(15));
                     break;
                 case EVENT_RESUME_MOVE_CHASE:
@@ -1228,6 +1230,7 @@ struct npc_razorscale_spawner : public ScriptedAI
     void Reset() override
     {
         me->setActive(true);
+        me->SetFarVisible(true);
         me->SetReactState(REACT_PASSIVE);
         _scheduler.
             Schedule(Seconds(1), [this](TaskContext /*context*/)
@@ -1261,7 +1264,7 @@ struct npc_darkrune_watcher : public ScriptedAI
             razorscale->AI()->JustSummoned(me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(5));
         _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(34));
@@ -1283,7 +1286,7 @@ struct npc_darkrune_watcher : public ScriptedAI
             {
                 case EVENT_START_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_LIGHTNING_BOLT:
                     DoCastVictim(LIGHTNING_BOLT);
@@ -1322,7 +1325,7 @@ struct npc_darkrune_guardian : public ScriptedAI
             razorscale->AI()->JustSummoned(me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_STORMSTRIKE, Seconds(23));
     }
@@ -1354,7 +1357,7 @@ struct npc_darkrune_guardian : public ScriptedAI
             {
                 case EVENT_START_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_STORMSTRIKE:
                     DoCastVictim(SPELL_STORMSTRIKE);
@@ -1390,7 +1393,7 @@ struct npc_darkrune_sentinel : public ScriptedAI
             razorscale->AI()->JustSummoned(me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(9));
         _events.ScheduleEvent(EVENT_BATTLE_SHOUT, Seconds(15));
@@ -1413,7 +1416,7 @@ struct npc_darkrune_sentinel : public ScriptedAI
             {
                 case EVENT_START_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 case EVENT_HEROIC_STRIKE:
                     DoCastVictim(SPELL_HEROIC_STRIKE);
@@ -1467,8 +1470,12 @@ struct npc_razorscale_devouring_flame : public ScriptedAI
 
     void Reset() override
     {
-        DoCastSelf(DEVOURING_FLAME_GROUND);
+        me->SetReactState(REACT_PASSIVE);
+        DoCastSelf(DEVOURING_FLAME_GROUND, true);
     }
+
+    // Evade caused by Spell::SummonGuardian. Creature dont need evade at all, is despawned if razorscale enter in evade
+    void EnterEvadeMode(EvadeReason /*why*/) override { }
 };
 
 class go_razorscale_harpoon : public GameObjectScript
@@ -1654,7 +1661,7 @@ class spell_razorscale_summon_iron_dwarves : public SpellScript
     }
 };
 
-// 64771 - Fuse Armor
+// 64821 - Fuse Armor
 class spell_razorscale_fuse_armor : public AuraScript
 {
     PrepareAuraScript(spell_razorscale_fuse_armor);
@@ -1664,15 +1671,18 @@ class spell_razorscale_fuse_armor : public AuraScript
         return ValidateSpellInfo({ SPELL_FUSED_ARMOR });
     }
 
-    void HandleFused(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleFused(AuraEffect const* /*aurEff*/)
     {
-        if (GetStackAmount() == 5)
-            GetTarget()->CastSpell(GetTarget(), SPELL_FUSED_ARMOR, true);
+        if (GetStackAmount() != GetSpellInfo()->StackAmount)
+            return;
+
+        GetTarget()->CastSpell(nullptr, SPELL_FUSED_ARMOR, true);
+        Remove();
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectRemoveFn(spell_razorscale_fuse_armor::HandleFused, EFFECT_1, SPELL_AURA_MOD_MELEE_HASTE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_razorscale_fuse_armor::HandleFused, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 

@@ -319,6 +319,8 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
 
             mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
             int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
+            if (parentMapId < 0)
+                parentMapId = int16(record.GetUInt16("CosmeticParentMapID"));
             if (parentMapId != -1)
                 mapData[parentMapId].push_back(record.GetId());
         }

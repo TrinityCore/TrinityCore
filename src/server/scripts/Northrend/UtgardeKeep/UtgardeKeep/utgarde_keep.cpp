@@ -65,7 +65,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                     _instance->SetData(DATA_FORGE_1 + _forgeId - 1, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!_forgeId)
                     _forgeId = GetForgeMasterType();
@@ -219,11 +219,11 @@ class spell_uk_second_wind : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
-                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, aurEff);
             }
 
             void Register() override

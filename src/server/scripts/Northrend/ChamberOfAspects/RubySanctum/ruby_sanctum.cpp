@@ -79,6 +79,7 @@ class npc_xerestrasza : public CreatureScript
                 if (action == ACTION_BALTHARUS_DEATH)
                 {
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     _isIntro = false;
 
                     Talk(SAY_XERESTRASZA_EVENT);
@@ -133,6 +134,7 @@ class npc_xerestrasza : public CreatureScript
                             me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                             Talk(SAY_XERESTRASZA_EVENT_7);
                             me->setActive(false);
+                            me->SetFarVisible(false);
                             break;
                         default:
                             break;
@@ -196,7 +198,11 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (_targetCount && !GetCaster()->HasAura(SPELL_RALLY))
-                    GetCaster()->CastCustomSpell(SPELL_RALLY, SPELLVALUE_AURA_STACK, _targetCount, GetCaster(), TRIGGERED_FULL_MASK);
+                {
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
+                    GetCaster()->CastSpell(GetCaster(), SPELL_RALLY, args);
+                }
             }
 
             void Register() override

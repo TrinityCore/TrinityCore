@@ -119,14 +119,14 @@ public:
             events.ScheduleEvent(EVENT_FORGE_CAST, 2 * IN_MILLISECONDS, 0, PHASE_INTRO);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_PAUSE,            3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SHATTERING_STOMP,   0 * IN_MILLISECONDS, 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SHATTER,            5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            _EnterCombat();
+            _JustEngagedWith();
         }
 
         void AttackStart(Unit* who) override
@@ -200,7 +200,7 @@ public:
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
-                summoned->CastSpell(summoned, SPELL_HEAT, false, nullptr, nullptr, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_HEAT, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
             }
         }
 

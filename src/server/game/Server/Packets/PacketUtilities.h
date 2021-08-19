@@ -19,7 +19,9 @@
 #define PacketUtilities_h__
 
 #include "ByteBuffer.h"
+#include "Duration.h"
 #include <boost/container/static_vector.hpp>
+#include <ctime>
 
 namespace WorldPackets
 {
@@ -90,101 +92,96 @@ namespace WorldPackets
             _storage.push_back(std::forward<value_type>(value));
         }
 
+        template<typename... Args>
+        T& emplace_back(Args&&... args)
+        {
+            _storage.emplace_back(std::forward<Args>(args)...);
+            return _storage.back();
+        }
+
     private:
         storage_type _storage;
     };
 
-    void CheckCompactArrayMaskOverflow(std::size_t index, std::size_t limit);
-
-    template <typename T>
-    class CompactArray
+    template<typename Underlying = int64>
+    class Timestamp
     {
     public:
-        CompactArray() : _mask(0) { }
+        Timestamp() = default;
+        Timestamp(time_t value) : _value(value) { }
+        Timestamp(std::chrono::system_clock::time_point const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
 
-        CompactArray(CompactArray const& right)
-            : _mask(right._mask), _contents(right._contents) { }
-
-        CompactArray(CompactArray&& right)
-            : _mask(right._mask), _contents(std::move(right._contents))
+        Timestamp& operator=(time_t value)
         {
-            right._mask = 0;
-        }
-
-        CompactArray& operator=(CompactArray const& right)
-        {
-            _mask = right._mask;
-            _contents = right._contents;
+            _value = value;
             return *this;
         }
 
-        CompactArray& operator=(CompactArray&& right)
+        Timestamp& operator=(std::chrono::system_clock::time_point const& systemTime)
         {
-            _mask = right._mask;
-            right._mask = 0;
-            _contents = std::move(right._contents);
+            _value = std::chrono::system_clock::to_time_t(systemTime);
             return *this;
         }
 
-        uint32 GetMask() const { return _mask; }
-        T const& operator[](std::size_t index) const { return _contents[index]; }
-        std::size_t GetSize() const { return _contents.size(); }
-
-        void Insert(std::size_t index, T const& value)
+        operator time_t() const
         {
-            CheckCompactArrayMaskOverflow(index, sizeof(_mask) * 8);
-
-            _mask |= 1 << index;
-            if (_contents.size() <= index)
-                _contents.resize(index + 1);
-            _contents[index] = value;
+            return _value;
         }
 
-        void Clear()
+        Underlying AsUnderlyingType() const
         {
-            _mask = 0;
-            _contents.clear();
+            return static_cast<Underlying>(_value);
         }
 
-        bool operator==(CompactArray const& r) const
+        friend ByteBuffer& operator<<(ByteBuffer& data, Timestamp timestamp)
         {
-            if (_mask != r._mask)
-                return false;
-
-            return _contents == r._contents;
+            data << static_cast<Underlying>(timestamp._value);
+            return data;
         }
 
-        bool operator!=(CompactArray const& r) const { return !(*this == r); }
+        friend ByteBuffer& operator>>(ByteBuffer& data, Timestamp& timestamp)
+        {
+            timestamp._value = data.read<time_t, Underlying>();
+            return data;
+        }
 
     private:
-        uint32 _mask;
-        std::vector<T> _contents;
+        time_t _value = time_t(0);
     };
 
-    template <typename T>
-    ByteBuffer& operator<<(ByteBuffer& data, CompactArray<T> const& v)
+    template<typename ChronoDuration, typename Underlying = int64>
+    class Duration
     {
-        uint32 mask = v.GetMask();
-        data << uint32(mask);
-        for (std::size_t i = 0; i < v.GetSize(); ++i)
-            if (mask & (1 << i))
-                data << v[i];
+    public:
+        Duration() = default;
+        Duration(ChronoDuration value) : _value(value) { }
 
-        return data;
-    }
+        Duration& operator=(ChronoDuration value)
+        {
+            _value = value;
+            return *this;
+        }
 
-    template <typename T>
-    ByteBuffer& operator>>(ByteBuffer& data, CompactArray<T>& v)
-    {
-        uint32 mask;
-        data >> mask;
+        operator ChronoDuration() const
+        {
+            return _value;
+        }
 
-        for (std::size_t index = 0; mask != 0; mask >>= 1, ++index)
-            if ((mask & 1) != 0)
-                v.Insert(index, data.read<T>());
+        friend ByteBuffer& operator<<(ByteBuffer& data, Duration duration)
+        {
+            data << static_cast<Underlying>(duration._value.count());
+            return data;
+        }
 
-        return data;
-    }
+        friend ByteBuffer& operator>>(ByteBuffer& data, Duration& duration)
+        {
+            duration._value = ChronoDuration(data.read<Underlying>());
+            return data;
+        }
+
+    private:
+        ChronoDuration _value = ChronoDuration::zero();
+    };
 }
 
 #endif // PacketUtilities_h__

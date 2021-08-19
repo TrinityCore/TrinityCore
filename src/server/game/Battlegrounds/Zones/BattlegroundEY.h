@@ -445,7 +445,6 @@ class BattlegroundEY : public Battleground
         uint32 GetPrematureWinner() override;
 protected:
         void PostUpdateImpl(uint32 diff) override;
-        void GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const override;
 
         void EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType);
         void EventTeamCapturedPoint(Player* Source, uint32 Point);

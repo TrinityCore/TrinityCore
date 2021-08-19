@@ -113,7 +113,7 @@ class boss_festergut : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
                 {
@@ -199,7 +199,7 @@ class boss_festergut : public CreatureScript
                                 // just cast and dont bother with target, conditions will handle it
                                 ++_inhaleCounter;
                                 if (_inhaleCounter < 3)
-                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], true, nullptr, nullptr, me->GetGUID());
+                                    me->CastSpell(me, gaseousBlight[_inhaleCounter], me->GetGUID());
                             }
 
                             events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33500, 35000));
@@ -234,7 +234,7 @@ class boss_festergut : public CreatureScript
                         case EVENT_GAS_SPORE:
                             Talk(EMOTE_WARN_GAS_SPORE);
                             Talk(EMOTE_GAS_SPORE);
-                            me->CastCustomSpell(SPELL_GAS_SPORE, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3), me);
+                            me->CastSpell(me, SPELL_GAS_SPORE, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3)));
                             events.ScheduleEvent(EVENT_GAS_SPORE, urand(40000, 45000));
                             events.RescheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
@@ -312,7 +312,7 @@ class npc_stinky_icc : public CreatureScript
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
@@ -475,7 +475,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectApplyFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_festergut_blighted_spores_AuraScript::ExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

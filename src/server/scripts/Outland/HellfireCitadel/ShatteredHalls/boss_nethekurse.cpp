@@ -200,7 +200,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -213,7 +213,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
                 //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
                 summoned->CastSpell(summoned, SPELL_TEMPORARY_VISUAL, true);
-                summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, nullptr, nullptr, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_CONSUMPTION, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -327,7 +327,7 @@ class npc_fel_orc_convert : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
 
@@ -388,7 +388,7 @@ class npc_lesser_shadow_fissure : public CreatureScript
             void Reset() override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

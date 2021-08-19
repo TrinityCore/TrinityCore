@@ -197,10 +197,12 @@ std::vector<TableStruct> CharacterTables;
 inline bool StringsEqualCaseInsensitive(std::string const& left, std::string const& right)
 {
     std::string upperLeftString = left;
-    ASSERT(Utf8ToUpperOnlyLatin(upperLeftString));
+    bool leftResult = Utf8ToUpperOnlyLatin(upperLeftString);
+    ASSERT(leftResult);
 
     std::string upperRightString = right;
-    ASSERT(Utf8ToUpperOnlyLatin(upperRightString));
+    bool rightResult = Utf8ToUpperOnlyLatin(upperRightString);
+    ASSERT(rightResult);
 
     return upperLeftString == upperRightString;
 }
@@ -301,7 +303,8 @@ void PlayerDump::InitializeTables()
             f.FieldName = columnName;
             f.IsBinaryField = !boost::ifind_first(typeName, "binary").empty() || !boost::ifind_first(typeName, "blob").empty();
 
-            ASSERT(Utf8ToUpperOnlyLatin(columnName));
+            bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
+            ASSERT(toUpperResult);
 
             t.TableFields.emplace_back(std::move(f));
         } while (result->NextRow());
@@ -703,16 +706,16 @@ void PlayerDumpWriter::PopulateGuids(ObjectGuid::LowType guid)
             switch (baseTable.StoredType)
             {
                 case GUID_TYPE_ITEM:
-                    if (ObjectGuid::LowType guid = (*result)[0].GetUInt64())
-                        _items.insert(guid);
+                    if (ObjectGuid::LowType itemLowGuid = (*result)[0].GetUInt32())
+                        _items.insert(itemLowGuid);
                     break;
                 case GUID_TYPE_MAIL:
-                    if (uint32 guid = (*result)[0].GetUInt32())
-                        _mails.insert(guid);
+                    if (uint32 mailLowGuid = (*result)[0].GetUInt32())
+                        _mails.insert(mailLowGuid);
                     break;
                 case GUID_TYPE_PET:
-                    if (uint32 guid = (*result)[0].GetUInt32())
-                        _pets.insert(guid);
+                    if (uint32 petLowGuid = (*result)[0].GetUInt32())
+                        _pets.insert(petLowGuid);
                     break;
                 case GUID_TYPE_EQUIPMENT_SET:
                     if (uint64 eqSetId = (*result)[0].GetUInt64())

@@ -25,9 +25,9 @@ int32 GameObjectAI::Permissible(GameObject const* /*go*/)
     return PERMIT_BASE_NO;
 }
 
-uint32 GameObjectAI::GetDialogStatus(Player* /*player*/)
+Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player* /*player*/)
 {
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+    return {};
 }
 
 NullGameObjectAI::NullGameObjectAI(GameObject* g) : GameObjectAI(g) { }

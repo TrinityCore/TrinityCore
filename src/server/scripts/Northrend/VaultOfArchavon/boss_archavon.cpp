@@ -76,14 +76,14 @@ class boss_archavon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                 events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                 events.ScheduleEvent(EVENT_STOMP, 45000);
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             // Below UpdateAI may need review/debug.
@@ -166,7 +166,7 @@ class npc_archavon_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRL, 7500);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }

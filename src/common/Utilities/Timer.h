@@ -135,7 +135,7 @@ struct TimeTrackerSmall
 {
 public:
 
-    TimeTrackerSmall(uint32 expiry = 0)
+    TimeTrackerSmall(int32 expiry = 0)
         : i_expiryTime(expiry)
     {
     }
@@ -150,7 +150,7 @@ public:
         return i_expiryTime <= 0;
     }
 
-    void Reset(uint32 interval)
+    void Reset(int32 interval)
     {
         i_expiryTime = interval;
     }

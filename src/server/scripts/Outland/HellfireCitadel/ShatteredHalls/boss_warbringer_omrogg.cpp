@@ -197,7 +197,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 ThreatYell = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
                 me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
@@ -416,7 +416,7 @@ class npc_omrogg_heads : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void SetData(uint32 data, uint32 value) override
             {

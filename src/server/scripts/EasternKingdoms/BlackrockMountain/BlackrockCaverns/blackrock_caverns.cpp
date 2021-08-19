@@ -152,7 +152,7 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
                 _summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _combatPhase = true;
@@ -261,7 +261,7 @@ class npc_twilight_torturer : public CreatureScript
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(6000, 18000));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _combatPhase = true;
@@ -361,7 +361,7 @@ class npc_twilight_sadist : public CreatureScript
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(6000, 18000));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _combatPhase = true;
@@ -455,7 +455,7 @@ class npc_mad_prisoner : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_HEAD_CRACK, 9000);
@@ -525,7 +525,7 @@ class npc_crazed_mage : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_HEAD_CRACK2, 9000);
@@ -604,7 +604,7 @@ class npc_raz_the_crazed : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);

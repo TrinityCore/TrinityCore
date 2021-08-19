@@ -179,7 +179,7 @@ class npc_harbinger_of_flame : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 for (ObjectGuid const& birdGuid : me->m_unitData->ChannelObjects)
                     if (Creature* bird = ObjectAccessor::GetCreature(*me, birdGuid))
@@ -280,7 +280,7 @@ class npc_blazing_monstrosity : public CreatureScript
                 AlysrazorTrashEvaded(me);
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 DoZoneInCombat();
                 me->RemoveAurasDueToSpell(SPELL_SLEEP_ULTRA_HIGH_PRIORITY);
@@ -635,7 +635,7 @@ class spell_alysrazor_aggro_closest : public SpellScriptLoader
             void HandleEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                float curThreat = GetCaster()->GetThreatManager().getThreat(GetHitUnit(), true);
+                float curThreat = GetCaster()->GetThreatManager().GetThreat(GetHitUnit(), true);
                 GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), -curThreat + 50000.0f / std::min(1.0f, GetCaster()->GetDistance(GetHitUnit())));
             }
 

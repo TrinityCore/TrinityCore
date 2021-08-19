@@ -59,7 +59,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
 
@@ -67,6 +67,9 @@ public:
 
         void JustDied(Unit* killer) override
         {
+            if (!killer)
+                return;
+
             uint32 spawnCreatureID = 0;
 
             switch (urand(0, 2))
@@ -250,7 +253,7 @@ public:
             me->SetDisplayFromModel(1);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_UPPERCUT,      15 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_IMMOLATE,      10 * IN_MILLISECONDS);
@@ -261,6 +264,10 @@ public:
         {
             me->SetObjectScale(1.0f);
             _events.Reset();
+
+            if (!killer)
+                return;
+
             if (Creature* legoso = me->FindNearestCreature(NPC_LEGOSO, SIZE_OF_GRIDS))
             {
                 Group* group = me->GetLootRecipientGroup();
@@ -380,7 +387,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 type) override
         {
             switch (type)
             {

@@ -415,7 +415,7 @@ class TC_GAME_API UnitScript : public ScriptObject
         virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
 
         // Called when Spell Damage is being Dealt
-        virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+        virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
 };
 
 class TC_GAME_API CreatureScript : public UnitScript
@@ -425,9 +425,6 @@ class TC_GAME_API CreatureScript : public UnitScript
         CreatureScript(char const* name);
 
     public:
-
-        // Called when the creature tries to spawn. Return false to block spawn and re-evaluate on next tick.
-        virtual bool CanSpawn(ObjectGuid::LowType /*spawnId*/, uint32 /*entry*/, CreatureTemplate const* /*baseTemplate*/, CreatureTemplate const* /*actTemplate*/, CreatureData const* /*cData*/, Map const* /*map*/) const { return true; }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const = 0;
@@ -462,7 +459,7 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
     using AreaTriggerScript::AreaTriggerScript;
 
     public:
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) override;
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) final override;
 
     protected:
         virtual bool _OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) = 0;
@@ -875,6 +872,9 @@ class TC_GAME_API QuestScript : public ScriptObject
         // Called when a quest status change
         virtual void OnQuestStatusChange(Player* /*player*/, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus /*newStatus*/) { }
 
+        // Called for auto accept quests when player closes quest UI after seeing initial quest details
+        virtual void OnAcknowledgeAutoAccept(Player* /*player*/, Quest const* /*quest*/) { }
+
         // Called when a quest objective data change
         virtual void OnQuestObjectiveChange(Player* /*player*/, Quest const* /*quest*/, QuestObjective const& /*objective*/, int32 /*oldAmount*/, int32 /*newAmount*/) { }
 };
@@ -1000,7 +1000,6 @@ class TC_GAME_API ScriptMgr
 
     public: /* CreatureScript */
 
-        bool CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureData const* cData, Map const* map);
         CreatureAI* GetCreatureAI(Creature* creature);
 
     public: /* GameObjectScript */
@@ -1140,7 +1139,7 @@ class TC_GAME_API ScriptMgr
         void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
-        void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+        void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo);
 
     public: /* AreaTriggerEntityScript */
 
@@ -1160,6 +1159,7 @@ class TC_GAME_API ScriptMgr
     public: /* QuestScript */
 
         void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus);
+        void OnQuestAcknowledgeAutoAccept(Player* player, Quest const* quest);
         void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount);
 
     private:

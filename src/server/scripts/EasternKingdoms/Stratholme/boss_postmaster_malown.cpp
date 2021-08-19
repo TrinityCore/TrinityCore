@@ -63,7 +63,7 @@ class boss_postmaster_malown : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WAILINGDEAD, 19000);     // lasts 6 sec
                 events.ScheduleEvent(EVENT_BACKHAND, 8000);         // 2 sec stun

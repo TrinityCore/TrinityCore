@@ -21,6 +21,7 @@
 #include "CreatureAISelector.h"
 #include "DB2Stores.h"
 #include "FleeingMovementGenerator.h"
+#include "FlightPathMovementGenerator.h"
 #include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
@@ -153,17 +154,19 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
     return top()->GetMovementGeneratorType();
 }
 
-MovementGeneratorType MotionMaster::GetMotionSlotType(int slot) const
+MovementGeneratorType MotionMaster::GetMotionSlotType(MovementSlot slot) const
 {
-    if (!_slot[slot])
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
         return MAX_MOTION_TYPE;
-    else
-        return _slot[slot]->GetMovementGeneratorType();
+
+    return _slot[slot]->GetMovementGeneratorType();
 }
 
-MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
+MovementGenerator* MotionMaster::GetMotionSlot(MovementSlot slot) const
 {
-    ASSERT(slot >= 0);
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
+        return nullptr;
+
     return _slot[slot];
 }
 
@@ -314,18 +317,18 @@ void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
     }
 }
 
-void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generatePath)
+void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generatePath, Optional<float> finalOrient)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         TC_LOG_DEBUG("misc", "Player (%s) targeted point (Id: %u X: %f Y: %f Z: %f).", _owner->GetGUID().ToString().c_str(), id, x, y, z);
-        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath), MOTION_SLOT_ACTIVE);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, 0.0f, nullptr, nullptr, finalOrient), MOTION_SLOT_ACTIVE);
     }
     else
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u %s) targeted point (ID: %u X: %f Y: %f Z: %f).",
             _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), id, x, y, z);
-        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath), MOTION_SLOT_ACTIVE);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, 0.0f, nullptr, nullptr, finalOrient), MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -453,7 +456,9 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
-    _owner->GetClosePoint(x, y, z, _owner->GetCombatReach(), dist, angle);
+    _owner->GetNearPoint2D(x, y, dist, _owner->GetOrientation() + angle);
+    z = _owner->GetPositionZ();
+    _owner->UpdateAllowedPositionZ(x, y, z);
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 
@@ -505,7 +510,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         if (_owner->IsFlying())
             point.z = z;
         else
-            point.z = _owner->GetMap()->GetHeight(_owner->GetPhaseShift(), point.x, point.y, z);
+            point.z = _owner->GetMapHeight(point.x, point.y, z);
 
         init.Path().push_back(point);
     }
@@ -588,11 +593,11 @@ void MotionMaster::ResumeSplineChain(SplineChainResumeInfo const& info)
 void MotionMaster::MoveFall(uint32 id /*=0*/)
 {
     // use larger distance for vmap height search than in most other cases
-    float tz = _owner->GetMap()->GetHeight(_owner->GetPhaseShift(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
+    float tz = _owner->GetMapHeight(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
     if (tz <= INVALID_HEIGHT)
     {
         TC_LOG_DEBUG("misc", "MotionMaster::MoveFall: unable to retrieve a proper height at map %u (x: %f, y: %f, z: %f).",
-            _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+            _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ() + _owner->GetPositionZ());
         return;
     }
 
