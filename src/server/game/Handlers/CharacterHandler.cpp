@@ -245,7 +245,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
                 ++num;
             }
         }
-        while (result->NextRow());
+        while (result->NextRow() && num < MAX_CHARACTERS_PER_REALM); // client shows an error if more than 10 characters are listed
     }
 
     data.put<uint8>(0, num);

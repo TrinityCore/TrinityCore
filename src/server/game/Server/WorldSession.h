@@ -236,6 +236,8 @@ enum AccountDataType
 #define GLOBAL_CACHE_MASK           0x15
 #define PER_CHARACTER_CACHE_MASK    0xEA
 
+uint32 constexpr MAX_CHARACTERS_PER_REALM = 10; // max supported by client in char enum
+
 struct AccountData
 {
     AccountData() : Time(0), Data("") { }
