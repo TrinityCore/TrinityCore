@@ -492,7 +492,7 @@ struct npc_twisted_visage : public ScriptedAI
                         case TALENT_SPEC_WARRIOR_FURY:
                             _scheduler.Schedule(2s, [this](TaskContext intercept)
                             {
-                                if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, -8.f))
+                                if (!me->IsWithinCombatRange(me->GetVictim(), 8.0f))
                                 {
                                     DoCastVictim(SPELL_TWISTED_VISAGE_INTERCEPT);
                                     intercept.Repeat(12s);
@@ -556,7 +556,7 @@ struct npc_twisted_visage : public ScriptedAI
                         shoot.Repeat(1s, 4s);
                     }).Schedule(5s, [this](TaskContext disengage)
                     {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, 4.f))
+                        if (me->IsWithinCombatRange(me->GetVictim(), 4.0f))
                         {
                             DoCastVictim(SPELL_TWISTED_VISAGE_DISENGAGE);
                             disengage.Repeat(10s, 20s);
@@ -617,7 +617,7 @@ struct npc_twisted_visage : public ScriptedAI
                 case CLASS_DEATH_KNIGHT:
                     _scheduler.Schedule(5s, [this](TaskContext deathGrip)
                     {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, -3.f))
+                        if (!me->IsWithinCombatRange(me->GetVictim(), 3.0f))
                         {
                             DoCastVictim(SPELL_TWISTED_VISAGE_DEATH_GRIP);
                             deathGrip.Repeat(12s);
