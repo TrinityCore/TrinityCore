@@ -24,7 +24,8 @@
 
 #include "Config.h"
 
-std::string CreateConfigWithMap(std::map<std::string, std::string> map) {
+std::string CreateConfigWithMap(std::map<std::string, std::string> map)
+{
     auto mTempFileRel = boost::filesystem::unique_path("deleteme.ini");
     auto mTempFileAbs = boost::filesystem::temp_directory_path() / mTempFileRel;
     std::ofstream iniStream;
