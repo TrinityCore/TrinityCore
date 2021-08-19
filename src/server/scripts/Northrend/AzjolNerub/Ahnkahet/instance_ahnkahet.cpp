@@ -170,6 +170,45 @@ class spell_combined_toxins : public AuraScript
     }
 };
 
+// 56702, 59103 - Shadow Sickle
+class spell_shadow_sickle : public AuraScript
+{
+    PrepareAuraScript(spell_shadow_sickle);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_SICKLE_TRIGGERED, SPELL_SHADOW_SICKLE_TRIGGERED_H });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        Unit* owner = GetUnitOwner();
+
+        uint32 spellId = 0;
+
+        switch (GetId())
+        {
+            case 56702:
+                spellId = SPELL_SHADOW_SICKLE_TRIGGERED;
+                break;
+            case 59103:
+                spellId = SPELL_SHADOW_SICKLE_TRIGGERED_H;
+                break;
+            default:
+                return;
+        }
+
+        if (owner->IsAIEnabled())
+            if (Unit* target = owner->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 40.f))
+                owner->CastSpell(target, spellId, CastSpellExtraArgs(aurEff).SetTriggerFlags(TriggerCastFlags::TRIGGERED_FULL_MASK));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadow_sickle::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
