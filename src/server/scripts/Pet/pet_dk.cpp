@@ -130,7 +130,8 @@ struct npc_pet_dk_guardian : public AggressorAI
 
 enum DancingRuneWeaponMisc
 {
-    TASK_GROUP_COMBAT = 1
+    TASK_GROUP_COMBAT = 1,
+    DATA_INITIAL_TARGET_GUID = 1,
 };
 
 struct npc_pet_dk_rune_weapon : ScriptedAI
@@ -155,9 +156,39 @@ struct npc_pet_dk_rune_weapon : ScriptedAI
         DoCastSelf(SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
         DoCastSelf(SPELL_DK_PET_SCALING_03, true);
 
-        _scheduler.Schedule(1s, [this](TaskContext activate)
+        _scheduler.Schedule(500ms, [this](TaskContext activate)
         {
             me->SetReactState(REACT_AGGRESSIVE);
+            if (!_targetGUID.IsEmpty())
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
+                    me->EngageWithTarget(target);
+            }
+        }).Schedule(6s, [this](TaskContext visual)
+        {
+            // Cast every 6 seconds
+            DoCastSelf(SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+            visual.Repeat();
+        });
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 id) override
+    {
+        if (id == DATA_INITIAL_TARGET_GUID)
+            _targetGUID = guid;
+    }
+
+    void JustEnteredCombat(Unit* who) override
+    {
+        ScriptedAI::JustEnteredCombat(who);
+
+        // Investigate further if these casts are done by any owned aura, eitherway SMSG_SPELL_GO is sent every X seconds.
+        _scheduler.Schedule(1s, TASK_GROUP_COMBAT, [this](TaskContext aggro8YD)
+        {
+            // Cast every second
+            if (Unit* victim = me->GetVictim())
+                DoCast(victim, SPELL_AGGRO_8_YD_PBAE, true);
+            aggro8YD.Repeat();
         });
     }
 
@@ -187,13 +218,13 @@ struct npc_pet_dk_rune_weapon : ScriptedAI
     // Do not reload Creature templates on evade mode enter - prevent visual lost
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        if (me->IsInEvadeMode())
-            return;
-
         _scheduler.CancelGroup(TASK_GROUP_COMBAT);
 
         if (!me->IsAlive())
+        {
+            EngagementOver();
             return;
+        }
 
         Unit* owner = me->GetCharmerOrOwner();
 
@@ -204,6 +235,7 @@ struct npc_pet_dk_rune_weapon : ScriptedAI
         me->SetCannotReachTarget(false);
         me->DoNotReacquireSpellFocusTarget();
         me->SetTarget(ObjectGuid::Empty);
+        EngagementOver();
 
         if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
         {
@@ -217,9 +249,89 @@ private:
     // we prioritize between things that are in combat with owner based on the owner's threat to them
     bool UpdateRuneWeaponVictim()
     {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return false;
+
+        if (!me->IsInCombat() && !owner->IsInCombat())
+            return false;
+
+        Unit* currentTarget = me->GetVictim();
+        if (currentTarget && !CanAIAttack(currentTarget))
+        {
+            me->InterruptNonMeleeSpells(true); // do not finish casting on invalid targets
+            me->AttackStop();
+            currentTarget = nullptr;
+        }
+
+        Unit* selectedTarget = nullptr;
+
+        // first, try to get the initial target
+        if (Unit* initialTarget = ObjectAccessor::GetUnit(*me, _targetGUID))
+        {
+            if (CanAIAttack(initialTarget))
+                selectedTarget = initialTarget;
+        }
+        else
+            _targetGUID.Clear();
+
+        CombatManager const& mgr = owner->GetCombatManager();
+        if (!selectedTarget)
+        {
+            if (mgr.HasPvPCombat())
+            {
+                // select pvp target
+                float minDistance = 0.f;
+                for (auto const& pair : mgr.GetPvPCombatRefs())
+                {
+                    Unit* target = pair.second->GetOther(owner);
+                    if (target->GetTypeId() != TYPEID_PLAYER)
+                        continue;
+                    if (!CanAIAttack(target))
+                        continue;
+
+                    float dist = owner->GetDistance(target);
+                    if (!selectedTarget || dist < minDistance)
+                    {
+                        selectedTarget = target;
+                        minDistance = dist;
+                    }
+                }
+            }
+        }
+
+        if (!selectedTarget)
+        {
+            // select pve target
+            float maxThreat = 0.f;
+            for (auto const& pair : mgr.GetPvECombatRefs())
+            {
+                Unit* target = pair.second->GetOther(owner);
+                if (!CanAIAttack(target))
+                    continue;
+
+                float threat = target->GetThreatManager().GetThreat(owner);
+                if (threat >= maxThreat)
+                {
+                    selectedTarget = target;
+                    maxThreat = threat;
+                }
+            }
+        }
+
+        if (!selectedTarget)
+        {
+            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            return false;
+        }
+
+        if (selectedTarget != me->GetVictim())
+            AttackStart(selectedTarget);
+        return true;
     }
 
     TaskScheduler _scheduler;
+    ObjectGuid _targetGUID;
 };
 
 void AddSC_deathknight_pet_scripts()

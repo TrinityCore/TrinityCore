@@ -98,11 +98,11 @@ struct npc_pet_mage_mirror_image : ScriptedAI
     // Do not reload Creature templates on evade mode enter - prevent visual lost
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        if (me->IsInEvadeMode())
-            return;
-
         if (!me->IsAlive())
+        {
+            EngagementOver();
             return;
+        }
 
         Unit* owner = me->GetCharmerOrOwner();
 
@@ -113,6 +113,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         me->SetCannotReachTarget(false);
         me->DoNotReacquireSpellFocusTarget();
         me->SetTarget(ObjectGuid::Empty);
+        EngagementOver();
 
         if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
         {
