@@ -95,11 +95,13 @@ namespace WorldPackets
         {
             AuctionBucketKey Key;
             int32 TotalQuantity = 0;
+            int32 RequiredLevel = 0;
             uint64 MinPrice = 0;
             std::vector<int32> ItemModifiedAppearanceIDs;
             Optional<uint8> MaxBattlePetQuality;
             Optional<uint8> MaxBattlePetLevel;
             Optional<uint8> BattlePetBreedID;
+            Optional<uint32> Unk901_1;
             bool ContainsOwnerItem = false;
             bool ContainsOnlyCollectedAppearances = false;
         };
@@ -128,6 +130,7 @@ namespace WorldPackets
             Optional<uint64> BidAmount;
             std::vector<Item::ItemGemData> Gems;
             Optional<WorldPackets::AuctionHouse::AuctionBucketKey> AuctionBucketKey;
+            Optional<ObjectGuid> Creator;
         };
 
         struct AuctionBidderNotification
@@ -394,8 +397,8 @@ namespace WorldPackets
 
             Optional<uint64> TotalPrice;
             Optional<uint32> Quantity;
-            Optional<int32> QuoteDuration;
-            int32 Unknown830 = 0;
+            Optional<Duration<Milliseconds>> QuoteDuration;
+            int32 ItemID = 0;
             uint32 DesiredDelay = 0;
         };
 

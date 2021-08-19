@@ -260,6 +260,8 @@ class instance_uldaman : public InstanceMapScript
                 {
                     archaedas->RemoveAura(SPELL_FREEZE_ANIM);
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
+                    archaedas->SetFaction(FACTION_TITAN);
+                    archaedas->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     whoWokeuiArchaedasGUID = target;
                 }
             }

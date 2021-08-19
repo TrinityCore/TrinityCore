@@ -172,7 +172,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[4];
-        snprintf(buf, 4, "%2X ", read<uint8>(i));
+        snprintf(buf, 4, "%2X", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";

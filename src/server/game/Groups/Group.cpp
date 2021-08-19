@@ -63,7 +63,7 @@ Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupFlags(GROUP_FLAG_NONE)
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
 m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_maxEnchantingLevel(0), m_dbStoreId(0),
-m_readyCheckStarted(false), m_readyCheckTimer(0), m_activeMarkers(0)
+m_readyCheckStarted(false), m_readyCheckTimer(Milliseconds::zero()), m_activeMarkers(0)
 {
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].Clear();
@@ -169,7 +169,8 @@ bool Group::Create(Player* leader)
 
         Group::ConvertLeaderInstancesToGroup(leader, this, false);
 
-        ASSERT(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
+        bool addMemberResult = AddMember(leader);
+        ASSERT(addMemberResult); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
     }
     else if (!AddMember(leader))
         return false;
@@ -1547,13 +1548,14 @@ void Group::UpdatePlayerOutOfRange(Player* player)
 
     WorldPackets::Party::PartyMemberFullState packet;
     packet.Initialize(player);
+    packet.Write();
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
         member = itr->GetSource();
         if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
-            member->SendDirectMessage(packet.Write());
+            member->SendDirectMessage(packet.GetRawPacket());
     }
 }
 
@@ -2273,12 +2275,12 @@ void Group::UpdateReadyCheck(uint32 diff)
     if (!m_readyCheckStarted)
         return;
 
-    m_readyCheckTimer -= diff;
-    if (m_readyCheckTimer <= 0)
+    m_readyCheckTimer -= Milliseconds(diff);
+    if (m_readyCheckTimer <= Milliseconds::zero())
         EndReadyCheck();
 }
 
-void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration)
+void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration)
 {
     if (m_readyCheckStarted)
         return;
@@ -2308,7 +2310,7 @@ void Group::EndReadyCheck(void)
         return;
 
     m_readyCheckStarted = false;
-    m_readyCheckTimer = 0;
+    m_readyCheckTimer = Milliseconds::zero();
 
     ResetMemberReadyChecked();
 

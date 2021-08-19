@@ -21,7 +21,9 @@
 #include "Packet.h"
 #include "ItemPacketsCommon.h"
 #include "Guild.h"
+#include "MythicPlusPacketsCommon.h"
 #include "ObjectGuid.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -119,6 +121,7 @@ namespace WorldPackets
             bool Authenticated = false;
             bool SorEligible = false;
             GuildRosterProfessionData Profession[2];
+            MythicPlus::DungeonScoreSummary DungeonScore;
         };
 
         class GuildRoster final : public ServerPacket
@@ -202,6 +205,7 @@ namespace WorldPackets
             void Read() override;
 
             std::string Name;
+            Optional<int32> Unused910;
         };
 
         class GuildInvite final : public ServerPacket
@@ -227,10 +231,10 @@ namespace WorldPackets
             std::string OldGuildName;
         };
 
-        class GuildEventAwayChange final : public ServerPacket
+        class GuildEventStatusChange final : public ServerPacket
         {
         public:
-            GuildEventAwayChange() : ServerPacket(SMSG_GUILD_EVENT_AWAY_CHANGE, 16 + 1) {  }
+            GuildEventStatusChange() : ServerPacket(SMSG_GUILD_EVENT_STATUS_CHANGE, 16 + 1) {  }
 
             WorldPacket const* Write() override;
 
@@ -678,7 +682,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 CurrentVersion = 0;
+            Timestamp<> CurrentVersion;
         };
 
         struct GuildRewardItem
@@ -700,7 +704,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<GuildRewardItem> RewardItems;
-            int32 Version = 0;
+            Timestamp<> Version;
         };
 
         class GuildBankActivate final : public ClientPacket
@@ -826,28 +830,174 @@ namespace WorldPackets
             bool FullUpdate = false;
         };
 
-        // TODO: research new guild bank opcodes
-        class GuildBankSwapItems final : public ClientPacket
+        class DepositGuildBankItem final : public ClientPacket
         {
         public:
-            GuildBankSwapItems(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            DepositGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_DEPOSIT_GUILD_BANK_ITEM, std::move(packet)) { }
 
             void Read() override;
 
             ObjectGuid Banker;
-            int32 StackCount = 0;
-            int32 BankItemCount = 0;
-            uint32 ItemID = 0;
-            uint32 ItemID1 = 0;
-            uint8 ToSlot = 0;
-            uint8 BankSlot = 0;
-            uint8 BankSlot1 = 0;
             uint8 BankTab = 0;
-            uint8 BankTab1 = 0;
-            uint8 ContainerSlot = 0;
+            uint8 BankSlot = 0;
+            Optional<uint8> ContainerSlot;
             uint8 ContainerItemSlot = 0;
-            bool AutoStore = false;
-            bool BankOnly = false;
+        };
+
+        class StoreGuildBankItem final : public ClientPacket
+        {
+        public:
+            StoreGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_STORE_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            Optional<uint8> ContainerSlot;
+            uint8 ContainerItemSlot = 0;
+        };
+
+        class SwapItemWithGuildBankItem final : public ClientPacket
+        {
+        public:
+            SwapItemWithGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_ITEM_WITH_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            Optional<uint8> ContainerSlot;
+            uint8 ContainerItemSlot = 0;
+        };
+
+        class SwapGuildBankItemWithGuildBankItem final : public ClientPacket
+        {
+        public:
+            SwapGuildBankItemWithGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_GUILD_BANK_ITEM_WITH_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            std::array<uint8, 2> BankTab = { };
+            std::array<uint8, 2> BankSlot = { };
+        };
+
+        class MoveGuildBankItem final : public ClientPacket
+        {
+        public:
+            MoveGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            uint8 BankTab1 = 0;
+            uint8 BankSlot1 = 0;
+        };
+
+        class MergeItemWithGuildBankItem final : public ClientPacket
+        {
+        public:
+            MergeItemWithGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_MERGE_ITEM_WITH_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            Optional<uint8> ContainerSlot;
+            uint8 ContainerItemSlot = 0;
+            uint32 StackCount = 0;
+        };
+
+        class SplitItemToGuildBank final : public ClientPacket
+        {
+        public:
+            SplitItemToGuildBank(WorldPacket&& packet) : ClientPacket(CMSG_SPLIT_ITEM_TO_GUILD_BANK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            Optional<uint8> ContainerSlot;
+            uint8 ContainerItemSlot = 0;
+            uint32 StackCount = 0;
+        };
+
+        class MergeGuildBankItemWithItem final : public ClientPacket
+        {
+        public:
+            MergeGuildBankItemWithItem(WorldPacket&& packet) : ClientPacket(CMSG_MERGE_GUILD_BANK_ITEM_WITH_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            Optional<uint8> ContainerSlot;
+            uint8 ContainerItemSlot = 0;
+            uint32 StackCount = 0;
+        };
+
+        class SplitGuildBankItemToInventory final : public ClientPacket
+        {
+        public:
+            SplitGuildBankItemToInventory(WorldPacket&& packet) : ClientPacket(CMSG_SPLIT_GUILD_BANK_ITEM_TO_INVENTORY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            Optional<uint8> ContainerSlot;
+            uint8 ContainerItemSlot = 0;
+            uint32 StackCount = 0;
+        };
+
+        class AutoStoreGuildBankItem final : public ClientPacket
+        {
+        public:
+            AutoStoreGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_STORE_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+        };
+
+        class MergeGuildBankItemWithGuildBankItem final : public ClientPacket
+        {
+        public:
+            MergeGuildBankItemWithGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_MERGE_GUILD_BANK_ITEM_WITH_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            uint8 BankTab1 = 0;
+            uint8 BankSlot1 = 0;
+            uint32 StackCount = 0;
+        };
+
+        class SplitGuildBankItem final : public ClientPacket
+        {
+        public:
+            SplitGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_SPLIT_GUILD_BANK_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 BankTab = 0;
+            uint8 BankSlot = 0;
+            uint8 BankTab1 = 0;
+            uint8 BankSlot1 = 0;
+            uint32 StackCount = 0;
         };
 
         class GuildBankLogQuery final : public ClientPacket

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "FleeingMovementGenerator.h"
 #include "VMapFactory.h"
 #include "CreatureAI.h"
 #include "ObjectAccessor.h"
@@ -24,7 +25,6 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "PhasingHandler.h"
-#include "FleeingMovementGenerator.h"
 
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
@@ -115,8 +115,7 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
     GetPoint(owner, destination);
 
     // Add LOS check for target point
-    Position currentPosition = owner->GetPosition();
-    if (!VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(PhasingHandler::GetTerrainMapId(owner->GetPhaseShift(), owner->GetMap(), currentPosition.m_positionX, currentPosition.m_positionY), currentPosition.m_positionX, currentPosition.m_positionY, currentPosition.m_positionZ + 2.0f, destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ() + 2.0f, VMAP::ModelIgnoreFlags::Nothing))
+    if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
     {
         _timer.Reset(200);
         return;

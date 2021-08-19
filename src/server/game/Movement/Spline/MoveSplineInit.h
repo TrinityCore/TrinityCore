@@ -181,7 +181,9 @@ namespace Movement
     inline void MoveSplineInit::SetAnimation(AnimType anim)
     {
         args.time_perc = 0.f;
-        args.flags.EnableAnimation((uint8)anim);
+        args.animTier.emplace();
+        args.animTier->AnimTier = anim;
+        args.flags.EnableAnimation();
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }

@@ -41,6 +41,18 @@ struct WorldPacketCryptIV
     std::array<uint8, 12> Value;
 };
 
+bool WorldPacketCrypt::PeekDecryptRecv(uint8* data, size_t length)
+{
+    if (_initialized)
+    {
+        WorldPacketCryptIV iv{ _clientCounter, 0x544E4C43 };
+        if (!_clientDecrypt.ProcessNoIntegrityCheck(iv.Value, data, length))
+            return false;
+    }
+
+    return true;
+}
+
 bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, Trinity::Crypto::AES::Tag& tag)
 {
     if (_initialized)

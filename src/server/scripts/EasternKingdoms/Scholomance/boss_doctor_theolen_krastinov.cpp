@@ -53,9 +53,9 @@ class boss_doctor_theolen_krastinov : public CreatureScript
         {
             boss_theolenkrastinovAI(Creature* creature) : BossAI(creature, DATA_DOCTORTHEOLENKRASTINOV) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_REND, 8000);
                 events.ScheduleEvent(EVENT_BACKHAND, 9000);
                 events.ScheduleEvent(EVENT_FRENZY, 1000);

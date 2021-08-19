@@ -302,6 +302,7 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction<T>& transacti
     /// @todo More elegant way
     if (errorCode == ER_LOCK_DEADLOCK)
     {
+        //todo: handle multiple sync threads deadlocking in a similar way as async threads
         uint8 loopBreaker = 5;
         for (uint8 i = 0; i < loopBreaker; ++i)
         {

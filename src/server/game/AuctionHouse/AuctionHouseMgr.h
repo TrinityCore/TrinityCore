@@ -179,7 +179,7 @@ struct AuctionsBucketKey
 
     static std::size_t Hash(AuctionsBucketKey const& bucket);
     static AuctionsBucketKey ForItem(Item* item);
-    static AuctionsBucketKey ForCommodity(uint32 itemId);
+    static AuctionsBucketKey ForCommodity(ItemTemplate const* itemTemplate);
 };
 
 bool operator<(AuctionsBucketKey const& left, AuctionsBucketKey const& right);
@@ -313,7 +313,7 @@ public:
     void BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& replicateResponse, Player* player,
         uint32 global, uint32 cursor, uint32 tombstone, uint32 count);
 
-    uint64 CalcualteAuctionHouseCut(uint64 bidAmount) const;
+    uint64 CalculateAuctionHouseCut(uint64 bidAmount) const;
 
     CommodityQuote const* CreateCommodityQuote(Player* player, uint32 itemId, uint32 quantity);
     void CancelCommodityQuote(ObjectGuid guid);

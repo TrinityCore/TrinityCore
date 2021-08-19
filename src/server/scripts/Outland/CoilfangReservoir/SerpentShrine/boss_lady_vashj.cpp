@@ -253,14 +253,14 @@ public:
             instance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             // remove old tainted cores to prevent cheating in phase 2
             Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 if (Player* player = itr->GetSource())
                     player->DestroyItemCount(31088, 1, true);
-            StartEvent(); // this is EnterCombat(), so were are 100% in combat, start the event
+            StartEvent(); // this is JustEngagedWith(), so were are 100% in combat, start the event
 
             if (Phase != 2)
                 AttackStart(who);
@@ -600,7 +600,7 @@ public:
             VashjGUID = instance->GetGuidData(DATA_LADYVASHJ);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -680,7 +680,7 @@ public:
                 ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             AddThreat(who, 0.1f);
         }

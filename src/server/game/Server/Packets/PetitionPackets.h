@@ -101,6 +101,7 @@ namespace WorldPackets
 
             ObjectGuid Unit;
             std::string Title;
+            uint32 Unused910 = 0;
         };
 
         class PetitionShowSignatures final : public ClientPacket

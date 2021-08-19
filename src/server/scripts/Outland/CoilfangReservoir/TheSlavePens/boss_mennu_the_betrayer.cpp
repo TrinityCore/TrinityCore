@@ -71,9 +71,9 @@ class boss_mennu_the_betrayer : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30000);
                 events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 20000);
                 events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 60000);

@@ -992,9 +992,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         // set the platform as active object to dramatically increase visibility range
                         // note: "active" gameobjects do not block grid unloading
                         if (GameObject* precipice = instance->GetGameObject(ArthasPrecipiceGUID))
-                            precipice->setActive(state == IN_PROGRESS);
+                            precipice->SetFarVisible(state == IN_PROGRESS);
+
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
-                            platform->setActive(state == IN_PROGRESS);
+                            platform->SetFarVisible(state == IN_PROGRESS);
 
                         if (instance->IsHeroic())
                         {

@@ -113,9 +113,9 @@ class boss_eregos : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(SAY_AGGRO);
                 /* Checks for present drakes vehicles from each type and deactivate achievement that corresponds to each found

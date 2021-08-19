@@ -19,6 +19,7 @@
 #define TRINITY_POINTMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Optional.h"
 
 class Creature;
 namespace Movement
@@ -30,7 +31,7 @@ template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr) : _movementId(id), _destination(x, y, z), _speed(speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false) { }
+        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr, Optional<float> finalOrient = {}) : _movementId(id), _destination(x, y, z), _speed(speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false), _finalOrient(finalOrient) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
@@ -52,6 +53,8 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         bool _generatePath;
         bool _recalculateSpeed;
         bool _interrupt;
+        //! if set then unit will turn to specified _orient in provided _pos
+        Optional<float> _finalOrient;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>

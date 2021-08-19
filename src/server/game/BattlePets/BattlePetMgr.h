@@ -96,7 +96,7 @@ public:
         void CalculateStats();
 
         WorldPackets::BattlePet::BattlePet PacketInfo;
-        BattlePetSaveInfo SaveInfo;
+        BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
     };
 
     explicit BattlePetMgr(WorldSession* owner);
@@ -114,6 +114,7 @@ public:
     void RemovePet(ObjectGuid guid);
 
     uint8 GetPetCount(uint32 species) const;
+    uint32 GetPetUniqueSpeciesCount() const;
 
     WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return slot < _slots.size() ? &_slots[slot] : nullptr; }
     void UnlockSlot(uint8 slot);
@@ -133,6 +134,8 @@ public:
     void SendJournal();
     void SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded);
     void SendError(BattlePetError error, uint32 creatureId);
+
+    bool HasJournalLock() const { return true; }
 
 private:
     WorldSession* _owner;

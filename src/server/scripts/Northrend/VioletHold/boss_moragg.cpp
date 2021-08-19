@@ -109,7 +109,7 @@ class spell_moragg_ray : public SpellScriptLoader
                 if (Unit* target = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                 {
                     uint32 triggerSpell = aurEff->GetSpellEffectInfo()->TriggerSpell;
-                    GetTarget()->CastSpell(target, triggerSpell, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    GetTarget()->CastSpell(target, triggerSpell, aurEff);
                 }
             }
 
@@ -149,12 +149,12 @@ public:
             if (Unit* caster = GetCaster())
             {
                 if (aurEff->GetTickNumber() >= 8)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, aurEff);
 
                 if (aurEff->GetTickNumber() >= 4)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, aurEff);
 
-                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, aurEff);
             }
         }
 

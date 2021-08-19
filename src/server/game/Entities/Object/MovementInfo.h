@@ -118,6 +118,7 @@ struct MovementForce
     uint32 TransportID = 0;
     float Magnitude = 0.0f;
     uint8 Type = 0;
+    int32 Unused910 = 0;
 };
 
 class MovementForces

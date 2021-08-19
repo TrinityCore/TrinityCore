@@ -89,6 +89,7 @@ public:
             currentEvent = 0;
             eventProgress = 0;
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetImmuneToPC(false);
         }
 
@@ -131,12 +132,12 @@ public:
 
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_ATTACKED, who);
         }
 
-        void JustDied(Unit* /*slayer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(TYPE_NARALEX_EVENT, FAIL);
             instance->SetData(TYPE_NARALEX_PART1, FAIL);

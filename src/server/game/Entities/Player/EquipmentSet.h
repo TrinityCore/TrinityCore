@@ -52,8 +52,12 @@ struct EquipmentSetInfo
         std::string SetName;
         std::string SetIcon;
         std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces;
-        std::array<int32, EQUIPMENT_SET_SLOTS> Appearances;    ///< ItemModifiedAppearanceID
+        std::array<int32, EQUIPMENT_SET_SLOTS> Appearances;     ///< ItemModifiedAppearanceID
         std::array<int32, 2> Enchants;                          ///< SpellItemEnchantmentID
+        int32 SecondaryShoulderApparanceID = 0;                 ///< Secondary shoulder appearance
+        int32 SecondaryShoulderSlot = 0;                        ///< Always 2 if secondary shoulder apperance is used
+        int32 SecondaryWeaponAppearanceID = 0;                  ///< For legion artifacts: linked child item appearance
+        int32 SecondaryWeaponSlot = 0;                          ///< For legion artifacts: which slot is used by child item
     } Data;
 
     /// Server-side data

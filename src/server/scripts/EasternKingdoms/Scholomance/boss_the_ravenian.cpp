@@ -50,9 +50,9 @@ class boss_the_ravenian : public CreatureScript
         {
             boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THERAVENIAN) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_TRAMPLE, 24000);
                 events.ScheduleEvent(EVENT_CLEAVE, 15000);
                 events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 40000);

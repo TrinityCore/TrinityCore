@@ -45,6 +45,11 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 
         _worldPacket.append(equipSet->Enchants.data(), equipSet->Enchants.size());
 
+        _worldPacket << int32(equipSet->SecondaryShoulderApparanceID);
+        _worldPacket << int32(equipSet->SecondaryShoulderSlot);
+        _worldPacket << int32(equipSet->SecondaryWeaponAppearanceID);
+        _worldPacket << int32(equipSet->SecondaryWeaponSlot);
+
         _worldPacket.WriteBit(equipSet->AssignedSpecIndex != -1);
         _worldPacket.WriteBits(equipSet->SetName.length(), 8);
         _worldPacket.WriteBits(equipSet->SetIcon.length(), 9);
@@ -62,7 +67,7 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 
 void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
 {
-    Set.Type = EquipmentSetInfo::EquipmentSetType(_worldPacket.read<int32>());
+    Set.Type = _worldPacket.read<EquipmentSetInfo::EquipmentSetType, int32>();
     _worldPacket >> Set.Guid;
     _worldPacket >> Set.SetID;
     _worldPacket >> Set.IgnoreMask;
@@ -75,6 +80,11 @@ void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
 
     _worldPacket >> Set.Enchants[0];
     _worldPacket >> Set.Enchants[1];
+
+    _worldPacket >> Set.SecondaryShoulderApparanceID;
+    _worldPacket >> Set.SecondaryShoulderSlot;
+    _worldPacket >> Set.SecondaryWeaponAppearanceID;
+    _worldPacket >> Set.SecondaryWeaponSlot;
 
     bool hasSpecIndex = _worldPacket.ReadBit();
 

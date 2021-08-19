@@ -19,6 +19,7 @@
 #define __TRINITY_VEHICLEDEFINES_H
 
 #include "Define.h"
+#include "Duration.h"
 #include <vector>
 #include <map>
 
@@ -111,6 +112,11 @@ struct VehicleAccessory
     uint32 SummonTime;
     int8 SeatId;
     uint8 SummonedType;
+};
+
+struct VehicleTemplate
+{
+    Milliseconds DespawnDelay = Milliseconds::zero();
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;

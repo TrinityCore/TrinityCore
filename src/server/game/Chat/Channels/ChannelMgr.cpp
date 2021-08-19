@@ -73,6 +73,15 @@ Channel* ChannelMgr::GetChannelForPlayerByNamePart(std::string const& namePart, 
     return nullptr;
 }
 
+Channel* ChannelMgr::GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player* playerSearcher)
+{
+    for (Channel* channel : playerSearcher->GetJoinedChannels())
+        if (channel->GetGUID() == channelGuid)
+            return channel;
+
+    return nullptr;
+}
+
 Channel* ChannelMgr::GetJoinChannel(uint32 channelId, std::string const& name, AreaTableEntry const* zoneEntry /*= nullptr*/)
 {
     if (channelId) // builtin

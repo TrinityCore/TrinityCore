@@ -118,19 +118,6 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundEY::GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const
-{
-    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeeper))
-    {
-        WorldPackets::Battleground::BattlegroundPlayerPosition position;
-        position.Guid = player->GetGUID();
-        position.Pos = player->GetPosition();
-        position.IconID = player->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
-        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
-        positions->push_back(position);
-    }
-}
-
 void BattlegroundEY::StartingEventCloseDoors()
 {
     SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_IMMEDIATELY);
@@ -155,7 +142,7 @@ void BattlegroundEY::StartingEventOpenDoors()
     }
 
     // Achievement: Flurry
-    StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, BG_EY_EVENT_START_BATTLE);
+    StartCriteriaTimer(CriteriaStartEvent::SendEvent, BG_EY_EVENT_START_BATTLE);
 }
 
 void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
@@ -697,7 +684,7 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* player, GameObject* target
     SetFlagPicker(player->GetGUID());
     //get flag aura on player
     player->CastSpell(player, BG_EY_NETHERSTORM_FLAG_SPELL, true);
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
 
     if (player->GetTeam() == ALLIANCE)
         SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
@@ -824,7 +811,7 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* player, uint32 BgObjectType
     m_FlagState = BG_EY_FLAG_STATE_WAIT_RESPAWN;
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
 
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
 
     if (player->GetTeam() == ALLIANCE)
     {

@@ -59,16 +59,12 @@ class TC_GAME_API TempSummon : public Creature
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() const { return m_timer; }
 
-        void SetVisibleBySummonerOnly(bool visibleBySummonerOnly) { m_visibleBySummonerOnly = visibleBySummonerOnly; }
-        bool IsVisibleBySummonerOnly() const { return m_visibleBySummonerOnly; }
-
         SummonPropertiesEntry const* const m_Properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;
         uint32 m_lifetime;
         ObjectGuid m_summonerGUID;
-        bool m_visibleBySummonerOnly;
 };
 
 class TC_GAME_API Minion : public TempSummon

@@ -19,6 +19,7 @@
 #define TokenPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -41,18 +42,18 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            struct AuctionableTokenAuctionable
+            struct AuctionableTokenInfo
             {
                 uint64 UnkInt1      = 0;
-                uint32 UnkInt2      = 0;
-                uint32 Owner        = 0;
+                Timestamp<> UnkInt2;
+                int32 Owner         = 0;
                 uint64 BuyoutPrice  = 0;
-                uint32 EndTime      = 0;
+                uint32 DurationLeft = 0;
             };
 
             uint32 UnkInt           = 0; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
             uint32 Result           = 0;
-            std::vector<AuctionableTokenAuctionable> AuctionableTokenAuctionableList;
+            std::vector<AuctionableTokenInfo> AuctionableTokenAuctionableList;
         };
 
         class CommerceTokenGetMarketPrice final : public ClientPacket

@@ -530,4 +530,9 @@ void CascDumpStorage(HANDLE hStorage, const char * szDumpFile)
     }
 }
 
+#else // _DEBUG
+
+// so linker won't mind this .cpp file is empty in non-DEBUG builds
+void unused_symbol() { }
+
 #endif // _DEBUG

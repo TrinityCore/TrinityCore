@@ -55,7 +55,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
         return;
     }
 

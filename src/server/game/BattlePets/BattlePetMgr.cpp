@@ -359,6 +359,16 @@ uint8 BattlePetMgr::GetPetCount(uint32 species) const
     }));
 }
 
+uint32 BattlePetMgr::GetPetUniqueSpeciesCount() const
+{
+    std::set<uint32> speciesIds;
+    std::transform(_pets.begin(), _pets.end(), std::inserter(speciesIds, speciesIds.end()), [](std::pair<uint64 const, BattlePet> const& pet)
+    {
+        return pet.second.PacketInfo.Species;
+    });
+    return speciesIds.size();
+}
+
 void BattlePetMgr::UnlockSlot(uint8 slot)
 {
     if (!_slots[slot].Locked)

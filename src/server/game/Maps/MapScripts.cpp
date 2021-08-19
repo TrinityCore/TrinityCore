@@ -637,7 +637,7 @@ void Map::ScriptsProcess()
 
                 Unit* uSource = nullptr;
                 Unit* uTarget = nullptr;
-                // source/target cast spell at target/source (script->datalong2: 0: s->t 1: s->s 2: t->t 3: t->s
+                // source/target cast spell at target/source (script->datalong2: 0: s->t 1: s->s 2: t->t 3: t->s)
                 switch (step.script->CastSpell.Flags)
                 {
                     case SF_CASTSPELL_SOURCE_TO_TARGET: // source -> target

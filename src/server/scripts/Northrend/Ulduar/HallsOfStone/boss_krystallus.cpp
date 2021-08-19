@@ -63,10 +63,10 @@ class boss_krystallus : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_BOULDER_TOSS, urand(3000, 9000));
                 events.ScheduleEvent(EVENT_GROUND_SLAM, urand(15000, 18000));

@@ -41,6 +41,7 @@ void WorldPackets::Chat::ChatMessageWhisper::Read()
 void WorldPackets::Chat::ChatMessageChannel::Read()
 {
     _worldPacket >> Language;
+    _worldPacket >> ChannelGUID;
     uint32 targetLen = _worldPacket.ReadBits(9);
     uint32 textLen = _worldPacket.ReadBits(9);
     Target = _worldPacket.ReadString(targetLen);
@@ -70,6 +71,7 @@ void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
     _worldPacket.ResetBitPos();
 
     _worldPacket >> Params;
+    _worldPacket >> *ChannelGUID;
     Target = _worldPacket.ReadString(targetLen);
 }
 
@@ -176,10 +178,11 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(Prefix.length(), 5);
     _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(ChatText.length(), 12);
-    _worldPacket.WriteBits(_ChatFlags, 11);
+    _worldPacket.WriteBits(_ChatFlags, 14);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
     _worldPacket.WriteBit(Unused_801.is_initialized());
+    _worldPacket.WriteBit(ChannelGUID.is_initialized());
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(SenderName);
@@ -191,13 +194,19 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     if (Unused_801)
         _worldPacket << uint32(*Unused_801);
 
+    if (ChannelGUID)
+        _worldPacket << *ChannelGUID;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Chat::Emote::Write()
 {
     _worldPacket << Guid;
-    _worldPacket << EmoteID;
+    _worldPacket << uint32(EmoteID);
+    _worldPacket << uint32(SpellVisualKitIDs.size());
+    if (!SpellVisualKitIDs.empty())
+        _worldPacket.append(SpellVisualKitIDs.data(), SpellVisualKitIDs.size());
 
     return &_worldPacket;
 }
@@ -207,6 +216,9 @@ void WorldPackets::Chat::CTextEmote::Read()
     _worldPacket >> Target;
     _worldPacket >> EmoteID;
     _worldPacket >> SoundIndex;
+    SpellVisualKitIDs.resize(_worldPacket.read<uint32>());
+    for (int32& spellVisualKitId : SpellVisualKitIDs)
+        _worldPacket >> spellVisualKitId;
 }
 
 WorldPacket const* WorldPackets::Chat::STextEmote::Write()

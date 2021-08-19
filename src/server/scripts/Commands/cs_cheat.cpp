@@ -58,9 +58,6 @@ public:
 
     static bool HandleGodModeCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -84,9 +81,6 @@ public:
 
     static bool HandleCasttimeCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -110,9 +104,6 @@ public:
 
     static bool HandleCoolDownCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -136,9 +127,6 @@ public:
 
     static bool HandlePowerCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -152,7 +140,11 @@ public:
         }
         else if (argstr == "on")
         {
-            handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_POWER);
+            Player* player = handler->GetSession()->GetPlayer();
+            // Set max power to all powers
+            for (uint32 i = 0; i < MAX_POWERS; ++i)
+                player->SetPower(Powers(i), player->GetMaxPower(Powers(i)));
+            player->SetCommandStatusOn(CHEAT_POWER);
             handler->SendSysMessage("Power Cheat is ON. You don't need mana/rage/energy to use spells.");
             return true;
         }
@@ -179,9 +171,6 @@ public:
 
     static bool HandleWaterWalkCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         Player* target = handler->GetSession()->GetPlayer();

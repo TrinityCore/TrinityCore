@@ -29,6 +29,7 @@ EndScriptData */
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
@@ -580,8 +581,8 @@ public:
                     ObjectGuid::LowType receiverId = queryFields[3].GetUInt64();
                     std::string receiver    = queryFields[4].GetString();
                     std::string subject     = queryFields[5].GetString();
-                    uint64 deliverTime      = queryFields[6].GetUInt32();
-                    uint64 expireTime       = queryFields[7].GetUInt32();
+                    time_t deliverTime      = queryFields[6].GetInt64();
+                    time_t expireTime       = queryFields[7].GetInt64();
                     uint64 money            = queryFields[8].GetUInt64();
                     uint8 hasItem           = queryFields[9].GetUInt8();
                     uint32 gold = money / GOLD;
@@ -691,7 +692,7 @@ public:
         if (*args)
             range = atoi((char*)args);
 
-        RespawnVector respawns;
+        std::vector<RespawnInfo*> respawns;
         LocaleConstant locale = handler->GetSession()->GetSessionDbcLocale();
         char const* stringOverdue = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_OVERDUE, locale);
         char const* stringCreature = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_CREATURES, locale);
@@ -714,7 +715,7 @@ public:
             uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
             uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
-            std::string respawnTime = ri->respawnTime > time(NULL) ? secsToTimeString(uint64(ri->respawnTime - time(NULL)), true) : stringOverdue;
+            std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
             handler->PSendSysMessage(UI64FMTD " | %u | [%02u,%02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
         }
 
@@ -735,7 +736,7 @@ public:
             uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
             uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
-            std::string respawnTime = ri->respawnTime > time(NULL) ? secsToTimeString(uint64(ri->respawnTime - time(NULL)), true) : stringOverdue;
+            std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
             handler->PSendSysMessage(UI64FMTD " | %u | [% 02u, % 02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
         }
         return true;
@@ -759,7 +760,7 @@ public:
 
         handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_LIST, target->GetSceneMgr().GetActiveSceneCount());
 
-        for (auto instanceByPackage : instanceByPackageMap)
+        for (auto const& instanceByPackage : instanceByPackageMap)
             handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second->ScenePackageId, instanceByPackage.first);
 
         return true;
