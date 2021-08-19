@@ -238,12 +238,12 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, Posi
 
     if (_isDynamicTransport)
     {
+        m_goValue.Transport.PathProgress = getMSTime();
         if (m_goValue.Transport.AnimationInfo)
         {
             SetPeriod(m_goValue.Transport.AnimationInfo->TotalTime);
             m_goValue.Transport.PathProgress -= m_goValue.Transport.PathProgress % GetTransportPeriod();    // align to period
         }
-        m_goValue.Transport.PathProgress = getMSTime();
     }
     else
     {
