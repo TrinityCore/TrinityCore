@@ -181,7 +181,7 @@ struct boss_prince_taldaram : public BossAI
                         _flameSphereTargetGUID = victim->GetGUID();
                         DoCast(victim, SPELL_CONJURE_FLAME_SPHERE);
                     }
-                    events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 15s);
+                    events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 30s, 35s);
                     break;
                 case EVENT_VANISH:
                 {
