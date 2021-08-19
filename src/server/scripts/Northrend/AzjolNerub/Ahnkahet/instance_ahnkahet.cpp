@@ -214,4 +214,5 @@ void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
     RegisterSpellScript(spell_combined_toxins);
+    RegisterSpellScript(spell_shadow_sickle);
 }
