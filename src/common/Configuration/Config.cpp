@@ -66,16 +66,16 @@ namespace
     //   LogDB.Opt.ClearTime => LOG_DB_OPT_CLEAR_TIME
     std::string IniKeyToEnvVarKey(std::string const& key)
     {
-        std::string result = "";
+        std::string result;
 
         const char *str = key.c_str();
         int n = key.length();
 
-        char curr          = 0;
-        bool isEnd         = false;
-        bool nextIsUpper   = false;
-        bool currIsNumeric = false;
-        bool nextIsNumeric = false;
+        char curr;
+        bool isEnd;
+        bool nextIsUpper;
+        bool currIsNumeric;
+        bool nextIsNumeric;
 
         for (int i = 0; i < n; ++i)
         {
@@ -94,7 +94,7 @@ namespace
                 // handle "aB" to "A_B"
                 if (!isupper(curr) && nextIsUpper)
                 {
-                    result += toupper(curr);
+                    result += static_cast<char>(std::toupper(curr));
                     result += '_';
                     continue;
                 }
@@ -105,7 +105,7 @@ namespace
                 // handle "a1" to "a_1"
                 if (!currIsNumeric && nextIsNumeric)
                 {
-                    result += toupper(curr);
+                    result += static_cast<char>(std::toupper(curr));
                     result += '_';
                     continue;
                 }
@@ -113,13 +113,13 @@ namespace
                 // handle "1a" to "1_a"
                 if (currIsNumeric && !nextIsNumeric)
                 {
-                    result += toupper(curr);
+                    result += static_cast<char>(std::toupper(curr));
                     result += '_';
                     continue;
                 }
             }
 
-            result += toupper(curr);
+            result += static_cast<char>(std::toupper(curr));
         }
         return result;
     }
@@ -232,7 +232,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
             }
 
             if (!quiet)
-                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), (*envVar).c_str());
+                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), envVar->c_str());
 
             return *castedVar;
         }
@@ -264,7 +264,7 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
         if (envVar)
         {
             if (!quiet)
-                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), (*envVar).c_str());
+                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), envVar->c_str());
 
             return *envVar;
         }

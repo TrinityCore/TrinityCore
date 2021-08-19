@@ -18,13 +18,12 @@
 #define CATCH_CONFIG_ENABLE_CHRONO_STRINGMAKER
 #include "tc_catch2.h"
 
+#include "Config.h"
 #include <boost/filesystem.hpp>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
-#include "Config.h"
-
-std::string CreateConfigWithMap(std::map<std::string, std::string> map)
+std::string CreateConfigWithMap(std::map<std::string, std::string> const& map)
 {
     auto mTempFileRel = boost::filesystem::unique_path("deleteme.ini");
     auto mTempFileAbs = boost::filesystem::temp_directory_path() / mTempFileRel;
