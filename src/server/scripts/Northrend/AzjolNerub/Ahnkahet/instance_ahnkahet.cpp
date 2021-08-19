@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "UnitAI.h"
 #include <sstream>
 
 DoorData const doorData[] =
