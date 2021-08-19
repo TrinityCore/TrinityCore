@@ -30,10 +30,21 @@
 
 enum DeathKnightSpells
 {
-    SPELL_DK_SUMMON_GARGOYLE_1      = 49206,
-    SPELL_DK_SUMMON_GARGOYLE_2      = 50514,
-    SPELL_DK_DISMISS_GARGOYLE       = 50515,
-    SPELL_DK_SANCTUARY              = 54661
+    SPELL_DK_SUMMON_GARGOYLE_1 = 49206,
+    SPELL_DK_SUMMON_GARGOYLE_2 = 50514,
+    SPELL_DK_DISMISS_GARGOYLE = 50515,
+    SPELL_DK_SANCTUARY = 54661,
+    SPELL_DK_DANCING_RUNE_WEAPON = 49028,
+    SPELL_COPY_WEAPON = 63416,
+    SPELL_DK_RUNE_WEAPON_MARK = 50474,
+    SPELL_DK_DANCING_RUNE_WEAPON_VISUAL = 53160,
+    SPELL_FAKE_AGGRO_RADIUS_8_YARD = 49812,
+    SPELL_DK_RUNE_WEAPON_SCALING_01 = 51905,
+    SPELL_DK_RUNE_WEAPON_SCALING = 51906,
+    SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION = 67561,
+    SPELL_DK_PET_SCALING_03 = 61697,
+    SPELL_AGGRO_8_YD_PBAE = 49813,
+    SPELL_DISMISS_RUNEBLADE = 50707, // Right now despawn is done by its duration
 };
 
 struct npc_pet_dk_ebon_gargoyle : CasterAI
@@ -117,9 +128,93 @@ struct npc_pet_dk_guardian : public AggressorAI
     }
 };
 
+struct npc_pet_dk_rune_weapon : ScriptedAI
+{
+    npc_pet_dk_rune_weapon(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (summoner->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        Unit* unitSummoner = summoner->ToUnit();
+
+        DoCast(unitSummoner, SPELL_COPY_WEAPON, true);
+        DoCast(unitSummoner, SPELL_DK_RUNE_WEAPON_MARK, true);
+        DoCastSelf(SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+        DoCastSelf(SPELL_FAKE_AGGRO_RADIUS_8_YARD, true);
+        DoCastSelf(SPELL_DK_RUNE_WEAPON_SCALING_01, true);
+        DoCastSelf(SPELL_DK_RUNE_WEAPON_SCALING, true);
+        DoCastSelf(SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
+        DoCastSelf(SPELL_DK_PET_SCALING_03, true);
+
+        // Investigate further if these casts are done by any owned aura, eitherway SMSG_SPELL_GO is sent every X seconds.
+        _scheduler.Schedule(6s, [this](TaskContext visual)
+        {
+            // Cast every 6 seconds
+            DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+            visual.Repeat();
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+        {
+            me->DespawnOrUnsummon();
+            return;
+        }
+
+        if (!UpdateRuneWeaponVictim())
+            return;
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        Unit* owner = me->GetOwner();
+        return owner && who->IsAlive() && me->IsValidAttackTarget(who) && !who->HasBreakableByDamageCrowdControlAura() && who->IsInCombatWith(owner) && ScriptedAI::CanAIAttack(who);
+    }
+
+    // Do not reload Creature templates on evade mode enter - prevent visual lost
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (me->IsInEvadeMode())
+            return;
+
+        if (!me->IsAlive())
+            return;
+
+        Unit* owner = me->GetCharmerOrOwner();
+
+        me->CombatStop(true);
+        me->SetLootRecipient(nullptr);
+        me->ResetPlayerDamageReq();
+        me->SetLastDamagedTime(0);
+        me->SetCannotReachTarget(false);
+        me->DoNotReacquireSpellFocusTarget();
+        me->SetTarget(ObjectGuid::Empty);
+
+        if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+        {
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+    }
+
+private:
+    // custom UpdateVictim implementation to handle special target selection
+    // we prioritize between things that are in combat with owner based on the owner's threat to them
+    bool UpdateRuneWeaponVictim()
+    {
+    }
+
+    TaskScheduler _scheduler;
+};
 
 void AddSC_deathknight_pet_scripts()
 {
     RegisterCreatureAI(npc_pet_dk_ebon_gargoyle);
     RegisterCreatureAI(npc_pet_dk_guardian);
+    RegisterCreatureAI(npc_pet_dk_rune_weapon);
 }
