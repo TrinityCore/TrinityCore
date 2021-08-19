@@ -27,13 +27,13 @@ WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
     _worldPacket << UnkInt;
     _worldPacket << Result;
     _worldPacket << uint32(AuctionableTokenAuctionableList.size());
-    for (AuctionableTokenAuctionable const& auctionableTokenAuctionable : AuctionableTokenAuctionableList)
+    for (AuctionableTokenInfo const& auctionableTokenAuctionable : AuctionableTokenAuctionableList)
     {
         _worldPacket << auctionableTokenAuctionable.UnkInt1;
         _worldPacket << auctionableTokenAuctionable.UnkInt2;
-        _worldPacket << auctionableTokenAuctionable.Owner;
         _worldPacket << auctionableTokenAuctionable.BuyoutPrice;
-        _worldPacket << auctionableTokenAuctionable.EndTime;
+        _worldPacket << auctionableTokenAuctionable.Owner;
+        _worldPacket << auctionableTokenAuctionable.DurationLeft;
     }
 
     return &_worldPacket;

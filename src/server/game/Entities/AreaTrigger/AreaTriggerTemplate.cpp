@@ -28,7 +28,7 @@ AreaTriggerScaleInfo::AreaTriggerScaleInfo()
 
 AreaTriggerTemplate::AreaTriggerTemplate()
 {
-    Id = 0;
+    Id = { 0, false };
     Type = AREATRIGGER_TYPE_MAX;
     Flags = 0;
     ScriptId = 0;

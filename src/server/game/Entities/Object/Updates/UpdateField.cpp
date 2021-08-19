@@ -18,9 +18,9 @@
 #include "UpdateField.h"
 #include "ByteBuffer.h"
 
-void UF::WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const& updateMask, ByteBuffer& data)
+void UF::WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const& updateMask, ByteBuffer& data, int32 bitsForSize /*= 32*/)
 {
-    data.WriteBits(size, 32);
+    data.WriteBits(size, bitsForSize);
     if (size > 32)
     {
         if (data.HasUnfinishedBitPack())
@@ -40,9 +40,9 @@ void UF::WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const
         data.WriteBits(updateMask.back(), size % 32);
 }
 
-void UF::WriteCompleteDynamicFieldUpdateMask(std::size_t size, ByteBuffer& data)
+void UF::WriteCompleteDynamicFieldUpdateMask(std::size_t size, ByteBuffer& data, int32 bitsForSize /*= 32*/)
 {
-    data.WriteBits(size, 32);
+    data.WriteBits(size, bitsForSize);
     if (size > 32)
     {
         if (data.HasUnfinishedBitPack())

@@ -737,7 +737,8 @@ bool Battlenet::Session::ReadHeaderHandler()
 bool Battlenet::Session::ReadDataHandler()
 {
     Header header;
-    ASSERT(header.ParseFromArray(_headerBuffer.GetReadPointer(), _headerBuffer.GetActiveSize()));
+    bool parseSuccess = header.ParseFromArray(_headerBuffer.GetReadPointer(), _headerBuffer.GetActiveSize());
+    ASSERT(parseSuccess);
 
     if (header.service_id() != 0xFE)
     {

@@ -235,7 +235,7 @@ void GroupMgr::LoadGroups()
             if (!difficultyEntry || difficultyEntry->InstanceType != mapEntry->InstanceType)
                 continue;
 
-            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->ID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt32()), fields[6].GetUInt32(), fields[7].GetUInt64() == 0, true);
+            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->ID, fields[2].GetUInt32(), Difficulty(diff), fields[5].GetInt64(), fields[6].GetUInt32(), fields[7].GetUInt64() == 0, true);
             group->BindToInstance(save, fields[3].GetBool(), true);
             ++count;
         }

@@ -131,6 +131,18 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
             int32 UILink = 0;
         };
+
+        class GameObjectPlaySpellVisual final : public ServerPacket
+        {
+        public:
+            GameObjectPlaySpellVisual() : ServerPacket(SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL, 16 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            ObjectGuid ActivatorGUID;
+            int32 SpellVisualID = 0;
+        };
     }
 }
 #endif // GOPackets_h__

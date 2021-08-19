@@ -455,17 +455,6 @@ DetectPosCollision = 1
 CheckGameObjectLoS = 1
 
 #
-#    TargetPosRecalculateRange
-#        Description: Max distance from movement target point (+moving unit size) and targeted
-#                     object (+size) after that new target movement point calculated.
-#        Range:       0.5-5.0
-#        Default:     1.5
-#                     0.5 - (Minimum, Contact Range, More sensitive reaction to target movement)
-#                     5.0 - (Maximum, Melee attack range, Less CPU usage)
-
-TargetPosRecalculateRange = 1.5
-
-#
 #    UpdateUptimeInterval
 #        Description: Update realm uptime period (in minutes).
 #        Default:     10 - (10 minutes)
@@ -707,7 +696,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     7 - (Expansion 7)
+#        Default:     8 - (Expansion 8)
+#                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
 #                     5 - (Expansion 5)
 #                     4 - (Expansion 4)
@@ -716,7 +706,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 7
+Expansion = 8
 
 #
 #    MinPlayerName
@@ -840,28 +830,19 @@ CharactersPerAccount = 50
 #
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
-#        Range:       1-16
-#        Default:     16 - (Client limitation)
+#        Range:       1-200
+#        Default:     50
 
-CharactersPerRealm = 16
-
-#
-#    DemonHuntersPerRealm
-#        Description: Limit number of demon hunter characters per account on this realm.
-#        Range:       1-16
-#        Default:     1
-
-DemonHuntersPerRealm = 1
+CharactersPerRealm = 50
 
 #
 #    CharacterCreating.MinLevelForDemonHunter
 #        Description: Limit creating demon hunters only for account with another
 #                     character of specific level.
-#        Default:     70 - (Enabled, Requires at least another level 70 character)
-#                     0  - (Disabled)
+#        Default:     0  - (Disabled, No requirement)
 #                     1  - (Enabled, Requires at least another level 1 character)
 
-CharacterCreating.MinLevelForDemonHunter = 70
+CharacterCreating.MinLevelForDemonHunter = 0
 
 #
 #    SkipCinematics
@@ -878,9 +859,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     120
+#        Default:     60
 
-MaxPlayerLevel = 120
+MaxPlayerLevel = 60
 
 #
 #    MinDualSpecLevel
@@ -901,17 +882,25 @@ StartPlayerLevel = 1
 #    StartDeathKnightPlayerLevel
 #        Description: Starting level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     55
+#        Default:     8
 
-StartDeathKnightPlayerLevel = 55
+StartDeathKnightPlayerLevel = 8
 
 #
 #    StartDemonHunterPlayerLevel
 #        Description: Staring level for demon hunters after creation.
-#        Range:       98-MaxPlayerLevel
-#        Default:     98
+#        Range:       1-MaxPlayerLevel
+#        Default:     8
 
-StartDemonHunterPlayerLevel = 98
+StartDemonHunterPlayerLevel = 8
+
+#
+#    StartAlliedRacePlayerLevel
+#        Description: Staring level for allied races after creation.
+#        Range:       1-MaxPlayerLevel
+#        Default:     10
+
+StartAlliedRacePlayerLevel = 10
 
 #
 #    StartPlayerMoney
@@ -925,9 +914,9 @@ StartPlayerMoney = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     85
+#        Default:     60
 
-RecruitAFriend.MaxLevel = 85
+RecruitAFriend.MaxLevel = 60
 
 #
 #    RecruitAFriend.MaxDifference
@@ -1155,11 +1144,47 @@ MaxGroupXPDistance = 74
 MaxRecruitAFriendBonusDistance = 100
 
 #
+#    MinQuestScaledXPRatio
+#        Description: Min ratio of experience that a quest can grant when player level scaling is factored.
+#        Example:     50 (No less than 50% experience granted from a lower leveled quests completion)
+#                     100 (Quests always grant full experience upon completion)
+#        Default:     0 - (Quests too low may grant no experience)
+
+MinQuestScaledXPRatio = 0
+
+#
+#    MinCreatureScaledXPRatio
+#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This 
+#                     will also allow spell procs to trigger, such as Drain Soul, if > 0 and exp is grantable.
+#        Example:     50 (No less than 50% experience granted from a lower leveled creature kill)
+#                     100 (Creature kills always grant full experience upon kill)
+#        Default:     0 - (Creatures too low may grant no experience)
+
+MinCreatureScaledXPRatio = 0
+
+#
+#    MinDiscoveredScaledXPRatio
+#        Description: Min ratio of experience that an area discovery event will grant when player level scaling is factored.
+#        Example:     50 (No less than 50% experience granted from discovering a new section of map)
+#                     100 (Map exploration always grant full experience upon discovery)
+#        Default:     0 - (No experience granted when discovered area is too low level)
+
+MinDiscoveredScaledXPRatio = 0
+
+#
 #    MailDeliveryDelay
 #        Description: Time (in seconds) mail delivery is delayed when sending items.
 #        Default:     3600 - (1 hour)
 
 MailDeliveryDelay = 3600
+
+#
+#    CleanOldMailTime
+#        Description: The hour at which old mails will be returned or deleted by the server.
+#                     This can be any integer number from 0 to 23. 20 will be 8pm server time.
+#        Default:     4 - 4am
+
+CleanOldMailTime = 4
 
 #
 #    SkillChance.Prospecting
@@ -3300,14 +3325,6 @@ PlayerDump.DisallowPaths = 1
 #        Default:     1
 
 PlayerDump.DisallowOverwrite = 1
-
-#
-#     UI.ShowQuestLevelsInDialogs
-#        Description: Show quest levels next to quest titles in UI dialogs
-#        Example:     [13] Westfall Stew
-#        Default:     0  - (Do not show)
-
-UI.ShowQuestLevelsInDialogs = 0
 
 #
 #     Calculate.Creature.Zone.Area.Data

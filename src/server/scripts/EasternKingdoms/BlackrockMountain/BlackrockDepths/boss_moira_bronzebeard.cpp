@@ -51,7 +51,7 @@ class boss_moira_bronzebeard : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 //_events.ScheduleEvent(EVENT_HEAL, 12000); // not used atm // These times are probably wrong
                 _events.ScheduleEvent(EVENT_MINDBLAST, 16000);

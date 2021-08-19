@@ -263,43 +263,6 @@ bool Bag::IsEmpty() const
     return true;
 }
 
-uint32 Bag::GetItemCount(uint32 item, Item* eItem) const
-{
-    Item* pItem;
-    uint32 count = 0;
-    for (uint32 i=0; i < GetBagSize(); ++i)
-    {
-        pItem = m_bagslot[i];
-        if (pItem && pItem != eItem && pItem->GetEntry() == item)
-            count += pItem->GetCount();
-    }
-
-    if (eItem && eItem->GetTemplate()->GetGemProperties())
-    {
-        for (uint32 i=0; i < GetBagSize(); ++i)
-        {
-            pItem = m_bagslot[i];
-            if (pItem && pItem != eItem && pItem->GetSocketColor(0))
-                count += pItem->GetGemCountWithID(item);
-        }
-    }
-
-    return count;
-}
-
-uint32 Bag::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) const
-{
-    uint32 count = 0;
-    for (uint32 i = 0; i < GetBagSize(); ++i)
-        if (Item* pItem = m_bagslot[i])
-            if (pItem != skipItem)
-                if (ItemTemplate const* pProto = pItem->GetTemplate())
-                    if (pProto->GetItemLimitCategory() == limitCategory)
-                        count += m_bagslot[i]->GetCount();
-
-    return count;
-}
-
 uint8 Bag::GetSlotByItemGUID(ObjectGuid guid) const
 {
     for (uint32 i = 0; i < GetBagSize(); ++i)
@@ -316,4 +279,14 @@ Item* Bag::GetItemByPos(uint8 slot) const
         return m_bagslot[slot];
 
     return nullptr;
+}
+
+uint32 GetBagSize(Bag const* bag)
+{
+    return bag->GetBagSize();
+}
+
+Item* GetItemInBag(Bag const* bag, uint8 slot)
+{
+    return bag->GetItemByPos(slot);
 }

@@ -241,6 +241,37 @@ namespace Trinity
                     ++itr;
             }
         }
+
+        /**
+         * Returns a mutable reference to element at index i
+         * Will resize vector if neccessary to ensure element at i can be safely written
+         *
+         * This exists as separate overload instead of one function with default argument to allow using
+         * with vectors of non-default-constructible classes
+         */
+        template<typename T>
+        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i)
+        {
+            if (i >= vec.size())
+                vec.resize(i + 1);
+
+            return vec[i];
+        }
+
+        /**
+         * Returns a mutable reference to element at index i
+         * Will resize vector if neccessary to ensure element at i can be safely written
+         *
+         * This overload allows specifying what value to pad vector with during .resize
+         */
+        template<typename T>
+        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i, T const& resizeDefault)
+        {
+            if (i >= vec.size())
+                vec.resize(i + 1, resizeDefault);
+
+            return vec[i];
+        }
     }
     //! namespace Containers
 }

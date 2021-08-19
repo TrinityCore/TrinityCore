@@ -21,9 +21,11 @@
 #include "Define.h"
 #include "SmartScriptMgr.h"
 
+class AreaTrigger;
 class Creature;
 class GameObject;
 class Player;
+class Quest;
 class SpellInfo;
 class Unit;
 class WorldObject;
@@ -36,9 +38,9 @@ class TC_GAME_API SmartScript
         SmartScript();
         ~SmartScript();
 
-        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr);
+        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr, Quest const* qst = nullptr);
         void GetScript();
-        void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene);
+        void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* quest);
 
         void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr, std::string const& varString = "");
         void ProcessEvent(SmartScriptHolder& e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr, std::string const& varString = "");
@@ -71,23 +73,12 @@ class TC_GAME_API SmartScript
         void DoFindFriendlyMissingBuff(std::vector<Creature*>& creatures, float range, uint32 spellid) const;
         Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly) const;
 
-        bool IsSmart(Creature* c = nullptr);
-        bool IsSmartGO(GameObject* g = nullptr);
+        bool IsSmart(Creature* c, bool silent = false);
+        bool IsSmart(GameObject* g, bool silent = false);
+        bool IsSmart(bool silent = false);
 
-        void StoreTargetList(ObjectVector const& targets, uint32 id)
-        {
-            // insert or replace
-            _storedTargets.erase(id);
-            _storedTargets.emplace(id, ObjectGuidVector(targets));
-        }
-
-        ObjectVector const* GetStoredTargetVector(uint32 id, WorldObject const& ref) const
-        {
-            auto itr = _storedTargets.find(id);
-            if (itr != _storedTargets.end())
-                return itr->second.GetObjectVector(ref);
-            return nullptr;
-        }
+        void StoreTargetList(ObjectVector const& targets, uint32 id);
+        ObjectVector const* GetStoredTargetVector(uint32 id, WorldObject const& ref) const;
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset);
         uint32 GetCounterValue(uint32 id) const;
@@ -98,8 +89,7 @@ class TC_GAME_API SmartScript
         void OnReset();
         void ResetBaseObject();
 
-        //TIMED_ACTIONLIST (script type 9 aka script9)
-        void SetScript9(SmartScriptHolder& e, uint32 entry);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         Unit* GetLastInvoker(Unit* invoker = nullptr) const;
         ObjectGuid mLastInvoker;
         typedef std::unordered_map<uint32, uint32> CounterMap;
@@ -116,13 +106,16 @@ class TC_GAME_API SmartScript
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
         SmartAIEventList mTimedActionList;
+        ObjectGuid mTimedActionListInvoker;
         bool isProcessingTimedActionList;
         Creature* me;
         ObjectGuid meOrigGUID;
         GameObject* go;
         ObjectGuid goOrigGUID;
         AreaTriggerEntry const* trigger;
+        AreaTrigger* areaTrigger;
         SceneTemplate const* sceneTemplate;
+        Quest const* quest;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 

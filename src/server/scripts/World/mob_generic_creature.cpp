@@ -19,6 +19,7 @@
 #include "Map.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 
 class trigger_periodic : public CreatureScript
@@ -43,7 +44,7 @@ public:
             if (timer <= diff)
             {
                 if (spell)
-                    me->CastSpell(me, spell, true);
+                    me->CastSpell(me, spell->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spell->Difficulty));
                 timer = interval;
             }
             else

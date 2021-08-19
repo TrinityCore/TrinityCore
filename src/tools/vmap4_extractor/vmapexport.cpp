@@ -22,6 +22,7 @@
 #include "DB2CascFileSource.h"
 #include "ExtractorDB2LoadInfo.h"
 #include "StringFormat.h"
+#include "VMapDefinitions.h"
 #include "vmapexport.h"
 #include "wdtfile.h"
 #include "wmo.h"
@@ -38,7 +39,7 @@
 #include <cerrno>
 #include <sys/stat.h>
 
-#ifdef WIN32
+#ifdef _WIN32
     #include <direct.h>
     #define mkdir _mkdir
 #endif
@@ -388,24 +389,14 @@ static bool RetardCheck()
     return true;
 }
 
-//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-// Main
-//
-// The program must be run with two command line arguments
-//
-// Arg1 - The source MPQ name (for testing reading and file find)
-// Arg2 - Listfile name
-//
-
 int main(int argc, char ** argv)
 {
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;
-    const char *versionString = "V4.06 2018_02";
 
     // Use command line arguments, when some
-    if (!processArgv(argc, argv, versionString))
+    if (!processArgv(argc, argv, VMAP::VMAP_MAGIC))
         return 1;
 
     if (!RetardCheck())
@@ -426,7 +417,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n", versionString);
+    printf("Extract %s. Beginning work ....\n", VMAP::VMAP_MAGIC);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
@@ -484,7 +475,7 @@ int main(int argc, char ** argv)
         }
         catch (std::exception const& e)
         {
-            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetLastError()), e.what());
+            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetCascError()), e.what());
             exit(1);
         }
 
@@ -502,6 +493,10 @@ int main(int argc, char ** argv)
             map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
             map.Name = record.GetString("MapName");
             map.Directory = record.GetString("Directory");
+
+            if (map.ParentMapID < 0)
+                map.ParentMapID = int16(record.GetUInt16("CosmeticParentMapID"));
+
             if (map.ParentMapID >= 0)
                 maps_that_are_parents.insert(map.ParentMapID);
 
@@ -539,10 +534,10 @@ int main(int argc, char ** argv)
     printf("\n");
     if (!success)
     {
-        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n", versionString, preciseVectorData);
+        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n", VMAP::VMAP_MAGIC, preciseVectorData);
         getchar();
     }
 
-    printf("Extract %s. Work complete. No errors.\n", versionString);
+    printf("Extract %s. Work complete. No errors.\n", VMAP::VMAP_MAGIC);
     return 0;
 }

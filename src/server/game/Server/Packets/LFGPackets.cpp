@@ -69,6 +69,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot con
     data << uint32(lfgBlackListSlot.Reason);
     data << int32(lfgBlackListSlot.SubReason1);
     data << int32(lfgBlackListSlot.SubReason2);
+    data << uint32(lfgBlackListSlot.SoftLock);
 
     return data;
 }
@@ -262,27 +263,6 @@ WorldPacket const* WorldPackets::LFG::LFGRoleCheckUpdate::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGJoinBlackListSlot const& lfgBlackListSlot)
-{
-    data << int32(lfgBlackListSlot.Slot);
-    data << int32(lfgBlackListSlot.Reason);
-    data << int32(lfgBlackListSlot.SubReason1);
-    data << int32(lfgBlackListSlot.SubReason2);
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGJoinBlackList const& blackList)
-{
-    data << blackList.Guid;
-    data << uint32(blackList.Slots.size());
-
-    for (WorldPackets::LFG::LFGJoinBlackListSlot const& slot : blackList.Slots)
-        data << slot;
-
-    return data;
-}
-
 WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
 {
     _worldPacket << Ticket;
@@ -291,7 +271,7 @@ WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
     _worldPacket << uint32(BlackList.size());
     _worldPacket << uint32(BlackListNames.size());
 
-    for (LFGJoinBlackList const& blackList : BlackList)
+    for (LFGBlackList const& blackList : BlackList)
         _worldPacket << blackList;
 
     for (std::string const* str : BlackListNames)

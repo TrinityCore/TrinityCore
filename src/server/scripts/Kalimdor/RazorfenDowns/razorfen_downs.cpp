@@ -109,7 +109,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (channeling)
                 Talk(SAY_WATCH_OUT, who);
@@ -330,7 +330,7 @@ public:
             instance->SetData(DATA_WAVE, me->GetEntry());
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_WEB, urand(5000, 8000));
         }

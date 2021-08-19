@@ -27,7 +27,7 @@ namespace WorldPackets
         class WardenData final : public ClientPacket
         {
         public:
-            WardenData(WorldPacket&& packet) : ClientPacket(CMSG_WARDEN_DATA, std::move(packet)) { }
+            WardenData(WorldPacket&& packet) : ClientPacket(CMSG_WARDEN3_DATA, std::move(packet)) { }
 
             void Read() override;
 

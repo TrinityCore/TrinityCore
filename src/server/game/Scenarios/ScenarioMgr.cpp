@@ -16,6 +16,7 @@
  */
 
 #include "ScenarioMgr.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceScenario.h"
@@ -147,41 +148,35 @@ void ScenarioMgr::LoadScenarioPOI()
 
     uint32 count = 0;
 
-    //                                                      0            1        2     3       4         5       6          7               8
-    QueryResult result = WorldDatabase.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
+    //                                                      0            1        2     3       4         5       6          7               8                        9
+    QueryResult result = WorldDatabase.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 scenario POI definitions. DB table `scenario_poi` is empty.");
         return;
     }
 
-    //                                                       0        1    2  3
-    QueryResult points = WorldDatabase.Query("SELECT CriteriaTreeID, Idx1, X, Y FROM scenario_poi_points ORDER BY CriteriaTreeID DESC, Idx1, Idx2");
+    //                                                       0        1    2  3  4
+    QueryResult pointsResult = WorldDatabase.Query("SELECT CriteriaTreeID, Idx1, X, Y, Z FROM scenario_poi_points ORDER BY CriteriaTreeID DESC, Idx1, Idx2");
 
-    std::vector<std::vector<std::vector<ScenarioPOIPoint>>> POIs;
+    std::unordered_map<int32, std::map<int32, std::vector<ScenarioPOIPoint>>> allPoints;
 
-    if (points)
+    if (pointsResult)
     {
-        // The first result should have the highest criteriaTreeId
-        Field* fields = points->Fetch();
-        uint32 criteriaTreeIdMax = fields[0].GetInt32();
-        POIs.resize(criteriaTreeIdMax + 1);
+        Field* fields = pointsResult->Fetch();
 
         do
         {
-            fields = points->Fetch();
+            fields = pointsResult->Fetch();
 
             int32 CriteriaTreeID = fields[0].GetInt32();
             int32 Idx1 = fields[1].GetInt32();
             int32 X = fields[2].GetInt32();
             int32 Y = fields[3].GetInt32();
+            int32 Z = fields[4].GetInt32();
 
-            if (int32(POIs[CriteriaTreeID].size()) <= Idx1 + 1)
-                POIs[CriteriaTreeID].resize(Idx1 + 10);
-
-            ScenarioPOIPoint point(X, Y);
-            POIs[CriteriaTreeID][Idx1].push_back(point);
-        } while (points->NextRow());
+            allPoints[CriteriaTreeID][Idx1].emplace_back(X, Y, Z);
+        } while (pointsResult->NextRow());
     }
 
     do
@@ -197,16 +192,23 @@ void ScenarioMgr::LoadScenarioPOI()
         int32 flags = fields[6].GetInt32();
         int32 worldEffectID = fields[7].GetInt32();
         int32 playerConditionID = fields[8].GetInt32();
+        int32 navigationPlayerConditionID = fields[9].GetInt32();
 
         if (!sCriteriaMgr->GetCriteriaTree(criteriaTreeID))
             TC_LOG_ERROR("sql.sql", "`scenario_poi` CriteriaTreeID (%u) Idx1 (%u) does not correspond to a valid criteria tree", criteriaTreeID, idx1);
 
-        if (criteriaTreeID < int32(POIs.size()) && idx1 < int32(POIs[criteriaTreeID].size()))
-            _scenarioPOIStore[criteriaTreeID].emplace_back(blobIndex, mapID, uiMapID, priority, flags, worldEffectID, playerConditionID, POIs[criteriaTreeID][idx1]);
-        else
-            TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id %i POI id %i", criteriaTreeID, blobIndex);
+        if (std::map<int32, std::vector<ScenarioPOIPoint>>* blobs = Trinity::Containers::MapGetValuePtr(allPoints, criteriaTreeID))
+        {
+            if (std::vector<ScenarioPOIPoint>* points = Trinity::Containers::MapGetValuePtr(*blobs, idx1))
+            {
+                _scenarioPOIStore[criteriaTreeID].emplace_back(blobIndex, mapID, uiMapID, priority, flags, worldEffectID, playerConditionID, navigationPlayerConditionID, std::move(*points));
+                ++count;
+                continue;
+            }
+        }
 
-        ++count;
+        TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id %i POI id %i", criteriaTreeID, blobIndex);
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u scenario POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));

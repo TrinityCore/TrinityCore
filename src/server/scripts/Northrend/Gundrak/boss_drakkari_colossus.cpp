@@ -117,9 +117,9 @@ class boss_drakkari_colossus : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->RemoveAura(SPELL_FREEZE_ANIM);
             }
 
@@ -148,14 +148,11 @@ class boss_drakkari_colossus : public CreatureScript
                         if (me->GetReactState() == REACT_AGGRESSIVE)
                             return;
 
-                        me->SetReactState(REACT_AGGRESSIVE);
                         me->SetImmuneToPC(false);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveAura(SPELL_FREEZE_ANIM);
 
-                        me->SetInCombatWithZone();
-
-                        if (me->GetVictim())
-                            me->GetMotionMaster()->MoveChase(me->GetVictim(), 0, 0);
+                        DoZoneInCombat();
 
                         break;
                 }
@@ -225,10 +222,10 @@ class boss_drakkari_colossus : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-               summon->SetInCombatWithZone();
+                DoZoneInCombat(summon);
 
-               if (phase == COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON)
-                   summon->SetHealth(summon->GetMaxHealth() / 2);
+                if (phase == COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON)
+                    summon->SetHealth(summon->GetMaxHealth() / 2);
             }
 
         private:
@@ -268,7 +265,7 @@ class boss_drakkari_elemental : public CreatureScript
                 Talk(EMOTE_ACTIVATE_ALTAR);
 
                 if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-                    killer->Kill(colossus);
+                    Unit::Kill(killer, colossus);
             }
 
             void UpdateAI(uint32 diff) override
@@ -427,7 +424,7 @@ public:
                     colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
                     if (!colossus->AI()->GetData(DATA_INTRO_DONE))
                         colossus->AI()->SetData(DATA_INTRO_DONE, true);
-                    colossus->SetInCombatWithZone();
+                    DoZoneInCombat(colossus);
                     me->DespawnOrUnsummon();
                 }
             }

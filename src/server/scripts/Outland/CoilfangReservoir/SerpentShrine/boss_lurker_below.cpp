@@ -167,7 +167,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
         }
@@ -202,8 +202,7 @@ public:
                         Submerged = false;
                         WaitTimer2 = 500;
                     }
-
-                    if (!Submerged && WaitTimer2 <= diff) // wait 500ms before emerge anim
+                    else if (WaitTimer2 <= diff) // wait 500ms before emerge anim
                     {
                         me->RemoveAllAuras();
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);
@@ -437,9 +436,8 @@ public:
 
             if (ShootBowTimer <= diff)
             {
-                int bp0 = 1100;
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    me->CastCustomSpell(target, SPELL_SHOOT, &bp0, nullptr, nullptr, true);
+                    me->CastSpell(target, SPELL_SHOOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(1100));
                 ShootBowTimer = 4000 + rand32() % 5000;
                 MultiShotTimer += 1500; // add global cooldown
             } else ShootBowTimer -= diff;

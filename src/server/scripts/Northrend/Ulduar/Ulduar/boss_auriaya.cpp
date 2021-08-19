@@ -157,9 +157,9 @@ struct boss_auriaya : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_SONIC_SCREECH, Seconds(48));
@@ -288,7 +288,7 @@ struct npc_sanctum_sentry : public ScriptedAI
         me->SetWalk(true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_RIP, Seconds(6));
         _events.ScheduleEvent(EVENT_SAVAGE_POUNCE, Milliseconds(1));
@@ -570,7 +570,7 @@ class spell_auriaya_agro_creator : public SpellScript
     }
 };
 
-//  61906 - Random Aggro Periodic (5 sec)
+// 61906 - Random Aggro Periodic (5 sec)
 class spell_auriaya_random_agro_periodic : public AuraScript
 {
     PrepareAuraScript(spell_auriaya_random_agro_periodic);
@@ -586,17 +586,21 @@ class spell_auriaya_random_agro_periodic : public AuraScript
         if (!owner || !owner->IsAIEnabled || owner->HasReactState(REACT_PASSIVE))
             return;
 
-        if (Unit* target = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CatsTargetSelector(owner, 15.0f, 25.0f)))
+        bool farTarget = true;
+        Unit* target = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CatsTargetSelector(owner, 15.0f, 25.0f));
+        if (!target)
         {
-            owner->GetThreatManager().AddThreat(target, 3000000.0f, nullptr, true);
+            farTarget = false;
+            target = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
+        }
+
+        if (!target)
+            return;
+
+        owner->GetThreatManager().AddThreat(target, 3000000.0f, nullptr, true);
+        if (farTarget)
             owner->CastSpell(target, SPELL_FERAL_POUNCE, true);
-            owner->AI()->AttackStart(target);
-        }
-        else if (Unit* target = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
-        {
-            owner->GetThreatManager().AddThreat(target, 3000000.0f);
-            owner->AI()->AttackStart(target);
-        }
+        owner->AI()->AttackStart(target);
     }
 
     void Register() override

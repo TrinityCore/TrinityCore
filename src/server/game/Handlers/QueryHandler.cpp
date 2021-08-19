@@ -20,6 +20,7 @@
 #include "Corpse.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -59,7 +60,7 @@ void WorldSession::HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& /*query
 void WorldSession::SendQueryTimeResponse()
 {
     WorldPackets::Query::QueryTimeResponse queryTimeResponse;
-    queryTimeResponse.CurrentTime = time(nullptr);
+    queryTimeResponse.CurrentTime = GameTime::GetGameTimeSystemPoint();
     SendPacket(queryTimeResponse.Write());
 }
 

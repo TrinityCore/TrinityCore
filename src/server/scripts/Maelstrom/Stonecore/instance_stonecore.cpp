@@ -93,7 +93,7 @@ class instance_stonecore : public InstanceMapScript
                 creature->SearchFormation();
                 if (CreatureGroup* group = creature->GetFormation())
                 {
-                    switch (group->GetId())
+                    switch (group->GetLeaderSpawnId())
                     {
                         case CREATURE_FORMATION_MILLHOUSE_EVENT_TRASH:
                             millhouseTrashGUIDs.push_back(creature->GetGUID());

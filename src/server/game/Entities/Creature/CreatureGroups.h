@@ -39,52 +39,55 @@ struct Position;
 
 struct FormationInfo
 {
-    ObjectGuid::LowType leaderGUID;
-    float follow_dist;
-    float follow_angle;
-    uint32 groupAI;
-    uint32 point_1;
-    uint32 point_2;
+    ObjectGuid::LowType LeaderSpawnId;
+    float FollowDist;
+    float FollowAngle;
+    uint32 GroupAI;
+    uint32 LeaderWaypointIDs[2];
 };
-
-typedef std::unordered_map<ObjectGuid::LowType/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
 class TC_GAME_API FormationMgr
 {
     private:
-        FormationMgr() { }
+        FormationMgr();
         ~FormationMgr();
+
+        std::unordered_map<ObjectGuid::LowType /*spawnID*/, FormationInfo> _creatureGroupMap;
 
     public:
         static FormationMgr* instance();
 
-        void AddCreatureToGroup(ObjectGuid::LowType leaderGuid, Creature* creature);
+        void AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creature* creature);
         void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
+
         void LoadCreatureFormations();
-        CreatureGroupInfoType CreatureGroupMap;
+        FormationInfo* GetFormationInfo(ObjectGuid::LowType spawnId);
+
+        void AddFormationMember(ObjectGuid::LowType spawnId, float followAng, float followDist, ObjectGuid::LowType leaderSpawnId, uint32 groupAI);
 };
 
 class TC_GAME_API CreatureGroup
 {
     private:
-        Creature* m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
-        typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
-        CreatureGroupMemberType m_members;
+        Creature* _leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+        std::unordered_map<Creature*, FormationInfo*> _members;
 
-        ObjectGuid::LowType m_groupID;
-        bool m_Formed;
+        ObjectGuid::LowType _leaderSpawnId;
+        bool _formed;
+        bool _engaging;
 
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(ObjectGuid::LowType id) : m_leader(nullptr), m_groupID(id), m_Formed(false) { }
-        ~CreatureGroup() { }
+        explicit CreatureGroup(ObjectGuid::LowType leaderSpawnId);
+        ~CreatureGroup();
 
-        Creature* getLeader() const { return m_leader; }
-        ObjectGuid::LowType GetId() const { return m_groupID; }
-        bool isEmpty() const { return m_members.empty(); }
-        bool isFormed() const { return m_Formed; }
-        bool IsLeader(Creature const* creature) const { return m_leader == creature; }
+        Creature* GetLeader() const { return _leader; }
+        ObjectGuid::LowType GetLeaderSpawnId() const { return _leaderSpawnId; }
+        bool IsEmpty() const { return _members.empty(); }
+        bool IsFormed() const { return _formed; }
+        bool IsLeader(Creature const* creature) const { return _leader == creature; }
 
+        bool HasMember(Creature* member) const { return _members.count(member) > 0; }
         void AddMember(Creature* member);
         void RemoveMember(Creature* member);
         void FormationReset(bool dismiss);

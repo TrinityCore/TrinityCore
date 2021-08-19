@@ -66,10 +66,10 @@ namespace WorldPackets
             struct GMTicketCase
             {
                 int32 CaseID = 0;
-                int32 CaseOpened = 0;
+                Timestamp<> CaseOpened;
                 int32 CaseStatus = 0;
-                int16 CfgRealmID = 0;
-                int64 CharacterID = 0;
+                uint16 CfgRealmID = 0;
+                uint64 CharacterID = 0;
                 int32 WaitTimeOverrideMinutes = 0;
                 std::string Url;
                 std::string WaitTimeOverrideMessage;
@@ -89,29 +89,19 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 CaseID;
+            int32 CaseID = 0;
         };
 
-        class SupportTicketSubmitBug final : public ClientPacket
+        class SubmitUserFeedback final : public ClientPacket
         {
         public:
-            SupportTicketSubmitBug(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_BUG, std::move(packet)) { }
+            SubmitUserFeedback(WorldPacket&& packet) : ClientPacket(CMSG_SUBMIT_USER_FEEDBACK, std::move(packet)) { }
 
             void Read() override;
 
             SupportTicketHeader Header;
             std::string Note;
-        };
-
-        class SupportTicketSubmitSuggestion final : public ClientPacket
-        {
-        public:
-            SupportTicketSubmitSuggestion(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_SUGGESTION, std::move(packet)) { }
-
-            void Read() override;
-
-            SupportTicketHeader Header;
-            std::string Note;
+            bool IsSuggestion = false;
         };
 
         class SupportTicketSubmitComplaint final : public ClientPacket
@@ -120,9 +110,9 @@ namespace WorldPackets
             struct SupportTicketChatLine
             {
                 SupportTicketChatLine(ByteBuffer& data);
-                SupportTicketChatLine(uint32 timestamp, std::string const& text);
+                SupportTicketChatLine(time_t timestamp, std::string const& text);
 
-                uint32 Timestamp = 0;
+                WorldPackets::Timestamp<> Timestamp;
                 std::string Text;
             };
 
@@ -143,7 +133,7 @@ namespace WorldPackets
                     uint8 field_6;
                 };
 
-                int32 Timestamp;
+                WorldPackets::Timestamp<> Timestamp;
                 ObjectGuid AuthorGUID;
                 Optional<uint64> ClubID;
                 Optional<ObjectGuid> ChannelGUID;
@@ -166,8 +156,8 @@ namespace WorldPackets
 
             struct SupportTicketCalendarEventInfo
             {
-                uint64 EventID;
-                uint64 InviteID;
+                uint64 EventID = 0;
+                uint64 InviteID = 0;
                 std::string EventTitle;
             };
 
@@ -210,10 +200,16 @@ namespace WorldPackets
 
             struct SupportTicketClubFinderResult
             {
-                uint64 ClubFinderPostingID;
-                uint64 ClubID;
+                uint64 ClubFinderPostingID = 0;
+                uint64 ClubID = 0;
                 ObjectGuid ClubFinderGUID;
                 std::string ClubName;
+            };
+
+            struct SupportTicketUnused910
+            {
+                std::string field_0;
+                ObjectGuid field_104;
             };
 
             SupportTicketSubmitComplaint(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT, std::move(packet)) { }
@@ -234,6 +230,7 @@ namespace WorldPackets
             Optional<SupportTicketLFGListApplicant> LFGListApplicant;
             Optional<SupportTicketCommunityMessage> CommunityMessage;
             Optional<SupportTicketClubFinderResult> ClubFinderResult;
+            Optional<SupportTicketUnused910> Unused910;
         };
 
         class Complaint final : public ClientPacket

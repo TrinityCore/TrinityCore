@@ -156,7 +156,7 @@ public:
                             m_auiEncounter[4] = NOT_STARTED;
                             m_auiEncounter[5] = NOT_STARTED;
                         }
-                        else if (mThrallEventCount > 20)
+                        else
                         {
                             m_auiEncounter[1] = data;
                             m_auiEncounter[2] = data;

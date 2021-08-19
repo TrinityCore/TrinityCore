@@ -19,8 +19,10 @@
 #define TRINITY_UNITAI_H
 
 #include "Containers.h"
+#include "Errors.h"
 #include "EventMap.h"
 #include "ObjectGuid.h"
+#include "SpellDefines.h"
 #include "ThreatManager.h"
 #include <unordered_map>
 
@@ -149,7 +151,7 @@ class TC_GAME_API UnitAI
         virtual void DoAction(int32 /*param*/) { }
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
-        virtual void SetGUID(ObjectGuid /*guid*/, int32 /*id*/ = 0) { }
+        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/ = 0) { }
         virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
 
         // Select the best target (in <targetType> order) from the threat list that fulfill the following:
@@ -275,6 +277,13 @@ class TC_GAME_API UnitAI
                 targetList.resize(num);
         }
 
+        // Called when the unit enters combat
+        // (NOTE: Creature engage logic should NOT be here, but in JustEngagedWith, which happens once threat is established!)
+        virtual void JustEnteredCombat(Unit* /*who*/) { }
+
+        // Called when the unit leaves combat
+        virtual void JustExitedCombat() { }
+
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
 
@@ -295,10 +304,10 @@ class TC_GAME_API UnitAI
         void AttackStartCaster(Unit* victim, float dist);
 
         void DoCast(uint32 spellId);
-        void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
-        void DoCastSelf(uint32 spellId, bool triggered = false) { DoCast(me, spellId, triggered); }
-        void DoCastVictim(uint32 spellId, bool triggered = false);
-        void DoCastAOE(uint32 spellId, bool triggered = false);
+        void DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args = {});
+        void DoCastSelf(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(me, spellId, args); }
+        void DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
+        void DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(nullptr, spellId, args); }
 
         virtual bool ShouldSparWith(Unit const* /*target*/) const { return false; }
 
@@ -308,29 +317,8 @@ class TC_GAME_API UnitAI
         static std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> AISpellInfo;
         static void FillAISpellInfo();
 
-        // Called when a player opens a gossip dialog with the creature.
-        virtual bool GossipHello(Player* /*player*/) { return false; }
-
-        // Called when a player selects a gossip item in the creature's gossip menu.
-        virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
-
-        // Called when a player selects a gossip with a code in the creature's gossip menu.
-        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
-
-        // Called when a player accepts a quest from the creature.
-        virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
-
-        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
-
         // Called when a game event starts or ends
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
-
-        // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* player);
-
-        virtual void WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
-        virtual void WaypointReached(uint32 /*nodeId*/, uint32 /*pathId*/) { }
 
     private:
         UnitAI(UnitAI const& right) = delete;

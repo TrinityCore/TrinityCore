@@ -106,7 +106,7 @@ bool ChatLink::ValidateName(char* buffer, char const* /*context*/)
     return true;
 }
 
-// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:random_property:property_seed:reporter_level:reporter_spec:modifiers_mask:context:numBonusListIDs:bonusListIDs(%d):mods(%d):gem1numBonusListIDs:gem1bonusListIDs(%d):gem2numBonusListIDs:gem2bonusListIDs(%d):gem3numBonusListIDs:gem3bonusListIDs(%d)|h[name]|h|r
+// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:random_property:property_seed:reporter_level:reporter_spec:modifiers_mask:context:numBonusListIDs:bonusListIDs(%d):numModifiers:(modifierType(%d):modifierValue(%d)):gem1numBonusListIDs:gem1bonusListIDs(%d):gem2numBonusListIDs:gem2bonusListIDs(%d):gem3numBonusListIDs:gem3bonusListIDs(%d):creator:use_enchant_id|h[name]|h|r
 // |cffa335ee|Hitem:124382:0:0:0:0:0:0:0:0:0:0:0:4:42:562:565:567|h[Edict of Argus]|h|r");
 bool ItemChatLink::Initialize(std::istringstream& iss)
 {
@@ -277,22 +277,51 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         _bonusListIDs[index] = id;
     }
 
-    for (uint32 i = 0; i < MAX_ITEM_MODIFIERS; ++i)
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    uint32 numModifiers = 0;
+    if (HasValue(iss) && !ReadUInt32(iss, numModifiers))
     {
-        if (modifiersMask & (1 << i))
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item modifiers size", iss.str().c_str());
+        return false;
+    }
+
+    if (numModifiers > MAX_ITEM_MODIFIERS)
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): too many item modifiers %u in |item command", iss.str().c_str(), numBonusListIDs);
+        return false;
+    }
+
+    for (uint32 i = 0; i < numModifiers; ++i)
+    {
+        if (!CheckDelimiter(iss, DELIMITER, "item"))
+            return false;
+
+        int32 type = 0;
+        if (!ReadInt32(iss, type))
         {
-            if (!CheckDelimiter(iss, DELIMITER, "item"))
-                return false;
-
-            int32 id = 0;
-            if (!ReadInt32(iss, id))
-            {
-                TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item modifier id (index %u)", iss.str().c_str(), i);
-                return false;
-            }
-
-            _modifiers.push_back(std::make_pair(i, id));
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item modifier type (index %u)", iss.str().c_str(), i);
+            return false;
         }
+
+        if (type > MAX_ITEM_MODIFIERS)
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): invalid item modifier type %u (index %u)", iss.str().c_str(), type, i);
+            return false;
+        }
+
+        if (!CheckDelimiter(iss, DELIMITER, "item"))
+            return false;
+
+        int32 id = 0;
+        if (!ReadInt32(iss, id))
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item modifier value (index %u)", iss.str().c_str(), i);
+            return false;
+        }
+
+        _modifiers.emplace_back(type, id);
     }
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
@@ -334,6 +363,30 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
 
             _gemBonusListIDs[i][index] = id;
         }
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    // guid as string
+    if (HasValue(iss))
+    {
+        std::array<char, 128> guidBuffer = { };
+        if (!iss.getline(guidBuffer.data(), 128, DELIMITER))
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading creator guid string", iss.str().c_str());
+            return false;
+        }
+        iss.unget(); // put next : back into stream
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _useEnchantId))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading on use enchatment id", iss.str().c_str());
+        return false;
     }
 
     return true;

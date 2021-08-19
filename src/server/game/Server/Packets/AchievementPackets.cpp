@@ -33,8 +33,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProg
     data << uint64(criteria.Quantity);
     data << criteria.Player;
     data.AppendPackedTime(criteria.Date);
-    data << uint32(criteria.TimeFromStart);
-    data << uint32(criteria.TimeFromCreate);
+    data << criteria.TimeFromStart;
+    data << criteria.TimeFromCreate;
     data.WriteBits(criteria.Flags, 4);
     data.WriteBit(criteria.RafAcceptanceID.is_initialized());
     data.FlushBits();
@@ -90,8 +90,8 @@ WorldPacket const* WorldPackets::Achievement::CriteriaUpdate::Write()
     _worldPacket << PlayerGUID;
     _worldPacket << uint32(Flags);
     _worldPacket.AppendPackedTime(CurrentTime);
-    _worldPacket << uint32(ElapsedTime);
-    _worldPacket << uint32(CreationTime);
+    _worldPacket << ElapsedTime;
+    _worldPacket << CreationTime;
     _worldPacket.WriteBit(RafAcceptanceID.is_initialized());
     _worldPacket.FlushBits();
 
@@ -155,9 +155,10 @@ WorldPacket const* WorldPackets::Achievement::GuildCriteriaUpdate::Write()
     for (GuildCriteriaProgress const& progress : Progress)
     {
         _worldPacket << int32(progress.CriteriaID);
-        _worldPacket << uint32(progress.DateCreated);
-        _worldPacket << uint32(progress.DateStarted);
+        _worldPacket << progress.DateCreated;
+        _worldPacket << progress.DateStarted;
         _worldPacket.AppendPackedTime(progress.DateUpdated);
+        _worldPacket << uint32(0); // this is a hack. this is a packed time written as int64 (progress.DateUpdated)
         _worldPacket << uint64(progress.Quantity);
         _worldPacket << progress.PlayerGUID;
         _worldPacket << int32(progress.Flags);

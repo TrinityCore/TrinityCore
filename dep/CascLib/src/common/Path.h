@@ -17,11 +17,11 @@
 template <typename xchar>
 struct CASC_PATH
 {
-    CASC_PATH(xchar chSeparator = PATH_SEP_CHAR)
+    CASC_PATH(int chSeparator = PATH_SEP_CHAR)
     {
         m_szBufferBegin = m_szBufferPtr = m_Buffer;
         m_szBufferEnd = m_szBufferBegin + _countof(m_Buffer);
-        m_chSeparator = chSeparator;
+        m_chSeparator = (xchar)chSeparator;
         m_Buffer[0] = 0;
     }
 

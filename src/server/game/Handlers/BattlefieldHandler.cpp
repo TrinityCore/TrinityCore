@@ -19,6 +19,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldPackets.h"
+#include "GameTime.h"
 #include "Player.h"
 
 /**
@@ -35,7 +36,7 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 queueId, uint32 zoneId, uint32
     WorldPackets::Battlefield::BFMgrEntryInvite bfMgrEntryInvite;
     bfMgrEntryInvite.QueueID = queueId;
     bfMgrEntryInvite.AreaID = zoneId;
-    bfMgrEntryInvite.ExpireTime = time(nullptr) + acceptTime;
+    bfMgrEntryInvite.ExpireTime = GameTime::GetGameTime() + acceptTime;
     SendPacket(bfMgrEntryInvite.Write());
 }
 

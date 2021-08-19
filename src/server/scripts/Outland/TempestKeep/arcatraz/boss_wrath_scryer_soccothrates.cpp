@@ -111,9 +111,9 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                         dalliah->AI()->SetData(1, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_FELFIRE_SHOCK, urand(12000, 14000));
                 events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(11000, 12000));
                 events.ScheduleEvent(EVENT_ME_FIRST, 6000);

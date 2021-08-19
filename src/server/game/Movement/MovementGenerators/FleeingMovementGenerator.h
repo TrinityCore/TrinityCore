@@ -21,6 +21,8 @@
 #include "MovementGenerator.h"
 #include "Timer.h"
 
+class Creature;
+
 template<class T>
 class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovementGenerator<T> >
 {

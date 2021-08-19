@@ -72,6 +72,13 @@ inline T CalculatePct(T base, U pct)
     return T(base * static_cast<float>(pct) / 100.0f);
 }
 
+template <class T>
+inline float GetPctOf(T value, T max)
+{
+    ASSERT(max);
+    return float(static_cast<float>(value) / static_cast<float>(max) * 100.0f);
+}
+
 template <class T, class U>
 inline T AddPct(T &base, U pct)
 {
@@ -282,6 +289,24 @@ inline wchar_t wcharToLower(wchar_t wchar)
         return wchar_t(uint16(wchar)+0x0020);
 
     return wchar;
+}
+
+inline bool isLower(wchar_t wchar)
+{
+    if (wchar >= L'a' && wchar <= L'z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+        return true;
+    if (wchar >= 0x00E0 && wchar <= 0x00FF)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER Y WITH DIAERESIS
+        return true;
+    if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
+        return true;
+    if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
+        return true;
+    return false;
+}
+
+inline bool isUpper(wchar_t wchar)
+{
+    return !isLower(wchar);
 }
 
 TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring const& wstr, LocaleConstant locale);

@@ -68,9 +68,9 @@ struct boss_randolph_moloch : public BossAI
         _firstVanish = false;
         _secondVanish = false;
     }
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::EnterCombat(who);
+        BossAI::JustEngagedWith(who);
 
         Talk(SAY_PULL);
 
@@ -115,7 +115,6 @@ struct boss_randolph_moloch : public BossAI
                 me->RemoveAllAuras();
                 DoCastSelf(SPELL_VANISH);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetInCombatState(true); // Prevents the boss from resetting
                 events.ScheduleEvent(EVENT_JUST_VANISHED, 2s);
                 break;
             case EVENT_JUST_VANISHED:

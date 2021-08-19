@@ -32,7 +32,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ti
     data << ticket.RequesterGuid;
     data << uint32(ticket.Id);
     data << uint32(ticket.Type);
-    data << int32(ticket.Time);
+    data << ticket.Time;
 
     return data;
 }

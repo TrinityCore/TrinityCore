@@ -996,19 +996,19 @@ Position const BG_AV_CreaturePos[AV_CPLACE_MAX] =
 
 enum BG_AV_CreatureIds
 {
-    AV_NPC_A_TOWERDEFENSE  = 0,     // stormpike bowman
-    AV_NPC_A_GRAVEDEFENSE0 = 1,     // stormpike Defender
-    AV_NPC_A_GRAVEDEFENSE1 = 2,     // seasoned defender
-    AV_NPC_A_GRAVEDEFENSE2 = 3,     // veteran defender
-    AV_NPC_A_GRAVEDEFENSE3 = 4,     // champion defender
+    AV_NPC_A_GRAVEDEFENSE0 = 0,     // stormpike Defender
+    AV_NPC_A_GRAVEDEFENSE1 = 1,     // seasoned defender
+    AV_NPC_A_GRAVEDEFENSE2 = 2,     // veteran defender
+    AV_NPC_A_GRAVEDEFENSE3 = 3,     // champion defender
+    AV_NPC_A_TOWERDEFENSE  = 4,     // stormpike bowman
     AV_NPC_A_CAPTAIN       = 5,     // balinda
     AV_NPC_A_BOSS          = 6,     // vanndar
 
-    AV_NPC_H_TOWERDEFENSE  = 7,     // frostwolf bowman
-    AV_NPC_H_GRAVEDEFENSE0 = 8,     // frostwolf guardian
-    AV_NPC_H_GRAVEDEFENSE1 = 9,     // seasoned guardian
-    AV_NPC_H_GRAVEDEFENSE2 = 10,    // veteran guardian
-    AV_NPC_H_GRAVEDEFENSE3 = 11,    // champion guardian
+    AV_NPC_H_GRAVEDEFENSE0 = 7,     // frostwolf guardian
+    AV_NPC_H_GRAVEDEFENSE1 = 8,     // seasoned guardian
+    AV_NPC_H_GRAVEDEFENSE2 = 9,     // veteran guardian
+    AV_NPC_H_GRAVEDEFENSE3 = 10,    // champion guardian
+    AV_NPC_H_TOWERDEFENSE  = 11,    // frostwolf bowman
     AV_NPC_H_CAPTAIN       = 12,    // galvangar
     AV_NPC_H_BOSS          = 13,    // drek thar
 
