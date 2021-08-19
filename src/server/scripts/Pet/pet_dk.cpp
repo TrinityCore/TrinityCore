@@ -25,6 +25,7 @@
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
