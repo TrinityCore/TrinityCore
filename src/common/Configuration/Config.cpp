@@ -226,7 +226,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
             Optional<T> castedVar = Trinity::StringTo<T>(*envVar);
             if (!castedVar)
             {
-                TC_LOG_ERROR("server.loading", "Bad value defined for name %s in envirable variables, going to use default instead", name.c_str());
+                TC_LOG_ERROR("server.loading", "Bad value defined for name %s in environment variables, going to use default instead", name.c_str());
                 return def;
             }
 
