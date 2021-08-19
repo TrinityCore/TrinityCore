@@ -116,7 +116,7 @@ enum DeathKnightSpellIcons
     DK_ICON_ID_IMPROVED_DEATH_STRIKE            = 2751
 };
 
-enum Misc
+enum DeathKnightMisc
 {
     NPC_DK_GHOUL                                = 26125,
     NPC_DK_DANCING_RUNE_WEAPON                  = 27893,
@@ -624,58 +624,6 @@ class spell_dk_corpse_explosion : public SpellScript
     }
 
     WorldObject* _target = nullptr;
-};
-
-// 49028 - Dancing Rune Weapon
-class spell_dk_dancing_rune_weapon : public AuraScript
-{
-    PrepareAuraScript(spell_dk_dancing_rune_weapon);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        if (!sObjectMgr->GetCreatureTemplate(NPC_DK_DANCING_RUNE_WEAPON))
-            return false;
-        return true;
-    }
-
-    // This is a port of the old switch hack in Unit.cpp, it's not correct
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        Unit* drw = nullptr;
-        for (Unit* controlled : caster->m_Controlled)
-        {
-            if (controlled->GetEntry() == NPC_DK_DANCING_RUNE_WEAPON)
-            {
-                drw = controlled;
-                break;
-            }
-        }
-
-        if (!drw || !drw->GetVictim())
-            return;
-
-        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        if (!spellInfo)
-            return;
-
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        if (!damageInfo || !damageInfo->GetDamage())
-            return;
-
-        int32 amount = static_cast<int32>(damageInfo->GetDamage()) / 2;
-        drw->SendSpellNonMeleeDamageLog(drw->GetVictim(), spellInfo->Id, amount, spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
-        Unit::DealDamage(drw, drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dk_dancing_rune_weapon::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
-    }
 };
 
 // -43265 - Death and Decay
@@ -2674,7 +2622,6 @@ class spell_pet_dk_gargoyle_strike : public SpellScript
 
 enum DancingRuneWeaponMisc
 {
-    NPC_DANCING_RUNE_WEAPON = 27893,
     DATA_INITIAL_TARGET_GUID = 1,
 };
 
@@ -2704,7 +2651,7 @@ class spell_dk_dancing_rune_weapon : public AuraScript
             return;
 
         std::list<Creature*> runeWeapons;
-        caster->GetAllMinionsByEntry(runeWeapons, NPC_DANCING_RUNE_WEAPON);
+        caster->GetAllMinionsByEntry(runeWeapons, NPC_DK_DANCING_RUNE_WEAPON);
         for (Creature* temp : runeWeapons)
             if (temp->IsAIEnabled())
                 temp->AI()->SetGUID(GetTarget()->GetGUID(), DATA_INITIAL_TARGET_GUID);
@@ -2739,7 +2686,7 @@ class spell_dk_dancing_rune_weapon : public AuraScript
         SpellInfo const* procSpell = eventInfo.GetSpellInfo();
         Unit* runeWeapon = nullptr;
         for (auto itr = owner->m_Controlled.begin(); itr != owner->m_Controlled.end() && !runeWeapon; itr++)
-            if ((*itr)->GetEntry() == NPC_DANCING_RUNE_WEAPON)
+            if ((*itr)->GetEntry() == NPC_DK_DANCING_RUNE_WEAPON)
                 runeWeapon = *itr;
 
         if (!runeWeapon)
