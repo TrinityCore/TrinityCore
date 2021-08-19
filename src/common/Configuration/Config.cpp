@@ -124,7 +124,8 @@ namespace
         return result;
     }
 
-    Optional<std::string> EnvVarForIniKey(std::string const& key) {
+    Optional<std::string> EnvVarForIniKey(std::string const& key)
+    {
         std::string envKey = "TC_" + IniKeyToEnvVarKey(key);
         char* val = std::getenv(envKey.c_str());
         if (!val)
