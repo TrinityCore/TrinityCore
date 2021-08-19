@@ -108,6 +108,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::vector<std::string> overriddenKeys = sConfigMgr->OverrideWithEnvVariablesIfAny();
+
     sLog->RegisterAppender<AppenderDB>();
     sLog->Initialize(nullptr);
 
@@ -123,6 +125,9 @@ int main(int argc, char** argv)
             TC_LOG_INFO("server.authserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
+
+    for (std::string const& key : overriddenKeys)
+        TC_LOG_INFO("server.authserver", "Configuration field '%s' was overridden with environment variable.", key.c_str());
 
     // authserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
