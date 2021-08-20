@@ -157,7 +157,7 @@ struct npc_pet_dk_rune_weapon : ScriptedAI
         DoCastSelf(SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
         DoCastSelf(SPELL_DK_PET_SCALING_03, true);
 
-        _scheduler.Schedule(500ms, [this](TaskContext activate)
+        _scheduler.Schedule(500ms, [this](TaskContext /*activate*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             if (!_targetGUID.IsEmpty())
