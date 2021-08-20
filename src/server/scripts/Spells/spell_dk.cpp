@@ -2653,8 +2653,11 @@ class spell_dk_dancing_rune_weapon : public AuraScript
         std::list<Creature*> runeWeapons;
         caster->GetAllMinionsByEntry(runeWeapons, NPC_DK_DANCING_RUNE_WEAPON);
         for (Creature* temp : runeWeapons)
+        {
             if (temp->IsAIEnabled())
                 temp->AI()->SetGUID(GetTarget()->GetGUID(), DATA_INITIAL_TARGET_GUID);
+            temp->GetThreatManager().RegisterRedirectThreat(GetId(), caster->GetGUID(), 100);
+        }
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)

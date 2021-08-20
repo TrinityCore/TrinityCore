@@ -273,7 +273,7 @@ private:
             if (CanAIAttack(initialTarget))
                 selectedTarget = initialTarget;
         }
-        else
+        else if (!_targetGUID.IsEmpty())
             _targetGUID.Clear();
 
         CombatManager const& mgr = owner->GetCombatManager();
