@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "CreatureAI.h"
 #include "DBCStores.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
