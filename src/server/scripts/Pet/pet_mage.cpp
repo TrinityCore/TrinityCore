@@ -131,7 +131,7 @@ private:
         if (!owner)
             return false;
 
-        if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->IsInCombat() && !owner->IsInCombat())
+        if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->IsEngaged() && !owner->IsInCombat())
             return false;
 
         Unit* currentTarget = me->GetVictim();

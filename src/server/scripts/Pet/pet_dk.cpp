@@ -254,7 +254,7 @@ private:
         if (!owner)
             return false;
 
-        if (!me->IsInCombat() && !owner->IsInCombat())
+        if (!me->IsEngaged() && !owner->IsInCombat())
             return false;
 
         Unit* currentTarget = me->GetVictim();
