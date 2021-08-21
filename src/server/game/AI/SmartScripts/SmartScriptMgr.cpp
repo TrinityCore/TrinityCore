@@ -794,19 +794,17 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
     static size_t rawCount = sizeof(SmartEvent::raw) / sizeof(uint32);
     size_t paramsCount = paramsStructSize / sizeof(uint32);
 
-    bool valid = true;
     for (size_t index = paramsCount; index < rawCount; index++)
     {
         uint32 value = ((uint32*)&e.event.raw)[index];
         if (value != 0)
         {
-            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused event_param%zu with value %u, it must be 0, skipped.",
+            TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused event_param%zu with value %u, it should be 0.",
                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
-            valid = false;
         }
     }
 
-    return valid;
+    return true;
 }
 
 bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
@@ -968,19 +966,17 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
     static size_t rawCount = sizeof(SmartAction::raw) / sizeof(uint32);
     size_t paramsCount = paramsStructSize / sizeof(uint32);
 
-    bool valid = true;
     for (size_t index = paramsCount; index < rawCount; index++)
     {
         uint32 value = ((uint32*)&e.action.raw)[index];
         if (value != 0)
         {
-            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused action_param%zu with value %u, it must be 0, skipped.",
+            TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused action_param%zu with value %u, it should be 0.",
                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
-            valid = false;
         }
     }
 
-    return valid;
+    return true;
 }
 
 bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
@@ -1031,19 +1027,17 @@ bool SmartAIMgr::CheckUnusedTargetParams(SmartScriptHolder const& e)
     static size_t rawCount = sizeof(SmartTarget::raw) / sizeof(uint32);
     size_t paramsCount = paramsStructSize / sizeof(uint32);
 
-    bool valid = true;
     for (size_t index = paramsCount; index < rawCount; index++)
     {
         uint32 value = ((uint32*)&e.target.raw)[index];
         if (value != 0)
         {
-            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused target_param%zu with value %u, it must be 0, skipped.",
+            TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has unused target_param%zu with value %u, it should be 0.",
                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), index + 1, value);
-            valid = false;
         }
     }
 
-    return valid;
+    return true;
 }
 
 bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
