@@ -137,7 +137,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             player->SendNewItem(resultValue.item, resultValue.count, false, false, true);
             player->UpdateCriteria(CRITERIA_TYPE_LOOT_ITEM, resultValue.item->GetEntry(), resultValue.count);
             player->UpdateCriteria(CRITERIA_TYPE_LOOT_TYPE, resultValue.item->GetEntry(), resultValue.count, resultValue.lootType);
-            player->UpdateCriteria(CRITERIA_TYPE_LOOT_EPIC_ITEM, resultValue.item->GetEntry(), resultValue.count);
+            player->UpdateCriteria(CRITERIA_TYPE_LOOT_ANY_ITEM, resultValue.item->GetEntry(), resultValue.count);
         }
     }
 }
@@ -548,7 +548,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
         target->SendNewItem(resultValue.item, resultValue.count, false, false, true);
         target->UpdateCriteria(CRITERIA_TYPE_LOOT_ITEM, resultValue.item->GetEntry(), resultValue.count);
         target->UpdateCriteria(CRITERIA_TYPE_LOOT_TYPE, resultValue.item->GetEntry(), resultValue.count, resultValue.lootType);
-        target->UpdateCriteria(CRITERIA_TYPE_LOOT_EPIC_ITEM, resultValue.item->GetEntry(), resultValue.count);
+        target->UpdateCriteria(CRITERIA_TYPE_LOOT_ANY_ITEM, resultValue.item->GetEntry(), resultValue.count);
     }
 }
 

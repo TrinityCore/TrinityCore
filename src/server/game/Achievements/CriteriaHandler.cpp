@@ -74,7 +74,7 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         case CRITERIA_TYPE_CAST_SPELL2:
         case CRITERIA_TYPE_BE_SPELL_TARGET:
         case CRITERIA_TYPE_BE_SPELL_TARGET2:
-        case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT:
         case CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
         case CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
         case CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
@@ -84,8 +84,8 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         case CRITERIA_TYPE_GET_KILLING_BLOWS:
         case CRITERIA_TYPE_REACH_LEVEL:
         case CRITERIA_TYPE_ON_LOGIN:
-        case CRITERIA_TYPE_LOOT_EPIC_ITEM:
-        case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
+        case CRITERIA_TYPE_LOOT_ANY_ITEM:
+        case CRITERIA_TYPE_OBTAIN_ANY_ITEM:
             break;
         default:
             if (DataType != CRITERIA_DATA_TYPE_SCRIPT)
@@ -387,7 +387,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
         {
             Criteria const* entry = ASSERT_NOTNULL(sCriteriaMgr->GetCriteria(criteriaId));
 
-            uint32 itemId = (entry->Entry->Type == CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+            uint32 itemId = (entry->Entry->Type == CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT ? miscValue2 : miscValue1);
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
             if (!itemTemplate)
                 return false;
@@ -489,8 +489,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_QUEST_ABANDONED:
             case CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
             case CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
-            case CRITERIA_TYPE_LOOT_EPIC_ITEM:
-            case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
+            case CRITERIA_TYPE_LOOT_ANY_ITEM:
+            case CRITERIA_TYPE_OBTAIN_ANY_ITEM:
             case CRITERIA_TYPE_DEATH:
             case CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
@@ -522,7 +522,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_ON_LOGIN:
             case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             case CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
-            case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
             case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
             case CRITERIA_TYPE_PRESTIGE_REACHED:
             case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
@@ -641,11 +640,12 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_LEARN_SPELL:
             case CRITERIA_TYPE_EXPLORE_AREA:
             case CRITERIA_TYPE_VISIT_BARBER_SHOP:
-            case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+            case CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT:
             case CRITERIA_TYPE_EQUIP_ITEM:
             case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
             case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
             case CRITERIA_TYPE_OWN_BATTLE_PET:
+            case CRITERIA_TYPE_ACTIVELY_REACH_LEVEL:
                 SetCriteriaProgress(criteria, 1, referencePlayer);
                 break;
             case CRITERIA_TYPE_BUY_BANK_SLOT:
@@ -735,6 +735,9 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                 }
                 break;
             }
+            case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
+                SetCriteriaProgress(criteria, referencePlayer->GetSession()->GetBattlePetMgr()->GetPetUniqueSpeciesCount(), referencePlayer);
+                break;
             case CRITERIA_TYPE_REACH_GUILD_LEVEL:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer);
                 break;
@@ -820,6 +823,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_MYTHIC_KEYSTONE_COMPLETED:
             case CRITERIA_TYPE_APPLY_CONDUIT:
             case CRITERIA_TYPE_CONVERT_ITEMS_TO_CURRENCY:
+            case CRITERIA_TYPE_EXPANSION_LEVEL:
+            case CRITERIA_TYPE_OWN_ITEM_MODIFIED_APPEARANCE:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1157,7 +1162,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_GAIN_REPUTATION:
         case CRITERIA_TYPE_GAIN_EXALTED_REPUTATION:
         case CRITERIA_TYPE_VISIT_BARBER_SHOP:
-        case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT:
         case CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
         case CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
         case CRITERIA_TYPE_HK_CLASS:
@@ -1198,6 +1203,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_OWN_BATTLE_PET:
         case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
         case CRITERIA_TYPE_PRESTIGE_REACHED:
+        case CRITERIA_TYPE_ACTIVELY_REACH_LEVEL:
         case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
             return progress->Counter >= 1;
         case CRITERIA_TYPE_LEARN_SKILL_LEVEL:
@@ -1233,8 +1239,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_GAIN_REVERED_REPUTATION:
         case CRITERIA_TYPE_GAIN_HONORED_REPUTATION:
         case CRITERIA_TYPE_KNOWN_FACTIONS:
-        case CRITERIA_TYPE_LOOT_EPIC_ITEM:
-        case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
+        case CRITERIA_TYPE_LOOT_ANY_ITEM:
+        case CRITERIA_TYPE_OBTAIN_ANY_ITEM:
         case CRITERIA_TYPE_ROLL_NEED:
         case CRITERIA_TYPE_ROLL_GREED:
         case CRITERIA_TYPE_QUEST_ABANDONED:
@@ -1333,11 +1339,13 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CRITERIA_TYPE_HIGHEST_HIT_DEALT:
         case CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
         case CRITERIA_TYPE_HONORABLE_KILL:
+        case CRITERIA_TYPE_LOOT_ANY_ITEM:
         case CRITERIA_TYPE_LOOT_MONEY:
         case CRITERIA_TYPE_LOSE_DUEL:
         case CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
         case CRITERIA_TYPE_MONEY_FROM_VENDORS:
         case CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
+        case CRITERIA_TYPE_OBTAIN_ANY_ITEM:
         case CRITERIA_TYPE_QUEST_ABANDONED:
         case CRITERIA_TYPE_REACH_GUILD_LEVEL:
         case CRITERIA_TYPE_ROLL_GREED:
@@ -1368,6 +1376,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CRITERIA_TYPE_KNOWN_FACTIONS:
         case CRITERIA_TYPE_REACH_LEVEL:
         case CRITERIA_TYPE_ON_LOGIN:
+        case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
             break;
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
             if (!RequiredAchievementSatisfied(criteria->Entry->Asset.AchievementID))
@@ -1512,9 +1521,10 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (miscValue1 && miscValue1 != uint32(criteria->Entry->Asset.FactionID))
                 return false;
             break;
-        case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            // miscValue1 = itemSlot miscValue2 = itemid
-            if (!miscValue2 || miscValue1 != uint32(criteria->Entry->Asset.ItemSlot))
+        case CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT:
+        case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+            // miscValue1 = EquipmentSlot miscValue2 = itemid | itemModifiedAppearanceId
+            if (!miscValue2 || miscValue1 != uint32(criteria->Entry->Asset.EquipmentSlot))
                 return false;
             break;
         case CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
@@ -1558,16 +1568,6 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (miscValue1 && miscValue1 != uint32(criteria->Entry->Asset.SkillID))
                 return false;
             break;
-        case CRITERIA_TYPE_LOOT_EPIC_ITEM:
-        case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
-        {
-            if (!miscValue1)
-                return false;
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-            if (!proto || proto->GetQuality() < ITEM_QUALITY_EPIC)
-                return false;
-            break;
-        }
         case CRITERIA_TYPE_HK_CLASS:
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.ClassID))
                 return false;
@@ -1581,6 +1581,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+        case CRITERIA_TYPE_TRAVELLED_TO_AREA:
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.AreaID))
                 return false;
             break;
@@ -1596,19 +1597,20 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CRITERIA_TYPE_HIGHEST_TEAM_RATING:
             return false;
         case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+        case CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
             if (miscValue1 != uint32(criteria->Entry->Asset.GarrBuildingID))
+                return false;
+            break;
+        case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
+            if (miscValue1 != uint32(criteria->Entry->Asset.GarrFollowerID))
                 return false;
             break;
         case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
             if (miscValue1 != uint32(criteria->Entry->Asset.TransmogSetGroupID))
                 return false;
             break;
-        case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
-            if (!miscValue2 /*login case*/ || miscValue1 != uint32(criteria->Entry->Asset.EquipmentSlot))
-                return false;
-            break;
-        case CRITERIA_TYPE_TRAVELLED_TO_AREA:
-            if (miscValue1 != uint32(criteria->Entry->Asset.AreaID))
+        case CRITERIA_TYPE_ACTIVELY_REACH_LEVEL:
+            if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.PlayerLevel))
                 return false;
         default:
             break;
@@ -3833,8 +3835,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "GAIN_EXALTED_REPUTATION";
         case CRITERIA_TYPE_VISIT_BARBER_SHOP:
             return "VISIT_BARBER_SHOP";
-        case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            return "EQUIP_EPIC_ITEM";
+        case CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT:
+            return "EQUIP_ITEM_IN_SLOT";
         case CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
             return "ROLL_NEED_ON_LOOT";
         case CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
@@ -3913,10 +3915,10 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "GAIN_HONORED_REPUTATION";
         case CRITERIA_TYPE_KNOWN_FACTIONS:
             return "KNOWN_FACTIONS";
-        case CRITERIA_TYPE_LOOT_EPIC_ITEM:
-            return "LOOT_EPIC_ITEM";
-        case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
-            return "RECEIVE_EPIC_ITEM";
+        case CRITERIA_TYPE_LOOT_ANY_ITEM:
+            return "LOOT_ANY_ITEM";
+        case CRITERIA_TYPE_OBTAIN_ANY_ITEM:
+            return "OBTAIN_ANY_ITEM";
         case CRITERIA_TYPE_SEND_EVENT_SCENARIO:
             return "SEND_EVENT_SCENARIO";
         case CRITERIA_TYPE_ROLL_NEED:
@@ -4077,10 +4079,14 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "ARTIFACT_POWER_EARNED";
         case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
             return "ARTIFACT_TRAITS_UNLOCKED";
+        case CRITERIA_TYPE_OWN_ITEM_MODIFIED_APPEARANCE:
+            return "OWN_ITEM_MODIFIED_APPEARANCE";
         case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
             return "HONOR_LEVEL_REACHED";
         case CRITERIA_TYPE_PRESTIGE_REACHED:
             return "PRESTIGE_REACHED";
+        case CRITERIA_TYPE_ACTIVELY_REACH_LEVEL:
+            return "ACTIVELY_REACH_LEVEL";
         case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
             return "ORDER_HALL_TALENT_LEARNED";
         case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
@@ -4097,6 +4103,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "EARN_HONOR_XP";
         case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
             return "RELIC_TALENT_UNLOCKED";
+        case CRITERIA_TYPE_EXPANSION_LEVEL:
+            return "EXPANSION_LEVEL";
         case CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL:
             return "REACH_ACCOUNT_HONOR_LEVEL";
         case CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
@@ -4152,7 +4160,7 @@ inline bool IsCriteriaTypeStoredByAsset(CriteriaTypes type)
         case CRITERIA_TYPE_LOOT_ITEM:
         case CRITERIA_TYPE_EXPLORE_AREA:
         case CRITERIA_TYPE_GAIN_REPUTATION:
-        case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT:
         case CRITERIA_TYPE_HK_CLASS:
         case CRITERIA_TYPE_HK_RACE:
         case CRITERIA_TYPE_DO_EMOTE:
