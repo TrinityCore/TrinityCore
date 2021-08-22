@@ -816,8 +816,7 @@ public:
                     me->RemoveAurasDueToSpell(SPELL_JAWS_OF_DEATH_PERIODIC);
                     me->RemoveAurasDueToSpell(SPELL_PRY_JAWS_OPEN);
 
-                    me->SetDynamicFlags(UNIT_DYNFLAG_DEAD);
-                    me->SetUnitFlags((UnitFlags)0);
+                    me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
 
                     me->GetMotionMaster()->MoveFall(POINT_FALL);
                 });
@@ -1435,41 +1434,6 @@ public:
     }
 };
 
-// 55795 - Falling Dragon Feign Death
-class spell_falling_dragon_feign_death : public SpellScriptLoader
-{
-public:
-    spell_falling_dragon_feign_death() : SpellScriptLoader("spell_falling_dragon_feign_death") { }
-
-    class spell_falling_dragon_feign_death_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_falling_dragon_feign_death_AuraScript);
-
-        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->AddUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
-            GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        }
-
-        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
-            GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_falling_dragon_feign_death_AuraScript();
-    }
-};
-
 // 56672 - Player Mount Wyrm
 class spell_player_mount_wyrm : public SpellScriptLoader
 {
@@ -1551,7 +1515,6 @@ void AddSC_storm_peaks()
     new spell_jaws_of_death_claw_swipe_pct_damage();
     new spell_claw_swipe_check();
     new spell_fatal_strike();
-    new spell_falling_dragon_feign_death();
     new spell_player_mount_wyrm();
     RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
 }
