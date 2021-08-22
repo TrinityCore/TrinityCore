@@ -410,8 +410,7 @@ struct npc_molten_golem : public ScriptedAI
             damage = 0;
             me->RemoveAllAuras();
             me->AttackStop();
-            // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
-            // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
+            me->SetReactState(REACT_PASSIVE); // should be replaced by spell 59123
             if (me->IsNonMeleeSpellCast(false))
                 me->InterruptNonMeleeSpells(false);
 
