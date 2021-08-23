@@ -2816,7 +2816,6 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
     {
         data.areaId = areaEntry->ID;
         data.floorZ = vmapData.floorZ;
-        data.outdoors = IsOutdoorWMO(vmapData.areaInfo->mogpFlags, wmoEntry, areaEntry);
     }
     else
     {
@@ -2832,8 +2831,12 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
             areaEntry = sAreaTableStore.LookupEntry(data.areaId);
 
         data.floorZ = mapHeight;
-        data.outdoors = true; // @todo default true taken from old GetAreaId check, maybe review
     }
+
+    if (vmapData.areaInfo)
+        data.outdoors = IsOutdoorWMO(vmapData.areaInfo->mogpFlags, wmoEntry, areaEntry);
+    else
+        data.outdoors = true; // @todo default true taken from old GetAreaId check, maybe review
 
     // liquid processing
     data.liquidStatus = LIQUID_MAP_NO_WATER;
