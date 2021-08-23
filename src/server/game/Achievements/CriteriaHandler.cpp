@@ -3791,6 +3791,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaType type)
             return "KilledByPlayer";
         case CriteriaType::MaxDistFallenWithoutDying:
             return "MaxDistFallenWithoutDying";
+        case CriteriaType::EarnChallengeModeMedal:
+            return "EarnChallengeModeMedal";
         case CriteriaType::DieFromEnviromentalDamage:
             return "DieFromEnviromentalDamage";
         case CriteriaType::CompleteQuest:
@@ -4195,8 +4197,9 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaType type)
             return "MythicPlusRatingAttained";
         case CriteriaType::SpentTalentPoint:
             return "SpentTalentPoint";
+        default:
+            return "MissingType";
     }
-    return "MissingType";
 }
 
 CriteriaMgr* CriteriaMgr::Instance()
