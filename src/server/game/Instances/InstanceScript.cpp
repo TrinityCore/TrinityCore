@@ -616,7 +616,7 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
 }
 
 // Update Achievement Criteria for all players in instance
-void InstanceScript::DoUpdateCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= nullptr*/)
+void InstanceScript::DoUpdateCriteria(CriteriaType type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= nullptr*/)
 {
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 

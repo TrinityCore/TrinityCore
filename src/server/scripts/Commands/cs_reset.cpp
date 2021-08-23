@@ -84,7 +84,7 @@ public:
             return false;
 
         target->ResetHonorStats();
-        target->UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);
+        target->UpdateCriteria(CriteriaType::HonorableKills);
 
         return true;
     }

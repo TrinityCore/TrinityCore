@@ -1450,7 +1450,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
 
         // Update achievements
         if (dungeon->difficulty == DIFFICULTY_HEROIC)
-            player->UpdateCriteria(CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+            player->UpdateCriteria(CriteriaType::CompletedLFGDungeonWithStrangers, 1);
 
         LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
         if (!reward)

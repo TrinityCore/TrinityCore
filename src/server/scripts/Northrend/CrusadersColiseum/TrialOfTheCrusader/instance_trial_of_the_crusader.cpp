@@ -206,9 +206,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 state = IN_PROGRESS;
                                 break;
                             case DONE:
-                                DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
+                                DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_DEFEAT_FACTION_CHAMPIONS);
                                 if (ResilienceWillFixItTimer > 0)
-                                    DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
+                                    DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
                                 DoRespawnGameObject(GetGuidData(DATA_CRUSADERS_CHEST), 7 * DAY);
                                 if (GameObject* cache = GetGameObject(DATA_CRUSADERS_CHEST))
                                     cache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -397,7 +397,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                             case SNAKES_DONE:
                                 if (NotOneButTwoJormungarsTimer > 0)
-                                    DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
+                                    DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_WORMS_KILLED_IN_10_SECONDS);
                                 if (Creature* tirion = GetCreature(DATA_FORDRING))
                                     tirion->AI()->DoAction(ACTION_START_ICEHOWL);
                                 HandleNorthrendBeastsDone();

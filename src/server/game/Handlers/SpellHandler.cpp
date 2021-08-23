@@ -267,7 +267,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjRe
         if (go->AI()->OnReportUse(_player))
             return;
 
-        _player->UpdateCriteria(CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+        _player->UpdateCriteria(CriteriaType::UseGameobject, go->GetEntry());
     }
 }
 
