@@ -30,88 +30,6 @@
 #include "Vehicle.h"
 #include "WorldSession.h"
 
-/////////////////////
-///npc_injured_goblin
-/////////////////////
-
-enum InjuredGoblinMiner
-{
-    QUEST_BITTER_DEPARTURE     = 12832,
-    SAY_QUEST_ACCEPT           = 0,
-    SAY_END_WP_REACHED         = 1,
-    GOSSIP_ID                  = 9859,
-    GOSSIP_OPTION_ID           = 0
-};
-
-class npc_injured_goblin : public CreatureScript
-{
-public:
-    npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
-
-    struct npc_injured_goblinAI : public EscortAI
-    {
-        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 26:
-                    Talk(SAY_END_WP_REACHED, player);
-                    break;
-                case 27:
-                    player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
-                    break;
-            }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void Reset() override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
-                player->FailQuest(QUEST_BITTER_DEPARTURE);
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            EscortAI::UpdateAI(uiDiff);
-            if (!UpdateVictim())
-                return;
-            DoMeleeAttackIfReady();
-        }
-
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-        {
-            if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
-            {
-                CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                Start(true, true, player->GetGUID());
-            }
-            return false;
-        }
-
-        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-                Talk(SAY_QUEST_ACCEPT);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_injured_goblinAI(creature);
-    }
-};
-
 /*######
 ## npc_roxi_ramrocket
 ######*/
@@ -1403,7 +1321,6 @@ class spell_q12823_remove_collapsing_cave_aura : public SpellScript
 
 void AddSC_storm_peaks()
 {
-    new npc_injured_goblin();
     new npc_roxi_ramrocket();
     new npc_brunnhildar_prisoner();
     new npc_freed_protodrake();
