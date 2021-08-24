@@ -7977,10 +7977,6 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                 continue;
             }
 
-            // not allow proc extra attack spell at extra attack
-            if (m_extraAttacks && spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
-                return;
-
             float chance = (float)spellInfo->ProcChance;
 
             if (spellData.SpellPPMRate)
