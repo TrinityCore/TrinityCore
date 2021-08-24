@@ -201,7 +201,7 @@ public:
         for (std::string const& subDir : subDirs)
         {
             boost::filesystem::path mapPath(dataDir);
-            mapPath.append(subDir);
+            mapPath /= subDir;
 
             if (!boost::filesystem::exists(mapPath))
             {

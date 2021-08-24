@@ -855,7 +855,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     if (petType == HUNTER_PET) // Hunter pets have focus
         SetPowerType(POWER_FOCUS);
     else if (IsPetGhoul() || IsPetAbomination()) // DK pets have energy
+    {
         SetPowerType(POWER_ENERGY);
+        SetFullPower(POWER_ENERGY);
+    }
     else if (IsPetImp() || IsPetFelhunter() || IsPetVoidwalker() || IsPetSuccubus() || IsPetDoomguard() || IsPetFelguard()) // Warlock pets have energy (since 5.x)
         SetPowerType(POWER_ENERGY);
     else
