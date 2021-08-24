@@ -1077,7 +1077,7 @@ class instance_ulduar : public InstanceMapScript
             void AddDoor(GameObject* door, bool add) override
             {
                 // Leviathan doors are South except the one it uses to enter the room
-                // which is North and should not be used for boundary checks in BossAI::CheckBoundary()
+                // which is North and should not be used for boundary checks in BossAI::IsInBoundary()
                 if (door->GetEntry() == GO_LEVIATHAN_DOOR && door->GetPositionX() > 400.f)
                 {
                     if (add)

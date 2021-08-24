@@ -1226,7 +1226,7 @@ class npc_thorim_arena_phase : public CreatureScript
                 if (_isInArena && HeightPositionCheck(true)(who))
                     return false;
 
-                return CheckBoundary(who);
+                return IsInBoundary(who);
             }
 
             void Reset() override
@@ -1319,7 +1319,7 @@ struct npc_thorim_minibossAI : public ScriptedAI
 
     bool CanAIAttack(Unit const* who) const final override
     {
-        return CheckBoundary(who);
+        return IsInBoundary(who);
     }
 
     void JustSummoned(Creature* summon) final override
