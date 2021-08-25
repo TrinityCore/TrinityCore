@@ -444,8 +444,7 @@ void Unit::Update(uint32 p_time)
 
     m_combatManager.Update(p_time);
 
-    if (_lastDamagedTargetGuid)
-        _lastDamagedTargetGuid = ObjectGuid::Empty;
+    _lastDamagedTargetGuid = ObjectGuid::Empty;
     if (_lastExtraAttackSpell)
     {
         while (!extraAttacksTargets.empty())
