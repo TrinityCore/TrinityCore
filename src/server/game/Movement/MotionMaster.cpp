@@ -346,7 +346,7 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     {
         // we are already close enough. We just need to turn toward the target without changing position.
         Movement::MoveSplineInit init(_owner);
-        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZMinusOffset());
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
         init.SetFacing(target);
         init.Launch();
         Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
@@ -510,7 +510,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         if (_owner->IsFlying())
             point.z = z;
         else
-            point.z = _owner->GetMapHeight(point.x, point.y, z);
+            point.z = _owner->GetMapHeight(point.x, point.y, z) + _owner->GetHoverOffset();
 
         init.Path().push_back(point);
     }
@@ -615,7 +615,7 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     }
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz, false);
+    init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz + _owner->GetHoverOffset(), false);
     init.SetFall();
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);

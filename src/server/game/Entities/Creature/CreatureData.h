@@ -299,6 +299,41 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
 };
 
+enum class CreatureGroundMovementType : uint8
+{
+    None,
+    Run,
+    Hover,
+
+    Max
+};
+
+enum class CreatureFlightMovementType : uint8
+{
+    None,
+    DisableGravity,
+    CanFly,
+
+    Max
+};
+
+struct TC_GAME_API CreatureMovementData
+{
+    CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false) { }
+
+    CreatureGroundMovementType Ground;
+    CreatureFlightMovementType Flight;
+    bool Swim;
+    bool Rooted;
+
+    bool IsGroundAllowed() const { return Ground != CreatureGroundMovementType::None; }
+    bool IsSwimAllowed() const { return Swim; }
+    bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
+    bool IsRooted() const { return Rooted; }
+
+    std::string ToString() const;
+};
+
 const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
 const uint32 PET_FOCUS_REGEN_INTERVAL = 4 * IN_MILLISECONDS;
 const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
@@ -382,7 +417,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  maxgold;
     std::string AIName;
     uint32  MovementType;
-    uint32  InhabitType;
+    CreatureMovementData Movement;
     float   HoverHeight;
     float   ModHealth;
     float   ModHealthExtra;
