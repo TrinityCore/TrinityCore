@@ -51,6 +51,7 @@ void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
         owner->GetHomePosition(x, y, z, o);
         init.SetFacing(o);
     }
+    owner->UpdateAllowedPositionZ(x, y, z);
     init.MoveTo(x, y, z);
     init.SetWalk(false);
     init.Launch();

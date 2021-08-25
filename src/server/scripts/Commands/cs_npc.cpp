@@ -841,7 +841,7 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), std::to_string(target->GetMaxHealth()).c_str(), std::to_string(target->GetHealth()).c_str());
-        handler->PSendSysMessage(LANG_NPCINFO_INHABIT_TYPE, cInfo->InhabitType);
+        handler->PSendSysMessage(LANG_NPCINFO_MOVEMENT_DATA, target->GetMovementTemplate().ToString().c_str());
 
         handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS, *target->m_unitData->Flags);
         for (uint8 i = 0; i < MAX_UNIT_FLAGS; ++i)

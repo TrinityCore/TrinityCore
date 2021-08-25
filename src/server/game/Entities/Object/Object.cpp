@@ -1303,7 +1303,9 @@ Position WorldObject::GetRandomPoint(Position const& srcPos, float distance) con
 
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
-    z = GetMapHeight(x, y, z);
+    float new_z = GetMapHeight(x, y, z);
+    if (new_z > INVALID_HEIGHT)
+        z = new_z + (isType(TYPEMASK_UNIT) ? static_cast<Unit const*>(this)->GetHoverOffset() : 0.0f);
 }
 
 void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
@@ -1312,65 +1314,43 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
     if (GetTransport())
         return;
 
-    switch (GetTypeId())
+    if (Unit const* unit = ToUnit())
     {
-        case TYPEID_UNIT:
+        if (!unit->CanFly())
         {
-            // non fly unit don't must be in air
-            // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
-            if (!ToCreature()->CanFly())
-            {
-                bool canSwim = ToCreature()->CanSwim();
-                float ground_z = z;
-                float max_z = canSwim
-                    ? GetMapWaterOrGroundLevel(x, y, z, &ground_z)
-                    : (ground_z = GetMapHeight(x, y, z));
-                if (max_z > INVALID_HEIGHT)
-                {
-                    if (z > max_z)
-                        z = max_z;
-                    else if (z < ground_z)
-                        z = ground_z;
-                }
-            }
+            bool canSwim = unit->CanSwim();
+            float ground_z = z;
+            float max_z;
+            if (canSwim)
+                max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
             else
+                max_z = ground_z = GetMapHeight(x, y, z);
+
+            if (max_z > INVALID_HEIGHT)
             {
-                float ground_z = GetMapHeight(x, y, z);
-                if (std::fabs(z - ground_z) < GetCollisionHeight())
+                // hovering units cannot go below their hover height
+                float hoverOffset = unit->GetHoverOffset();
+                max_z += hoverOffset;
+                ground_z += hoverOffset;
+
+                if (z > max_z)
+                    z = max_z;
+                else if (z < ground_z)
                     z = ground_z;
             }
-            break;
         }
-        case TYPEID_PLAYER:
+        else
         {
-            // for server controlled moves playr work same as creature (but it can always swim)
-            if (!ToPlayer()->CanFly())
-            {
-                float ground_z = z;
-                float max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
-                if (max_z > INVALID_HEIGHT)
-                {
-                    if (z > max_z)
-                        z = max_z;
-                    else if (z < ground_z)
-                        z = ground_z;
-                }
-            }
-            else
-            {
-                float ground_z = GetMapHeight(x, y, z);
-                if (std::fabs(z - ground_z) < GetCollisionHeight())
-                    z = ground_z;
-            }
-            break;
-        }
-        default:
-        {
-            float ground_z = GetMapHeight(x, y, z);
-            if (ground_z > INVALID_HEIGHT)
+            float ground_z = GetMapHeight(x, y, z) + unit->GetHoverOffset();
+            if (z < ground_z)
                 z = ground_z;
-            break;
         }
+    }
+    else
+    {
+        float ground_z = GetMapHeight(x, y, z);
+        if (ground_z > INVALID_HEIGHT)
+            z = ground_z;
     }
 }
 
