@@ -30,88 +30,6 @@
 #include "Vehicle.h"
 #include "WorldSession.h"
 
-/////////////////////
-///npc_injured_goblin
-/////////////////////
-
-enum InjuredGoblinMiner
-{
-    QUEST_BITTER_DEPARTURE     = 12832,
-    SAY_QUEST_ACCEPT           = 0,
-    SAY_END_WP_REACHED         = 1,
-    GOSSIP_ID                  = 9859,
-    GOSSIP_OPTION_ID           = 0
-};
-
-class npc_injured_goblin : public CreatureScript
-{
-public:
-    npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
-
-    struct npc_injured_goblinAI : public EscortAI
-    {
-        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 26:
-                    Talk(SAY_END_WP_REACHED, player);
-                    break;
-                case 27:
-                    player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
-                    break;
-            }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void Reset() override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
-                player->FailQuest(QUEST_BITTER_DEPARTURE);
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            EscortAI::UpdateAI(uiDiff);
-            if (!UpdateVictim())
-                return;
-            DoMeleeAttackIfReady();
-        }
-
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-        {
-            if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
-            {
-                CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                Start(true, true, player->GetGUID());
-            }
-            return false;
-        }
-
-        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-                Talk(SAY_QUEST_ACCEPT);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_injured_goblinAI(creature);
-    }
-};
-
 /*######
 ## npc_roxi_ramrocket
 ######*/
@@ -816,7 +734,6 @@ class npc_wild_wyrm : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_JAWS_OF_DEATH_PERIODIC);
                         me->RemoveAurasDueToSpell(SPELL_PRY_JAWS_OPEN);
 
-                        me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                         me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
 
                         me->GetMotionMaster()->MoveFall(POINT_FALL);
@@ -1344,41 +1261,6 @@ class spell_fatal_strike : public SpellScriptLoader
         }
 };
 
-// 55795 - Falling Dragon Feign Death
-class spell_falling_dragon_feign_death : public SpellScriptLoader
-{
-    public:
-        spell_falling_dragon_feign_death() : SpellScriptLoader("spell_falling_dragon_feign_death") { }
-
-        class spell_falling_dragon_feign_death_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_falling_dragon_feign_death_AuraScript);
-
-            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
-                GetTarget()->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-            }
-
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
-                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_falling_dragon_feign_death_AuraScript();
-        }
-};
-
 // 56672 - Player Mount Wyrm
 class spell_player_mount_wyrm : public SpellScriptLoader
 {
@@ -1439,7 +1321,6 @@ class spell_q12823_remove_collapsing_cave_aura : public SpellScript
 
 void AddSC_storm_peaks()
 {
-    new npc_injured_goblin();
     new npc_roxi_ramrocket();
     new npc_brunnhildar_prisoner();
     new npc_freed_protodrake();
@@ -1459,7 +1340,6 @@ void AddSC_storm_peaks()
     new spell_jaws_of_death_claw_swipe_pct_damage();
     new spell_claw_swipe_check();
     new spell_fatal_strike();
-    new spell_falling_dragon_feign_death();
     new spell_player_mount_wyrm();
     RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
 }

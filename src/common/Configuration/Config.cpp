@@ -21,6 +21,7 @@
 #include "Util.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <algorithm>
+#include <cstdlib>
 #include <memory>
 #include <mutex>
 
@@ -57,6 +58,81 @@ namespace
 
         return true;
     }
+
+    // Converts ini keys to the environment variable key (upper snake case).
+    // Example of conversions:
+    //   SomeConfig => SOME_CONFIG
+    //   myNestedConfig.opt1 => MY_NESTED_CONFIG_OPT_1
+    //   LogDB.Opt.ClearTime => LOG_DB_OPT_CLEAR_TIME
+    std::string IniKeyToEnvVarKey(std::string const& key)
+    {
+        std::string result;
+
+        const char *str = key.c_str();
+        size_t n = key.length();
+
+        char curr;
+        bool isEnd;
+        bool nextIsUpper;
+        bool currIsNumeric;
+        bool nextIsNumeric;
+
+        for (size_t i = 0; i < n; ++i)
+        {
+            curr = str[i];
+            if (curr == ' ' || curr == '.' || curr == '-')
+            {
+                result += '_';
+                continue;
+            }
+
+            isEnd = i == n - 1;
+            if (!isEnd)
+            {
+                nextIsUpper = isupper(str[i + 1]);
+
+                // handle "aB" to "A_B"
+                if (!isupper(curr) && nextIsUpper)
+                {
+                    result += static_cast<char>(std::toupper(curr));
+                    result += '_';
+                    continue;
+                }
+
+                currIsNumeric = isNumeric(curr);
+                nextIsNumeric = isNumeric(str[i + 1]);
+
+                // handle "a1" to "a_1"
+                if (!currIsNumeric && nextIsNumeric)
+                {
+                    result += static_cast<char>(std::toupper(curr));
+                    result += '_';
+                    continue;
+                }
+
+                // handle "1a" to "1_a"
+                if (currIsNumeric && !nextIsNumeric)
+                {
+                    result += static_cast<char>(std::toupper(curr));
+                    result += '_';
+                    continue;
+                }
+            }
+
+            result += static_cast<char>(std::toupper(curr));
+        }
+        return result;
+    }
+
+    Optional<std::string> EnvVarForIniKey(std::string const& key)
+    {
+        std::string envKey = "TC_" + IniKeyToEnvVarKey(key);
+        char* val = std::getenv(envKey.c_str());
+        if (!val)
+            return std::nullopt;
+
+        return std::string(val);
+    }
 }
 
 bool ConfigMgr::LoadInitial(std::string file, std::vector<std::string> args,
@@ -92,6 +168,29 @@ bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::str
     return true;
 }
 
+std::vector<std::string> ConfigMgr::OverrideWithEnvVariablesIfAny()
+{
+    std::lock_guard<std::mutex> lock(_configLock);
+
+    std::vector<std::string> overriddenKeys;
+
+    for (bpt::ptree::value_type& itr: _config)
+    {
+        if (!itr.second.empty() || itr.first.empty())
+            continue;
+
+        Optional<std::string> envVar = EnvVarForIniKey(itr.first);
+        if (!envVar)
+            continue;
+
+        itr.second = bpt::ptree(*envVar);
+
+        overriddenKeys.push_back(itr.first);
+    }
+
+    return overriddenKeys;
+}
+
 ConfigMgr* ConfigMgr::instance()
 {
     static ConfigMgr instance;
@@ -108,6 +207,8 @@ bool ConfigMgr::Reload(std::vector<std::string>& errors)
         if (!LoadAdditionalFile(additionalFile, false, error))
             errors.push_back(std::move(error));
 
+    OverrideWithEnvVariablesIfAny();
+
     return errors.empty();
 }
 
@@ -120,7 +221,22 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
     }
     catch (bpt::ptree_bad_path const&)
     {
-        if (!quiet)
+        Optional<std::string> envVar = EnvVarForIniKey(name);
+        if (envVar)
+        {
+            Optional<T> castedVar = Trinity::StringTo<T>(*envVar);
+            if (!castedVar)
+            {
+                TC_LOG_ERROR("server.loading", "Bad value defined for name %s in environment variables, going to use default instead", name.c_str());
+                return def;
+            }
+
+            if (!quiet)
+                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), envVar->c_str());
+
+            return *castedVar;
+        }
+        else if (!quiet)
         {
             TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
                 name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
@@ -144,7 +260,15 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     }
     catch (bpt::ptree_bad_path const&)
     {
-        if (!quiet)
+        Optional<std::string> envVar = EnvVarForIniKey(name);
+        if (envVar)
+        {
+            if (!quiet)
+                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), envVar->c_str());
+
+            return *envVar;
+        }
+        else if (!quiet)
         {
             TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
                 name.c_str(), _filename.c_str(), name.c_str(), def.c_str());

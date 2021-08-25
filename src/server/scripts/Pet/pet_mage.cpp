@@ -28,6 +28,8 @@
 #include "Pet.h"
 #include "PetAI.h"
 #include "ScriptedCreature.h"
+#include "SpellHistory.h"
+#include "Timer.h"
 
 enum MageSpells
 {
@@ -46,7 +48,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
 {
     const float CHASE_DISTANCE = 35.0f;
 
-    npc_pet_mage_mirror_image(Creature* creature) : ScriptedAI(creature) { }
+    npc_pet_mage_mirror_image(Creature* creature) : ScriptedAI(creature), _fireBlastTimer(0) { }
 
     void InitializeAI() override
     {
@@ -60,15 +62,76 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         owner->CastSpell(me, SPELL_MAGE_CLONE_ME, true);
     }
 
+    void UpdateAI(uint32 diff) override
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+        {
+            me->DespawnOrUnsummon();
+            return;
+        }
+
+        if (!_fireBlastTimer.Passed())
+            _fireBlastTimer.Update(diff);
+
+        if (!UpdateImageVictim())
+            return;
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (_fireBlastTimer.Passed())
+        {
+            DoCastVictim(SPELL_MAGE_FIRE_BLAST);
+            _fireBlastTimer.Reset(TIMER_MIRROR_IMAGE_FIRE_BLAST);
+        }
+        else
+            DoCastVictim(SPELL_MAGE_FROST_BOLT);
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        Unit* owner = me->GetOwner();
+        return owner && who->IsAlive() && me->IsValidAttackTarget(who) && !who->HasBreakableByDamageCrowdControlAura() && who->IsInCombatWith(owner) && ScriptedAI::CanAIAttack(who);
+    }
+
+    // Do not reload Creature templates on evade mode enter - prevent visual lost
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (!me->IsAlive())
+        {
+            EngagementOver();
+            return;
+        }
+
+        Unit* owner = me->GetCharmerOrOwner();
+
+        me->CombatStop(true);
+        me->SetLootRecipient(nullptr);
+        me->ResetPlayerDamageReq();
+        me->SetLastDamagedTime(0);
+        me->SetCannotReachTarget(false);
+        me->DoNotReacquireSpellFocusTarget();
+        me->SetTarget(ObjectGuid::Empty);
+        EngagementOver();
+
+        if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+        {
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+    }
+
+private:
     // custom UpdateVictim implementation to handle special target selection
     // we prioritize between things that are in combat with owner based on the owner's threat to them
-    bool UpdateVictim()
+    bool UpdateImageVictim()
     {
         Unit* owner = me->GetOwner();
         if (!owner)
             return false;
 
-        if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->IsInCombat() && !owner->IsInCombat())
+        if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->IsEngaged() && !owner->IsInCombat())
             return false;
 
         Unit* currentTarget = me->GetVictim();
@@ -86,8 +149,9 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         Unit* selectedTarget = nullptr;
         CombatManager const& mgr = owner->GetCombatManager();
         if (mgr.HasPvPCombat())
-        { // select pvp target
-            float minDistance = 0.0f;
+        {
+            // select pvp target
+            float minDistance = 0.f;
             for (auto const& pair : mgr.GetPvPCombatRefs())
             {
                 Unit* target = pair.second->GetOther(owner);
@@ -106,8 +170,9 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         }
 
         if (!selectedTarget)
-        { // select pve target
-            float maxThreat = 0.0f;
+        {
+            // select pve target
+            float maxThreat = 0.f;
             for (auto const& pair : mgr.GetPvECombatRefs())
             {
                 Unit* target = pair.second->GetOther(owner);
@@ -134,63 +199,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         return true;
     }
 
-    void UpdateAI(uint32 diff) override
-    {
-        Unit* owner = me->GetOwner();
-        if (!owner)
-        {
-            me->DespawnOrUnsummon();
-            return;
-        }
-
-        if (_fireBlastTimer)
-        {
-            if (_fireBlastTimer <= diff)
-                _fireBlastTimer = 0;
-            else
-                _fireBlastTimer -= diff;
-        }
-
-        if (!UpdateVictim())
-            return;
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        if (!_fireBlastTimer)
-        {
-            DoCastVictim(SPELL_MAGE_FIRE_BLAST);
-            _fireBlastTimer = TIMER_MIRROR_IMAGE_FIRE_BLAST;
-        }
-        else
-            DoCastVictim(SPELL_MAGE_FROST_BOLT);
-    }
-
-    bool CanAIAttack(Unit const* who) const override
-    {
-        Unit* owner = me->GetOwner();
-        return owner && who->IsAlive() && me->IsValidAttackTarget(who) &&
-            !who->HasBreakableByDamageCrowdControlAura() &&
-            who->IsInCombatWith(owner) && ScriptedAI::CanAIAttack(who);
-    }
-
-    // Do not reload Creature templates on evade mode enter - prevent visual lost
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        if (me->IsInEvadeMode() || !me->IsAlive())
-            return;
-
-        Unit* owner = me->GetCharmerOrOwner();
-
-        me->CombatStop(true);
-        if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
-        {
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-        }
-    }
-
-    uint32 _fireBlastTimer = 0;
+    TimeTracker _fireBlastTimer;
 };
 
 void AddSC_mage_pet_scripts()
