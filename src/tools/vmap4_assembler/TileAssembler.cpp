@@ -247,12 +247,11 @@ namespace VMAP
         if (groups != 1)
             printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.c_str());
 
-        AABox modelBound;
+        AABox rotated_bounds;
+        for (int i = 0; i < 8; ++i)
+            rotated_bounds.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.corner(i)));
 
-        modelBound.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.low()));
-        modelBound.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.high()));
-
-        spawn.iBound = modelBound + spawn.iPos;
+        spawn.iBound = rotated_bounds + spawn.iPos;
         spawn.flags |= MOD_HAS_BOUND;
         return true;
     }
