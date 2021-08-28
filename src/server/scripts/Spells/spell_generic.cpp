@@ -5350,7 +5350,7 @@ class spell_gen_wounded : public SpellScript
 };
 
 // 69041 - Rocket Barrage (Racial)
-class spell_rocket_barrage : public SpellScript
+class spell_gen_rocket_barrage : public SpellScript
 {
     void HandleDamage(SpellEffIndex effIndex)
     {
@@ -5363,7 +5363,7 @@ class spell_rocket_barrage : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget.Register(&spell_rocket_barrage::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_gen_rocket_barrage::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -5499,5 +5499,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_ghost);
     RegisterSpellScript(spell_gen_zero_energy_zero_regen);
     RegisterSpellScript(spell_gen_wounded);
-    RegisterSpellScript(spell_rocket_barrage);
+    RegisterSpellScript(spell_gen_rocket_barrage);
 }
