@@ -27,6 +27,12 @@
 #include "World.h"
 #include "WorldSession.h"
 
+uint32 const ReputationRankStrIndex[MAX_REPUTATION_RANK] =
+{
+    LANG_REP_HATED,    LANG_REP_HOSTILE, LANG_REP_UNFRIENDLY, LANG_REP_NEUTRAL,
+    LANG_REP_FRIENDLY, LANG_REP_HONORED, LANG_REP_REVERED,    LANG_REP_EXALTED
+};
+
 std::set<int32> const ReputationMgr::ReputationRankThresholds =
 {
     -42000,

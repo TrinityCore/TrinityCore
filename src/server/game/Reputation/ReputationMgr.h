@@ -29,11 +29,7 @@
 struct FactionEntry;
 struct FactionTemplateEntry;
 
-static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
-{
-    LANG_REP_HATED,    LANG_REP_HOSTILE, LANG_REP_UNFRIENDLY, LANG_REP_NEUTRAL,
-    LANG_REP_FRIENDLY, LANG_REP_HONORED, LANG_REP_REVERED,    LANG_REP_EXALTED
-};
+TC_GAME_API extern uint32 const ReputationRankStrIndex[MAX_REPUTATION_RANK];
 
 enum class ReputationFlags : uint16
 {

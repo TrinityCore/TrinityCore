@@ -3749,6 +3749,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             });
             if (bagScanReachedEnd)
                 return false;
+            break;
         }
         default:
             return false;
