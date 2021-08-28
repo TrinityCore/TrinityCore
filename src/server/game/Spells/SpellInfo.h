@@ -417,6 +417,7 @@ class TC_GAME_API SpellInfo
         int32  AreaGroupId;
         uint32 SchoolMask;
         uint32 SpellDifficultyId;
+        float  BonusCoefficient;
         uint32 SpellScalingId;
         uint32 SpellAuraOptionsId;
         uint32 SpellAuraRestrictionsId;

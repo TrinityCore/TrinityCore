@@ -5349,6 +5349,24 @@ class spell_gen_wounded : public SpellScript
     }
 };
 
+// 69041 - Rocket Barrage (Racial)
+class spell_rocket_barrage : public SpellScript
+{
+    void HandleDamage(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        int32 basePoints = GetEffectValue() + caster->getLevel() * 2;
+        basePoints += caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * GetSpellInfo()->Effects[effIndex].BonusMultiplier;
+        basePoints += caster->GetTotalAttackPowerValue(caster->getClass() != CLASS_HUNTER ? BASE_ATTACK : RANGED_ATTACK) * GetSpellInfo()->BonusCoefficient;
+        SetEffectValue(basePoints);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget.Register(&spell_rocket_barrage::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5481,4 +5499,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_ghost);
     RegisterSpellScript(spell_gen_zero_energy_zero_regen);
     RegisterSpellScript(spell_gen_wounded);
+    RegisterSpellScript(spell_rocket_barrage);
 }

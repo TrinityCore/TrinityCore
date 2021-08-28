@@ -2096,7 +2096,7 @@ struct SpellEntry
     //uint32  SpellMissileID;                               // 27
     //uint32  DescriptionVariablesID;                       // 28
     uint32  Difficulty;                                     // 29
-    float   SpellCoef;                                      // 30
+    float   BonusCoefficient;                               // 30
     uint32  ScalingID;                                      // 31
     uint32  AuraOptionsID;                                  // 32
     uint32  AuraRestrictionsID;                             // 33
