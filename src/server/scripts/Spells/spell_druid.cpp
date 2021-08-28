@@ -698,8 +698,9 @@ class spell_dru_living_seed : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        int32 amount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_LIVING_SEED_PROC, CastSpellExtraArgs(aurEff).AddSpellBP0(amount));
+        int32 amount = CalculatePct(eventInfo.GetHealInfo()->GetEffectiveHeal(), aurEff->GetAmount());
+        if (amount)
+            GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_LIVING_SEED_PROC, CastSpellExtraArgs(aurEff).AddSpellBP0(amount));
     }
 
     void Register() override
@@ -1171,11 +1172,10 @@ class spell_dru_effloresence : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        int32 healAmount = 0;
 
         if (HealInfo* heal = eventInfo.GetHealInfo())
         {
-            healAmount = CalculatePct(heal->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+            int32 healAmount = CalculatePct(heal->GetEffectiveHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
             if (healAmount)
                 GetTarget()->CastSpell(heal->GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT1, healAmount));
         }

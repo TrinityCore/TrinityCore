@@ -293,7 +293,7 @@ class spell_pri_divine_aegis : public AuraScript
     {
         PreventDefaultAction();
 
-        int32 absorb = CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
+        int32 absorb = CalculatePct(int32(eventInfo.GetHealInfo()->GetEffectiveHeal()), aurEff->GetAmount());
 
         // Multiple effects stack, so let's try to find this aura.
         if (AuraEffect const* aegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0))
@@ -304,7 +304,8 @@ class spell_pri_divine_aegis : public AuraScript
 
         absorb = std::min(absorb, int32(CalculatePct(eventInfo.GetProcTarget()->GetMaxHealth(), 40)));
 
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_DIVINE_AEGIS, CastSpellExtraArgs(aurEff).AddSpellBP0(absorb));
+        if (absorb)
+            GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_DIVINE_AEGIS, CastSpellExtraArgs(aurEff).AddSpellBP0(absorb));
     }
 
     void Register() override

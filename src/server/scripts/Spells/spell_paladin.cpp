@@ -1106,7 +1106,7 @@ class spell_pal_illuminated_healing : public AuraScript
             if (Unit* target = eventInfo.GetProcTarget())
             {
 
-                uint32 shieldAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                uint32 shieldAmount = CalculatePct(eventInfo.GetHealInfo()->GetEffectiveHeal(), aurEff->GetAmount());
                 if (Aura* aura = target->GetAura(SPELL_PALADIN_ILLUMINATED_HEALING, caster->GetGUID()))
                 {
                     if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
@@ -1652,8 +1652,8 @@ class spell_pal_ancient_healer : public AuraScript
         if (!heal)
             return;
 
-        int32 bp0 = heal->GetHeal();
-        int32 bp1 = CalculatePct(heal->GetHeal(), 10);
+        int32 bp0 = heal->GetEffectiveHeal();
+        int32 bp1 = CalculatePct(heal->GetEffectiveHeal(), 10);
 
 
         for (Unit* guardian : GetTarget()->m_Controlled)
@@ -1887,7 +1887,9 @@ class spell_pal_lights_beacon : public AuraScript
 
         // Affected healing spells heal for 50% of the amount
         HealInfo* heal = eventInfo.GetHealInfo();
-        int32 bp = CalculatePct(heal->GetHeal(), aurEff->GetAmount());
+        int32 bp = CalculatePct(heal->GetEffectiveHeal(), aurEff->GetAmount());
+        if (!bp)
+            return;
 
         // Holy Light heals for 100% of the amount
         if (heal->GetSpellInfo()->Id == SPELL_PALADIN_HOLY_LIGHT)

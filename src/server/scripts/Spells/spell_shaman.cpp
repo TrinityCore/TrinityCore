@@ -146,9 +146,10 @@ class spell_sha_ancestral_awakening : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        int32 heal = int32(CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount()));
+        int32 heal = int32(CalculatePct(eventInfo.GetHealInfo()->GetEffectiveHeal(), aurEff->GetAmount()));
 
-        GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_ANCESTRAL_AWAKENING, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
+        if (heal)
+            GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_ANCESTRAL_AWAKENING, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
     }
 
     void Register() override
@@ -515,9 +516,10 @@ class spell_sha_glyph_of_healing_wave : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        int32 heal = CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
+        int32 heal = CalculatePct(int32(eventInfo.GetHealInfo()->GetEffectiveHeal()), aurEff->GetAmount());
 
-        GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
+        if (heal)
+            GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
     }
 
     void Register() override
@@ -1178,7 +1180,7 @@ class spell_sha_ancestral_healing : public AuraScript
 
         if (Unit* target = eventInfo.GetHealInfo()->GetTarget())
         {
-            int32 healBonus = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+            int32 healBonus = CalculatePct(eventInfo.GetHealInfo()->GetEffectiveHeal(), aurEff->GetAmount());
             int32 healthCap = CalculatePct(target->GetMaxHealth(), 10);
 
             if (Aura* oldVigor = target->GetAura(SPELL_SHAMAN_ANCESTRAL_VIGOR, GetTarget()->GetGUID()))
@@ -1186,7 +1188,8 @@ class spell_sha_ancestral_healing : public AuraScript
 
             healBonus = std::min(healBonus, healthCap);
 
-            GetUnitOwner()->CastSpell(target, SPELL_SHAMAN_ANCESTRAL_VIGOR, CastSpellExtraArgs(aurEff).AddSpellBP0(healBonus));
+            if (healBonus)
+                GetUnitOwner()->CastSpell(target, SPELL_SHAMAN_ANCESTRAL_VIGOR, CastSpellExtraArgs(aurEff).AddSpellBP0(healBonus));
         }
     }
 
