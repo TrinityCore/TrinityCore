@@ -6295,7 +6295,7 @@ bool Spell::CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const
     for (AuraEffect const* aurEff : auraEffects)
     {
         SpellInfo const* auraInfo = aurEff->GetSpellInfo();
-        if (m_spellInfo->SpellCancelsAuraEffect(auraInfo, aurEff->GetEffIndex()))
+        if (m_spellInfo->SpellCancelsAuraEffect(aurEff))
             continue;
 
         if (param1)

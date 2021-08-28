@@ -2685,6 +2685,8 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
                             units.push_back(owner);
                 break;
             }
+            default:
+                break;
         }
 
         if (selectionType != TARGET_CHECK_DEFAULT)

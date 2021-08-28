@@ -52,9 +52,9 @@ class TC_GAME_API AuraEffect
         int32 GetBaseAmount() const { return m_baseAmount; }
         int32 GetAmplitude() const { return _amplitude; }
 
-        int32 GetMiscValueB() const { return m_spellInfo->Effects[m_effIndex].MiscValueB; }
-        int32 GetMiscValue() const { return m_spellInfo->Effects[m_effIndex].MiscValue; }
-        AuraType GetAuraType() const { return (AuraType)m_spellInfo->Effects[m_effIndex].ApplyAuraName; }
+        int32 GetMiscValueB() const { return GetSpellEffectInfo().MiscValueB; }
+        int32 GetMiscValue() const { return GetSpellEffectInfo().MiscValue; }
+        AuraType GetAuraType() const { return GetSpellEffectInfo().ApplyAuraName; }
         int32 GetAmount() const { return _amount; }
         void SetAmount(int32 amount) { _amount = amount; m_canBeRecalculated = false; }
 
@@ -84,7 +84,7 @@ class TC_GAME_API AuraEffect
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
         bool IsAffectedOnSpell(SpellInfo const* spell) const;
-        bool HasSpellClassMask() const { return m_spellInfo->Effects[m_effIndex].SpellClassMask; }
+        bool HasSpellClassMask() const { return GetSpellEffectInfo().SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
         void PeriodicTick(AuraApplication* aurApp, Unit* caster) const;
@@ -96,6 +96,9 @@ class TC_GAME_API AuraEffect
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
+
+        SpellEffectInfo const& GetSpellEffectInfo() const { return m_spellInfo->Effects[m_effIndex]; }
+
     private:
         Aura* const m_base;
 
