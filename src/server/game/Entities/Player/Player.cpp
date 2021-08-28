@@ -6275,13 +6275,16 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
 
     float percent = 100.0f;
 
-    float repMod = noQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
+    if (!noBonuses)
+    {
+        float repMod = noQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
 
-    // faction specific auras only seem to apply to kills
-    if (source == REPUTATION_SOURCE_KILL)
-        repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
+        // faction specific auras only seem to apply to kills
+        if (source == REPUTATION_SOURCE_KILL)
+            repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
 
-    percent += rep > 0 ? repMod : -repMod;
+        percent += rep > 0 ? repMod : -repMod;
+    }
 
     float rate;
     switch (source)
