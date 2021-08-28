@@ -41,7 +41,6 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_PRESENCE                     = 48263,
     SPELL_DK_BLOOD_PRESENCE_TRIGGERED           = 61261,
-    SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BLOOD_STRIKE                       = 45902,
     SPELL_DK_BLOOD_STRIKE_OFFHAND               = 66215,
@@ -106,7 +105,8 @@ enum DKSpellIcons
     DK_ICON_ID_RUNIC_CORRUPTION                 = 4068,
     DK_ICON_ID_RESILIENT_INFECTION              = 1910,
     DK_ICON_ID_IMPROVED_UNHOLY_PRESENCE         = 2633,
-    DK_ICON_ID_IMPROVED_FROST_PRESENCE          = 2632
+    DK_ICON_ID_IMPROVED_FROST_PRESENCE          = 2632,
+    DK_ICON_ID_BLOOD_SHIELD_MASTERY             = 2624
 };
 
 // 48707 - Anti-Magic Shell (on self)
@@ -437,7 +437,6 @@ class spell_dk_death_strike : public SpellScript
             {
                 SPELL_DK_DEATH_STRIKE_ENABLER,
                 SPELL_DK_DEATH_STRIKE_HEAL,
-                SPELL_DK_BLOOD_SHIELD_MASTERY,
                 SPELL_DK_BLOOD_SHIELD_ABSORB
             });
     }
@@ -456,19 +455,6 @@ class spell_dk_death_strike : public SpellScript
 
             heal = std::max(heal, int32(GetCaster()->CountPctFromMaxHealth(GetEffectValue())));
             GetCaster()->CastSpell(GetCaster(), SPELL_DK_DEATH_STRIKE_HEAL, CastSpellExtraArgs(true).AddSpellBP0(heal));
-        }
-
-        if (!GetCaster()->HasAura(SPELL_DK_BLOOD_PRESENCE))
-            return;
-
-        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_MASTERY, EFFECT_0))
-        {
-            int32 bp = CalculatePct(heal, aurEff->GetAmount());
-
-            if (AuraEffect const* bloodShieldEffect = GetCaster()->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_ABSORB, EFFECT_0))
-                bp += std::min(bp + bloodShieldEffect->GetAmount(), int32(GetCaster()->GetMaxHealth()));
-
-            GetCaster()->CastSpell(GetCaster(), SPELL_DK_BLOOD_SHIELD_ABSORB, CastSpellExtraArgs(true).AddSpellBP0(bp));
         }
     }
 
@@ -539,6 +525,38 @@ class spell_dk_death_strike_enabler : public AuraScript
     }
 private:
     uint32 _damagePerSecond[5];
+};
+
+// 45470 - Death Strike
+class spell_dk_death_strike_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DK_BLOOD_PRESENCE,
+                SPELL_DK_BLOOD_SHIELD_ABSORB
+            });
+    }
+
+    void HandleBloodShield()
+    {
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        AuraEffect const* bloodShieldAurEff = target->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_BLOOD_SHIELD_MASTERY, EFFECT_0);
+        if (!bloodShieldAurEff || !target->HasAura(SPELL_DK_BLOOD_PRESENCE))
+            return;
+
+        if (int32 bp = CalculatePct(GetHitHeal(), bloodShieldAurEff->GetAmount()))
+            target->CastSpell(target, SPELL_DK_BLOOD_SHIELD_ABSORB, CastSpellExtraArgs(true).AddSpellBP0(bp));
+    }
+
+    void Register() override
+    {
+        AfterHit.Register(&spell_dk_death_strike_heal::HandleBloodShield);
+    }
 };
 
 // 47496 - Explode, Ghoul spell for Corpse Explosion
@@ -1730,6 +1748,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_death_pact);
     RegisterSpellScript(spell_dk_death_strike);
     RegisterSpellScript(spell_dk_death_strike_enabler);
+    RegisterSpellScript(spell_dk_death_strike_heal);
     RegisterSpellScript(spell_dk_deaths_advance);
     RegisterSpellScript(spell_dk_deaths_advance_aura);
     RegisterSpellScript(spell_dk_desecration);
