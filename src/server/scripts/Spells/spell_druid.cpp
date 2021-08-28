@@ -1966,6 +1966,21 @@ class spell_dru_nourish : public SpellScript
     }
 };
 
+// 6807 - Maul (Bear Form)
+class spell_dru_maul : public SpellScript
+{
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = 35 + GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.19f - 1;
+        SetEffectValue(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget.Register(&spell_dru_maul::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -1994,6 +2009,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_lifebloom);
     RegisterSpellScript(spell_dru_living_seed);
     RegisterSpellScript(spell_dru_living_seed_proc);
+    RegisterSpellScript(spell_dru_maul);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_nourish);
     RegisterSpellScript(spell_dru_pulverize);
