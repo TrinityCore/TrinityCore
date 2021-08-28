@@ -257,6 +257,10 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player || player->GetPrimaryTalentTree(player->GetActiveSpec()) != TALENT_TREE_DRUID_BALANCE)
+            return false;
+
         return eventInfo.GetSpellInfo();
     }
 
