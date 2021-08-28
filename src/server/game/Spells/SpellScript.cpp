@@ -740,9 +740,9 @@ Item* SpellScript::GetCastItem() const
     return m_spell->m_CastItem;
 }
 
-void SpellScript::CreateItem(uint32 effIndex, uint32 itemId, ItemContext context)
+void SpellScript::CreateItem(uint32 itemId, ItemContext context)
 {
-    m_spell->DoCreateItem(effIndex, itemId, context);
+    m_spell->DoCreateItem(itemId, context);
 }
 
 SpellInfo const* SpellScript::GetTriggeringSpell() const

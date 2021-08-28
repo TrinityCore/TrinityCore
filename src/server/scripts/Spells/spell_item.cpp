@@ -1263,7 +1263,7 @@ class spell_item_mingos_fortune_generator : public SpellScript
                 return;
         }
 
-        CreateItem(effIndex, newitemid, ItemContext::NONE);
+        CreateItem(newitemid, ItemContext::NONE);
     }
 
     void Register() override
