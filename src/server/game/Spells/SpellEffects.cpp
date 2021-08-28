@@ -378,7 +378,7 @@ void Spell::EffectUnused(SpellEffIndex /*effIndex*/)
     // NOT USED BY ANY SPELL OR USELESS OR IMPLEMENTED IN DIFFERENT WAY IN TRINITY
 }
 
-void Spell::EffectResurrectNew(SpellEffIndex effIndex)
+void Spell::EffectResurrectNew(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -399,7 +399,7 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
 
     uint32 health = damage;
     uint32 mana = effectInfo->MiscValue;
-    ExecuteLogEffectResurrect(effIndex, target);
+    ExecuteLogEffectResurrect(SpellEffectName(effectInfo->Effect), target);
     target->SetResurrectRequestData(m_caster, health, mana, 0);
     SendResurrectRequest(target);
 }
@@ -1081,7 +1081,7 @@ void Spell::EffectUnlearnSpecialization(SpellEffIndex /*effIndex*/)
     TC_LOG_DEBUG("spells", "Spell: %s has unlearned spell %u from %s", player->GetGUID().ToString().c_str(), spellToUnlearn, m_caster->GetGUID().ToString().c_str());
 }
 
-void Spell::EffectPowerDrain(SpellEffIndex effIndex)
+void Spell::EffectPowerDrain(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -1112,7 +1112,7 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
         unitCaster->EnergizeBySpell(unitCaster, m_spellInfo, gain, powerType);
     }
-    ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, gainMultiplier);
+    ExecuteLogEffectTakeTargetPower(SpellEffectName(effectInfo->Effect), unitTarget, powerType, newDamage, gainMultiplier);
 }
 
 void Spell::EffectSendEvent(SpellEffIndex /*effIndex*/)
@@ -1156,7 +1156,7 @@ void Spell::EffectSendEvent(SpellEffIndex /*effIndex*/)
     m_caster->GetMap()->ScriptsStart(sEventScripts, effectInfo->MiscValue, m_caster, target);
 }
 
-void Spell::EffectPowerBurn(SpellEffIndex effIndex)
+void Spell::EffectPowerBurn(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -1174,7 +1174,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
     float dmgMultiplier = effectInfo->CalcValueMultiplier(unitCaster, this);
 
     // add log data before multiplication (need power amount, not damage)
-    ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, 0.0f);
+    ExecuteLogEffectTakeTargetPower(SpellEffectName(effectInfo->Effect), unitTarget, powerType, newDamage, 0.0f);
 
     newDamage = int32(newDamage * dmgMultiplier);
 
@@ -1415,7 +1415,7 @@ void Spell::EffectCreateItem(SpellEffIndex effIndex)
         return;
 
     DoCreateItem(effIndex, effectInfo->ItemType, m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) ? ItemContext::Trade_Skill : ItemContext::NONE);
-    ExecuteLogEffectCreateItem(effIndex, effectInfo->ItemType);
+    ExecuteLogEffectCreateItem(SpellEffectName(effectInfo->Effect), effectInfo->ItemType);
 }
 
 void Spell::EffectCreateItem2(SpellEffIndex effIndex)
@@ -1756,7 +1756,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
             }
         }
     }
-    ExecuteLogEffectOpenLock(effIndex, gameObjTarget ? (Object*)gameObjTarget : (Object*)itemTarget);
+    ExecuteLogEffectOpenLock(SpellEffectName(effectInfo->Effect), gameObjTarget ? (Object*)gameObjTarget : (Object*)itemTarget);
 }
 
 void Spell::EffectSummonChangeItem(SpellEffIndex /*effIndex*/)
@@ -1895,7 +1895,7 @@ void Spell::EffectProficiency(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::EffectSummonType(SpellEffIndex effIndex)
+void Spell::EffectSummonType(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -1973,7 +1973,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         {
             if (properties->Flags & 512)
             {
-                SummonGuardian(effIndex, entry, properties, numSummons, privateObjectOwner);
+                SummonGuardian(effectInfo, entry, properties, numSummons, privateObjectOwner);
                 break;
             }
 
@@ -1983,7 +1983,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 case SummonTitle::Guardian:
                 case SummonTitle::Runeblade:
                 case SummonTitle::Minion:
-                    SummonGuardian(effIndex, entry, properties, numSummons, privateObjectOwner);
+                    SummonGuardian(effectInfo, entry, properties, numSummons, privateObjectOwner);
                     break;
                     // Summons a vehicle, but doesn't force anyone to enter it (see SUMMON_CATEGORY_VEHICLE)
                 case SummonTitle::Vehicle:
@@ -2055,7 +2055,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             summon->SetCreatedBySpell(m_spellInfo->Id);
                         }
 
-                        ExecuteLogEffectSummonObject(effIndex, summon);
+                        ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
                     }
                     return;
                 }
@@ -2063,7 +2063,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             break;
         }
         case SUMMON_CATEGORY_PET:
-            SummonGuardian(effIndex, entry, properties, numSummons, privateObjectOwner);
+            SummonGuardian(effectInfo, entry, properties, numSummons, privateObjectOwner);
             break;
         case SUMMON_CATEGORY_PUPPET:
         {
@@ -2114,7 +2114,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (summon)
     {
         summon->SetCreatorGUID(caster->GetGUID());
-        ExecuteLogEffectSummonObject(effIndex, summon);
+        ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
     }
 }
 
@@ -2648,7 +2648,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::EffectSummonPet(SpellEffIndex effIndex)
+void Spell::EffectSummonPet(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -2667,7 +2667,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     {
         SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(67);
         if (properties)
-            SummonGuardian(effIndex, petentry, properties, 1, ObjectGuid::Empty);
+            SummonGuardian(effectInfo, petentry, properties, 1, ObjectGuid::Empty);
         return;
     }
 
@@ -2727,7 +2727,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     if (!new_name.empty())
         pet->SetName(new_name);
 
-    ExecuteLogEffectSummonObject(effIndex, pet);
+    ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), pet);
 }
 
 void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
@@ -3049,14 +3049,14 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         Unit::ProcSkillsAndAuras(unitCaster, unitTarget, PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS, PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS,
                             PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_INTERRUPT, nullptr, nullptr, nullptr);
                 }
-                ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
+                SendSpellInterruptLog(unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
             }
         }
     }
 }
 
-void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
+void Spell::EffectSummonObjectWild(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -3085,7 +3085,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effIndex, go);
+    ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), go);
 
     // Wild object not have owner and check clickable by players
     map->AddToMap(go);
@@ -3102,7 +3102,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
         linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
         linkedTrap->SetSpellId(m_spellInfo->Id);
 
-        ExecuteLogEffectSummonObject(effIndex, linkedTrap);
+        ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), linkedTrap);
     }
 }
 
@@ -3542,7 +3542,7 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
     unitTarget->m_lastSanctuaryTime = GameTime::GetGameTimeMS();
 }
 
-void Spell::EffectDuel(SpellEffIndex effIndex)
+void Spell::EffectDuel(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -3595,7 +3595,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effIndex, go);
+    ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), go);
 
     caster->AddGameObject(go);
     map->AddToMap(go);
@@ -3838,7 +3838,7 @@ void Spell::EffectInebriate(SpellEffIndex /*effIndex*/)
     player->SetDrunkValue(currentDrunk, m_CastItem ? m_CastItem->GetEntry() : 0);
 }
 
-void Spell::EffectFeedPet(SpellEffIndex effIndex)
+void Spell::EffectFeedPet(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -3858,7 +3858,7 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     if (!pet->IsAlive())
         return;
 
-    ExecuteLogEffectDestroyItem(effIndex, foodItem->GetEntry());
+    ExecuteLogEffectDestroyItem(SpellEffectName(effectInfo->Effect), foodItem->GetEntry());
 
     int32 pct;
     int32 levelDiff = int32(pet->getLevel()) - int32(foodItem->GetTemplate()->GetBaseItemLevel());
@@ -3880,7 +3880,7 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     m_caster->CastSpell(pet, effectInfo->TriggerSpell, args);
 }
 
-void Spell::EffectDismissPet(SpellEffIndex effIndex)
+void Spell::EffectDismissPet(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -3890,11 +3890,11 @@ void Spell::EffectDismissPet(SpellEffIndex effIndex)
 
     Pet* pet = unitTarget->ToPet();
 
-    ExecuteLogEffectUnsummonObject(effIndex, pet);
+    ExecuteLogEffectUnsummonObject(SpellEffectName(effectInfo->Effect), pet);
     pet->GetOwner()->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
 }
 
-void Spell::EffectSummonObject(SpellEffIndex effIndex)
+void Spell::EffectSummonObject(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -3941,14 +3941,14 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     go->SetSpellId(m_spellInfo->Id);
     unitCaster->AddGameObject(go);
 
-    ExecuteLogEffectSummonObject(effIndex, go);
+    ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), go);
 
     map->AddToMap(go);
 
     unitCaster->m_ObjectSlot[slot] = go->GetGUID();
 }
 
-void Spell::EffectResurrect(SpellEffIndex effIndex)
+void Spell::EffectResurrect(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -3967,13 +3967,13 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
     uint32 health = target->CountPctFromMaxHealth(damage);
     uint32 mana   = CalculatePct(target->GetMaxPower(POWER_MANA), damage);
 
-    ExecuteLogEffectResurrect(effIndex, target);
+    ExecuteLogEffectResurrect(SpellEffectName(effectInfo->Effect), target);
 
     target->SetResurrectRequestData(m_caster, health, mana, 0);
     SendResurrectRequest(target);
 }
 
-void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
+void Spell::EffectAddExtraAttacks(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -3986,7 +3986,7 @@ void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
 
     unitTarget->m_extraAttacks = damage;
 
-    ExecuteLogEffectExtraAttacks(effIndex, unitTarget, damage);
+    ExecuteLogEffectExtraAttacks(SpellEffectName(effectInfo->Effect), unitTarget, damage);
 }
 
 void Spell::EffectParry(SpellEffIndex /*effIndex*/)
@@ -4574,7 +4574,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
+void Spell::EffectDurabilityDamage(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -4588,7 +4588,7 @@ void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
     if (slot < 0)
     {
         unitTarget->ToPlayer()->DurabilityPointsLossAll(damage, (slot < -1));
-        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, -1, -1);
+        ExecuteLogEffectDurabilityDamage(SpellEffectName(effectInfo->Effect), unitTarget, -1, -1);
         return;
     }
 
@@ -4599,7 +4599,7 @@ void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
     if (Item* item = unitTarget->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
     {
         unitTarget->ToPlayer()->DurabilityPointsLoss(item, damage);
-        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, item->GetEntry(), slot);
+        ExecuteLogEffectDurabilityDamage(SpellEffectName(effectInfo->Effect), unitTarget, item->GetEntry(), slot);
     }
 }
 
@@ -4643,7 +4643,7 @@ void Spell::EffectModifyThreatPercent(SpellEffIndex /*effIndex*/)
     unitTarget->GetThreatManager().ModifyThreatByPercent(unitCaster, damage);
 }
 
-void Spell::EffectTransmitted(SpellEffIndex effIndex)
+void Spell::EffectTransmitted(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -4753,7 +4753,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     //go->SetLevel(unitCaster->getLevel());
     go->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effIndex, go);
+    ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), go);
 
     TC_LOG_DEBUG("spells", "AddObject at SpellEfects.cpp EffectTransmitted");
     //unitCaster->AddGameObject(go);
@@ -4770,7 +4770,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         linkedTrap->SetSpellId(m_spellInfo->Id);
         linkedTrap->SetOwnerGUID(unitCaster->GetGUID());
 
-        ExecuteLogEffectSummonObject(effIndex, linkedTrap);
+        ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), linkedTrap);
     }
 }
 
@@ -5144,7 +5144,7 @@ void Spell::EffectGameObjectSetDestructionState(SpellEffIndex /*effIndex*/)
     gameObjTarget->SetDestructibleState(GameObjectDestructibleState(effectInfo->MiscValue), m_caster, true);
 }
 
-void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numGuardians, ObjectGuid privateObjectOwner)
+void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPropertiesEntry const* properties, uint32 numGuardians, ObjectGuid privateObjectOwner)
 {
     if (!unitCaster)
         return;
@@ -5203,7 +5203,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         summon->AI()->EnterEvadeMode();
 
-        ExecuteLogEffectSummonObject(i, summon);
+        ExecuteLogEffectSummonObject(SpellEffectName(effect->Effect), summon);
     }
 }
 
@@ -5486,7 +5486,7 @@ void Spell::EffectSummonPersonalGameObject(SpellEffIndex effIndex)
     go->SetSpellId(m_spellInfo->Id);
     go->SetPrivateObjectOwner(m_caster->GetGUID());
 
-    ExecuteLogEffectSummonObject(effIndex, go);
+    ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), go);
 
     map->AddToMap(go);
 
@@ -5497,11 +5497,11 @@ void Spell::EffectSummonPersonalGameObject(SpellEffIndex effIndex)
         linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
         linkedTrap->SetSpellId(m_spellInfo->Id);
 
-        ExecuteLogEffectSummonObject(effIndex, linkedTrap);
+        ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), linkedTrap);
     }
 }
 
-void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
+void Spell::EffectResurrectWithAura(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5528,7 +5528,7 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     if (resurrectAura && target->HasAura(resurrectAura))
         return;
 
-    ExecuteLogEffectResurrect(effIndex, target);
+    ExecuteLogEffectResurrect(SpellEffectName(effectInfo->Effect), target);
     target->SetResurrectRequestData(m_caster, health, mana, resurrectAura);
     SendResurrectRequest(target);
 }
@@ -5639,7 +5639,7 @@ void Spell::EffectCreateHeirloomItem(SpellEffIndex effIndex)
     bonusList.push_back(collectionMgr->GetHeirloomBonus(m_misc.Raw.Data[0]));
 
     DoCreateItem(effIndex, m_misc.Raw.Data[0], ItemContext::NONE, bonusList);
-    ExecuteLogEffectCreateItem(effIndex, m_misc.Raw.Data[0]);
+    ExecuteLogEffectCreateItem(SpellEffectName(effectInfo->Effect), m_misc.Raw.Data[0]);
 }
 
 void Spell::EffectActivateGarrisonBuilding(SpellEffIndex /*effIndex*/)

@@ -21,6 +21,7 @@
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
@@ -202,6 +203,18 @@ struct SpellLogEffectTradeSkillItemParams
 struct SpellLogEffectFeedPetParams
 {
     int32 ItemID        = 0;
+};
+
+struct SpellLogEffect
+{
+    int32 Effect = 0;
+
+    Optional<std::vector<SpellLogEffectPowerDrainParams>> PowerDrainTargets;
+    Optional<std::vector<SpellLogEffectExtraAttacksParams>> ExtraAttacksTargets;
+    Optional<std::vector<SpellLogEffectDurabilityDamageParams>> DurabilityDamageTargets;
+    Optional<std::vector<SpellLogEffectGenericVictimParams>> GenericVictimTargets;
+    Optional<std::vector<SpellLogEffectTradeSkillItemParams>> TradeSkillTargets;
+    Optional<std::vector<SpellLogEffectFeedPetParams>> FeedPetTargets;
 };
 
 class TC_GAME_API SpellCastTargets
@@ -588,16 +601,26 @@ class TC_GAME_API Spell
         void SendSpellGo();
         void SendSpellCooldown();
         void SendSpellExecuteLog();
-        void ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 points, float amplitude);
-        void ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 numAttacks);
-        void ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId);
-        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, int32 itemId, int32 amount);
-        void ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj);
-        void ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry);
-        void ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry);
-        void ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject* obj);
-        void ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject* obj);
-        void ExecuteLogEffectResurrect(uint8 effIndex, Unit* target);
+        SpellLogEffect& GetExecuteLogEffect(SpellEffectName effect);
+        template<typename T>
+        std::vector<T>& GetExecuteLogEffectTargets(SpellEffectName effect, Optional<std::vector<T>> SpellLogEffect::* member)
+        {
+            Optional<std::vector<T>>& opt = GetExecuteLogEffect(effect).*member;
+            if (!opt)
+                opt.emplace();
+
+            return *opt;
+        }
+        void ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit* target, uint32 powerType, uint32 points, float amplitude);
+        void ExecuteLogEffectExtraAttacks(SpellEffectName effect, Unit* victim, uint32 numAttacks);
+        void ExecuteLogEffectDurabilityDamage(SpellEffectName effect, Unit* victim, int32 itemId, int32 amount);
+        void ExecuteLogEffectOpenLock(SpellEffectName effect, Object* obj);
+        void ExecuteLogEffectCreateItem(SpellEffectName effect, uint32 entry);
+        void ExecuteLogEffectDestroyItem(SpellEffectName effect, uint32 entry);
+        void ExecuteLogEffectSummonObject(SpellEffectName effect, WorldObject* obj);
+        void ExecuteLogEffectUnsummonObject(SpellEffectName effect, WorldObject* obj);
+        void ExecuteLogEffectResurrect(SpellEffectName effect, Unit* target);
+        void SendSpellInterruptLog(Unit* victim, uint32 spellId);
         void SendInterrupted(uint8 result);
         void SendChannelUpdate(uint32 time);
         void SendChannelStart(uint32 duration);
@@ -911,7 +934,7 @@ class TC_GAME_API Spell
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
-        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons, ObjectGuid privateObjectOwner);
+        void SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons, ObjectGuid privateObjectOwner);
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
         void UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& data);
@@ -932,12 +955,7 @@ class TC_GAME_API Spell
 
         std::unique_ptr<PathGenerator> m_preGeneratedPath;
 
-        std::vector<SpellLogEffectPowerDrainParams> _powerDrainTargets[MAX_SPELL_EFFECTS];
-        std::vector<SpellLogEffectExtraAttacksParams> _extraAttacksTargets[MAX_SPELL_EFFECTS];
-        std::vector<SpellLogEffectDurabilityDamageParams> _durabilityDamageTargets[MAX_SPELL_EFFECTS];
-        std::vector<SpellLogEffectGenericVictimParams> _genericVictimTargets[MAX_SPELL_EFFECTS];
-        std::vector<SpellLogEffectTradeSkillItemParams> _tradeSkillTargets[MAX_SPELL_EFFECTS];
-        std::vector<SpellLogEffectFeedPetParams> _feedPetTargets[MAX_SPELL_EFFECTS];
+        std::vector<SpellLogEffect> _executeLogEffects;
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
