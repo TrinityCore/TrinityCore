@@ -1640,6 +1640,23 @@ class spell_warl_pandemic_script : public SpellScript
     }
 };
 
+// -63156 - Decimation
+class spell_warl_decimation : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (AuraEffect const* healthThresholdEffect = GetEffect(EFFECT_1))
+            return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->GetHealthPct() <= healthThresholdEffect->GetAmount();
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_warl_decimation::CheckProc);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_aftermath);
@@ -1650,6 +1667,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_conflagrate);
     RegisterSpellScript(spell_warl_curse_of_weakness);
     RegisterSpellScript(spell_warl_create_healthstone);
+    RegisterSpellScript(spell_warl_decimation);
     RegisterSpellScript(spell_warl_demonic_circle_summon);
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
     RegisterSpellScript(spell_warl_demonic_empowerment);
