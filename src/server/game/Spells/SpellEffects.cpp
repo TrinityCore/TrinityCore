@@ -2798,8 +2798,9 @@ void Spell::EffectWeaponDmg()
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
-    for (SpellEffectInfo const* effect : m_spellInfo->GetEffects())
+    for (size_t j = effectInfo->EffectIndex + 1; j < m_spellInfo->GetEffects().size(); ++j)
     {
+        SpellEffectInfo const* effect = m_spellInfo->GetEffect(j);
         if (!effect)
             continue;
         switch (effect->Effect)
