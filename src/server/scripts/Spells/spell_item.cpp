@@ -1233,7 +1233,7 @@ class spell_item_mingos_fortune_generator : public SpellScript
 {
     PrepareSpellScript(spell_item_mingos_fortune_generator);
 
-    void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         // Selecting one from Bloodstained Fortune item
         uint32 newitemid;
