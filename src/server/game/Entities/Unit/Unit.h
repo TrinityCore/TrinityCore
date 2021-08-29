@@ -1026,7 +1026,7 @@ class TC_GAME_API Unit : public WorldObject
         float GetUnitBlockChance(Unit const* victim) const;
         float GetUnitMissChance(Unit const* victim) const;
         float GetUnitCriticalChanceDone(WeaponAttackType attackType) const;
-        float GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType attackType, float critDone) const;
+        float GetUnitCriticalChanceTaken(WeaponAttackType attackType, float critDone) const;
         float GetUnitCriticalChanceAgainst(WeaponAttackType attackType, Unit const* victim) const;
         int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;
