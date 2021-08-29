@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "icecrown_citadel.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -24,13 +23,14 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Texts
+enum BloodPrinceCouncilTexts
 {
     // Blood Queen Lana'Thel
     SAY_INTRO_1                 = 0,
@@ -63,7 +63,7 @@ enum Texts
     SAY_VALANAR_DEATH           = 6
 };
 
-enum Spells
+enum BloodPrinceCouncilSpells
 {
     SPELL_FEIGN_DEATH                   = 71598,
     SPELL_OOC_INVOCATION_VISUAL         = 70934,
@@ -125,9 +125,9 @@ enum Spells
     SPELL_INVOCATION_VISUAL_KELESETH    = 71080
 };
 
-enum Events
+enum BloodPrinceCouncilEvents
 {
-    EVENT_INTRO_1               = 1,
+    EVENT_INTRO_1 = 1,
     EVENT_INTRO_2,
 
     EVENT_INVOCATION_OF_BLOOD,
@@ -148,9 +148,9 @@ enum Events
     EVENT_CONTINUE_FALLING
 };
 
-enum Actions
+enum BloodPrinceCouncilActions
 {
-    ACTION_START_INTRO          = 1,
+    ACTION_START_INTRO  = 1,
     ACTION_INTRO_DONE,
     ACTION_STAND_UP,
     ACTION_CAST_INVOCATION,
@@ -159,25 +159,25 @@ enum Actions
     ACTION_FLAME_BALL_CHASE
 };
 
-enum Points
+enum BloodPrinceCouncilPoints
 {
-    POINT_INTRO_DESPAWN         = 380040,
-    POINT_KINETIC_BOMB_IMPACT   = 384540
+    POINT_INTRO_DESPAWN                 = 380040,
+    POINT_KINETIC_BOMB_IMPACT           = 384540
 };
 
-enum Misc
+enum BloodPrinceCouncilMisc
 {
-    DISPLAY_KINETIC_BOMB        = 31095,
-    SUMMON_PRINCES_GROUP        = 1,
-    DATA_INTRO                  = 2,
-    DATA_INTRO_DONE             = 3,
-    DATA_PRINCE_EVADE           = 4
+    DISPLAY_KINETIC_BOMB                = 31095,
+    SUMMON_PRINCES_GROUP                = 1,
+    DATA_INTRO                          = 2,
+    DATA_INTRO_DONE                     = 3,
+    DATA_PRINCE_EVADE                   = 4
 };
 
-class StandUpEvent : public BasicEvent
+class BloodPrinceCouncilStandUpEvent : public BasicEvent
 {
     public:
-        StandUpEvent(Creature* owner) : BasicEvent(), _owner(owner) { }
+        BloodPrinceCouncilStandUpEvent(Creature* owner) : BasicEvent(), _owner(owner) { }
 
         bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
         {
@@ -190,10 +190,10 @@ class StandUpEvent : public BasicEvent
         Creature* _owner;
 };
 
-class VortexEvent : public BasicEvent
+class BloodPrinceCouncilVortexEvent : public BasicEvent
 {
 public:
-    VortexEvent(Creature* owner) : _owner(owner) { }
+    BloodPrinceCouncilVortexEvent(Creature* owner) : _owner(owner) { }
 
         bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
         {
@@ -205,11 +205,11 @@ private:
     Creature* _owner;
 };
 
-Position const introFinalPos = {4660.490f, 2769.200f, 430.0000f, 0.000000f};
-Position const triggerPos    = {4680.231f, 2769.134f, 379.9256f, 3.121708f};
-Position const triggerEndPos = {4680.180f, 2769.150f, 365.5000f, 3.121708f};
+Position const BloodPrinceCouncilIntroFinalPos = { 4660.490f, 2769.200f, 430.0000f, 0.000000f };
+Position const BloodPrinceCouncilTriggerPos    = { 4680.231f, 2769.134f, 379.9256f, 3.121708f };
+Position const BloodPrinceCouncilTriggerEndPos = { 4680.180f, 2769.150f, 365.5000f, 3.121708f };
 
-uint32 const PrincesData[] =
+uint32 const BloodPrinceCouncilPrincesData[] =
 {
     DATA_PRINCE_KELESETH,
     DATA_PRINCE_TALDARAM,
@@ -222,6 +222,8 @@ struct boss_blood_council_controller : public BossAI
     {
         Initialize();
         SetCombatMovement(false);
+        creature->SetReactState(REACT_PASSIVE);
+        creature->SetIsCombatDisallowed(false);
     }
 
     void Initialize()
@@ -237,7 +239,8 @@ struct boss_blood_council_controller : public BossAI
         me->SummonCreatureGroup(SUMMON_PRINCES_GROUP);
 
         if (!instance->GetData(DATA_BLOOD_PRINCE_COUNCIL_INTRO))
-            for (uint32 bossData : PrincesData)
+        {
+            for (uint32 const& bossData : BloodPrinceCouncilPrincesData)
                 if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetGuidData(bossData)))
                 {
                     prince->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -248,11 +251,12 @@ struct boss_blood_council_controller : public BossAI
                         prince->CastSpell(prince, SPELL_REMOVE_EMPOWERED_BLOOD, true);
                     }
                 }
+        }
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        for (uint32 bossData : PrincesData)
+        for (uint32 const& bossData : BloodPrinceCouncilPrincesData)
             if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetGuidData(bossData)))
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, prince);
 
@@ -279,12 +283,14 @@ struct boss_blood_council_controller : public BossAI
 
         DoCastSelf(SPELL_INVOCATION_OF_BLOOD_VALANAR);
 
-        for (uint32 bossData : PrincesData)
+        for (uint32 const& bossData : BloodPrinceCouncilPrincesData)
+        {
             if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetGuidData(bossData)))
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, prince);
                 DoZoneInCombat(prince);
             }
+        }
 
         events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, Seconds(46) + Milliseconds(500));
 
@@ -346,7 +352,7 @@ struct boss_blood_council_controller : public BossAI
         else if (actionId == ACTION_INTRO_DONE)
         {
             // Remove feigh death from princes
-            for (uint32 bossData : PrincesData)
+            for (uint32 const& bossData : BloodPrinceCouncilPrincesData)
                 if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetGuidData(bossData)))
                 {
                     prince->AI()->DoAction(ACTION_STAND_UP);
@@ -558,7 +564,7 @@ struct BloodPrincesBossAI : public BossAI
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 me->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);   // was in sniff. don't ask why
-                me->m_Events.AddEvent(new StandUpEvent(me), me->m_Events.CalculateTime(1s));
+                me->m_Events.AddEvent(new BloodPrinceCouncilStandUpEvent(me), me->m_Events.CalculateTime(1s));
                 break;
             case ACTION_CAST_INVOCATION:
                 Talk(SelectInvocationSay());
@@ -784,7 +790,7 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
             }
             case NPC_SHOCK_VORTEX:
                 summon->CastSpell(summon, SPELL_SHOCK_VORTEX_DUMMY, true);
-                summon->m_Events.AddEvent(new VortexEvent(summon), summon->m_Events.CalculateTime(5s));
+                summon->m_Events.AddEvent(new BloodPrinceCouncilVortexEvent(summon), summon->m_Events.CalculateTime(5s));
                 break;
             default:
                 break;
@@ -867,11 +873,11 @@ struct npc_blood_queen_lana_thel : public PassiveAI
                 _events.SetPhase(1);
                 _events.ScheduleEvent(EVENT_INTRO_1, Seconds(14));
                 // summon a visual trigger
-                if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15s, TEMPSUMMON_TIMED_DESPAWN))
+                if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, BloodPrinceCouncilTriggerPos, 15s, TEMPSUMMON_TIMED_DESPAWN))
                 {
                     summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
                     summon->SetSpeedRate(MOVE_RUN, 0.14f);
-                    summon->GetMotionMaster()->MovePoint(0, triggerEndPos);
+                    summon->GetMotionMaster()->MovePoint(0, BloodPrinceCouncilTriggerEndPos);
                 }
                 break;
             default:
@@ -895,7 +901,7 @@ struct npc_blood_queen_lana_thel : public PassiveAI
         if (_events.ExecuteEvent() == EVENT_INTRO_1)
         {
             Talk(SAY_INTRO_2);
-            me->GetMotionMaster()->MovePoint(POINT_INTRO_DESPAWN, introFinalPos);
+            me->GetMotionMaster()->MovePoint(POINT_INTRO_DESPAWN, BloodPrinceCouncilIntroFinalPos);
             _events.Reset();
 
             if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
