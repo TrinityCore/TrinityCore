@@ -5088,7 +5088,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
     bool preventDefault = CallScriptEffectHandlers(spellEffectInfo.EffectIndex, mode);
 
     if (!preventDefault)
-        (this->*SpellEffectHandlers[effectInfo->Effect])(spellEffectInfo.EffectIndex);
+        (this->*SpellEffectHandlers[spellEffectInfo.Effect])(spellEffectInfo.EffectIndex);
 }
 
 SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/)
