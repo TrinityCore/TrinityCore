@@ -61,11 +61,13 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         void SetCasterViewpoint();
         void RemoveCasterViewpoint();
         Unit* GetCaster() const { return _caster; }
+        uint32 GetFaction() const override;
         void BindToCaster();
         void UnbindFromCaster();
         uint32 GetSpellId() const { return m_dynamicObjectData->SpellID; }
         SpellInfo const* GetSpellInfo() const;
         ObjectGuid GetCasterGUID() const { return m_dynamicObjectData->Caster; }
+        ObjectGuid GetOwnerGUID() const override { return GetCasterGUID(); }
         float GetRadius() const { return m_dynamicObjectData->Radius; }
 
         UF::UpdateField<UF::DynamicObjectData, 0, TYPEID_DYNAMICOBJECT> m_dynamicObjectData;

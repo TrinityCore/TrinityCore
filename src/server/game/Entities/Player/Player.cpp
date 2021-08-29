@@ -1663,7 +1663,7 @@ void Player::SetObjectScale(float scale)
         SendMovementSetCollisionHeight(scale * GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Scale);
 }
 
-bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
+bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
 {
     SpellEffectInfo const* effect = spellInfo->GetEffect(index);
     if (!effect || !effect->IsEffect())
@@ -6275,13 +6275,16 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
 
     float percent = 100.0f;
 
-    float repMod = noQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
+    if (!noBonuses)
+    {
+        float repMod = noQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
 
-    // faction specific auras only seem to apply to kills
-    if (source == REPUTATION_SOURCE_KILL)
-        repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
+        // faction specific auras only seem to apply to kills
+        if (source == REPUTATION_SOURCE_KILL)
+            repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
 
-    percent += rep > 0 ? repMod : -repMod;
+        percent += rep > 0 ? repMod : -repMod;
+    }
 
     float rate;
     switch (source)
@@ -18759,7 +18762,13 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
 
             AuraLoadEffectInfo& info = effectInfo[key];
             ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
-            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, difficulty, info.BaseAmounts.data(), nullptr, casterGuid, itemGuid, castItemId, castItemLevel))
+            AuraCreateInfo createInfo(castId, spellInfo, difficulty, key.EffectMask, this);
+            createInfo
+                .SetCasterGUID(casterGuid)
+                .SetBaseAmount(info.BaseAmounts.data())
+                .SetCastItem(itemGuid, castItemId, castItemLevel);
+
+            if (Aura* aura = Aura::TryCreate(createInfo))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -23418,7 +23427,7 @@ void Player::UpdatePotionCooldown(Spell* spell)
     m_lastPotionId = 0;
 }
 
-void Player::SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura)
+void Player::SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura)
 {
     ASSERT(!IsResurrectRequested());
     _resurrectionData.reset(new ResurrectionData());
@@ -24072,47 +24081,8 @@ Player* Player::GetSelectedPlayer() const
 {
     ObjectGuid selectionGUID = GetTarget();
     if (!selectionGUID.IsEmpty())
-        return ObjectAccessor::GetPlayer(*this, selectionGUID);
+        return ObjectAccessor::FindConnectedPlayer(selectionGUID);
     return nullptr;
-}
-
-void Player::AddComboPoints(int8 count, Spell* spell)
-{
-    if (!count)
-        return;
-
-    int8 comboPoints = spell ? spell->m_comboPointGain : GetPower(POWER_COMBO_POINTS);
-
-    comboPoints += count;
-
-    if (comboPoints > 5)
-        comboPoints = 5;
-    else if (comboPoints < 0)
-        comboPoints = 0;
-
-    if (!spell)
-        SetPower(POWER_COMBO_POINTS, comboPoints);
-    else
-        spell->m_comboPointGain = comboPoints;
-}
-
-void Player::GainSpellComboPoints(int8 count)
-{
-    if (!count)
-        return;
-
-    int8 cp = GetPower(POWER_COMBO_POINTS);
-
-    cp += count;
-    if (cp > 5) cp = 5;
-    else if (cp < 0) cp = 0;
-
-    SetPower(POWER_COMBO_POINTS, cp);
-}
-
-void Player::ClearComboPoints()
-{
-    SetPower(POWER_COMBO_POINTS, 0);
 }
 
 bool Player::IsInGroup(ObjectGuid groupGuid) const
@@ -26620,10 +26590,10 @@ void Player::ResetCriteria(CriteriaFailEvent condition, int32 failAsset, bool ev
     m_questObjectiveCriteriaMgr->ResetCriteria(condition, failAsset, evenIfCriteriaComplete);
 }
 
-void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= nullptr*/)
+void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject* ref /*= nullptr*/)
 {
-    m_achievementMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
-    m_questObjectiveCriteriaMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+    m_achievementMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
+    m_questObjectiveCriteriaMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
 
     // Update only individual achievement criteria here, otherwise we may get multiple updates
     // from a single boss kill
@@ -26631,10 +26601,10 @@ void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint6
         return;
 
     if (Scenario* scenario = GetScenario())
-        scenario->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+        scenario->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+        guild->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry)

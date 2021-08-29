@@ -3521,9 +3521,9 @@ bool Guild::HasAchieved(uint32 achievementId) const
     return m_achievementMgr.HasAchieved(achievementId);
 }
 
-void Guild::UpdateCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player)
+void Guild::UpdateCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject* ref, Player* player)
 {
-    m_achievementMgr.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, player);
+    m_achievementMgr.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, player);
 }
 
 void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky) const

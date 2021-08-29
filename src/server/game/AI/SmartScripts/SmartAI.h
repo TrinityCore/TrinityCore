@@ -262,7 +262,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
         void QuestAccept(Player* player, Quest const* quest) override;
         void QuestReward(Player* player, Quest const* quest, LootItemType type, uint32 opt) override;
-        void Destroyed(Player* player, uint32 eventId) override;
+        void Destroyed(WorldObject* attacker, uint32 eventId) override;
         void SetData(uint32 id, uint32 value, Unit* invoker);
         void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }
         void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);

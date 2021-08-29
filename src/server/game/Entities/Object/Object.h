@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "Duration.h"
+#include "EventProcessor.h"
 #include "GridReference.h"
 #include "GridRefManager.h"
 #include "ModelIgnoreFlags.h"
@@ -47,6 +48,9 @@ class Map;
 class Object;
 class Player;
 class Scenario;
+class Spell;
+class SpellCastTargets;
+class SpellInfo;
 class TempSummon;
 class Transport;
 class Unit;
@@ -54,8 +58,17 @@ class UpdateData;
 class WorldObject;
 class WorldPacket;
 class ZoneScript;
+struct FactionTemplateEntry;
 struct PositionFullTerrainStatus;
 struct QuaternionData;
+
+namespace WorldPackets
+{
+    namespace CombatLog
+    {
+        class CombatLogServerPacket;
+    }
+}
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
@@ -400,7 +413,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     public:
         virtual ~WorldObject();
 
-        virtual void Update (uint32 /*time_diff*/) { }
+        virtual void Update(uint32 /*time_diff*/) { }
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
@@ -491,6 +504,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const;
         virtual void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) const;
 
+        void SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* combatLog) const;
+
         virtual uint8 GetLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
         void PlayDistanceSound(uint32 soundId, Player* target = nullptr);
@@ -537,6 +552,61 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
+
+        virtual ObjectGuid GetOwnerGUID() const = 0;
+        virtual ObjectGuid GetCharmerOrOwnerGUID() const { return GetOwnerGUID(); }
+        ObjectGuid GetCharmerOrOwnerOrOwnGUID() const;
+
+        Unit* GetOwner() const;
+        Unit* GetCharmerOrOwner() const;
+        Unit* GetCharmerOrOwnerOrSelf() const;
+        Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
+        Player* GetAffectingPlayer() const;
+
+        Player* GetSpellModOwner() const;
+        int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellInfo, uint8 effIndex, int32 const* basePoints = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
+
+        // target dependent range checks
+        float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
+        float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
+
+        float ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effIndex, float value) const;
+        int32 CalcSpellDuration(SpellInfo const* spellInfo) const;
+        int32 ModSpellDuration(SpellInfo const* spellInfo, WorldObject const* target, int32 duration, bool positive, uint32 effectMask) const;
+        void ModSpellCastTime(SpellInfo const* spellInfo, int32& castTime, Spell* spell = nullptr) const;
+        void ModSpellDurationTime(SpellInfo const* spellInfo, int32& durationTime, Spell* spell = nullptr) const;
+
+        virtual float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo) const;
+        virtual SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
+        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
+        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false) const;
+
+        virtual uint32 GetFaction() const = 0;
+        virtual void SetFaction(uint32 /*faction*/) { }
+        FactionTemplateEntry const* GetFactionTemplateEntry() const;
+
+        ReputationRank GetReactionTo(WorldObject const* target) const;
+        static ReputationRank GetFactionReactionTo(FactionTemplateEntry const* factionTemplateEntry, WorldObject const* target);
+
+        bool IsHostileTo(WorldObject const* target) const;
+        bool IsHostileToPlayers() const;
+        bool IsFriendlyTo(WorldObject const* target) const;
+        bool IsNeutralToAll() const;
+
+        // CastSpell's third arg can be a variety of things - check out CastSpellExtraArgs' constructors!
+        void CastSpell(SpellCastTargets const& targets, uint32 spellId, CastSpellExtraArgs const& args = { });
+        void CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraArgs const& args = { });
+        void CastSpell(Position const& dest, uint32 spellId, CastSpellExtraArgs const& args = { });
+
+        bool IsValidAttackTarget(WorldObject const* target, SpellInfo const* bySpell = nullptr, bool spellCheck = true) const;
+        bool IsValidSpellAttackTarget(WorldObject const* target, SpellInfo const* bySpell) const;
+
+        bool IsValidAssistTarget(WorldObject const* target, SpellInfo const* bySpell = nullptr, bool spellCheck = true) const;
+        bool IsValidSpellAssistTarget(WorldObject const* target, SpellInfo const* bySpell) const;
+
+        Unit* GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo);
+
+        virtual uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const;
 
         template <typename Container>
         void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;
@@ -599,6 +669,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
         float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = 50.0f) const; // DEFAULT_HEIGHT_SEARCH in map.h
 
+        // Event handler
+        EventProcessor m_Events;
+
         virtual uint16 GetAIAnimKitId() const { return 0; }
         virtual uint16 GetMovementAnimKitId() const { return 0; }
         virtual uint16 GetMeleeAnimKitId() const { return 0; }
@@ -614,7 +687,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool m_isActive;
         bool m_isFarVisible;
         Optional<float> m_visibilityDistanceOverride;
-        const bool m_isWorldObject;
+        bool const m_isWorldObject;
         ZoneScript* m_zoneScript;
 
         // transports
@@ -640,7 +713,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     private:
         Map* m_currMap;                                   // current object's Map location
 
-        //uint32 m_mapId;                                 // object at map with map_id
         uint32 m_InstanceId;                              // in map copy with instance id
         PhaseShift _phaseShift;
         PhaseShift _suppressedPhaseShift;                 // contains phases for current area but not applied due to conditions

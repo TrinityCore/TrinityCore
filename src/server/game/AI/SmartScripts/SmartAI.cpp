@@ -1025,9 +1025,9 @@ void SmartGameObjectAI::QuestReward(Player* player, Quest const* quest, LootItem
 }
 
 // Called when the gameobject is destroyed (destructible buildings only).
-void SmartGameObjectAI::Destroyed(Player* player, uint32 eventId)
+void SmartGameObjectAI::Destroyed(WorldObject* attacker, uint32 eventId)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, player, eventId, 0, false, nullptr, me);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, attacker ? attacker->ToUnit() : nullptr, eventId, 0, false, nullptr, me);
 }
 
 void SmartGameObjectAI::SetData(uint32 id, uint32 value, Unit* invoker)

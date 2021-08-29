@@ -3534,8 +3534,22 @@ bool Map::IsSpawnGroupActive(uint32 groupId) const
     return (_toggledSpawnGroupIds.find(groupId) != _toggledSpawnGroupIds.end()) != !(data->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN);
 }
 
+void Map::AddFarSpellCallback(FarSpellCallback&& callback)
+{
+    _farSpellCallbacks.Enqueue(new FarSpellCallback(std::move(callback)));
+}
+
 void Map::DelayedUpdate(uint32 t_diff)
 {
+    {
+        FarSpellCallback* callback;
+        while (_farSpellCallbacks.Dequeue(callback))
+        {
+            (*callback)(this);
+            delete callback;
+        }
+    }
+
     for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
     {
         Transport* transport = *_transportsUpdateIter;
