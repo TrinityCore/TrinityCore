@@ -369,7 +369,6 @@ struct npc_sinclari_vh : public ScriptedAI
             if (Creature* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[i], TEMPSUMMON_MANUAL_DESPAWN))
                 summon->AI()->SetData(DATA_PORTAL_LOCATION, i);
 
-        me->SetVisible(true);
         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         std::list<Creature*> guardList;
@@ -424,10 +423,7 @@ struct npc_sinclari_vh : public ScriptedAI
     void DoAction(int32 actionId) override
     {
         if (actionId == ACTION_SINCLARI_OUTRO)
-        {
-            me->SetVisible(true);
             ScheduleOutro();
-        }
     }
 
     void UpdateAI(uint32 diff) override
