@@ -29,7 +29,7 @@
 #include <ctime>
 
 class Player;
-class Unit;
+class WorldObject;
 class WorldPacket;
 struct AchievementEntry;
 struct CriteriaEntry;
@@ -239,14 +239,14 @@ struct CriteriaData
     }
 
     bool IsValid(Criteria const* criteria);
-    bool Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
+    bool Meets(uint32 criteriaId, Player const* source, WorldObject const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
 };
 
 struct CriteriaDataSet
 {
     CriteriaDataSet() : _criteriaId(0) { }
     void Add(CriteriaData const& data) { _storage.push_back(data); }
-    bool Meets(Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
+    bool Meets(Player const* source, WorldObject const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
     void SetCriteriaId(uint32 id) { _criteriaId = id; }
 private:
     uint32 _criteriaId;
@@ -271,7 +271,7 @@ public:
 
     virtual void Reset();
 
-    void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = nullptr, Player* referencePlayer = nullptr);
+    void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
 
     virtual void SendAllData(Player const* receiver) const = 0;
 
@@ -294,15 +294,15 @@ protected:
     virtual void AfterCriteriaTreeUpdate(CriteriaTree const* /*tree*/, Player* /*referencePlayer*/) { }
 
     bool IsCompletedCriteria(Criteria const* criteria, uint64 requiredAmount);
-    bool CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
+    bool CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* referencePlayer);
 
     virtual void SendPacket(WorldPacket const* data) const = 0;
 
     bool ConditionsSatisfied(Criteria const* criteria, Player* referencePlayer) const;
-    bool RequirementsSatisfied(Criteria const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer) const;
+    bool RequirementsSatisfied(Criteria const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* referencePlayer) const;
     virtual bool RequiredAchievementSatisfied(uint32 /*achievementId*/) const { return false; }
-    bool ModifierTreeSatisfied(ModifierTreeNode const* parent, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
-    bool ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
+    bool ModifierTreeSatisfied(ModifierTreeNode const* parent, uint64 miscValue1, uint64 miscValue2, WorldObject const* ref, Player* referencePlayer) const;
+    bool ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, WorldObject const* ref, Player* referencePlayer) const;
 
     virtual std::string GetOwnerInfo() const = 0;
     virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const = 0;

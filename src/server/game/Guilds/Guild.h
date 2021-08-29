@@ -841,7 +841,7 @@ class TC_GAME_API Guild
         void ResetTimes(bool weekly);
 
         bool HasAchieved(uint32 achievementId) const;
-        void UpdateCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player);
+        void UpdateCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject* ref, Player* player);
 
     protected:
         ObjectGuid::LowType m_id;

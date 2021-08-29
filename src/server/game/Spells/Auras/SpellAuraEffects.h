@@ -18,23 +18,24 @@
 #ifndef TRINITY_SPELLAURAEFFECTS_H
 #define TRINITY_SPELLAURAEFFECTS_H
 
-class Unit;
-class AuraEffect;
-class Aura;
-
 #include "SpellAuras.h"
+
+class AuraEffect;
+class Unit;
 
 typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
 class TC_GAME_API AuraEffect
 {
-    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32* baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer, ObjectGuid castItemGuid, uint32 castItemId, int32 castItemLevel);
+    friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount);
     friend Aura::~Aura();
+    friend class Unit;
+
+    private:
+        ~AuraEffect();
+        explicit AuraEffect(Aura* base, SpellEffectInfo const* spellEfffectInfo, int32 const* baseAmount, Unit* caster);
 
     public:
-        ~AuraEffect();
-        AuraEffect(Aura* base, SpellEffectInfo const* spellEfffectInfo, int32 *baseAmount, Unit* caster);
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
         ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura* GetBase() const { return m_base; }

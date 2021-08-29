@@ -813,8 +813,8 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
                 {
                     if ((*itr)->GetId() == SPELL_PALADIN_BEACON_OF_LIGHT)
                     {
-                        std::list<AuraApplication*> applications;
-                        (*itr)->GetApplicationList(applications);
+                        std::vector<AuraApplication*> applications;
+                        (*itr)->GetApplicationVector(applications);
                         if (!applications.empty())
                         {
                             CastSpellExtraArgs args(aurEff);

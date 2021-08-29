@@ -500,6 +500,14 @@ Unit* AreaTrigger::GetTarget() const
     return ObjectAccessor::GetUnit(*this, _targetGuid);
 }
 
+uint32 AreaTrigger::GetFaction() const
+{
+    if (Unit const* caster = GetCaster())
+        return caster->GetFaction();
+
+    return 0;
+}
+
 void AreaTrigger::UpdatePolygonOrientation()
 {
     float newOrientation = GetOrientation();
@@ -605,11 +613,11 @@ bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerAction cons
     {
         case AREATRIGGER_ACTION_USER_FRIEND:
         {
-            return caster->_IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
+            return caster->IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
         }
         case AREATRIGGER_ACTION_USER_ENEMY:
         {
-            return caster->_IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
+            return caster->IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param, caster->GetMap()->GetDifficultyID()));
         }
         case AREATRIGGER_ACTION_USER_RAID:
         {

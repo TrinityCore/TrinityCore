@@ -226,6 +226,12 @@ void DynamicObject::RemoveCasterViewpoint()
     }
 }
 
+uint32 DynamicObject::GetFaction() const
+{
+    ASSERT(_caster);
+    return _caster->GetFaction();
+}
+
 void DynamicObject::BindToCaster()
 {
     ASSERT(!_caster);
