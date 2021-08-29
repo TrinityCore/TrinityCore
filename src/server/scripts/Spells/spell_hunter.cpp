@@ -939,7 +939,7 @@ class spell_hun_rapid_recuperation : public AuraScript
         Unit* target = GetTarget();
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(CalculatePct(target->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
-        target->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, args);
+        target->CastSpell(target, aurEff->GetSpellEffectInfo().TriggerSpell, args);
     }
 
     void Register() override
@@ -1114,7 +1114,7 @@ class spell_hun_sniper_training : public AuraScript
             if (Player* playerTarget = GetUnitOwner()->ToPlayer())
             {
                 int32 baseAmount = aurEff->GetBaseAmount();
-                int32 amount = playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount);
+                int32 amount = playerTarget->CalculateSpellDamage(aurEff->GetSpellEffectInfo(), &baseAmount);
                 GetEffect(EFFECT_0)->SetAmount(amount);
             }
         }
@@ -1126,7 +1126,7 @@ class spell_hun_sniper_training : public AuraScript
         {
             int32 baseAmount = aurEff->GetBaseAmount();
             int32 amount = playerTarget->isMoving() ?
-            playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
+            playerTarget->CalculateSpellDamage(aurEff->GetSpellEffectInfo(), &baseAmount) :
             aurEff->GetAmount() - 1;
             aurEff->SetAmount(amount);
         }

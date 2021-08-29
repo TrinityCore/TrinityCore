@@ -45,6 +45,7 @@ class Map;
 class Player;
 class Spell;
 class SpellCastTargets;
+class SpellEffectInfo;
 class SpellInfo;
 class TempSummon;
 class Transport;
@@ -413,7 +414,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Player* GetAffectingPlayer() const;
 
         Player* GetSpellModOwner() const;
-        int32 CalculateSpellDamage(SpellInfo const* spellInfo, uint8 effIndex, int32 const* basePoints = nullptr) const;
+        int32 CalculateSpellDamage(SpellEffectInfo const& spellEffectInfo, int32 const* basePoints = nullptr) const;
 
         // target dependent range checks
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;

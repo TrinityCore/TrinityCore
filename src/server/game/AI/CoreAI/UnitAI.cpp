@@ -209,9 +209,9 @@ void UnitAI::FillAISpellInfo()
 
         if (spellInfo->GetMaxRange(false))
         {
-            for (SpellEffectInfo const& Effect : spellInfo->Effects)
+            for (SpellEffectInfo const& effect : spellInfo->GetEffects())
             {
-                uint32 targetType = Effect.TargetA.GetTarget();
+                uint32 targetType = effect.TargetA.GetTarget();
 
                 if (targetType == TARGET_UNIT_TARGET_ENEMY
                     || targetType == TARGET_DEST_TARGET_ENEMY)
@@ -219,7 +219,7 @@ void UnitAI::FillAISpellInfo()
                 else if (targetType == TARGET_UNIT_DEST_AREA_ENEMY)
                     UPDATE_TARGET(AITARGET_ENEMY)
 
-                if (Effect.Effect == SPELL_EFFECT_APPLY_AURA)
+                if (effect.Effect == SPELL_EFFECT_APPLY_AURA)
                 {
                     if (targetType == TARGET_UNIT_TARGET_ENEMY)
                         UPDATE_TARGET(AITARGET_DEBUFF)
