@@ -25117,6 +25117,19 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidDat
 
 }
 
+void Player::AtEngage(Unit* target)
+{
+    Unit::AtEngage(target);
+
+    // Worgen do turn into their altered form when engaged
+    if (getRace() != RACE_WORGEN || HasAuraType(SPELL_AURA_WORGEN_ALTERED_FORM))
+        return;
+
+    // Only transform at engage when the player has access to the racial Two Forms ability (obtained while progressing through the Gilneas starting area)
+    if (HasSpell(SPELL_TWO_FORMS_RACIAL))
+        CastSpell(nullptr, SPELL_ALTERED_FORM_RACIAL, true);
+}
+
 void Player::AtExitCombat()
 {
     Unit::AtExitCombat();

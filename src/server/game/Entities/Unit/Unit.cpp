@@ -775,20 +775,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    if (victim->getRace() == RACE_WORGEN && victim->ToPlayer())
-    {
-        if (Player* worgenVictm = victim->ToPlayer())
-            if (worgenVictm->HasSpell(SPELL_TWO_FORMS_RACIAL) && !worgenVictm->HasAura(SPELL_ALTERED_FORM_RACIAL))
-                worgenVictm->CastSpell(worgenVictm, SPELL_ALTERED_FORM_RACIAL, true);
-    }
-
-    if (getRace() == RACE_WORGEN && ToPlayer())
-    {
-        if (Player* worgenPlayer = ToPlayer())
-            if (worgenPlayer->HasSpell(SPELL_TWO_FORMS_RACIAL) && !HasAura(SPELL_ALTERED_FORM_RACIAL))
-                CastSpell(worgenPlayer, SPELL_ALTERED_FORM_RACIAL, true);
-    }
-
     if (victim->IsAIEnabled)
         victim->GetAI()->DamageTaken(this, damage);
 
