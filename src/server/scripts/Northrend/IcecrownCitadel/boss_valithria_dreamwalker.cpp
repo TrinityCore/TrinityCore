@@ -471,13 +471,13 @@ struct npc_green_dragon_combat_trigger : public BossAI
     npc_green_dragon_combat_trigger(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER)
     {
         creature->SetIsCombatDisallowed(false);
+        creature->SetReactState(REACT_PASSIVE);
     }
 
     void Reset() override
     {
         _Reset();
-        me->SetReactState(REACT_PASSIVE);
-        summons.DespawnAll();
+
         // Setup Archmages
         me->SummonCreatureGroup(SUMMON_GROUP_ALL);
         if (Is25ManRaid())
@@ -542,12 +542,12 @@ struct npc_the_lich_king_controller : public ScriptedAI
     npc_the_lich_king_controller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
     {
         creature->SetIsCombatDisallowed(false);
+        creature->SetReactState(REACT_PASSIVE);
     }
 
     void Reset() override
     {
         _events.Reset();
-        me->SetReactState(REACT_PASSIVE);
     }
 
     void JustEngagedWith(Unit* /*target*/) override
