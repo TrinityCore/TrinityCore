@@ -15,19 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "icecrown_citadel.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Texts
+enum ValithriaDreamWalkerTexts
 {
     // The Lich King
     SAY_LICH_KING_INTRO         = 0,
@@ -43,7 +43,7 @@ enum Texts
     SAY_VALITHRIA_SUCCESS       = 7,
 };
 
-enum Spells
+enum ValithriaDreamWalkerSpells
 {
     // Valithria Dreamwalker
     SPELL_COPY_DAMAGE                   = 71948,
@@ -101,13 +101,10 @@ enum Spells
     SPELL_TWISTED_NIGHTMARE             = 71941,
 };
 
-#define SUMMON_PORTAL RAID_MODE<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, \
-                                        SPELL_PRE_SUMMON_NIGHTMARE_PORTAL, SPELL_PRE_SUMMON_NIGHTMARE_PORTAL)
+#define SUMMON_PORTAL RAID_MODE<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_NIGHTMARE_PORTAL, SPELL_PRE_SUMMON_NIGHTMARE_PORTAL)
+#define EMERALD_VIGOR RAID_MODE<uint32>(SPELL_EMERALD_VIGOR, SPELL_EMERALD_VIGOR, SPELL_TWISTED_NIGHTMARE, SPELL_TWISTED_NIGHTMARE)
 
-#define EMERALD_VIGOR RAID_MODE<uint32>(SPELL_EMERALD_VIGOR, SPELL_EMERALD_VIGOR, \
-                                        SPELL_TWISTED_NIGHTMARE, SPELL_TWISTED_NIGHTMARE)
-
-enum Events
+enum ValithriaDreamWalkerEvents
 {
     // Valithria Dreamwalker
     EVENT_INTRO_TALK = 1,
@@ -143,7 +140,7 @@ enum Events
     EVENT_EXPLODE,
 };
 
-enum Misc
+enum ValithriaDreamWalkerMisc
 {
     ACTION_ENTER_COMBAT    = 1,
     MISSED_PORTALS         = 2,
@@ -471,7 +468,10 @@ private:
 
 struct npc_green_dragon_combat_trigger : public BossAI
 {
-    npc_green_dragon_combat_trigger(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER) { }
+    npc_green_dragon_combat_trigger(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER)
+    {
+        creature->SetIsCombatDisallowed(false);
+    }
 
     void Reset() override
     {
@@ -489,25 +489,25 @@ struct npc_green_dragon_combat_trigger : public BossAI
         summons.DoAction(ACTION_SETUP_ARCHMAGES, pred);
     }
 
-    void JustEnteredCombat(Unit* target) override
+    void JustEngagedWith(Unit* who) override
     {
-        if (IsEngaged())
-            return;
-
-        if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, target->ToPlayer()))
+        if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, who->ToPlayer()))
         {
             EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
 
-        EngagementStart(target);
+        instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
 
+        me->SetCombatPulseDelay(5);
         me->setActive(true);
         DoZoneInCombat();
-        instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
+        ScheduleTasks();
+
         if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
             valithria->AI()->DoAction(ACTION_ENTER_COMBAT);
+
         EntryCheckPredicate pred(NPC_RISEN_ARCHMAGE);
         summons.DoAction(ACTION_ENTER_COMBAT, pred);
     }
@@ -521,6 +521,7 @@ struct npc_green_dragon_combat_trigger : public BossAI
         // JustExitedCombat is called on death too, so if creature is dead, avoid "respawn" event
         if (!me->IsAlive())
             return;
+
         DoAction(ACTION_DEATH);
     }
 
@@ -529,7 +530,7 @@ struct npc_green_dragon_combat_trigger : public BossAI
         if (action == ACTION_DEATH)
         {
             instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, NOT_STARTED);
-            me->m_Events.AddEventAtOffset(new ValithriaDespawner(me), 5s);
+            me->m_Events.AddEventAtOffset(new ValithriaDespawner(me), 1s);
             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALITHRIA_LICH_KING)))
                 lichKing->AI()->EnterEvadeMode();
         }
@@ -538,28 +539,25 @@ struct npc_green_dragon_combat_trigger : public BossAI
 
 struct npc_the_lich_king_controller : public ScriptedAI
 {
-    npc_the_lich_king_controller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_the_lich_king_controller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        creature->SetIsCombatDisallowed(false);
+    }
 
     void Reset() override
     {
         _events.Reset();
-        _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5s);
-        _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10s);
-        _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 15s);
-        _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20s);
-        _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30s);
         me->SetReactState(REACT_PASSIVE);
-    }
-
-    void JustReachedHome() override
-    {
-        me->setActive(false);
     }
 
     void JustEngagedWith(Unit* /*target*/) override
     {
         Talk(SAY_LICH_KING_INTRO);
-        me->setActive(true);
+        _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5s);
+        _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10s);
+        _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 15s);
+        _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20s);
+        _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30s);
     }
 
     uint32 GetData(uint32 data) const override

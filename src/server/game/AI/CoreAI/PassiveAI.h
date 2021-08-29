@@ -44,7 +44,6 @@ class TC_GAME_API PossessedAI : public CreatureAI
         void JustStartedThreateningMe(Unit*) override { }
         void UpdateAI(uint32) override;
         void EnterEvadeMode(EvadeReason /*why*/) override { }
-
         void JustDied(Unit*) override;
 
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
@@ -74,7 +73,6 @@ class TC_GAME_API CritterAI : public PassiveAI
 
         void JustEngagedWith(Unit* /*who*/) override;
         void EnterEvadeMode(EvadeReason why) override;
-
         void MovementInform(uint32 type, uint32 id) override;
 
         static int32 Permissible(Creature const* creature);
@@ -84,6 +82,7 @@ class TC_GAME_API TriggerAI : public NullCreatureAI
 {
     public:
         explicit TriggerAI(Creature* creature) : NullCreatureAI(creature) { }
+
         void IsSummonedBy(WorldObject* summoner) override;
 
         static int32 Permissible(Creature const* creature);
