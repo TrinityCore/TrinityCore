@@ -217,7 +217,8 @@ public:
             IsFinalForm = false;
             NeedThreatReset = false;
             EnrageUsed = false;
-            memset(InnderDemon, 0, sizeof(InnderDemon));
+            for (ObjectGuid& guid : InnderDemon)
+                guid.Clear();
             InnerDemon_Count = 0;
         }
 

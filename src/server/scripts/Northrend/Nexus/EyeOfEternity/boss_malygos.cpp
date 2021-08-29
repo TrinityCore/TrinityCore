@@ -968,7 +968,9 @@ public:
                         }
                         else if (GetDifficulty() == DIFFICULTY_25_N)
                         {
-                            memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
+                            for (ObjectGuid& guid : _surgeTargetGUID)
+                                guid.Clear();
+
                             DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25, true);
                         }
 
