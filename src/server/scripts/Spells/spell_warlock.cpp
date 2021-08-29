@@ -196,7 +196,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* unitTarget = GetHitUnit())
                 {
@@ -219,7 +219,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                     }
                     uint8 spellRank = GetSpellInfo()->GetRank();
                     if (spellRank > 0 && spellRank <= 8)
-                        CreateItem(effIndex, iTypes[spellRank - 1][rank]);
+                        CreateItem(iTypes[spellRank - 1][rank]);
                 }
             }
 
@@ -973,7 +973,7 @@ class spell_warl_seed_of_corruption_dummy : public AuraScript
             return;
 
         // effect 1 scales with 14% of caster's SP (DBC data)
-        amount = caster->SpellDamageBonusDone(GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE, aurEff->GetEffIndex(), GetAura()->GetDonePct());
+        amount = caster->SpellDamageBonusDone(GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE, aurEff->GetSpellEffectInfo(), GetAura()->GetDonePct());
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

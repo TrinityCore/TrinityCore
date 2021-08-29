@@ -458,6 +458,16 @@ SpellInfo const* SpellScript::GetSpellInfo() const
     return m_spell->GetSpellInfo();
 }
 
+SpellEffectInfo const& SpellScript::GetEffectInfo(SpellEffIndex effIndex) const
+{
+    return GetSpellInfo()->GetEffect(effIndex);
+}
+
+SpellValue const* SpellScript::GetSpellValue() const
+{
+    return m_spell->m_spellValue;
+}
+
 WorldLocation const* SpellScript::GetExplTargetDest() const
 {
     if (m_spell->m_targets.HasDst())
@@ -658,6 +668,13 @@ void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
     m_hitPreventDefaultEffectMask |= 1 << effIndex;
 }
 
+SpellEffectInfo const& SpellScript::GetEffectInfo() const
+{
+    ASSERT(IsInEffectHook(), "Script: `%s` Spell: `%u`: function SpellScript::GetEffectInfo was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+
+    return *m_spell->effectInfo;
+}
+
 int32 SpellScript::GetEffectValue() const
 {
     if (!IsInEffectHook())
@@ -685,9 +702,9 @@ Item* SpellScript::GetCastItem() const
     return m_spell->m_CastItem;
 }
 
-void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
+void SpellScript::CreateItem(uint32 itemId)
 {
-    m_spell->DoCreateItem(effIndex, itemId);
+    m_spell->DoCreateItem(itemId);
 }
 
 SpellInfo const* SpellScript::GetTriggeringSpell() const
@@ -710,11 +727,6 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
     }
 
     m_spell->m_customError = result;
-}
-
-SpellValue const* SpellScript::GetSpellValue() const
-{
-    return m_spell->m_spellValue;
 }
 
 bool AuraScript::_Validate(SpellInfo const* entry)
@@ -1062,6 +1074,11 @@ void AuraScript::PreventDefaultAction()
 SpellInfo const* AuraScript::GetSpellInfo() const
 {
     return m_aura->GetSpellInfo();
+}
+
+SpellEffectInfo const& AuraScript::GetEffectInfo(SpellEffIndex effIndex) const
+{
+    return m_aura->GetSpellInfo()->GetEffect(effIndex);
 }
 
 uint32 AuraScript::GetId() const
