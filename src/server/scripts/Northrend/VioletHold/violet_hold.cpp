@@ -831,7 +831,8 @@ struct violet_hold_trashAI : public EscortAI
 
     void Reset() override
     {
-        _scheduler.CancelAll();
+        if (!me->HasReactState(REACT_DEFENSIVE))
+            _scheduler.CancelAll();
     }
 
     template <size_t N>
@@ -894,11 +895,23 @@ struct violet_hold_trashAI : public EscortAI
     void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
         if (waypointId == _lastWaypointId)
-            CreatureStartAttackDoor();
+        {
+            me->SetReactState(REACT_DEFENSIVE);
+            DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
+            _scheduler.Schedule(Seconds(2), [this](TaskContext destroyDoorCheck)
+            {
+                if (!me->HasAura(SPELL_DESTROY_DOOR_SEAL))
+                    DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
+                destroyDoorCheck.Repeat();
+            });
+        }
     }
 
     void JustEngagedWith(Unit* who) override
     {
+        if (me->HasReactState(REACT_DEFENSIVE))
+            return;
+
         EscortAI::JustEngagedWith(who);
         ScheduledTasks();
     }
@@ -916,12 +929,6 @@ struct violet_hold_trashAI : public EscortAI
     }
 
     virtual void ScheduledTasks() { }
-
-    void CreatureStartAttackDoor()
-    {
-        me->SetReactState(REACT_DEFENSIVE);
-        DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
-    }
 
 protected:
     InstanceScript* _instance;
