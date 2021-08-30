@@ -425,7 +425,7 @@ class boss_twilight_halion : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_TWO);
 
