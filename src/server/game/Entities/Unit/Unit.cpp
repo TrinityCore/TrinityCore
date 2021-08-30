@@ -3978,14 +3978,9 @@ void Unit::RemoveMovementImpairingAuras(bool withRoot)
         }
 
         // turn off snare auras by setting amount to 0
-        for (SpellEffectInfo const* effect : aura->GetSpellInfo()->GetEffects())
-        {
-            if (!effect || !effect->IsEffect())
-                continue;
-
-            if (((1 << effect->EffectIndex) & iter->second->GetEffectMask()))
-                aura->GetEffect(effect->EffectIndex)->ChangeAmount(0);
-        }
+        for (SpellEffectInfo const* spellEffectInfo : aura->GetSpellInfo()->GetEffects())
+            if (spellEffectInfo && iter->second->HasEffect(spellEffectInfo->EffectIndex) && spellEffectInfo->Mechanic == MECHANIC_SNARE)
+                aura->GetEffect(spellEffectInfo->EffectIndex)->ChangeAmount(0);
 
         ++iter;
     }
@@ -4503,9 +4498,9 @@ bool Unit::HasAuraWithMechanic(uint32 mechanicMask) const
         if (spellInfo->Mechanic && (mechanicMask & (1 << spellInfo->Mechanic)))
             return true;
 
-        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
-            if (effect && effect->Effect && effect->Mechanic)
-                if (mechanicMask & (1 << effect->Mechanic))
+        for (SpellEffectInfo const* spellEffectInfo : spellInfo->GetEffects())
+            if (spellEffectInfo && iter->second->HasEffect(spellEffectInfo->EffectIndex) && spellEffectInfo->IsEffect() && spellEffectInfo->Mechanic)
+                if (mechanicMask & (1 << spellEffectInfo->Mechanic))
                     return true;
     }
 
