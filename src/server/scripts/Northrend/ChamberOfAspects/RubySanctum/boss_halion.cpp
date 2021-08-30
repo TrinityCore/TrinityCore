@@ -229,7 +229,10 @@ class boss_halion : public CreatureScript
 
         struct boss_halionAI : public BossAI
         {
-            boss_halionAI(Creature* creature) : BossAI(creature, DATA_HALION) { }
+            boss_halionAI(Creature* creature) : BossAI(creature, DATA_HALION)
+            {
+                creature->SetRegenerateHealth(false);
+            }
 
             void EnterEvadeMode(EvadeReason why) override
             {
@@ -401,6 +404,7 @@ class boss_twilight_halion : public CreatureScript
         {
             boss_twilight_halionAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
+                creature->SetRegenerateHealth(false);
             }
 
 
