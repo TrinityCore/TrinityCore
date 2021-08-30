@@ -440,7 +440,7 @@ class boss_twilight_halion : public CreatureScript
             bool CanAIAttack(Unit const* target) const override
             {
                 if (CreatureBoundary const* boundary = _instance->GetBossBoundary(DATA_HALION))
-                    return CreatureAI::IsInBounds(*_boundary, target);
+                    return CreatureAI::IsInBounds(*boundary, target);
 
                 return true;
             }
@@ -655,7 +655,7 @@ class npc_halion_controller : public CreatureScript
             bool CanAIAttack(Unit const* target) const override
             {
                 if (CreatureBoundary const* boundary = _instance->GetBossBoundary(DATA_HALION))
-                    return CreatureAI::IsInBounds(*_boundary, target);
+                    return CreatureAI::IsInBounds(*boundary, target);
 
                 return true;
             }
