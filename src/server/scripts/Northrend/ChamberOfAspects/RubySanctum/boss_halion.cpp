@@ -407,7 +407,6 @@ class boss_twilight_halion : public CreatureScript
                 creature->SetRegenerateHealth(false);
             }
 
-
             void Reset() override
             {
                 Creature* halion = _instance->GetCreature(DATA_HALION);
