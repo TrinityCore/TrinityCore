@@ -1280,7 +1280,7 @@ class npc_living_inferno : public CreatureScript
 
         struct npc_living_infernoAI : public ScriptedAI
         {
-            npc_living_infernoAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_living_infernoAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
             void IsSummonedBy(WorldObject* /*summoner*/) override
             {
@@ -1290,7 +1290,7 @@ class npc_living_inferno : public CreatureScript
                 // SMSG_SPELL_GO for the living ember stuff isn't even sent to the client - Blizzard on drugs.
                 if (me->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
                 {
-                    scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                    _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
                     {
                         me->CastSpell(me, SPELL_SPAWN_LIVING_EMBERS, true);
                     });
@@ -1303,6 +1303,14 @@ class npc_living_inferno : public CreatureScript
                 }
             }
 
+            bool CanAIAttack(Unit const* target) const override
+            {
+                if (CreatureBoundary const* boundary = _instance->GetBossBoundary(DATA_HALION))
+                    return CreatureAI::IsInBounds(*boundary, target);
+
+                return true;
+            }
+
             void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon(1ms);
@@ -1310,12 +1318,13 @@ class npc_living_inferno : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                scheduler.Update(diff);
+                _scheduler.Update(diff);
                 ScriptedAI::UpdateAI(diff);
             }
 
         private:
-            TaskScheduler scheduler;
+            TaskScheduler _scheduler;
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1331,7 +1340,7 @@ class npc_living_ember : public CreatureScript
 
         struct npc_living_emberAI : public ScriptedAI
         {
-            npc_living_emberAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_living_emberAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
             void IsSummonedBy(WorldObject* /*summoner*/) override
             {
@@ -1340,10 +1349,21 @@ class npc_living_ember : public CreatureScript
                         controller->AI()->JustSummoned(me);
             }
 
+            bool CanAIAttack(Unit const* target) const override
+            {
+                if (CreatureBoundary const* boundary = _instance->GetBossBoundary(DATA_HALION))
+                    return CreatureAI::IsInBounds(*boundary, target);
+
+                return true;
+            }
+
             void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon(1ms);
             }
+
+        private:
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
