@@ -432,7 +432,7 @@ class spell_pri_guardian_spirit : public AuraScript
 
     bool Load() override
     {
-        healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+        healPct = GetEffectInfo(EFFECT_1).CalcValue();
         return true;
     }
 

@@ -1586,13 +1586,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
 
-            for (SpellEffectInfo const& Effect : sSpellMgr->AssertSpellInfo(e.action.cast.spell)->Effects)
+            for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(e.action.cast.spell)->GetEffects())
             {
-                if (Effect.IsEffect(SPELL_EFFECT_KILL_CREDIT) || Effect.IsEffect(SPELL_EFFECT_KILL_CREDIT2))
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT2))
                 {
-                    if (Effect.TargetA.GetTarget() == TARGET_UNIT_CASTER)
+                    if (spellEffectInfo.TargetA.GetTarget() == TARGET_UNIT_CASTER)
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: %u targetA: %u - targetB: %u) has invalid target for this Action",
-                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cast.spell, Effect.TargetA.GetTarget(), Effect.TargetB.GetTarget());
+                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cast.spell, spellEffectInfo.TargetA.GetTarget(), spellEffectInfo.TargetB.GetTarget());
                 }
             }
             break;
@@ -2245,19 +2245,19 @@ void SmartAIMgr::LoadHelperStores()
         if (!spellInfo)
             continue;
 
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
         {
-            if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_SUMMON))
-                SummonCreatureSpellStore.insert(std::make_pair(uint32(spellInfo->Effects[j].MiscValue), std::make_pair(i, SpellEffIndex(j))));
+            if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON))
+                SummonCreatureSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(i, spellEffectInfo.EffectIndex)));
 
-            else if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_SUMMON_OBJECT_WILD))
-                SummonGameObjectSpellStore.insert(std::make_pair(uint32(spellInfo->Effects[j].MiscValue), std::make_pair(i, SpellEffIndex(j))));
+            else if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON_OBJECT_WILD))
+                SummonGameObjectSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(i, spellEffectInfo.EffectIndex)));
 
-            else if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT2))
-                KillCreditSpellStore.insert(std::make_pair(uint32(spellInfo->Effects[j].MiscValue), std::make_pair(i, SpellEffIndex(j))));
+            else if (spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT2))
+                KillCreditSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(i, spellEffectInfo.EffectIndex)));
 
-            else if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_CREATE_ITEM))
-                CreateItemSpellStore.insert(std::make_pair(uint32(spellInfo->Effects[j].ItemType), std::make_pair(i, SpellEffIndex(j))));
+            else if (spellEffectInfo.IsEffect(SPELL_EFFECT_CREATE_ITEM))
+                CreateItemSpellStore.insert(std::make_pair(uint32(spellEffectInfo.ItemType), std::make_pair(i, spellEffectInfo.EffectIndex)));
         }
     }
 
