@@ -33,7 +33,7 @@ class TC_GAME_API AuraEffect
 
     private:
         ~AuraEffect();
-        explicit AuraEffect(Aura* base, uint8 effIndex, int32 const* baseAmount, Unit* caster);
+        explicit AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster);
 
     public:
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
@@ -48,7 +48,7 @@ class TC_GAME_API AuraEffect
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
-        uint32 GetEffIndex() const { return m_effIndex; }
+        SpellEffIndex GetEffIndex() const { return m_spellEffectInfo.EffectIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }
         int32 GetAmplitude() const { return _amplitude; }
 
@@ -97,12 +97,13 @@ class TC_GAME_API AuraEffect
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
-        SpellEffectInfo const& GetSpellEffectInfo() const { return m_spellInfo->Effects[m_effIndex]; }
+        SpellEffectInfo const& GetSpellEffectInfo() const { return m_spellEffectInfo; }
 
     private:
         Aura* const m_base;
 
         SpellInfo const* const m_spellInfo;
+        SpellEffectInfo const& m_spellEffectInfo;
         int32 const m_baseAmount;
 
         int32 _amount;
@@ -114,7 +115,6 @@ class TC_GAME_API AuraEffect
         int32 _amplitude;       // time between consecutive ticks
         uint32 _ticksDone;      // ticks counter
 
-        uint8 const m_effIndex;
         bool m_canBeRecalculated;
         bool m_isPeriodic;
 

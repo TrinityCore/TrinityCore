@@ -153,10 +153,7 @@ struct boss_illidari_council : public BossAI
             for (uint32 bossData : CouncilData)
             {
                 if (Creature* council = instance->GetCreature(bossData))
-                {
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, council);
                     DoZoneInCombat(council);
-                }
             }
             events.ScheduleEvent(EVENT_EMPYREAL_EQUIVALENCY, 2s);
             events.ScheduleEvent(EVENT_BERSERK, 15min);
@@ -170,10 +167,6 @@ struct boss_illidari_council : public BossAI
         if (!me->IsInEvadeMode())
         {
             _inCombat = false;
-            for (uint32 bossData : CouncilData)
-                if (Creature* council = instance->GetCreature(bossData))
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, council);
-
             summons.DespawnAll();
             _DespawnAtEvade();
         }
@@ -190,7 +183,6 @@ struct boss_illidari_council : public BossAI
             if (Creature* council = instance->GetCreature(bossData))
             {
                 // Allow loot
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, council);
                 council->LowerPlayerDamageReq(council->GetMaxHealth());
                 council->CastSpell(council, SPELL_QUIET_SUICIDE, true);
             }

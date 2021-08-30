@@ -457,7 +457,7 @@ class spell_dru_frenzied_regeneration : public AuraScript
             return;
 
         int32 const mod = std::min(static_cast<int32>(rage), 100);
-        int32 const regen = CalculatePct(GetTarget()->GetMaxHealth(), GetTarget()->CalculateSpellDamage(GetSpellInfo(), EFFECT_1) * mod / 100.f);
+        int32 const regen = CalculatePct(GetTarget()->GetMaxHealth(), GetTarget()->CalculateSpellDamage(GetSpellInfo()->GetEffect(EFFECT_1)) * mod / 100.f);
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(regen);
         GetTarget()->CastSpell(nullptr, SPELL_DRUID_FRENZIED_REGENERATION_HEAL, args);

@@ -225,6 +225,6 @@ bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, std:
     if (!t.TryConsumeTo(spellId))
         return false;
     val.Spell = sSpellMgr->GetSpellInfo(spellId);
-    return (val.Spell && val.Spell->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && t.TryConsumeTo(val.CurValue) &&
+    return (val.Spell && val.Spell->GetEffect(EFFECT_0).Effect == SPELL_EFFECT_TRADE_SKILL && t.TryConsumeTo(val.CurValue) &&
         t.TryConsumeTo(val.MaxValue) && t.TryConsumeTo(val.Owner) && t.TryConsumeTo(val.KnownRecipes) && t.IsEmpty());
 }

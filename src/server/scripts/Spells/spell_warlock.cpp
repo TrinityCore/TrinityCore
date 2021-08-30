@@ -398,7 +398,7 @@ class spell_warl_demonic_empowerment : public SpellScript
                     case CREATURE_FAMILY_VOIDWALKER:
                     {
                         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
-                        int32 hp = targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(spellInfo, EFFECT_0));
+                        int32 hp = targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(spellInfo->GetEffect(EFFECT_0)));
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                         args.AddSpellBP0(hp);
                         targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, args);

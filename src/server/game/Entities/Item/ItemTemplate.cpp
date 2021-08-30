@@ -148,9 +148,9 @@ void ItemTemplate::_LoadTotalAP()
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         if (Spells[i].SpellId > 0 && Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_EQUIP)
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Spells[i].SpellId))
-                for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                    if (spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_ATTACK_POWER))
-                        totalAP += spellInfo->Effects[j].CalcValue();
+                for (SpellEffectInfo const& effect : spellInfo->GetEffects())
+                    if (effect.IsAura(SPELL_AURA_MOD_ATTACK_POWER))
+                        totalAP += effect.CalcValue();
 
     _totalAP = totalAP;
 }
