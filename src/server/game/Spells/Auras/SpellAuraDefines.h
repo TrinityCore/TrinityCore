@@ -427,7 +427,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_CURRENCY_GAIN                            = 349,
     SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT           = 350,  // NYI
     SPELL_AURA_MOD_CURRENCY_CATEGORY_GAIN_PCT               = 351,
-    SPELL_AURA_352                                          = 352,
+    SPELL_AURA_ENABLE_ALTERED_FORM                          = 352,
     SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // NYI
     SPELL_AURA_MOD_HEALING_DONE_PCT_VERSUS_TARGET_HEALTH    = 354,  // Restoration Shaman mastery - mod healing based on target's health (less = more healing)
     SPELL_AURA_355                                          = 355,

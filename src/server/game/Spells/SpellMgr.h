@@ -150,6 +150,10 @@ enum ProcFlags
 
     PROC_FLAG_JUMP                            = 0x02000000,    // 25 Jumped
 
+    PROC_FLAG_CLONE_SPELL                     = 0x04000000,    // Proc Clone Spell
+
+    PROC_FLAG_ENTER_COMBAT                    = 0x08000000,    // Enter Combat
+
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
                                                 | PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK,

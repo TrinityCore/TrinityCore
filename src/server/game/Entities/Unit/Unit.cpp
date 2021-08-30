@@ -9211,6 +9211,7 @@ void Unit::AtEnterCombat()
             InterruptNonMeleeSpells(false);
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnteringCombat);
+    ProcSkillsAndAuras(nullptr, PROC_FLAG_ENTER_COMBAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }
 
 void Unit::AtExitCombat()
