@@ -5492,7 +5492,7 @@ void Spell::EffectRechargeManaGem()
     if (!player)
         return;
 
-    uint32 item_id = m_spellInfo->Effects[EFFECT_0].ItemType;
+    uint32 item_id = effectInfo->ItemType;
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item_id);
     if (!pProto)
