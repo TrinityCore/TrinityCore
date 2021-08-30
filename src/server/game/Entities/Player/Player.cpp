@@ -1005,7 +1005,7 @@ void Player::Update(uint32 p_time)
 
     m_achievementMgr->UpdateTimedCriteria(p_time);
 
-    if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING))
+    if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING | UNIT_STATE_CHARGING))
     {
         if (Unit* victim = GetVictim())
         {
