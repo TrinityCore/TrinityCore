@@ -7780,23 +7780,23 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
             return true;
     }
 
-    if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+    if (AuraType aura = spellEffectInfo.ApplyAuraName)
     {
-        if (AuraType aura = spellEffectInfo.ApplyAuraName)
+        if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         {
             SpellImmuneContainer const& list = m_spellImmune[IMMUNITY_STATE];
             if (list.count(aura) > 0)
                 return true;
+        }
 
-            if (!spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
-            {
-                // Check for immune to application of harmful magical effects
-                AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
-                for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-                    if (((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&                   // Check school
-                        ((caster && !IsFriendlyTo(caster)) || !spellInfo->IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
-                        return true;
-            }
+        if (!spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+        {
+            // Check for immune to application of harmful magical effects
+            AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
+            for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
+                if (((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&                   // Check school
+                    ((caster && !IsFriendlyTo(caster)) || !spellInfo->IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
+                    return true;
         }
     }
 
