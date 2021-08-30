@@ -992,8 +992,7 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
             {
                 if (triggeredSpellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
                 {
-                    Unit const* source = eventInfo.GetActor();
-                    uint32 lastExtraAttackSpell = source->GetLastExtraAttackSpell();
+                    uint32 lastExtraAttackSpell = eventInfo.GetActor()->GetLastExtraAttackSpell();
 
                     // Patch 1.12.0(?) extra attack abilities can no longer chain proc themselves
                     if (lastExtraAttackSpell == triggerSpellId)
@@ -1001,8 +1000,9 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
 
                     // Patch 2.2.0 Sword Specialization (Warrior, Rogue) extra attack can no longer proc additional extra attacks
                     // 3.3.5 Sword Specialization (Warrior), Hack and Slash (Rogue)
-                    if (lastExtraAttackSpell == 16459 || lastExtraAttackSpell == 66923)
-                        return false;
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(lastExtraAttackSpell))
+                        if (spellInfo->SpellIconID == 1462)
+                            return false;
                 }
             }
             break;

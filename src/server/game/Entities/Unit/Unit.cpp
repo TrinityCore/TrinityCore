@@ -388,6 +388,8 @@ Unit::Unit(bool isWorldObject) :
     _isWalkingBeforeCharm = false;
     _instantCast = false;
     _isCombatDisallowed = false;
+
+    _lastExtraAttackSpell = 0;
 }
 
 ////////////////////////////////////////////////////////////
