@@ -2535,7 +2535,7 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z)
 {
     uint32 mogpFlags;
     int32 adtId, rootId, groupId;
-    float vmapZ;
+    float vmapZ = z;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     bool hasVmapArea = VMAP::VMapFactory::createOrGetVMapManager()->getAreaInfo(terrainMapId, x, y, vmapZ, mogpFlags, adtId, rootId, groupId);
 
