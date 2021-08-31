@@ -57,8 +57,6 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
-        bool CheckBoundary(Position const* who = nullptr) const;
-
     public:
         enum EvadeReason
         {
@@ -115,10 +113,12 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void JustUnregisteredAreaTrigger(AreaTrigger* /*areaTrigger*/) { }
 
         // Called when hit by a spell
-        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) { }
+        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHit(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
+        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitTarget(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 
         virtual bool IsEscorted() const { return false; }
 
@@ -219,6 +219,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void SetBoundary(CreatureBoundary const* boundary, bool negativeBoundaries = false);
 
         static bool IsInBounds(CreatureBoundary const& boundary, Position const* who);
+        bool IsInBoundary(Position const* who = nullptr) const;
 
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);

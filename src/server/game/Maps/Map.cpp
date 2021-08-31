@@ -1138,12 +1138,6 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
     Cell old_cell(player->GetPositionX(), player->GetPositionY());
     Cell new_cell(x, y);
 
-    //! If hovering, always increase our server-side Z position
-    //! Client automatically projects correct position based on Z coord sent in monster move
-    //! and HoverHeight sent in object updates
-    if (player->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += player->m_unitData->HoverHeight;
-
     player->Relocate(x, y, z, orientation);
     if (player->IsVehicle())
         player->GetVehicleKit()->RelocatePassengers();
@@ -1172,12 +1166,6 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
 
     if (!respawnRelocationOnFail && !getNGrid(new_cell.GridX(), new_cell.GridY()))
         return;
-
-    //! If hovering, always increase our server-side Z position
-    //! Client automatically projects correct position based on Z coord sent in monster move
-    //! and HoverHeight sent in object updates
-    if (creature->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += creature->m_unitData->HoverHeight;
 
     Cell old_cell = creature->GetCurrentCell();
     // delay creature move for grid/cell to grid/cell moves
@@ -2816,7 +2804,6 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
     {
         data.areaId = areaEntry->ID;
         data.floorZ = vmapData.floorZ;
-        data.outdoors = IsOutdoorWMO(vmapData.areaInfo->mogpFlags, wmoEntry, areaEntry);
     }
     else
     {
@@ -2832,8 +2819,12 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
             areaEntry = sAreaTableStore.LookupEntry(data.areaId);
 
         data.floorZ = mapHeight;
-        data.outdoors = true; // @todo default true taken from old GetAreaId check, maybe review
     }
+
+    if (vmapData.areaInfo)
+        data.outdoors = IsOutdoorWMO(vmapData.areaInfo->mogpFlags, wmoEntry, areaEntry);
+    else
+        data.outdoors = true; // @todo default true taken from old GetAreaId check, maybe review
 
     // liquid processing
     data.liquidStatus = LIQUID_MAP_NO_WATER;
@@ -3543,8 +3534,22 @@ bool Map::IsSpawnGroupActive(uint32 groupId) const
     return (_toggledSpawnGroupIds.find(groupId) != _toggledSpawnGroupIds.end()) != !(data->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN);
 }
 
+void Map::AddFarSpellCallback(FarSpellCallback&& callback)
+{
+    _farSpellCallbacks.Enqueue(new FarSpellCallback(std::move(callback)));
+}
+
 void Map::DelayedUpdate(uint32 t_diff)
 {
+    {
+        FarSpellCallback* callback;
+        while (_farSpellCallbacks.Dequeue(callback))
+        {
+            (*callback)(this);
+            delete callback;
+        }
+    }
+
     for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
     {
         Transport* transport = *_transportsUpdateIter;
