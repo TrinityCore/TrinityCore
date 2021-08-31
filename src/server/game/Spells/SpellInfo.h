@@ -547,6 +547,9 @@ class TC_GAME_API SpellInfo
         void _LoadSpellDiminishInfo();
         void _LoadImmunityInfo();
 
+        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS>& _GetEffects() { return Effects; }
+        SpellEffectInfo& _GetEffect(SpellEffIndex index) { ASSERT(index < Effects.size()); return Effects[index]; }
+
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();
 

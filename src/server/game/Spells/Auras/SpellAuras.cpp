@@ -134,9 +134,9 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
     if (IsSelfcast() || !caster || !caster->IsFriendlyTo(GetTarget()))
     {
         bool negativeFound = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < GetBase()->GetSpellInfo()->GetEffects().size(); ++i)
         {
-            if (((1<<i) & effMask) && !GetBase()->GetSpellInfo()->IsPositiveEffect(i))
+            if (((1 << i) & effMask) && !GetBase()->GetSpellInfo()->IsPositiveEffect(i))
             {
                 negativeFound = true;
                 break;
@@ -149,9 +149,9 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
     else
     {
         bool positiveFound = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < GetBase()->GetSpellInfo()->GetEffects().size(); ++i)
         {
-            if (((1<<i) & effMask) && GetBase()->GetSpellInfo()->IsPositiveEffect(i))
+            if (((1 << i) & effMask) && GetBase()->GetSpellInfo()->IsPositiveEffect(i))
             {
                 positiveFound = true;
                 break;
@@ -279,17 +279,17 @@ uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 available
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (SpellEffectInfo const& spellEffectInfo : spellProto->GetEffects())
             {
-                if (spellProto->Effects[i].IsUnitOwnedAuraEffect())
-                    effMask |= 1 << i;
+                if (spellEffectInfo.IsUnitOwnedAuraEffect())
+                    effMask |= 1 << spellEffectInfo.EffectIndex;
             }
             break;
         case TYPEID_DYNAMICOBJECT:
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (SpellEffectInfo const& spellEffectInfo : spellProto->GetEffects())
             {
-                if (spellProto->Effects[i].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
-                    effMask |= 1 << i;
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
+                    effMask |= 1 << spellEffectInfo.EffectIndex;
             }
             break;
         default:
@@ -509,9 +509,9 @@ void Aura::SaveCasterInfo(Unit* caster)
          * The only two spells in 3.3.5 with those conditions are 17484 and 50344
          * which shouldn't be allowed to crit, so we're fine
         */
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
         {
-            switch (GetSpellInfo()->Effects[i].ApplyAuraName)
+            switch (spellEffectInfo.ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_HEAL:
                     _casterInfo.BonusDonePct = caster->SpellHealingPctDone(GetUnitOwner(), GetSpellInfo());
@@ -1054,8 +1054,8 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
 bool Aura::HasMoreThanOneEffectForType(AuraType auraType) const
 {
     uint32 count = 0;
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (HasEffect(i) && AuraType(GetSpellInfo()->Effects[i].ApplyAuraName) == auraType)
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
+        if (HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.ApplyAuraName == auraType)
             ++count;
 
     return count > 1;
@@ -1063,8 +1063,8 @@ bool Aura::HasMoreThanOneEffectForType(AuraType auraType) const
 
 bool Aura::IsArea() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (HasEffect(i) && GetSpellInfo()->Effects[i].IsAreaAuraEffect())
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
+        if (HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.IsAreaAuraEffect())
             return true;
 
     return false;
@@ -1100,12 +1100,12 @@ bool Aura::CanBeSaved() const
     if (GetCasterGUID() != GetOwner()->GetGUID())
     {
         // owner == caster for area auras, check for possible bad data in DB
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
         {
-            if (!GetSpellInfo()->Effects[i].IsEffect())
+            if (!spellEffectInfo.IsEffect())
                 continue;
 
-            if (GetSpellInfo()->Effects[i].IsTargetingArea() || GetSpellInfo()->Effects[i].IsAreaAuraEffect())
+            if (spellEffectInfo.IsTargetingArea() || spellEffectInfo.IsAreaAuraEffect())
                 return false;
         }
 
@@ -1867,12 +1867,17 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     if (IsPassive() && sameCaster && (m_spellInfo->IsDifferentRankOf(existingSpellInfo) || (m_spellInfo->Id == existingSpellInfo->Id && m_castItemGuid.IsEmpty())))
         return false;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const& spellEffectInfo : existingSpellInfo->GetEffects())
     {
         // prevent remove triggering aura by triggered aura
-        if (existingSpellInfo->Effects[i].TriggerSpell == GetId()
-            // prevent remove triggered aura by triggering aura refresh
-            || m_spellInfo->Effects[i].TriggerSpell == existingAura->GetId())
+        if (spellEffectInfo.TriggerSpell == GetId())
+            return true;
+    }
+
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
+    {
+        // prevent remove triggered aura by triggering aura refresh
+        if (spellEffectInfo.TriggerSpell == existingAura->GetId())
             return true;
     }
 
@@ -1919,30 +1924,37 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
 
         // check same periodic auras
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        auto hasPeriodicNonAreaEffect = [](SpellInfo const* spellInfo)
         {
-            switch (m_spellInfo->Effects[i].ApplyAuraName)
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
             {
-                // DOT or HOT from different casters will stack
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_PERIODIC_DUMMY:
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_POWER_BURN:
-                case SPELL_AURA_OBS_MOD_POWER:
-                case SPELL_AURA_OBS_MOD_HEALTH:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                    // periodic auras which target areas are not allowed to stack this way (replenishment for example)
-                    if (m_spellInfo->Effects[i].IsTargetingArea() || existingSpellInfo->Effects[i].IsTargetingArea())
+                switch (spellEffectInfo.ApplyAuraName)
+                {
+                    // DOT or HOT from different casters will stack
+                    case SPELL_AURA_PERIODIC_DAMAGE:
+                    case SPELL_AURA_PERIODIC_DUMMY:
+                    case SPELL_AURA_PERIODIC_HEAL:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                    case SPELL_AURA_PERIODIC_ENERGIZE:
+                    case SPELL_AURA_PERIODIC_MANA_LEECH:
+                    case SPELL_AURA_PERIODIC_LEECH:
+                    case SPELL_AURA_POWER_BURN:
+                    case SPELL_AURA_OBS_MOD_POWER:
+                    case SPELL_AURA_OBS_MOD_HEALTH:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                        // periodic auras which target areas are not allowed to stack this way (replenishment for example)
+                        if (spellEffectInfo.IsTargetingArea())
+                            return false;
+                        return true;
+                    default:
                         break;
-                    return true;
-                default:
-                    break;
+                }
             }
-        }
+            return false;
+        };
+
+        if (hasPeriodicNonAreaEffect(m_spellInfo) && hasPeriodicNonAreaEffect(existingSpellInfo))
+            return true;
     }
 
     if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && existingAura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
@@ -2633,13 +2645,13 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
             targets.emplace(target, targetPair.second);
     }
 
-    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
-        if (!HasEffect(effIndex))
+        if (!HasEffect(spellEffectInfo.EffectIndex))
             continue;
 
         // area auras only
-        if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (spellEffectInfo.Effect == SPELL_EFFECT_APPLY_AURA)
             continue;
 
         // skip area update if owner is not in world!
@@ -2650,12 +2662,12 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
             continue;
 
         std::vector<Unit*> units;
-        ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
+        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
 
-        float radius = GetSpellInfo()->Effects[effIndex].CalcRadius(ref);
+        float radius = spellEffectInfo.CalcRadius(ref);
 
         SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
-        switch (GetSpellInfo()->Effects[effIndex].Effect)
+        switch (spellEffectInfo.Effect)
         {
             case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
                 selectionType = TARGET_CHECK_PARTY;
@@ -2693,17 +2705,17 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
         }
 
         for (Unit* unit : units)
-            targets[unit] |= 1 << effIndex;
+            targets[unit] |= 1 << spellEffectInfo.EffectIndex;
     }
 }
 
 void UnitAura::AddStaticApplication(Unit* target, uint8 effMask)
 {
     // only valid for non-area auras
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
-        if ((effMask & (1 << i)) && GetSpellInfo()->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA)
-            effMask &= ~(1 << i);
+        if ((effMask & (1 << spellEffectInfo.EffectIndex)) && !spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA))
+            effMask &= ~(1 << spellEffectInfo.EffectIndex);
     }
 
     if (!effMask)
@@ -2736,25 +2748,25 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* 
     Unit* dynObjOwnerCaster = GetDynobjOwner()->GetCaster();
     float radius = GetDynobjOwner()->GetRadius();
 
-    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
-        if (!HasEffect(effIndex))
+        if (!HasEffect(spellEffectInfo.EffectIndex))
             continue;
 
         // we can't use effect type like area auras to determine check type, check targets
-        SpellTargetCheckTypes selectionType = m_spellInfo->Effects[effIndex].TargetA.GetCheckType();
-        if (m_spellInfo->Effects[effIndex].TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
-            selectionType = m_spellInfo->Effects[effIndex].TargetB.GetCheckType();
+        SpellTargetCheckTypes selectionType = spellEffectInfo.TargetA.GetCheckType();
+        if (spellEffectInfo.TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
+            selectionType = spellEffectInfo.TargetB.GetCheckType();
 
         std::vector<Unit*> units;
-        ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
+        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
 
         Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList);
         Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetDynobjOwner(), units, check);
         Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
 
         for (Unit* unit : units)
-            targets[unit] |= 1 << effIndex;
+            targets[unit] |= 1 << spellEffectInfo.EffectIndex;
     }
 }
 

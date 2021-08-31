@@ -2558,7 +2558,7 @@ int32 SpellInfo::GetDiminishingReturnsLimitDuration(bool triggered) const
 
 void SpellInfo::_LoadImmunityInfo()
 {
-    for (SpellEffectInfo& effect : Effects)
+    for (SpellEffectInfo& effect : _GetEffects())
     {
         uint32 schoolImmunityMask = 0;
         uint32 applyHarmfulAuraImmunityMask = 0;
@@ -3892,7 +3892,7 @@ void SpellInfo::_InitializeSpellPositivity()
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
     // find the same instances of ConditionList and delete them.
-    for (SpellEffectInfo const& effect : Effects)
+    for (SpellEffectInfo const& effect : GetEffects())
     {
         ConditionContainer* cur = effect.ImplicitTargetConditions;
         if (!cur)
