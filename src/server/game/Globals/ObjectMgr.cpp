@@ -5734,7 +5734,7 @@ void ObjectMgr::LoadSpellScripts()
         }
 
         SpellEffIndex i = SpellEffIndex((uint32(itr->first) >> 24) & 0x000000FF);
-        if (uint32(i) > MAX_SPELL_EFFECTS)
+        if (uint32(i) >= MAX_SPELL_EFFECTS)
         {
             TC_LOG_ERROR("sql.sql", "Table `spell_scripts` has too high effect index %u for spell (Id: %u) as script id", uint32(i), spellId);
             continue;
