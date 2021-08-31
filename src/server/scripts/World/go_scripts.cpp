@@ -26,7 +26,6 @@ go_tele_to_violet_stand
 go_soulwell
 go_amberpine_outhouse
 go_veil_skith_cage
-go_toy_train_set
 go_bells
 EndContentData */
 
@@ -756,47 +755,6 @@ public:
     }
 };
 
-enum ToyTrainSpells
-{
-    SPELL_TOY_TRAIN_PULSE       = 61551,
-};
-
-class go_toy_train_set : public GameObjectScript
-{
-    public:
-        go_toy_train_set() : GameObjectScript("go_toy_train_set") { }
-
-        struct go_toy_train_setAI : public GameObjectAI
-        {
-            go_toy_train_setAI(GameObject* go) : GameObjectAI(go), _pulseTimer(3 * IN_MILLISECONDS) { }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (diff < _pulseTimer)
-                    _pulseTimer -= diff;
-                else
-                {
-                    me->CastSpell(nullptr, SPELL_TOY_TRAIN_PULSE, true);
-                    _pulseTimer = 6 * IN_MILLISECONDS;
-                }
-            }
-
-            // triggered on wrecker'd
-            void DoAction(int32 /*action*/) override
-            {
-                me->Delete();
-            }
-
-        private:
-            uint32 _pulseTimer;
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_toy_train_setAI(go);
-        }
-};
-
 /*####
 ## go_brewfest_music
 ####*/
@@ -1315,7 +1273,6 @@ void AddSC_go_scripts()
     new go_frostblade_shrine();
     new go_midsummer_bonfire();
     new go_midsummer_ribbon_pole();
-    new go_toy_train_set();
     new go_brewfest_music();
     new go_midsummer_music();
     new go_darkmoon_faire_music();

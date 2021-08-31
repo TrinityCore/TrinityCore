@@ -2218,7 +2218,6 @@ enum TrainWrecker
     GO_TOY_TRAIN          = 193963,
     SPELL_TOY_TRAIN_PULSE =  61551,
     SPELL_WRECK_TRAIN     =  62943,
-    ACTION_WRECKED        =      1,
     EVENT_DO_JUMP         =      1,
     EVENT_DO_FACING       =      2,
     EVENT_DO_WRECK        =      3,
@@ -2292,7 +2291,6 @@ class npc_train_wrecker : public CreatureScript
                             if (GameObject* target = VerifyTarget())
                             {
                                 me->CastSpell(target, SPELL_WRECK_TRAIN, false);
-                                target->AI()->DoAction(ACTION_WRECKED);
                                 _timer = 2 * IN_MILLISECONDS;
                                 _nextAction = EVENT_DO_DANCE;
                             }
