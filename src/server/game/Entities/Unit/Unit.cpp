@@ -6942,6 +6942,14 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             return false;
         });
 
+        // From avoidance
+        if (spellProto->IsAffectingArea() || spellProto->HasAreaAuraEffect())
+        {
+            TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
+            if (caster->IsCreature())
+                TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
+        }
+
         // From caster spells
         if (caster)
         {

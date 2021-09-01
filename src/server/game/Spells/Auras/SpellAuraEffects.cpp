@@ -5754,16 +5754,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         damage = damageReductedArmor;
     }
 
-    if (!m_spellInfo->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
-    {
-        if (GetSpellInfo()->Effects[GetEffIndex()].IsTargetingArea() || GetSpellInfo()->Effects[GetEffIndex()].IsAreaAuraEffect() || GetSpellInfo()->Effects[GetEffIndex()].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
-        {
-            damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
-        }
-    }
-
     int32 dmg = damage;
     if (!GetSpellInfo()->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
         caster->ApplyResilience(target, &dmg);
