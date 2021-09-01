@@ -1454,6 +1454,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled event_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
         }
+
+        // Additional check for deprecated
+        switch (e.GetEventType())
+        {
+            // Deprecated
+            case SMART_EVENT_FRIENDLY_HEALTH:
+            case SMART_EVENT_TARGET_HEALTH_PCT:
+            case SMART_EVENT_IS_BEHIND_TARGET:
+                TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated event_type(%u), Entry %d SourceType %u Event %u Action %u, it might be removed in the future, loaded for now.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                break;
+            default:
+                break;
+        }
     }
 
     if (!CheckUnusedEventParams(e))
@@ -2176,6 +2189,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_PLAY_CINEMATIC:
             break;
+        // No longer supported
+        case SMART_ACTION_INSTALL_AI_TEMPLATE:
+        case SMART_ACTION_SET_DYNAMIC_FLAG:
+            TC_LOG_ERROR("sql.sql.nolongersupported", "SmartAIMgr: No longer supported action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
+            return false;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
             return false;

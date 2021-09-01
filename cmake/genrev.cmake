@@ -24,14 +24,26 @@ if(WITHOUT_GIT)
   string(TIMESTAMP rev_date_fallback "%Y-%m-%d %H:%M:%S" UTC)
 else()
   if(GIT_EXECUTABLE)
+    # Retrieve repository dirty status
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" diff-index  --quiet HEAD --
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      RESULT_VARIABLE is_dirty
+    )
+
     # Create a revision-string that we can use
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" describe --long --match init --dirty=+ --abbrev=12
+      COMMAND "${GIT_EXECUTABLE}" rev-parse --short=12 HEAD
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE rev_info
+      OUTPUT_VARIABLE rev_hash
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
+
+    # Append dirty marker to commit hash
+    if(is_dirty)
+	  set(rev_hash "${rev_hash}+")
+	endif()
 
     # And grab the commits timestamp
     execute_process(
@@ -44,7 +56,7 @@ else()
 
     # Also retrieve branch name
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+      COMMAND "${GIT_EXECUTABLE}" symbolic-ref -q --short HEAD
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_branch
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -54,7 +66,7 @@ else()
 
   # Last minute check - ensure that we have a proper revision
   # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
-  if(NOT rev_info)
+  if(NOT rev_hash)
     # No valid ways available to find/set the revision/hash, so let's force some defaults
     message(STATUS "
     Could not find a proper repository signature (hash) - you may need to pull tags with git fetch -t
@@ -67,8 +79,6 @@ else()
   else()
     # We have valid date from git commit, use that
     set(rev_date_fallback ${rev_date})
-    # Extract information required to build a proper versionstring
-    string(REGEX REPLACE init-|[0-9]+-g "" rev_hash ${rev_info})
   endif()
 endif()
 
@@ -79,7 +89,7 @@ set(rev_month ${CMAKE_MATCH_2})
 set(rev_day ${CMAKE_MATCH_3})
 
 # Create the actual revision_data.h file from the above params
-if(NOT "${rev_hash_cached}" MATCHES "${rev_hash}" OR NOT "${rev_branch_cached}" MATCHES "${rev_branch}" OR NOT EXISTS "${BUILDDIR}/revision_data.h")
+if(NOT "${rev_hash_cached}" STREQUAL "${rev_hash}" OR NOT "${rev_branch_cached}" STREQUAL "${rev_branch}" OR NOT EXISTS "${BUILDDIR}/revision_data.h")
   configure_file(
     "${CMAKE_SOURCE_DIR}/revision_data.h.in.cmake"
     "${BUILDDIR}/revision_data.h"

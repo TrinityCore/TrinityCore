@@ -513,7 +513,7 @@ enum SMART_ACTION
     SMART_ACTION_WP_STOP                            = 55,     // despawnTime, quest, fail?
     SMART_ACTION_ADD_ITEM                           = 56,     // itemID, count
     SMART_ACTION_REMOVE_ITEM                        = 57,     // itemID, count
-    // SMART_ACTION_UNUSED_58                       = 58,     // do not reuse
+    SMART_ACTION_INSTALL_AI_TEMPLATE                = 58,     // do not use
     SMART_ACTION_SET_RUN                            = 59,     // 0/1
     SMART_ACTION_SET_DISABLE_GRAVITY                = 60,     // 0/1
     SMART_ACTION_SET_SWIM                           = 61,     // 0/1
@@ -549,7 +549,7 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
     SMART_ACTION_INTERRUPT_SPELL                    = 92,
     SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
-    // SMART_ACTION_UNUSED_94                       = 94,     // do not reuse
+    SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // do not use
     SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // Flags
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
     SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
