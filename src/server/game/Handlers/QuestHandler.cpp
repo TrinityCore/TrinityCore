@@ -192,7 +192,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                     {
                         Player* player = itr->GetSource();
 
-                        if (!player || player == _player)     // not self
+                        if (!player || player == _player || !player->IsInMap(_player))     // not self and in same map
                             continue;
 
                         if (player->CanTakeQuest(quest, true))
