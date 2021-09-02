@@ -620,6 +620,10 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 
     recvData >> guid >> arenaslot >> asGroup >> isRated;
 
+    // ignore if rated but queued solo
+    if (isRated && !asGroup)
+        return;
+
     // ignore if we already in BG or BG queue
     if (_player->InBattleground())
         return;
