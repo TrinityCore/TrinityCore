@@ -1940,6 +1940,21 @@ class spell_gen_gnomish_transporter : public SpellScript
     }
 };
 
+class spell_gen_injured : public SpellScript
+{
+    PrepareSpellScript(spell_gen_injured);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->SetHealth(GetCaster()->CountPctFromMaxHealth(30));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_injured::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 enum LichPet
 {
     NPC_LICH_PET                = 36979,
@@ -4519,6 +4534,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_gadgetzan_transporter_backfire);
     RegisterSpellScript(spell_gen_gift_of_naaru);
     RegisterSpellScript(spell_gen_gnomish_transporter);
+    RegisterSpellScript(spell_gen_injured);
     RegisterSpellScript(spell_gen_lich_pet_aura);
     RegisterSpellScript(spell_gen_lich_pet_onsummon);
     RegisterSpellScript(spell_gen_lich_pet_aura_remove);
