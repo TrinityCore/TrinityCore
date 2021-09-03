@@ -942,6 +942,7 @@ class boss_vx_001 : public CreatureScript
                 me->SetEmoteState(EMOTE_STATE_SPECIAL_UNARMED); // This is a hack to force the yet to be unfolded visual state.
                 me->SetReactState(REACT_PASSIVE);
                 _fireFighter = false;
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override

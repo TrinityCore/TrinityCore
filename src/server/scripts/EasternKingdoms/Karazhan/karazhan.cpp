@@ -463,6 +463,7 @@ public:
         void Reset() override
         {
             Initialize();
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
             if (instance->GetGuidData(DATA_IMAGE_OF_MEDIVH).IsEmpty())
             {
