@@ -100,7 +100,7 @@ class spell_moragg_ray : public AuraScript
         if (UnitAI* AI = GetTarget()->GetAI())
             if (Unit* target = AI->SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
             {
-                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
                 GetTarget()->CastSpell(target, triggerSpell, aurEff);
             }
     }

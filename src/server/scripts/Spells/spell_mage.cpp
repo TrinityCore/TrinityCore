@@ -450,7 +450,7 @@ class spell_mage_empowered_fire : public AuraScript
 
         Unit* target = GetTarget();
         CastSpellExtraArgs args(aurEff);
-        uint8 percent = sSpellMgr->AssertSpellInfo(SPELL_MAGE_EMPOWERED_FIRE_PROC)->Effects[EFFECT_0].CalcValue();
+        uint8 percent = sSpellMgr->AssertSpellInfo(SPELL_MAGE_EMPOWERED_FIRE_PROC)->GetEffect(EFFECT_0).CalcValue();
         args.AddSpellBP0(CalculatePct(target->GetCreateMana(), percent));
         target->CastSpell(target, SPELL_MAGE_EMPOWERED_FIRE_PROC, args);
     }
@@ -525,7 +525,7 @@ class spell_mage_fire_frost_ward : public spell_mage_incanters_absorbtion_base_A
         Unit* target = GetTarget();
         if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
         {
-            int32 chance = talentAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(); // SPELL_EFFECT_DUMMY with NO_TARGET
+            int32 chance = talentAurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(); // SPELL_EFFECT_DUMMY with NO_TARGET
 
             if (roll_chance_i(chance))
             {
@@ -873,7 +873,7 @@ class spell_mage_living_bomb : public AuraScript
 
     bool Validate(SpellInfo const* spell) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spell->Effects[EFFECT_1].CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spell->GetEffect(EFFECT_1).CalcValue()) });
     }
 
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1007,13 +1007,13 @@ class spell_mage_mirror_image : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_2].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_2).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
     {
         // Set name of summons to name of caster
-        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, true);
     }
 
     void Register() override

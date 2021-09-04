@@ -458,17 +458,11 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
                 if (!target || !target->GetVehicle())
                     return;
 
-                switch (target->GetMap()->GetDifficulty())
-                {
-                    case RAID_DIFFICULTY_10MAN_NORMAL:
-                        target->RemoveAura(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
-                        break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                        target->RemoveAura(GetSpellInfo()->Effects[EFFECT_1].CalcValue());
-                        break;
-                    default:
-                        break;
-                }
+                SpellEffIndex effectIndexToCancel = EFFECT_0;
+                if (target->GetMap()->Is25ManRaid())
+                    effectIndexToCancel = EFFECT_1;
+
+                target->RemoveAura(GetEffectInfo(effectIndexToCancel).CalcValue());
             }
 
             void Register() override
@@ -663,7 +657,7 @@ class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
             void HandleForceCast(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
+                GetCaster()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, true);
             }
 
             void Register() override

@@ -177,10 +177,10 @@ class spell_item_alchemists_stone : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActionTarget();
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
         {
             uint32 spellId;
-            switch (spellInfo->Effects[i].Effect)
+            switch (spellEffectInfo.Effect)
             {
                 case SPELL_EFFECT_HEAL:
                     spellId = SPELL_ALCHEMISTS_STONE_EXTRA_HEAL;
@@ -193,7 +193,7 @@ class spell_item_alchemists_stone : public AuraScript
             }
 
             CastSpellExtraArgs args(aurEff);
-            args.AddSpellBP0(CalculatePct(spellInfo->Effects[i].CalcValue(caster), 40));
+            args.AddSpellBP0(CalculatePct(spellEffectInfo.CalcValue(caster), 40));
             caster->CastSpell(nullptr, spellId, args);
         }
     }
@@ -1242,7 +1242,7 @@ class spell_item_crystal_spire_of_karabor : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        int32 pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+        int32 pct = GetEffectInfo(EFFECT_0).BasePoints;
         if (HealInfo* healInfo = eventInfo.GetHealInfo())
             if (Unit* healTarget = healInfo->GetTarget())
                 if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
@@ -3901,7 +3901,7 @@ class spell_item_charm_witch_doctor : public AuraScript
 
         if (Unit* target = eventInfo.GetActionTarget())
         {
-            int32 bp = CalculatePct(target->GetCreateHealth(),aurEff->GetSpellInfo()->Effects[1].CalcValue());
+            int32 bp = CalculatePct(target->GetCreateHealth(), aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue());
             CastSpellExtraArgs args(aurEff);
             args.AddSpellBP0(bp);
             eventInfo.GetActor()->CastSpell(target, SPELL_CHARM_WITCH_DOCTOR_PROC, args);

@@ -248,14 +248,14 @@ class spell_mother_shahraz_saber_lash : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_1].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
     }
 
     void OnTrigger(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
 
-        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+        uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
         if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0))
             GetUnitOwner()->CastSpell(target, triggerSpell, true);
     }
@@ -276,14 +276,14 @@ class spell_mother_shahraz_generic_periodic : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void OnTrigger(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
 
-        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+        uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
         if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0))
             GetUnitOwner()->CastSpell(target, triggerSpell, true);
     }

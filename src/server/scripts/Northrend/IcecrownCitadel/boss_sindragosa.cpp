@@ -1455,7 +1455,7 @@ class spell_frostwarden_handler_focus_fire_aura : public AuraScript
         PreventDefaultAction();
         if (Unit* caster = GetCaster())
         {
-            caster->GetThreatManager().AddThreat(GetTarget(), -float(GetSpellInfo()->Effects[EFFECT_1].CalcValue()), GetSpellInfo(), true, true);
+            caster->GetThreatManager().AddThreat(GetTarget(), -float(GetEffectInfo(EFFECT_1).CalcValue()), GetSpellInfo(), true, true);
             caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
         }
     }

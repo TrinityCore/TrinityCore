@@ -162,8 +162,8 @@ class spell_pal_ardent_defender : public AuraScript
 
     bool Load() override
     {
-        _absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-        _healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+        _absorbPct = GetEffectInfo(EFFECT_0).CalcValue();
+        _healPct = GetEffectInfo(EFFECT_1).CalcValue();
         return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
@@ -312,7 +312,7 @@ class spell_pal_beacon_of_light : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -320,7 +320,7 @@ class spell_pal_beacon_of_light : public AuraScript
         PreventDefaultAction();
 
         // area aura owner casts the spell
-        GetAura()->GetUnitOwner()->CastSpell(GetTarget(), GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, { aurEff, GetAura()->GetUnitOwner()->GetGUID() });
+        GetAura()->GetUnitOwner()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, { aurEff, GetAura()->GetUnitOwner()->GetGUID() });
     }
 
     void Register() override
@@ -468,8 +468,8 @@ class spell_pal_divine_sacrifice : public AuraScript
             else
                 return false;
 
-            remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
-            minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
+            remainingAmount = (caster->CountPctFromMaxHealth(GetEffectInfo(EFFECT_2).CalcValue(caster)) * groupSize);
+            minHpPct = GetEffectInfo(EFFECT_1).CalcValue(caster);
             return true;
         }
         return false;
@@ -512,7 +512,7 @@ class spell_pal_divine_storm : public SpellScript
 
     bool Load() override
     {
-        _healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+        _healPct = GetEffectInfo(EFFECT_1).CalcValue(GetCaster());
         return true;
     }
 
@@ -633,7 +633,7 @@ class spell_pal_glyph_of_divinity : public AuraScript
     {
         // Lay on Hands (Rank 1) does not have mana effect
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        if (!spellInfo || spellInfo->Effects[EFFECT_1].Effect != SPELL_EFFECT_ENERGIZE)
+        if (!spellInfo || !spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_ENERGIZE))
             return;
 
         Unit* caster = eventInfo.GetActor();
@@ -641,7 +641,7 @@ class spell_pal_glyph_of_divinity : public AuraScript
             return;
 
         CastSpellExtraArgs args(aurEff);
-        args.AddSpellMod(SPELLVALUE_BASE_POINT1, spellInfo->Effects[EFFECT_1].CalcValue() * 2);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT1, GetEffectInfo(EFFECT_1).CalcValue() * 2);
         caster->CastSpell(nullptr, SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, args);
     }
 
@@ -691,7 +691,7 @@ class spell_pal_glyph_of_holy_light_dummy : public AuraScript
         if (!healInfo || !healInfo->GetHeal())
             return;
 
-        uint32 basePoints = healInfo->GetSpellInfo()->Effects[EFFECT_0].BasePoints + healInfo->GetSpellInfo()->Effects[EFFECT_0].DieSides;
+        uint32 basePoints = healInfo->GetSpellInfo()->GetEffect(EFFECT_0).BasePoints + healInfo->GetSpellInfo()->GetEffect(EFFECT_0).DieSides;
         uint32 healAmount;
         if (healInfo->GetEffectiveHeal() >= basePoints)
             healAmount = healInfo->GetEffectiveHeal();
@@ -906,7 +906,7 @@ class spell_pal_illumination : public AuraScript
             if (originalSpell && aurEff->GetSpellInfo())
             {
                 Unit* target = eventInfo.GetActor(); // Paladin is the target of the energize
-                uint32 bp = CalculatePct(originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask()), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+                uint32 bp = CalculatePct(originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask()), aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue());
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(bp);
                 target->CastSpell(target, SPELL_PALADIN_ILLUMINATION_ENERGIZE, args);
@@ -1030,13 +1030,13 @@ class spell_pal_improved_lay_of_hands : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActionTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, { aurEff, GetTarget()->GetGUID() });
+        eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActionTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, { aurEff, GetTarget()->GetGUID() });
     }
 
     void Register() override
@@ -1078,7 +1078,7 @@ class spell_pal_infusion_of_light : public AuraScript
                 {
                     Unit* target = GetTarget();
                     int32 duration = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_FLASH_OF_LIGHT_PROC)->GetMaxDuration() / 1000;
-                    int32 pct = GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                    int32 pct = GetEffectInfo(EFFECT_2).CalcValue();
                     ASSERT(duration > 0);
 
                     int32 bp0 = CalculatePct(healInfo->GetHeal() / duration, pct);
@@ -1292,7 +1292,7 @@ class spell_pal_judgement_of_wisdom_mana : public AuraScript
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA);
 
         Unit* caster = eventInfo.GetProcTarget();
-        int32 const amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), spellInfo->Effects[EFFECT_0].CalcValue());
+        int32 const amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), spellInfo->GetEffect(EFFECT_0).CalcValue());
         CastSpellExtraArgs args(aurEff);
         args.OriginalCaster = GetCasterGUID();
         args.AddSpellBP0(amount);
@@ -1744,7 +1744,7 @@ class spell_pal_seal_of_vengeance : public SpellScriptLoader
                     return;
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(DamageSpell);
-                int32 amount = spellInfo->Effects[EFFECT_0].CalcValue();
+                int32 amount = spellInfo->GetEffect(EFFECT_0).CalcValue();
                 amount *= stacks;
                 amount /= maxStacks;
 

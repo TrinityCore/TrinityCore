@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -1072,7 +1073,7 @@ class spell_algalon_phase_constellation : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandlePeriodic(AuraEffect const* aurEff)
@@ -1081,7 +1082,7 @@ class spell_algalon_phase_constellation : public AuraScript
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
         // Phase Effect should only 1 target. Avoid 1 black hole despawn multiple Living Constellation
-        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, args);
+        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, args);
     }
 
     void Register() override

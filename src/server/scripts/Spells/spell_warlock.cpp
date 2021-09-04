@@ -468,7 +468,7 @@ class spell_warl_drain_soul : public AuraScript
         if (!impDrainSoul)
             return;
 
-        int32 amount = CalculatePct(caster->GetMaxPower(POWER_MANA), impDrainSoul->GetSpellInfo()->Effects[EFFECT_2].CalcValue());
+        int32 amount = CalculatePct(caster->GetMaxPower(POWER_MANA), impDrainSoul->GetSpellInfo()->GetEffect(EFFECT_2).CalcValue());
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
         caster->CastSpell(nullptr, SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, args);
@@ -757,7 +757,7 @@ class spell_warl_life_tap : public SpellScript
 
     SpellCastResult CheckCast()
     {
-        if (int32(GetCaster()->GetHealth()) > int32(GetSpellInfo()->Effects[EFFECT_0].CalcValue()))
+        if (int32(GetCaster()->GetHealth()) > int32(GetEffectInfo(EFFECT_0).CalcValue()))
             return SPELL_CAST_OK;
         return SPELL_FAILED_FIZZLE;
     }

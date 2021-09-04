@@ -544,12 +544,12 @@ class spell_q12683_take_sputum_sample : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        uint32 reqAuraId = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+        uint32 reqAuraId = GetEffectInfo(EFFECT_1).CalcValue();
 
         Unit* caster = GetCaster();
         if (caster->HasAuraEffect(reqAuraId, 0))
         {
-            uint32 spellId = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+            uint32 spellId = GetEffectInfo().CalcValue();
             caster->CastSpell(caster, spellId, true);
         }
     }
@@ -1459,7 +1459,7 @@ class spell_q13086_cannons_target : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/)
@@ -1761,7 +1761,7 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScript
 
     void ModDest(SpellDestination& dest)
     {
-        float dist = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster());
+        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
         float angle = frand(0.75f, 1.25f) * float(M_PI);
 
         Position pos = GetCaster()->GetNearPosition(dist, angle);
@@ -1920,7 +1920,7 @@ class spell_q12619_emblazon_runeblade : public AuraScript
     {
         PreventDefaultAction();
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, aurEff);
+            caster->CastSpell(caster, aurEff->GetSpellEffectInfo().TriggerSpell, aurEff);
     }
 
     void Register() override

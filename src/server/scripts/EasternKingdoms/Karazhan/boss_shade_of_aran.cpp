@@ -481,9 +481,7 @@ public:
         void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             //We only care about interrupt effects and only if they are durring a spell currently being cast
-            if ((spellInfo->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
-                spellInfo->Effects[1].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
-                spellInfo->Effects[2].Effect != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCast(false))
+            if (!spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCast(false))
                 return;
 
             //Interrupt effect

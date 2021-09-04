@@ -207,7 +207,7 @@ class spell_pet_guard_dog : public AuraScript
         Unit* target = eventInfo.GetProcTarget();
         if (!target->CanHaveThreatList())
             return;
-        float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
+        float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->GetEffect(EFFECT_0).CalcValue(caster), aurEff->GetAmount());
         target->GetThreatManager().AddThreat(caster, addThreat, GetSpellInfo(), false, true);
     }
 

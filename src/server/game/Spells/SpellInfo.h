@@ -399,7 +399,7 @@ class TC_GAME_API SpellInfo
         uint32 PreventionType;
         int32  AreaGroupId;
         uint32 SchoolMask;
-        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> Effects;
+        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> _effects;
         uint32 ExplicitTargetMask;
         SpellChainNode const* ChainEntry;
 
@@ -520,8 +520,8 @@ class TC_GAME_API SpellInfo
         bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
         bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
-        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> const& GetEffects() const { return Effects; }
-        SpellEffectInfo const& GetEffect(SpellEffIndex index) const { ASSERT(index < Effects.size()); return Effects[index]; }
+        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> const& GetEffects() const { return _effects; }
+        SpellEffectInfo const& GetEffect(SpellEffIndex index) const { ASSERT(index < _effects.size()); return _effects[index]; }
 
         // spell diminishing returns
         DiminishingGroup GetDiminishingReturnsGroupForSpell(bool triggered) const;
@@ -547,8 +547,8 @@ class TC_GAME_API SpellInfo
         void _LoadSpellDiminishInfo();
         void _LoadImmunityInfo();
 
-        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS>& _GetEffects() { return Effects; }
-        SpellEffectInfo& _GetEffect(SpellEffIndex index) { ASSERT(index < Effects.size()); return Effects[index]; }
+        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS>& _GetEffects() { return _effects; }
+        SpellEffectInfo& _GetEffect(SpellEffIndex index) { ASSERT(index < _effects.size()); return _effects[index]; }
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();

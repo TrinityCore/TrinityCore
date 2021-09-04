@@ -841,7 +841,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     AreaGroupId = spellEntry->RequiredAreasID;
     SchoolMask = spellEntry->SchoolMask;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        Effects[i] = SpellEffectInfo(spellEntry, this, i);
+        _effects[i] = SpellEffectInfo(spellEntry, this, i);
 
     ChainEntry = nullptr;
     ExplicitTargetMask = 0;
@@ -3898,9 +3898,9 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
         if (!cur)
             continue;
 
-        for (size_t j = effect.EffectIndex; j < Effects.size(); ++j)
-            if (Effects[j].ImplicitTargetConditions == cur)
-                Effects[j].ImplicitTargetConditions = nullptr;
+        for (size_t j = effect.EffectIndex; j < GetEffects().size(); ++j)
+            if (GetEffect(SpellEffIndex(j)).ImplicitTargetConditions == cur)
+                _GetEffect(SpellEffIndex(j)).ImplicitTargetConditions = nullptr;
 
         delete cur;
     }

@@ -131,11 +131,12 @@ std::string _SpellScript::EffectHook::EffIndexToString()
 
 bool _SpellScript::EffectNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex)
 {
-    if (!spellEntry->Effects[effIndex].Effect && !effName)
+    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndex));
+    if (!spellEffectInfo.Effect && !effName)
         return true;
-    if (!spellEntry->Effects[effIndex].Effect)
+    if (!spellEffectInfo.Effect)
         return false;
-    return (effName == SPELL_EFFECT_ANY) || (spellEntry->Effects[effIndex].Effect == effName);
+    return (effName == SPELL_EFFECT_ANY) || (spellEffectInfo.Effect == effName);
 }
 
 std::string _SpellScript::EffectNameCheck::ToString()
@@ -153,11 +154,12 @@ std::string _SpellScript::EffectNameCheck::ToString()
 
 bool _SpellScript::EffectAuraNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex)
 {
-    if (!spellEntry->Effects[effIndex].ApplyAuraName && !effAurName)
+    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndex));
+    if (!spellEffectInfo.ApplyAuraName && !effAurName)
         return true;
-    if (!spellEntry->Effects[effIndex].ApplyAuraName)
+    if (!spellEffectInfo.ApplyAuraName)
         return false;
-    return (effAurName == SPELL_AURA_ANY) || (spellEntry->Effects[effIndex].ApplyAuraName == effAurName);
+    return (effAurName == SPELL_AURA_ANY) || (spellEffectInfo.ApplyAuraName == effAurName);
 }
 
 std::string _SpellScript::EffectAuraNameCheck::ToString()
@@ -259,8 +261,9 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
     if (!targetType)
         return false;
 
-    if (spellEntry->Effects[effIndexToCheck].TargetA.GetTarget() != targetType &&
-        spellEntry->Effects[effIndexToCheck].TargetB.GetTarget() != targetType)
+    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndexToCheck));
+    if (spellEffectInfo.TargetA.GetTarget() != targetType &&
+        spellEffectInfo.TargetB.GetTarget() != targetType)
         return false;
 
     SpellImplicitTargetInfo targetInfo(targetType);

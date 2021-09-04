@@ -2811,7 +2811,7 @@ class spell_hor_evasion : public SpellScriptLoader
                     return;
 
                 float angle = pos.GetAbsoluteAngle(&home);
-                float dist = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster());
+                float dist = GetEffectInfo().CalcRadius(GetCaster());
                 target->MovePosition(pos, dist, angle);
 
                 dest.Relocate(pos);
@@ -2869,7 +2869,7 @@ class spell_hor_quel_delars_will : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandleReagent(SpellEffIndex effIndex)
@@ -2877,7 +2877,7 @@ class spell_hor_quel_delars_will : public SpellScript
         PreventHitDefaultEffect(effIndex);
 
         // dummy spell consumes reagent, don't ignore it
-        GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
     }
 
     void Register() override
