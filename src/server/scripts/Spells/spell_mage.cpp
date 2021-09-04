@@ -172,7 +172,7 @@ class spell_mage_arcane_barrage : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_ARCANE_BARRAGE_R3, SPELL_MAGE_ARCANE_BARRAGE_ENERGIZE })
-            && spellInfo->GetEffect(EFFECT_1);
+            && spellInfo->GetEffects().size() > EFFECT_1;
     }
 
     void ConsumeArcaneCharges()
@@ -188,7 +188,7 @@ class spell_mage_arcane_barrage : public SpellScript
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (GetHitUnit()->GetGUID() != _primaryTarget)
-            SetHitDamage(CalculatePct(GetHitDamage(), GetEffectInfo(EFFECT_1)->CalcValue(GetCaster())));
+            SetHitDamage(CalculatePct(GetHitDamage(), GetEffectInfo(EFFECT_1).CalcValue(GetCaster())));
     }
 
     void MarkPrimaryTarget(SpellEffIndex /*effIndex*/)
@@ -237,8 +237,10 @@ class spell_mage_arcane_explosion : public SpellScript
         if (!ValidateSpellInfo({ SPELL_MAGE_ARCANE_MAGE, SPELL_MAGE_REVERBERATE }))
             return false;
 
-        SpellEffectInfo const* damageEffect = spellInfo->GetEffect(EFFECT_1);
-        return damageEffect && damageEffect->IsEffect(SPELL_EFFECT_SCHOOL_DAMAGE);
+        if (spellInfo->GetEffects().size() <= EFFECT_1)
+            return false;
+
+        return spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 
     void CheckRequiredAuraForBaselineEnergize(SpellEffIndex effIndex)
@@ -350,11 +352,11 @@ class spell_mage_cauterize_AuraScript : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffect(EFFECT_2) && ValidateSpellInfo
+        return spellInfo->GetEffects().size() > EFFECT_2 && ValidateSpellInfo
         ({
             SPELL_MAGE_CAUTERIZE_DOT,
             SPELL_MAGE_CAUTERIZED,
-            spellInfo->GetEffect(EFFECT_2)->TriggerSpell
+            spellInfo->GetEffect(EFFECT_2).TriggerSpell
         });
     }
 
@@ -372,7 +374,7 @@ class spell_mage_cauterize_AuraScript : public AuraScript
         }
 
         GetTarget()->SetHealth(GetTarget()->CountPctFromMaxHealth(effect1->GetAmount()));
-        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->GetEffect(EFFECT_2)->TriggerSpell, TRIGGERED_FULL_MASK);
+        GetTarget()->CastSpell(GetTarget(), GetEffectInfo(EFFECT_2).TriggerSpell, TRIGGERED_FULL_MASK);
         GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_CAUTERIZE_DOT, TRIGGERED_FULL_MASK);
         GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_CAUTERIZED, TRIGGERED_FULL_MASK);
     }
@@ -583,9 +585,9 @@ class spell_mage_ice_lance : public SpellScript
         {
             // Thermal Void
             if (Aura const* thermalVoid = caster->GetAura(SPELL_MAGE_THERMAL_VOID))
-                if (SpellEffectInfo const* thermalVoidEffect = thermalVoid->GetSpellInfo()->GetEffect(EFFECT_0))
+                if (!thermalVoid->GetSpellInfo()->GetEffects().empty())
                     if (Aura* icyVeins = caster->GetAura(SPELL_MAGE_ICY_VEINS))
-                        icyVeins->SetDuration(icyVeins->GetDuration() + thermalVoidEffect->CalcValue(caster) * IN_MILLISECONDS);
+                        icyVeins->SetDuration(icyVeins->GetDuration() + thermalVoid->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(caster) * IN_MILLISECONDS);
 
             // Chain Reaction
             if (caster->HasAura(SPELL_MAGE_CHAIN_REACTION_DUMMY))
@@ -620,7 +622,7 @@ class spell_mage_ice_lance_damage : public SpellScript
         {
             int32 originalDamage = GetHitDamage();
             float targetIndex = float(spellValue->EffectBasePoints[EFFECT_1]);
-            float multiplier = std::pow(GetEffectInfo()->CalcDamageMultiplier(GetCaster(), GetSpell()), targetIndex);
+            float multiplier = std::pow(GetEffectInfo().CalcDamageMultiplier(GetCaster(), GetSpell()), targetIndex);
             SetHitDamage(int32(originalDamage * multiplier));
         }
     }
@@ -834,7 +836,8 @@ class spell_mage_ring_of_frost : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE });
+        return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE })
+            && !sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffects().empty();
     }
 
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -846,7 +849,7 @@ class spell_mage_ring_of_frost : public AuraScript
     void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         std::list<TempSummon*> minions;
-        GetTarget()->GetAllMinionsByEntry(minions, sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0)->MiscValue);
+        GetTarget()->GetAllMinionsByEntry(minions, sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).MiscValue);
 
         // Get the last summoned RoF, save it and despawn older ones
         for (TempSummon* summon : minions)
@@ -890,13 +893,14 @@ class spell_mage_ring_of_frost_freeze : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE });
+        return ValidateSpellInfo({ SPELL_MAGE_RING_OF_FROST_SUMMON, SPELL_MAGE_RING_OF_FROST_FREEZE })
+            && !sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffects().empty();
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         WorldLocation const* dest = GetExplTargetDest();
-        float outRadius = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0)->CalcRadius();
+        float outRadius = sSpellMgr->AssertSpellInfo(SPELL_MAGE_RING_OF_FROST_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).CalcRadius();
         float inRadius = 6.5f;
 
         targets.remove_if([dest, outRadius, inRadius](WorldObject* target)

@@ -148,7 +148,7 @@ public:
                         // clone
                         player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                         // phase the summon
-                        PhasingHandler::AddPhase(summon, spellInfo->GetEffect(EFFECT_0)->MiscValueB, true);
+                        PhasingHandler::AddPhase(summon, spellInfo->GetEffect(EFFECT_0).MiscValueB, true);
                     }
                 }
                 ++insanityHandled;

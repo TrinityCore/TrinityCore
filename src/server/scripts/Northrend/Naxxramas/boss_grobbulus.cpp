@@ -193,8 +193,8 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0);
-                return effect0 && ValidateSpellInfo({ effect0->TriggerSpell });
+                return !spellInfo->GetEffects().empty()
+                    && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)
@@ -203,7 +203,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
                 if (!aurEff->GetTotalTicks())
                     return;
 
-                uint32 triggerSpell = aurEff->GetSpellEffectInfo()->TriggerSpell;
+                uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
                 int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
 
                 CastSpellExtraArgs args(aurEff);

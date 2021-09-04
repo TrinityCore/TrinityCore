@@ -472,7 +472,7 @@ class spell_dru_ferocious_bite : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE  })
-            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, DIFFICULTY_NONE)->GetEffect(EFFECT_1);
+            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
     }
 
     void HandleHitTargetBurn(SpellEffIndex /*effIndex*/)
@@ -709,7 +709,7 @@ public:
                 spellMod->op = SpellModOp::PeriodicHealingAndDamage;
                 spellMod->type = SPELLMOD_FLAT;
                 spellMod->spellId = GetId();
-                spellMod->mask = aurEff->GetSpellEffectInfo()->SpellClassMask;
+                spellMod->mask = aurEff->GetSpellEffectInfo().SpellClassMask;
             }
             spellMod->value = aurEff->GetAmount() / 7;
         }
@@ -1959,8 +1959,7 @@ public:
 
         bool Validate(SpellInfo const* spellInfo) override
         {
-            SpellEffectInfo const* effect2 = spellInfo->GetEffect(EFFECT_2);
-            if (!effect2 || effect2->IsEffect() || effect2->CalcValue() <= 0)
+            if (spellInfo->GetEffects().size() <= EFFECT_2 || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
                 return false;
             return true;
         }
@@ -1969,7 +1968,7 @@ public:
         {
             targets.remove_if(RaidCheck(GetCaster()));
 
-            uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue(GetCaster()));
+            uint32 const maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
 
             if (targets.size() > maxTargets)
             {
@@ -2010,7 +2009,7 @@ public:
                 return;
 
             // calculate from base damage, not from aurEff->GetAmount() (already modified)
-            float damage = caster->CalculateSpellDamage(GetUnitOwner(), GetSpellInfo(), aurEff->GetEffIndex());
+            float damage = caster->CalculateSpellDamage(GetUnitOwner(), aurEff->GetSpellEffectInfo());
 
             // Wild Growth = first tick gains a 6% bonus, reduced by 2% each tick
             float reduction = 2.f;

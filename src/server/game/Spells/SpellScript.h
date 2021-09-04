@@ -413,8 +413,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         GameObject* GetGObjCaster() const;
         Unit* GetOriginalCaster() const;
         SpellInfo const* GetSpellInfo() const;
+        SpellEffectInfo const& GetEffectInfo(SpellEffIndex effIndex) const;
         SpellValue const* GetSpellValue() const;
-        SpellEffectInfo const* GetEffectInfo(SpellEffIndex effIndex) const;
 
         // methods useable after spell is prepared
         // accessors to the explicit targets of the spell
@@ -490,7 +490,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         void PreventHitDefaultEffect(SpellEffIndex effIndex);
 
         // method available only in EffectHandler method
-        SpellEffectInfo const* GetEffectInfo() const;
+        SpellEffectInfo const& GetEffectInfo() const;
         int32 GetEffectValue() const;
         void SetEffectValue(int32 value);
 
@@ -927,6 +927,7 @@ class TC_GAME_API AuraScript : public _SpellScript
 
         // returns proto of the spell
         SpellInfo const* GetSpellInfo() const;
+        SpellEffectInfo const& GetEffectInfo(SpellEffIndex effIndex) const;
         // returns spellid of the spell
         uint32 GetId() const;
 

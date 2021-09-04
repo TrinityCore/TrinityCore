@@ -437,9 +437,10 @@ class spell_warr_item_t10_prot_4p_bonus : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_item_t10_prot_4p_bonus_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ SPELL_WARRIOR_STOICISM });
+                return ValidateSpellInfo({ SPELL_WARRIOR_STOICISM })
+                    && spellInfo->GetEffects().size() > EFFECT_1;
             }
 
             void HandleProc(ProcEventInfo& eventInfo)
@@ -447,7 +448,7 @@ class spell_warr_item_t10_prot_4p_bonus : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* target = eventInfo.GetActionTarget();
-                int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue());
+                int32 bp0 = CalculatePct(target->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.AddSpellBP0(bp0);
                 target->CastSpell(nullptr, SPELL_WARRIOR_STOICISM, args);
@@ -553,7 +554,7 @@ public:
             if (!ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN }))
                 return false;
 
-            return spellInfo->GetEffect(EFFECT_0) && spellInfo->GetEffect(EFFECT_3);
+            return spellInfo->GetEffects().size() > EFFECT_3;
         }
 
         bool Load() override
@@ -570,8 +571,8 @@ public:
         // Cooldown reduced by 20 sec if it strikes at least 3 targets.
         void HandleAfterCast()
         {
-            if (_targetCount >= uint32(GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue()))
-                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, Seconds(-GetSpellInfo()->GetEffect(EFFECT_3)->CalcValue()));
+            if (_targetCount >= uint32(GetEffectInfo(EFFECT_0).CalcValue()))
+                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, Seconds(-GetEffectInfo(EFFECT_3).CalcValue()));
         }
 
         void Register() override

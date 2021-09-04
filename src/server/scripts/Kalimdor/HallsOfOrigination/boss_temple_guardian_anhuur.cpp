@@ -387,7 +387,7 @@ public:
             {
                 CastSpellExtraArgs args;
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
-                caster->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo()->TriggerSpell, args);
+                caster->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, args);
             }
         }
 
