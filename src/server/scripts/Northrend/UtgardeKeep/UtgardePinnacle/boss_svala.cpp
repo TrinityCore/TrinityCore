@@ -156,7 +156,10 @@ struct boss_svala : public BossAI
         if (_introCompleted)
             events.SetPhase(NORMAL);
         else
+        {
             events.SetPhase(IDLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        }
 
         me->SetDisableGravity(false);
 
