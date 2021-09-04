@@ -835,7 +835,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::AnyArtifactPowerRankPurchased:
             case CriteriaType::CompleteResearchGarrisonTalent:
             case CriteriaType::RecruitAnyGarrisonTroop:
-            case CriteriaType::CompleteAnyQuest:
+            case CriteriaType::CompleteAnyWorldQuest:
             case CriteriaType::ParagonLevelIncreaseWithFaction:
             case CriteriaType::PlayerHasEarnedHonor:
             case CriteriaType::ChooseRelicTalent:
@@ -4164,8 +4164,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaType type)
             return "StartResearchAnyGarrisonTalent";
         case CriteriaType::StartResearchGarrisonTalent:
             return "StartResearchGarrisonTalent";
-        case CriteriaType::CompleteAnyQuest:
-            return "CompleteAnyQuest";
+        case CriteriaType::CompleteAnyWorldQuest:
+            return "CompleteAnyWorldQuest";
         case CriteriaType::EarnLicense:
             return "EarnLicense";
         case CriteriaType::CollectTransmogSetFromGroup:
