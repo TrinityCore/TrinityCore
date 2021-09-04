@@ -288,6 +288,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         TSWorldEntity<TSWorldObject> m_tsWorldEntity;
         std::set<TSWorldObjectGroup*> m_tsGroups;
         void RemoveFromAllGroups();
+        uint64_t m_phase_id = 0;
         // @tswow-end
 
         virtual void Update(uint32 /*time_diff*/) { }
@@ -315,10 +316,16 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
-        virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
+        // @tswow-begin
+        virtual void SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId = 0);
+        // @tswow-end
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
-        bool InSamePhase(WorldObject const* obj) const { return obj && InSamePhase(obj->GetPhaseMask()); }
+        // @tswow-begin
+        bool InSamePhase(uint32 phasemask, uint64 phase_id) const {
+            return GetPhaseMask() == phasemask && phase_id == m_phase_id;
+        }
+        bool InSamePhase(WorldObject const* obj) const { return obj && InSamePhase(obj->GetPhaseMask(),obj->m_phase_id); }
+        // @tswow-end
         static bool InSamePhase(WorldObject const* a, WorldObject const* b) { return a && a->InSamePhase(b); }
 
         uint32 GetZoneId() const { return m_zoneId; }

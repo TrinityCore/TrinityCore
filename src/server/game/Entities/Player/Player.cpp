@@ -22755,19 +22755,21 @@ void Player::UpdateVisibilityForPlayer()
     notifier.SendToSelf();   // send gathered data
 }
 
-void Player::SetPhaseMask(uint32 newPhaseMask, bool update)
+// @tswow-begin
+void Player::SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId)
 {
-    if (newPhaseMask == GetPhaseMask())
+    if (newPhaseMask == GetPhaseMask() && newPhaseId == m_phase_id)
         return;
 
-    Unit::SetPhaseMask(newPhaseMask, false);
+    Unit::SetPhaseMask(newPhaseMask, false, newPhaseId);
 
     if (Unit* vehicle = GetVehicleRoot())
-        vehicle->SetPhaseMask(newPhaseMask, update);
+        vehicle->SetPhaseMask(newPhaseMask, update, newPhaseId);
 
     if (update)
         UpdateObjectVisibility();
 }
+// @tswow-end
 
 void Player::InitPrimaryProfessions()
 {

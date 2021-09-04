@@ -169,7 +169,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = 0);
 
-        void SetPhaseMask(uint32 newPhaseMask, bool update) override;
+        // @tswow-begin
+        void SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId = 0) override;
+        // @tswow-end
 
         void EnableCollision(bool enable);
 

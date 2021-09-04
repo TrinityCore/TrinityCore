@@ -3442,13 +3442,16 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 }
 
-void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
+// @tswow-begin
+void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId)
 {
     m_phaseMask = newPhaseMask;
+    m_phase_id = newPhaseId;
 
     if (update && IsInWorld())
         UpdateObjectVisibility();
 }
+// @tswow-end
 
 void WorldObject::PlayDistanceSound(uint32 soundId, Player* target /*= nullptr*/)
 {

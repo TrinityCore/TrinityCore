@@ -713,23 +713,25 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     return true;
 }
 
-void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
+// @tswow-begin
+void Creature::SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId)
 {
-    if (newPhaseMask == GetPhaseMask())
+    if (newPhaseMask == GetPhaseMask() && newPhaseId == m_phase_id)
         return;
 
-    Unit::SetPhaseMask(newPhaseMask, false);
+    Unit::SetPhaseMask(newPhaseMask, false, newPhaseId);
 
     if (Vehicle* vehicle = GetVehicleKit())
     {
         for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); seat++)
             if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
-                passenger->SetPhaseMask(newPhaseMask, update);
+                passenger->SetPhaseMask(newPhaseMask, update, newPhaseId);
     }
 
     if (update)
         UpdateObjectVisibility();
 }
+// @tswow-end
 
 void Creature::Update(uint32 diff)
 {

@@ -4077,7 +4077,9 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
             else
             {
                 Unit* caster = aura->GetCaster();
-                if (!caster || !caster->InSamePhase(newPhase))
+                // @tswow-begin
+                if (!caster || !caster->InSamePhase(newPhase,this->m_phase_id))
+                // @tswow-end
                     RemoveOwnedAura(iter);
                 else
                     ++iter;
@@ -4092,7 +4094,9 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         Aura* aura = *iter;
-        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
+        // @tswow-begin
+        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase,m_phase_id))
+        // @tswow-end
         {
             aura->Remove();
             iter = scAuras.begin();
@@ -12269,25 +12273,26 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
     return std::max(missChance, 0.f);
 }
 
-void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
+// @tswow-begin
+void Unit::SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId)
 {
-    if (newPhaseMask == GetPhaseMask())
+    if (newPhaseMask == GetPhaseMask() && newPhaseId == m_phase_id)
         return;
 
     // Phase player, dont update
-    WorldObject::SetPhaseMask(newPhaseMask, false);
+    WorldObject::SetPhaseMask(newPhaseMask, false, newPhaseId);
 
     // Phase pets and summons
     if (IsInWorld())
     {
         for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
             if ((*itr)->GetTypeId() == TYPEID_UNIT)
-                (*itr)->SetPhaseMask(newPhaseMask, true);
+                (*itr)->SetPhaseMask(newPhaseMask, true, newPhaseId);
 
         for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
             if (m_SummonSlot[i])
                 if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
-                    summon->SetPhaseMask(newPhaseMask, true);
+                    summon->SetPhaseMask(newPhaseMask, true, newPhaseId);
 
         RemoveNotOwnSingleTargetAuras(newPhaseMask); // we can lost access to caster or target
     }
@@ -12296,6 +12301,7 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
     if (update)
         UpdateObjectVisibility();
 }
+// @tswow-end
 
 void Unit::UpdateObjectVisibility(bool forced)
 {
