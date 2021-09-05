@@ -898,7 +898,7 @@ public:
                         if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                         {
                             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
-                            AddPct(mod, spellInfo->GetEffect(EFFECT_0)->CalcValue());
+                            AddPct(mod, spellInfo->GetEffect(EFFECT_0).CalcValue());
                         }
 
                         int32 const ownerBonus = owner->GetStat(STAT_STAMINA) * mod;
@@ -940,7 +940,7 @@ public:
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
-                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1)->CalcValue());
+                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1).CalcValue());
                 }
 
                 bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
@@ -970,7 +970,7 @@ public:
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
-                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1)->CalcValue());
+                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1).CalcValue());
                 }
 
                 bonusDamage = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod;
@@ -1410,7 +1410,7 @@ public:
                         amount = -90;
                     // Night of the dead
                     else if (Aura* aur = owner->GetAuraOfRankedSpell(SPELL_NIGHT_OF_THE_DEAD))
-                        amount = aur->GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue();
+                        amount = aur->GetSpellInfo()->GetEffect(EFFECT_2).CalcValue();
                 }
             }
         }

@@ -512,9 +512,10 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT });
+                return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT })
+                    && spellInfo->GetEffects().size() > EFFECT_1;
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -524,7 +525,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
                     return;
 
                 Unit* target = GetUnitOwner();
-                target->CastSpell(target, GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue(), false);
+                target->CastSpell(target, GetEffectInfo(EFFECT_1).CalcValue(), false);
             }
 
             void Register() override

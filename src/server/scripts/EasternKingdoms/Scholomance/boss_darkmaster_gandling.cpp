@@ -299,7 +299,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 return InstanceHasScript(GetCaster(), ScholomanceScriptName);
             }
 
-            void HandleSendEvent(SpellEffIndex effIndex)
+            void HandleSendEvent(SpellEffIndex /*effIndex*/)
             {
                 // If only one player in threat list fail spell
 
@@ -309,7 +309,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 int8 phase_to_set = 0;
                 int32 gate_to_close = 0;
 
-                switch (GetSpellInfo()->GetEffect(effIndex)->MiscValue)
+                switch (GetEffectInfo().MiscValue)
                 {
                     case SPELL_EVENT_HALLOFSECRETS:
                         pos_to_summon = 0; // Not yet spawned

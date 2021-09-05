@@ -380,7 +380,7 @@ public:
         void HandleForceCast(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
-            GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true);
+            GetHitUnit()->CastSpell(GetHitUnit(), GetEffectInfo().TriggerSpell, true);
         }
 
         void Register() override
@@ -412,7 +412,7 @@ public:
         void HandleForceCast(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
-            GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true);
+            GetHitUnit()->CastSpell(GetHitUnit(), GetEffectInfo().TriggerSpell, true);
         }
 
         void Register() override

@@ -116,13 +116,19 @@ public:
 
             // this also applies for transform auras
             if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->getTransForm(), unit->GetMap()->GetDifficultyID()))
-                for (SpellEffectInfo const* effect : transform->GetEffects())
-                    if (effect && effect->IsAura(SPELL_AURA_TRANSFORM))
-                        if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(effect->MiscValue))
+            {
+                for (SpellEffectInfo const& spellEffectInfo : transform->GetEffects())
+                {
+                    if (spellEffectInfo.IsAura(SPELL_AURA_TRANSFORM))
+                    {
+                        if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(spellEffectInfo.MiscValue))
                         {
                             cinfo = transformInfo;
                             break;
                         }
+                    }
+                }
+            }
 
             if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 if (receiver->IsGameMaster())

@@ -115,9 +115,9 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     if (IsSelfcast() || !caster || !caster->IsFriendlyTo(GetTarget()))
     {
         bool negativeFound = false;
-        for (SpellEffectInfo const* effect : GetBase()->GetSpellInfo()->GetEffects())
+        for (uint8 i = 0; i < GetBase()->GetSpellInfo()->GetEffects().size(); ++i)
         {
-            if (effect && ((1 << effect->EffectIndex) & effMask) && !GetBase()->GetSpellInfo()->IsPositiveEffect(effect->EffectIndex))
+            if (((1 << i) & effMask) && !GetBase()->GetSpellInfo()->IsPositiveEffect(i))
             {
                 negativeFound = true;
                 break;
@@ -130,9 +130,9 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     else
     {
         bool positiveFound = false;
-        for (SpellEffectInfo const* effect : GetBase()->GetSpellInfo()->GetEffects())
+        for (uint8 i = 0; i < GetBase()->GetSpellInfo()->GetEffects().size(); ++i)
         {
-            if (effect && ((1 << effect->EffectIndex) & effMask) && GetBase()->GetSpellInfo()->IsPositiveEffect(effect->EffectIndex))
+            if (((1 << i) & effMask) && GetBase()->GetSpellInfo()->IsPositiveEffect(i))
             {
                 positiveFound = true;
                 break;
@@ -300,17 +300,17 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availab
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            for (SpellEffectInfo const* effect : spellProto->GetEffects())
+            for (SpellEffectInfo const& spellEffectInfo : spellProto->GetEffects())
             {
-                if (effect && effect->IsUnitOwnedAuraEffect())
-                    effMask |= 1 << effect->EffectIndex;
+                if (spellEffectInfo.IsUnitOwnedAuraEffect())
+                    effMask |= 1 << spellEffectInfo.EffectIndex;
             }
             break;
         case TYPEID_DYNAMICOBJECT:
-            for (SpellEffectInfo const* effect : spellProto->GetEffects())
+            for (SpellEffectInfo const& spellEffectInfo : spellProto->GetEffects())
             {
-                if (effect && effect->Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
-                    effMask |= 1 << effect->EffectIndex;
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
+                    effMask |= 1 << spellEffectInfo.EffectIndex;
             }
             break;
         default:
@@ -482,9 +482,9 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 const* baseAmount)
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
     _effects.resize(GetSpellInfo()->GetEffects().size());
 
-    for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
-        if (effect && effMask & (1 << effect->EffectIndex))
-            _effects[effect->EffectIndex] = new AuraEffect(this, effect, baseAmount ? baseAmount + effect->EffectIndex : nullptr, caster);
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
+        if (effMask & (1 << spellEffectInfo.EffectIndex))
+            _effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount ? baseAmount + spellEffectInfo.EffectIndex : nullptr, caster);
 }
 
 Aura::~Aura()
@@ -643,9 +643,9 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
     {
         bool addUnit = true;
         // check target immunities
-        for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-            if (itr->first->IsImmunedToSpellEffect(GetSpellInfo(), effIndex, caster))
-                itr->second &= ~(1 << effIndex);
+        for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
+            if (itr->first->IsImmunedToSpellEffect(GetSpellInfo(), spellEffectInfo, caster))
+                itr->second &= ~(1 << spellEffectInfo.EffectIndex);
 
         if (!itr->second || itr->first->IsImmunedToSpell(GetSpellInfo(), caster) || !CanBeAppliedOn(itr->first))
             addUnit = false;
@@ -1071,8 +1071,8 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
 bool Aura::HasMoreThanOneEffectForType(AuraType auraType) const
 {
     uint32 count = 0;
-    for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
-        if (effect && HasEffect(effect->EffectIndex) && AuraType(effect->ApplyAuraName) == auraType)
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
+        if (HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.ApplyAuraName == auraType)
             ++count;
 
     return count > 1;
@@ -1080,8 +1080,8 @@ bool Aura::HasMoreThanOneEffectForType(AuraType auraType) const
 
 bool Aura::IsArea() const
 {
-    for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
-        if (effect && HasEffect(effect->EffectIndex) && effect->IsAreaAuraEffect())
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
+        if (HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.IsAreaAuraEffect())
             return true;
 
     return false;
@@ -1117,12 +1117,12 @@ bool Aura::CanBeSaved() const
     if (GetCasterGUID() != GetOwner()->GetGUID())
     {
         // owner == caster for area auras, check for possible bad data in DB
-        for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
+        for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
         {
-            if (!effect || !effect->IsEffect())
+            if (!spellEffectInfo.IsEffect())
                 continue;
 
-            if (effect->IsTargetingArea() || effect->IsAreaAuraEffect())
+            if (spellEffectInfo.IsTargetingArea() || spellEffectInfo.IsAreaAuraEffect())
                 return false;
         }
 
@@ -1568,17 +1568,17 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     if (IsPassive() && sameCaster && (m_spellInfo->IsDifferentRankOf(existingSpellInfo) || (m_spellInfo->Id == existingSpellInfo->Id && m_castItemGuid.IsEmpty())))
         return false;
 
-    for (SpellEffectInfo const* effect : existingSpellInfo->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : existingSpellInfo->GetEffects())
     {
         // prevent remove triggering aura by triggered aura
-        if (effect && effect->TriggerSpell == GetId())
+        if (spellEffectInfo.TriggerSpell == GetId())
             return true;
     }
 
-    for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
         // prevent remove triggered aura by triggering aura refresh
-        if (effect && effect->TriggerSpell == existingAura->GetId())
+        if (spellEffectInfo.TriggerSpell == existingAura->GetId())
             return true;
     }
 
@@ -1625,36 +1625,39 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
 
         // check same periodic auras
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        auto hasPeriodicNonAreaEffect = [](SpellInfo const* spellInfo)
         {
-            SpellEffectInfo const* effect = m_spellInfo->GetEffect(i);
-            if (!effect)
-                continue;
-            switch (effect->ApplyAuraName)
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
             {
-                // DOT or HOT from different casters will stack
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_PERIODIC_DUMMY:
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_POWER_BURN:
-                case SPELL_AURA_OBS_MOD_POWER:
-                case SPELL_AURA_OBS_MOD_HEALTH:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                    {
-                        SpellEffectInfo const* existingEffect = m_spellInfo->GetEffect(i);
+                switch (spellEffectInfo.ApplyAuraName)
+                {
+                    // DOT or HOT from different casters will stack
+                    case SPELL_AURA_PERIODIC_DAMAGE:
+                    case SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE:
+                    case SPELL_AURA_PERIODIC_DUMMY:
+                    case SPELL_AURA_PERIODIC_HEAL:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                    case SPELL_AURA_PERIODIC_ENERGIZE:
+                    case SPELL_AURA_PERIODIC_MANA_LEECH:
+                    case SPELL_AURA_PERIODIC_LEECH:
+                    case SPELL_AURA_POWER_BURN:
+                    case SPELL_AURA_OBS_MOD_POWER:
+                    case SPELL_AURA_OBS_MOD_HEALTH:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                    case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                         // periodic auras which target areas are not allowed to stack this way (replenishment for example)
-                        if (effect->IsTargetingArea() || (existingEffect && existingEffect->IsTargetingArea()))
-                            break;
-                    }
-                    return true;
-                default:
-                    break;
+                        if (spellEffectInfo.IsTargetingArea())
+                            return false;
+                        return true;
+                    default:
+                        break;
+                }
             }
-        }
+            return false;
+        };
+
+        if (hasPeriodicNonAreaEffect(m_spellInfo) && hasPeriodicNonAreaEffect(existingSpellInfo))
+            return true;
     }
 
     if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && existingAura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
@@ -2382,13 +2385,13 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         if (Unit* target = ObjectAccessor::GetUnit(*GetUnitOwner(), targetPair.first))
             targets.emplace(target, targetPair.second);
 
-    for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
-        if (!effect || !HasEffect(effect->EffectIndex))
+        if (!HasEffect(spellEffectInfo.EffectIndex))
             continue;
 
         // area auras only
-        if (effect->Effect == SPELL_EFFECT_APPLY_AURA)
+        if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA))
             continue;
 
         // skip area update if owner is not in world!
@@ -2399,11 +2402,11 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             continue;
 
         std::vector<Unit*> units;
-        ConditionContainer* condList = effect->ImplicitTargetConditions;
+        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
 
-        float radius = effect->CalcRadius(ref);
+        float radius = spellEffectInfo.CalcRadius(ref);
         SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
-        switch (effect->Effect)
+        switch (spellEffectInfo.Effect)
         {
             case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
             case SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM:
@@ -2445,6 +2448,8 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                 selectionType = TARGET_CHECK_SUMMONED;
                 break;
             }
+            default:
+                break;
         }
 
         if (selectionType != TARGET_CHECK_DEFAULT)
@@ -2458,17 +2463,17 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         }
 
         for (Unit* unit : units)
-            targets[unit] |= 1 << effect->EffectIndex;
+            targets[unit] |= 1 << spellEffectInfo.EffectIndex;
     }
 }
 
 void UnitAura::AddStaticApplication(Unit* target, uint32 effMask)
 {
     // only valid for non-area auras
-    for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
-        if (effect && (effMask & (1 << effect->EffectIndex)) && effect->Effect != SPELL_EFFECT_APPLY_AURA)
-            effMask &= ~(1 << effect->EffectIndex);
+        if ((effMask & (1 << spellEffectInfo.EffectIndex)) && !spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA))
+            effMask &= ~(1 << spellEffectInfo.EffectIndex);
     }
 
     if (!effMask)
@@ -2500,18 +2505,18 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
     Unit* dynObjOwnerCaster = GetDynobjOwner()->GetCaster();
     float radius = GetDynobjOwner()->GetRadius();
 
-    for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : GetSpellInfo()->GetEffects())
     {
-        if (!effect || !HasEffect(effect->EffectIndex))
+        if (!HasEffect(spellEffectInfo.EffectIndex))
             continue;
 
         // we can't use effect type like area auras to determine check type, check targets
-        SpellTargetCheckTypes selectionType = effect->TargetA.GetCheckType();
-        if (effect->TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
-            selectionType = effect->TargetB.GetCheckType();
+        SpellTargetCheckTypes selectionType = spellEffectInfo.TargetA.GetCheckType();
+        if (spellEffectInfo.TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
+            selectionType = spellEffectInfo.TargetB.GetCheckType();
 
         std::vector<Unit*> units;
-        ConditionContainer* condList = effect->ImplicitTargetConditions;
+        ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
 
         Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetDynobjOwner(), units, check);
@@ -2521,6 +2526,6 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit*
         units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetDynobjOwner()); }), units.end());
 
         for (Unit* unit : units)
-            targets[unit] |= 1 << effect->EffectIndex;
+            targets[unit] |= 1 << spellEffectInfo.EffectIndex;
     }
 }

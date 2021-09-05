@@ -2494,14 +2494,14 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_summon_into_air_SpellScript);
 
-            void ModDestHeight(SpellEffIndex effIndex)
+            void ModDestHeight(SpellEffIndex /*effIndex*/)
             {
                 static Position const offset = {0.0f, 0.0f, 15.0f, 0.0f};
                 WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
                 dest->RelocateOffset(offset);
                 GetHitDest()->RelocateOffset(offset);
                 // spirit bombs get higher
-                if (GetSpellInfo()->GetEffect(effIndex)->MiscValue == NPC_SPIRIT_BOMB)
+                if (GetEffectInfo().MiscValue == NPC_SPIRIT_BOMB)
                 {
                     static Position const offsetExtra = { 0.0f, 0.0f, 5.0f, 0.0f };
                     dest->RelocateOffset(offsetExtra);
@@ -2695,7 +2695,7 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 if (_is25Man || ((aurEff->GetTickNumber() - 1) % 5))
-                    GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo()->TriggerSpell, { aurEff, GetCasterGUID() });
+                    GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, { aurEff, GetCasterGUID() });
             }
 
             void Register() override
