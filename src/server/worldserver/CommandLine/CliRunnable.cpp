@@ -139,7 +139,6 @@ void CliThread()
         FlashWindowEx(&fInfo);
     }
 #endif
-    
     ///- As long as the World is running (no World::m_stopEvent), get the command line and handle it
     while (!World::IsStopped())
     {
