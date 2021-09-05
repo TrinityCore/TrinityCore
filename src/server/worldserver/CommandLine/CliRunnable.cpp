@@ -128,7 +128,7 @@ void CliThread()
         printf("\a");                                       // \a = Alert
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    if (sConfigMgr->GetBoolDefault("FlushAtStart", true))
+    if (sConfigMgr->GetBoolDefault("FlashAtStart", true))
     {
         FLASHWINFO fInfo;
         fInfo.cbSize = sizeof(FLASHWINFO);

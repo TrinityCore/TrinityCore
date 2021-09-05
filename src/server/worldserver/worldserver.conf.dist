@@ -1208,12 +1208,12 @@ Event.Announce = 0
 BeepAtStart = 1
 
 #
-#    FlushAtStart
-#        Description: Flush when the world server finished starting.
+#    FlashAtStart
+#        Description: Flash when the world server finished starting.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-FlushAtStart = 1
+FlashAtStart = 1
 
 #
 #    Motd
