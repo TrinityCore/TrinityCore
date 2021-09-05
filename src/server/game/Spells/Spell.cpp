@@ -4402,25 +4402,14 @@ void Spell::SendSpellGo()
     {
         castData.RemainingRunes = boost::in_place();
 
-        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
-        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
-        if (Player* player = m_caster->ToPlayer())
+        Player* player = ASSERT_NOTNULL(m_caster->ToPlayer());
+        castData.RemainingRunes->Start = m_runesState; // runes state before
+        castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
+        for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
         {
-            castData.RemainingRunes->Start = m_runesState; // runes state before
-            castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
-            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
-            {
-                // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown());
-                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-            }
-        }
-        else
-        {
-            castData.RemainingRunes->Start = 0;
-            castData.RemainingRunes->Count = 0;
-            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
-                castData.RemainingRunes->Cooldowns.push_back(0);
+            // float casts ensure the division is performed on floats as we need float result
+            float baseCd = float(player->GetRuneBaseCooldown());
+            castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
         }
     }
 
