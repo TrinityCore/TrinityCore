@@ -1209,7 +1209,7 @@ BeepAtStart = 1
 
 #
 #    FlashAtStart
-#        Description: Flash when the world server finished starting.
+#        Description: Flash when the world server finished starting. (Works on Windows only)
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
