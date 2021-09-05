@@ -137,26 +137,22 @@ void Totem::UnSummon(uint32 msTime)
     AddObjectToRemoveList();
 }
 
-bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
+bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const
 {
     /// @todo possibly all negative auras immune?
     if (GetEntry() == 5925)
         return false;
-    if (SpellEffectInfo const* effect = spellInfo->GetEffect(index))
-    {
-        switch (effect->ApplyAuraName)
-        {
-            case SPELL_AURA_PERIODIC_DAMAGE:
-            case SPELL_AURA_PERIODIC_LEECH:
-            case SPELL_AURA_MOD_FEAR:
-            case SPELL_AURA_TRANSFORM:
-                return true;
-            default:
-                break;
-        }
-    }
-    else
-        return true;
 
-    return Creature::IsImmunedToSpellEffect(spellInfo, index, caster);
+    switch (spellEffectInfo.ApplyAuraName)
+    {
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_PERIODIC_LEECH:
+        case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_TRANSFORM:
+            return true;
+        default:
+            break;
+    }
+
+    return Creature::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster);
 }

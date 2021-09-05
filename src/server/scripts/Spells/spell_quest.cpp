@@ -634,14 +634,19 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12683_take_sputum_sample_SpellScript);
 
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return spellInfo->GetEffects().size() > EFFECT_1;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                uint32 reqAuraId = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
+                uint32 reqAuraId = GetEffectInfo(EFFECT_1).CalcValue();
 
                 Unit* caster = GetCaster();
                 if (caster->HasAuraEffect(reqAuraId, 0))
                 {
-                    uint32 spellId = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
+                    uint32 spellId = GetEffectInfo().CalcValue();
                     caster->CastSpell(caster, spellId, true);
                 }
             }
@@ -1916,7 +1921,8 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
+                return !spellInfo->GetEffects().empty()
+                    && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
             }
 
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
@@ -2160,7 +2166,7 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
 
             void ModDest(SpellDestination& dest)
             {
-                float dist = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(GetCaster());
+                float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
                 float angle = frand(0.75f, 1.25f) * float(M_PI);
 
                 Position pos = GetCaster()->GetNearPosition(dist, angle);
@@ -2301,7 +2307,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, aurEff->GetSpellEffectInfo()->TriggerSpell, aurEff);
+                    caster->CastSpell(caster, aurEff->GetSpellEffectInfo().TriggerSpell, aurEff);
             }
 
             void Register() override

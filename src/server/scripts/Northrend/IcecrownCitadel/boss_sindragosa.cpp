@@ -1571,14 +1571,17 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frostwarden_handler_focus_fire_AuraScript);
 
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return spellInfo->GetEffects().size() > EFFECT_1;
+            }
+
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    if (SpellEffectInfo const* effect = GetSpellInfo()->GetEffect(EFFECT_1))
-                        caster->GetThreatManager().AddThreat(GetTarget(), -float(effect->CalcValue()), GetSpellInfo(), true, true);
-
+                    caster->GetThreatManager().AddThreat(GetTarget(), -float(GetEffectInfo(EFFECT_1).CalcValue()), GetSpellInfo(), true, true);
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }

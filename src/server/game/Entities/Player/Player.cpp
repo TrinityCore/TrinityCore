@@ -1663,19 +1663,15 @@ void Player::SetObjectScale(float scale)
         SendMovementSetCollisionHeight(scale * GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Scale);
 }
 
-bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
+bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const
 {
-    SpellEffectInfo const* effect = spellInfo->GetEffect(index);
-    if (!effect || !effect->IsEffect())
-        return false;
-
     // players are immune to taunt (the aura and the spell effect).
-    if (effect->IsAura(SPELL_AURA_MOD_TAUNT))
+    if (spellEffectInfo.IsAura(SPELL_AURA_MOD_TAUNT))
         return true;
-    if (effect->IsEffect(SPELL_EFFECT_ATTACK_ME))
+    if (spellEffectInfo.IsEffect(SPELL_EFFECT_ATTACK_ME))
         return true;
 
-    return Unit::IsImmunedToSpellEffect(spellInfo, index, caster);
+    return Unit::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster);
 }
 
 void Player::RegenerateAll()
@@ -2724,9 +2720,9 @@ void Player::RemoveTalent(TalentEntry const* talent)
     RemoveSpell(talent->SpellID, true);
 
     // search for spells that the talent teaches and unlearn them
-    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
-        if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
-            RemoveSpell(effect->TriggerSpell, true);
+    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+        if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
+            RemoveSpell(spellEffectInfo.TriggerSpell, true);
 
     if (talent->OverridesSpellID)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
@@ -3123,13 +3119,15 @@ bool Player::HandlePassiveSpellLearn(SpellInfo const* spellInfo)
     // passive spells which apply aura and have an item requirement are to be added manually, instead of casted
     if (spellInfo->EquippedItemClass >= 0)
     {
-        for (SpellEffectInfo const* effectInfo : spellInfo->GetEffects())
-            if (effectInfo && effectInfo->IsAura())
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+        {
+            if (spellEffectInfo.IsAura())
             {
                 if (!HasAura(spellInfo->Id) && HasItemFitToSpellRequirements(spellInfo))
                     AddAura(spellInfo->Id, this);
                 return false;
             }
+        }
     }
 
     //Check CasterAuraStates
@@ -8096,7 +8094,7 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
                         continue;
 
                     if (powerAura->HasEffect(auraEffect->GetEffIndex()))
-                        auraEffect->ChangeAmount(artifactPowerRank->AuraPointsOverride ? artifactPowerRank->AuraPointsOverride : auraEffect->GetSpellEffectInfo()->CalcValue());
+                        auraEffect->ChangeAmount(artifactPowerRank->AuraPointsOverride ? artifactPowerRank->AuraPointsOverride : auraEffect->GetSpellEffectInfo().CalcValue());
                 }
             }
             else
@@ -8108,9 +8106,8 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
             args.TriggerFlags = TRIGGERED_FULL_MASK;
             args.CastItem = artifact;
             if (artifactPowerRank->AuraPointsOverride)
-                for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if (spellInfo->GetEffect(i))
-                        args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), artifactPowerRank->AuraPointsOverride);
+                for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                    args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + spellEffectInfo.EffectIndex), artifactPowerRank->AuraPointsOverride);
 
             CastSpell(this, artifactPowerRank->SpellID, args);
         }
@@ -8409,11 +8406,9 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
                     int32 const effectPct = std::max(0, 100 - (lvlDifference * lvlPenaltyFactor));
 
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    {
-                        if (spellInfo->GetEffect(i)->IsEffect())
-                            args.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + i), CalculatePct(spellInfo->GetEffect(i)->CalcValue(this), effectPct));
-                    }
+                    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                        if (spellEffectInfo.IsEffect())
+                            args.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + spellEffectInfo.EffectIndex), CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
                 }
                 CastSpell(target, spellInfo->Id, args);
             }
@@ -24560,9 +24555,9 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
 
     // check learned spells state
     bool found = false;
-    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
     {
-        if (effect && effect->Effect == SPELL_EFFECT_LEARN_SPELL && !HasSpell(effect->TriggerSpell))
+        if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && !HasSpell(spellEffectInfo.TriggerSpell))
         {
             found = true;
             break;
@@ -24573,11 +24568,11 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
     if (!found)
         return;
 
-    SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
-    if (!effect)
+    if (spellInfo->GetEffects().empty())
         return;
 
-    uint32 learned_0 = effect->TriggerSpell;
+    SpellEffectInfo const& effect = spellInfo->GetEffect(EFFECT_0);
+    uint32 learned_0 = effect.TriggerSpell;
     if (!HasSpell(learned_0))
     {
         found = false;
@@ -25264,11 +25259,9 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
 
                     // special check to filter things like Shield Wall, the aura is not permanent and must stay even without required item
                     if (!spellInfo->IsPassive())
-                    {
-                        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
-                            if (effect && effect->IsAura())
+                        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                            if (spellEffectInfo.IsAura())
                                 return true;
-                    }
                 }
 
                 // tabard not have dependent spells
@@ -27461,9 +27454,9 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         RemoveSpell(talentInfo->SpellID, true);
 
         // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
-            if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
-                RemoveSpell(effect->TriggerSpell, true);
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+            if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
+                RemoveSpell(spellEffectInfo.TriggerSpell, true);
 
         if (talentInfo->OverridesSpellID)
             RemoveOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
@@ -27482,9 +27475,9 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         RemoveSpell(talentInfo->SpellID, true);
 
         // search for spells that the talent teaches and unlearn them
-        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
-            if (effect && effect->TriggerSpell > 0 && effect->Effect == SPELL_EFFECT_LEARN_SPELL)
-                RemoveSpell(effect->TriggerSpell, true);
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+            if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL) && spellEffectInfo.TriggerSpell > 0)
+                RemoveSpell(spellEffectInfo.TriggerSpell, true);
 
         if (talentInfo->OverridesSpellID)
             RemoveOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);

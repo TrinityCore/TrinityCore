@@ -811,7 +811,7 @@ class spell_valkyr_essences : public SpellScriptLoader
                             GetTarget()->CastSpell(GetTarget(), SPELL_SURGE_OF_SPEED, true);
 
                         // Twin Vortex part
-                        int32 stacksCount = dmgInfo.GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue() / 1000 - 1;
+                        int32 stacksCount = dmgInfo.GetSpellInfo()->GetEffect(EFFECT_0).CalcValue() / 1000 - 1;
 
                         if (stacksCount)
                         {

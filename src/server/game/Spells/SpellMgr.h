@@ -579,10 +579,9 @@ struct PetDefaultSpellsEntry
 // < 0 for petspelldata id, > 0 for creature_id
 typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 
-typedef std::vector<uint32> SpellCustomAttribute;
 typedef std::vector<bool> EnchantCustomAttribute;
 
-typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
+typedef std::unordered_map<int32, std::vector<int32>> SpellLinkedMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
 
@@ -692,7 +691,7 @@ class TC_GAME_API SpellMgr
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const;
         bool IsArenaAllowedEnchancment(uint32 ench_id) const;
 
-        const std::vector<int32> *GetSpellLinked(int32 spell_id) const;
+        std::vector<int32> const* GetSpellLinked(int32 spell_id) const;
 
         PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;

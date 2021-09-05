@@ -1327,7 +1327,7 @@ public:
 
         bool Validate(SpellInfo const* spellInfo) override
         {
-            return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
+            return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)

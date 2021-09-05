@@ -2361,12 +2361,9 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* c
         return false;
 
     bool immunedToAllEffects = true;
-    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
     {
-        if (!effect || !effect->IsEffect())
-            continue;
-
-        if (!IsImmunedToSpellEffect(spellInfo, effect->EffectIndex, caster))
+        if (spellEffectInfo.IsEffect() && !IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster))
         {
             immunedToAllEffects = false;
             break;
@@ -2379,16 +2376,12 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* c
     return Unit::IsImmunedToSpell(spellInfo, caster);
 }
 
-bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
+bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const
 {
-    SpellEffectInfo const* effect = spellInfo->GetEffect(index);
-    if (!effect)
+    if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && spellEffectInfo.IsEffect(SPELL_EFFECT_HEAL))
         return true;
 
-    if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && effect->Effect == SPELL_EFFECT_HEAL)
-        return true;
-
-    return Unit::IsImmunedToSpellEffect(spellInfo, index, caster);
+    return Unit::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster);
 }
 
 bool Creature::isElite() const

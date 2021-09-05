@@ -4939,12 +4939,12 @@ void ObjectMgr::LoadQuests()
         if (!spellInfo)
             continue;
 
-        for (SpellEffectInfo const* effect : spellInfo->GetEffects())
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
         {
-            if (!effect || effect->Effect != SPELL_EFFECT_QUEST_COMPLETE)
+            if (spellEffectInfo.Effect != SPELL_EFFECT_QUEST_COMPLETE)
                 continue;
 
-            uint32 quest_id = effect->MiscValue;
+            uint32 quest_id = spellEffectInfo.MiscValue;
 
             Quest const* quest = GetQuestTemplate(quest_id);
 
@@ -5506,11 +5506,16 @@ void ObjectMgr::LoadSpellScripts()
             continue;
         }
 
-        uint8 i = (uint8)((uint32(itr->first) >> 24) & 0x000000FF);
+        SpellEffIndex i = SpellEffIndex((uint32(itr->first) >> 24) & 0x000000FF);
+        if (uint32(i) >= spellInfo->GetEffects().size())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` has too high effect index %u for spell (Id: %u) as script id", uint32(i), spellId);
+            continue;
+        }
+
         //check for correct spellEffect
-        SpellEffectInfo const* effect = spellInfo->GetEffect(i);
-        if (effect && (!effect->Effect || (effect->Effect != SPELL_EFFECT_SCRIPT_EFFECT && effect->Effect != SPELL_EFFECT_DUMMY)))
-            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, i);
+        if (!spellInfo->GetEffect(i).Effect || (spellInfo->GetEffect(i).Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->GetEffect(i).Effect != SPELL_EFFECT_DUMMY))
+            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, uint32(i));
     }
 }
 
@@ -5527,10 +5532,10 @@ void ObjectMgr::LoadEventScripts()
     // Load all possible script entries from spells
     for (SpellNameEntry const* spellNameEntry : sSpellNameStore)
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellNameEntry->ID, DIFFICULTY_NONE))
-            for (SpellEffectInfo const* effect : spell->GetEffects())
-                if (effect && effect->Effect == SPELL_EFFECT_SEND_EVENT)
-                    if (effect->MiscValue)
-                        evt_scripts.insert(effect->MiscValue);
+            for (SpellEffectInfo const& spellEffectInfo : spell->GetEffects())
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_SEND_EVENT))
+                    if (spellEffectInfo.MiscValue)
+                        evt_scripts.insert(spellEffectInfo.MiscValue);
 
     for (size_t path_idx = 0; path_idx < sTaxiPathNodesByPath.size(); ++path_idx)
     {

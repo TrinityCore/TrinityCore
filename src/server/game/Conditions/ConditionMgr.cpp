@@ -1372,38 +1372,34 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
     {
         uint32 conditionEffMask = cond->SourceGroup;
         std::list<uint32> sharedMasks;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
         {
-            SpellEffectInfo const* effect = spellInfo->GetEffect(i);
-            if (!effect)
-                continue;
-
             // additional checks by condition type
-            if (conditionEffMask & (1 << i))
+            if (conditionEffMask & (1 << spellEffectInfo.EffectIndex))
             {
                 switch (cond->ConditionType)
                 {
                     case CONDITION_OBJECT_ENTRY_GUID:
                     {
-                        uint32 implicitTargetMask = GetTargetFlagMask(effect->TargetA.GetObjectType()) | GetTargetFlagMask(effect->TargetB.GetObjectType());
+                        uint32 implicitTargetMask = GetTargetFlagMask(spellEffectInfo.TargetA.GetObjectType()) | GetTargetFlagMask(spellEffectInfo.TargetB.GetObjectType());
                         if ((implicitTargetMask & TARGET_FLAG_UNIT_MASK) && cond->ConditionValue1 != TYPEID_UNIT && cond->ConditionValue1 != TYPEID_PLAYER)
                         {
                             TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
-                                "target requires ConditionValue1 to be either TYPEID_UNIT (%u) or TYPEID_PLAYER (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_UNIT), uint32(TYPEID_PLAYER));
+                                "target requires ConditionValue1 to be either TYPEID_UNIT (%u) or TYPEID_PLAYER (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_UNIT), uint32(TYPEID_PLAYER));
                             return;
                         }
 
                         if ((implicitTargetMask & TARGET_FLAG_GAMEOBJECT_MASK) && cond->ConditionValue1 != TYPEID_GAMEOBJECT)
                         {
                             TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
-                                "target requires ConditionValue1 to be TYPEID_GAMEOBJECT (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_GAMEOBJECT));
+                                "target requires ConditionValue1 to be TYPEID_GAMEOBJECT (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_GAMEOBJECT));
                             return;
                         }
 
                         if ((implicitTargetMask & TARGET_FLAG_CORPSE_MASK) && cond->ConditionValue1 != TYPEID_CORPSE)
                         {
                             TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
-                                "target requires ConditionValue1 to be TYPEID_CORPSE (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_CORPSE));
+                                "target requires ConditionValue1 to be TYPEID_CORPSE (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_CORPSE));
                             return;
                         }
                         break;
@@ -1414,22 +1410,16 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
             }
 
             // check if effect is already a part of some shared mask
-            auto itr = std::find_if(sharedMasks.begin(), sharedMasks.end(), [i](uint32 mask) { return !!(mask & (1 << i)); });
+            auto itr = std::find_if(sharedMasks.begin(), sharedMasks.end(), [&](uint32 mask) { return !!(mask & (1 << spellEffectInfo.EffectIndex)); });
             if (itr != sharedMasks.end())
                 continue;
 
             // build new shared mask with found effect
-            uint32 sharedMask = 1 << i;
-            ConditionContainer* cmp = effect->ImplicitTargetConditions;
-            for (uint8 effIndex = i + 1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-            {
-                SpellEffectInfo const* inner = spellInfo->GetEffect(effIndex);
-                if (!inner)
-                    continue;
-
-                if (inner->ImplicitTargetConditions == cmp)
+            uint32 sharedMask = 1 << spellEffectInfo.EffectIndex;
+            ConditionContainer* cmp = spellEffectInfo.ImplicitTargetConditions;
+            for (size_t effIndex = spellEffectInfo.EffectIndex + 1; effIndex < spellInfo->GetEffects().size(); ++effIndex)
+                if (spellInfo->GetEffect(SpellEffIndex(effIndex)).ImplicitTargetConditions == cmp)
                     sharedMask |= 1 << effIndex;
-            }
 
             sharedMasks.push_back(sharedMask);
         }
@@ -1439,20 +1429,16 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
             // some effect indexes should have same data
             if (uint32 commonMask = effectMask & conditionEffMask)
             {
-                uint8 firstEffIndex = 0;
-                for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
+                size_t firstEffIndex = 0;
+                for (; firstEffIndex < spellInfo->GetEffects().size(); ++firstEffIndex)
                     if ((1 << firstEffIndex) & effectMask)
                         break;
 
-                if (firstEffIndex >= MAX_SPELL_EFFECTS)
+                if (firstEffIndex >= spellInfo->GetEffects().size())
                     return;
 
-                SpellEffectInfo const* effect = spellInfo->GetEffect(firstEffIndex);
-                if (!effect)
-                    continue;
-
                 // get shared data
-                ConditionContainer* sharedList = effect->ImplicitTargetConditions;
+                ConditionContainer* sharedList = spellInfo->GetEffect(SpellEffIndex(firstEffIndex)).ImplicitTargetConditions;
 
                 // there's already data entry for that sharedMask
                 if (sharedList)
@@ -1472,15 +1458,11 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
                     // add new list, create new shared mask
                     sharedList = new ConditionContainer();
                     bool assigned = false;
-                    for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+                    for (size_t i = firstEffIndex; i < spellInfo->GetEffects().size(); ++i)
                     {
-                        SpellEffectInfo const* eff = spellInfo->GetEffect(i);
-                        if (!eff)
-                            continue;
-
                         if ((1 << i) & commonMask)
                         {
-                            const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = sharedList;
+                            const_cast<SpellEffectInfo&>(spellInfo->GetEffect(SpellEffIndex(i))).ImplicitTargetConditions = sharedList;
                             assigned = true;
                         }
                     }
@@ -1767,19 +1749,15 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
             uint32 origGroup = cond->SourceGroup;
 
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
             {
-                if (!((1 << i) & cond->SourceGroup))
+                if (!((1 << spellEffectInfo.EffectIndex) & cond->SourceGroup))
                     continue;
 
-                SpellEffectInfo const* effect = spellInfo->GetEffect(i);
-                if (!effect)
+                if (spellEffectInfo.ChainTargets > 0)
                     continue;
 
-                if (effect->ChainTargets > 0)
-                    continue;
-
-                switch (effect->TargetA.GetSelectionCategory())
+                switch (spellEffectInfo.TargetA.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
@@ -1791,7 +1769,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                         break;
                 }
 
-                switch (effect->TargetB.GetSelectionCategory())
+                switch (spellEffectInfo.TargetB.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
@@ -1803,8 +1781,8 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                         break;
                 }
 
-                TC_LOG_ERROR("sql.sql", "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, __CHAIN__ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(i));
-                cond->SourceGroup &= ~(1 << i);
+                TC_LOG_ERROR("sql.sql", "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, __CHAIN__ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(spellEffectInfo.EffectIndex));
+                cond->SourceGroup &= ~(1 << spellEffectInfo.EffectIndex);
             }
             // all effects were removed, no need to add the condition at all
             if (!cond->SourceGroup)

@@ -286,12 +286,9 @@ bool EquippedOk(Player* player, uint32 spellId)
     if (!spell)
         return false;
 
-    for (SpellEffectInfo const* effect : spell->GetEffects())
+    for (SpellEffectInfo const& spellEffectInfo : spell->GetEffects())
     {
-        if (!effect)
-            continue;
-
-        uint32 reqSpell = effect->TriggerSpell;
+        uint32 reqSpell = spellEffectInfo.TriggerSpell;
         if (!reqSpell)
             continue;
 

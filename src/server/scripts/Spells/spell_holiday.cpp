@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "World.h"
@@ -539,6 +540,13 @@ class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pilgrims_bounty_feast_on_SpellScript);
 
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return !spellInfo->GetEffects().empty()
+                    && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) })
+                    && !sSpellMgr->AssertSpellInfo(spellInfo->GetEffect(EFFECT_0).CalcValue(), DIFFICULTY_NONE)->GetEffects().empty();
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
@@ -576,8 +584,7 @@ class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
                 if (Aura* aura = caster->GetAura(GetEffectValue()))
                 {
                     if (aura->GetStackAmount() == 1)
-                        if (SpellEffectInfo const* effect = aura->GetSpellInfo()->GetEffect(EFFECT_0))
-                            caster->RemoveAurasDueToSpell(effect->CalcValue());
+                        caster->RemoveAurasDueToSpell(aura->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue());
                     aura->ModStackAmount(-1);
                 }
             }
@@ -1328,7 +1335,7 @@ class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScript
                 PreventHitDefaultEffect(effIndex);
                 // All this spells trigger a spell that requires reagents; if the
                 // triggered spell is cast as "triggered", reagents are not consumed
-                GetHitUnit()->CastSpell(nullptr, GetEffectInfo()->TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+                GetHitUnit()->CastSpell(nullptr, GetEffectInfo().TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
             }
 
             void Register() override

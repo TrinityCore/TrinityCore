@@ -1583,7 +1583,7 @@ class spell_freya_iron_roots : public SpellScriptLoader
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 entry = uint32(GetSpellInfo()->GetEffect(effIndex)->MiscValue);
+                uint32 entry = uint32(GetEffectInfo().MiscValue);
 
                 Position pos = GetCaster()->GetPosition();
                 // Not good at all, but this prevents having roots in a different position then player

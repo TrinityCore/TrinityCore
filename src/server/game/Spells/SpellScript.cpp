@@ -118,32 +118,25 @@ bool _SpellScript::EffectHook::IsEffectAffected(SpellInfo const* spellEntry, uin
 
 std::string _SpellScript::EffectHook::EffIndexToString() const
 {
-    switch (effIndex)
-    {
-        case EFFECT_ALL:
-            return "EFFECT_ALL";
-        case EFFECT_FIRST_FOUND:
-            return "EFFECT_FIRST_FOUND";
-        case EFFECT_0:
-            return "EFFECT_0";
-        case EFFECT_1:
-            return "EFFECT_1";
-        case EFFECT_2:
-            return "EFFECT_2";
-    }
+    if (effIndex == EFFECT_ALL)
+        return "EFFECT_ALL";
+    if (effIndex == EFFECT_FIRST_FOUND)
+        return "EFFECT_FIRST_FOUND";
+    if (effIndex < MAX_SPELL_EFFECTS)
+        return Trinity::StringFormat("EFFECT_%u", uint32(effIndex));
     return "Invalid Value";
 }
 
 bool _SpellScript::EffectNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex) const
 {
-    SpellEffectInfo const* effect = spellEntry->GetEffect(effIndex);
-    if (!effect)
+    if (spellEntry->GetEffects().size() <= effIndex)
         return false;
-    if (!effect->Effect && !effName)
+    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndex));
+    if (!spellEffectInfo.Effect && !effName)
         return true;
-    if (!effect->Effect)
+    if (!spellEffectInfo.Effect)
         return false;
-    return (effName == SPELL_EFFECT_ANY) || (effect->Effect == effName);
+    return (effName == SPELL_EFFECT_ANY) || (spellEffectInfo.Effect == effName);
 }
 
 std::string _SpellScript::EffectNameCheck::ToString() const
@@ -161,14 +154,14 @@ std::string _SpellScript::EffectNameCheck::ToString() const
 
 bool _SpellScript::EffectAuraNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex) const
 {
-    SpellEffectInfo const* effect = spellEntry->GetEffect(effIndex);
-    if (!effect)
+    if (spellEntry->GetEffects().size() <= effIndex)
         return false;
-    if (!effect->ApplyAuraName && !effAurName)
+    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndex));
+    if (!spellEffectInfo.ApplyAuraName && !effAurName)
         return true;
-    if (!effect->ApplyAuraName)
+    if (!spellEffectInfo.ApplyAuraName)
         return false;
-    return (effAurName == SPELL_AURA_ANY) || (effect->ApplyAuraName == effAurName);
+    return (effAurName == SPELL_AURA_ANY) || (spellEffectInfo.ApplyAuraName == effAurName);
 }
 
 std::string _SpellScript::EffectAuraNameCheck::ToString() const
@@ -270,12 +263,12 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
     if (!targetType)
         return false;
 
-    SpellEffectInfo const* effect = spellEntry->GetEffect(effIndexToCheck);
-    if (!effect)
+    if (spellEntry->GetEffects().size() <= effIndexToCheck)
         return false;
 
-    if (effect->TargetA.GetTarget() != targetType &&
-        effect->TargetB.GetTarget() != targetType)
+    SpellEffectInfo const& spellEffectInfo = spellEntry->GetEffect(SpellEffIndex(effIndexToCheck));
+    if (spellEffectInfo.TargetA.GetTarget() != targetType &&
+        spellEffectInfo.TargetB.GetTarget() != targetType)
         return false;
 
     SpellImplicitTargetInfo targetInfo(targetType);
@@ -483,6 +476,16 @@ Unit* SpellScript::GetOriginalCaster() const
 SpellInfo const* SpellScript::GetSpellInfo() const
 {
     return m_spell->GetSpellInfo();
+}
+
+SpellEffectInfo const& SpellScript::GetEffectInfo(SpellEffIndex effIndex) const
+{
+    return GetSpellInfo()->GetEffect(effIndex);
+}
+
+SpellValue const* SpellScript::GetSpellValue() const
+{
+    return m_spell->m_spellValue;
 }
 
 WorldLocation const* SpellScript::GetExplTargetDest() const
@@ -706,11 +709,11 @@ void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
     m_hitPreventDefaultEffectMask |= 1 << effIndex;
 }
 
-SpellEffectInfo const* SpellScript::GetEffectInfo() const
+SpellEffectInfo const& SpellScript::GetEffectInfo() const
 {
     ASSERT(IsInEffectHook(), "Script: `%s` Spell: `%u`: function SpellScript::GetEffectInfo was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
 
-    return m_spell->effectInfo;
+    return *m_spell->effectInfo;
 }
 
 int32 SpellScript::GetEffectValue() const
@@ -770,16 +773,6 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
 Difficulty SpellScript::GetCastDifficulty() const
 {
     return m_spell->GetCastDifficulty();
-}
-
-SpellValue const* SpellScript::GetSpellValue() const
-{
-    return m_spell->m_spellValue;
-}
-
-SpellEffectInfo const* SpellScript::GetEffectInfo(SpellEffIndex effIndex) const
-{
-    return GetSpellInfo()->GetEffect(effIndex);
 }
 
 bool AuraScript::_Validate(SpellInfo const* entry)
@@ -1152,6 +1145,11 @@ void AuraScript::PreventDefaultAction()
 SpellInfo const* AuraScript::GetSpellInfo() const
 {
     return m_aura->GetSpellInfo();
+}
+
+SpellEffectInfo const& AuraScript::GetEffectInfo(SpellEffIndex effIndex) const
+{
+    return m_aura->GetSpellInfo()->GetEffect(effIndex);
 }
 
 uint32 AuraScript::GetId() const

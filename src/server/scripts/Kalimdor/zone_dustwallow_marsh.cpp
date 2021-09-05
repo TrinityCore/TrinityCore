@@ -242,14 +242,14 @@ class spell_ooze_zap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ooze_zap_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ SPELL_OOZE_ZAP });
+                return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_OOZE_ZAP });
             }
 
             SpellCastResult CheckRequirement()
             {
-                if (!GetCaster()->HasAura(GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue()))
+                if (!GetCaster()->HasAura(GetEffectInfo(EFFECT_1).CalcValue()))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; // This is actually correct
 
                 if (!GetExplTargetUnit())
@@ -330,7 +330,7 @@ class spell_energize_aoe : public SpellScriptLoader
             {
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue()) == QUEST_STATUS_INCOMPLETE)
+                    if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetEffectInfo(EFFECT_1).CalcValue()) == QUEST_STATUS_INCOMPLETE)
                         ++itr;
                     else
                         targets.erase(itr++);

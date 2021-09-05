@@ -886,10 +886,10 @@ public:
 
                     bool known = target && target->HasSpell(spellInfo->Id);
 
-                    SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
-                    bool learn = effect ? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
+                    SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
+                    bool learn = spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL);
 
-                    SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell, spellInfo->Difficulty) : nullptr;
+                    SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo->Difficulty);
 
                     bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
                     bool passive = spellInfo->IsPassive();
@@ -959,10 +959,10 @@ public:
 
             bool known = target && target->HasSpell(id);
 
-            SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
-            bool learn = effect? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
+            SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
+            bool learn = spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL);
 
-            SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell, DIFFICULTY_NONE) : nullptr;
+            SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, DIFFICULTY_NONE);
 
             bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
             bool passive = spellInfo->IsPassive();
