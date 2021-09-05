@@ -1845,12 +1845,12 @@ class spell_nerubar_web_random_unit_not_on_quest : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), (uint32)GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectInfo().CalcValue(), true);
     }
 
     void Register() override
@@ -1920,12 +1920,12 @@ class spell_dispel_freed_soldier_debuff : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Aura* aura = GetHitUnit()->GetAura((uint32)GetSpellInfo()->Effects[EFFECT_0].CalcValue()))
+        if (Aura* aura = GetHitUnit()->GetAura(GetEffectInfo().CalcValue()))
             aura->ModStackAmount(-1);
     }
 

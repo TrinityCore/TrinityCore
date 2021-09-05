@@ -490,13 +490,13 @@ class spell_rotface_mutated_infection_aura : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_2].CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue()), { aurEff, GetCasterGUID() });
+        target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValue()), { aurEff, GetCasterGUID() });
     }
 
     void Register() override
@@ -676,11 +676,11 @@ class spell_rotface_unstable_ooze_explosion : public SpellScript
 
     void CheckTarget(SpellEffIndex effIndex)
     {
-        PreventHitDefaultEffect(EFFECT_0);
+        PreventHitDefaultEffect(effIndex);
         if (!GetExplTargetDest())
             return;
 
-        uint32 triggered_spell_id = GetSpellInfo()->Effects[effIndex].TriggerSpell;
+        uint32 triggered_spell_id = GetEffectInfo().TriggerSpell;
 
         float x, y, z;
         GetExplTargetDest()->GetPosition(x, y, z);

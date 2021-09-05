@@ -457,7 +457,7 @@ class go_soulwell : public GameObjectScript
                 if (!spellInfo)
                     return;
 
-                _stoneId = spellInfo->Effects[EFFECT_0].ItemType;
+                _stoneId = spellInfo->GetEffect(EFFECT_0).ItemType;
             }
 
             bool OnGossipHello(Player* player) override

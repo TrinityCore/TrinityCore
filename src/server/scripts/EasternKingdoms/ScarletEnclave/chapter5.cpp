@@ -1683,8 +1683,8 @@ class spell_teleport_leaders_blessing : public SpellScript
         if (!target)
             return;
 
-        uint32 spellID = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-        uint32 questID = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+        uint32 spellID = GetEffectInfo().CalcValue();
+        uint32 questID = GetEffectInfo(EFFECT_1).CalcValue();
 
         if (target->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE)
             target->CastSpell(target, spellID, true);

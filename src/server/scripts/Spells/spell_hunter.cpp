@@ -289,14 +289,14 @@ class spell_hun_cobra_strikes : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
 
-        SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
+        SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(aurEff->GetSpellEffectInfo().TriggerSpell);
 
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellMod(SPELLVALUE_AURA_STACK, triggeredSpellInfo->StackAmount);
@@ -671,8 +671,8 @@ class spell_hun_masters_call : public SpellScript
         return ValidateSpellInfo(
         {
             SPELL_HUNTER_MASTERS_CALL_TRIGGERED,
-            static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()),
-            static_cast<uint32>(spellInfo->Effects[EFFECT_1].CalcValue())
+            static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            static_cast<uint32>(spellInfo->GetEffect(EFFECT_1).CalcValue())
         });
     }
 
@@ -929,7 +929,7 @@ class spell_hun_rapid_recuperation : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandlePeriodic(AuraEffect const* aurEff)

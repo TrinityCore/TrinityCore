@@ -966,9 +966,11 @@ public:
                     }
 
                     bool known = target && target->HasSpell(id);
-                    bool learn = (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL);
 
-                    SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
+                    SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
+                    bool learn = spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL);
+
+                    SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell);
 
                     uint32 talentCost = GetTalentSpellCost(id);
 
@@ -1041,9 +1043,11 @@ public:
             }
 
             bool known = target && target->HasSpell(id);
-            bool learn = (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL);
 
-            SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
+            SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
+            bool learn = spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL);
+
+            SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell);
 
             uint32 talentCost = GetTalentSpellCost(id);
 

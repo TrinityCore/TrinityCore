@@ -662,7 +662,7 @@ struct npc_xt_void_zone : public PassiveAI
     {
         int32 bp = 0;
         if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(me->GetUInt32Value(UNIT_CREATED_BY_SPELL)))
-            bp = createdBySpell->Effects[EFFECT_1].CalcValue();
+            bp = createdBySpell->GetEffect(EFFECT_1).CalcValue();
 
         _scheduler.Schedule(1s, [this, bp](TaskContext consumption)
         {

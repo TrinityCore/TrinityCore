@@ -127,7 +127,7 @@ class spell_warr_bloodthirst_heal : public SpellScript
     void HandleHeal(SpellEffIndex /*effIndex*/)
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_BLOODTHIRST_DAMAGE);
-        int32 const healPct = spellInfo->Effects[EFFECT_1].CalcValue(GetCaster());
+        int32 const healPct = spellInfo->GetEffect(EFFECT_1).CalcValue(GetCaster());
         SetEffectValue(GetCaster()->CountPctFromMaxHealth(healPct));
     }
 
@@ -172,7 +172,7 @@ class spell_warr_concussion_blow : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_2].CalcValue()));
+        SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectInfo(EFFECT_2).CalcValue()));
     }
 
     void Register() override
@@ -256,7 +256,7 @@ class spell_warr_deep_wounds_aura : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -282,7 +282,7 @@ class spell_warr_deep_wounds_aura : public AuraScript
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(damage);
-        actor->CastSpell(eventInfo.GetProcTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, args);
+        actor->CastSpell(eventInfo.GetProcTarget(), GetEffectInfo(EFFECT_0).TriggerSpell, args);
     }
 
     void Register() override
@@ -302,7 +302,7 @@ class spell_warr_execute : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_EXECUTE, SPELL_WARRIOR_GLYPH_OF_EXECUTION });
     }
 
-    void HandleEffect(SpellEffIndex effIndex)
+    void HandleEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (Unit* target = GetHitUnit())
@@ -314,7 +314,7 @@ class spell_warr_execute : public SpellScript
             // Sudden Death rage save
             if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_GENERIC, WARRIOR_ICON_ID_SUDDEN_DEATH, EFFECT_0))
             {
-                int32 ragesave = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue() * 10;
+                int32 ragesave = aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue() * 10;
                 newRage = std::max(newRage, ragesave);
             }
 
@@ -323,7 +323,7 @@ class spell_warr_execute : public SpellScript
             if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_WARRIOR_GLYPH_OF_EXECUTION, EFFECT_0))
                 rageUsed += aurEff->GetAmount() * 10;
 
-            int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
+            int32 bp = GetEffectValue() + int32(rageUsed * GetEffectInfo().DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
             CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
             args.AddSpellBP0(bp);
             caster->CastSpell(target, SPELL_WARRIOR_EXECUTE, args);
@@ -414,7 +414,7 @@ class spell_warr_glyph_of_sunder_armor : public AuraScript
             spellMod->op = SpellModOp(aurEff->GetMiscValue());
             spellMod->type = SPELLMOD_FLAT;
             spellMod->spellId = GetId();
-            spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
+            spellMod->mask = aurEff->GetSpellEffectInfo().SpellClassMask;
         }
 
         spellMod->value = aurEff->GetAmount();
@@ -505,7 +505,7 @@ class spell_warr_item_t10_prot_4p_bonus : public AuraScript
         PreventDefaultAction();
 
         Unit* target = eventInfo.GetActionTarget();
-        int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+        int32 bp0 = CalculatePct(target->GetMaxHealth(), GetEffectInfo(EFFECT_1).CalcValue());
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellBP0(bp0);
         target->CastSpell(nullptr, SPELL_WARRIOR_STOICISM, args);
@@ -598,7 +598,7 @@ class spell_warr_rend : public AuraScript
             if (GetSpellInfo()->GetRank() >= 9)
             {
                 if (GetUnitOwner()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetSpellInfo(), caster))
-                    AddPct(amount, GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster));
+                    AddPct(amount, GetEffectInfo(EFFECT_2).CalcValue(caster));
             }
         }
     }

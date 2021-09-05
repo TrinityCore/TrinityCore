@@ -109,7 +109,7 @@ class spell_rog_cheat_death : public AuraScript
 
     bool Load() override
     {
-        absorbChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+        absorbChance = GetEffectInfo(EFFECT_0).CalcValue();
         return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
     }
 
@@ -397,7 +397,7 @@ private:
 
     bool Load() override
     {
-        absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+        absorbPct = GetEffectInfo(EFFECT_0).CalcValue(GetCaster());
         return true;
     }
 
@@ -494,7 +494,7 @@ class spell_rog_prey_on_the_weak : public AuraScript
         return ValidateSpellInfo({ SPELL_ROGUE_PREY_ON_THE_WEAK });
     }
 
-    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
         Unit* target = GetTarget();
         Unit* victim = target->GetVictim();
@@ -503,7 +503,7 @@ class spell_rog_prey_on_the_weak : public AuraScript
             if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                args.AddSpellBP0(aurEff->GetSpellEffectInfo().CalcValue());
                 target->CastSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, args);
             }
         }
@@ -833,7 +833,7 @@ class spell_rog_honor_among_thieves : public AuraScript
         return ValidateSpellInfo(
         {
             SPELL_ROGUE_HONOR_AMONG_THIEVES_2,
-            spellInfo->Effects[EFFECT_0].TriggerSpell
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell
         });
     }
 
@@ -855,7 +855,7 @@ class spell_rog_honor_among_thieves : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        target->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, { aurEff, caster->GetGUID() });
+        target->CastSpell(target, aurEff->GetSpellEffectInfo().TriggerSpell, { aurEff, caster->GetGUID() });
     }
 
     void Register() override
@@ -919,7 +919,7 @@ class spell_rog_turn_the_tables : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -930,7 +930,7 @@ class spell_rog_turn_the_tables : public AuraScript
         if (!caster)
             return;
 
-        caster->CastSpell(nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, aurEff);
+        caster->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, aurEff);
     }
 
     void Register() override

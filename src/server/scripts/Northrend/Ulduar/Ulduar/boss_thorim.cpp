@@ -976,13 +976,13 @@ struct npc_thorim_trashAI : public ScriptedAI
         static uint32 GetTotalHeal(SpellInfo const* spellInfo, Unit const* caster)
         {
             uint32 heal = 0;
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
             {
-                if (spellInfo->Effects[i].IsEffect(SPELL_EFFECT_HEAL))
-                    heal += spellInfo->Effects[i].CalcValue(caster);
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_HEAL))
+                    heal += spellEffectInfo.CalcValue(caster);
 
-                if (spellInfo->Effects[i].IsEffect(SPELL_EFFECT_APPLY_AURA) && spellInfo->Effects[i].IsAura(SPELL_AURA_PERIODIC_HEAL))
-                    heal += spellInfo->GetMaxTicks() * spellInfo->Effects[i].CalcValue(caster);
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA) && spellEffectInfo.IsAura(SPELL_AURA_PERIODIC_HEAL))
+                    heal += spellInfo->GetMaxTicks() * spellEffectInfo.CalcValue(caster);
             }
             return heal;
         }

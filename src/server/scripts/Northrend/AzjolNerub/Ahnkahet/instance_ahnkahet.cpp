@@ -176,13 +176,13 @@ class spell_shadow_blast : public SpellScript
 {
     PrepareSpellScript(spell_shadow_blast);
 
-    void HandleDamageCalc(SpellEffIndex effIndex)
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
         if (!target)
             return;
 
-        SetHitDamage(target->GetMaxHealth() * GetSpellInfo()->Effects[effIndex].BasePoints / 100);
+        SetHitDamage(target->GetMaxHealth() * GetEffectInfo().BasePoints / 100);
     }
 
     void Register() override
