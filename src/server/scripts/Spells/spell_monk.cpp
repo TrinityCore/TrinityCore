@@ -326,14 +326,15 @@ class spell_monk_stagger_debuff_aura : public AuraScript
 {
     PrepareAuraScript(spell_monk_stagger_debuff_aura);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_STAGGER_DAMAGE_AURA })
+            && !sSpellMgr->GetSpellInfo(SPELL_MONK_STAGGER_DAMAGE_AURA, DIFFICULTY_NONE)->GetEffects().empty();
+    }
+
     bool Load() override
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_STAGGER_DAMAGE_AURA, GetCastDifficulty());
-        SpellEffectInfo const* effInfo = !spellInfo ? nullptr : spellInfo->GetEffect(EFFECT_0);
-        if (!effInfo)
-            return false;
-
-        _period = float(effInfo->ApplyAuraPeriod);
+        _period = float(sSpellMgr->AssertSpellInfo(SPELL_MONK_STAGGER_DAMAGE_AURA, GetCastDifficulty())->GetEffect(EFFECT_0).ApplyAuraPeriod);
         return true;
     }
 

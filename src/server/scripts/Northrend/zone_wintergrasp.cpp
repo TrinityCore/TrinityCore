@@ -590,10 +590,9 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        SpellEffectInfo const* effect2 = spellInfo->GetEffect(EFFECT_2);
-        if (!effect2)
+        if (spellInfo->GetEffects().size() <= EFFECT_2)
             return false;
-        uint32 triggeredSpellId = effect2->CalcValue();
+        uint32 triggeredSpellId = spellInfo->GetEffect(EFFECT_2).CalcValue();
         return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });
     }
 
@@ -601,7 +600,7 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
     {
         PreventDefaultAction();
 
-        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo()->CalcValue())
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValue())
         {
             int32 bp = 0;
             if (AuraEffect const* healEffect = GetEffect(EFFECT_0))
@@ -619,7 +618,7 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo()->CalcValue())
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValue())
             GetTarget()->RemoveAurasDueToSpell(triggeredSpellId);
     }
 

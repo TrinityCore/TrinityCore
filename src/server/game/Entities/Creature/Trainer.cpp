@@ -142,13 +142,13 @@ namespace Trainer
         // check ranks
         bool hasLearnSpellEffect = false;
         bool knowsAllLearnedSpells = true;
-        for (SpellEffectInfo const* spellEffect : sSpellMgr->AssertSpellInfo(trainerSpell->SpellId, DIFFICULTY_NONE)->GetEffects())
+        for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(trainerSpell->SpellId, DIFFICULTY_NONE)->GetEffects())
         {
-            if (!spellEffect || !spellEffect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
+            if (!spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
                 continue;
 
             hasLearnSpellEffect = true;
-            if (!player->HasSpell(spellEffect->TriggerSpell))
+            if (!player->HasSpell(spellEffectInfo.TriggerSpell))
                 knowsAllLearnedSpells = false;
         }
 

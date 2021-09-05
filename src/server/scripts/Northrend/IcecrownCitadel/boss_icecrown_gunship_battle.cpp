@@ -1829,7 +1829,8 @@ class spell_igb_rocket_pack : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_ROCKET_PACK_DAMAGE, SPELL_ROCKET_BURST });
+                return ValidateSpellInfo({ SPELL_ROCKET_PACK_DAMAGE, SPELL_ROCKET_BURST })
+                    && !sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE, DIFFICULTY_NONE)->GetEffects().empty();
             }
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
@@ -1843,7 +1844,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
                 SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE, GetCastDifficulty());
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.CastDifficulty = GetCastDifficulty();
-                args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0)->CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriod()));
+                args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0).CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriod()));
                 GetTarget()->CastSpell(nullptr, SPELL_ROCKET_PACK_DAMAGE, args);
                 GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
             }
@@ -1971,10 +1972,10 @@ class spell_igb_periodic_trigger_with_power_cost : public SpellScriptLoader
         {
             PrepareAuraScript(spell_igb_periodic_trigger_with_power_cost_AuraScript);
 
-            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->GetEffect(EFFECT_0)->TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+                GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
             }
 
             void Register() override

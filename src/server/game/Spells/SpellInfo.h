@@ -27,18 +27,18 @@
 #include <boost/container/flat_set.hpp>
 #include <bitset>
 
-class Unit;
-class Player;
+class AuraEffect;
 class Item;
+class Player;
 class Spell;
 class SpellMgr;
 class SpellInfo;
+class Unit;
 class WorldObject;
-class AuraEffect;
+struct Condition;
 struct SpellChainNode;
 struct SpellModifier;
 struct SpellTargetPosition;
-struct Condition;
 enum WeaponAttackType : uint8;
 
 enum SpellCastTargetFlags : uint32
@@ -196,6 +196,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
+    SPELL_ATTR0_CU_DEPRECATED_ROLLING_PERIODIC   = 0x00000800, // DO NOT REUSE
     SPELL_ATTR0_CU_DEPRECATED_NEGATIVE_EFF0      = 0x00001000, // DO NOT REUSE
     SPELL_ATTR0_CU_DEPRECATED_NEGATIVE_EFF1      = 0x00002000, // DO NOT REUSE
     SPELL_ATTR0_CU_DEPRECATED_NEGATIVE_EFF2      = 0x00004000, // DO NOT REUSE
@@ -262,11 +263,12 @@ struct TC_GAME_API ImmunityInfo
 
 class TC_GAME_API SpellEffectInfo
 {
+    friend class SpellInfo;
     SpellInfo const* _spellInfo;
 public:
-    uint32    EffectIndex;
-    uint32    Effect;
-    uint32    ApplyAuraName;
+    SpellEffIndex EffectIndex;
+    SpellEffectName Effect;
+    AuraType  ApplyAuraName;
     uint32    ApplyAuraPeriod;
     int32     BasePoints;
     float     RealPointsPerLevel;
@@ -298,7 +300,7 @@ public:
         float ResourceCoefficient;
     } Scaling;
 
-    SpellEffectInfo() : _spellInfo(nullptr), EffectIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0),
+    SpellEffectInfo(SpellInfo const* spellInfo) : _spellInfo(spellInfo), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
                         BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
                         BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
                         RadiusEntry(nullptr), MaxRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
@@ -345,8 +347,6 @@ private:
 
     ImmunityInfo _immunityInfo;
 };
-
-typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
 
 typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;
 typedef std::unordered_map<uint32, SpellVisualVector> SpellVisualMap;
@@ -571,10 +571,9 @@ class TC_GAME_API SpellInfo
 
         SpellSchoolMask GetSchoolMask() const;
         uint32 GetAllEffectsMechanicMask() const;
-        uint32 GetEffectMechanicMask(uint32 effIndex) const;
+        uint32 GetEffectMechanicMask(SpellEffIndex effIndex) const;
         uint32 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
-        Mechanics GetEffectMechanic(uint32 effIndex) const;
-        //bool HasAnyEffectMechanic() const;
+        Mechanics GetEffectMechanic(SpellEffIndex effIndex) const;
         uint32 GetDispelMask() const;
         static uint32 GetDispelMask(DispelType type);
         uint32 GetExplicitTargetMask() const;
@@ -614,8 +613,8 @@ class TC_GAME_API SpellInfo
         uint32 GetSpellXSpellVisualId(WorldObject const* caster = nullptr) const;
         uint32 GetSpellVisual(WorldObject const* caster = nullptr) const;
 
-        SpellEffectInfoVector const& GetEffects() const { return _effects; }
-        SpellEffectInfo const* GetEffect(uint32 index) const { return index < _effects.size() ? _effects[index] : nullptr; }
+        std::vector<SpellEffectInfo> const& GetEffects() const { return _effects; }
+        SpellEffectInfo const& GetEffect(SpellEffIndex index) const { ASSERT(index < _effects.size()); return _effects[index]; }
 
         // spell diminishing returns
         DiminishingGroup GetDiminishingReturnsGroupForSpell() const;
@@ -624,7 +623,7 @@ class TC_GAME_API SpellInfo
         int32 GetDiminishingReturnsLimitDuration() const;
 
         // spell immunities
-        void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const* effect, bool apply) const;
+        void ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& spellEffectInfo, bool apply) const;
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
@@ -646,10 +645,9 @@ class TC_GAME_API SpellInfo
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();
-        void _UnloadSpellEffects();
 
     private:
-        SpellEffectInfoVector _effects;
+        std::vector<SpellEffectInfo> _effects;
         SpellVisualVector _visuals;
         SpellSpecificType _spellSpecific = SPELL_SPECIFIC_NORMAL;
         AuraStateType _auraState = AURA_STATE_NONE;

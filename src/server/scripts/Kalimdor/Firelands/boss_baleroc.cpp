@@ -417,16 +417,16 @@ class spell_baleroc_decimating_strike : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (!spellInfo->GetEffect(EFFECT_0))
+        if (spellInfo->GetEffects().size() <= EFFECT_2)
             return false;
-        SpellEffectInfo const* spellEffectInfo = spellInfo->GetEffect(EFFECT_2);
-        return spellEffectInfo && ValidateSpellInfo({ uint32(spellEffectInfo->BasePoints) });
+        SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_2);
+        return ValidateSpellInfo({ uint32(spellEffectInfo.CalcValue()) });
     }
 
     void ChangeDamage()
     {
-        int32 healthPctDmg = GetHitUnit()->CountPctFromMaxHealth(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints);
-        int32 flatDmg = GetSpellInfo()->GetEffect(EFFECT_2)->BasePoints;
+        int32 healthPctDmg = GetHitUnit()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_0).CalcValue(GetCaster()));
+        int32 flatDmg = GetEffectInfo(EFFECT_2).CalcValue(GetCaster());
 
         SetHitDamage(healthPctDmg < flatDmg ? flatDmg : healthPctDmg);
     }
@@ -800,7 +800,8 @@ class spell_baleroc_vital_flame : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_VITAL_SPARK });
+        return ValidateSpellInfo({ SPELL_VITAL_SPARK })
+            && !sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, DIFFICULTY_NONE)->GetEffects().empty();
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -812,7 +813,7 @@ class spell_baleroc_vital_flame : public AuraScript
         }
 
         stacks = GetCaster()->GetAuraCount(SPELL_VITAL_SPARK);
-        int32 healingPct = sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, GetCastDifficulty())->GetEffect(EFFECT_0)->BasePoints * stacks;
+        int32 healingPct = sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(GetCaster()) * stacks;
 
         if (GetAura()->GetEffect(EFFECT_0)->GetAmount() < healingPct)
             GetAura()->GetEffect(EFFECT_0)->SetAmount(healingPct);

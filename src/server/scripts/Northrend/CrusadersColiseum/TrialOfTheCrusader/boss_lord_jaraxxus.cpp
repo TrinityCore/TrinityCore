@@ -499,8 +499,7 @@ class spell_mistress_kiss_area : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0);
-        return effect0 && ValidateSpellInfo({ static_cast<uint32>(effect0->CalcValue()) });
+        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -538,8 +537,7 @@ class spell_fel_streak_visual : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0);
-        return effect0 && ValidateSpellInfo({ static_cast<uint32>(effect0->CalcValue()) });
+        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)

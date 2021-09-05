@@ -603,12 +603,12 @@ class spell_kalecgos_tap_check : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffect(EFFECT_0) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
+        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), (uint32)GetEffectInfo(EFFECT_0)->CalcValue(), true);
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().CalcValue(), true);
     }
 
     void Register() override
