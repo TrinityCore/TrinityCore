@@ -556,7 +556,7 @@ class spell_mage_ice_block : public SpellScript
 {
     PrepareSpellScript(spell_mage_ice_block);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_EVERWARM_SOCKS });
     }
