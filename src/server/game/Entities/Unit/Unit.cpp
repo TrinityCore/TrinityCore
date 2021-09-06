@@ -5200,15 +5200,6 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     SendCombatLogMessage(&data);
 }
 
-void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
-{
-    WorldPackets::CombatLog::SpellMissLog spellMissLog;
-    spellMissLog.SpellID = spellID;
-    spellMissLog.Caster = GetGUID();
-    spellMissLog.Entries.emplace_back(target->GetGUID(), missInfo);
-    SendMessageToSet(spellMissLog.Write(), true);
-}
-
 void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 {
     WorldPackets::CombatLog::ProcResist procResist;
