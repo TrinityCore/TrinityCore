@@ -26,7 +26,7 @@ else()
   if(GIT_EXECUTABLE)
     # Retrieve repository dirty status
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" diff-index  --quiet HEAD --
+      COMMAND "${GIT_EXECUTABLE}" diff-index --quiet HEAD --
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       RESULT_VARIABLE is_dirty
     )
@@ -42,8 +42,8 @@ else()
 
     # Append dirty marker to commit hash
     if(is_dirty)
-	  set(rev_hash "${rev_hash}+")
-	endif()
+      set(rev_hash "${rev_hash}+")
+    endif()
 
     # And grab the commits timestamp
     execute_process(
@@ -62,6 +62,36 @@ else()
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
+
+    # when ran on CI, repository is put in detached HEAD state, attempt to scan for known local branches
+    if(NOT rev_branch)
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" for-each-ref --points-at=HEAD refs/heads "--format=%(refname:short)"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE rev_branch
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+      )
+    endif()
+
+    # if local branch scan didn't find anything, try remote branches
+    if(NOT rev_branch)
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" for-each-ref --points-at=HEAD refs/remotes "--format=%(refname:short)"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE rev_branch
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+      )
+    endif()
+
+    # give up finding a name for branch, use commit hash
+    if(NOT rev_branch)
+      set(rev_branch ${rev_hash})
+    endif()
+
+    # normalize branch to single line (for-each-ref can output multiple lines if there are multiple branches on the same commit)
+    string(REGEX MATCH "^[^ \t\r\n]+" rev_branch ${rev_branch})
   endif()
 
   # Last minute check - ensure that we have a proper revision
