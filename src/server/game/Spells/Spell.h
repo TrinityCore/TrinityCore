@@ -376,7 +376,6 @@ class TC_GAME_API Spell
         void EffectOpenLock();
         void EffectSummonChangeItem();
         void EffectProficiency();
-        void EffectApplyAreaAura();
         void EffectSummonType();
         void EffectLearnSpell();
         void EffectDispel();

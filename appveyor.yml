@@ -10,8 +10,6 @@ build_script:
 - cmd: >-
     git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"
 
-    git tag -a -m "AppVeyor build" init
-
     md build && cd build
 
     cmake -G"Visual Studio 16 2019" -A x64 -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..

@@ -4739,7 +4739,7 @@ void SpellInfo::_InitializeSpellPositivity()
         switch (effect.ApplyAuraName)
         {
             // has other non positive effect?
-            // then it should be marked negative despite of targets (ex 8510, 8511, 8893, 10267)
+            // then it should be marked negative if has same target as negative effect (ex 8510, 8511, 8893, 10267)
             case SPELL_AURA_DUMMY:
             case SPELL_AURA_MOD_STUN:
             case SPELL_AURA_MOD_FEAR:
@@ -4747,12 +4747,14 @@ void SpellInfo::_InitializeSpellPositivity()
             case SPELL_AURA_TRANSFORM:
             case SPELL_AURA_MOD_ATTACKSPEED:
             case SPELL_AURA_MOD_DECREASE_SPEED:
+            {
                 for (size_t j = effect.EffectIndex + 1; j < GetEffects().size(); ++j)
                     if (!IsPositiveEffect(j)
                         && effect.TargetA.GetTarget() == GetEffect(SpellEffIndex(j)).TargetA.GetTarget()
                         && effect.TargetB.GetTarget() == GetEffect(SpellEffIndex(j)).TargetB.GetTarget())
                         NegativeEffects[effect.EffectIndex] = true;
                 break;
+            }
             default:
                 break;
         }
