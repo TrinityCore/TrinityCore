@@ -2104,6 +2104,26 @@ class spell_dk_wandering_plague : public AuraScript
     }
 };
 
+// 50526 - Wandering Plague (Damage)
+class spell_dk_wandering_plague_damage : public SpellScript
+{
+    PrepareSpellScript(spell_dk_wandering_plague_damage);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* object) -> bool
+        {
+            Unit* target = object->ToUnit();
+            return target && target->HasBreakableByDamageCrowdControlAura();
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_wandering_plague_damage::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
 // -52284 - Will of the Necropolis
 class spell_dk_will_of_the_necropolis : public AuraScript
 {
@@ -2758,6 +2778,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_vampiric_blood);
     RegisterSpellScript(spell_dk_vendetta);
     RegisterSpellScript(spell_dk_wandering_plague);
+    RegisterSpellScript(spell_dk_wandering_plague_damage);
     RegisterSpellScript(spell_dk_will_of_the_necropolis);
     RegisterSpellScript(spell_dk_death_grip_initial);
     RegisterSpellScript(spell_dk_raise_ally_initial);
