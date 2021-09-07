@@ -222,6 +222,9 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
 
 void BattlegroundIC::StartingEventCloseDoors()
 {
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundIC::StartingEventOpenDoors()
@@ -244,6 +247,9 @@ void BattlegroundIC::StartingEventOpenDoors()
 
     for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTER_EFFECTS_SPAWNS; ++i)
         GetBGObject(BG_IC_TeleporterEffects[i].type)->SetGoState(GO_STATE_ACTIVE);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundIC::AddPlayer(Player* player)
@@ -258,8 +264,11 @@ void BattlegroundIC::AddPlayer(Player* player)
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
-void BattlegroundIC::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
+// @tswow-begin
+void BattlegroundIC::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
+    Battleground::RemovePlayer(player, guid, team);
+// @tswow-end
     if (player)
     {
         player->RemoveAura(SPELL_QUARRY);
@@ -376,11 +385,16 @@ bool BattlegroundIC::SetupBattleground()
     for (uint8 i = BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1; i < BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4; ++i)
         GetBGObject(i)->SetRespawnTime(10);
 
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }
 
 void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
 {
+    // @tswow-begin
+    Battleground::HandleKillUnit(unit, killer);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;
 
@@ -420,6 +434,9 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target_obj)
 {
+    // @tswow-begin
+    Battleground::EventPlayerClickedOnFlag(player, target_obj);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
@@ -796,6 +813,9 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
 void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
 {
+    // @tswow-begin
+    Battleground::DestroyGate(player,go);
+    // @tswow-end
     GateStatus[GetGateIDFromEntry(go->GetEntry())] = BG_IC_GATE_DESTROYED;
     uint32 uws_open = GetWorldStateFromGateEntry(go->GetEntry(), true);
     uint32 uws_close = GetWorldStateFromGateEntry(go->GetEntry(), false);

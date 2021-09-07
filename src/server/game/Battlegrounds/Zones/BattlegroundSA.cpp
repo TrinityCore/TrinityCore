@@ -74,6 +74,9 @@ BattlegroundSA::~BattlegroundSA() { }
 
 void BattlegroundSA::Reset()
 {
+    // @tswow-begin
+    Battleground::Reset();
+    // @tswow-end
     TotalTime = 0;
     Attackers = ((urand(0, 1)) ? TEAM_ALLIANCE : TEAM_HORDE);
     for (uint8 i = 0; i <= 5; i++)
@@ -214,6 +217,10 @@ bool BattlegroundSA::ResetObjs()
                 TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn GY: %u", i);
         }
     }
+
+    // @tswow-begin (this is right after the last possible false return)
+    if(!Battleground::SetupBattleground()) return false;
+    // @tswow-end
 
     //GY capture points
     for (uint8 i = BG_SA_CENTRAL_FLAG; i <= BG_SA_LEFT_FLAG; i++)
@@ -439,9 +446,15 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundSA::StartingEventCloseDoors() { }
+// @tswow-begin
+void BattlegroundSA::StartingEventCloseDoors() {
+    Battleground::StartingEventCloseDoors();
+}
 
-void BattlegroundSA::StartingEventOpenDoors() { }
+void BattlegroundSA::StartingEventOpenDoors() {
+    Battleground::StartingEventOpenDoors();
+}
+// @tswow-end
 
 void BattlegroundSA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
@@ -490,7 +503,12 @@ void BattlegroundSA::AddPlayer(Player* player)
     TeleportToEntrancePosition(player);
 }
 
-void BattlegroundSA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) { }
+// @tswow-begin
+void BattlegroundSA::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
+{
+    Battleground::RemovePlayer(player, guid, team);
+}
+// @tswow-end
 
 void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 {
@@ -547,6 +565,9 @@ void BattlegroundSA::TeleportToEntrancePosition(Player* player)
 
 void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker /*= nullptr*/)
 {
+    // @tswow-begin
+    Battleground::ProcessEvent(obj, eventId, invoker);
+    // @tswow-end
     if (GameObject* go = obj->ToGameObject())
     {
         switch (go->GetGoType())
@@ -639,6 +660,9 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
 
 void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
 {
+    // @tswow-begin
+    Battleground::HandleKillUnit(creature, killer);
+    // @tswow-end
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
         UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
@@ -686,9 +710,12 @@ void BattlegroundSA::DemolisherStartState(bool start)
     }
 }
 
-void BattlegroundSA::DestroyGate(Player* /*player*/, GameObject* /*go*/)
+// tswow-begin
+void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
 {
+    Battleground::DestroyGate(player, go);
 }
+// @tswow-end
 
 WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveyard(Player* player)
 {
@@ -778,6 +805,9 @@ void BattlegroundSA::UpdateObjectInteractionFlags()
 
 void BattlegroundSA::EventPlayerClickedOnFlag(Player* source, GameObject* go)
 {
+    // @tswow-begin
+    Battleground::EventPlayerClickedOnFlag(source, go);
+    // @tswow-end
     switch (go->GetEntry())
     {
         case 191307:

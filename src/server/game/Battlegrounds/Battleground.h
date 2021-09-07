@@ -232,6 +232,10 @@ enum BGHonorMode
 #define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
 #define ARENA_TIMELIMIT_POINTS_LOSS    -16
 
+// @tswow-begin
+struct BattlegroundTemplate;
+// @tswow-end
+
 /*
 This class is used to:
 1. Add player to battleground
@@ -245,18 +249,26 @@ class TC_GAME_API Battleground
         Battleground();
         virtual ~Battleground();
 
+        // @tswow-begin
+        friend class TSBattleground;
+        TSWorldEntity<TSBattleground> m_tsWorldEntity;
+        TSEntity m_tsEntity;
+        std::map < uint64, TSEntity> m_playerEntityMap;
+
+        // @tswow-end
+
         void Update(uint32 diff);
 
-        virtual bool SetupBattleground()                    // must be implemented in BG subclass
-        {
-            return true;
-        }
+        // @tswow-begin - move implementations to cpp
+        virtual bool SetupBattleground();                    // must be implemented in BG subclass
         virtual void Reset();                               // resets all common properties for battlegrounds, must be implemented and called in BG subclass
-        virtual void StartingEventCloseDoors() { }
-        virtual void StartingEventOpenDoors() { }
-        virtual void ResetBGSubclass() { }                  // must be implemented in BG subclass
+        virtual void StartingEventCloseDoors();
+        virtual void StartingEventOpenDoors();
 
-        virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) { }
+        virtual void ResetBGSubclass() {};                   // must be implemented in BG subclass
+
+        virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/);
+        // @tswow-end
 
         /* achievement req. */
         virtual bool IsAllNodesControlledByTeam(uint32 /*team*/) const { return false; }
@@ -425,14 +437,20 @@ class TC_GAME_API Battleground
         virtual void HandleAreaTrigger(Player* /*player*/, uint32 /*Trigger*/);
         // must be implemented in BG subclass if need AND call base class generic code
         virtual void HandleKillPlayer(Player* player, Player* killer);
-        virtual void HandleKillUnit(Creature* /*creature*/, Player* /*killer*/) { }
+        // @tswow-begin
+        virtual void HandleKillUnit(Creature* /*creature*/, Player* /*killer*/);
+        // @tswow-end
 
         // Battleground events
-        virtual void EventPlayerDroppedFlag(Player* /*player*/) { }
-        virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/) { }
+        // @tswow-begin
+        virtual void EventPlayerDroppedFlag(Player* /*player*/);
+        virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/);
+        // @tswow-end
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
-        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = nullptr) { }
+        // @tswow-begin
+        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = nullptr);
+        // @tswow-end
 
         // this function can be used by spell to interact with the BG map
         virtual void DoAction(uint32 /*action*/, ObjectGuid /*var*/) { }
@@ -470,7 +488,9 @@ class TC_GAME_API Battleground
         void DoorOpen(uint32 type);
         void DoorClose(uint32 type);
 
-        virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
+        // @tswow-begin
+        virtual bool HandlePlayerUnderMap(Player* /*player*/);
+        // @tswow-end
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         uint32 GetPlayerTeam(ObjectGuid guid) const;
@@ -515,7 +535,9 @@ class TC_GAME_API Battleground
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
         // must be implemented in BG subclass
-        virtual void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) { }
+        // @tswow-begin
+        virtual void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/);
+        // @tswow-end
 
         // Player lists, those need to be accessible by inherited classes
         BattlegroundPlayerMap m_Players;

@@ -95,6 +95,9 @@ void BattlegroundDS::StartingEventCloseDoors()
 {
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundDS::StartingEventOpenDoors()
@@ -121,6 +124,9 @@ void BattlegroundDS::StartingEventOpenDoors()
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = _GetPlayer(itr, "BattlegroundDS::StartingEventOpenDoors"))
             player->RemoveAurasDueToSpell(SPELL_WARL_DEMONIC_CIRCLE);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
@@ -172,6 +178,7 @@ bool BattlegroundDS::SetupBattleground()
         TC_LOG_ERROR("sql.sql", "BatteGroundDS: Failed to spawn some object!");
         return false;
     }
-
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }

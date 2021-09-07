@@ -208,6 +208,9 @@ void BattlegroundAB::StartingEventCloseDoors()
     // Starting base spirit guides
     _NodeOccupied(BG_AB_SPIRIT_ALIANCE, ALLIANCE);
     _NodeOccupied(BG_AB_SPIRIT_HORDE, HORDE);
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundAB::StartingEventOpenDoors()
@@ -226,6 +229,10 @@ void BattlegroundAB::StartingEventOpenDoors()
 
     // Achievement: Let's Get This Done
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, AB_EVENT_START_BATTLE);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
+
 }
 
 void BattlegroundAB::AddPlayer(Player* player)
@@ -234,9 +241,12 @@ void BattlegroundAB::AddPlayer(Player* player)
     PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundABScore(player->GetGUID());
 }
 
-void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
+// @tswow-begin
+void BattlegroundAB::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
+    Battleground::RemovePlayer(player, guid, team);
 }
+// @tswow-end
 
 void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
 {
@@ -415,8 +425,11 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
 }
 
 /* Invoked if a player used a banner as a gameobject */
-void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/)
+// @tswow-begin
+void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
 {
+    Battleground::EventPlayerClickedOnFlag(source, target_obj);
+// @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
@@ -590,7 +603,9 @@ bool BattlegroundAB::SetupBattleground()
             TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn buff object!");
     }
 
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }
 
 void BattlegroundAB::Reset()

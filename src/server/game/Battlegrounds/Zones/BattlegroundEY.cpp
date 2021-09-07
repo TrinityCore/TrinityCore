@@ -128,6 +128,9 @@ void BattlegroundEY::StartingEventCloseDoors()
 
     for (uint32 i = BG_EY_OBJECT_A_BANNER_FEL_REAVER_CENTER; i < BG_EY_OBJECT_MAX; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundEY::StartingEventOpenDoors()
@@ -146,6 +149,9 @@ void BattlegroundEY::StartingEventOpenDoors()
 
     // Achievement: Flurry
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, BG_EY_EVENT_START_BATTLE);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
@@ -364,8 +370,11 @@ void BattlegroundEY::AddPlayer(Player* player)
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 }
 
-void BattlegroundEY::RemovePlayer(Player* player, ObjectGuid guid, uint32 /*team*/)
+// @tswow-begin
+void BattlegroundEY::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
+    Battleground::RemovePlayer(player, guid, team);
+// @tswow-end
     // sometimes flag aura not removed :(
     for (int j = EY_POINTS_MAX; j >= 0; --j)
     {
@@ -527,7 +536,9 @@ bool BattlegroundEY::SetupBattleground()
         return false;
     }
 
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }
 
 void BattlegroundEY::Reset()
@@ -605,6 +616,9 @@ void BattlegroundEY::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundEY::EventPlayerDroppedFlag(Player* player)
 {
+    // @tswow-begin
+    Battleground::EventPlayerDroppedFlag(player);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
     {
         // if not running, do not cast things at the dropper player, neither send unnecessary messages
@@ -641,6 +655,9 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* player)
 
 void BattlegroundEY::EventPlayerClickedOnFlag(Player* player, GameObject* target_obj)
 {
+    // @tswow-begin
+    Battleground::EventPlayerClickedOnFlag(player, target_obj);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS || IsFlagPickedup() || !player->IsWithinDistInMap(target_obj, 10))
         return;
 

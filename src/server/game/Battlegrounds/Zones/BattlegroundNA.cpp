@@ -51,6 +51,9 @@ void BattlegroundNA::StartingEventCloseDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundNA::StartingEventOpenDoors()
@@ -61,6 +64,9 @@ void BattlegroundNA::StartingEventOpenDoors()
 
     for (uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger)
@@ -101,5 +107,7 @@ bool BattlegroundNA::SetupBattleground()
         return false;
     }
 
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }

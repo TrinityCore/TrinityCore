@@ -80,6 +80,9 @@ void BattlegroundRV::StartingEventOpenDoors()
     // Should be false at first, TogglePillarCollision will do it.
     _pillarCollision = true;
     TogglePillarCollision();
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
@@ -142,7 +145,9 @@ bool BattlegroundRV::SetupBattleground()
         TC_LOG_ERROR("sql.sql", "BatteGroundRV: Failed to spawn some object!");
         return false;
     }
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }
 
 void BattlegroundRV::TogglePillarCollision()
