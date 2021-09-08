@@ -508,7 +508,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
         _player->SetQuestSlot(packet.Entry, 0);
 
-        _player->UpdateCriteria(CRITERIA_TYPE_QUEST_ABANDONED, 1);
+        _player->UpdateCriteria(CriteriaType::AbandonAnyQuest, 1);
     }
 }
 

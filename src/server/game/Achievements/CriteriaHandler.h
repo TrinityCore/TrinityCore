@@ -271,7 +271,7 @@ public:
 
     virtual void Reset();
 
-    void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
+    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
 
     virtual void SendAllData(Player const* receiver) const = 0;
 
@@ -305,7 +305,7 @@ protected:
     bool ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, WorldObject const* ref, Player* referencePlayer) const;
 
     virtual std::string GetOwnerInfo() const = 0;
-    virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const = 0;
+    virtual CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const = 0;
 
     CriteriaProgressMap _criteriaProgress;
     std::map<uint32, uint32 /*ms time left*/> _timeCriteriaTrees;
@@ -317,26 +317,26 @@ class TC_GAME_API CriteriaMgr
     ~CriteriaMgr();
 
 public:
-    static char const* GetCriteriaTypeString(CriteriaTypes type);
+    static char const* GetCriteriaTypeString(CriteriaType type);
     static char const* GetCriteriaTypeString(uint32 type);
 
     static CriteriaMgr* Instance();
 
-    CriteriaList const& GetPlayerCriteriaByType(CriteriaTypes type, uint32 asset) const;
+    CriteriaList const& GetPlayerCriteriaByType(CriteriaType type, uint32 asset) const;
 
-    CriteriaList const& GetGuildCriteriaByType(CriteriaTypes type) const
+    CriteriaList const& GetGuildCriteriaByType(CriteriaType type) const
     {
-        return _guildCriteriasByType[type];
+        return _guildCriteriasByType[size_t(type)];
     }
 
-    CriteriaList const& GetScenarioCriteriaByType(CriteriaTypes type) const
+    CriteriaList const& GetScenarioCriteriaByType(CriteriaType type) const
     {
-        return _scenarioCriteriasByType[type];
+        return _scenarioCriteriasByType[size_t(type)];
     }
 
-    CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaTypes type) const
+    CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaType type) const
     {
-        return _questObjectiveCriteriasByType[type];
+        return _questObjectiveCriteriasByType[size_t(type)];
     }
 
     CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const
@@ -362,16 +362,16 @@ public:
         return iter != _criteriaDataMap.end() ? &iter->second : nullptr;
     }
 
-    static bool IsGroupCriteriaType(CriteriaTypes type)
+    static bool IsGroupCriteriaType(CriteriaType type)
     {
         switch (type)
         {
-            case CRITERIA_TYPE_KILL_CREATURE:
-            case CRITERIA_TYPE_WIN_BG:
-            case CRITERIA_TYPE_BE_SPELL_TARGET:         // NYI
-            case CRITERIA_TYPE_WIN_RATED_ARENA:
-            case CRITERIA_TYPE_BE_SPELL_TARGET2:        // NYI
-            case CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:  // NYI
+            case CriteriaType::KillCreature:
+            case CriteriaType::WinBattleground:
+            case CriteriaType::BeSpellTarget:       // NYI
+            case CriteriaType::WinAnyRankedArena:
+            case CriteriaType::GainAura:            // NYI
+            case CriteriaType::WinAnyBattleground:  // NYI
                 return true;
             default:
                 break;
@@ -406,11 +406,11 @@ private:
     std::unordered_map<uint32, CriteriaTreeList> _criteriaTreeByCriteria;
 
     // store criterias by type to speed up lookup
-    CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
-    CriteriaListByAsset _criteriasByAsset[CRITERIA_TYPE_TOTAL];
-    CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
-    CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
-    CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaList _criteriasByType[size_t(CriteriaType::Count)];
+    CriteriaListByAsset _criteriasByAsset[size_t(CriteriaType::Count)];
+    CriteriaList _guildCriteriasByType[size_t(CriteriaType::Count)];
+    CriteriaList _scenarioCriteriasByType[size_t(CriteriaType::Count)];
+    CriteriaList _questObjectiveCriteriasByType[size_t(CriteriaType::Count)];
 
     CriteriaList _criteriasByTimedType[size_t(CriteriaStartEvent::Count)];
     std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[size_t(CriteriaFailEvent::Count)];

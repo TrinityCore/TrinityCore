@@ -165,7 +165,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
                 player->m_taxi.NextTaxiDestination();
                 if (!_pointsForPathSwitch.empty())
                 {
-                    player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, _pointsForPathSwitch.front().Cost);
+                    player->UpdateCriteria(CriteriaType::MoneySpentOnTaxis, _pointsForPathSwitch.front().Cost);
                     player->ModifyMoney(-_pointsForPathSwitch.front().Cost);
                 }
             }

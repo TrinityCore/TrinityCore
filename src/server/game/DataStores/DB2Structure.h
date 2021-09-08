@@ -1007,174 +1007,200 @@ struct CriteriaEntry
     union AssetNameAlias
     {
         int32 ID;
-        // CRITERIA_TYPE_KILL_CREATURE                       = 0
-        // CRITERIA_TYPE_KILLED_BY_CREATURE                  = 20
-        // CRITERIA_TYPE_OWN_PET                             = 96
-        // CRITERIA_TYPE_208                                 = 208
+        // CriteriaType::KillCreature                               = 0
+        // CriteriaType::KilledByCreature                           = 20
+        // CriteriaType::AccountKnownPet                            = 96
+        // CriteriaType::KillCreatureScenario                       = 208
         int32 CreatureID;
 
-        // CRITERIA_TYPE_WIN_BG                              = 1
-        // CRITERIA_TYPE_COMPLETE_BATTLEGROUND               = 15
-        // CRITERIA_TYPE_DEATH_AT_MAP                        = 16
-        // CRITERIA_TYPE_WIN_ARENA                           = 32
-        // CRITERIA_TYPE_PLAY_ARENA                          = 33
-        // CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE             = 71
+        // CriteriaType::WinBattleground                            = 1
+        // CriteriaType::ParticipateInBattleground                  = 15
+        // CriteriaType::DieOnMap                                   = 16
+        // CriteriaType::WinArena                                   = 32
+        // CriteriaType::ParticipateInArena                         = 33
+        // CriteriaType::CompleteChallengeMode                      = 71
         int32 MapID;
 
-        // CRITERIA_TYPE_SURVEY_GAMEOBJECT                   = 4
-        // CRITERIA_TYPE_USE_GAMEOBJECT                      = 68
-        // CRITERIA_TYPE_FISH_IN_GAMEOBJECT                  = 72
+        // CriteriaType::CompleteResearchProject                    = 2
+        int32 ResearchProjectID;
+
+        // CriteriaType::FindResearchObject                         = 4
+        // CriteriaType::UseGameobject                              = 68
+        // CriteriaType::CatchFishInFishingHole                     = 72
         int32 GameObjectID;
 
-        // CRITERIA_TYPE_REACH_SKILL_LEVEL                   = 7
-        // CRITERIA_TYPE_LEARN_SKILL_LEVEL                   = 40
-        // CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS              = 75
-        // CRITERIA_TYPE_LEARN_SKILL_LINE                    = 112
+        // CriteriaType::SkillRaised                                = 7
+        // CriteriaType::AchieveSkillStep                           = 40
+        // CriteriaType::LearnSpellFromSkillLine                    = 75
+        // CriteriaType::LearnTradeskillSkillLine                   = 112
         int32 SkillID;
 
-        // CRITERIA_TYPE_COMPLETE_ACHIEVEMENT                = 8
+        // CriteriaType::EarnAchievement                            = 8
         int32 AchievementID;
 
-        // CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE             = 11
+        // CriteriaType::CompleteQuestsInZone                       = 11
         int32 ZoneID;
 
-        // CRITERIA_TYPE_CURRENCY                            = 12
-        // CRITERIA_TYPE_CONVERT_ITEMS_TO_CURRENCY           = 229
+        // CriteriaType::CurrencyGained                             = 12
+        // CriteriaType::ObtainAnyItemWithCurrencyValue             = 229
         int32 CurrencyID;
 
-        // CRITERIA_TYPE_DEATH_IN_DUNGEON                    = 18
-        // CRITERIA_TYPE_COMPLETE_RAID                       = 19
+        // CriteriaType::DieInInstance                              = 18
+        // CriteriaType::RunInstance                                = 19
         int32 GroupSize;
 
-        // CRITERIA_TYPE_MANUAL_COMPLETE_CRITERIA            = 21
+        // CriteriaType::CompleteInternalCriteria                   = 21
         int32 CriteriaID;
 
-        // CRITERIA_TYPE_DEATHS_FROM                         = 26
-        int32 DamageType;
+        // CriteriaType::DieFromEnviromentalDamage                  = 26
+        int32 EnviromentalDamageType;
 
-        // CRITERIA_TYPE_COMPLETE_QUEST                      = 27
+        // CriteriaType::CompleteQuest                              = 27
         int32 QuestID;
 
-        // CRITERIA_TYPE_BE_SPELL_TARGET                     = 28
-        // CRITERIA_TYPE_CAST_SPELL                          = 29
-        // CRITERIA_TYPE_LEARN_SPELL                         = 34
-        // CRITERIA_TYPE_BE_SPELL_TARGET2                    = 69
-        // CRITERIA_TYPE_CAST_SPELL2                         = 110
+        // CriteriaType::BeSpellTarget                              = 28
+        // CriteriaType::CastSpell                                  = 29
+        // CriteriaType::LearnOrKnowSpell                           = 34
+        // CriteriaType::GainAura                                   = 69
+        // CriteriaType::LandTargetedSpellOnTarget                  = 110
+        // CriteriaType::MemorizeSpell                              = 222
         int32 SpellID;
 
-        // CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE                = 30
-        int32 ObjectiveId;
+        // CriteriaType::TrackedWorldStateUIModified                = 30
+        int32 WorldStateUIID;
 
-        // CRITERIA_TYPE_HONORABLE_KILL_AT_AREA              = 31
-        // CRITERIA_TYPE_ENTER_AREA                          = 163
-        // CRITERIA_TYPE_LEAVE_AREA                          = 164
-        // CRITERIA_TYPE_TRAVELLED_TO_AREA                   = 225
+        // CriteriaType::PVPKillInArea                              = 31
+        // CriteriaType::EnterArea                                  = 163
+        // CriteriaType::LeaveArea                                  = 164
+        // CriteriaType::EnterTopLevelArea                          = 225
+        // CriteriaType::LeaveTopLevelArea                          = 226
         int32 AreaID;
 
-        // CRITERIA_TYPE_OWN_ITEM                            = 36
-        // CRITERIA_TYPE_USE_ITEM                            = 41
-        // CRITERIA_TYPE_LOOT_ITEM                           = 42
-        // CRITERIA_TYPE_EQUIP_ITEM                          = 57
-        // CRITERIA_TYPE_OWN_TOY                             = 185
+        // CriteriaType::AcquireItem                                = 36
+        // CriteriaType::UseItem                                    = 41
+        // CriteriaType::LootItem                                   = 42
+        // CriteriaType::EquipItem                                  = 57
+        // CriteriaType::LearnToy                                   = 185
+        // CriteriaType::LearnHeirloom                              = 188
         int32 ItemID;
 
-        // CRITERIA_TYPE_HIGHEST_TEAM_RATING                 = 38
-        // CRITERIA_TYPE_HIGHEST_PERSONAL_RATING             = 39
+        // CriteriaType::EarnTeamArenaRating                        = 38
+        // CriteriaType::EarnPersonalArenaRating                    = 39
         int32 TeamType;
 
-        // CRITERIA_TYPE_EXPLORE_AREA                        = 43
+        // CriteriaType::RevealWorldMapOverlay                      = 43
         int32 WorldMapOverlayID;
 
-        // CRITERIA_TYPE_GAIN_REPUTATION                     = 46
-        // CRITERIA_TYPE_GAIN_PARAGON_REPUTATION             = 206
+        // CriteriaType::ReputationGained                           = 46
+        // CriteriaType::ParagonLevelIncreaseWithFaction            = 206
         int32 FactionID;
 
-        // CRITERIA_TYPE_EQUIP_ITEM_IN_SLOT                  = 49
-        // CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT         = 199
+        // CriteriaType::EquipItemInSlot                            = 49
+        // CriteriaType::LearnAnyTransmogInSlot                     = 199
         int32 EquipmentSlot;
 
-        // CRITERIA_TYPE_ROLL_NEED_ON_LOOT                   = 50
-        // CRITERIA_TYPE_ROLL_GREED_ON_LOOT                  = 51
+        // CriteriaType::RollNeed                                   = 50
+        // CriteriaType::RollGreed                                  = 51
+        // CriteriaType::RollDisenchant                             = 116
         int32 RollValue;
 
-        // CRITERIA_TYPE_HK_CLASS                            = 52
+        // CriteriaType::DeliverKillingBlowToClass                  = 52
         int32 ClassID;
 
-        // CRITERIA_TYPE_HK_RACE                             = 53
+        // CriteriaType::DeliverKillingBlowToRace                   = 53
         int32 RaceID;
 
-        // CRITERIA_TYPE_DO_EMOTE                            = 54
+        // CriteriaType::DoEmote                                    = 54
         int32 EmoteID;
 
-        // CRITERIA_TYPE_SEND_EVENT                          = 73
-        // CRITERIA_TYPE_SEND_EVENT_SCENARIO                 = 92
+        // CriteriaType::CompleteQuestsInSort                       = 58
+        int32 QuestSortID;
+
+        // CriteriaType::KilledAllUnitsInSpawnRegion                = 64 
+        int32 SpawnRegionID;
+
+        // CriteriaType::PlayerTriggerGameEvent                     = 73
+        // CriteriaType::AnyoneTriggerGameEventScenario             = 92
         int32 EventID;
 
-        // CRITERIA_TYPE_GARRISON_COMPLETE_DUNGEON_ENCOUNTER = 97
-        // CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER          = 165
+        // CriteriaType::DefeatDungeonEncounterWhileElegibleForLoot = 97
+        // CriteriaType::DefeatDungeonEncounter                     = 165
         int32 DungeonEncounterID;
 
-        // CRITERIA_TYPE_LOOT_TYPE                           = 109
+        // CriteriaType::GetLootByType                              = 109
         int32 LootType;
 
-        // CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE       = 138
+        // CriteriaType::CompleteGuildChallenge                     = 138
         int32 GuildChallengeType;
 
-        // CRITERIA_TYPE_COMPLETE_SCENARIO                   = 152
+        // CriteriaType::CompleteScenario                           = 152
         int32 ScenarioID;
 
-        // CRITERIA_TYPE_REACH_AREATRIGGER_WITH_ACTIONSET    = 153
+        // CriteriaType::EnterAreaTriggerWithActionSet              = 153
+        // CriteriaType::LeaveAreaTriggerWithActionSet              = 154
         int32 AreaTriggerActionSetID;
 
-        // CRITERIA_TYPE_LEVEL_BATTLE_PET                    = 160
-        // CRITERIA_TYPE_LEVEL_BATTLE_PET_CREDIT             = 162
+        // CriteriaType::BattlePetReachLevel                        = 160
+        // CriteriaType::ActivelyEarnPetLevel                       = 162
         int32 PetLevel;
 
-        // CRITERIA_TYPE_PLACE_GARRISON_BUILDING             = 167
-        // CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING         = 169
+        // CriteriaType::PlaceGarrisonBuilding                      = 167
+        // CriteriaType::ActivateGarrisonBuilding                   = 169
+        // CriteriaType::LearnGarrisonBlueprint                     = 179
         int32 GarrBuildingID;
 
-        // CRITERIA_TYPE_UPGRADE_GARRISON                    = 170
+        // CriteriaType::UpgradeGarrison                            = 170
         int32 GarrisonLevel;
 
-        // CRITERIA_TYPE_START_GARRISON_MISSION              = 171
-        // CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT     = 173
+        // CriteriaType::StartAnyGarrisonMissionWithFollowerType    = 171
+        // CriteriaType::SucceedAnyGarrisonMissionWithFollowerType  = 173
         int32 GarrFollowerTypeID;
 
-        // CRITERIA_TYPE_START_ORDER_HALL_MISSION            = 172
-        // CRITERIA_TYPE_COMPLETE_GARRISON_MISSION           = 174
+        // CriteriaType::StartGarrisonMission                       = 172
+        // CriteriaType::SucceedGarrisonMission                     = 174
         int32 GarrMissionID;
 
-        // CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER           = 176
+        // CriteriaType::RecruitGarrisonFollower                    = 176
         int32 GarrFollowerID;
 
-        // CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT          = 182
+        // CriteriaType::LearnGarrisonSpecialization                = 181
+        int32 GarrSpecializationID;
+
+        // CriteriaType::CollectGarrisonShipment                    = 182
         int32 CharShipmentContainerID;
 
-        // CRITERIA_TYPE_OWN_ITEM_MODIFIED_APPEARANCE        = 192
+        // CriteriaType::LearnTransmog                              = 192
         int32 ItemModifiedAppearanceID;
 
-        // CRITERIA_TYPE_ACTIVELY_REACH_LEVEL                = 196
+        // CriteriaType::ActivelyReachLevel                         = 196
         int32 PlayerLevel;
 
-        // CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED           = 198
-        // CRITERIA_TYPE_202                                 = 202
+        // CriteriaType::CompleteResearchGarrisonTalent             = 198
+        // CriteriaType::StartResearchGarrisonTalent                = 202
+        // CriteriaType::SocketGarrisonTalent                       = 227
         int32 GarrTalentID;
 
-        // CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED               = 205
+        // CriteriaType::EarnLicense                                = 204
+        int32 BattlePayDeliverableID;
+
+        // CriteriaType::CollectTransmogSetFromGroup                = 205
         int32 TransmogSetGroupID;
 
-        // CRITERIA_TYPE_RELIC_TALENT_UNLOCKED               = 211
+        // CriteriaType::ArtifactPowerRankPurchased                 = 209
+        // CriteriaType::ChooseRelicTalent                          = 211
         int32 ArtifactPowerID;
 
-        // CRITERIA_TYPE_EXPANSION_LEVEL                     = 212
+        // CriteriaType::EarnExpansionLevel                         = 212
         int32 ExpansionLevel;
 
-        // CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL           = 213
+        // CriteriaType::AccountHonorLevelReached                   = 213
         int32 AccountHonorLevel;
 
-        // CRITERIA_TREE_HEART_OF_AZEROTH_LEVEL_REACHED      = 215
-        int32 HeartOfAzerothLevel;
+        // CriteriaType::AzeriteLevelReached                        = 215
+        int32 AzeriteLevel;
+
+        // CriteriaType::MythicPlusRatingAttained                   = 230
+        int32 DungeonScore;
     } Asset;
     uint32 ModifierTreeId;
     uint8 StartEvent;

@@ -59,10 +59,10 @@ void InstanceScenario::SaveToDB()
             continue;
 
         Criteria const* criteria = sCriteriaMgr->GetCriteria(iter->first);
-        switch (CriteriaTypes(criteria->Entry->Type))
+        switch (CriteriaType(criteria->Entry->Type))
         {
             // Blizzard only appears to store creature kills
-            case CRITERIA_TYPE_KILL_CREATURE:
+            case CriteriaType::KillCreature:
                 break;
             default:
                 continue;
@@ -124,10 +124,10 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
             if (criteria->Entry->StartTimer && time_t(date + criteria->Entry->StartTimer) < now)
                 continue;
 
-            switch (CriteriaTypes(criteria->Entry->Type))
+            switch (CriteriaType(criteria->Entry->Type))
             {
                 // Blizzard appears to only stores creatures killed progress for unknown reasons. Either technical shortcoming or intentional
-                case CRITERIA_TYPE_KILL_CREATURE:
+                case CriteriaType::KillCreature:
                     break;
                 default:
                     continue;
