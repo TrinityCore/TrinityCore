@@ -657,10 +657,6 @@ void GameObject::Update(uint32 diff)
                         m_SkillupList.clear();
                         m_usetimes = 0;
 
-                        // If nearby linked trap exists, respawn it
-                        if (GameObject* linkedTrap = GetLinkedTrap())
-                            linkedTrap->SetLootState(GO_READY);
-
                         switch (GetGoType())
                         {
                             case GAMEOBJECT_TYPE_FISHINGNODE:   //  can't fish now
@@ -857,7 +853,7 @@ void GameObject::Update(uint32 diff)
         {
             // If nearby linked trap exists, despawn it
             if (GameObject* linkedTrap = GetLinkedTrap())
-                linkedTrap->SetLootState(GO_JUST_DEACTIVATED);
+                linkedTrap->DespawnOrUnsummon();
 
             //if Gameobject should cast spell, then this, but some GOs (type = 10) should be destroyed
             if (GetGoType() == GAMEOBJECT_TYPE_GOOBER)
