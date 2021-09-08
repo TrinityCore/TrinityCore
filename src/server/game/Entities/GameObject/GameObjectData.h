@@ -835,6 +835,22 @@ struct GameObjectTemplate
         }
     }
 
+    uint32 GetRequireLOS() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_BUTTON: return button.requireLOS;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.requireLOS;
+            case GAMEOBJECT_TYPE_CHEST: return chest.requireLOS;
+            case GAMEOBJECT_TYPE_TRAP: return trap.requireLOS;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.requireLOS;
+            case GAMEOBJECT_TYPE_FLAGSTAND: return flagStand.requireLOS;
+            case GAMEOBJECT_TYPE_NEW_FLAG: return newflag.requireLOS;
+            case GAMEOBJECT_TYPE_GATHERING_NODE: return gatheringNode.requireLOS;
+            default: return 0;
+        }
+    }
+
     uint32 GetLockId() const
     {
         switch (type)
