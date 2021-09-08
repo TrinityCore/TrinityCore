@@ -3624,7 +3624,7 @@ bool SpellInfo::SpellCancelsAuraEffect(AuraEffect const* aurEff) const
 
     for (SpellEffectInfo const& effect : GetEffects())
     {
-        if (effect.IsEffect(SPELL_EFFECT_APPLY_AURA))
+        if (!effect.IsEffect(SPELL_EFFECT_APPLY_AURA))
             continue;
 
         uint32 const miscValue = static_cast<uint32>(effect.MiscValue);
