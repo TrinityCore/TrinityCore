@@ -146,7 +146,7 @@ void WorldSession::HandleAuctionConfirmCommoditiesPurchase(WorldPackets::Auction
             {
                 if (success)
                 {
-                    GetPlayer()->UpdateCriteria(CRITERIA_TYPE_WON_AUCTIONS, 1);
+                    GetPlayer()->UpdateCriteria(CriteriaType::AuctionsWon, 1);
                     SendAuctionCommandResult(0, AuctionCommand::PlaceBid, AuctionResult::Ok, throttle.DelayUntilNext);
                 }
                 else
@@ -475,7 +475,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         {
             if (success)
             {
-                GetPlayer()->UpdateCriteria(CRITERIA_TYPE_HIGHEST_AUCTION_BID, bidAmount);
+                GetPlayer()->UpdateCriteria(CriteriaType::HighestAuctionBid, bidAmount);
                 SendAuctionCommandResult(auctionId, AuctionCommand::PlaceBid, AuctionResult::Ok, throttle.DelayUntilNext);
             }
             else
@@ -778,7 +778,7 @@ void WorldSession::HandleAuctionSellCommodity(WorldPackets::AuctionHouse::Auctio
         {
             if (success)
             {
-                GetPlayer()->UpdateCriteria(CRITERIA_TYPE_CREATE_AUCTION, 1);
+                GetPlayer()->UpdateCriteria(CriteriaType::ItemsPostedAtAuction, 1);
                 SendAuctionCommandResult(auctionId, AuctionCommand::SellItem, AuctionResult::Ok, throttle.DelayUntilNext);
             }
             else
@@ -926,7 +926,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         {
             if (success)
             {
-                GetPlayer()->UpdateCriteria(CRITERIA_TYPE_CREATE_AUCTION, 1);
+                GetPlayer()->UpdateCriteria(CriteriaType::ItemsPostedAtAuction, 1);
                 SendAuctionCommandResult(auctionId, AuctionCommand::SellItem, AuctionResult::Ok, throttle.DelayUntilNext);
             }
             else

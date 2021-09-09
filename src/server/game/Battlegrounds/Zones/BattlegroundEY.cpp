@@ -847,7 +847,7 @@ bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     switch (type)
     {
         case SCORE_FLAG_CAPTURES:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, EY_OBJECTIVE_CAPTURE_FLAG);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, EY_OBJECTIVE_CAPTURE_FLAG);
             break;
         default:
             break;

@@ -537,16 +537,16 @@ bool BattlegroundAV::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     switch (type)
     {
         case SCORE_GRAVEYARDS_ASSAULTED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
             break;
         case SCORE_GRAVEYARDS_DEFENDED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_DEFEND_GRAVEYARD);
             break;
         case SCORE_TOWERS_ASSAULTED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_ASSAULT_TOWER);
             break;
         case SCORE_TOWERS_DEFENDED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_DEFEND_TOWER);
             break;
         default:
             break;

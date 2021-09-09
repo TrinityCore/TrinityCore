@@ -180,7 +180,7 @@ inline void KillRewarder::_RewardKillCredit(Player* player)
         if (Creature* target = _victim->ToCreature())
         {
             player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID());
-            player->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE_TYPE, target->GetCreatureType(), 1, 0, target);
+            player->UpdateCriteria(CriteriaType::KillAnyCreature, target->GetCreatureType(), 1, 0, target);
         }
 }
 
@@ -244,7 +244,7 @@ void KillRewarder::_RewardGroup()
                     if (_killer == member || member->IsAtGroupRewardDistance(_victim))
                     {
                         _RewardPlayer(member, isDungeon);
-                        member->UpdateCriteria(CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
+                        member->UpdateCriteria(CriteriaType::KillPlayer, 1, 0, 0, _victim);
                     }
                 }
             }
@@ -282,9 +282,9 @@ void KillRewarder::Reward()
 
         if (ObjectGuid::LowType guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                guild->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+                guild->UpdateCriteria(CriteriaType::KillCreature, victim->GetEntry(), 1, 0, victim, _killer);
 
         if (Scenario* scenario = victim->GetScenario())
-            scenario->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+            scenario->UpdateCriteria(CriteriaType::KillCreature, victim->GetEntry(), 1, 0, victim, _killer);
     }
 }

@@ -249,8 +249,8 @@ void Arena::EndBattleground(uint32 winner)
                 {
                     // update achievement BEFORE personal rating update
                     uint32 rating = player->GetArenaPersonalRating(winnerArenaTeam->GetSlot());
-                    player->UpdateCriteria(CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
-                    player->UpdateCriteria(CRITERIA_TYPE_WIN_ARENA, GetMapId());
+                    player->UpdateCriteria(CriteriaType::WinAnyRankedArena, rating ? rating : 1);
+                    player->UpdateCriteria(CriteriaType::WinArena, GetMapId());
 
                     // Last standing - Rated 5v5 arena & be solely alive player
                     if (GetArenaType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->IsAlive())
@@ -261,7 +261,7 @@ void Arena::EndBattleground(uint32 winner)
                         guildAwarded = true;
                         if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetBGTeam()))
                             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                                guild->UpdateCriteria(CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winnerArenaTeam->GetRating(), 1), 0, 0, nullptr, player);
+                                guild->UpdateCriteria(CriteriaType::WinAnyRankedArena, std::max<uint32>(winnerArenaTeam->GetRating(), 1), 0, 0, nullptr, player);
                     }
 
                     winnerArenaTeam->MemberWon(player, loserMatchmakerRating, winnerMatchmakerChange);

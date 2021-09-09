@@ -458,8 +458,8 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                     return;
                 }
 
-                _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
-                _player->UpdateCriteria(CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR, 1);
+                _player->UpdateCriteria(CriteriaType::MoneyEarnedFromSales, money);
+                _player->UpdateCriteria(CriteriaType::SellItemsToVendors, 1);
 
                 if (packet.Amount < pItem->GetCount())               // need split items
                 {
@@ -1201,7 +1201,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     if (BattlePetSpeciesEntry const* entry = sSpellMgr->GetBattlePetSpecies(uint32(spellToLearn)))
     {
         GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-        _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+        _player->UpdateCriteria(CriteriaType::UniquePetsOwned);
     }
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);

@@ -408,10 +408,10 @@ void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
     switch (packet.RollType)
     {
         case ROLL_NEED:
-            GetPlayer()->UpdateCriteria(CRITERIA_TYPE_ROLL_NEED, 1);
+            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyNeed, 1);
             break;
         case ROLL_GREED:
-            GetPlayer()->UpdateCriteria(CRITERIA_TYPE_ROLL_GREED, 1);
+            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyGreed, 1);
             break;
     }
 }

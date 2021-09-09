@@ -57,8 +57,8 @@ AchievementMgr::~AchievementMgr() { }
 void AchievementMgr::CheckAllAchievementCriteria(Player* referencePlayer)
 {
     // suppress sending packets
-    for (uint32 i = 0; i < CRITERIA_TYPE_TOTAL; ++i)
-        UpdateCriteria(CriteriaTypes(i), 0, 0, 0, nullptr, referencePlayer);
+    for (uint32 i = 0; i < uint32(CriteriaType::Count); ++i)
+        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer);
 }
 
 bool AchievementMgr::HasAchieved(uint32 achievementId) const
@@ -525,8 +525,8 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
         _achievementPoints += achievement->Points;
 
-    UpdateCriteria(CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, achievement->ID, 0, 0, nullptr, referencePlayer);
-    UpdateCriteria(CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, nullptr, referencePlayer);
+    UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
+    UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
 
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement);
@@ -691,7 +691,7 @@ void PlayerAchievementMgr::SendPacket(WorldPacket const* data) const
     _owner->SendDirectMessage(data);
 }
 
-CriteriaList const& PlayerAchievementMgr::GetCriteriaByType(CriteriaTypes type, uint32 asset) const
+CriteriaList const& PlayerAchievementMgr::GetCriteriaByType(CriteriaType type, uint32 asset) const
 {
     return sCriteriaMgr->GetPlayerCriteriaByType(type, asset);
 }
@@ -972,8 +972,8 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
         _achievementPoints += achievement->Points;
 
-    UpdateCriteria(CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, achievement->ID, 0, 0, nullptr, referencePlayer);
-    UpdateCriteria(CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, nullptr, referencePlayer);
+    UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
+    UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
 }
 
 void GuildAchievementMgr::SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds /*timeElapsed*/, bool /*timedCompleted*/) const
@@ -1026,7 +1026,7 @@ void GuildAchievementMgr::SendPacket(WorldPacket const* data) const
     _owner->BroadcastPacket(data);
 }
 
-CriteriaList const& GuildAchievementMgr::GetCriteriaByType(CriteriaTypes type, uint32 /*asset*/) const
+CriteriaList const& GuildAchievementMgr::GetCriteriaByType(CriteriaType type, uint32 /*asset*/) const
 {
     return sCriteriaMgr->GetGuildCriteriaByType(type);
 }

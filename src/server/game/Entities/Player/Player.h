@@ -2494,7 +2494,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
         void ResetCriteria(CriteriaFailEvent condition, int32 failAsset, bool evenIfCriteriaComplete = false);
-        void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject* ref = nullptr);
+        void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject* ref = nullptr);
         void StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry, uint32 timeLost = 0);
         void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);

@@ -334,7 +334,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8
     updates.push_back(std::ref(pet));
     SendUpdates(std::move(updates), true);
 
-    _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET, species);
+    _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnedNewPet, species);
 }
 
 void BattlePetMgr::RemovePet(ObjectGuid guid)
