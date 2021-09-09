@@ -299,101 +299,79 @@ public:
 
 enum DancingFlames
 {
-    SPELL_BRAZIER           = 45423,
-    SPELL_SEDUCTION         = 47057,
-    SPELL_FIERY_AURA        = 45427
+    SPELL_SUMMON_BRAZIER    = 45423,
+    SPELL_BRAZIER_DANCE     = 45427,
+    SPELL_FIERY_SEDUCTION   = 47057
 };
 
-class npc_dancing_flames : public CreatureScript
+struct npc_dancing_flames : public ScriptedAI
 {
-public:
-    npc_dancing_flames() : CreatureScript("npc_dancing_flames") { }
+    npc_dancing_flames(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_dancing_flamesAI : public ScriptedAI
+    void Reset() override
     {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Active = true;
-            CanIteract = 3500;
-        }
-
-        bool Active;
-        uint32 CanIteract;
-
-        void Reset() override
-        {
-            Initialize();
-            DoCast(me, SPELL_BRAZIER, true);
-            DoCast(me, SPELL_FIERY_AURA, false);
-            float x, y, z;
-            me->GetPosition(x, y, z);
-            me->Relocate(x, y, z + 0.94f);
-            me->SetDisableGravity(true);
-            me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-            WorldPacket data;                       //send update position to client
-            me->BuildHeartBeatMsg(&data);
-            me->SendMessageToSet(&data, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!Active)
-            {
-                if (CanIteract <= diff)
-                {
-                    Active = true;
-                    CanIteract = 3500;
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-                }
-                else
-                    CanIteract -= diff;
-            }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void ReceiveEmote(Player* player, uint32 emote) override
-        {
-            if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
-            {
-                me->SetFacingToObject(player);
-                Active = false;
-
-                WorldPacket data;
-                me->BuildHeartBeatMsg(&data);
-                me->SendMessageToSet(&data, true);
-                switch (emote)
-                {
-                    case TEXT_EMOTE_KISS:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
-                        break;
-                    case TEXT_EMOTE_WAVE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                        break;
-                    case TEXT_EMOTE_BOW:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                        break;
-                    case TEXT_EMOTE_JOKE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        break;
-                    case TEXT_EMOTE_DANCE:
-                        if (!player->HasAura(SPELL_SEDUCTION))
-                            DoCast(player, SPELL_SEDUCTION, true);
-                        break;
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dancing_flamesAI(creature);
+        DoCastSelf(SPELL_SUMMON_BRAZIER, true);
+        DoCastSelf(SPELL_BRAZIER_DANCE, false);
+        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+        float x, y, z;
+        me->GetPosition(x, y, z);
+        me->Relocate(x, y, z + 1.05f);
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    void ReceiveEmote(Player* player, uint32 emote) override
+    {
+        if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
+        {
+            // She responds to emotes not instantly but ~1500ms later
+            // If you first /bow, then /wave before dancing flames bow back, it doesnt bow at all and only does wave
+            // If you're performing emotes too fast, she will not respond to them
+            // Means she just replaces currently scheduled event with new after receiving new emote
+            _scheduler.CancelAll();
+
+            switch (emote)
+            {
+                case TEXT_EMOTE_KISS:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
+                    });
+                    break;
+                case TEXT_EMOTE_WAVE:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                    });
+                    break;
+                case TEXT_EMOTE_BOW:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                    });
+                    break;
+                case TEXT_EMOTE_JOKE:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                    });
+                    break;
+                case TEXT_EMOTE_DANCE:
+                    if (!player->HasAura(SPELL_FIERY_SEDUCTION))
+                    {
+                        DoCast(player, SPELL_FIERY_SEDUCTION, true);
+                        me->SetFacingTo(me->GetAbsoluteAngle(player));
+                    }
+                    break;
+            }
+        }
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 /*######
@@ -2611,7 +2589,7 @@ void AddSC_npcs_special()
 {
     new npc_air_force_bots();
     new npc_chicken_cluck();
-    new npc_dancing_flames();
+    RegisterCreatureAI(npc_dancing_flames);
     new npc_torch_tossing_target_bunny_controller();
     new npc_midsummer_bunny_pole();
     new npc_doctor();
