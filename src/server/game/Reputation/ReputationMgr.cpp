@@ -495,11 +495,11 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (!factionEntry->FriendshipRepID && !paragonReputation)
             UpdateRankCounters(old_rank, new_rank);
 
-        _player->UpdateCriteria(CRITERIA_TYPE_KNOWN_FACTIONS,          factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_REPUTATION,         factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalFactionsEncountered, factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::ReputationGained,         factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalExaltedFactions,     factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalReveredFactions,     factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalHonoredFactions,     factionEntry->ID);
 
         return true;
     }

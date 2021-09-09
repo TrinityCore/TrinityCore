@@ -321,7 +321,7 @@ std::vector<WorldPackets::Achievement::CriteriaProgress> Scenario::GetCriteriasP
     return criteriasProgress;
 }
 
-CriteriaList const& Scenario::GetCriteriaByType(CriteriaTypes type, uint32 /*asset*/) const
+CriteriaList const& Scenario::GetCriteriaByType(CriteriaType type, uint32 /*asset*/) const
 {
     return sCriteriaMgr->GetScenarioCriteriaByType(type);
 }

@@ -147,7 +147,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& pack
     _player->SetBankBagSlotCount(slot);
     _player->ModifyMoney(-int64(price));
 
-    _player->UpdateCriteria(CRITERIA_TYPE_BUY_BANK_SLOT);
+    _player->UpdateCriteria(CriteriaType::BankSlotsPurchased);
 }
 
 void WorldSession::SendShowBank(ObjectGuid guid)

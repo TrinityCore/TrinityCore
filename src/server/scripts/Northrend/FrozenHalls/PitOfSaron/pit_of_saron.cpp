@@ -352,7 +352,7 @@ public:
             instance->SetData(DATA_CAVERN_ACTIVE, 0);
 
             if (!instance->GetData(DATA_ICE_SHARDS_HIT))
-                instance->DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DONT_LOOK_UP_ACHIEV_CREDIT, 0, player);
+                instance->DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_DONT_LOOK_UP_ACHIEV_CREDIT, 0, player);
         }
 
         return true;

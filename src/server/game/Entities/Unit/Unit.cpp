@@ -807,13 +807,13 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                 if (Battleground* bg = killer->GetBattleground())
                     bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
 
-            killer->UpdateCriteria(CRITERIA_TYPE_DAMAGE_DONE, health > damage ? damage : health, 0, 0, victim);
-            killer->UpdateCriteria(CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
+            killer->UpdateCriteria(CriteriaType::DamageDealt, health > damage ? damage : health, 0, 0, victim);
+            killer->UpdateCriteria(CriteriaType::HighestDamageDone, damage);
         }
     }
 
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_HIGHEST_HIT_RECEIVED, damage);
+        victim->ToPlayer()->UpdateCriteria(CriteriaType::HighestDamageTaken, damage);
 
     if (attacker)
         damage /= victim->GetHealthMultiplierForTarget(attacker);
@@ -835,7 +835,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         killed = true;
 
         if (victim->GetTypeId() == TYPEID_PLAYER && victim != attacker)
-            victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
+            victim->ToPlayer()->UpdateCriteria(CriteriaType::TotalDamageTaken, health);
 
         if (damagetype != NODAMAGE && damagetype != SELF_DAMAGE && victim->HasAuraType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL))
         {
@@ -904,7 +904,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     else
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
-            victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, damage);
+            victim->ToPlayer()->UpdateCriteria(CriteriaType::TotalDamageTaken, damage);
 
         victim->ModifyHealth(-(int32)damage);
 
@@ -6089,16 +6089,16 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
             // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
             if (gain)
-                player->UpdateCriteria(CRITERIA_TYPE_HEALING_DONE, gain, 0, 0, victim);
+                player->UpdateCriteria(CriteriaType::HealingDone, gain, 0, 0, victim);
 
-            player->UpdateCriteria(CRITERIA_TYPE_HIGHEST_HEAL_CAST, addhealth);
+            player->UpdateCriteria(CriteriaType::HighestHealCast, addhealth);
         }
     }
 
     if (Player* player = victim->ToPlayer())
     {
-        player->UpdateCriteria(CRITERIA_TYPE_TOTAL_HEALING_RECEIVED, gain);
-        player->UpdateCriteria(CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED, addhealth);
+        player->UpdateCriteria(CriteriaType::TotalHealReceived, gain);
+        player->UpdateCriteria(CriteriaType::HighestHealReceived, addhealth);
     }
 
     if (gain)
@@ -10445,7 +10445,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     // and before Spirit of Redemption as it also removes auras
     if (attacker)
         if (Player* killerPlayer = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
-            killerPlayer->UpdateCriteria(CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, 0, victim);
+            killerPlayer->UpdateCriteria(CriteriaType::DeliveredKillingBlow, 1, 0, 0, victim);
 
     if (!skipSettingDeathState)
     {
@@ -10578,9 +10578,9 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     if (attacker && victim->GetTypeId() == TYPEID_PLAYER)
     {
         if (attacker->GetTypeId() == TYPEID_UNIT)
-            victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_KILLED_BY_CREATURE, attacker->GetEntry());
+            victim->ToPlayer()->UpdateCriteria(CriteriaType::KilledByCreature, attacker->GetEntry());
         else if (attacker->GetTypeId() == TYPEID_PLAYER && victim != attacker)
-            victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_KILLED_BY_PLAYER, 1, attacker->ToPlayer()->GetTeam());
+            victim->ToPlayer()->UpdateCriteria(CriteriaType::KilledByPlayer, 1, attacker->ToPlayer()->GetTeam());
     }
 
     // Hook for OnPVPKill Event
