@@ -258,7 +258,7 @@ void AzeriteItem::GiveXP(uint64 xp)
 
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Xp), currentXP);
 
-        owner->UpdateCriteria(CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED, xp);
+        owner->UpdateCriteria(CriteriaType::EarnArtifactXPForAzeriteItem, xp);
 
         // changing azerite level changes item level, need to update stats
         if (m_azeriteItemData->Level != level)
@@ -268,7 +268,7 @@ void AzeriteItem::GiveXP(uint64 xp)
 
             SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Level), level);
             UnlockDefaultMilestones();
-            owner->UpdateCriteria(CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED, level);
+            owner->UpdateCriteria(CriteriaType::AzeriteLevelReached, level);
 
             if (IsEquipped())
                 owner->_ApplyItemBonuses(this, GetSlot(), true);

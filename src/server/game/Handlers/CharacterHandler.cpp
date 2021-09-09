@@ -1370,7 +1370,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     m_playerLoading.Clear();
 
     // Handle Login-Achievements (should be handled after loading)
-    _player->UpdateCriteria(CRITERIA_TYPE_ON_LOGIN, 1);
+    _player->UpdateCriteria(CriteriaType::Login, 1);
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 
@@ -1698,7 +1698,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::Success).Write());
 
     _player->ModifyMoney(-cost);                     // it isn't free
-    _player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
+    _player->UpdateCriteria(CriteriaType::MoneySpentAtBarberShop, cost);
 
     if (_player->GetNativeSex() != packet.NewSex)
     {
@@ -1709,7 +1709,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
 
     _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()));
 
-    _player->UpdateCriteria(CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+    _player->UpdateCriteria(CriteriaType::GotHaircut, 1);
 
     _player->SetStandState(UNIT_STAND_STATE_STAND);
 
