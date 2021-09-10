@@ -677,7 +677,10 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 
             item.MuID = slot + 1; // client expects counting to start at 1
             item.Durability = itemTemplate->MaxDurability;
-            item.ExtendedCostID = vendorItem->ExtendedCost;
+
+            if (vendorItem->ExtendedCost)
+                item.ExtendedCostID = vendorItem->ExtendedCost;
+
             item.Type = vendorItem->Type;
             item.Quantity = leftInStock;
             item.StackCount = itemTemplate->GetBuyCount();
