@@ -1390,7 +1390,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems
             }
 
             // entry of transmogrifier and from packet
-            if (sourceItem->GetEntry() != item.ItemID)
+            if (sourceItem->GetEntry() != uint32(item.ItemID))
             {
                 TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid entry (entry: %u) for %s.", player->GetGUID().GetCounter(), player->GetName().c_str(), item.ItemID, item.SrcItemGUID.ToString().c_str());
                 return;
