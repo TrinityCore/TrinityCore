@@ -148,6 +148,11 @@ namespace WorldPackets
         class RequestInspectRatedBgStats;
     }
 
+    namespace Item
+    {
+        class TransmogrifyItems;
+    }
+
     namespace Misc
     {
         class CompleteCinematic;
@@ -1207,7 +1212,7 @@ class TC_GAME_API WorldSession
         void SendVoidStorageTransferResult(VoidTransferError result);
 
         // Transmogrification
-        void HandleTransmogrifyItems(WorldPacket& recvData);
+        void HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems& packet);
 
         // Reforge
         void HandleReforgeItemOpcode(WorldPacket& recvData);

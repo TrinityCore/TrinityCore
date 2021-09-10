@@ -24,3 +24,54 @@ WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Item::TransmogrifyItems::Read()
+{
+    Items.resize(_worldPacket.ReadBits(22));
+
+    for (TransmogrifyItem& item : Items)
+    {
+        item.SrcItemGUID[0] = _worldPacket.ReadBit();
+        item.SrcItemGUID[5] = _worldPacket.ReadBit();
+        item.SrcItemGUID[6] = _worldPacket.ReadBit();
+        item.SrcItemGUID[2] = _worldPacket.ReadBit();
+        item.SrcItemGUID[3] = _worldPacket.ReadBit();
+        item.SrcItemGUID[7] = _worldPacket.ReadBit();
+        item.SrcItemGUID[4] = _worldPacket.ReadBit();
+        item.SrcItemGUID[1] = _worldPacket.ReadBit();
+    }
+
+    Npc[7] = _worldPacket.ReadBit();
+    Npc[3] = _worldPacket.ReadBit();
+    Npc[5] = _worldPacket.ReadBit();
+    Npc[6] = _worldPacket.ReadBit();
+    Npc[1] = _worldPacket.ReadBit();
+    Npc[4] = _worldPacket.ReadBit();
+    Npc[0] = _worldPacket.ReadBit();
+    Npc[2] = _worldPacket.ReadBit();
+
+    for (TransmogrifyItem& item : Items)
+    {
+        _worldPacket >> item.ItemID;
+
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[1]);
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[5]);
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[0]);
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[4]);
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[6]);
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[7]);
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[3]);
+        _worldPacket.ReadByteSeq(item.SrcItemGUID[2]);
+
+        _worldPacket >> item.Slot;
+    }
+
+    _worldPacket.ReadByteSeq(Npc[7]);
+    _worldPacket.ReadByteSeq(Npc[2]);
+    _worldPacket.ReadByteSeq(Npc[5]);
+    _worldPacket.ReadByteSeq(Npc[4]);
+    _worldPacket.ReadByteSeq(Npc[3]);
+    _worldPacket.ReadByteSeq(Npc[1]);
+    _worldPacket.ReadByteSeq(Npc[6]);
+    _worldPacket.ReadByteSeq(Npc[0]);
+}
