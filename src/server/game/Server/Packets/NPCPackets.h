@@ -115,8 +115,8 @@ namespace WorldPackets
             uint32 Price                            = 0;
             int32 Durability                        = 0;
             int32 StackCount                        = 0;
-            Optional<int32> ExtendedCostID          = 0;
-            Optional<int32> PlayerConditionFailed   = 0;
+            Optional<int32> ExtendedCostID;
+            Optional<int32> PlayerConditionFailed;
         };
 
         class VendorInventory final : public ServerPacket

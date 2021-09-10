@@ -77,7 +77,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::VendorItem const& it
     data << int32(item.MuID);
     data << int32(item.Durability);
 
-    if (item.ExtendedCostID)
+    if (item.ExtendedCostID.has_value())
         data << uint32(*item.ExtendedCostID);
 
     data << uint32(item.ItemID);
