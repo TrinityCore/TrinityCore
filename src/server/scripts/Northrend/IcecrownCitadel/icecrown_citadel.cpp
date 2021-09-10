@@ -1212,7 +1212,7 @@ struct npc_argent_captainAI : public ScriptedAI
             {
                 me->GetMotionMaster()->Clear(false);
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
-                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, true, true);
             }
 
             Reset();

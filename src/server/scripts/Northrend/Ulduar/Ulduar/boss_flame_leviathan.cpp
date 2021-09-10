@@ -1738,7 +1738,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 Spell* baseSpell = GetSpell();
-                SpellCastTargets targets = baseSpell->m_targets;
+                SpellCastTargets const& targets = baseSpell->m_targets;
                 int32 damage = GetEffectValue();
                 if (targets.HasTraj())
                     if (Vehicle* vehicle = GetCaster()->GetVehicleKit())

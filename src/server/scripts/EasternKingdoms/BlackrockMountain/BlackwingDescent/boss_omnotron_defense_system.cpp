@@ -1265,7 +1265,6 @@ class spell_omnotron_activated : public AuraScript
         PreventDefaultAction();
         if (Unit* caster = GetCaster())
             if (caster->GetVictim())
-            if (caster->GetVictim())
                 caster->CastSpell(GetCaster()->GetVictim(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
     }
 
