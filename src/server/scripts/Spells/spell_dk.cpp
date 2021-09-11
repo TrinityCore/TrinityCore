@@ -1167,15 +1167,24 @@ class spell_dk_runic_empowerment : public AuraScript
         }
 
         std::array<uint8, 3> depletedRunes = { };
+        std::array<uint8, 3> availableBaseRunes = { };
+
         for (uint8 i = 0; i < MAX_RUNES; ++i)
+        {
             if (player->GetRuneCooldown(i))
-                ++depletedRunes[player->GetBaseRune(i)];
+            {
+                uint8 baseRune = player->GetBaseRune(i);
+                ++depletedRunes[baseRune];
+                if (baseRune == player->GetCurrentRune(i))
+                    ++availableBaseRunes[baseRune];
+            }
+        }
 
         // Selecting the runes that may proc. A fully depleted rune means that both runes of that type must be on cooldown.
         std::vector<uint32> availableEnergizeSpells;
         for (uint8 runeType = 0; runeType < depletedRunes.size(); ++runeType)
         {
-            if (depletedRunes[runeType] < 2)
+            if (depletedRunes[runeType] < 2 || availableBaseRunes[runeType] == 0)
                 continue;
 
             switch (RuneType(runeType))
