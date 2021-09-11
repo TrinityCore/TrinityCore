@@ -150,6 +150,7 @@ namespace WorldPackets
 
     namespace Item
     {
+        class DestroyItem;
         class TransmogrifyItems;
     }
 
@@ -932,7 +933,7 @@ class TC_GAME_API WorldSession
         void SendItemPageInfo(ItemTemplate* itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
-        void HandleDestroyItemOpcode(WorldPacket& recvPacket);
+        void HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& packet);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);

@@ -75,3 +75,10 @@ void WorldPackets::Item::TransmogrifyItems::Read()
     _worldPacket.ReadByteSeq(Npc[6]);
     _worldPacket.ReadByteSeq(Npc[0]);
 }
+
+void WorldPackets::Item::DestroyItem::Read()
+{
+    _worldPacket >> ContainerId;
+    _worldPacket >> SlotNum;
+    _worldPacket >> Count;
+}

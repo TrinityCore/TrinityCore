@@ -53,6 +53,18 @@ namespace WorldPackets
             ObjectGuid Npc;
             std::vector<TransmogrifyItem> Items;
         };
+
+        class DestroyItem final : public ClientPacket
+        {
+        public:
+            DestroyItem(WorldPacket&& packet) : ClientPacket(CMSG_DESTROY_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Count = 0;
+            uint8 SlotNum = 0;
+            uint8 ContainerId = 0;
+        };
     }
 
 
