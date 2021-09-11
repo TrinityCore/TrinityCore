@@ -1283,7 +1283,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
         case SPELL_ATTR7_CANT_PARRY: return 24;
         case SPELL_ATTR7_CANT_MISS: return 25;
         case SPELL_ATTR7_UNK26: return 26;
-        case SPELL_ATTR7_UNK27: return 27;
+        case SPELL_ATTR7_BYPASS_PREVENT_RES: return 27;
         case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return 28;
         case SPELL_ATTR7_UNK29: return 29;
         case SPELL_ATTR7_UNK30: return 30;
