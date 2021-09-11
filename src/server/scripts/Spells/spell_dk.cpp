@@ -61,9 +61,6 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832,
     SPELL_DK_EBON_PLAGUE                        = 65142,
-    SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
-    SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
-    SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169,
     SPELL_DK_FLAMING_TORRENT                    = 99000,
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_PRESENCE                     = 48266,
@@ -1142,13 +1139,7 @@ class spell_dk_runic_empowerment : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_DK_ENERGIZE_BLOOD_RUNE,
-                SPELL_DK_ENERGIZE_FROST_RUNE,
-                SPELL_DK_ENERGIZE_UNHOLY_RUNE,
-                SPELL_DK_RUNIC_CORRUPTION_TRIGGERED
-            });
+        return ValidateSpellInfo({ SPELL_DK_RUNIC_CORRUPTION_TRIGGERED });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1166,53 +1157,34 @@ class spell_dk_runic_empowerment : public AuraScript
             return;
         }
 
-        std::array<uint8, 3> depletedRunes = { };
-        std::array<uint8, 3> availableBaseRunes = { };
-
+        std::vector<uint8> fullyDepletedRuneIndexes;
         for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
-            if (player->GetRuneCooldown(i))
-            {
-                uint8 baseRune = player->GetBaseRune(i);
-                ++depletedRunes[baseRune];
-                if (baseRune == player->GetCurrentRune(i))
-                    ++availableBaseRunes[baseRune];
-            }
-        }
-
-        // Selecting the runes that may proc. A fully depleted rune means that both runes of that type must be on cooldown.
-        std::vector<uint32> availableEnergizeSpells;
-        for (uint8 runeType = 0; runeType < depletedRunes.size(); ++runeType)
-        {
-            if (depletedRunes[runeType] < 2 || availableBaseRunes[runeType] == 0)
+            // Only activate fully depleted runes, which are being on hold until
+            if (player->GetRuneCooldown(i) != RUNE_BASE_COOLDOWN)
                 continue;
 
-            switch (RuneType(runeType))
-            {
-                case RUNE_BLOOD:
-                    availableEnergizeSpells.push_back(SPELL_DK_ENERGIZE_BLOOD_RUNE);
-                    break;
-                case RUNE_UNHOLY:
-                    availableEnergizeSpells.push_back(SPELL_DK_ENERGIZE_UNHOLY_RUNE);
-                    break;
-                case RUNE_FROST:
-                    availableEnergizeSpells.push_back(SPELL_DK_ENERGIZE_FROST_RUNE);
-                    break;
-                default:
-                    break;
-            }
+            fullyDepletedRuneIndexes.push_back(i);
         }
 
-        if (availableEnergizeSpells.empty())
-            return;
-
-        if (uint32 spellId = Trinity::Containers::SelectRandomContainerElement(availableEnergizeSpells))
-            player->CastSpell(nullptr, spellId, aurEff);
+        if (!fullyDepletedRuneIndexes.empty())
+            if (uint8 runeIndex = Trinity::Containers::SelectRandomContainerElement(fullyDepletedRuneIndexes))
+                ActivateRune(player, runeIndex);
     }
 
     void Register() override
     {
         OnEffectProc.Register(&spell_dk_runic_empowerment::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+private:
+    // Sniffs do not show any spell cast to activate runes. We just copy the code part from Spell::EffectActivateRune in this case with some small tweaks
+    void ActivateRune(Player* player, uint8 runeIndex)
+    {
+        uint8 currentRuneState = player->GetRunesState();
+        player->SetRuneCooldown(runeIndex, 0);
+        uint8 runesState = player->GetRunesState() & ~currentRuneState;
+        player->AddRunePower(runesState);
     }
 };
 
