@@ -1166,32 +1166,39 @@ class spell_dk_runic_empowerment : public AuraScript
             return;
         }
 
-        std::vector<uint8> runesOnCooldown;
-        runesOnCooldown.reserve(MAX_RUNES);
+        std::array<uint8, 3> depletedRunes = { };
         for (uint8 i = 0; i < MAX_RUNES; ++i)
             if (player->GetRuneCooldown(i))
-                runesOnCooldown.emplace_back(i);
+                ++depletedRunes[player->GetBaseRune(i)];
 
-        if (runesOnCooldown.empty())
+        // Selecting the runes that may proc. A fully depleted rune means that both runes of that type must be on cooldown.
+        std::vector<uint32> availableEnergizeSpells;
+        for (uint8 runeType = 0; runeType < depletedRunes.size(); ++runeType)
+        {
+            if (depletedRunes[runeType] < 2)
+                continue;
+
+            switch (RuneType(runeType))
+            {
+                case RUNE_BLOOD:
+                    availableEnergizeSpells.push_back(SPELL_DK_ENERGIZE_BLOOD_RUNE);
+                    break;
+                case RUNE_UNHOLY:
+                    availableEnergizeSpells.push_back(SPELL_DK_ENERGIZE_UNHOLY_RUNE);
+                    break;
+                case RUNE_FROST:
+                    availableEnergizeSpells.push_back(SPELL_DK_ENERGIZE_FROST_RUNE);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (availableEnergizeSpells.empty())
             return;
 
-        uint8 runeIndex = Trinity::Containers::SelectRandomContainerElement(runesOnCooldown);
-        RuneType rune = player->GetCurrentRune(runeIndex);
-        switch (rune)
-        {
-            case RUNE_BLOOD:
-            case RUNE_DEATH:
-                player->CastSpell(player, SPELL_DK_ENERGIZE_BLOOD_RUNE, aurEff);
-                break;
-            case RUNE_FROST:
-                player->CastSpell(player, SPELL_DK_ENERGIZE_FROST_RUNE, aurEff);
-                break;
-            case RUNE_UNHOLY:
-                player->CastSpell(player, SPELL_DK_ENERGIZE_UNHOLY_RUNE, aurEff);
-                break;
-            default:
-                break;
-        }
+        if (uint32 spellId = Trinity::Containers::SelectRandomContainerElement(availableEnergizeSpells))
+            player->CastSpell(nullptr, spellId, aurEff);
     }
 
     void Register() override
