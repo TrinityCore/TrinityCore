@@ -8166,7 +8166,7 @@ float Unit::GetWeaponProcChance() const
     return 0;
 }
 
-float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, SpellInfo const* spellProto) const
+float Unit::GetPPMProcChance(uint32 weaponSpeed, float PPM, SpellInfo const* spellProto) const
 {
     // proc per minute chance calculation
     if (PPM <= 0)
@@ -8177,7 +8177,8 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, SpellInfo const* spe
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_PROC_PER_MINUTE, PPM);
 
-    return std::floor((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
+    // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
+    return (((float)weaponSpeed / IN_MILLISECONDS) * PPM) / 60.0f;
 }
 
 void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
