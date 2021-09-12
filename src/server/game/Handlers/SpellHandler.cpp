@@ -593,7 +593,7 @@ void WorldSession::HandleSelfResOpcode(WorldPacket & /*recvData*/)
 
     if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(_player->GetUInt32Value(PLAYER_SELF_RES_SPELL)))
     {
-        if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !spell->HasAttribute(SPELL_ATTR7_BYPASS_PREVENT_RES))
+        if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !spell->HasAttribute(SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA))
             return; // silent return, client should display error by itself and not send this opcode
 
         _player->CastSpell(_player, spell->Id);
