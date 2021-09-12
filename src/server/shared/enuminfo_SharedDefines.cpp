@@ -1198,7 +1198,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
         case SPELL_ATTR7_CANT_PARRY: return { "SPELL_ATTR7_CANT_PARRY", "Spell cannot be parried", "" };
         case SPELL_ATTR7_CANT_MISS: return { "SPELL_ATTR7_CANT_MISS", "Spell cannot be missed", "" };
         case SPELL_ATTR7_UNK26: return { "SPELL_ATTR7_UNK26", "Unknown attribute 26@Attr7", "" };
-        case SPELL_ATTR7_UNK27: return { "SPELL_ATTR7_UNK27", "Unknown attribute 27@Attr7", "" };
+        case SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA: return { "SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA", "Bypasses the prevent resurrection aura", "" };
         case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return { "SPELL_ATTR7_CONSOLIDATED_RAID_BUFF", "Consolidate in raid buff frame (client only)", "" };
         case SPELL_ATTR7_UNK29: return { "SPELL_ATTR7_UNK29", "Unknown attribute 29@Attr7", "" };
         case SPELL_ATTR7_UNK30: return { "SPELL_ATTR7_UNK30", "Unknown attribute 30@Attr7", "" };
@@ -1242,7 +1242,7 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 24: return SPELL_ATTR7_CANT_PARRY;
         case 25: return SPELL_ATTR7_CANT_MISS;
         case 26: return SPELL_ATTR7_UNK26;
-        case 27: return SPELL_ATTR7_UNK27;
+        case 27: return SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA;
         case 28: return SPELL_ATTR7_CONSOLIDATED_RAID_BUFF;
         case 29: return SPELL_ATTR7_UNK29;
         case 30: return SPELL_ATTR7_UNK30;
@@ -1283,7 +1283,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
         case SPELL_ATTR7_CANT_PARRY: return 24;
         case SPELL_ATTR7_CANT_MISS: return 25;
         case SPELL_ATTR7_UNK26: return 26;
-        case SPELL_ATTR7_UNK27: return 27;
+        case SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA: return 27;
         case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return 28;
         case SPELL_ATTR7_UNK29: return 29;
         case SPELL_ATTR7_UNK30: return 30;
