@@ -42,7 +42,7 @@ GossipMenu::~GossipMenu()
     ClearMenu();
 }
 
-uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
+uint32 GossipMenu::AddMenuItem(int32 optionIndex, GossipOptionIcon icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
 {
     ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 
@@ -222,7 +222,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
         WorldPackets::NPC::ClientGossipOptions& opt = packet.GossipOptions[count];
         GossipMenuItem const& item = itr->second;
         opt.ClientOption = itr->first;
-        opt.OptionNPC = item.MenuItemIcon;
+        opt.OptionIcon = item.MenuItemIcon;
         opt.OptionFlags = item.IsCoded;     // makes pop up box password
         opt.OptionCost = item.BoxMoney;     // money required to open menu, 2.0.3
         opt.Text = item.Message;            // text for gossip item
