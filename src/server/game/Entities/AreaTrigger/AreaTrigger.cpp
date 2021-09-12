@@ -38,7 +38,7 @@
 #include "Unit.h"
 #include "UpdateData.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr), _maxSearchRadius(0.0f),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
     _areaTriggerMiscTemplate(nullptr), _areaTriggerTemplate(nullptr)
@@ -113,6 +113,11 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
 
     SetObjectScale(1.0f);
 
+    if (GetTemplate()->IsPolygon())
+        _maxSearchRadius = GetMiscTemplate()->GetPolygonMaxSearchRadius();
+    else
+        _maxSearchRadius = GetTemplate()->MaxSearchRadius;
+
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::Caster), caster->GetGUID());
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::CreatingEffectGUID), castId);
@@ -122,7 +127,7 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::SpellXSpellVisualID), spellVisual.SpellXSpellVisualID);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::ScriptVisualID), spellVisual.ScriptVisualID);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetScale), GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : *m_areaTriggerData->Duration);
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetTemplate()->MaxSearchRadius);
+    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetMaxSearchRadius());
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), GetMiscTemplate()->DecalPropertiesId);
 
     if (GetMiscTemplate()->ExtraScale.Data.Structured.StartTimeOffset)
@@ -360,12 +365,12 @@ void AreaTrigger::SearchUnits(std::vector<Unit*>& targetList, float radius, bool
     if (IsServerSide())
     {
         Trinity::PlayerListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-        Cell::VisitWorldObjects(this, searcher, GetTemplate()->MaxSearchRadius);
+        Cell::VisitWorldObjects(this, searcher, GetMaxSearchRadius());
     }
     else
     {
         Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-        Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
+        Cell::VisitAllObjects(this, searcher, GetMaxSearchRadius());
     }
 }
 
@@ -387,7 +392,7 @@ void AreaTrigger::SearchUnitInSphere(std::vector<Unit*>& targetList)
 
 void AreaTrigger::SearchUnitInBox(std::vector<Unit*>& targetList)
 {
-    SearchUnits(targetList, GetTemplate()->MaxSearchRadius, false);
+    SearchUnits(targetList, GetMaxSearchRadius(), false);
 
     Position const& boxCenter = GetPosition();
     float extentsX = GetTemplate()->BoxDatas.Extents[0];
@@ -402,7 +407,7 @@ void AreaTrigger::SearchUnitInBox(std::vector<Unit*>& targetList)
 
 void AreaTrigger::SearchUnitInPolygon(std::vector<Unit*>& targetList)
 {
-    SearchUnits(targetList, GetTemplate()->MaxSearchRadius, false);
+    SearchUnits(targetList, GetMaxSearchRadius(), false);
 
     float height = GetTemplate()->PolygonDatas.Height;
     float minZ = GetPositionZ() - height;
@@ -418,7 +423,7 @@ void AreaTrigger::SearchUnitInPolygon(std::vector<Unit*>& targetList)
 
 void AreaTrigger::SearchUnitInCylinder(std::vector<Unit*>& targetList)
 {
-    SearchUnits(targetList, GetTemplate()->MaxSearchRadius, false);
+    SearchUnits(targetList, GetMaxSearchRadius(), false);
 
     float height = GetTemplate()->CylinderDatas.Height;
     float minZ = GetPositionZ() - height;
@@ -516,7 +521,7 @@ void AreaTrigger::UpdatePolygonOrientation()
     if (G3D::fuzzyEq(_previousCheckOrientation, newOrientation))
         return;
 
-    _polygonVertices.assign(GetTemplate()->PolygonVertices.begin(), GetTemplate()->PolygonVertices.end());
+    _polygonVertices.assign(GetMiscTemplate()->PolygonVertices.begin(), GetMiscTemplate()->PolygonVertices.end());
 
     float angleSin = std::sin(newOrientation);
     float angleCos = std::cos(newOrientation);

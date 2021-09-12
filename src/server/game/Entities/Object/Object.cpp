@@ -564,15 +564,15 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
 
         if (hasAreaTriggerPolygon)
         {
-            *data << int32(areaTriggerTemplate->PolygonVertices.size());
-            *data << int32(areaTriggerTemplate->PolygonVerticesTarget.size());
+            *data << int32(areaTriggerMiscTemplate->PolygonVertices.size());
+            *data << int32(areaTriggerMiscTemplate->PolygonVerticesTarget.size());
             *data << float(areaTriggerTemplate->PolygonDatas.Height);
             *data << float(areaTriggerTemplate->PolygonDatas.HeightTarget);
 
-            for (TaggedPosition<Position::XY> const& vertice : areaTriggerTemplate->PolygonVertices)
+            for (TaggedPosition<Position::XY> const& vertice : areaTriggerMiscTemplate->PolygonVertices)
                 *data << vertice;
 
-            for (TaggedPosition<Position::XY> const& vertice : areaTriggerTemplate->PolygonVerticesTarget)
+            for (TaggedPosition<Position::XY> const& vertice : areaTriggerMiscTemplate->PolygonVerticesTarget)
                 *data << vertice;
         }
 

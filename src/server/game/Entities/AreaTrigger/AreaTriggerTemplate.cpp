@@ -56,19 +56,11 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
             MaxSearchRadius = std::sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] / 4 + BoxDatas.Extents[1] * BoxDatas.Extents[1] / 4);
             break;
         }
+        // Polygon is SpellMisc based, can't init MaxSearchRadius
         case AREATRIGGER_TYPE_POLYGON:
         {
             if (PolygonDatas.Height <= 0.0f)
                 PolygonDatas.Height = 1.0f;
-
-            Position center(0.0f, 0.0f);
-            for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
-            {
-                float pointDist = center.GetExactDist2d(vertice);
-
-                if (pointDist > MaxSearchRadius)
-                    MaxSearchRadius = pointDist;
-            }
 
             break;
         }
@@ -117,4 +109,20 @@ AreaTriggerMiscTemplate::~AreaTriggerMiscTemplate()
 bool AreaTriggerMiscTemplate::HasSplines() const
 {
     return SplinePoints.size() >= 2;
+}
+
+float AreaTriggerMiscTemplate::GetPolygonMaxSearchRadius() const
+{
+    Position center(0.0f, 0.0f);
+    float maxSearchRadius = 0.0f;
+
+    for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
+    {
+        float pointDist = center.GetExactDist2d(vertice);
+
+        if (pointDist > maxSearchRadius)
+            maxSearchRadius = pointDist;
+    }
+
+    return maxSearchRadius;
 }
