@@ -99,6 +99,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         uint32 GetFaction() const override;
 
+        float GetMaxSearchRadius() const { return _maxSearchRadius; }
         Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
         Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
         void InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget);
@@ -144,6 +145,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AuraEffect const* _aurEff;
 
+        float _maxSearchRadius;
         int32 _duration;
         int32 _totalDuration;
         uint32 _timeSinceCreated;
