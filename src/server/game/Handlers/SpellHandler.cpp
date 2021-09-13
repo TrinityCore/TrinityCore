@@ -592,12 +592,12 @@ void WorldSession::HandleSelfResOpcode(WorldPacket & /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SELF_RES");                  // empty opcode
 
-    if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
-        return; // silent return, client should display error by itself and not send this opcode
-
-    if (uint32 spellId = _player->GetUInt32Value(PLAYER_SELF_RES_SPELL))
+    if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(_player->GetUInt32Value(PLAYER_SELF_RES_SPELL)))
     {
-        _player->CastSpell(_player, spellId);
+        if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !spell->HasAttribute(SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA))
+            return; // silent return, client should display error by itself and not send this opcode
+
+        _player->CastSpell(_player, spell->Id);
         _player->SetUInt32Value(PLAYER_SELF_RES_SPELL, 0);
     }
 }
