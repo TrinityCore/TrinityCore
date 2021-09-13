@@ -150,8 +150,6 @@ public:
     uint32 Flags;
     uint32 ScriptId;
     float MaxSearchRadius;
-    std::vector<TaggedPosition<Position::XY>> PolygonVertices;
-    std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
     std::vector<AreaTriggerAction> Actions;
 
     union
@@ -201,7 +199,8 @@ public:
     AreaTriggerMiscTemplate();
     ~AreaTriggerMiscTemplate();
 
-    bool HasSplines()   const;
+    bool HasSplines() const;
+    float GetPolygonMaxSearchRadius() const;
 
     uint32 MiscId;
     uint32 AreaTriggerEntry;
@@ -224,6 +223,9 @@ public:
     AreaTriggerOrbitInfo OrbitInfo;
 
     AreaTriggerTemplate const* Template;
+
+    std::vector<TaggedPosition<Position::XY>> PolygonVertices;
+    std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
     std::vector<Position> SplinePoints;
 };
 
