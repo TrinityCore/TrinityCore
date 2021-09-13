@@ -46,6 +46,9 @@ struct GameEventFinishCondition
     float done;    // done number
     uint32 max_world_state;  // max resource count world state update id
     uint32 done_world_state; // done resource count world state update id
+    // @tswow-begin custom field
+    bool auto_broadcast;
+    // @tswow-end
 };
 
 struct GameEventQuestToEventConditionNum
@@ -127,7 +130,11 @@ class TC_GAME_API GameEventMgr
         uint32 GetNPCFlag(Creature* cr);
 
     private:
+        // @tswow-begin
+    public:
         void SendWorldStateUpdate(Player* player, uint16 event_id);
+    private:
+        // @tswow-end
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
         void RemoveActiveEvent(uint16 event_id) { m_ActiveEvents.erase(event_id); }
         void ApplyNewEvent(uint16 event_id);

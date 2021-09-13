@@ -612,8 +612,11 @@ enum SMART_ACTION
     SMART_ACTION_SET_HOVER                          = 141,    // 0/1
     SMART_ACTION_SET_HEALTH_PCT                     = 142,    // percent
     SMART_ACTION_CREATE_CONVERSATION                = 143,    // don't use on 3.3.5a
-
-    SMART_ACTION_END                                = 144
+    // @tswow-begin custom actions
+    SMART_ACTION_SEND_WORLDSTATE                    = 270,    // id, value
+    SMART_ACTION_SEND_GAME_EVENT_STATE              = 271,    // gameEventId
+    SMART_ACTION_END                                = 272
+    // @tswow-end
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1222,6 +1225,19 @@ struct SmartAction
             uint32 percent;
         } setHealthPct;
 
+        // @tswow-begin: tswow action types
+        struct
+        {
+            uint32 worldStateId;
+            uint32 worldStateValue;
+        } sendWorldState;
+
+        struct
+        {
+            uint32 gameEventId;
+        } sendGameEventState;
+        // @tswow-end
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1700,7 +1716,6 @@ class TC_GAME_API SmartAIMgr
         static SmartScriptHolder& FindLinkedSourceEvent(SmartAIEventList& list, uint32 eventId);
 
         static SmartScriptHolder& FindLinkedEvent(SmartAIEventList& list, uint32 link);
-
     private:
         //event stores
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];

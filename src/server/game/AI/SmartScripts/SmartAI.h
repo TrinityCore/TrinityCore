@@ -229,6 +229,13 @@ class TC_GAME_API SmartAI : public CreatureAI
             _escortQuestId = questID;
         }
 
+        // @tswow-begin - direct call to SmartScript::ProcessEventsFor
+        void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr)
+        {
+            _script.ProcessEventsFor(e, unit, var0, var1, bvar, spell, gob);
+        }
+        // @tswow-end
+
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
         void ReturnToLastOOCPos();
@@ -323,6 +330,14 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void SummonedCreatureDespawn(Creature* unit) override;
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
+
+        // @tswow-begin - direct call to SmartScript::ProcessEventsFor
+        void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr)
+        {
+            _script.ProcessEventsFor(e, unit, var0, var1, bvar, spell, gob);
+        }
+        // @tswow-end
+
 
     private:
         SmartScript _script;

@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin includes
+#include "TSSmartScript.h"
+// @tswow-end
 #include "SmartScriptMgr.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
@@ -257,7 +260,9 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.source_type = source_type;
         temp.event_id = fields[2].GetUInt16();
         temp.link = fields[3].GetUInt16();
-        temp.event.type = (SMART_EVENT)fields[4].GetUInt8();
+        // @tswow-begin upgrade to uint32
+        temp.event.type = (SMART_EVENT)fields[4].GetUInt32();
+        // @tswow-end
         temp.event.event_phase_mask = fields[5].GetUInt16();
         temp.event.event_chance = fields[6].GetUInt8();
         temp.event.event_flags = fields[7].GetUInt16();
@@ -268,7 +273,9 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.raw.param4 = fields[11].GetUInt32();
         temp.event.raw.param5 = fields[12].GetUInt32();
 
-        temp.action.type = (SMART_ACTION)fields[13].GetUInt8();
+        // @tswow-begin - upgrade action type to uint32
+        temp.action.type = (SMART_ACTION)fields[13].GetUInt32();
+        // @tswow-end
         temp.action.raw.param1 = fields[14].GetUInt32();
         temp.action.raw.param2 = fields[15].GetUInt32();
         temp.action.raw.param3 = fields[16].GetUInt32();
@@ -672,20 +679,27 @@ bool SmartAIMgr::IsSoundValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 {
-    if (e.event.type >= SMART_EVENT_END)
+    // @tswow-begin also allow custom events
+    if (e.event.type < TSWOW_EVENT_OFFSET && e.event.type >= SMART_EVENT_END)
+    // @tswow-end
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid %d using event(%u) has invalid event type (%u), skipped.", e.entryOrGuid, e.event_id, e.GetEventType());
         return false;
     }
 
+    // @tswow-begin - don't try to read special type mask
     // in SMART_SCRIPT_TYPE_TIMED_ACTIONLIST all event types are overriden by core
-    if (e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && !(SmartAIEventMask[e.event.type][1] & SmartAITypeMask[e.GetScriptType()][1]))
+    if (e.event.type < TSWOW_EVENT_OFFSET && e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && !(SmartAIEventMask[e.event.type][1] & SmartAITypeMask[e.GetScriptType()][1]))
+    // @tswow-end   
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid %d, event type %u can not be used for Script type %u", e.entryOrGuid, e.GetEventType(), e.GetScriptType());
         return false;
     }
 
-    if (e.action.type <= 0 || e.action.type >= SMART_ACTION_END)
+    // @tswow-begin also allow custom actions
+    if (e.action.type < TSWOW_EVENT_OFFSET
+        && (e.action.type <= 0 || e.action.type >= SMART_ACTION_END))
+    // @tswow-end
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: EntryOrGuid %d using event(%u) has invalid action type (%u), skipped.", e.entryOrGuid, e.event_id, e.GetActionType());
         return false;
@@ -720,6 +734,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     }
     else
     {
+        // @tswow-begin don't check custom events
+        if(e.GetEventType() < TSWOW_EVENT_OFFSET)
+        // @tswow-end
         switch (e.GetEventType())
         {
             case SMART_EVENT_UPDATE:
@@ -1080,6 +1097,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
     }
 
+    // @tswow-begin don't check custom actions
+    if(e.GetActionType() < TSWOW_ACTION_OFFSET)
+    // @tswow-end
     switch (e.GetActionType())
     {
         case SMART_ACTION_TALK:
@@ -1423,6 +1443,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         }
+
+
         case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST:
         {
             if (!IsMinMaxValid(e, e.action.randTimedActionList.actionLists[0], e.action.randTimedActionList.actionLists[1]))
@@ -1691,6 +1713,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_PLAY_CINEMATIC:
         case SMART_ACTION_SET_HOVER:
+        // @tswow-begin tswow actions
+        case SMART_ACTION_SEND_WORLDSTATE:
+        case SMART_ACTION_SEND_GAME_EVENT_STATE:
+        // @tswow-end
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

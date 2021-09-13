@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSSmartScript.h"
+#include "TSEvents.h"
+// @tswow-end
 #include "SmartScript.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
@@ -268,6 +272,30 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     ObjectVector targets;
     GetTargets(targets, e, Coalesce<WorldObject>(unit, gob));
 
+    // @tswow-begin
+    TSSmartScriptValues values(
+              &e
+            , this
+            , unit
+            , var0
+            , var1
+            , bvar
+            , spell
+            , gob
+            , &targets
+        );
+    bool shouldCancel = false;
+    bool shouldCancelLink = false;
+    // TODO: send values by ref?
+    FIRE_MAP(
+          GetSmartActionEvent(e.GetActionType())
+        , SmartActionOnActivateEarly
+        , values
+        , TSMutable<bool>(&shouldCancel)
+        , TSMutable<bool>(&shouldCancelLink)
+    );
+    if(e.GetActionType() < TSWOW_ACTION_OFFSET )
+    // @tswow-end
     switch (e.GetActionType())
     {
         case SMART_ACTION_TALK:
@@ -2087,22 +2115,30 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_GAME_EVENT_STOP:
         {
             uint32 eventId = e.action.gameEventStop.id;
+            // @tswow-begin disable error check
+            /*
             if (!sGameEventMgr->IsActiveEvent(eventId))
             {
                 TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: At case SMART_ACTION_GAME_EVENT_STOP, inactive event (id: %u)", eventId);
                 break;
             }
+            */
+            // @tswow-end
             sGameEventMgr->StopEvent(eventId, true);
             break;
         }
         case SMART_ACTION_GAME_EVENT_START:
         {
             uint32 eventId = e.action.gameEventStart.id;
+            // @tswow-begin disable error check
+            /*
             if (sGameEventMgr->IsActiveEvent(eventId))
             {
                 TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: At case SMART_ACTION_GAME_EVENT_START, already activated event (id: %u)", eventId);
                 break;
             }
+            */
+            // @tswow-end
             sGameEventMgr->StartEvent(eventId, true);
             break;
         }
@@ -2401,12 +2437,39 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     targetUnit->SetHealth(targetUnit->CountPctFromMaxHealth(e.action.setHealthPct.percent));
             break;
         }
+        // @tswow-begin tswow smart actions
+        case SMART_ACTION_SEND_WORLDSTATE:
+            for (WorldObject* target : targets)
+                if (Player* targetPlayer = target->ToPlayer())
+                    targetPlayer->SendUpdateWorldState(
+                          e.action.sendWorldState.worldStateId
+                        , e.action.sendWorldState.worldStateValue
+                    );
+            break;
+        case SMART_ACTION_SEND_GAME_EVENT_STATE:
+            for (WorldObject* target : targets)
+                if (Player* targetPlayer = target->ToPlayer())
+                    sGameEventMgr->SendWorldStateUpdate(
+                          targetPlayer
+                        , e.action.sendGameEventState.gameEventId
+                    );
+            break;
+
+        // @tswow-end
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
     }
 
-    if (e.link && e.link != e.event_id)
+    // @tswow-begin - event and link cancelling
+    FIRE_MAP(
+        GetSmartActionEvent(e.GetActionType())
+        , SmartActionOnActivateLate
+        , values
+        , TSMutable<bool>(&shouldCancelLink)
+    );
+    if (!shouldCancelLink && e.link && e.link != e.event_id)
+    // @tswow-end
     {
         SmartScriptHolder& linked = SmartAIMgr::FindLinkedEvent(mEvents, e.link);
         if (linked)
@@ -2924,6 +2987,13 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
     if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCharmedCreature(me))
         return;
 
+    // @tswow-begin - just pass tswow events as is
+    if (e.GetEventType() >= TSWOW_EVENT_OFFSET)
+    {
+        ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+    }
+    else
+    // @tswow-end
     switch (e.GetEventType())
     {
         case SMART_EVENT_LINK://special handling

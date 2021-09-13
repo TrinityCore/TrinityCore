@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSSmartScript.h"
+#include "TSEvents.h"
+// @tswow-end
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
 #include "DatabaseEnv.h"
@@ -134,6 +138,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         return false;
     }
     bool condMeets = false;
+
+    // @tswow-begin disable check for custom ids
+    if(ConditionType < TSWOW_CONDITION_OFFSET)
+    // @tswow-end
     switch (ConditionType)
     {
         case CONDITION_NONE:
@@ -536,6 +544,16 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             condMeets = false;
             break;
     }
+
+    // @tswow-begin event
+    FIRE_MAP(
+          GetConditionEvent(ConditionType)
+        , ConditionOnCheck
+        , TSCondition(const_cast<Condition*>(this))
+        , TSConditionSourceInfo(&sourceInfo)
+        , TSMutable<bool>(&condMeets)
+    );
+    // @tswow-end
 
     if (NegativeCondition)
         condMeets = !condMeets;
@@ -1833,6 +1851,9 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
 bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 {
+    // @tswow-begin don't check custom conditions
+    if (cond->ConditionType >= TSWOW_CONDITION_OFFSET) return true;
+    // @tswow-end
     if (cond->ConditionType == CONDITION_NONE || cond->ConditionType >= CONDITION_MAX)
     {
         TC_LOG_ERROR("sql.sql", "%s Invalid ConditionType in `condition` table, ignoring.", cond->ToString(true).c_str());
