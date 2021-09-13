@@ -49,6 +49,17 @@ enum StratholmeMisc
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
 EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
+ObjectData const creatureData[] =
+{
+    { BOSS_HEARTSINGER_FORRESTEN,   DATA_HEARTHSINGER_FORRESTEN },
+    { BOSS_TIMMY_THE_CRUEL,         DATA_TIMMY_THE_CRUEL        },
+    { BOSS_COMMANDER_MALOR,         DATA_COMMANDER_MALOR        },
+    { BOSS_WILLEY_HOPEBREAKER,      DATA_WILLEY_HOPEBREAKER     },
+    { BOSS_INSTRUCTOR_GALFORD,      DATA_INSTRUCTOR_GALFORD     },
+    { BOSS_BALNAZZAR,               DATA_BALNAZZAR              },
+    { 0,                            0                           }, // END
+};
+
 class instance_stratholme : public InstanceMapScript
 {
     public:
@@ -59,8 +70,10 @@ class instance_stratholme : public InstanceMapScript
             instance_stratholme_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
+                SetBossNumber(MAX_ENCOUNTER);
+                LoadObjectData(creatureData, nullptr);
 
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                for (uint8 i = 0; i < MAX_ENCOUNTER_OLD; ++i)
                     EncounterState[i] = NOT_STARTED;
 
                 for (uint8 i = 0; i < 5; ++i)
@@ -70,7 +83,7 @@ class instance_stratholme : public InstanceMapScript
                 scarletsKilled = 0;
             }
 
-            uint32 EncounterState[MAX_ENCOUNTER];
+            uint32 EncounterState[MAX_ENCOUNTER_OLD];
             uint8 scarletsKilled;
 
             bool IsSilverHandDead[5];
