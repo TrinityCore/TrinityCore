@@ -58,8 +58,8 @@ namespace
 void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
-    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesByAreaTrigger;
-    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesTargetByAreaTrigger;
+    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesBySpellMisc;
+    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesTargetBySpellMisc;
     std::unordered_map<uint32, std::vector<Position>> splinesBySpellMisc;
     std::unordered_map<AreaTriggerId, std::vector<AreaTriggerAction>> actionsByAreaTrigger;
 
@@ -112,20 +112,20 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates actions. DB table `areatrigger_template_actions` is empty.");
     }
 
-    //                                                     0              1    2         3         4               5
-    if (QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_template_polygon_vertices` ORDER BY `AreaTriggerId`, `Idx`"))
+    //                                                     0            1    2         3         4               5
+    if (QueryResult vertices = WorldDatabase.Query("SELECT SpellMiscId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `spell_areatrigger_vertices` ORDER BY `SpellMiscId`, `Idx`"))
     {
         do
         {
             Field* verticeFields = vertices->Fetch();
-            uint32 areaTriggerId = verticeFields[0].GetUInt32();
+            uint32 spellMiscId = verticeFields[0].GetUInt32();
 
-            verticesByAreaTrigger[areaTriggerId].emplace_back(verticeFields[2].GetFloat(), verticeFields[3].GetFloat());
+            verticesBySpellMisc[spellMiscId].emplace_back(verticeFields[2].GetFloat(), verticeFields[3].GetFloat());
 
             if (!verticeFields[4].IsNull() && !verticeFields[5].IsNull())
-                verticesTargetByAreaTrigger[areaTriggerId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
+                verticesTargetBySpellMisc[spellMiscId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
             else if (verticeFields[4].IsNull() != verticeFields[5].IsNull())
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_polygon_vertices` has listed invalid target vertices (AreaTrigger: %u, Index: %u).", areaTriggerId, verticeFields[1].GetUInt32());
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_vertices` has listed invalid target vertices (SpellMiscId: %u, Index: %u).", spellMiscId, verticeFields[1].GetUInt32());
         }
         while (vertices->NextRow());
     }
@@ -183,11 +183,6 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 areaTriggerTemplate.DefaultDatas.Data[i] = fields[4 + i].GetFloat();
 
             areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[10].GetString());
-            if (!areaTriggerTemplate.Id.IsServerSide)
-            {
-                areaTriggerTemplate.PolygonVertices = std::move(verticesByAreaTrigger[areaTriggerTemplate.Id.Id]);
-                areaTriggerTemplate.PolygonVerticesTarget = std::move(verticesTargetByAreaTrigger[areaTriggerTemplate.Id.Id]);
-            }
             areaTriggerTemplate.Actions = std::move(actionsByAreaTrigger[areaTriggerTemplate.Id]);
 
             areaTriggerTemplate.InitMaxSearchRadius();
@@ -239,6 +234,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[9].GetUInt32();
             miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[10].GetUInt32();
 
+            miscTemplate.PolygonVertices = std::move(verticesBySpellMisc[miscTemplate.MiscId]);
+            miscTemplate.PolygonVerticesTarget = std::move(verticesTargetBySpellMisc[miscTemplate.MiscId]);
             miscTemplate.SplinePoints = std::move(splinesBySpellMisc[miscTemplate.MiscId]);
 
             _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
