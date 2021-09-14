@@ -378,7 +378,7 @@ struct boss_valithria_dreamwalker : public ScriptedAI
             DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
             // this display id was found in sniff instead of the one on aura
             me->SetDisplayId(11686);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->DespawnOrUnsummon(4s);
             if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_TRIGGER)))
                 Unit::Kill(me, trigger);

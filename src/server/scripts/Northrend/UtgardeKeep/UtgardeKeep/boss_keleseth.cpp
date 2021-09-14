@@ -240,10 +240,10 @@ struct npc_vrykul_skeleton : public ScriptedAI
 
             // There are some issues with pets
             // they will still attack. I would say it is a PetAI bug
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE))
             {
                 // from sniffs
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                 events.Reset();
@@ -284,7 +284,7 @@ struct npc_vrykul_skeleton : public ScriptedAI
                 case EVENT_SHADOW_FISSURE:
                     DoCast(me, SPELL_SHADOW_FISSURE, true);
                     DoCastAOE(SPELL_BONE_ARMOR, true);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
                     events.ScheduleEvent(EVENT_DECREPIFY, 4s, 6s);
@@ -297,7 +297,7 @@ struct npc_vrykul_skeleton : public ScriptedAI
                 return;
         }
 
-        if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+        if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE))
             DoMeleeAttackIfReady();
     }
 

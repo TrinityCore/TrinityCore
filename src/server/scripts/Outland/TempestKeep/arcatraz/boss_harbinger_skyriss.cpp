@@ -290,7 +290,7 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
             void Reset() override
             {
                 me->SetImmuneToPC(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void JustEngagedWith(Unit* /*who*/) override { }

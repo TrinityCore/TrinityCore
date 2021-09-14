@@ -64,7 +64,7 @@ struct boss_renataki : public BossAI
             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             me->SetDisplayId(11686);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             _invisible = true;
             _invisibleTimer = urand(15000, 30000);
         }
@@ -95,7 +95,7 @@ struct boss_renataki : public BossAI
                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
                 me->SetDisplayId(15268);
                 SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 _invisible = false;
                 _visibleTimer = 4000;
             }

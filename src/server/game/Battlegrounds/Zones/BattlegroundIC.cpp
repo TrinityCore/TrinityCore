@@ -143,9 +143,9 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     {
                         if (siege->IsAlive())
                         {
-                            if (siege->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_CANNOT_SWIM|UNIT_FLAG_IMMUNE_TO_PC))
+                            if (siege->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_CANNOT_SWIM|UNIT_FLAG_IMMUNE_TO_PC))
                                 // following sniffs the vehicle always has UNIT_FLAG_CANNOT_SWIM
-                                siege->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_IMMUNE_TO_PC);
+                                siege->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_IMMUNE_TO_PC);
                             else
                                 siege->SetHealth(siege->GetMaxHealth());
                         }
@@ -580,7 +580,7 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* node)
         for (Creature* cannon : cannons)
         {
             cannon->GetVehicleKit()->RemoveAllPassengers();
-            cannon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            cannon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
     }
     else if (node->nodeType == NODE_TYPE_WORKSHOP)
@@ -612,7 +612,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
                     gunshipHorde->GetCreatureListWithEntryInGrid(cannons, NPC_HORDE_GUNSHIP_CANNON, 150.0f);
 
                 for (Creature* cannon : cannons)
-                    cannon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    cannon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
                 for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; ++u)
                 {
@@ -767,7 +767,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
                         if (Creature* siegeEngine = GetBGCreature(siegeType))
                         {
-                            siegeEngine->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_CANNOT_SWIM);
+                            siegeEngine->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_CANNOT_SWIM);
                             siegeEngine->SetImmuneToPC(true);
                             siegeEngine->SetFaction(BG_IC_Factions[(node->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         }

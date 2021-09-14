@@ -633,7 +633,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void BeginEvent(Player* player)
@@ -658,7 +658,7 @@ public:
             }
 
             Event = true;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void PatientDied(Position const* point)
@@ -766,7 +766,7 @@ public:
             Initialize();
 
             //no select
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             //no regen health
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -806,8 +806,8 @@ public:
                     if (Creature* doctor = ObjectAccessor::GetCreature(*me, DoctorGUID))
                         ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
-            //make not selectable
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //make uninteractible
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             //regen health
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -844,7 +844,7 @@ public:
             if (me->IsAlive() && me->GetHealth() <= 6)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->setDeathState(JUST_DIED);
                 me->SetFlag(UNIT_DYNAMIC_FLAGS, 32);
 

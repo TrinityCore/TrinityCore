@@ -1060,7 +1060,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
 
             void Reset() override
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 DoCast(me, SPELL_MATCH_HEALTH);
                 _summons.DespawnAll();
@@ -1075,7 +1075,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                     DoCastAOE(SPELL_SHATTERED_ILLUSION_REMOVE, true);
                     DoCast(me, SPELL_MATCH_HEALTH_2, true); // it doesn't seem to hit Yogg-Saron here
                     DoCast(me, SPELL_BRAIN_HURT_VISUAL, true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->SetImmuneToPC(true);
 
                     if (Creature* voice = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))

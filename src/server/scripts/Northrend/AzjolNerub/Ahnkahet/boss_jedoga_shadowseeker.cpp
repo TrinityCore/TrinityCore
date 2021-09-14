@@ -279,7 +279,7 @@ struct boss_jedoga_shadowseeker : public BossAI
         switch (pointId)
         {
             case POINT_GROUND:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_CYCLONE_STRIKE, 3s);
@@ -329,7 +329,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->InterruptNonMeleeSpells(true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO, JedogaGroundPosition);
                     break;
                 case EVENT_FLY_DELAY:
@@ -416,7 +416,7 @@ struct npc_twilight_volunteer : public ScriptedAI
             me->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL_VOLUNTEER);
             Talk(SAY_CHOSEN);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->SetWalk(true);
             me->GetMotionMaster()->MovePoint(POINT_SACRIFICE, JedogaSacrificePosition);
         }

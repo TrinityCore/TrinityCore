@@ -56,7 +56,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_CONFUSED: return { "UNIT_FLAG_CONFUSED", "UNIT_FLAG_CONFUSED", "" };
         case UNIT_FLAG_FLEEING: return { "UNIT_FLAG_FLEEING", "UNIT_FLAG_FLEEING", "" };
         case UNIT_FLAG_POSSESSED: return { "UNIT_FLAG_POSSESSED", "UNIT_FLAG_POSSESSED", "under direct client control by a player (possess or vehicle)" };
-        case UNIT_FLAG_NOT_SELECTABLE: return { "UNIT_FLAG_NOT_SELECTABLE", "UNIT_FLAG_NOT_SELECTABLE", "" };
+        case UNIT_FLAG_UNINTERACTIBLE: return { "UNIT_FLAG_UNINTERACTIBLE", "UNIT_FLAG_UNINTERACTIBLE", "" };
         case UNIT_FLAG_SKINNABLE: return { "UNIT_FLAG_SKINNABLE", "UNIT_FLAG_SKINNABLE", "" };
         case UNIT_FLAG_MOUNT: return { "UNIT_FLAG_MOUNT", "UNIT_FLAG_MOUNT", "" };
         case UNIT_FLAG_UNK_28: return { "UNIT_FLAG_UNK_28", "UNIT_FLAG_UNK_28", "" };
@@ -100,7 +100,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 22: return UNIT_FLAG_CONFUSED;
         case 23: return UNIT_FLAG_FLEEING;
         case 24: return UNIT_FLAG_POSSESSED;
-        case 25: return UNIT_FLAG_NOT_SELECTABLE;
+        case 25: return UNIT_FLAG_UNINTERACTIBLE;
         case 26: return UNIT_FLAG_SKINNABLE;
         case 27: return UNIT_FLAG_MOUNT;
         case 28: return UNIT_FLAG_UNK_28;
@@ -141,7 +141,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
         case UNIT_FLAG_CONFUSED: return 22;
         case UNIT_FLAG_FLEEING: return 23;
         case UNIT_FLAG_POSSESSED: return 24;
-        case UNIT_FLAG_NOT_SELECTABLE: return 25;
+        case UNIT_FLAG_UNINTERACTIBLE: return 25;
         case UNIT_FLAG_SKINNABLE: return 26;
         case UNIT_FLAG_MOUNT: return 27;
         case UNIT_FLAG_UNK_28: return 28;

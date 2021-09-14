@@ -289,7 +289,7 @@ class boss_halion : public CreatureScript
                     Talk(SAY_PHASE_TWO);
 
                     me->CastStop();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     DoCastSelf(SPELL_TWILIGHT_PHASING);
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -671,7 +671,7 @@ class npc_halion_controller : public CreatureScript
                                 continue;
 
                             halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
-                            halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         }
 
                         // Summon Twilight portals

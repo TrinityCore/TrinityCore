@@ -590,7 +590,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 if (Creature* temp = instance->GetCreature(guid))
                                 {
                                     temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, false);
-                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                                     temp->SetImmuneToAll(false);
                                     temp->AI()->DoZoneInCombat(temp);
                                 }

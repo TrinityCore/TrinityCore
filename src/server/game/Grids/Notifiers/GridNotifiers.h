@@ -1097,7 +1097,7 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                // Check contains checks for: live, non-selectable, non-attackable flags, flight check and GM check, ignore totems
+                // Check contains checks for: live, uninteractible, non-attackable flags, flight check and GM check, ignore totems
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 

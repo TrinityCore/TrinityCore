@@ -122,7 +122,7 @@ enum Spells
     SPELL_WINGS_OF_THE_DAMNED           = 74352,
     SPELL_VALKYR_TARGET_SEARCH          = 69030,
     SPELL_CHARGE                        = 74399,    // cast on selected target
-    SPELL_VALKYR_CARRY                  = 74445,    // removes unselectable flag
+    SPELL_VALKYR_CARRY                  = 74445,    // removes uninteractible flag
     SPELL_LIFE_SIPHON                   = 73488,
     SPELL_LIFE_SIPHON_HEAL              = 73489,
     SPELL_EJECT_ALL_PASSENGERS          = 68576,
@@ -1500,7 +1500,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
             case POINT_CHARGE:
                 if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
                 {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     if (GameObject* platform = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_ARTHAS_PLATFORM)))
                     {
                         std::list<Creature*> triggers;
@@ -1737,7 +1737,7 @@ struct npc_terenas_menethil : public ScriptedAI
             damage = me->GetHealth() - 1;
             if (!me->HasAura(SPELL_TERENAS_LOSES_INSIDE) && !IsHeroic())
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 DoCast(SPELL_TERENAS_LOSES_INSIDE);
                 _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1s);
                 if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
@@ -1798,7 +1798,7 @@ struct npc_terenas_menethil : public ScriptedAI
                     }
                     break;
                 case EVENT_DESTROY_SOUL:
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                         warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
                     DoCast(SPELL_TERENAS_LOSES_INSIDE);
@@ -2548,7 +2548,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScript
                 summoner->GetAI()->SetData(DATA_VILE, 1);
         GetCaster()->CastSpell(nullptr, SPELL_SPIRIT_BURST, true);
         GetCaster()->ToCreature()->DespawnOrUnsummon(3s);
-        GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void Register() override

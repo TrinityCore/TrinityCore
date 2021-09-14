@@ -364,7 +364,7 @@ struct boss_deathbringer_saurfang : public BossAI
             _dead = true;
             _JustDied();
             _EnterEvadeMode();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
             me->RemoveAurasOnEvade();
             DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
@@ -461,7 +461,7 @@ struct boss_deathbringer_saurfang : public BossAI
             switch (eventId)
             {
                 case EVENT_INTRO_ALLIANCE_2:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_ALLIANCE_2);
                     break;
@@ -474,7 +474,7 @@ struct boss_deathbringer_saurfang : public BossAI
                     DoCastSelf(SPELL_GRIP_OF_AGONY);
                     break;
                 case EVENT_INTRO_HORDE_2:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_HORDE_2);
                     break;
@@ -729,7 +729,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
                     {
                         deathbringer->CastSpell(me, SPELL_RIDE_VEHICLE, true);  // for the packet logs.
-                        deathbringer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        deathbringer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         deathbringer->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DROWNED);
                     }
                     _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 1s);    // move
