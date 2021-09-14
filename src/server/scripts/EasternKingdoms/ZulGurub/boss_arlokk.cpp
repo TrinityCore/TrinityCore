@@ -239,7 +239,7 @@ struct boss_arlokk : public BossAI
                     me->AttackStop();
                     ResetThreatList();
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNINTERACTIBLE);
                     DoCast(me, SPELL_VANISH_VISUAL);
                     DoCast(me, SPELL_VANISH);
                     events.ScheduleEvent(EVENT_VANISH, 1s, 0, PHASE_ONE);
@@ -258,7 +258,7 @@ struct boss_arlokk : public BossAI
                     break;
                 case EVENT_VISIBLE:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNINTERACTIBLE);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         AttackStart(target);
                     me->RemoveAura(SPELL_SUPER_INVIS);

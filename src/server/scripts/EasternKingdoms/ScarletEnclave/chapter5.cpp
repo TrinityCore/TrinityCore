@@ -758,7 +758,7 @@ public:
                         case 15: // summon gate
                             if (Creature* temp = me->SummonCreature(NPC_HIGHLORD_ALEXANDROS_MOGRAINE, LightofDawnLoc[22], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 5min))
                             {
-                                temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                                 temp->CastSpell(temp, SPELL_ALEXANDROS_MOGRAINE_SPAWN, true);
                                 temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN06);
                                 uiAlexandrosGUID = temp->GetGUID();
@@ -769,7 +769,7 @@ public:
                         case 16: // Alexandros out
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiAlexandrosGUID))
                             {
-                                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                                 temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[23]);
                                 temp->AI()->Talk(SAY_LIGHT_OF_DAWN32);
                             }

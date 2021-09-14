@@ -8313,7 +8313,7 @@ bool Unit::isTargetableForAttack(bool checkFakeDeath) const
         return false;
 
     if (HasFlag(UNIT_FIELD_FLAGS,
-        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
+        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE))
         return false;
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
@@ -13403,12 +13403,12 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
             {
                 fieldBuffer << uint32(m_floatValues[index]);
             }
-            // Gamemasters should be always able to select units - remove not selectable flag
+            // Gamemasters should be always able to interact with units - remove uninteractible flag
             else if (index == UNIT_FIELD_FLAGS)
             {
                 uint32 appendValue = m_uint32Values[UNIT_FIELD_FLAGS];
                 if (target->IsGameMaster())
-                    appendValue &= ~UNIT_FLAG_NOT_SELECTABLE;
+                    appendValue &= ~UNIT_FLAG_UNINTERACTIBLE;
 
                 fieldBuffer << uint32(appendValue);
             }

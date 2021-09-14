@@ -191,7 +191,7 @@ class boss_akilzon : public CreatureScript
                             trigger->SetFaction(FACTION_FRIENDLY);
                             trigger->SetMaxHealth(100000);
                             trigger->SetHealth(100000);
-                            trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                             if (Cloud)
                             {
                                 CastSpellExtraArgs args;
@@ -291,7 +291,7 @@ class boss_akilzon : public CreatureScript
                                         Cloud->SetFaction(FACTION_FRIENDLY);
                                         Cloud->SetMaxHealth(9999999);
                                         Cloud->SetHealth(9999999);
-                                        Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                        Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                                     }
                                 StormCount = 1;
                                 events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 1min); // 60 seconds(bosskillers)

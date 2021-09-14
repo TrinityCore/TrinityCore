@@ -232,7 +232,7 @@ struct boss_muru : public BossAI
     {
         _Reset();
         Initialize();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         me->SetVisible(true);
     }
 
@@ -279,7 +279,7 @@ struct boss_muru : public BossAI
             _phase = PHASE_TWO;
             me->RemoveAllAuras();
             DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
             {
@@ -371,7 +371,7 @@ struct npc_dark_fiend : public ScriptedAI
         _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
                 if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0))

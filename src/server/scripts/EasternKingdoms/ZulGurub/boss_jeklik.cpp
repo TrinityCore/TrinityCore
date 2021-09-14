@@ -213,7 +213,7 @@ struct npc_batrider : public ScriptedAI
     void Reset() override
     {
         Initialize();
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void JustEngagedWith(Unit* /*who*/) override { }

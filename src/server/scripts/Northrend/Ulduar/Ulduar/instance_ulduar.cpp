@@ -1029,7 +1029,7 @@ class instance_ulduar : public InstanceMapScript
                 if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
                 {
                     vehicle->RemoveAllPassengers();
-                    vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     vehicleCreature->DespawnOrUnsummon(5min);
                 }
             }

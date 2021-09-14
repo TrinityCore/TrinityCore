@@ -65,12 +65,12 @@ enum class VehicleExitParameters
 struct PassengerInfo
 {
     ObjectGuid Guid;
-    bool IsUnselectable;
+    bool IsUninteractible;
 
     void Reset()
     {
         Guid.Clear();
-        IsUnselectable = false;
+        IsUninteractible = false;
     }
 };
 
