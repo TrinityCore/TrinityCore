@@ -734,7 +734,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
         Item* item = _player->GetItemByGuid(itemGUID);
         if (item)
-            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank != 0);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod);
     }
     else
     {
