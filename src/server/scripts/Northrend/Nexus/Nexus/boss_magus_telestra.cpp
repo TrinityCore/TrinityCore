@@ -123,7 +123,7 @@ struct boss_magus_telestra : public ScriptedAI
     {
         Initialize();
 
-        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetVisible(true);
 
         instance->SetBossState(DATA_MAGUS_TELESTRA, NOT_STARTED);
@@ -237,7 +237,7 @@ struct boss_magus_telestra : public ScriptedAI
             me->AttackStop();
             if (uiIsWaitingToAppearTimer <= diff)
             {
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 bIsWaitingToAppear = false;
             } else uiIsWaitingToAppearTimer -= diff;
             return;
@@ -274,7 +274,7 @@ struct boss_magus_telestra : public ScriptedAI
             me->CastStop();
             me->RemoveAllAuras();
             me->SetVisible(false);
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             uiFireMagusGUID = SplitPersonality(NPC_FIRE_MAGUS);
             uiFrostMagusGUID = SplitPersonality(NPC_FROST_MAGUS);
             uiArcaneMagusGUID = SplitPersonality(NPC_ARCANE_MAGUS);
@@ -291,7 +291,7 @@ struct boss_magus_telestra : public ScriptedAI
             me->CastStop();
             me->RemoveAllAuras();
             me->SetVisible(false);
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             uiFireMagusGUID = SplitPersonality(NPC_FIRE_MAGUS);
             uiFrostMagusGUID = SplitPersonality(NPC_FROST_MAGUS);
             uiArcaneMagusGUID = SplitPersonality(NPC_ARCANE_MAGUS);

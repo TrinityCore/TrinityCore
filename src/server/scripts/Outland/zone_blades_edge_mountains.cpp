@@ -184,7 +184,7 @@ public:
                             ++NihilSpeech_Phase;
                             break;
                         case 4:
-                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             //take off to location above
                             me->GetMotionMaster()->MovePoint(0, me->GetPositionX()+50.0f, me->GetPositionY(), me->GetPositionZ()+50.0f);
                             ++NihilSpeech_Phase;

@@ -148,7 +148,7 @@ struct boss_apothecary_hummel : public BossAI
                     _isDead = true;
                     me->RemoveAurasDueToSpell(SPELL_ALLURING_PERFUME);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     Talk(SAY_HUMMEL_DEATH);
                 }
             }
@@ -169,7 +169,7 @@ struct boss_apothecary_hummel : public BossAI
             Talk(SAY_HUMMEL_DEATH);
 
         events.Reset();
-        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();

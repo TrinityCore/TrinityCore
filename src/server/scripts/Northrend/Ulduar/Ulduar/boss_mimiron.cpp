@@ -515,7 +515,7 @@ class boss_mimiron : public CreatureScript
                             {
                                 DoCast(mkii, SPELL_SEAT_7);
                                 mkii->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
-                                mkii->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                                mkii->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
                             }
                             events.ScheduleEvent(EVENT_INTRO_3, 2s);
                             break;
@@ -661,7 +661,7 @@ class boss_mimiron : public CreatureScript
                             break;
                         case EVENT_OUTTRO_3:
                             DoCast(me, SPELL_TELEPORT_VISUAL);
-                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             me->DespawnOrUnsummon(1s); // sniffs say 6 sec after, but it doesnt matter.
                             break;
                         default:
@@ -754,7 +754,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                         break;
                     case DO_ASSEMBLED_COMBAT:
                         me->SetStandState(UNIT_STAND_STATE_STAND);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
                         me->SetReactState(REACT_AGGRESSIVE);
 
                         events.SetPhase(PHASE_VOL7RON);
@@ -803,7 +803,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                 switch (point)
                 {
                     case WP_MKII_P1_IDLE:
-                        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         DoCast(me, SPELL_HALF_HEAL);
 
                         if (Creature* mimiron = instance->GetCreature(DATA_MIMIRON))
@@ -830,7 +830,7 @@ class boss_leviathan_mk_ii : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
                 me->SetReactState(REACT_PASSIVE);
                 _fireFighter = false;
                 _setupMine = true;
@@ -957,7 +957,7 @@ class boss_vx_001 : public CreatureScript
                     if (events.IsInPhase(PHASE_VX_001))
                     {
                         me->CastStop();
-                        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE); // | UNIT_FLAG_NOT_SELECTABLE);
+                        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE); // | UNIT_FLAG_UNINTERACTIBLE);
                         DoCast(me, SPELL_HALF_HEAL); // has no effect, wat
                         DoCast(me, SPELL_TORSO_DISABLED);
                         if (Creature* mimiron = instance->GetCreature(DATA_MIMIRON))
@@ -990,7 +990,7 @@ class boss_vx_001 : public CreatureScript
                         events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX, 6s);
                         [[fallthrough]];
                     case DO_START_VX001:
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
                         me->SetImmuneToPC(false);
                         me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                         me->SetEmoteState(EMOTE_ONESHOT_NONE); // Remove emotestate.
@@ -1004,7 +1004,7 @@ class boss_vx_001 : public CreatureScript
                         break;
                     case DO_ASSEMBLED_COMBAT:
                         me->SetStandState(UNIT_STAND_STATE_STAND);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
 
                         events.SetPhase(PHASE_VOL7RON);
                         events.ScheduleEvent(EVENT_ROCKET_STRIKE, 20s);
@@ -1173,7 +1173,7 @@ class boss_aerial_command_unit : public CreatureScript
                     case DO_START_AERIAL:
                         me->SetDisableGravity(false);
                         me->SetHover(true);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
 
@@ -1193,7 +1193,7 @@ class boss_aerial_command_unit : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case DO_ASSEMBLED_COMBAT:
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.SetPhase(PHASE_VOL7RON);
@@ -1227,7 +1227,7 @@ class boss_aerial_command_unit : public CreatureScript
                 if (type == POINT_MOTION_TYPE && point == WP_AERIAL_P4_POS)
                 {
                     me->SetFacingTo(VehicleRelocation[WP_AERIAL_P4_POS].GetOrientation());
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
 
                     if (Creature* mimiron = instance->GetCreature(DATA_MIMIRON))
@@ -1727,7 +1727,7 @@ class spell_mimiron_bomb_bot : public SpellScriptLoader
             {
                 if (Creature* target = GetHitCreature())
                 {
-                    target->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED));
+                    target->AddUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED));
                     target->DespawnOrUnsummon(1s);
                 }
             }

@@ -244,7 +244,7 @@ struct boss_magtheridon : public BossAI
                     CombatStart();
                     break;
                 case EVENT_RELEASED:
-                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetImmuneToPC(false);
                     DoZoneInCombat();
                     events.SetPhase(PHASE_2);

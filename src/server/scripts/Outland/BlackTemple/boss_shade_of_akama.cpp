@@ -216,7 +216,7 @@ struct boss_shade_of_akama : public BossAI
         _Reset();
         Initialize();
         me->SetImmuneToPC(true);
-        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetEmoteState(EMOTE_STATE_STUN);
         me->SetWalk(true);
         events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, 1s);
@@ -255,7 +255,7 @@ struct boss_shade_of_akama : public BossAI
         if (_isInPhaseOne && motionType == CHASE_MOTION_TYPE)
         {
             _isInPhaseOne = false;
-            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(false);
             me->SetWalk(false);
             events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
@@ -317,7 +317,7 @@ struct boss_shade_of_akama : public BossAI
                 {
                     for (ObjectGuid summonGuid : summons)
                         if (Creature* channeler = ObjectAccessor::GetCreature(*me, summonGuid))
-                            channeler->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            channeler->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                     for (ObjectGuid spawnerGuid : _spawners)
                         if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
@@ -565,7 +565,7 @@ struct npc_ashtongue_channeler : public PassiveAI
         {
             if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
-                if (shade->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
+                if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
                     DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
 
                 else
@@ -574,7 +574,7 @@ struct npc_ashtongue_channeler : public PassiveAI
 
             channel.Repeat(Seconds(2));
         });
-        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -692,7 +692,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
     {
         if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
         {
-            if (shade->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
+            if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
                 me->GetMotionMaster()->MovePoint(0, shade->GetPosition());
 
             else if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
@@ -730,7 +730,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
             {
                 if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
-                    if (shade->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
+                    if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
                     {
                         me->SetFacingToObject(shade);
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);

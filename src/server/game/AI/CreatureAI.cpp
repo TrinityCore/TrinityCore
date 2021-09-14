@@ -397,7 +397,7 @@ int32 CreatureAI::VisualizeBoundary(Seconds duration, Unit* owner, bool fill) co
                 point->AddUnitFlag(UNIT_FLAG_STUNNED);
                 point->SetImmuneToAll(true);
                 if (!hasOutOfBoundsNeighbor)
-                    point->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    point->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
         }
 

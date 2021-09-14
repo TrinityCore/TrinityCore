@@ -341,7 +341,7 @@ struct boss_algalon_the_observer : public BossAI
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17s);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26s);
                 me->DespawnOrUnsummon(34s);
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToNPC(true);
                 break;
             case ACTION_INIT_ALGALON:
@@ -361,7 +361,7 @@ struct boss_algalon_the_observer : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         Milliseconds introDelay = 0ms;
-        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetImmuneToNPC(true);
         events.Reset();
         events.SetPhase(PHASE_ROLE_PLAY);
@@ -485,7 +485,7 @@ struct boss_algalon_the_observer : public BossAI
             events.SetPhase(PHASE_ROLE_PLAY);
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             DoCastSelf(SPELL_SELF_STUN);
             events.Reset();
             summons.DespawnAll();
@@ -560,12 +560,12 @@ struct boss_algalon_the_observer : public BossAI
                 {
                     events.SetPhase(PHASE_NORMAL);
                     me->SetSheath(SHEATH_STATE_MELEE);
-                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetImmuneToNPC(false);
                     me->SetReactState(REACT_DEFENSIVE);
                     DoCastAOE(SPELL_SUPERMASSIVE_FAIL, true);
                     //! Workaround for Creature::_IsTargetAcceptable returning false
-                    //! for creatures that start combat in REACT_PASSIVE and UNIT_FLAG_NOT_SELECTABLE
+                    //! for creatures that start combat in REACT_PASSIVE and UNIT_FLAG_UNINTERACTIBLE
                     //! causing them to immediately evade
                     if (!me->GetThreatManager().IsThreatListEmpty())
                         AttackStart(me->GetThreatManager().GetCurrentVictim());
@@ -652,7 +652,7 @@ struct boss_algalon_the_observer : public BossAI
                     break;
                 case EVENT_OUTRO_4:
                     DoCastAOE(SPELL_SUPERMASSIVE_FAIL);
-                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     break;
                 case EVENT_OUTRO_5:
                     if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos))
@@ -747,7 +747,7 @@ struct npc_living_constellation : public CreatureAI
                     if (Unit* target = algalon->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(algalon)))
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         AttackStart(target);
                         DoZoneInCombat();
                         _isActive = true;

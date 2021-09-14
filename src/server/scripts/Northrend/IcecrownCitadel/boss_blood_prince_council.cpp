@@ -554,7 +554,7 @@ struct BloodPrincesBossAI : public BossAI
         {
             case ACTION_STAND_UP:
                 me->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 me->RemoveDynamicFlag(UNIT_DYNFLAG_DEAD);
                 me->m_Events.AddEvent(new StandUpEvent(me), me->m_Events.CalculateTime(1s));
@@ -779,7 +779,7 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
                 summon->GetPosition(x, y, z);
                 float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseShift(), x, y, z, true, 500.0f);
                 summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
-                summon->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                summon->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 break;
             }
             case NPC_SHOCK_VORTEX:

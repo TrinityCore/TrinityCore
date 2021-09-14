@@ -199,7 +199,7 @@ public:
                         me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
                         TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min))
                     {
-                        spotlight->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        spotlight->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
                         m_uiSpotlightGUID = spotlight->GetGUID();
                     }

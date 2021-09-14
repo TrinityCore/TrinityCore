@@ -293,7 +293,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT));
+                ptah->AddUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT));
                 ptah->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }
@@ -302,7 +302,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT));
+                ptah->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT));
                 ptah->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }
