@@ -325,9 +325,6 @@ class boss_flame_leviathan : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                // Set Field Flags 67108928 = 64 | 67108864 = UNIT_FLAG_UNK_6 | UNIT_FLAG_SKINNABLE
-                // Set DynFlags 12
-                // Set NPCFlags 0
                 Talk(SAY_DEATH);
             }
 
