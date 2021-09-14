@@ -4876,24 +4876,23 @@ void Player::DurabilityPointLossForEquipSlot(EquipmentSlots slot)
 
 void Player::DurabilityRepairAll(bool takeCost, float discountMod, bool guildBank)
 {
+    // Collecting all items that can be repaired and repair costs
     std::list<std::pair<Item*, uint32>> itemRepairCostStore;
-    // Сollecting all items that can be repaired and repair costs
-    {
-        // equipped, backpack, bags itself
-        for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; i++)
-            if (Item* item = GetItemByPos(((INVENTORY_SLOT_BAG_0 << 8) | i)))
+
+    // equipped, backpack, bags itself
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; i++)
+        if (Item* item = GetItemByPos(((INVENTORY_SLOT_BAG_0 << 8) | i)))
+            if (uint32 cost = item->CalculateDurabilityRepairCost(discountMod))
+                itemRepairCostStore.push_back(std::make_pair(item, cost));
+
+    // bank, buyback and keys not repaired
+
+    // items in inventory bags
+    for (uint8 j = INVENTORY_SLOT_BAG_START; j < INVENTORY_SLOT_BAG_END; j++)
+        for (uint8 i = 0; i < MAX_BAG_SIZE; i++)
+            if (Item* item = GetItemByPos(((j << 8) | i)))
                 if (uint32 cost = item->CalculateDurabilityRepairCost(discountMod))
                     itemRepairCostStore.push_back(std::make_pair(item, cost));
-
-        // bank, buyback and keys not repaired
-
-        // items in inventory bags
-        for (uint8 j = INVENTORY_SLOT_BAG_START; j < INVENTORY_SLOT_BAG_END; j++)
-            for (uint8 i = 0; i < MAX_BAG_SIZE; i++)
-                if (Item* item = GetItemByPos(((j << 8) | i)))
-                    if (uint32 cost = item->CalculateDurabilityRepairCost(discountMod))
-                        itemRepairCostStore.push_back(std::make_pair(item, cost));
-    }
 
     // Handling a free repair case - just repair every item without taking cost.
     if (!takeCost)
