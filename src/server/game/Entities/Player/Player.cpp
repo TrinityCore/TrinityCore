@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -4924,10 +4924,11 @@ void Player::DurabilityRepairAll(bool takeCost, float discountMod, bool guildBan
 
         for (auto const& [item, cost] : itemRepairCostStore)
         {
-            if (totalCost + cost > availableGuildMoney)
+            uint64 newTotalCost = totalCost + cost;
+            if (newTotalCost > availableGuildMoney || newTotalCost > MAX_MONEY_AMOUNT)
                 break;
 
-            totalCost += cost;
+            totalCost = static_cast<uint32>(newTotalCost);
 
             // Repair item without taking cost. We'll do it later.
             DurabilityRepair(item->GetPos(), false, 0.f);
