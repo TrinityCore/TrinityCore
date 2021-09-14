@@ -35,6 +35,7 @@
 #include "Player.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
