@@ -685,6 +685,16 @@ struct PlayerCreateInfoSkill
     uint16 Rank;
 };
 
+// @tswow-begin
+struct SpellAutoLearn
+{
+    uint32 spell;
+    uint32 racemask;
+    uint32 classmask;
+};
+typedef std::vector<std::vector<SpellAutoLearn>> SpellAutoLearns;
+// @tswow-end
+
 typedef std::vector<PlayerCreateInfoSkill> PlayerCreateInfoSkills;
 
 // existence checked by displayId != 0
@@ -1018,6 +1028,10 @@ class TC_GAME_API ObjectMgr
 
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const;
 
+        // @tswow-begin
+        SpellAutoLearns const& GetSpellAutolearns() { return _spellAutoLearns;  }
+        // @tswow-end
+
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
         std::vector<uint32> const* GetGameObjectQuestItemList(uint32 id) const
@@ -1215,6 +1229,9 @@ class TC_GAME_API ObjectMgr
         PageText const* GetPageText(uint32 pageEntry);
 
         void LoadPlayerInfo();
+        // @tswow-begin
+        void LoadSpellAutolearn();
+        // @tswow-end
         void LoadPetLevelInfo();
         void LoadExplorationBaseXP();
         void LoadPetNames();
@@ -1679,6 +1696,10 @@ class TC_GAME_API ObjectMgr
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
         std::unique_ptr<PlayerInfo> _playerInfo[MAX_RACES][MAX_CLASSES];
+
+        // @tswow-begin
+        SpellAutoLearns _spellAutoLearns;
+        // @tswow-end
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel _playerXPperLevel;

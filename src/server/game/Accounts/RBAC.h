@@ -753,6 +753,7 @@ enum RBACPermissions
     RBAC_PERM_CLEAR_AT                                       = 17689,
     RBAC_PERM_ID                                             = 17690,
     RBAC_PERM_TEST                                           = 17691,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_AUTOLEARN                 = 17692,
     // @tswow-end
     RBAC_PERM_MAX
 };

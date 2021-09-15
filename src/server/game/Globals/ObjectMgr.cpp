@@ -4568,6 +4568,35 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
+// @tswow-begin
+void ObjectMgr::LoadSpellAutolearn()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _spellAutoLearns.clear();
+    //                                               0      1         2          3
+    QueryResult result = WorldDatabase.Query("SELECT spell, racemask, classmask, level FROM spell_autolearn");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 spell     = fields[0].GetUInt32();
+            uint32 racemask  = fields[1].GetUInt32();
+            uint32 classmask = fields[2].GetUInt32();
+            uint32 level     = fields[3].GetUInt32();
+            if (level >= _spellAutoLearns.size())
+            {
+                _spellAutoLearns.resize(level + 1);
+            }
+            _spellAutoLearns[level].push_back({ spell,racemask,classmask });
+            ++count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Autolearn spells %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+// @tswow-end
+
 void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassLevelInfo* info) const
 {
     if (level < 1 || class_ >= MAX_CLASSES)
@@ -6802,7 +6831,9 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         uint32 submask = 1<<((i-1)%32);
 
         // skip not taxi network nodes
-        if ((sTaxiNodesMask[field] & submask) == 0)
+        // @tswow-begin taxi nodes bounds
+        if (field < sTaxiNodesMask.size() && (sTaxiNodesMask[field] & submask) == 0)
+        // @tswow-end
             continue;
 
         float dist2 = (node->Pos.X - x)*(node->Pos.X - x)+(node->Pos.Y - y)*(node->Pos.Y - y)+(node->Pos.Z - z)*(node->Pos.Z - z);

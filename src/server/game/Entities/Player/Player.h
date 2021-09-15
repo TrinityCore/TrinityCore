@@ -906,6 +906,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     public:
         // @tswow-begin
         TSMessageBuffer m_message_buffer;
+        void ApplyAutolearnSpells(uint32 fromLevel);
         // @tswow-end
         explicit Player(WorldSession* session);
         ~Player();

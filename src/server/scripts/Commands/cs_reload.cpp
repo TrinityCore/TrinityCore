@@ -169,6 +169,9 @@ public:
             { "vehicle_template",              rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE,                 true,  &HandleReloadVehicleTemplateCommand,            "" },
             { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY,                 true,  &HandleReloadVehicleAccessoryCommand,           "" },
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY,       true,  &HandleReloadVehicleTemplateAccessoryCommand,   "" },
+            // @tswow-begin
+            { "spell_autolearn",               rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_AUTOLEARN,                  true,  &HandleReloadSpellAutolearnCommand,             "" },
+            // @tswow-end
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -297,6 +300,9 @@ public:
         HandleReloadSpellThreatsCommand(handler, "a");
         HandleReloadSpellGroupStackRulesCommand(handler, "a");
         HandleReloadSpellPetAurasCommand(handler, "a");
+        // @tswow-begin
+        HandleReloadSpellAutolearnCommand(handler, "a");
+        // @tswow-end
         return true;
     }
 
@@ -1207,6 +1213,17 @@ public:
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
         return true;
     }
+
+    // @tswow-begin
+    static bool HandleReloadSpellAutolearnCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Reloading spell_autolearn table...");
+        sObjectMgr->LoadSpellAutolearn();
+        handler->SendGlobalGMSysMessage("spell_autolearn reloaded.");
+        return true;
+    }
+    // @tswow-end
+
 
     static bool HandleReloadRBACCommand(ChatHandler* handler, char const* /*args*/)
     {

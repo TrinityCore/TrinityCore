@@ -1924,6 +1924,11 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
+    // @tswow-begin
+    TC_LOG_INFO("server.loading", "Loading Spell Autolearn Data...");
+    sObjectMgr->LoadSpellAutolearn();
+    // @tswow-end
+
     TC_LOG_INFO("server.loading", "Loading Exploration BaseXP Data...");
     sObjectMgr->LoadExplorationBaseXP();
 
