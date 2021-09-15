@@ -107,7 +107,7 @@ class boss_kologarn : public CreatureScript
             boss_kologarnAI(Creature* creature) : BossAI(creature, DATA_KOLOGARN),
                 left(false), right(false)
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
 
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
@@ -139,7 +139,7 @@ class boss_kologarn : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 eyebeamTarget.Clear();
             }
 
@@ -148,7 +148,7 @@ class boss_kologarn : public CreatureScript
                 Talk(SAY_DEATH);
                 DoCast(SPELL_KOLOGARN_PACIFY);
                 me->GetMotionMaster()->MoveTargetedHome();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
                 _JustDied();
             }

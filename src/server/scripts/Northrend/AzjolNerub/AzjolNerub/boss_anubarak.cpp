@@ -117,7 +117,7 @@ struct boss_anub_arak : public BossAI
     void Reset() override
     {
         BossAI::Reset();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
         _nextSubmerge = 75;
         _petCount = 0;
@@ -328,7 +328,7 @@ struct boss_anub_arak : public BossAI
                 {
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                     me->RemoveAurasDueToSpell(SPELL_IMPALE_AURA);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                     DoCastSelf(SPELL_EMERGE);
                     events.SetPhase(PHASE_EMERGE);
                     events.ScheduleEvent(EVENT_POUND, 13s, 18s, 0, PHASE_EMERGE);
@@ -358,7 +358,7 @@ struct boss_anub_arak : public BossAI
     {
         if (spellInfo->Id == SPELL_SUBMERGE)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
             me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
             DoCastSelf(SPELL_IMPALE_AURA, true);
 

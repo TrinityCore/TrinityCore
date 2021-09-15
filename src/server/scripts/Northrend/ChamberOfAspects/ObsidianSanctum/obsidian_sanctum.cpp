@@ -805,7 +805,7 @@ struct npc_flame_tsunami : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100ms);
         events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -851,7 +851,7 @@ struct npc_twilight_fissure : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         me->AddAura(46265, me); // Wrong, can't find proper visual
         me->AddAura(69422, me);
         events.ScheduleEvent(EVENT_VOID_BLAST, 5s);

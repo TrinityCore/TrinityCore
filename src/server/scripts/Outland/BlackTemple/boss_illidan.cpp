@@ -595,7 +595,7 @@ struct boss_illidan_stormrage : public BossAI
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetDisableGravity(true);
                 DoPlaySoundToSet(me, ILLIDAN_TAKEOFF_SOUND_ID);
@@ -625,7 +625,7 @@ struct boss_illidan_stormrage : public BossAI
                 summons.DoAction(ACTION_START_PHASE_4, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 events.ScheduleEvent(EVENT_SHADOW_PRISON_TEXT, Milliseconds(500), GROUP_PHASE_ALL);
                 break;
             case ACTION_ILLIDAN_CAGED:
@@ -638,7 +638,7 @@ struct boss_illidan_stormrage : public BossAI
                 events.Reset();
                 specialEvents.Reset();
                 DoCastSelf(SPELL_DEATH, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 events.ScheduleEvent(EVENT_DEFEATED_TEXT, 4s);
                 break;
             default:
@@ -648,7 +648,7 @@ struct boss_illidan_stormrage : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         instance->SetBossState(DATA_ILLIDAN_STORMRAGE, DONE);
         events.Reset();
     }
@@ -932,7 +932,7 @@ struct boss_illidan_stormrage : public BossAI
                     events.ScheduleEvent(EVENT_RESUME_COMBAT, Seconds(3), GROUP_PHASE_ALL);
                     break;
                 case EVENT_RESUME_COMBAT:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     ScheduleEvents(GROUP_PHASE_3, GROUP_PHASE_3);
                     if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
@@ -996,7 +996,7 @@ struct boss_illidan_stormrage : public BossAI
                     events.ScheduleEvent(EVENT_RESUME_COMBAT_PHASE_4, Seconds(13), GROUP_PHASE_ALL);
                     break;
                 case EVENT_RESUME_COMBAT_PHASE_4:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     ScheduleEvents(GROUP_PHASE_4, GROUP_PHASE_4);
                     summons.DoAction(ACTION_RESUME_COMBAT, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
@@ -2305,12 +2305,12 @@ class spell_maiev_down : public AuraScript
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         GetTarget()->GetAI()->DoAction(ACTION_MAIEV_DOWN_FADE);
     }
 

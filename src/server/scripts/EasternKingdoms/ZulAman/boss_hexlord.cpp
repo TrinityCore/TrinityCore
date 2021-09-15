@@ -429,7 +429,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     else
                     {
                         trigger->SetDisplayId(11686);
-                        trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         trigger->CastSpell(target, SPELL_SIPHON_SOUL, true);
                         trigger->GetMotionMaster()->MoveChase(me);
 

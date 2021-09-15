@@ -334,7 +334,7 @@ struct boss_kaelthas : public BossAI
     {
         Initialize();
         DoAction(ACTION_PREPARE_ADVISORS);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
         me->SetDisableGravity(false);
         me->SetTarget(ObjectGuid::Empty);
@@ -363,7 +363,7 @@ struct boss_kaelthas : public BossAI
         {
             case ACTION_START_ENCOUNTER:
                 Talk(SAY_INTRO);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
                 _advisorGuid[ADVISOR_THALADRED] = instance->GetGuidData(DATA_THALADRED);
                 _advisorGuid[ADVISOR_SANGUINAR] = instance->GetGuidData(DATA_SANGUINAR);
@@ -482,7 +482,7 @@ struct boss_kaelthas : public BossAI
             case POINT_TRANSITION_CENTER_ASCENDING:
                 me->SetFacingTo(float(M_PI));
                 Talk(SAY_PHASE5_NUTS);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetDisableGravity(true);
                 //me->SetHover(true); -- Set in sniffs, but breaks his visual.
                 events.ScheduleEvent(EVENT_TRANSITION_2, 2s);
@@ -501,7 +501,7 @@ struct boss_kaelthas : public BossAI
             case POINT_END_TRANSITION:
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->InterruptNonMeleeSpells(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->RemoveAurasDueToSpell(SPELL_FULLPOWER);
 
                 if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
@@ -591,7 +591,7 @@ struct boss_kaelthas : public BossAI
                     // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
                     ResetThreatList();
 
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
 
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         AttackStart(target);
@@ -768,7 +768,7 @@ struct advisorbase_ai : public ScriptedAI
 
         me->SetStandState(UNIT_STAND_STATE_STAND);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
 
         //reset encounter
         if (instance->GetBossState(DATA_KAELTHAS) == IN_PROGRESS)
@@ -797,7 +797,7 @@ struct advisorbase_ai : public ScriptedAI
         if (spellInfo->Id == SPELL_RESSURECTION)
         {
             _hasRessurrected = true;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             events.ScheduleEvent(EVENT_DELAYED_RESSURECTION, 2s);
         }
@@ -817,7 +817,7 @@ struct advisorbase_ai : public ScriptedAI
             me->RemoveAllAurasOnDeath();
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
             me->SetTarget(ObjectGuid::Empty);
             me->SetStandState(UNIT_STAND_STATE_DEAD);
             me->GetMotionMaster()->Clear();
