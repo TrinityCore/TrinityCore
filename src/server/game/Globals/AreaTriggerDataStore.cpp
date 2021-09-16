@@ -52,15 +52,15 @@ namespace
     std::unordered_map<std::pair<uint32/*mapId*/, uint32/*cell_id*/>, std::set<ObjectGuid::LowType>> _areaTriggerSpawnsByLocation;
     std::unordered_map<uint32, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId;
     std::unordered_map<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore;
-    std::unordered_map<uint32, AreaTriggerMiscTemplate> _areaTriggerTemplateSpellMisc;
+    std::unordered_map<uint32, AreaTriggerCreateProperties> _areaTriggerCreateProperties;
 }
 
 void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
-    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesBySpellMisc;
-    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesTargetBySpellMisc;
-    std::unordered_map<uint32, std::vector<Position>> splinesBySpellMisc;
+    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesByCreateProperties;
+    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesTargetByCreateProperties;
+    std::unordered_map<uint32, std::vector<Position>> splinesByCreateProperties;
     std::unordered_map<AreaTriggerId, std::vector<AreaTriggerAction>> actionsByAreaTrigger;
 
     //                                                            0              1             2           3            4
@@ -112,46 +112,46 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates actions. DB table `areatrigger_template_actions` is empty.");
     }
 
-    //                                                     0            1    2         3         4               5
-    if (QueryResult vertices = WorldDatabase.Query("SELECT SpellMiscId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `spell_areatrigger_vertices` ORDER BY `SpellMiscId`, `Idx`"))
+    //                                                     0                              1    2         3         4               5
+    if (QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerCreatePropertiesId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_create_properties_polygon_vertex` ORDER BY `AreaTriggerCreatePropertiesId`, `Idx`"))
     {
         do
         {
             Field* verticeFields = vertices->Fetch();
-            uint32 spellMiscId = verticeFields[0].GetUInt32();
+            uint32 areaTriggerCreatePropertiesId = verticeFields[0].GetUInt32();
 
-            verticesBySpellMisc[spellMiscId].emplace_back(verticeFields[2].GetFloat(), verticeFields[3].GetFloat());
+            verticesByCreateProperties[areaTriggerCreatePropertiesId].emplace_back(verticeFields[2].GetFloat(), verticeFields[3].GetFloat());
 
             if (!verticeFields[4].IsNull() && !verticeFields[5].IsNull())
-                verticesTargetBySpellMisc[spellMiscId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
+                verticesTargetByCreateProperties[areaTriggerCreatePropertiesId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
             else if (verticeFields[4].IsNull() != verticeFields[5].IsNull())
-                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_vertices` has listed invalid target vertices (SpellMiscId: %u, Index: %u).", spellMiscId, verticeFields[1].GetUInt32());
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_polygon_vertex` has listed invalid target vertices (AreaTriggerCreatePropertiesId: %u, Index: %u).", areaTriggerCreatePropertiesId, verticeFields[1].GetUInt32());
         }
         while (vertices->NextRow());
     }
     else
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates polygon vertices. DB table `areatrigger_template_polygon_vertices` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger polygon vertices. DB table `areatrigger_create_properties_polygon_vertex` is empty.");
     }
 
-    //                                                    0            1  2  3
-    if (QueryResult splines = WorldDatabase.Query("SELECT SpellMiscId, X, Y, Z FROM `spell_areatrigger_splines` ORDER BY `SpellMiscId`, `Idx`"))
+    //                                                    0                              1  2  3
+    if (QueryResult splines = WorldDatabase.Query("SELECT AreaTriggerCreatePropertiesId, X, Y, Z FROM `areatrigger_create_properties_spline_point` ORDER BY `AreaTriggerCreatePropertiesId`, `Idx`"))
     {
         do
         {
             Field* splineFields = splines->Fetch();
-            uint32 spellMiscId = splineFields[0].GetUInt32();
-            splinesBySpellMisc[spellMiscId].emplace_back(splineFields[1].GetFloat(), splineFields[2].GetFloat(), splineFields[3].GetFloat());
+            uint32 areaTriggerCreatePropertiesId = splineFields[0].GetUInt32();
+            splinesByCreateProperties[areaTriggerCreatePropertiesId].emplace_back(splineFields[1].GetFloat(), splineFields[2].GetFloat(), splineFields[3].GetFloat());
         }
         while (splines->NextRow());
     }
     else
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates splines. DB table `spell_areatrigger_splines` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger splines. DB table `areatrigger_create_properties_spline_point` is empty.");
     }
 
-    //                                                      0   1             2     3      4      5      6      7      8      9      10
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, IsServerSide, Type, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`"))
+    //                                                      0   1             2      3
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, IsServerSide, Flags, ScriptName FROM `areatrigger_template`"))
     {
         do
         {
@@ -160,17 +160,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             AreaTriggerTemplate areaTriggerTemplate;
             areaTriggerTemplate.Id.Id = fields[0].GetUInt32();
             areaTriggerTemplate.Id.IsServerSide = fields[1].GetUInt8() == 1;
-            uint8 type = fields[2].GetUInt8();
-
-            if (type >= AREATRIGGER_TYPE_MAX)
-            {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template` has listed areatrigger (Id: %u, IsServerSide: %u) with invalid type %u.",
-                    areaTriggerTemplate.Id.Id, uint32(areaTriggerTemplate.Id.IsServerSide), type);
-                continue;
-            }
-
-            areaTriggerTemplate.Type = static_cast<AreaTriggerTypes>(type);
-            areaTriggerTemplate.Flags = fields[3].GetUInt32();
+            areaTriggerTemplate.Flags = fields[2].GetUInt32();
 
             if (areaTriggerTemplate.Id.IsServerSide && areaTriggerTemplate.Flags != 0)
             {
@@ -179,100 +169,115 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
-                areaTriggerTemplate.DefaultDatas.Data[i] = fields[4 + i].GetFloat();
-
-            areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[10].GetString());
+            areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[3].GetString());
             areaTriggerTemplate.Actions = std::move(actionsByAreaTrigger[areaTriggerTemplate.Id]);
 
-            areaTriggerTemplate.InitMaxSearchRadius();
             _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
         }
         while (templates->NextRow());
     }
 
-    //                                                                  0            1              2            3             4             5              6       7          8                  9             10
-    if (QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreaTriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, TimeToTarget, TimeToTargetScale FROM `spell_areatrigger`"))
+    //                                                                        0   1              2            3             4             5              6       7          8                  9             10
+    if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, AreaTriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, TimeToTarget, TimeToTargetScale, "
+    //   11     12          13          14          15          16          17
+        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5 FROM `areatrigger_create_properties`"))
     {
         do
         {
-            AreaTriggerMiscTemplate miscTemplate;
+            AreaTriggerCreateProperties createProperties;
 
-            Field* areatriggerSpellMiscFields = areatriggerSpellMiscs->Fetch();
-            miscTemplate.MiscId             = areatriggerSpellMiscFields[0].GetUInt32();
+            Field* fields = areatriggerCreateProperties->Fetch();
+            createProperties.Id                    = fields[0].GetUInt32();
 
-            uint32 areatriggerId            = areatriggerSpellMiscFields[1].GetUInt32();
-            miscTemplate.Template           = GetAreaTriggerTemplate({ areatriggerId, false });
+            uint32 areatriggerId                   = fields[1].GetUInt32();
+            createProperties.Template              = GetAreaTriggerTemplate({ areatriggerId, false });
 
-            if (!miscTemplate.Template)
+            uint8 shape = fields[11].GetUInt8();
+
+            if (areatriggerId && !createProperties.Template)
             {
-                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` reference invalid AreaTriggerId %u for miscId %u", areatriggerId, miscTemplate.MiscId);
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` references invalid AreaTriggerId %u for AreaTriggerCreatePropertiesId %u", areatriggerId, createProperties.Id);
+                continue;
+            }
+
+            if (shape >= AREATRIGGER_TYPE_MAX)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed areatrigger create properties %u with invalid shape %u.",
+                    createProperties.Id, uint32(shape));
                 continue;
             }
 
 #define VALIDATE_AND_SET_CURVE(Curve, Value) \
-            miscTemplate.Curve = Value; \
-            if (miscTemplate.Curve && !sCurveStore.LookupEntry(miscTemplate.Curve)) \
+            createProperties.Curve = Value; \
+            if (createProperties.Curve && !sCurveStore.LookupEntry(createProperties.Curve)) \
             { \
-                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` has listed areatrigger (MiscId: %u, Id: %u) with invalid " #Curve " (%u), set to 0!", \
-                    miscTemplate.MiscId, areatriggerId, miscTemplate.Curve); \
-                miscTemplate.Curve = 0; \
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed areatrigger (AreaTriggerCreatePropertiesId: %u, Id: %u) with invalid " #Curve " (%u), set to 0!", \
+                    createProperties.Id, areatriggerId, createProperties.Curve); \
+                createProperties.Curve = 0; \
             }
 
-            VALIDATE_AND_SET_CURVE(MoveCurveId,   areatriggerSpellMiscFields[2].GetUInt32());
-            VALIDATE_AND_SET_CURVE(ScaleCurveId,  areatriggerSpellMiscFields[3].GetUInt32());
-            VALIDATE_AND_SET_CURVE(MorphCurveId,  areatriggerSpellMiscFields[4].GetUInt32());
-            VALIDATE_AND_SET_CURVE(FacingCurveId, areatriggerSpellMiscFields[5].GetUInt32());
+            VALIDATE_AND_SET_CURVE(MoveCurveId,   fields[2].GetUInt32());
+            VALIDATE_AND_SET_CURVE(ScaleCurveId,  fields[3].GetUInt32());
+            VALIDATE_AND_SET_CURVE(MorphCurveId,  fields[4].GetUInt32());
+            VALIDATE_AND_SET_CURVE(FacingCurveId, fields[5].GetUInt32());
 
 #undef VALIDATE_AND_SET_CURVE
 
-            miscTemplate.AnimId = areatriggerSpellMiscFields[6].GetInt32();
-            miscTemplate.AnimKitId = areatriggerSpellMiscFields[7].GetInt32();
+            createProperties.AnimId                = fields[6].GetInt32();
+            createProperties.AnimKitId             = fields[7].GetInt32();
 
-            miscTemplate.DecalPropertiesId = areatriggerSpellMiscFields[8].GetUInt32();
+            createProperties.DecalPropertiesId     = fields[8].GetUInt32();
 
-            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[9].GetUInt32();
-            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[10].GetUInt32();
+            createProperties.TimeToTarget          = fields[9].GetUInt32();
+            createProperties.TimeToTargetScale     = fields[10].GetUInt32();
 
-            miscTemplate.PolygonVertices = std::move(verticesBySpellMisc[miscTemplate.MiscId]);
-            miscTemplate.PolygonVerticesTarget = std::move(verticesTargetBySpellMisc[miscTemplate.MiscId]);
-            miscTemplate.SplinePoints = std::move(splinesBySpellMisc[miscTemplate.MiscId]);
+            createProperties.Shape.Type = static_cast<AreaTriggerTypes>(shape);
+            for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
+                createProperties.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
 
-            _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
+            if (shape == AREATRIGGER_TYPE_POLYGON)
+                if (createProperties.Shape.PolygonDatas.Height <= 0.0f)
+                    createProperties.Shape.PolygonDatas.Height = 1.0f;
+
+            createProperties.PolygonVertices       = std::move(verticesByCreateProperties[createProperties.Id]);
+            createProperties.PolygonVerticesTarget = std::move(verticesTargetByCreateProperties[createProperties.Id]);
+            createProperties.SplinePoints          = std::move(splinesByCreateProperties[createProperties.Id]);
+
+            _areaTriggerCreateProperties[createProperties.Id] = createProperties;
         }
-        while (areatriggerSpellMiscs->NextRow());
+        while (areatriggerCreateProperties->NextRow());
     }
     else
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 Spell AreaTrigger templates. DB table `spell_areatrigger` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger create properties. DB table `areatrigger_create_properties` is empty.");
     }
 
-    //                                                                  0            1           2             3                4             5        6                 7
-    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT SpellMiscId, StartDelay, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockwise, CanLoop FROM `spell_areatrigger_circular` ORDER BY `SpellMiscId`"))
+    //                                                                  0                              1           2             3                4             5        6                 7
+    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT AreaTriggerCreatePropertiesId, StartDelay, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockwise, CanLoop FROM `areatrigger_create_properties_orbit`"))
     {
         do
         {
             Field* circularMovementInfoFields = circularMovementInfos->Fetch();
-            uint32 spellMiscId = circularMovementInfoFields[0].GetUInt32();
+            uint32 areaTriggerCreatePropertiesId = circularMovementInfoFields[0].GetUInt32();
 
-            auto atSpellMiscItr = _areaTriggerTemplateSpellMisc.find(spellMiscId);
-            if (atSpellMiscItr == _areaTriggerTemplateSpellMisc.end())
+            AreaTriggerCreateProperties* createProperties = Trinity::Containers::MapGetValuePtr(_areaTriggerCreateProperties, areaTriggerCreatePropertiesId);
+            if (!createProperties)
             {
-                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` reference invalid SpellMiscId %u", spellMiscId);
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_orbit` reference invalid AreaTriggerCreatePropertiesId %u", areaTriggerCreatePropertiesId);
                 continue;
             }
 
-            AreaTriggerOrbitInfo& orbitInfo = atSpellMiscItr->second.OrbitInfo;
+            createProperties->OrbitInfo.emplace();
 
-            orbitInfo.StartDelay                    = circularMovementInfoFields[1].GetUInt32();
+            createProperties->OrbitInfo->StartDelay       = circularMovementInfoFields[1].GetUInt32();
 
 #define VALIDATE_AND_SET_FLOAT(Float, Value) \
-            orbitInfo.Float = Value; \
-            if (!std::isfinite(orbitInfo.Float)) \
+            createProperties->OrbitInfo->Float = Value; \
+            if (!std::isfinite(createProperties->OrbitInfo->Float)) \
             { \
-                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` has listed areatrigger (MiscId: %u) with invalid " #Float " (%f), set to 0!", \
-                    spellMiscId, orbitInfo.Float); \
-                orbitInfo.Float = 0.0f; \
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: %u) with invalid " #Float " (%f), set to 0!", \
+                    areaTriggerCreatePropertiesId, createProperties->OrbitInfo->Float); \
+                createProperties->OrbitInfo->Float = 0.0f; \
             }
 
             VALIDATE_AND_SET_FLOAT(Radius,          circularMovementInfoFields[2].GetFloat());
@@ -282,14 +287,14 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 #undef VALIDATE_AND_SET_FLOAT
 
-            orbitInfo.CounterClockwise              = circularMovementInfoFields[6].GetBool();
-            orbitInfo.CanLoop                       = circularMovementInfoFields[7].GetBool();
+            createProperties->OrbitInfo->CounterClockwise = circularMovementInfoFields[6].GetBool();
+            createProperties->OrbitInfo->CanLoop          = circularMovementInfoFields[7].GetBool();
         }
         while (circularMovementInfos->NextRow());
     }
     else
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates circular movement infos. DB table `spell_areatrigger_circular` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates circular movement infos. DB table `areatrigger_create_properties_orbit` is empty.");
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " spell areatrigger templates in %u ms.", _areaTriggerTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -300,7 +305,9 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
     uint32 oldMSTime = getMSTime();
     // Load area trigger positions (to put them on the server)
     //                                                      0        1              2             3      4     5     6     7            8              9        10
-    if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup FROM `areatrigger`"))
+    if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, "
+    //   11     12          13          14          15          16          17
+        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5 FROM `areatrigger`"))
     {
         do
         {
@@ -309,6 +316,7 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             ObjectGuid::LowType spawnId = fields[0].GetUInt64();
             AreaTriggerId areaTriggerid = { fields[1].GetUInt32(), fields[2].GetUInt8() == 1 };
             WorldLocation location(fields[3].GetUInt32(), fields[4].GetFloat(), fields[5].GetFloat(), fields[6].GetFloat(), fields[7].GetFloat());
+            uint8 shape = fields[11].GetUInt8();
 
             if (!GetAreaTriggerTemplate(areaTriggerid))
             {
@@ -324,6 +332,13 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
                 continue;
             }
 
+            if (shape >= AREATRIGGER_TYPE_MAX)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed areatrigger SpawnId: " UI64FMTD " with invalid shape %u.",
+                    spawnId, uint32(shape));
+                continue;
+            }
+
             AreaTriggerSpawn spawn;
             spawn.SpawnId = spawnId;
             spawn.Id = areaTriggerid;
@@ -332,6 +347,10 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             spawn.PhaseUseFlags = fields[8].GetUInt8();
             spawn.PhaseId = fields[9].GetUInt32();
             spawn.PhaseGroup = fields[10].GetUInt32();
+
+            spawn.Shape.Type = static_cast<AreaTriggerTypes>(shape);
+            for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
+                spawn.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
             CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.Location.GetPositionX(), spawn.Location.GetPositionY());
@@ -350,9 +369,9 @@ AreaTriggerTemplate const* AreaTriggerDataStore::GetAreaTriggerTemplate(AreaTrig
     return Trinity::Containers::MapGetValuePtr(_areaTriggerTemplateStore, areaTriggerId);
 }
 
-AreaTriggerMiscTemplate const* AreaTriggerDataStore::GetAreaTriggerMiscTemplate(uint32 spellMiscValue) const
+AreaTriggerCreateProperties const* AreaTriggerDataStore::GetAreaTriggerCreateProperties(uint32 areaTriggerCreatePropertiesId) const
 {
-    return Trinity::Containers::MapGetValuePtr(_areaTriggerTemplateSpellMisc, spellMiscValue);
+    return Trinity::Containers::MapGetValuePtr(_areaTriggerCreateProperties, areaTriggerCreatePropertiesId);
 }
 
 std::set<ObjectGuid::LowType> const* AreaTriggerDataStore::GetAreaTriggersForMapAndCell(uint32 mapId, uint32 cellId) const
