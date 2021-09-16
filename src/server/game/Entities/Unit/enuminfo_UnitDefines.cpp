@@ -51,7 +51,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_PACIFIED: return { "UNIT_FLAG_PACIFIED", "UNIT_FLAG_PACIFIED", "3.0.3 ok" };
         case UNIT_FLAG_STUNNED: return { "UNIT_FLAG_STUNNED", "UNIT_FLAG_STUNNED", "3.0.3 ok" };
         case UNIT_FLAG_IN_COMBAT: return { "UNIT_FLAG_IN_COMBAT", "UNIT_FLAG_IN_COMBAT", "" };
-        case UNIT_FLAG_TAXI_FLIGHT: return { "UNIT_FLAG_TAXI_FLIGHT", "UNIT_FLAG_TAXI_FLIGHT", "disable casting at client side spell not allowed by taxi flight (mounted?), probably used with 0x4 flag" };
+        case UNIT_FLAG_ON_TAXI: return { "UNIT_FLAG_ON_TAXI", "UNIT_FLAG_ON_TAXI", "disable casting at client side spell not allowed by taxi flight (mounted?), probably used with 0x4 flag" };
         case UNIT_FLAG_DISARMED: return { "UNIT_FLAG_DISARMED", "UNIT_FLAG_DISARMED", "3.0.3, disable melee spells casting..., \042Required melee weapon\042 added to melee spells tooltip." };
         case UNIT_FLAG_CONFUSED: return { "UNIT_FLAG_CONFUSED", "UNIT_FLAG_CONFUSED", "" };
         case UNIT_FLAG_FLEEING: return { "UNIT_FLAG_FLEEING", "UNIT_FLAG_FLEEING", "" };
@@ -95,7 +95,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 17: return UNIT_FLAG_PACIFIED;
         case 18: return UNIT_FLAG_STUNNED;
         case 19: return UNIT_FLAG_IN_COMBAT;
-        case 20: return UNIT_FLAG_TAXI_FLIGHT;
+        case 20: return UNIT_FLAG_ON_TAXI;
         case 21: return UNIT_FLAG_DISARMED;
         case 22: return UNIT_FLAG_CONFUSED;
         case 23: return UNIT_FLAG_FLEEING;
@@ -136,7 +136,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
         case UNIT_FLAG_PACIFIED: return 17;
         case UNIT_FLAG_STUNNED: return 18;
         case UNIT_FLAG_IN_COMBAT: return 19;
-        case UNIT_FLAG_TAXI_FLIGHT: return 20;
+        case UNIT_FLAG_ON_TAXI: return 20;
         case UNIT_FLAG_DISARMED: return 21;
         case UNIT_FLAG_CONFUSED: return 22;
         case UNIT_FLAG_FLEEING: return 23;
