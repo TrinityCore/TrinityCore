@@ -462,7 +462,7 @@ class spell_throngus_personal_phalanx : public SpellScriptLoader
                 target->CastSpell(target, aurEff->GetAmount(), true);
 
                 if (Creature * throngus = target->ToCreature())
-                    if (throngus->IsAIEnabled)
+                    if (throngus->IsAIEnabled())
                         throngus->AI()->DoAction(ACTION_START_PHALLANX);
 
                 target->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
@@ -472,7 +472,7 @@ class spell_throngus_personal_phalanx : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 if (Creature* throngus = target->ToCreature())
-                    if (throngus->IsAIEnabled)
+                    if (throngus->IsAIEnabled())
                         throngus->AI()->DoAction(ACTION_END_PHALLANX);
 
                 target->ModifyAuraState(AURA_STATE_UNKNOWN22, false);

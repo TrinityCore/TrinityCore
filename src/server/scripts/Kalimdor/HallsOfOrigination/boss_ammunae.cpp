@@ -245,7 +245,7 @@ struct npc_ammunae_seedling_pod : public NullCreatureAI
             case NPC_BLOODPETAL_SPROUT:
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (Creature* ammunae = instance->GetCreature(DATA_AMMUNAE))
-                        if (ammunae->IsAIEnabled)
+                        if (ammunae->IsAIEnabled())
                             ammunae->AI()->JustSummoned(summon);
                 break;
             default:

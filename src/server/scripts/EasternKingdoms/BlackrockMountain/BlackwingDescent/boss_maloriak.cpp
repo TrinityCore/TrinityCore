@@ -292,7 +292,7 @@ struct boss_maloriak : public BossAI
         _JustDied();
 
         if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_MALORIAK))
-            if (nefarius->IsAIEnabled)
+            if (nefarius->IsAIEnabled())
                 nefarius->AI()->DoAction(ACTION_MALORIAK_DEAD);
     }
 
@@ -389,7 +389,7 @@ struct boss_maloriak : public BossAI
                             // According to sniffs, the cauldron stalker leaves combat after 8 seconds
                             cauldron->m_Events.AddEventAtOffset([cauldron]()
                             {
-                                if (cauldron->IsAIEnabled)
+                                if (cauldron->IsAIEnabled())
                                     cauldron->AI()->EnterEvadeMode();
                             }, 8s);
                             cauldron->CastSpell(cauldron, SPELL_DEBILITATING_SLIME_DEBUFF);
@@ -481,7 +481,7 @@ struct boss_maloriak : public BossAI
                         if (_currentVial != VIAL_BLACK)
                             Talk(vialData[_currentVial].SayTextId);
                         else if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_MALORIAK))
-                            if (nefarius->IsAIEnabled)
+                            if (nefarius->IsAIEnabled())
                                 nefarius->AI()->DoAction(ACTION_THROW_BLACK_BOTTLE);
 
                         _usedVialsCount = _usedVialsCount < _vialsPerCycle ? _usedVialsCount + 1 : 0;
@@ -1079,7 +1079,7 @@ class spell_maloriak_release_experiments : public SpellScript
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         if (Creature* target = GetHitCreature())
-            if (target->IsAIEnabled)
+            if (target->IsAIEnabled())
                 target->AI()->DoAction(ACTION_RELEASE_EXPERIMENT);
     }
 

@@ -141,7 +141,7 @@ struct boss_corla_herald_of_twilight : public BossAI
 
         for (ObjectGuid guid : summons)
             if (Creature* zealot = ObjectAccessor::GetCreature(*me, guid))
-                if (zealot->IsAIEnabled)
+                if (zealot->IsAIEnabled())
                     zealot->AI()->DoAction(ACTION_START_EVOLUTION);
     }
 
@@ -483,7 +483,7 @@ class spell_corla_evolution : public SpellScript
                 corla->AI()->Talk(SAY_EVOLUTION_COMPLETE);
                 if (Creature* creature = target->ToCreature())
                 {
-                    if (creature->IsAIEnabled)
+                    if (creature->IsAIEnabled())
                     {
                         corla->AI()->Talk(SAY_ANNOUNCE_ZEALOT_EVOLVED);
                         creature->AI()->DoAction(ACTION_EVOLVE);
@@ -527,7 +527,7 @@ class achievement_arrested_development : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            if (target->IsAIEnabled)
+            if (target->IsAIEnabled())
                 return target->GetAI()->GetData(DATA_ARRESTED_DEVELOPMENT);
 
             return false;

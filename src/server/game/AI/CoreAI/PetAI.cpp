@@ -429,6 +429,12 @@ void PetAI::HandleReturnMovement()
     if (me->IsCharmed())
         return;
 
+    if (!me->GetCharmInfo())
+    {
+        TC_LOG_WARN("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::HandleReturnMovement()");
+        return;
+    }
+
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO))
     {
         if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())
@@ -545,6 +551,12 @@ bool PetAI::CanAttack(Unit* target)
         return false;
     }
 
+    if (!me->GetCharmInfo())
+    {
+        TC_LOG_ERROR("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::CanAttack()");
+        return false;
+    }
+
     ASSERT(me->GetCharmInfo());
 
     // Passive - passive pets can attack if told to
@@ -609,10 +621,12 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
         }
 }
 
-void PetAI::OnCharmed(bool /*apply*/)
+void PetAI::OnCharmed(bool isNew)
 {
-    me->NeedChangeAI = true;
-    me->IsAIEnabled = false;
+    if (me->IsCharmed())
+        me->FollowTarget(me->GetCharmer());
+
+    CreatureAI::OnCharmed(isNew);
 }
 
 void PetAI::ClearCharmInfoFlags()

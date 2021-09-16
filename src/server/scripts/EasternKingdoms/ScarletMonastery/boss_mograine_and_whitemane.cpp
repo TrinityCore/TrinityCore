@@ -154,7 +154,7 @@ struct npc_scarlet_commander_mograine : public ScriptedAI
             me->RemoveAllAuras();
 
             if (Creature* whitemane = _instance->GetCreature(DATA_HIGH_INQUISITOR_WHITEMANE))
-                if (whitemane->IsAIEnabled)
+                if (whitemane->IsAIEnabled())
                     whitemane->AI()->DoAction(ACTION_MOGRAINE_DIED);
         }
     }
@@ -327,7 +327,7 @@ struct npc_high_inquisitor_whitemane : public ScriptedAI
             _events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 5s);
 
             if (Creature* mograine = _instance->GetCreature(DATA_SCARLET_COMMANDER_MOGRAINE))
-                if (mograine->IsAIEnabled)
+                if (mograine->IsAIEnabled())
                     mograine->AI()->DoAction(ACTION_RESURRECTED);
         }
     }

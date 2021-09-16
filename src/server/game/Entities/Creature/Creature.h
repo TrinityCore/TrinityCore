@@ -63,7 +63,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 {
     public:
         explicit Creature(bool isWorldObject = false);
-        virtual ~Creature();
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
@@ -141,11 +140,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool AIM_Destroy();
         bool AIM_Create(CreatureAI* ai = nullptr);
-        void AI_InitializeAndEnable();
         bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
-        CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
+        CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(GetAI()); }
 
         SpellSchoolMask GetMeleeDamageSchoolMask() const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
@@ -414,7 +412,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_regenHealth;
         bool m_cannotReachTarget;
         uint32 m_cannotReachTimer;
-        bool m_AI_locked;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;

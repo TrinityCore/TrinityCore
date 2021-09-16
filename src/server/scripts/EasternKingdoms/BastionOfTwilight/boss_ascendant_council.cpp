@@ -1997,7 +1997,7 @@ class spell_ignacious_inferno_leap final : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->DoAction(ACTION_CAST_INFERNO_RUSH);
     }
 
@@ -2178,7 +2178,7 @@ class spell_arion_disperse final : public SpellScript
             caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
 
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->DoAction(ACTION_CAST_LIGHTNING_BLAST);
         }
     }

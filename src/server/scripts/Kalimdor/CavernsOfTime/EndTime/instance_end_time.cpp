@@ -106,7 +106,7 @@ public:
                     ++_killedInfiniteDragonkins;
                     if (_killedInfiniteDragonkins == 4 || _killedInfiniteDragonkins == 8)
                         if (Creature* murozond = GetCreature(DATA_MUROZOND))
-                            if (murozond->IsAIEnabled)
+                            if (murozond->IsAIEnabled())
                                 murozond->AI()->SetData(DATA_MUROZOND_INTRO, _killedInfiniteDragonkins == 4 ? IN_PROGRESS : DONE);
                     break;
                 default:

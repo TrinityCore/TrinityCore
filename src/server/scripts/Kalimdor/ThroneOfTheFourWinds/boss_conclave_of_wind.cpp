@@ -1079,7 +1079,7 @@ class spell_conclave_of_wind_winds_pre_effect_warning : public AuraScript
         if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
             if (Unit* caster = GetCaster())
                 if (Creature* conclave = caster->ToCreature())
-                    if (conclave->IsAIEnabled)
+                    if (conclave->IsAIEnabled())
                         conclave->AI()->DoAction(ACTION_NO_NEARBY_PLAYER);
     }
 

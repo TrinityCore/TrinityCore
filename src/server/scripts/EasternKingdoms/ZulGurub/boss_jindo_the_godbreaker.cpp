@@ -185,7 +185,7 @@ class DelayedTalkEvent : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            if (_owner->IsAIEnabled)
+            if (_owner->IsAIEnabled())
                 _owner->AI()->Talk(_textId);
             return true;
         }
@@ -315,7 +315,7 @@ struct boss_jindo_the_godbreaker : public BossAI
                     if (Creature* summoner = creature->GetSummonerCreatureBase())
                     {
                         if (summoner->GetEntry() == NPC_SPIRIT_PORTAL)
-                            if (summon->IsAIEnabled)
+                            if (summon->IsAIEnabled())
                                 summon->AI()->DoZoneInCombat();
                     }
                     else
@@ -381,7 +381,7 @@ struct boss_jindo_the_godbreaker : public BossAI
                             }
                         }
 
-                        if (spirit->IsAIEnabled)
+                        if (spirit->IsAIEnabled())
                             spirit->AI()->Talk(SAY_HAKKAR_FREED);
 
                         spirit->CastSpell(spirit, SPELL_HAKKAR_BREAKS_FREE);
@@ -473,7 +473,7 @@ struct boss_jindo_the_godbreaker : public BossAI
                     break;
                 case EVENT_TALK_SPIRIT_OF_HAKKAR:
                     if (Creature* hakkar = instance->GetCreature(DATA_SPIRIT_OF_HAKKAR))
-                        if (hakkar->IsAIEnabled)
+                        if (hakkar->IsAIEnabled())
                             hakkar->AI()->Talk(SAY_HAKKAR_IMPRISONED);
                     break;
                 case EVENT_SHADOW_SPIKE:

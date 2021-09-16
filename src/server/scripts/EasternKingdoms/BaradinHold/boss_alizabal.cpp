@@ -245,7 +245,7 @@ public:
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* alizabal = instance->GetCreature(DATA_ALIZABAL))
-                if (alizabal->IsAIEnabled)
+                if (alizabal->IsAIEnabled())
                     alizabal->AI()->DoAction(ACTION_INTRO);
 
         return true;

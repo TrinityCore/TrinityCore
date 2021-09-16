@@ -816,7 +816,7 @@ class achievement_share_the_pain : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            if (!target || !target->IsAIEnabled)
+            if (!target || !target->IsAIEnabled())
                 return false;
 
             return target->GetAI()->GetData(DATA_SHARE_THE_PAIN) != 0;

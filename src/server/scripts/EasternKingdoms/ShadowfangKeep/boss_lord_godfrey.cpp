@@ -121,7 +121,7 @@ struct boss_lord_godfrey : public BossAI
                 summon->SetReactState(REACT_PASSIVE);
                 summon->m_Events.AddEventAtOffset([summon]()
                 {
-                    if (summon->IsAIEnabled)
+                    if (summon->IsAIEnabled())
                         summon->AI()->DoZoneInCombat();
                 }, 1s + 300ms);
 

@@ -165,7 +165,7 @@ struct boss_high_prophet_barim : public BossAI
         {
             if (Creature* phoenix = instance->GetCreature(data))
             {
-                if (phoenix->IsAIEnabled)
+                if (phoenix->IsAIEnabled())
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, phoenix);
                     phoenix->DespawnOrUnsummon();
@@ -182,7 +182,7 @@ struct boss_high_prophet_barim : public BossAI
         {
             if (Creature* phoenix = instance->GetCreature(data))
             {
-                if (phoenix->IsAIEnabled)
+                if (phoenix->IsAIEnabled())
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, phoenix);
                     phoenix->DespawnOrUnsummon();
@@ -226,7 +226,7 @@ struct boss_high_prophet_barim : public BossAI
                 summons.DoAction(ACTION_PULL_PLAYERS_BACK, pred);
 
                 if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
-                    if (blaze->IsAIEnabled)
+                    if (blaze->IsAIEnabled())
                         blaze->AI()->DoAction(ACTION_RESUME_COMBAT);
 
                 events.ScheduleEvent(EVENT_FIFTY_LASHINGS, 2s);
@@ -278,7 +278,7 @@ struct boss_high_prophet_barim : public BossAI
                     events.ScheduleEvent(EVENT_REPENTANCE_PULL, 1s);
 
                     if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
-                        if (blaze->IsAIEnabled)
+                        if (blaze->IsAIEnabled())
                             blaze->AI()->DoAction(ACTION_DISABLE_COMBAT);
                     break;
                 case EVENT_REPENTANCE_PULL:
@@ -297,7 +297,7 @@ struct boss_high_prophet_barim : public BossAI
 
                     // The phoenix is in a passive state so he won't evade on his own in that state so we give him a little push here.
                     if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
-                        if (blaze->IsAIEnabled && blaze->HasReactState(REACT_PASSIVE))
+                        if (blaze->IsAIEnabled() && blaze->HasReactState(REACT_PASSIVE))
                             blaze->AI()->EnterEvadeMode();
                     break;
                 case EVENT_BLAZE_OF_THE_HEAVENS:

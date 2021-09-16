@@ -206,7 +206,7 @@ struct npc_tott_lady_nazjar : public ScriptedAI
             {
                 if (Creature* murloc = ObjectAccessor::GetCreature(*me, guid))
                 {
-                    if (murloc->IsAIEnabled)
+                    if (murloc->IsAIEnabled())
                     {
                         murloc->InterruptNonMeleeSpells(false);
                         murloc->AI()->DoZoneInCombat();
@@ -229,7 +229,7 @@ struct npc_tott_lady_nazjar : public ScriptedAI
         {
             if (Creature* murloc = target->ToCreature())
             {
-                if (murloc->IsAIEnabled)
+                if (murloc->IsAIEnabled())
                 {
                     murloc->InterruptNonMeleeSpells(false);
                     murloc->AI()->DoZoneInCombat();

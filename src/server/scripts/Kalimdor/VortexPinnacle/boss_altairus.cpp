@@ -248,7 +248,7 @@ class spell_altairus_call_the_wind : public SpellScript
 
         if (Unit* caster = GetCaster())
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->SetGUID(target->GetGUID(), DATA_AIR_CURRENT);
     }
 

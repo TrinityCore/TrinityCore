@@ -80,7 +80,7 @@ public:
     bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (Creature* berserker = player->FindNearestCreature(NPC_BLOODFANG_BERSERKER, 15.f, true))
-            if (berserker->IsAIEnabled)
+            if (berserker->IsAIEnabled())
                 berserker->AI()->Talk(SAY_SHOW_COMMANDER_SPRINGVALE, player);
 
         return true;
@@ -109,7 +109,7 @@ public:
     bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (Creature* ivar = player->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 15.f))
-            if (ivar->IsAIEnabled)
+            if (ivar->IsAIEnabled())
                 ivar->AI()->Talk(SAY_IVAR_WALDEN_INTRO, player);
 
         return true;
@@ -141,7 +141,7 @@ public:
         if (InstanceScript* instance = player->GetInstanceScript())
         {
             if (Creature* announcer = instance->GetCreature(DATA_DEBUG_ANNOUNCER))
-                if (announcer->IsAIEnabled)
+                if (announcer->IsAIEnabled())
                     announcer->AI()->Talk(SAY_ANNOUNCE_GARGOYLES);
         }
         return true;

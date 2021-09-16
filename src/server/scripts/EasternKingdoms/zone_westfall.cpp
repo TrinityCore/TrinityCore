@@ -362,7 +362,7 @@ struct npc_westfall_hobo_witness : public ScriptedAI
 
     void JustDied(Unit* who) override
     {
-        if (who->IsCreature() && who->ToCreature()->IsAIEnabled)
+        if (who->IsCreature() && who->ToCreature()->IsAIEnabled())
             who->ToCreature()->AI()->DoAction(ACTION_AGGRO_HOBO_DONE);
         me->CastSpell(me, SPELL_SUMMON_RAGAMUFFIN_LOOTER);
     }
@@ -524,7 +524,7 @@ class spell_westfall_aggro_hobo : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Creature* creature = GetHitCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 creature->AI()->SetGUID(GetCaster()->GetGUID(), 0);
     }
 
@@ -637,13 +637,13 @@ struct npc_westfall_refugee_bridge_to_sentinelhill : public ScriptedAI
 
             if (guard1 && guard2 && !guard1->IsInCombat() && !guard2->IsInCombat())
             {
-                if (guard1->IsAIEnabled)
+                if (guard1->IsAIEnabled())
                 {
                     guard1->AI()->DoAction(ACTION_SENTINEL_HILL_GATE_1);
                     guard1->AI()->SetGUID(me->GetGUID(), 0);
                 }
 
-                if (guard2->IsAIEnabled)
+                if (guard2->IsAIEnabled())
                 {
                     guard2->AI()->DoAction(ACTION_SENTINEL_HILL_GATE_2);
                     guard2->AI()->SetGUID(me->GetGUID(), 0);
@@ -656,7 +656,7 @@ struct npc_westfall_refugee_bridge_to_sentinelhill : public ScriptedAI
                 else
                 {
                     if (creature)
-                        if (creature->IsAIEnabled)
+                        if (creature->IsAIEnabled())
                             creature->AI()->DoAction(ACTION_SENTINEL_HILL_TALK_3);
                 }
 
@@ -665,7 +665,7 @@ struct npc_westfall_refugee_bridge_to_sentinelhill : public ScriptedAI
                 else
                 {
                     if (creature)
-                        if (creature->IsAIEnabled)
+                        if (creature->IsAIEnabled())
                             creature->AI()->DoAction(ACTION_SENTINEL_HILL_TALK_4);
                 }
 
@@ -674,7 +674,7 @@ struct npc_westfall_refugee_bridge_to_sentinelhill : public ScriptedAI
                 else
                 {
                     if (creature)
-                        if (creature->IsAIEnabled)
+                        if (creature->IsAIEnabled())
                             creature->AI()->DoAction(ACTION_SENTINEL_HILL_TALK_5);
                 }
             }
@@ -703,7 +703,7 @@ struct npc_westfall_refugee_bridge_to_sentinelhill : public ScriptedAI
                 case EVENT_CRIME_SCENE_DRIFTER_TALK_0:
                     if (Creature* creature = me->FindNearestCreature(NPC_WEST_PLAINS_DRIFTER_FOLLOWER, 5.f))
                     {
-                        if (creature->IsAIEnabled)
+                        if (creature->IsAIEnabled())
                             creature->AI()->DoAction(ACTION_CRIME_SCENE);
                         _westPlainsDrifter = creature->GetGUID();
                     }
@@ -920,7 +920,7 @@ public:
         if (player->IsAlive())
             if (player->GetQuestStatus(QUEST_LOUS_PARTING_THOUGHTS) == QUEST_STATUS_INCOMPLETE)
                 if (Creature* lousPartingThoughtsTrigger = player->FindNearestCreature(MPC_LOUS_PARTING_THOUGHTS_TRIGGER, 50.0f, true))
-                    if (lousPartingThoughtsTrigger->IsAIEnabled)
+                    if (lousPartingThoughtsTrigger->IsAIEnabled())
                         lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID());
 
         return true;
@@ -941,7 +941,7 @@ struct npc_westfall_thug : public ScriptedAI
     {
         if (Unit* summon = me->ToTempSummon()->GetSummoner())
             if (Creature* creature = summon->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->DoAction(ACTION_THUG_RESET);
 
         me->DespawnOrUnsummon();
@@ -951,7 +951,7 @@ struct npc_westfall_thug : public ScriptedAI
     {
         if (Unit* summon = me->ToTempSummon()->GetSummoner())
             if (Creature* creature = summon->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->SetData(0, DATA_THUG_DEATH);
     }
 
@@ -1038,7 +1038,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
                     Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
                     if (invoker && thug1)
-                        if (thug1->IsAIEnabled)
+                        if (thug1->IsAIEnabled())
                             thug1->AI()->Talk(SAY_THUG_0, invoker);
                     _events.ScheduleEvent(EVENT_THUG2_SAY_1, 5s);
                     break;
@@ -1048,7 +1048,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
                     Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
                     if (invoker && thug2)
-                        if (thug2->IsAIEnabled)
+                        if (thug2->IsAIEnabled())
                             thug2->AI()->Talk(SAY_THUG_1, invoker);
                     _events.ScheduleEvent(EVENT_THUG2_SAY_2, 5s);
                     break;
@@ -1058,7 +1058,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     Creature* thug2 = ObjectAccessor::GetCreature(*me, _summons[1]);
                     Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
                     if (invoker && thug2)
-                        if (thug2->IsAIEnabled)
+                        if (thug2->IsAIEnabled())
                             thug2->AI()->Talk(SAY_THUG_2, invoker);
                     _events.ScheduleEvent(EVENT_THUG3_SAY_3, 8s + 500ms);
                     break;
@@ -1068,7 +1068,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     Creature* thug3 = ObjectAccessor::GetCreature(*me, _summons[2]);
                     Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
                     if (invoker && thug3)
-                        if (thug3->IsAIEnabled)
+                        if (thug3->IsAIEnabled())
                             thug3->AI()->Talk(SAY_THUG_3, invoker);
                     _events.ScheduleEvent(EVENT_THUG1_SAY_4, 5s);
                     break;
@@ -1079,7 +1079,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
                     if (invoker && thug1)
                     {
-                        if (thug1->IsAIEnabled)
+                        if (thug1->IsAIEnabled())
                             thug1->AI()->Talk(SAY_THUG_4, invoker);
 
                         for (ObjectGuid const& guid : _summons)
@@ -1095,7 +1095,7 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     Creature* thug1 = ObjectAccessor::GetCreature(*me, _summons[0]);
                     Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
                     if (invoker && thug1)
-                        if (thug1->IsAIEnabled)
+                        if (thug1->IsAIEnabled())
                             thug1->AI()->Talk(SAY_THUG_5, invoker);
 
 
@@ -1108,14 +1108,14 @@ struct npc_westfall_lous_parting_thoughts_trigger : public ScriptedAI
                     Player* invoker = ObjectAccessor::GetPlayer(*me, _eventInvokerGUID);
                     if (invoker && thug1)
                     {
-                        if (thug1->IsAIEnabled)
+                        if (thug1->IsAIEnabled())
                             thug1->AI()->Talk(SAY_THUG_6, invoker);
 
                         for (ObjectGuid const& guid : _summons)
                             if (Creature* thug = ObjectAccessor::GetCreature(*me, guid))
                             {
                                 thug->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                                if (thug->IsAIEnabled)
+                                if (thug->IsAIEnabled())
                                     thug->AI()->AttackStart(invoker);
                             }
                     }
@@ -1212,7 +1212,7 @@ public:
     {
         if (player->IsAlive())
             if (Creature* lousPartingThoughtsTrigger = player->FindNearestCreature(NPC_SMALL_TIME_HUSTLER, 10.0f, true))
-                if (lousPartingThoughtsTrigger->IsAIEnabled)
+                if (lousPartingThoughtsTrigger->IsAIEnabled())
                     lousPartingThoughtsTrigger->AI()->SetGUID(player->GetGUID());
 
         return true;
@@ -1593,7 +1593,7 @@ class spell_westfall_sniper_fire : public SpellScript
             if (Creature* agent = caster->FindNearestCreature(NPC_AGENT_KEARNEN, 100.f))
             {
                 agent->CastSpell(target, SPELL_KILL_SHOT_TRIGGERED); // 79525
-                if (agent->IsAIEnabled)
+                if (agent->IsAIEnabled())
                     agent->AI()->Talk(SAY_0, caster);
             }
     }

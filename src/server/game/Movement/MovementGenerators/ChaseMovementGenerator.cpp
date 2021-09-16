@@ -38,9 +38,11 @@ static bool IsMutualChase(Unit const* owner, Unit const* target)
 
 static void DoMovementInform(Unit* owner, Unit const* target)
 {
-    if (Creature* cOwner = owner->ToCreature())
-        if (CreatureAI* ai = cOwner->AI())
-            ai->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
+    if (owner->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    if (CreatureAI* AI = owner->ToCreature()->AI())
+        AI->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
 static bool PositionOkay(Unit const* owner, Unit const* target, float distance, Optional<ChaseAngle> angle)

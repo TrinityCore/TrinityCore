@@ -156,7 +156,7 @@ struct boss_murozond : public BossAI
         events.ScheduleEvent(EVENT_LAND, 3s + 500ms);
 
         if (Creature* nozdormu = instance->GetCreature(DATA_NOZDORMU_BRONZE_DRAGON_SHRINE))
-            if (nozdormu->IsAIEnabled)
+            if (nozdormu->IsAIEnabled())
                 nozdormu->AI()->DoAction(ACTION_ENCOUNTER_INTRO);
     }
 
@@ -303,7 +303,7 @@ struct boss_murozond : public BossAI
                     hourglass->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (Creature* nozdormu = instance->GetCreature(DATA_NOZDORMU_BRONZE_DRAGON_SHRINE))
-                    if (nozdormu->IsAIEnabled)
+                    if (nozdormu->IsAIEnabled())
                         nozdormu->AI()->DoAction(ACTION_ENCOUNTER_OUTRO);
 
                 events.ScheduleEvent(EVENT_DESPAWN, 7s);
@@ -391,7 +391,7 @@ struct npc_murozond_mirror_image : public NullCreatureAI
     {
         if (InstanceScript* instance = me->GetInstanceScript())
             if (Creature* murozond = instance->GetCreature(DATA_MUROZOND))
-                if (murozond->IsAIEnabled)
+                if (murozond->IsAIEnabled())
                     murozond->AI()->JustSummoned(me);
 
         summoner->CastSpell(me, SPELL_CLONE_ME, true);
@@ -491,7 +491,7 @@ class spell_murozond_rewind_time : public SpellScript
         if (!target)
             return;
 
-        if (target->IsAIEnabled)
+        if (target->IsAIEnabled())
             target->AI()->DoAction(ACTION_REWIND_TIME);
     }
 

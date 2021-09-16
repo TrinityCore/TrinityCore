@@ -165,7 +165,7 @@ public:
                     break;
                 case NPC_PISTOL_BARRAGE_DUMMY:
                     if (Creature* godfrey = GetCreature(DATA_LORD_GODFREY))
-                        if (godfrey->IsAIEnabled)
+                        if (godfrey->IsAIEnabled())
                             godfrey->AI()->JustSummoned(creature);
                     break;
                 default:

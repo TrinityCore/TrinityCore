@@ -1366,7 +1366,7 @@ public:
                         {
                             epoch->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
                             AttackStart(epoch);
-                            if (epoch->IsAIEnabled)
+                            if (epoch->IsAIEnabled())
                                 epoch->AI()->AttackStart(me);
                         }
                         ScheduleActionOOC(RP3_ACTION_AFTER_EPOCH);
@@ -1421,7 +1421,7 @@ public:
                             malganis->AI()->Talk(RP5_LINE_MALGANIS1, ObjectAccessor::GetUnit(*malganis, _eventStarterGuid));
                             malganis->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
                             AttackStart(malganis);
-                            if (malganis->IsAIEnabled)
+                            if (malganis->IsAIEnabled())
                                 malganis->AI()->AttackStart(me);
                         }
                         ScheduleActionOOC(RP5_ACTION_AFTER_MALGANIS);
@@ -1527,7 +1527,7 @@ public:
             {
                 target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
                 me->AI()->AttackStart(target);
-                if (target->IsAIEnabled)
+                if (target->IsAIEnabled())
                     target->AI()->AttackStart(me);
             }
         }

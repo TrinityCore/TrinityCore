@@ -483,7 +483,7 @@ class spell_zanzil_zanzili_fire : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Creature* zanzil = GetTarget()->ToCreature())
-            if (zanzil->IsAIEnabled)
+            if (zanzil->IsAIEnabled())
                 zanzil->AI()->DoAction(ACTION_CAST_ZANZILI_FLAME);
     }
 
@@ -552,7 +552,7 @@ class spell_zanzil_zanzils_resurrection_elixir_red_script : public SpellScript
 
         // This is ugly as fuck but there is no other way to get already targeted zombies
         if (Creature* creature = GetCaster()->ToCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 targets.remove_if(UnusedGuidTargetSelector(CAST_AI(boss_zanzil, creature->AI())->GetAlreadyTargetedObjectGuids()));
 
         if (targets.empty())
@@ -571,7 +571,7 @@ class spell_zanzil_zanzils_resurrection_elixir_red_script : public SpellScript
             target->SetAIAnimKitId(AI_ANIM_KIT_ID_NONE);
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
 
-            if (target->IsAIEnabled)
+            if (target->IsAIEnabled())
             {
                 target->AI()->DoZoneInCombat();
                 target->m_Events.AddEvent(new DelayedAttackStartEvent(target), target->m_Events.CalculateTime(3500));
@@ -582,7 +582,7 @@ class spell_zanzil_zanzils_resurrection_elixir_red_script : public SpellScript
     void HandleGuidReservation(SpellEffIndex /*effIndex*/)
     {
         if (Creature* caster = GetCaster()->ToCreature())
-            if (caster->IsAIEnabled)
+            if (caster->IsAIEnabled())
                 if (Creature* target = GetHitCreature())
                     caster->AI()->SetGUID(target->GetGUID());
     }
@@ -616,7 +616,7 @@ class spell_zanzil_zanzils_graveyard_gas : public SpellScript
 
         // This is ugly as fuck but there is no other way to get already targeted gas stalkers
         if (Creature* creature = GetCaster()->ToCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 targets.remove_if(UnusedGuidTargetSelector(CAST_AI(boss_zanzil, creature->AI())->GetAlreadyTargetedObjectGuids()));
 
         if (targets.empty())
@@ -637,7 +637,7 @@ class spell_zanzil_zanzils_graveyard_gas : public SpellScript
     void HandleGuidReservation(SpellEffIndex /*effIndex*/)
     {
         if (Creature* caster = GetCaster()->ToCreature())
-            if (caster->IsAIEnabled)
+            if (caster->IsAIEnabled())
                 if (Creature* target = GetHitCreature())
                     caster->AI()->SetGUID(target->GetGUID());
     }

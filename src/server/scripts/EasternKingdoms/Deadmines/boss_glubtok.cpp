@@ -354,7 +354,7 @@ class spell_glubtok_blossom_targeting : public SpellScript
         {
             if (Creature* creature = caster->ToCreature())
             {
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                 {
                     uint32 currentBlossomEntry = creature->AI()->GetData(DATA_CURRENT_BLOSSOM);
                     targets.remove_if([currentBlossomEntry](WorldObject const* obj)->bool

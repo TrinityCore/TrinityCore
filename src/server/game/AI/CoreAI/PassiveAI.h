@@ -48,8 +48,6 @@ class TC_GAME_API PossessedAI : public CreatureAI
         void JustDied(Unit*) override;
         void KilledUnit(Unit* victim) override;
 
-        void OnCharmed(bool /*apply*/) override;
-
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
@@ -65,7 +63,7 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
         void UpdateAI(uint32) override { }
         void JustAppeared() override { }
         void EnterEvadeMode(EvadeReason /*why*/) override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
         static int32 Permissible(Creature const* creature);
 };

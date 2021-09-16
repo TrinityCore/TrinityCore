@@ -125,17 +125,17 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case NPC_REPENTANCE:
                     case NPC_SOUL_FRAGMENT:
                         if (Creature* barim = GetCreature(DATA_HIGH_PROPHET_BARIM))
-                            if (barim->IsAIEnabled)
+                            if (barim->IsAIEnabled())
                                 barim->AI()->JustSummoned(creature);
                         break;
                     case NPC_TOLVIR_LAND_MINE:
                         if (Creature* husam = GetCreature(DATA_GENERAL_HUSAM))
-                            if (husam->IsAIEnabled)
+                            if (husam->IsAIEnabled())
                                 husam->AI()->JustSummoned(creature);
                         break;
                     case NPC_MINION_OF_SIAMAT_STORM:
                         if (Creature* siamat = GetCreature(DATA_SIAMAT))
-                            if (siamat->IsAIEnabled)
+                            if (siamat->IsAIEnabled())
                                 siamat->AI()->JustSummoned(creature);
                         break;
                     default:

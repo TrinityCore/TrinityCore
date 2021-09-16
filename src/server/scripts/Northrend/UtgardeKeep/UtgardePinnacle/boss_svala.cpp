@@ -604,7 +604,7 @@ class achievement_incredible_hulk : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target) override
         {
-            return target && target->IsAIEnabled && target->GetAI()->GetData(DATA_INCREDIBLE_HULK);
+            return target && target->GetAI() && target->GetAI()->GetData(DATA_INCREDIBLE_HULK);
         }
 };
 

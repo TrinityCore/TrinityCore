@@ -382,7 +382,7 @@ struct boss_atramedes : public BossAI
                 events.ScheduleEvent(EVENT_LIFTOFF, 1min + 33s, 0, PHASE_GROUND);
 
                 if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES))
-                    if (nefarius->IsAIEnabled)
+                    if (nefarius->IsAIEnabled())
                         nefarius->AI()->DoAction(ACTION_START_SUMMONING_FIENDS);
                 break;
             default:
@@ -467,7 +467,7 @@ struct boss_atramedes : public BossAI
                     me->GetMotionMaster()->MoveTakeoff(POINT_LIFTOFF, LiftoffPosition);
 
                     if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES))
-                        if (nefarius->IsAIEnabled)
+                        if (nefarius->IsAIEnabled())
                             nefarius->AI()->DoAction(ACTION_STOP_SUMMONING_FIENDS);
                     break;
                 case EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD:
@@ -759,7 +759,7 @@ class spell_atramedes_resonating_clash_ground : public SpellScript
     {
         Unit* caster = GetCaster();
         Creature* target = GetHitCreature();
-        if (!target || !caster || !target->IsAIEnabled)
+        if (!target || !caster || !target->IsAIEnabled())
             return;
 
         target->AI()->SetGUID(caster->GetGUID(), DATA_LAST_USED_ANCIENT_DWARVEN_SHIELD);
@@ -782,7 +782,7 @@ class spell_atramedes_resonating_clash_air : public SpellScript
     {
         Unit* caster = GetCaster();
         Creature* target = GetHitCreature();
-        if (!target || !caster || !target->IsAIEnabled)
+        if (!target || !caster || !target->IsAIEnabled())
             return;
 
         if (Unit* shield = GetSpell()->GetOriginalCaster())
@@ -870,7 +870,7 @@ class spell_atramedes_vertigo : public AuraScript
 
         if (Creature* atramedes = target->ToCreature())
         {
-            if (atramedes->IsAIEnabled)
+            if (atramedes->IsAIEnabled())
             {
                 if (InstanceScript* instance = atramedes->GetInstanceScript())
                 {
@@ -878,7 +878,7 @@ class spell_atramedes_vertigo : public AuraScript
                         atramedes->GetMotionMaster()->MovePoint(POINT_PREPARE_LAND_INTRO, IntroFlightPosition2, false);
 
                     if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES))
-                        if (nefarius->IsAIEnabled)
+                        if (nefarius->IsAIEnabled())
                             nefarius->AI()->DoAction(ACTION_DESTROY_SHIELD);
                 }
             }
@@ -943,7 +943,7 @@ class spell_atramedes_devastation_trigger : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
-            if (target->IsAIEnabled)
+            if (target->IsAIEnabled())
                 if (!target->AI()->GetData(DATA_HAS_NOISY_PLAYER))
                     PreventDefaultAction();
     }
@@ -1001,7 +1001,7 @@ class spell_atramedes_pestered : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->DoAction(ACTION_PLAYER_ENTERED);
     }
 
@@ -1009,7 +1009,7 @@ class spell_atramedes_pestered : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->DoAction(ACTION_PLAYER_LEFT);
     }
 

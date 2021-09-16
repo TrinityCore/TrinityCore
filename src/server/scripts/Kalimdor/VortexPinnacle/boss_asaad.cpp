@@ -366,7 +366,7 @@ struct npc_asaad_unstable_grounding_field : public NullCreatureAI
 
         if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
         {
-            if (asaad->IsAIEnabled)
+            if (asaad->IsAIEnabled())
             {
                 for (uint8 i = 0; i < MaxStormTargetTrianglePoints; ++i)
                     _stormTargetGUIDs[i] = asaad->AI()->GetGUID(DATA_STORM_TARGET_1 + i);
@@ -416,7 +416,7 @@ struct npc_asaad_unstable_grounding_field : public NullCreatureAI
         {
             case NPC_GROUNDING_FIELD_ASAAD:
                 if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-                    if (asaad->IsAIEnabled)
+                    if (asaad->IsAIEnabled())
                         asaad->AI()->JustSummoned(summon);
 
                 summon->CastSpell(summon, SPELL_GROUNDING_FIELD);
@@ -500,7 +500,7 @@ class spell_asaad_sots_targeting : public SpellScript
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster() ? GetCaster()->ToCreature() : nullptr;
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         caster->AI()->SetGUID(GetHitUnit()->GetGUID(), DATA_RANDOM_STORM_TARGET);
@@ -529,7 +529,7 @@ class spell_asaad_sots_trigger : public SpellScript
             return;
 
         if (Creature* creature = GetHitCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 creature->AI()->JustSummoned(caster->ToCreature());
     }
 
@@ -552,7 +552,7 @@ class spell_asaad_storm_rune_beam : public SpellScript
     void SetTarget(WorldObject*& target)
     {
         if (Creature* groundingField = GetCaster()->FindNearestCreature(NPC_UNSTABLE_GROUNDING_FIELD, 5.f))
-            if (groundingField->IsAIEnabled)
+            if (groundingField->IsAIEnabled())
                 target = ObjectAccessor::GetCreature(*GetCaster(), groundingField->AI()->GetGUID(DATA_PREVIOUS_STORM_TARGET));
     }
 
@@ -574,21 +574,21 @@ class spell_asaad_grounding_field_visual_beams : public SpellScript
     void SetTarget1(WorldObject*& target)
     {
         if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-            if (asaad->IsAIEnabled)
+            if (asaad->IsAIEnabled())
                 target = ObjectAccessor::GetCreature(*GetCaster(), asaad->AI()->GetGUID(DATA_STORM_TARGET_1));
     }
 
     void SetTarget2(WorldObject*& target)
     {
         if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-            if (asaad->IsAIEnabled)
+            if (asaad->IsAIEnabled())
                 target = ObjectAccessor::GetCreature(*GetCaster(), asaad->AI()->GetGUID(DATA_STORM_TARGET_2));
     }
 
     void SetTarget3(WorldObject*& target)
     {
         if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
-            if (asaad->IsAIEnabled)
+            if (asaad->IsAIEnabled())
                 target = ObjectAccessor::GetCreature(*GetCaster(), asaad->AI()->GetGUID(DATA_STORM_TARGET_3));
     }
 
@@ -633,7 +633,7 @@ class spell_asaad_grounding_field : public SpellScript
             return;
 
         Creature* asaad = _instance->GetCreature(DATA_ASAAD);
-        if (!asaad || !asaad->IsAIEnabled)
+        if (!asaad || !asaad->IsAIEnabled())
             return;
 
         std::array<Position, MaxStormTargetTrianglePoints> trianglePoints;
@@ -709,7 +709,7 @@ class spell_asaad_supremacy_of_the_storm_damage: public SpellScript
             return;
 
         Creature* caster = GetCaster()->ToCreature();
-        if (!caster->IsAIEnabled)
+        if (!caster->IsAIEnabled())
             return;
 
         // Despite the grounding field npc having an aura, the aura kicks in later than the damage kicks, so it cannot be used as reliable check source.

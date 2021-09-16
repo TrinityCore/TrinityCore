@@ -1243,7 +1243,7 @@ class spell_omnotron_recharging : public AuraScript
     {
         if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
             if (Creature* golem = GetTarget()->ToCreature())
-                if (golem->IsAIEnabled)
+                if (golem->IsAIEnabled())
                     golem->AI()->DoAction(ACTION_ACTIVATE_GOLEM);
     }
 
@@ -1292,7 +1292,7 @@ class spell_omnotron_inactive : public SpellScript
         Unit* target = GetHitUnit();
         target->CastSpell(target, SPELL_POWERED_DOWN, true);
         if (Creature* golem = target->ToCreature())
-            if (golem->IsAIEnabled)
+            if (golem->IsAIEnabled())
                 golem->AI()->DoAction(ACTION_DEACTIVATE_GOLEM);
     }
 

@@ -231,7 +231,7 @@ class spell_zulgurub_rolling_boulders : public AuraScript
         // Serverside spell. We just skip that part and do it directly via script
         PreventDefaultAction();
         if (Creature* creature = GetTarget()->ToCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 creature->AI()->DoAction(ACTION_ROLL_BOULDER);
     }
 

@@ -302,7 +302,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                             break;
                         case EVENT_ANNOUNCE_ALMOST_FULL_STRENGTH:
                             if (Creature* trigger = instance->GetCreature(_engerizeWorldTriggerGUID))
-                                if (trigger->IsAIEnabled)
+                                if (trigger->IsAIEnabled())
                                     trigger->AI()->Talk(SAY_ANNOUNCE_ALMOST_FULL_STRENGTH);
                             break;
                         case EVENT_CONCLAVE_AT_FULL_STRENGTH:

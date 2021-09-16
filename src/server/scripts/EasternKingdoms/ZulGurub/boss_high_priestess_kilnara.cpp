@@ -434,7 +434,7 @@ class spell_kilnara_primal_awakening : public AuraScript
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* creature = GetTarget()->ToCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 creature->AI()->DoZoneInCombat();
     }
 

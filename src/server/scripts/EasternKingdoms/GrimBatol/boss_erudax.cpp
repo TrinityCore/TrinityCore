@@ -507,7 +507,7 @@ class spell_erudax_twilight_corruption_AuraScript : public AuraScript
         {
             if (Unit* caster = GetCaster())
                 if (Creature* creature = caster->ToCreature())
-                    if (creature->IsAIEnabled)
+                    if (creature->IsAIEnabled())
                         creature->AI()->DoAction(ACTION_FINISH_CORRUPTION);
 
             if (Unit* owner = GetOwner()->ToUnit())

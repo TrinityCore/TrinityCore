@@ -102,7 +102,7 @@ struct boss_beauty : public BossAI
         for (ObjectGuid guid : summons)
             if (Creature* puppy = ObjectAccessor::GetCreature(*me, guid))
                 if (puppy->GetEntry() != NPC_RUNTY && !puppy->IsInCombat())
-                    if (puppy->IsAIEnabled)
+                    if (puppy->IsAIEnabled())
                         puppy->AI()->DoZoneInCombat();
     }
 

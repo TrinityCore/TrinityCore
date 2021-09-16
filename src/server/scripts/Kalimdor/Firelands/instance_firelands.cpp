@@ -126,7 +126,7 @@ class instance_firelands : public InstanceMapScript
                 {
                     case NPC_DRUID_OF_THE_FLAME:
                         if (Creature* majordomo = GetCreature(DATA_MAJORDOMO_STAGHELM))
-                            if (majordomo->IsAIEnabled)
+                            if (majordomo->IsAIEnabled())
                                 majordomo->AI()->DoAction(ACTION_DRUID_OF_THE_FLAME_DIED);
                         break;
                     default:
@@ -144,7 +144,7 @@ class instance_firelands : public InstanceMapScript
                     case DATA_BALEROC:
                         if (state == DONE)
                             if (Creature* majordomo = GetCreature(DATA_MAJORDOMO_STAGHELM))
-                                if (majordomo->IsAIEnabled)
+                                if (majordomo->IsAIEnabled())
                                     majordomo->AI()->DoAction(ACTION_BALEROC_DIED);
                         break;
                     case DATA_MAJORDOMO_STAGHELM:

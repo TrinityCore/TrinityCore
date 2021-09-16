@@ -156,7 +156,7 @@ struct boss_anraphet : public BossAI
         _JustDied();
 
         if (Creature* brann = instance->GetCreature(DATA_BRANN_0))
-            if (brann->IsAIEnabled)
+            if (brann->IsAIEnabled())
                 brann->AI()->DoAction(ACTION_ANRAPHET_DIED);
     }
 

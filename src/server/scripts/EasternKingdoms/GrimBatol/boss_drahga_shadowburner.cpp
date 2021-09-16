@@ -188,7 +188,7 @@ struct boss_drahga_shadowburner : public BossAI
                 if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
                 {
                     valiona->SetFacingToObject(summon);
-                    if (valiona->IsAIEnabled)
+                    if (valiona->IsAIEnabled())
                         valiona->AI()->Talk(SAY_ANNOUNCE_DEVOURING_FLAMES);
                     valiona->CastSpell(summon, SPELL_DEVOURING_FLAMES);
                 }
@@ -334,7 +334,7 @@ struct npc_drahga_valiona : public ScriptedAI
                 DoZoneInCombat();
 
                 if (Creature* drahga = _instance->GetCreature(DATA_DRAHGA_SHADOWBURNER))
-                    if (drahga->IsAIEnabled)
+                    if (drahga->IsAIEnabled())
                         drahga->AI()->DoAction(ACTION_SCHEDULE_EVENTS);
 
                 _events.ScheduleEvent(EVENT_SHREDDING_SWIPE, 1s);
@@ -377,7 +377,7 @@ struct npc_drahga_valiona : public ScriptedAI
                 drahga->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 drahga->SetReactState(REACT_AGGRESSIVE);
 
-                if (drahga->IsAIEnabled)
+                if (drahga->IsAIEnabled())
                     drahga->AI()->DoAction(ACTION_ENTER_PHASE_THREE);
             }
             _finished = true;

@@ -145,7 +145,7 @@ class DelayedFollowEvent : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            if (_owner->IsAIEnabled)
+            if (_owner->IsAIEnabled())
                 _owner->AI()->DoZoneInCombat();
 
             if (TempSummon* summon = _owner->ToTempSummon())

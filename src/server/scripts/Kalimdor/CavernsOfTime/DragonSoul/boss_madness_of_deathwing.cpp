@@ -500,7 +500,7 @@ struct boss_madness_of_deathwing : public BossAI
 
         for (ObjectGuid guid : _mutatedCorruptionGUIDs)
             if (Creature* corruption = ObjectAccessor::GetCreature(*me, guid))
-                if (corruption->IsAIEnabled)
+                if (corruption->IsAIEnabled())
                     corruption->AI()->EnterEvadeMode();
 
         for (uint8 i = 0; i < MAX_DRAGON_ASPECTS; i++)
@@ -639,7 +639,7 @@ struct boss_madness_of_deathwing : public BossAI
             case ACTION_LIMB_TENTACLE_DAMAGED:
                 if (!_limbData[DRAGON_ASPECT_ALEXSTRASZA].TentacleKilled)
                     if (Creature* alexstrasza = GetDragonAspect(DRAGON_ASPECT_ALEXSTRASZA))
-                        if (alexstrasza->IsAIEnabled)
+                        if (alexstrasza->IsAIEnabled())
                             alexstrasza->AI()->DoAction(ACTION_CAUTERIZE);
                 break;
             case ACTION_DEATH:
@@ -713,7 +713,7 @@ struct boss_madness_of_deathwing : public BossAI
                     // Nozdormu creates a time zone at the same moment when Deathwing faces a platform
                     if (!_limbData[DRAGON_ASPECT_NOZDORMU].TentacleKilled)
                         if (Creature* nozdormu = GetDragonAspect(DRAGON_ASPECT_NOZDORMU))
-                            if (nozdormu->IsAIEnabled)
+                            if (nozdormu->IsAIEnabled())
                                 nozdormu->AI()->DoAction(ACTION_CREATE_TIME_ZONE);
                     break;
                 }
@@ -727,7 +727,7 @@ struct boss_madness_of_deathwing : public BossAI
                     Talk(SAY_ANNOUNCE_CATACLYSM);
                     DoCastAOE(SPELL_CATACLYSM);
                     if (Creature* aspect = GetDragonAspect(_assaultedDragonAspect))
-                        if (aspect->IsAIEnabled)
+                        if (aspect->IsAIEnabled())
                             aspect->AI()->DoAction(ACTION_CATACLYSM_IN_PROGRESS);
                     break;
                 case EVENT_HEMORRHAGE:
@@ -754,7 +754,7 @@ struct boss_madness_of_deathwing : public BossAI
                 case EVENT_PREPARE_TIME_ZONE:
                     DoCastSelf(SPELL_TIME_ZONE_PHASE_TWO);
                     if (Creature* nozdormu = GetDragonAspect(DRAGON_ASPECT_NOZDORMU))
-                        if (nozdormu->IsAIEnabled)
+                        if (nozdormu->IsAIEnabled())
                             nozdormu->AI()->DoAction(ACTION_CAST_TIME_ZONE);
                     break;
                 case EVENT_DISENGAGE:
@@ -858,7 +858,7 @@ private:
         Talk(announcementTextID);
 
         if (Creature* aspect = GetDragonAspect(aspectId))
-            if (aspect->IsAIEnabled)
+            if (aspect->IsAIEnabled())
                 aspect->AI()->DoAction(ACTION_ASSAULTED);
 
         if (Creature* limb = ObjectAccessor::GetCreature(*me, _limbData[aspectId].TentacleGUID))
@@ -940,11 +940,11 @@ private:
 
             uint8 aspectID = urand(DRAGON_ASPECT_YSERA, DRAGON_ASPECT_ALEXSTRASZA);
             if (Creature* aspect = GetDragonAspect(aspectID))
-                if (aspect->IsAIEnabled)
+                if (aspect->IsAIEnabled())
                     aspect->AI()->DoAction(ACTION_TALK_PHASE_TWO);
 
             if (Creature* thrall = instance->GetCreature(DATA_THRALL_MADNESS_OF_DEATHWING))
-                if (thrall->IsAIEnabled)
+                if (thrall->IsAIEnabled())
                     thrall->AI()->DoAction(ACTION_TALK_ASPECT_AID);
 
             events.SetPhase(PHASE_TWO);
@@ -974,7 +974,7 @@ private:
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEGENERATIVE_BITE);
 
         if (Creature* thrall = instance->GetCreature(DATA_THRALL_MADNESS_OF_DEATHWING))
-            if (thrall->IsAIEnabled)
+            if (thrall->IsAIEnabled())
                 thrall->AI()->DoAction(ACTION_FIRE_DRAGON_SOUL);
 
         Player* recipient = nullptr;
@@ -1763,7 +1763,7 @@ class spell_madness_of_deathwing_assault_aspects : public SpellScript
         // All players count, inform Deathwing about the numbers
         if (Creature* caster = GetCaster()->ToCreature())
         {
-            if (!caster->IsAIEnabled)
+            if (!caster->IsAIEnabled())
                 return;
 
             for (uint8 i = 0; i < MAX_DRAGON_ASPECTS; ++i)
@@ -1774,7 +1774,7 @@ class spell_madness_of_deathwing_assault_aspects : public SpellScript
     void NotifyDeathwing()
     {
         if (Creature* caster = GetCaster()->ToCreature())
-            if (caster->IsAIEnabled)
+            if (caster->IsAIEnabled())
                 caster->AI()->DoAction(ACTION_ASSAULT_PLATFORM);
     }
 
@@ -1807,7 +1807,7 @@ class spell_madness_of_deathwing_summon_tail : public SpellScript
 
         if (Creature* caster = GetCaster()->ToCreature())
         {
-            if (!caster->IsAIEnabled)
+            if (!caster->IsAIEnabled())
                 return;
 
             InstanceScript* instance = caster->GetInstanceScript();
@@ -1870,7 +1870,7 @@ class spell_madness_of_deathwing_hemorrhage : public SpellScript
     void SetDest(SpellDestination& dest)
     {
         if (Creature* caster = GetCaster()->ToCreature())
-            if (caster->IsAIEnabled)
+            if (caster->IsAIEnabled())
                 if (Creature* platform = ObjectAccessor::GetCreature(*caster, caster->AI()->GetGUID(DATA_CURRENT_PLATFORM)))
                     dest.Relocate(platform->GetPosition());
     }
@@ -1964,7 +1964,7 @@ class spell_madness_of_deathwing_elementium_meteor_script: public SpellScript
         if (Creature* target = GetHitCreature())
         {
             target->ExitVehicle();
-            if (target->IsAIEnabled)
+            if (target->IsAIEnabled())
                 target->AI()->DoAction(ACTION_LAUNCH_ELEMENTIUM_BOLT);
         }
     }
@@ -2118,7 +2118,7 @@ class spell_madness_of_deathwing_trigger_concentration : public SpellScript
         if (!creature || creature->GetGUID() != _aspectGUID)
             return;
 
-        if (creature->IsAIEnabled)
+        if (creature->IsAIEnabled())
             creature->AI()->DoAction(ACTION_LIMB_KILLED);
     }
 
@@ -2136,7 +2136,7 @@ class spell_madness_of_deathwing_concentration : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->SetGUID(GetTarget()->GetGUID(), DATA_FOCUSED_LIMB);
 
         GetTarget()->SetAnimationTier(AnimationTier::Fly);
@@ -2312,7 +2312,7 @@ class spell_madness_of_deathwing_fire_dragon_soul: public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Creature* deathwing = GetHitCreature())
-            if (deathwing->IsAIEnabled)
+            if (deathwing->IsAIEnabled())
                 deathwing->AI()->DoAction(ACTION_DEATH);
     }
 
@@ -2397,7 +2397,7 @@ class spell_madness_of_deathwing_trigger_aspect_yell : public SpellScript
         if (!target)
             return;
 
-        if (target->IsAIEnabled)
+        if (target->IsAIEnabled())
             target->AI()->DoAction(ACTION_TALK_CHARGE_DRAGON_SOUL);
     }
 

@@ -68,8 +68,8 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
     }
 
     // inform AI
-    if (creature->IsAIEnabled)
-        creature->AI()->WaypointPathStarted(_path->Id);
+    if (CreatureAI* AI = creature->AI())
+        AI->WaypointPathStarted(_path->Id);
 }
 
 void WaypointMovementGenerator<Creature>::DoFinalize(Creature* creature)
@@ -127,8 +127,8 @@ void WaypointMovementGenerator<Creature>::ProcessWaypointArrival(Creature* creat
         creature->UpdateCurrentWaypointInfo(0, 0);
 
         // Inform the AI that the path has ended.
-        if (creature->IsAIEnabled)
-            creature->AI()->WaypointPathEnded(waypoint.Id, _path->Id);
+        if (CreatureAI* AI = creature->AI())
+            AI->WaypointPathEnded(waypoint.Id, _path->Id);
     }
 
     if (waypoint.EventId && urand(0, 99) < waypoint.EventChance)
@@ -141,10 +141,10 @@ void WaypointMovementGenerator<Creature>::ProcessWaypointArrival(Creature* creat
     creature->UpdateCurrentWaypointInfo(waypoint.Id, _path->Id);
 
     // inform AI
-    if (creature->IsAIEnabled)
+    if (CreatureAI* AI = creature->AI())
     {
-        creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
-        creature->AI()->WaypointReached(waypoint.Id, _path->Id);
+        AI->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
+        AI->WaypointReached(waypoint.Id, _path->Id);
     }
 
     // All hooks called and infos updated. Time to increment the waypoint node id
@@ -248,8 +248,9 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
     creature->SignalFormationMovement();
 
     // Inform AI
-    if (creature->IsAIEnabled && !relaunch)
-        creature->AI()->WaypointStarted(waypoint.Id, _path->Id);
+    if (!relaunch)
+        if (CreatureAI* AI = creature->AI())
+            AI->WaypointStarted(waypoint.Id, _path->Id);
 
     _waypointReached = false;
     _recalculateSpeed = false;

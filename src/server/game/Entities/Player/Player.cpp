@@ -1021,14 +1021,7 @@ void Player::Update(uint32 p_time)
 
     UpdateAfkReport(now);
 
-    if (IsAIEnabled && GetAI())
-        GetAI()->UpdateAI(p_time);
-    else if (NeedChangeAI)
-    {
-        UpdateCharmAI();
-        NeedChangeAI = false;
-        IsAIEnabled = (GetAI() != nullptr);
-    }
+    Unit::AIUpdateTick(p_time);
 
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
@@ -20897,7 +20890,7 @@ void Player::RemovePetAura(PetAura const* petSpell)
 
 void Player::StopCastingCharm()
 {
-    Unit* charm = GetCharm();
+    Unit* charm = GetCharmed();
     if (!charm)
         return;
 
@@ -20908,12 +20901,12 @@ void Player::StopCastingCharm()
         else if (charm->IsVehicle())
             ExitVehicle();
     }
-    if (GetCharmGUID())
+    if (GetCharmedGUID())
         charm->RemoveCharmAuras();
 
-    if (GetCharmGUID())
+    if (GetCharmedGUID())
     {
-        TC_LOG_FATAL("entities.player", "Player::StopCastingCharm: Player '%s' (%s) is not able to uncharm unit (%s)", GetName().c_str(), GetGUID().ToString().c_str(), GetCharmGUID().ToString().c_str());
+        TC_LOG_FATAL("entities.player", "Player::StopCastingCharm: Player '%s' (%s) is not able to uncharm unit (%s)", GetName().c_str(), GetGUID().ToString().c_str(), GetCharmedGUID().ToString().c_str());
         if (!charm->GetCharmerGUID().IsEmpty())
         {
             TC_LOG_FATAL("entities.player", "Player::StopCastingCharm: Charmed unit has charmer %s", charm->GetCharmerGUID().ToString().c_str());
@@ -21143,7 +21136,7 @@ void Player::PetSpellInitialize()
 
 void Player::PossessSpellInitialize()
 {
-    Unit* charm = GetCharm();
+    Unit* charm = GetCharmed();
     if (!charm)
         return;
 
@@ -24768,7 +24761,11 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 {
     // still affected by some aura that shouldn't allow control, only allow on last such aura to be removed
     if (allowMove && target->HasUnitState(UNIT_STATE_CANT_CLIENT_CONTROL))
+    {
+        // this should never happen, otherwise m_unitBeingMoved might be left dangling!
+        ASSERT(GetUnitBeingMoved() == target);
         return;
+    }
 
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
     data << target->GetPackGUID();

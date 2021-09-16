@@ -71,7 +71,7 @@ class AttackStartEvent : public BasicEvent
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
-            if (_owner->IsAIEnabled)
+            if (_owner->IsAIEnabled())
                 _owner->AI()->DoZoneInCombat();
             return true;
         }
@@ -298,7 +298,7 @@ class spell_romogg_call_for_help : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Creature* creature = GetHitCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 creature->AI()->DoZoneInCombat();
     }
 
@@ -318,7 +318,7 @@ class achievement_crushing_bones_and_cracking_skulls : public AchievementCriteri
             if (!target)
                 return false;
 
-            if (target->IsAIEnabled)
+            if (target->IsAIEnabled())
                 return target->GetAI()->GetData(DATA_CRUSHING_BONES_AND_CRACKING_SKULLS);
 
             return false;

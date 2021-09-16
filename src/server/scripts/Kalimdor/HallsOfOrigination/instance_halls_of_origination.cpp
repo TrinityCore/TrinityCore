@@ -322,7 +322,7 @@ class instance_halls_of_origination : public InstanceMapScript
                         {
                             ActivateLightMachine(data - DATA_WARDEN_1_DIED);
                             if (Creature* brann = GetCreature(DATA_BRANN_0))
-                                if (brann->IsAIEnabled)
+                                if (brann->IsAIEnabled())
                                     brann->AI()->SetData(data, value);
                         }
                         break;
@@ -466,7 +466,7 @@ class instance_halls_of_origination : public InstanceMapScript
                                 sunMirror->SetGoState(GO_STATE_ACTIVE);
 
                             if (Creature* anraphet = GetCreature(DATA_ANRAPHET))
-                                if (anraphet->IsAIEnabled)
+                                if (anraphet->IsAIEnabled())
                                     anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
                             break;
                         case EVENT_FAIL_VAULTS_OF_LIGHT_ACHIEVEMENT:
@@ -518,7 +518,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 for (uint8 i = 0; i < MAX_VAULT_OF_LIGHTS_WARDEN; ++i)
                 {
                     if (Creature* warden = instance->SummonCreature(wardenEntries[i], VaultOfLightsWardenPositions[i]))
-                        if (warden->IsAIEnabled)
+                        if (warden->IsAIEnabled())
                             warden->AI()->SetData(DATA_WARDEN_NUMBER, i);
                 }
             }

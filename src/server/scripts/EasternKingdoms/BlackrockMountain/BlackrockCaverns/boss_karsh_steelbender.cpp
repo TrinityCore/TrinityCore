@@ -71,7 +71,7 @@ class AttackStartEvent : public BasicEvent
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
-            if (_owner->IsAIEnabled)
+            if (_owner->IsAIEnabled())
                 _owner->AI()->DoZoneInCombat();
             return true;
         }
@@ -244,7 +244,7 @@ class spell_karsh_superheated_quicksilver_armor_AuraScript : public AuraScript
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* creature = GetTarget()->ToCreature())
-            if (creature->IsAIEnabled)
+            if (creature->IsAIEnabled())
                 creature->AI()->DoAction(ACTION_ANNOUNCE_SUPERHEATED_QUICKSILVER_ARMOR);
     }
 

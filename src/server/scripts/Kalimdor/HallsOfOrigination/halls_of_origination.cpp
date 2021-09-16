@@ -948,7 +948,7 @@ public:
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* brann = instance->GetCreature(DATA_BRANN_0))
-                if (brann->IsAIEnabled)
+                if (brann->IsAIEnabled())
                     brann->AI()->DoAction(ACTION_INTRO_AREA_TRIGGER);
         return true;
     }

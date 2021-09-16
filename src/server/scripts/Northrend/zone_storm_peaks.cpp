@@ -365,7 +365,7 @@ public:
 
         void WaypointReached(uint32 /*waypointId*/, uint32 /*pathId*/) override { }
         void JustDied(Unit* /*killer*/) override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

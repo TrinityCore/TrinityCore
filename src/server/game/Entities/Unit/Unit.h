@@ -30,6 +30,8 @@
 #include "Util.h"
 #include <array>
 #include <map>
+#include <memory>
+#include <stack>
 
 #define WORLD_TRIGGER   12999
 
@@ -789,9 +791,18 @@ class TC_GAME_API Unit : public WorldObject
 
         virtual ~Unit();
 
-        UnitAI* GetAI() { return i_AI; }
-        void SetAI(UnitAI* newAI) { i_AI = newAI; }
+        bool IsAIEnabled() const { return (i_AI != nullptr); }
+        void AIUpdateTick(uint32 diff);
+        UnitAI* GetAI() const { return i_AI.get(); }
+        void ScheduleAIChange();
+        void PushAI(UnitAI* newAI);
+        bool PopAI();
+    protected:
+        void SetAI(UnitAI* newAI);
+        UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
+        void RefreshAI();
 
+    public:
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
@@ -1204,31 +1215,34 @@ class TC_GAME_API Unit : public WorldObject
         void SetCreatorGUID(ObjectGuid creator) { SetGuidValue(UNIT_FIELD_CREATEDBY, creator); }
         ObjectGuid GetMinionGUID() const { return GetGuidValue(UNIT_FIELD_SUMMON); }
         void SetMinionGUID(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_SUMMON, guid); }
-        ObjectGuid GetCharmerGUID() const { return GetGuidValue(UNIT_FIELD_CHARMEDBY); }
-        void SetCharmerGUID(ObjectGuid owner) { SetGuidValue(UNIT_FIELD_CHARMEDBY, owner); }
-        ObjectGuid GetCharmGUID() const { return  GetGuidValue(UNIT_FIELD_CHARM); }
         void SetPetGUID(ObjectGuid guid) { m_SummonSlot[SUMMON_SLOT_PET] = guid; }
         ObjectGuid GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
         void SetCritterGUID(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
         ObjectGuid GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
         ObjectGuid GetOwnerOrCreatorGUID() const { return GetOwnerGUID() ? GetOwnerGUID() : GetCreatorGUID(); }
 
+        ObjectGuid GetCharmerGUID() const { return GetGuidValue(UNIT_FIELD_CHARMEDBY); }
+        Unit* GetCharmer() const { return m_charmer; }
+
+        ObjectGuid GetCharmedGUID() const { return GetGuidValue(UNIT_FIELD_CHARM); }
+        Unit* GetCharmed() const { return m_charmed; }
+
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
-        ObjectGuid GetCharmerOrOwnerGUID() const;
-        ObjectGuid GetCharmerOrOwnerOrOwnGUID() const;
+        Player* GetControllingPlayer() const;
+        ObjectGuid GetCharmerOrOwnerGUID() const { return IsCharmed() ? GetCharmerGUID() : GetOwnerGUID(); }
         bool IsCharmedOwnedByPlayerOrPlayer() const { return GetCharmerOrOwnerOrOwnGUID().IsPlayer(); }
 
-        Player* GetSpellModOwner() const;
+        ObjectGuid GetCharmerOrOwnerOrOwnGUID() const;
 
         Unit* GetOwner() const;
         Guardian* GetGuardianPet() const;
         Minion* GetFirstMinion() const;
-        Unit* GetCharmer() const;
-        Unit* GetCharm() const;
-        Unit* GetCharmerOrOwner() const;
+        Unit* GetCharmerOrOwner() const { return IsCharmed() ? GetCharmer() : GetOwner(); }
         Unit* GetCharmerOrOwnerOrSelf() const;
         Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
         Player* GetAffectingPlayer() const;
+
+        Player* GetSpellModOwner() const;
 
         void SetMinion(Minion *minion, bool apply);
         void GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry);
@@ -1252,7 +1266,6 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
-        void UpdateCharmAI();
         // returns the unit that this player IS CONTROLLING
         Unit* GetUnitBeingMoved() const;
         // returns the player that this player IS CONTROLLING
@@ -1675,7 +1688,6 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetModelForTotem(PlayerTotemType totemType);
 
         friend class VehicleJoinEvent;
-        bool IsAIEnabled, NeedChangeAI;
         ObjectGuid LastCharmerGUID;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading = false);
         void RemoveVehicleKit(bool onRemoveFromWorld = false);
@@ -1774,8 +1786,6 @@ class TC_GAME_API Unit : public WorldObject
         void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
         void DestroyForPlayer(Player* target, bool onDeath = false) const override;
 
-        UnitAI* i_AI, *i_disabledAI;
-
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();
 
@@ -1824,6 +1834,8 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_speed_rate[MAX_MOVE_TYPE];
 
+        Unit* m_charmer; // Unit that is charming ME
+        Unit* m_charmed; // Unit that is being charmed BY ME
         CharmInfo* m_charmInfo;
         SharedVisionList m_sharedVision;
 
@@ -1892,6 +1904,13 @@ class TC_GAME_API Unit : public WorldObject
         CombatManager m_combatManager;
         friend class ThreatManager;
         ThreatManager m_threatManager;
+
+        void UpdateCharmAI();
+        void RestoreDisabledAI();
+        typedef std::stack<std::shared_ptr<UnitAI>> UnitAIStack;
+        UnitAIStack i_AIs;
+        std::shared_ptr<UnitAI> i_AI;
+        bool m_aiLocked;
 
         GuidSet m_ComboPointHolders;
 

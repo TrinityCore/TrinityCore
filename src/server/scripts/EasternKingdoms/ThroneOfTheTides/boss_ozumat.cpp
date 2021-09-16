@@ -196,7 +196,7 @@ class AttackNeptulonEvent : public BasicEvent
                 if (Creature* neptulon = instance->GetCreature(DATA_NEPTULON))
                 {
                     _owner->SetReactState(REACT_AGGRESSIVE);
-                    if (_owner->IsAIEnabled)
+                    if (_owner->IsAIEnabled())
                     {
                         if (_owner->GetEntry() == NPC_UNYIELDING_BEHEMOTH
                             || _owner->GetEntry() == NPC_VICIOUS_MINDLASHER

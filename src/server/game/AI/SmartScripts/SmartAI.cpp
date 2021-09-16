@@ -736,29 +736,41 @@ void SmartAI::InitializeAI()
     _followCreditType = 0;
 }
 
-void SmartAI::OnCharmed(bool apply)
+void SmartAI::OnCharmed(bool /*isNew*/)
 {
-    if (apply) // do this before we change charmed state, as charmed state might prevent these things from processing
+    bool const charmed = me->IsCharmed();
+    if (charmed) // do this before we change charmed state, as charmed state might prevent these things from processing
     {
         if (HasEscortState(SMART_ESCORT_ESCORTING | SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
             EndPath(true);
         me->StopMoving();
     }
 
-    _isCharmed = apply;
+    _isCharmed = charmed;
 
-    if (!apply && !me->IsInEvadeMode())
+    if (charmed && !me->isPossessed() && !me->IsVehicle())
+        me->FollowTarget(me->GetCharmer());
+
+    if (!charmed && !me->IsInEvadeMode())
     {
         if (_repeatWaypointPath)
             StartPath(_run, GetScript()->GetPathId(), true);
         else
             me->SetWalk(!_run);
 
-        if (Unit* charmer = me->GetCharmer())
-            AttackStart(charmer);
+        if (me->LastCharmerGUID)
+        {
+            if (!me->HasReactState(REACT_PASSIVE))
+                if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
+                    me->EngageWithTarget(lastCharmer);
+            me->LastCharmerGUID.Clear();
+
+            if (!me->IsInCombat())
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+        }
     }
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, nullptr, 0, 0, apply);
+    GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, nullptr, 0, 0, charmed);
 }
 
 void SmartAI::DoAction(int32 param)

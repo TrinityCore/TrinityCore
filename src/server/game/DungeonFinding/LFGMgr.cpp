@@ -1426,7 +1426,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         error = LFG_TELEPORT_RESULT_EXHAUSTION;
     else if (player->GetVehicle())
         error = LFG_TELEPORT_RESULT_ON_TRANSPORT;
-    else if (player->GetCharmGUID())
+    else if (player->GetCharmedGUID())
         error = LFG_TELEPORT_RESULT_IMMUNE_TO_SUMMONS;
     else if (player->HasAura(9454)) // check Freeze debuff
         error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;

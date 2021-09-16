@@ -277,7 +277,7 @@ struct npc_sfk_worgen_spirit : public ScriptedAI
 
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         if (Creature* silverlaine = _instance->GetCreature(DATA_BARON_SILVERLAINE))
-            if (silverlaine->IsAIEnabled)
+            if (silverlaine->IsAIEnabled())
                 silverlaine->AI()->JustSummoned(me);
 
         DoZoneInCombat();

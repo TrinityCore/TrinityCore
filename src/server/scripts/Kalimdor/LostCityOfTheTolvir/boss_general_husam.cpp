@@ -422,7 +422,7 @@ class spell_husam_detonate_traps : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Creature* target = GetHitCreature())
-            if (target->IsAIEnabled)
+            if (target->IsAIEnabled())
                 target->AI()->DoAction(ACTION_INITIATE_COUNTDOWN);
     }
 
@@ -478,7 +478,7 @@ class spell_husam_land_mine_player_search_effect : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     creature->AI()->DoAction(ACTION_DETONATE);
     }
 

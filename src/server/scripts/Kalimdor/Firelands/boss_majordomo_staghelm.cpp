@@ -182,7 +182,7 @@ struct boss_majordomo_staghelm : public BossAI
                 summon->SetCorpseDelay(0);
                 summon->m_Events.AddEventAtOffset([summon]()
                 {
-                    if (summon->IsAIEnabled)
+                    if (summon->IsAIEnabled())
                         summon->AI()->DoZoneInCombat();
                 }, 1s);
                 break;
@@ -380,7 +380,7 @@ class spell_majordomo_staghelm_clump_check : public SpellScript
         }
 
         Creature* caster = GetCaster()->ToCreature();
-        if (caster->IsAIEnabled)
+        if (caster->IsAIEnabled())
             caster->AI()->DoAction(hasClumpedPlayers ? ACTION_PLAYERS_CLUSTERED : ACTION_PLAYERS_SPLIT);
     }
 

@@ -105,7 +105,7 @@ public:
                     break;
                 case NPC_AMANI_DRAGONHAWK_HATCHLING:
                     if (Creature* janalai = GetCreature(DATA_JANALAI))
-                        if (janalai->IsAIEnabled)
+                        if (janalai->IsAIEnabled())
                             janalai->AI()->JustSummoned(creature);
                     break;
                 default:
@@ -139,7 +139,7 @@ public:
                         _speedRunState = IN_PROGRESS;
 
                         if (Creature* trigger = GetCreature(DATA_HEXLORD_MALACRASS_TRIGGER))
-                            if (trigger->IsAIEnabled)
+                            if (trigger->IsAIEnabled())
                                 trigger->AI()->Talk(SAY_SPEEDRUN_STARTED);
 
                         DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
@@ -152,7 +152,7 @@ public:
                     for (ObjectGuid guid : _amanishiGuardianGUIDs)
                     {
                         if (Creature* guardian = instance->GetCreature(guid))
-                            if (guardian->IsAIEnabled)
+                            if (guardian->IsAIEnabled())
                                 guardian->AI()->DoAction(ACTION_ALERT_AMANISHI_GUARDIANS);
                     }
                     break;
@@ -202,7 +202,7 @@ public:
             {
                 case EVENT_RIUAL_OF_POWER:
                     if (Creature* voljin = GetCreature(DATA_VOLJIN))
-                        if (voljin->IsAIEnabled)
+                        if (voljin->IsAIEnabled())
                             voljin->AI()->DoAction(ACTION_OPEN_MASSIVE_GATES);
                     break;
                 default:

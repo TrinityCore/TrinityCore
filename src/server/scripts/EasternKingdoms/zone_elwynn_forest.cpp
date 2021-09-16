@@ -140,7 +140,7 @@ struct npc_blackrock_battle_worg : public ScriptedAI
                 _infantryGUID = infantry->GetGUID();
                 AttackStart(infantry);
 
-                if (infantry->IsAIEnabled)
+                if (infantry->IsAIEnabled())
                     infantry->AI()->AttackStart(me);
             }
         }, 1s);

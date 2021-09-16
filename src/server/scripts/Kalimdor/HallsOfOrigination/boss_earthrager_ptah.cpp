@@ -151,7 +151,7 @@ struct boss_earthrager_ptah : public BossAI
             case NPC_DUSTBONE_HORROR:
             case NPC_JEWELED_SCARAB:
                 summon->SetReactState(REACT_PASSIVE);
-                if (summon->IsAIEnabled)
+                if (summon->IsAIEnabled())
                     summon->AI()->DoZoneInCombat();
                 _addGUIDs.push_back(summon->GetGUID());
                 _summonCount++;
@@ -206,7 +206,7 @@ struct boss_earthrager_ptah : public BossAI
                         if (Creature* add = ObjectAccessor::GetCreature(*me, guid))
                         {
                             add->SetReactState(REACT_AGGRESSIVE);
-                            if (add->IsAIEnabled)
+                            if (add->IsAIEnabled())
                                 add->AI()->DoZoneInCombat();
                         }
                     }

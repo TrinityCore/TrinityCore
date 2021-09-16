@@ -1069,7 +1069,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
                     if (player->GetPetGUID())
                         return SendTameFailResult(PET_TAME_FAILURE_ACTIVE_SUMMON);
 
-                    if (player->GetCharmGUID())
+                    if (player->GetCharmedGUID())
                         return SendTameFailResult(PET_TAME_FAILURE_CREATURE_CONTROLLED);
                 }
                 else

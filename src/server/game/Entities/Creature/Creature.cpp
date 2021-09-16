@@ -270,7 +270,7 @@ m_groupLootTimer(0), lootingGroupLowGUID(0), m_PlayerDamageReq(0),
 m_lootRecipient(), m_lootRecipientGroup(0), _skinner(), _pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
-m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
+m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0), _cyclicSplinePathId(0),
 m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _isMissingSwimmingFlagOutOfCombat(false), _noNpcDamageBelowPctHealth(0.f)
 {
@@ -286,15 +286,6 @@ m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(fa
 
     ResetLootMode(); // restore default loot mode
     m_isTempWorldObject = false;
-}
-
-Creature::~Creature()
-{
-    delete i_AI;
-    i_AI = nullptr;
-
-    //if (m_uint32Values)
-    //    TC_LOG_ERROR("entities.unit", "Deconstruct Creature Entry = %u", GetEntry());
 }
 
 void Creature::AddToWorld()
@@ -413,8 +404,8 @@ void Creature::RemoveCorpse(bool setSpawnTime)
         DestroyForNearbyPlayers(); // old UpdateObjectVisibility()
         loot.clear();
         uint32 respawnDelay = m_respawnDelay;
-        if (IsAIEnabled)
-            AI()->CorpseRemoved(respawnDelay);
+        if (CreatureAI* ai = AI())
+            ai->CorpseRemoved(respawnDelay);
 
         // Should get removed later, just keep "compatibility" with scripts
         if (setSpawnTime)
@@ -672,7 +663,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
 void Creature::Update(uint32 diff)
 {
-    if (IsAIEnabled && m_triggerJustAppeared && m_deathState != DEAD)
+    if (IsAIEnabled() && m_triggerJustAppeared && m_deathState != DEAD)
     {
         if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();
@@ -743,12 +734,8 @@ void Creature::Update(uint32 diff)
             if (m_deathState != CORPSE)
                 break;
 
-            if (IsEngaged() && IsAIEnabled)
-            {
-                m_AI_locked = true;
-                i_AI->UpdateAI(diff);
-                m_AI_locked = false;
-            }
+            if (IsEngaged())
+                Unit::AIUpdateTick(diff);
 
             if (m_groupLootTimer && lootingGroupLowGUID)
             {
@@ -787,22 +774,8 @@ void Creature::Update(uint32 diff)
                     _spellFocusInfo.delay -= diff;
             }
 
-            // if creature is charmed, switch to charmed AI (and back)
-            if (NeedChangeAI)
-            {
-                UpdateCharmAI();
-                NeedChangeAI = false;
-                IsAIEnabled = true;
-                if (!IsInEvadeMode() && LastCharmerGUID)
-                    if (Unit* charmer = ObjectAccessor::GetUnit(*this, LastCharmerGUID))
-                        if (CanStartAttack(charmer, true))
-                            i_AI->AttackStart(charmer);
-
-                LastCharmerGUID.Clear();
-            }
-
             // periodic check to see if the creature has passed an evade boundary
-            if (IsAIEnabled && !IsInEvadeMode() && IsEngaged())
+            if (IsAIEnabled() && !IsInEvadeMode() && IsEngaged())
             {
                 if (diff >= m_boundaryCheckTime)
                 {
@@ -840,12 +813,8 @@ void Creature::Update(uint32 diff)
                 }
             }
 
-            if (IsAIEnabled)
-            {
-                m_AI_locked = true;
-                i_AI->UpdateAI(diff);
-                m_AI_locked = false;
-            }
+            // do not allow the AI to be changed during update
+            Unit::AIUpdateTick(diff);
 
             // creature can be dead after UpdateAI call
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
@@ -863,8 +832,8 @@ void Creature::Update(uint32 diff)
             {
                 m_cannotReachTimer += diff;
                 if (m_cannotReachTimer >= CREATURE_NOPATH_EVADE_TIME)
-                    if (IsAIEnabled)
-                        AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_PATH);
+                    if (CreatureAI* ai = AI())
+                        ai->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_PATH);
             }
             break;
         }
@@ -934,46 +903,18 @@ void Creature::DoFleeToGetAssistance()
 
 bool Creature::AIM_Destroy()
 {
-    if (m_AI_locked)
-    {
-        TC_LOG_DEBUG("scripts", "AIM_Destroy: failed to destroy, locked.");
-        return false;
-    }
-
-    ASSERT(!i_disabledAI,
-           "The disabled AI wasn't cleared!");
-
-    delete i_AI;
-    i_AI = nullptr;
-
-    IsAIEnabled = false;
+    PopAI();
+    RefreshAI();
     return true;
 }
 
 bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
 {
-    // make sure nothing can change the AI during AI update
-    if (m_AI_locked)
-    {
-        TC_LOG_DEBUG("scripts", "AIM_Initialize: failed to init, locked.");
-        return false;
-    }
-
-    AIM_Destroy();
-
     Motion_Initialize();
 
-    i_AI = ai ? ai : FactorySelector::SelectAI(this);
-    return true;
-}
+    SetAI(ai ? ai : FactorySelector::SelectAI(this));
 
-void Creature::AI_InitializeAndEnable()
-{
-    IsAIEnabled = true;
-    i_AI->InitializeAI();
-    // Initialize vehicle
-    if (GetVehicleKit())
-        GetVehicleKit()->Reset();
+    return true;
 }
 
 bool Creature::AIM_Initialize(CreatureAI* ai)
@@ -981,7 +922,9 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     if (!AIM_Create(ai))
         return false;
 
-    AI_InitializeAndEnable();
+    AI()->InitializeAI();
+    if (GetVehicleKit())
+        GetVehicleKit()->Reset();
     return true;
 }
 
@@ -1825,7 +1768,7 @@ bool Creature::IsInvisibleDueToDespawn() const
 
 bool Creature::CanAlwaysSee(WorldObject const* obj) const
 {
-    if (IsAIEnabled && AI()->CanSeeAlways(obj))
+    if (IsAIEnabled() && AI()->CanSeeAlways(obj))
         return true;
 
     return false;
@@ -2061,8 +2004,8 @@ void Creature::Respawn(bool force)
             //Re-initialize reactstate that could be altered by movementgenerators
             InitializeReactState();
 
-            if (IsAIEnabled) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
-                AI()->Reset();
+            if (UnitAI* ai = AI()) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
+                ai->Reset();
 
             m_triggerJustAppeared = true;
 
@@ -2949,7 +2892,7 @@ std::string const & Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
 
 uint32 Creature::GetPetAutoSpellOnPos(uint8 pos) const
 {
-    if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
+    if (pos >= MAX_SPELL_CHARM || !m_charmInfo || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
         return 0;
     else
         return m_charmInfo->GetCharmSpell(pos)->GetAction();
@@ -3331,7 +3274,7 @@ void Creature::AtEngage(Unit* target)
     RefreshSwimmingFlag();
 
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
-    if (movetype == WAYPOINT_MOTION_TYPE || movetype == CYCLIC_SPLINE_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled && AI()->IsEscorted()))
+    if (movetype == WAYPOINT_MOTION_TYPE || movetype == CYCLIC_SPLINE_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled() && AI()->IsEscorted()))
         SetHomePosition(GetPosition());
 
     if (CreatureAI* ai = AI())
@@ -3354,8 +3297,8 @@ void Creature::AtDisengage()
 
 bool Creature::IsEscorted() const
 {
-    if (IsAIEnabled)
-        return AI()->IsEscorted();
+    if (CreatureAI* ai = AI())
+        return ai->IsEscorted();
     return false;
 }
 

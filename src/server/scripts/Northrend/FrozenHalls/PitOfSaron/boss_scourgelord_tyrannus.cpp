@@ -425,14 +425,6 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
 
         class spell_tyrannus_overlord_brand_AuraScript : public AuraScript
         {
-        public:
-            spell_tyrannus_overlord_brand_AuraScript()
-            {
-                oldAI = nullptr;
-                oldAIState = false;
-            }
-
-        private:
             bool Load() override
             {
                 return GetCaster() && GetCaster()->GetEntry() == NPC_TYRANNUS;
@@ -444,10 +436,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                     return;
 
                 Player* pTarget = GetTarget()->ToPlayer();
-                oldAI = pTarget->AI();
-                oldAIState = pTarget->IsAIEnabled;
-                GetTarget()->SetAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
-                GetTarget()->IsAIEnabled = true;
+                GetTarget()->PushAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -455,10 +444,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                GetTarget()->IsAIEnabled = oldAIState;
-                PlayerAI* thisAI = GetTarget()->ToPlayer()->AI();
-                GetTarget()->SetAI(oldAI);
-                delete thisAI;
+                GetTarget()->PopAI();
             }
 
             void Register() override
@@ -466,9 +452,6 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 AfterEffectApply.Register(&spell_tyrannus_overlord_brand_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove.Register(&spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
-
-            PlayerAI* oldAI;
-            bool oldAIState;
         };
 
         AuraScript* GetAuraScript() const override

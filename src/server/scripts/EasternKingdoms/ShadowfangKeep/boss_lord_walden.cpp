@@ -263,7 +263,7 @@ class spell_walden_ice_shards : public AuraScript
         if (!caster)
             return;
 
-        if (caster->IsAIEnabled)
+        if (caster->IsAIEnabled())
             if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                 caster->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
     }

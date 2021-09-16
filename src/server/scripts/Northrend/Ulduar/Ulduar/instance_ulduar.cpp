@@ -404,7 +404,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_RUNE_OF_POWER:
                         if (Creature* molgeim = GetCreature(DATA_RUNEMASTER_MOLGEIM))
-                            if (molgeim->IsAIEnabled)
+                            if (molgeim->IsAIEnabled())
                                 molgeim->AI()->JustSummoned(creature);
                         break;
                     // Algalon

@@ -2813,11 +2813,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (spellHitTarget)
     {
         //AI functions
-        if (spellHitTarget->GetTypeId() == TYPEID_UNIT)
-            if (spellHitTarget->ToCreature()->IsAIEnabled)
-                spellHitTarget->ToCreature()->AI()->SpellHit(m_caster, m_spellInfo);
+        if (Creature* cHitTarget = spellHitTarget->ToCreature())
+            if (CreatureAI* hitTargetAI = cHitTarget->AI())
+                hitTargetAI->SpellHit(m_caster, m_spellInfo);
 
-        if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+        if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled())
             m_caster->ToCreature()->AI()->SpellHitTarget(spellHitTarget, m_spellInfo);
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
@@ -3520,8 +3520,8 @@ void Spell::_cast(bool skipCheck)
             if (Unit* unitTarget = m_targets.GetUnitTarget())
                 for (Unit* controlled : playerCaster->m_Controlled)
                     if (Creature* cControlled = controlled->ToCreature())
-                        if (cControlled->IsAIEnabled)
-                            cControlled->AI()->OwnerAttacked(unitTarget);
+                        if (CreatureAI* controlledAI = cControlled->AI())
+                            controlledAI->OwnerAttacked(unitTarget);
     }
 
     SetExecutedCurrently(true);
@@ -3742,8 +3742,8 @@ void Spell::_cast(bool skipCheck)
 
     // Call CreatureAI hook OnSuccessfulSpellCast
     if (Creature* caster = m_originalCaster->ToCreature())
-        if (caster->IsAIEnabled)
-            caster->AI()->OnSpellCastFinished(GetSpellInfo(), SPELL_FINISHED_SUCCESSFUL_CAST);
+        if (CreatureAI* casterAI = caster->AI())
+            casterAI->OnSpellCastFinished(GetSpellInfo(), SPELL_FINISHED_SUCCESSFUL_CAST);
 }
 
 void Spell::handle_immediate()
@@ -4032,8 +4032,8 @@ void Spell::update(uint32 difftime)
 
                 // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
                 if (Creature* creatureCaster = m_caster->ToCreature())
-                    if (creatureCaster->IsAIEnabled)
-                        creatureCaster->AI()->OnSpellCastFinished(m_spellInfo, SPELL_FINISHED_CHANNELING_COMPLETE);
+                    if (CreatureAI* casterAI = creatureCaster->AI())
+                        casterAI->OnSpellCastFinished(m_spellInfo, SPELL_FINISHED_CHANNELING_COMPLETE);
             }
             break;
         }
@@ -4063,7 +4063,7 @@ void Spell::finish(bool ok, bool sendChannelUpdate /* = false */)
     // Unsummon summon as possessed creatures on spell cancel
     if (m_spellInfo->IsChanneled() && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (Unit* charm = m_caster->GetCharm())
+        if (Unit* charm = m_caster->GetCharmed())
             if (charm->GetTypeId() == TYPEID_UNIT
                 && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
                 && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
@@ -6092,7 +6092,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                         [[fallthrough]]; //  check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET*/
                     case SUMMON_CATEGORY_PUPPET:
-                        if (m_caster->GetCharmGUID())
+                        if (m_caster->GetCharmedGUID())
                             return SPELL_FAILED_ALREADY_HAVE_CHARM;
                         break;
                 }
@@ -6123,7 +6123,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                 }
 
-                if (m_caster->GetCharmGUID())
+                if (m_caster->GetCharmedGUID())
                     return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 break;
             }
@@ -6241,7 +6241,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && m_caster->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
-                    if (m_caster->GetCharmGUID())
+                    if (m_caster->GetCharmedGUID())
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
 

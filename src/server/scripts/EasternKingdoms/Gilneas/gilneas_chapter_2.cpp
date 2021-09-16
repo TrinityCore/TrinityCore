@@ -484,7 +484,7 @@ class spell_gilneas_launch : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* creature = caster->ToCreature())
-                if (creature->IsAIEnabled)
+                if (creature->IsAIEnabled())
                     CAST_AI(npc_gilneas_forsaken_catapult, creature->AI())->SetTargetDestination(GetExplTargetDest()->GetPosition());
     }
 

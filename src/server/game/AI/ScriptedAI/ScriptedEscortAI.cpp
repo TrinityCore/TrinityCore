@@ -310,13 +310,6 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
     }
 }
 
-///@todo investigate whether if its necessary to handle anything on charm
-/*
-void EscortAI::OnCharmed(bool apply)
-{
-}
-*/
-
 void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation/* = 0*/, uint32 waitTime/* = 0*/)
 {
     Trinity::NormalizeMapCoord(x);

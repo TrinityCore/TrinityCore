@@ -562,7 +562,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
             unit->m_movementInfo.transport = _me->m_movementInfo.transport;
     }
 
-    if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled)
+    if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
@@ -940,8 +940,8 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
-        if (creature->IsAIEnabled)
-            creature->AI()->PassengerBoarded(Passenger, Seat->first, true);
+        if (CreatureAI* ai = creature->AI())
+            ai->PassengerBoarded(Passenger, Seat->first, true);
 
         sScriptMgr->OnAddPassenger(Target, Passenger, Seat->first);
 

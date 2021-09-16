@@ -572,7 +572,7 @@ public:
         {
             if (Creature* spot = ObjectAccessor::GetCreature(*me, guid))
                 if (spot->GetDistance(pos) <= 5.0f)
-                    if (spot->IsAIEnabled)
+                    if (spot->IsAIEnabled())
                         if (spot->AI()->GetData(DATA_CURRENT_ENTRY) == NPC_EMPTY_SPOT)
                             return true;
         }
@@ -738,7 +738,7 @@ struct npc_brazie_fertilitize_o_tron_2000 : public ScriptedAI
         me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
 
         if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-            if (vehicle->IsAIEnabled)
+            if (vehicle->IsAIEnabled())
                 vehicle->AI()->JustSummoned(me);
     }
 
@@ -838,7 +838,7 @@ struct npc_brazie_spot : public ScriptedAI
         me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
 
         if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-            if (vehicle->IsAIEnabled)
+            if (vehicle->IsAIEnabled())
                 vehicle->AI()->JustSummoned(me);
     }
 
@@ -953,7 +953,7 @@ struct npc_brazie_zombie : public ScriptedAI
         me->SetWalk(true);
 
         if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-            if (vehicle->IsAIEnabled)
+            if (vehicle->IsAIEnabled())
                 vehicle->AI()->JustSummoned(me);
 
         for (uint8 i = 0; i < MAX_TARGET_POSITIONS; i++)
@@ -993,7 +993,7 @@ struct npc_brazie_zombie : public ScriptedAI
         {
             if (Creature* target = who->ToCreature())
             {
-                if (target->IsAIEnabled)
+                if (target->IsAIEnabled())
                 {
                     if (target->AI()->GetData(DATA_CURRENT_ENTRY) != NPC_EMPTY_SPOT || target->GetEntry() == NPC_FERTILITIZE_O_TRON_2000)
                     {
@@ -1011,7 +1011,7 @@ struct npc_brazie_zombie : public ScriptedAI
         if (TempSummon* summon = me->ToTempSummon())
             if (Unit* summoner = summon->GetSummoner())
                 if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-                    if (vehicle->IsAIEnabled)
+                    if (vehicle->IsAIEnabled())
                         vehicle->AI()->DoAction(ACTION_ZOMBIE_DIED);
 
         me->DespawnOrUnsummon(4s);
@@ -1035,7 +1035,7 @@ struct npc_brazie_zombie : public ScriptedAI
                 {
                     if (Creature* vehicle = summoner->GetVehicleCreatureBase())
                     {
-                        if (vehicle->IsAIEnabled)
+                        if (vehicle->IsAIEnabled())
                         {
                             if (me->GetEntry() == NPC_ZOMBIE)
                                 vehicle->AI()->DoAction(ACTION_ZOMBIE_DAMAGED);
@@ -1060,7 +1060,7 @@ struct npc_brazie_zombie : public ScriptedAI
                 if (TempSummon* summon = me->ToTempSummon())
                     if (Unit* summoner = summon->GetSummoner())
                         if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-                            if (vehicle->IsAIEnabled)
+                            if (vehicle->IsAIEnabled())
                                 vehicle->AI()->DoAction(ACTION_QUEST_FAILED);
     }
 
@@ -1084,7 +1084,7 @@ struct npc_brazie_zombie : public ScriptedAI
                     {
                         if (Creature* target = victim->ToCreature())
                         {
-                            if (target->IsAIEnabled)
+                            if (target->IsAIEnabled())
                             {
                                 if (target->AI()->GetData(DATA_CURRENT_ENTRY) == NPC_EMPTY_SPOT)
                                 {
@@ -1133,7 +1133,7 @@ struct npc_brazie_vehicle_notifier : public ScriptedAI
         }
 
         if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-            if (vehicle->IsAIEnabled)
+            if (vehicle->IsAIEnabled())
                 vehicle->AI()->JustSummoned(me);
     }
 
@@ -1196,7 +1196,7 @@ class spell_brazie_summon_plant : public SpellScript
 
         Creature* creature = caster->ToCreature();
 
-        if (creature->IsAIEnabled)
+        if (creature->IsAIEnabled())
         {
             if (creature->HasAura(SPELL_SUNFLOWER_HIGHLIGHT))
                 creature->AI()->DoAction(ACTION_FIRST_SUNFLOWER_PLANTED);

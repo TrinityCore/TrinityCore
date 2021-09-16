@@ -227,9 +227,9 @@ void TempSummon::InitSummon()
 {
     if (Unit* owner = GetSummoner())
     {
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
             owner->ToCreature()->AI()->JustSummoned(this);
-        if (IsAIEnabled)
+        if (IsAIEnabled())
             AI()->IsSummonedBy(owner);
     }
 }
@@ -265,7 +265,7 @@ void TempSummon::UnSummon(uint32 msTime)
     Unit* owner = GetSummoner();
     if (owner)
     {
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
             owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
     }
 
@@ -409,7 +409,7 @@ void Guardian::InitSummon()
 
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER
             && GetOwner()->GetMinionGUID() == GetGUID()
-            && !GetOwner()->GetCharmGUID())
+            && !GetOwner()->GetCharmedGUID())
     {
         GetOwner()->ToPlayer()->CharmSpellInitialize();
     }

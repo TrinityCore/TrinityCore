@@ -1598,7 +1598,7 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
                 extraArgs.SummonSpellId = GetSpellInfo()->Id;
 
                 if (Creature* summon = caster->GetMap()->SummonCreature(entry, pos, extraArgs))
-                    if (summon->IsAIEnabled)
+                    if (summon->IsAIEnabled())
                         summon->AI()->SetData(DATA_STACKS_DISPELLED, GetSpellValue()->EffectBasePoints[EFFECT_1]);
             }
 

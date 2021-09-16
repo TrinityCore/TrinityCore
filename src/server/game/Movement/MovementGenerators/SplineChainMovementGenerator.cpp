@@ -123,9 +123,9 @@ void SplineChainMovementGenerator::Finalize(Unit* me)
 {
     if (!finished)
         return;
-    Creature* cMe = me->ToCreature();
-    if (cMe && cMe->IsAIEnabled)
-        cMe->AI()->MovementInform(SPLINE_CHAIN_MOTION_TYPE, _id);
+    Creature* ownerCreature = me->ToCreature();
+    if (CreatureAI* AI = ownerCreature ? ownerCreature->AI() : nullptr)
+        AI->MovementInform(SPLINE_CHAIN_MOTION_TYPE, _id);
 }
 
 bool SplineChainMovementGenerator::Update(Unit* me, uint32 diff)
