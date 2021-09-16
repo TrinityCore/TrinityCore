@@ -11146,7 +11146,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     AddUnitState(UNIT_STATE_CHARMED);
 
     if (Creature* creature = ToCreature())
-        creature->RefreshSwimmingFlag();
+        creature->RefreshCanSwimFlag();
 
     if ((GetTypeId() != TYPEID_PLAYER) || (charmer->GetTypeId() != TYPEID_PLAYER))
     {
