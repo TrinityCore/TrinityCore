@@ -39,6 +39,7 @@ body:
       options:
         - 3.3.5
         - master
+        - both
     validations:
       required: true
   - type: textarea
