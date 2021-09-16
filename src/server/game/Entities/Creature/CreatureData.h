@@ -61,7 +61,7 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_IGNORE_COMBAT                     = 0x02000000, // Actually only changes react state to passive
     CREATURE_STATIC_FLAG_ONLY_ATTACK_PVP_ENABLING          = 0x04000000, // Only attack targets that are PvP enabling
     CREATURE_STATIC_FLAG_CALLS_GUARDS                      = 0x08000000, // Creature will summon a guard if player is within its aggro range (even if creature doesn't attack per se)
-    CREATURE_STATIC_FLAG_CAN_SWIM                          = 0x10000000, // UNIT_FLAG_SWIMMING
+    CREATURE_STATIC_FLAG_CAN_SWIM                          = 0x10000000, // UNIT_FLAG_CAN_SWIM
     CREATURE_STATIC_FLAG_FLOATING                          = 0x20000000, // creature_template_movement.Flight = 1
     CREATURE_STATIC_FLAG_MORE_AUDIBLE                      = 0x40000000, // CREATURE_TYPE_FLAG_MORE_AUDIBLE
     CREATURE_STATIC_FLAG_LARGE_AOI                         = 0x80000000  // UnitFlags2 0x200000
