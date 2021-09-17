@@ -1000,9 +1000,8 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
 
                     // Patch 2.2.0 Sword Specialization (Warrior, Rogue) extra attack can no longer proc additional extra attacks
                     // 3.3.5 Sword Specialization (Warrior), Hack and Slash (Rogue)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(lastExtraAttackSpell))
-                        if (spellInfo->SpellIconID == 1462)
-                            return false;
+                    if (lastExtraAttackSpell == 16459 || lastExtraAttackSpell == 66923)
+                        return false;
                 }
             }
             break;
