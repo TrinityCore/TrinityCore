@@ -429,7 +429,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
     if (flags.Vehicle)
     {
         Unit const* unit = ToUnit();
-        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->ID); // RecID
+        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->ID);   // RecID
         *data << float(unit->GetOrientation());                         // InitialRawFacing
     }
 
@@ -456,32 +456,33 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
     if (flags.AreaTrigger)
     {
         AreaTrigger const* areaTrigger = ToAreaTrigger();
-        AreaTriggerMiscTemplate const* areaTriggerMiscTemplate = areaTrigger->GetMiscTemplate();
+        AreaTriggerCreateProperties const* createProperties = areaTrigger->GetCreateProperties();
         AreaTriggerTemplate const* areaTriggerTemplate = areaTrigger->GetTemplate();
+        AreaTriggerShapeInfo const& shape = areaTrigger->GetShape();
 
         *data << uint32(areaTrigger->GetTimeSinceCreated());
 
         *data << areaTrigger->GetRollPitchYaw().PositionXYZStream();
 
-        bool hasAbsoluteOrientation = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
-        bool hasDynamicShape        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
-        bool hasAttached            = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED);
-        bool hasFaceMovementDir     = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR);
-        bool hasFollowsTerrain      = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
-        bool hasUnk1                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK1);
-        bool hasTargetRollPitchYaw  = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW);
-        bool hasScaleCurveID        = areaTriggerMiscTemplate->ScaleCurveId != 0;
-        bool hasMorphCurveID        = areaTriggerMiscTemplate->MorphCurveId != 0;
-        bool hasFacingCurveID       = areaTriggerMiscTemplate->FacingCurveId != 0;
-        bool hasMoveCurveID         = areaTriggerMiscTemplate->MoveCurveId != 0;
-        bool hasAnimation           = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ANIM_ID);
-        bool hasUnk3                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK3);
-        bool hasAnimKitID           = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ANIM_KIT_ID);
+        bool hasAbsoluteOrientation = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
+        bool hasDynamicShape        = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
+        bool hasAttached            = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED);
+        bool hasFaceMovementDir     = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR);
+        bool hasFollowsTerrain      = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
+        bool hasUnk1                = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK1);
+        bool hasTargetRollPitchYaw  = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW);
+        bool hasScaleCurveID        = createProperties && createProperties->ScaleCurveId != 0;
+        bool hasMorphCurveID        = createProperties && createProperties->MorphCurveId != 0;
+        bool hasFacingCurveID       = createProperties && createProperties->FacingCurveId != 0;
+        bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
+        bool hasAnimation           = createProperties && createProperties->AnimId;
+        bool hasUnk3                = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK3);
+        bool hasAnimKitID           = createProperties && createProperties->AnimKitId;
         bool hasAnimProgress        = false;
-        bool hasAreaTriggerSphere   = areaTriggerTemplate->IsSphere();
-        bool hasAreaTriggerBox      = areaTriggerTemplate->IsBox();
-        bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
-        bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
+        bool hasAreaTriggerSphere   = shape.IsSphere();
+        bool hasAreaTriggerBox      = shape.IsBox();
+        bool hasAreaTriggerPolygon  = createProperties && shape.IsPolygon();
+        bool hasAreaTriggerCylinder = shape.IsCylinder();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
         bool hasOrbit               = areaTrigger->HasOrbit();
         bool hasMovementScript      = false;
@@ -526,64 +527,64 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
             *data << areaTrigger->GetTargetRollPitchYaw().PositionXYZStream();
 
         if (hasScaleCurveID)
-            *data << uint32(areaTriggerMiscTemplate->ScaleCurveId);
+            *data << uint32(createProperties->ScaleCurveId);
 
         if (hasMorphCurveID)
-            *data << uint32(areaTriggerMiscTemplate->MorphCurveId);
+            *data << uint32(createProperties->MorphCurveId);
 
         if (hasFacingCurveID)
-            *data << uint32(areaTriggerMiscTemplate->FacingCurveId);
+            *data << uint32(createProperties->FacingCurveId);
 
         if (hasMoveCurveID)
-            *data << uint32(areaTriggerMiscTemplate->MoveCurveId);
+            *data << uint32(createProperties->MoveCurveId);
 
         if (hasAnimation)
-            *data << int32(areaTriggerMiscTemplate->AnimId);
+            *data << int32(createProperties->AnimId);
 
         if (hasAnimKitID)
-            *data << int32(areaTriggerMiscTemplate->AnimKitId);
+            *data << int32(createProperties->AnimKitId);
 
         if (hasAnimProgress)
             *data << uint32(0);
 
         if (hasAreaTriggerSphere)
         {
-            *data << float(areaTriggerTemplate->SphereDatas.Radius);
-            *data << float(areaTriggerTemplate->SphereDatas.RadiusTarget);
+            *data << float(shape.SphereDatas.Radius);
+            *data << float(shape.SphereDatas.RadiusTarget);
         }
 
         if (hasAreaTriggerBox)
         {
-            *data << float(areaTriggerTemplate->BoxDatas.Extents[0]);
-            *data << float(areaTriggerTemplate->BoxDatas.Extents[1]);
-            *data << float(areaTriggerTemplate->BoxDatas.Extents[2]);
-            *data << float(areaTriggerTemplate->BoxDatas.ExtentsTarget[0]);
-            *data << float(areaTriggerTemplate->BoxDatas.ExtentsTarget[1]);
-            *data << float(areaTriggerTemplate->BoxDatas.ExtentsTarget[2]);
+            *data << float(shape.BoxDatas.Extents[0]);
+            *data << float(shape.BoxDatas.Extents[1]);
+            *data << float(shape.BoxDatas.Extents[2]);
+            *data << float(shape.BoxDatas.ExtentsTarget[0]);
+            *data << float(shape.BoxDatas.ExtentsTarget[1]);
+            *data << float(shape.BoxDatas.ExtentsTarget[2]);
         }
 
         if (hasAreaTriggerPolygon)
         {
-            *data << int32(areaTriggerMiscTemplate->PolygonVertices.size());
-            *data << int32(areaTriggerMiscTemplate->PolygonVerticesTarget.size());
-            *data << float(areaTriggerTemplate->PolygonDatas.Height);
-            *data << float(areaTriggerTemplate->PolygonDatas.HeightTarget);
+            *data << int32(createProperties->PolygonVertices.size());
+            *data << int32(createProperties->PolygonVerticesTarget.size());
+            *data << float(shape.PolygonDatas.Height);
+            *data << float(shape.PolygonDatas.HeightTarget);
 
-            for (TaggedPosition<Position::XY> const& vertice : areaTriggerMiscTemplate->PolygonVertices)
+            for (TaggedPosition<Position::XY> const& vertice : createProperties->PolygonVertices)
                 *data << vertice;
 
-            for (TaggedPosition<Position::XY> const& vertice : areaTriggerMiscTemplate->PolygonVerticesTarget)
+            for (TaggedPosition<Position::XY> const& vertice : createProperties->PolygonVerticesTarget)
                 *data << vertice;
         }
 
         if (hasAreaTriggerCylinder)
         {
-            *data << float(areaTriggerTemplate->CylinderDatas.Radius);
-            *data << float(areaTriggerTemplate->CylinderDatas.RadiusTarget);
-            *data << float(areaTriggerTemplate->CylinderDatas.Height);
-            *data << float(areaTriggerTemplate->CylinderDatas.HeightTarget);
-            *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffset);
-            *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget);
+            *data << float(shape.CylinderDatas.Radius);
+            *data << float(shape.CylinderDatas.RadiusTarget);
+            *data << float(shape.CylinderDatas.Height);
+            *data << float(shape.CylinderDatas.HeightTarget);
+            *data << float(shape.CylinderDatas.LocationZOffset);
+            *data << float(shape.CylinderDatas.LocationZOffsetTarget);
         }
 
         //if (hasMovementScript)
