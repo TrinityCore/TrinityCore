@@ -3406,15 +3406,13 @@ int32 SpellInfo::CalcDuration(Unit* caster, Spell* spell) const
                     return int32(duration * hasteValue);
 
                 int32 effectPeriod = Effects[periodicEffectIndex].CalcPeriod(caster, spell);
-                float preciseTicks = (float)duration / float(effectPeriod);
-                int32 ticks = duration / effectPeriod;
-
-                // additional ticks are being added by rounding up, resulting in increased duration.
-                if (preciseTicks - ticks >= 0.5f)
-                    ticks = int32(std::ceil(preciseTicks));
 
                 if (effectPeriod > 0)
+                {
+                    // additional ticks are being added by rounding up, resulting in increased duration.
+                    int32 ticks = int32(std::ceilf((float)duration / effectPeriod));
                     duration = std::max(ticks * effectPeriod, duration);
+                }
             }
         }
     }
