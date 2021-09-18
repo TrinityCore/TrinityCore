@@ -188,6 +188,7 @@ class spell_warl_banish : public SpellScript
 private:
     bool _removed = false;
 };
+
 // 17962 - Conflagrate
 class spell_warl_conflagrate : public SpellScript
 {
@@ -202,13 +203,13 @@ class spell_warl_conflagrate : public SpellScript
         {
             int32 damage = aurEff->GetAmount();
             damage *= aurEff->GetTotalTicks();
-            SetHitDamage(CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
+            SetEffectValue(CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget.Register(&spell_warl_conflagrate::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget.Register(&spell_warl_conflagrate::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
