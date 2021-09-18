@@ -49,7 +49,7 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_CREATOR_LOOT                      = 0x00002000, // Lootable only by creator(engineering dummies)
     CREATURE_STATIC_FLAG_NO_DEFENSE                        = 0x00004000,
     CREATURE_STATIC_FLAG_NO_SPELL_DEFENSE                  = 0x00008000,
-    CREATURE_STATIC_FLAG_BOSS                              = 0x00010000, // CREATURE_TYPE_FLAG_BOSS_MOB, original description: Raid Boss Mob
+    CREATURE_STATIC_FLAG_BOSS_MOB                          = 0x00010000, // CREATURE_TYPE_FLAG_BOSS_MOB, original description: Raid Boss Mob
     CREATURE_STATIC_FLAG_COMBAT_PING                       = 0x00020000,
     CREATURE_STATIC_FLAG_AQUATIC                           = 0x00040000, // aka Water Only, creature_template_movement.Ground = 0
     CREATURE_STATIC_FLAG_AMPHIBIOUS                        = 0x00080000, // creature_template_movement.Swim = 1
@@ -59,7 +59,7 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_DO_NOT_PLAY_WOUND_ANIM            = 0x00800000, // CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM
     CREATURE_STATIC_FLAG_NO_FACTION_TOOLTIP                = 0x01000000, // CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP
     CREATURE_STATIC_FLAG_IGNORE_COMBAT                     = 0x02000000, // Actually only changes react state to passive
-    CREATURE_STATIC_FLAG_ONLY_ATTACK_PVP_ENABLING          = 0x04000000, // Only attack targets that are PvP enabling
+    CREATURE_STATIC_FLAG_ONLY_ATTACK_PVP_ENABLING          = 0x04000000, // "Only attack targets that are PvP enabling"
     CREATURE_STATIC_FLAG_CALLS_GUARDS                      = 0x08000000, // Creature will summon a guard if player is within its aggro range (even if creature doesn't attack per se)
     CREATURE_STATIC_FLAG_CAN_SWIM                          = 0x10000000, // UNIT_FLAG_CAN_SWIM
     CREATURE_STATIC_FLAG_FLOATING                          = 0x20000000, // creature_template_movement.Flight = 1
@@ -117,7 +117,7 @@ enum CreatureStaticFlags3
     CREATURE_STATIC_FLAG_3_TAMEABLE_EXOTIC                = 0x00000200, // CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC
     CREATURE_STATIC_FLAG_3_GIGANTIC_AOI                   = 0x00000400, // Since MoP, creatures with that flag have UnitFlags2 0x400000
     CREATURE_STATIC_FLAG_3_INFINITE_AOI                   = 0x00000800, // Since MoP, creatures with that flag have UnitFlags2 0x40000000
-    CREATURE_STATIC_FLAG_3_WATERWALKING                   = 0x00001000, // Original description: Cannot Penetrate Water
+    CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER         = 0x00001000, // Waterwalking
     CREATURE_STATIC_FLAG_3_NO_NAME_PLATE                  = 0x00002000, // CREATURE_TYPE_FLAG_NO_NAME_PLATE
     CREATURE_STATIC_FLAG_3_CHECKS_LIQUIDS                 = 0x00004000,
     CREATURE_STATIC_FLAG_3_NO_THREAT_FEEDBACK             = 0x00008000,
@@ -133,7 +133,7 @@ enum CreatureStaticFlags3
     CREATURE_STATIC_FLAG_3_CANNOT_TURN                    = 0x02000000, // UNIT_FLAG2_CANNOT_TURN
     CREATURE_STATIC_FLAG_3_ENEMY_CHECK_IGNORES_LOS        = 0x04000000,
     CREATURE_STATIC_FLAG_3_FOREVER_CORPSE_DURATION        = 0x08000000, // 7 days
-    CREATURE_STATIC_FLAG_3_KOLOGARN_3D_PATHING            = 0x10000000, // Original description: Pets attack with 3d pathing (Kologarn)
+    CREATURE_STATIC_FLAG_3_PETS_ATTACK_WITH_3D_PATHING    = 0x10000000, // "Pets attack with 3d pathing (Kologarn)"
     CREATURE_STATIC_FLAG_3_LINK_ALL                       = 0x20000000, // CREATURE_TYPE_FLAG_LINK_ALL
     CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_TAKEOFF_IN_COMBAT  = 0x40000000,
     CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_LAND_IN_COMBAT     = 0x80000000
@@ -146,13 +146,13 @@ enum CreatureStaticFlags4
     CREATURE_STATIC_FLAG_4_TREAT_AS_PLAYER_FOR_PVP_DEBUFF_DURATION = 0x00000004, // Primarily used by ToC champions
     CREATURE_STATIC_FLAG_4_INTERACT_ONLY_WITH_CREATOR          = 0x00000008, // CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR, original description: Only Display Gossip for Summoner
     CREATURE_STATIC_FLAG_4_DO_NOT_PLAY_UNIT_EVENT_SOUNDS       = 0x00000010, // CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS, original description: No Death Scream
-    CREATURE_STATIC_FLAG_4_HAS_NO_SHADOW_BLOB                  = 0x00000020, // CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB, original description(wrongly linked type flag?): Can be Healed by Enemies
+    CREATURE_STATIC_FLAG_4_HAS_NO_SHADOW_BLOB                  = 0x00000020, // CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB, original description(wrongly linked type flag or behavior was changed?): Can be Healed by Enemies
     CREATURE_STATIC_FLAG_4_DEALS_TRIPLE_DAMAGE_TO_PC_CONTROLLED_PETS = 0x00000040,
     CREATURE_STATIC_FLAG_4_NO_NPC_DAMAGE_BELOW_85PTC           = 0x00000080,
     CREATURE_STATIC_FLAG_4_OBEYS_TAUNT_DIMINISHING_RETURNS     = 0x00000100, // CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS
     CREATURE_STATIC_FLAG_4_NO_MELEE_APPROACH                   = 0x00000200,
     CREATURE_STATIC_FLAG_4_UPDATE_CREATURE_RECORD_WHEN_INSTANCE_CHANGES_DIFFICULTY = 0x00000400, // Used only by Snobold Vassal
-    CREATURE_STATIC_FLAG_4_CANNOT_DAZE                         = 0x00000800, // Original description: Cannot Daze (Combat Stun)
+    CREATURE_STATIC_FLAG_4_CANNOT_DAZE                         = 0x00000800, // "Cannot Daze (Combat Stun)"
     CREATURE_STATIC_FLAG_4_FLAT_HONOR_AWARD                    = 0x00001000,
     CREATURE_STATIC_FLAG_4_IGNORE_LOS_WHEN_CASTING_ON_ME       = 0x00002000, // "Other objects can ignore line of sight requirements when casting spells on me", used only by Ice Tomb in 3.3.5
     CREATURE_STATIC_FLAG_4_GIVE_QUEST_KILL_CREDIT_WHILE_OFFLINE = 0x00004000,
