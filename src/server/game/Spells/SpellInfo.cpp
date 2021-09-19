@@ -562,22 +562,14 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
                         value *= GetIlvlStatMultiplier(ratingMult, InventoryType(itemSparse->InventoryType));
 
-            if (IsAura(SPELL_AURA_MOD_RATING) && !(MiscValue & ((1 << CR_CORRUPTION) | 1 << (CR_CORRUPTION_RESISTANCE))))
-            {
-                if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
-                    if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
-                        value *= GetIlvlStatMultiplier(ratingMult, InventoryType(itemSparse->InventoryType));
-            }
-            else if (IsAura(SPELL_AURA_MOD_STAT) && MiscValue == STAT_STAMINA)
-            {
+            if (Scaling.Class == -6)
                 if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(effectiveItemLevel))
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
                         value *= GetIlvlStatMultiplier(staminaMult, InventoryType(itemSparse->InventoryType));
-            }
         }
 
         value *= Scaling.Coefficient;
-        if (value != 0.0f && value < 1.0f)
+        if (value > 0.0f && value < 1.0f)
             value = 1.0f;
 
         return int32(round(value));
@@ -714,7 +706,7 @@ ExpectedStatType SpellEffectInfo::GetScalingExpectedStat() const
             return ExpectedStatType::PlayerHealth;
         case SPELL_EFFECT_ENERGIZE:
         case SPELL_EFFECT_POWER_BURN:
-            if (!MiscValue)
+            if (MiscValue == POWER_MANA)
                 return ExpectedStatType::PlayerMana;
             return ExpectedStatType::None;
         case SPELL_EFFECT_POWER_DRAIN:
@@ -775,12 +767,13 @@ ExpectedStatType SpellEffectInfo::GetScalingExpectedStat() const
                 case SPELL_AURA_MOD_POWER_REGEN:
                 case SPELL_AURA_POWER_BURN:
                 case SPELL_AURA_MOD_MAX_POWER:
-                    if (!MiscValue)
+                    if (MiscValue == POWER_MANA)
                         return ExpectedStatType::PlayerMana;
                     return ExpectedStatType::None;
                 default:
                     break;
             }
+            break;
         default:
             break;
     }
