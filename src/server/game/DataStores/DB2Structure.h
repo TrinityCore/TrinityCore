@@ -1116,7 +1116,7 @@ struct CriteriaEntry
         // CriteriaType::CompleteQuestsInSort                       = 58
         int32 QuestSortID;
 
-        // CriteriaType::KilledAllUnitsInSpawnRegion                = 64 
+        // CriteriaType::KilledAllUnitsInSpawnRegion                = 64
         int32 SpawnRegionID;
 
         // CriteriaType::PlayerTriggerGameEvent                     = 73
