@@ -11234,17 +11234,21 @@ void Unit::ApplyHasteRegenMod(WeaponAttackType att, float val, bool apply)
         ToPlayer()->UpdatePowerRegeneration(POWER_RUNE);
 }
 
-void Unit::ApplyCastTimePercentMod(float val, bool apply)
+void Unit::ApplyCastTimePercentMod(float val, bool apply, bool withCastHaste /*= true*/, bool withCastSpeed /*= true*/)
 {
     if (val > 0)
     {
-        ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, val, !apply);
-        ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, val, !apply);
+        if (withCastSpeed)
+            ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, val, !apply);
+        if (withCastHaste)
+            ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, val, !apply);
     }
     else
     {
-        ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, -val, apply);
-        ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, -val, apply);
+        if (withCastSpeed)
+            ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, -val, apply);
+        if (withCastHaste)
+            ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, -val, apply);
     }
 }
 

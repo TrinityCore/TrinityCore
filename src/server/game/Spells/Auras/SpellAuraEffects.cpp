@@ -4030,6 +4030,10 @@ void AuraEffect::HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode,
 /***         ATTACK SPEED     ***/
 /********************************/
 
+// There are some SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK effects which cause spells to become instant casts.
+// In this case we do not want these effects to affect the global haste of spells but only the casting time.
+static constexpr uint16 CAST_HASTE_AMOUNT_THRESHOLD = 1000;
+
 void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
@@ -4042,9 +4046,9 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
         return;
 
     if (spellGroupVal)
-        target->ApplyCastTimePercentMod((float)GetAmount(), !apply);
+        target->ApplyCastTimePercentMod((float)GetAmount(), !apply, GetAmount() < CAST_HASTE_AMOUNT_THRESHOLD);
 
-    target->ApplyCastTimePercentMod((float)GetAmount(), apply);
+    target->ApplyCastTimePercentMod((float)GetAmount(), apply, GetAmount() < CAST_HASTE_AMOUNT_THRESHOLD);
 }
 
 void AuraEffect::HandleModMeleeRangedSpeedPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
