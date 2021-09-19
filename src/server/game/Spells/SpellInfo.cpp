@@ -3410,7 +3410,7 @@ int32 SpellInfo::CalcDuration(Unit* caster, Spell* spell) const
                 if (effectPeriod > 0)
                 {
                     // additional ticks are being added by rounding up, resulting in increased duration.
-                    int32 ticks = int32(std::ceilf((float)duration / effectPeriod));
+                    int32 ticks = int32(std::ceil((float)duration / effectPeriod));
                     duration = std::max(ticks * effectPeriod, duration);
                 }
             }
