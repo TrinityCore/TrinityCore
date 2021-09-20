@@ -2739,11 +2739,7 @@ void Creature::SendZoneUnderAttackMessage(Player* attacker)
 
 bool Creature::HasSpell(uint32 spellID) const
 {
-    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-        if (spellID == m_spells[i])
-            return true;
-
-    return false;
+    return std::find(std::begin(m_spells), std::end(m_spells), spellID) != std::end(m_spells);
 }
 
 time_t Creature::GetRespawnTimeEx() const
