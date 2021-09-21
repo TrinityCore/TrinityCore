@@ -1,4 +1,8 @@
 --
+SET @TRANSPORT_GUID := 29;
+SET @TRANSPORT_ENTRY := 272677;
+SET @CGUID := 850000;
+
 DELETE FROM `gameobject_template_addon` WHERE `entry`=@TRANSPORT_ENTRY;
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `mingold`, `maxgold`, `WorldEffectID`, `AIAnimKitID`) VALUES
 (@TRANSPORT_ENTRY, 0, 0x100028, 0, 0, 0, 0);
