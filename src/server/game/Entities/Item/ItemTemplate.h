@@ -183,7 +183,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_NO_USER_DESTROY                   = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
     ITEM_FLAG_PLAYERCAST                        = 0x00000040, // Item's spells are castable by players
     ITEM_FLAG_NO_EQUIP_COOLDOWN                 = 0x00000080, // No default 30 seconds cooldown when equipped
-    ITEM_FLAG_LEGACY                            = 0x00000100,
+    ITEM_FLAG_LEGACY                            = 0x00000100, // Effects are disabled
     ITEM_FLAG_IS_WRAPPER                        = 0x00000200, // Item can wrap other items
     ITEM_FLAG_USES_RESOURCES                    = 0x00000400,
     ITEM_FLAG_MULTI_DROP                        = 0x00000800, // Looting this item does not remove it from available loot
