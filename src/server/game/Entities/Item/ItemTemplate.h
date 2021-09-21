@@ -183,7 +183,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_NO_USER_DESTROY                   = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
     ITEM_FLAG_PLAYERCAST                        = 0x00000040, // Item's spells are castable by players
     ITEM_FLAG_NO_EQUIP_COOLDOWN                 = 0x00000080, // No default 30 seconds cooldown when equipped
-    ITEM_FLAG_MULTI_LOOT_QUEST                  = 0x00000100,
+    ITEM_FLAG_LEGACY                            = 0x00000100,
     ITEM_FLAG_IS_WRAPPER                        = 0x00000200, // Item can wrap other items
     ITEM_FLAG_USES_RESOURCES                    = 0x00000400,
     ITEM_FLAG_MULTI_DROP                        = 0x00000800, // Looting this item does not remove it from available loot
@@ -195,7 +195,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_NO_CREATOR                        = 0x00020000,
     ITEM_FLAG_IS_PROSPECTABLE                   = 0x00040000, // Item can be prospected
     ITEM_FLAG_UNIQUE_EQUIPPABLE                 = 0x00080000, // You can only equip one of these
-    ITEM_FLAG_IGNORE_FOR_AURAS                  = 0x00100000,
+    ITEM_FLAG_DISABLE_AUTO_QUOTES               = 0x00100000, // Disables quotes around item description in tooltip
     ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS = 0x00200000, // Item can be used during arena match
     ITEM_FLAG_NO_DURABILITY_LOSS                = 0x00400000, // Some Thrown weapons have it (and only Thrown) but not all
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED             = 0x00800000, // Item can be used in shapeshift forms
@@ -293,7 +293,14 @@ enum ItemFlags4
     ITEM_FLAG4_DISPLAY_ONLY_ON_DEFINED_RACES                    = 0x00000080,
     ITEM_FLAG4_REGULATED_COMMODITY                              = 0x00000100,
     ITEM_FLAG4_CREATE_LOOT_IMMEDIATELY                          = 0x00000200,
-    ITEM_FLAG4_GENERATE_LOOT_SPEC_ITEM                          = 0x00000400
+    ITEM_FLAG4_GENERATE_LOOT_SPEC_ITEM                          = 0x00000400,
+    ITEM_FLAG4_HIDDEN_IN_REWARD_SUMMARIES                       = 0x00000800,
+    ITEM_FLAG4_DISALLOW_WHILE_LEVEL_LINKED                      = 0x00001000,
+    ITEM_FLAG4_DISALLOW_ENCHANT                                 = 0x00002000,
+    ITEM_FLAG4_SQUISH_USING_ITEM_LEVEL_AS_PLAYER_LEVEL          = 0x00004000,
+    ITEM_FLAG4_ALWAYS_SHOW_SELL_PRICE_IN_TOOLTIP                = 0x00008000,
+    ITEM_FLAG4_COSMETIC_ITEM                                    = 0x00010000,
+    ITEM_FLAG4_NO_SPELL_EFFECT_TOOLTIP_PREFIXES                 = 0x00020000
 };
 
 enum ItemFlagsCustom
