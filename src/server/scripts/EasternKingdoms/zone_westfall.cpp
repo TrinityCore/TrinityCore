@@ -1524,6 +1524,7 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
                     }
                     else
                         me->GetMotionMaster()->MoveTargetedHome();
+                    break;
                 case EVENT_RETURN_TO_HOME:
                     me->GetMotionMaster()->MoveTargetedHome();
                     break;
