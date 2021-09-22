@@ -1453,26 +1453,30 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
             return;
 
         _westfallStewGUID = guid;
-
         _events.ScheduleEvent(EVENT_START, 0);
     }
 
-    void MovementInform(uint32 MotionType, uint32 PointId) override
+    void MovementInform(uint32 motionType, uint32 pointId) override
     {
-        if ((MotionType == POINT_MOTION_TYPE) && (PointId == 1))
+        if (motionType != POINT_MOTION_TYPE || pointId != 1)
+            return;
+
+        me->CastSpell(me, SPELL_FULL_BELLY);
+
+        if (Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID))
         {
-            me->CastSpell(me, SPELL_FULL_BELLY);
+            // Should never happen, unless the stew has been spawned via db which indicates dirty db data
+            if (!stew->IsSummon())
+                return;
 
-            if (Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID))
+            if (Unit* summoner = stew->ToTempSummon()->GetSummoner())
+                if (Player* player = summoner->ToPlayer())
+                    player->KilledMonsterCredit(NPC_WESTFALL_STEW);
+
+            if (roll_chance_i(50))
             {
-                if (Unit* summoner = stew->ToTempSummon()->GetSummoner())
-                    if (Player* player = summoner->ToPlayer())
-                        player->KilledMonsterCredit(NPC_WESTFALL_STEW);
-
-                if (roll_chance_i(50))
+                switch (me->GetEntry())
                 {
-                    switch (me->GetEntry())
-                    {
                     case NPC_HOMELESS_STORMWIND_CITIZEN_1:
                         Talk(SAY_NPC_HOMELESS_STORMWIND_CITIZEN_1, stew);
                         break;
@@ -1490,11 +1494,10 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
                         break;
                     default:
                         break;
-                    }
                 }
             }
-            _events.ScheduleEvent(EVENT_RETURN_TO_HOME, 5s + 500ms);
         }
+        _events.ScheduleEvent(EVENT_RETURN_TO_HOME, 5s + 500ms);
     }
 
     void UpdateAI(uint32 diff) override
@@ -1505,7 +1508,6 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_START:
-                {
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                 
                     if (me->HasAura(SPELL_COSMETIC_SLEEP))
@@ -1513,11 +1515,8 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
                 
                     _events.ScheduleEvent(EVENT_MOVE_TO_STEW, 2s);
                     break;
-                }
                 case EVENT_MOVE_TO_STEW:
-                {
-                    Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID);
-                    if (stew)
+                    if (Creature* stew = ObjectAccessor::GetCreature(*me, _westfallStewGUID))
                     {
                         float x, y, z;
                         stew->GetContactPoint(me, x, y, z, 0.2f);
@@ -1525,13 +1524,9 @@ struct npc_westfall_west_plains_drifter : public ScriptedAI
                     }
                     else
                         me->GetMotionMaster()->MoveTargetedHome();
-                    break;
-                }
                 case EVENT_RETURN_TO_HOME:
-                {
                     me->GetMotionMaster()->MoveTargetedHome();
                     break;
-                }
                 default:
                     break;
             }
