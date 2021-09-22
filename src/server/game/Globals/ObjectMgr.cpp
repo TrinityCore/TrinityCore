@@ -6824,7 +6824,9 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
+        // @tswow-begin - set upper limit
         if (!node || node->ContinentID != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
+        // @tswow-end
             continue;
 
         uint8  field   = (uint8)((i - 1) / 32);
@@ -6832,7 +6834,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
 
         // skip not taxi network nodes
         // @tswow-begin taxi nodes bounds
-        if (field < sTaxiNodesMask.size() && (sTaxiNodesMask[field] & submask) == 0)
+        if (field >= sTaxiNodesMask.size() || (sTaxiNodesMask[field] & submask) == 0)
         // @tswow-end
             continue;
 

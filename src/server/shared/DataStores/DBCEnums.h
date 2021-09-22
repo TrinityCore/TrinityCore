@@ -433,7 +433,9 @@ enum SummonPropFlags
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
 #define MAX_TALENT_TABS 3
 
-static constexpr size_t TaxiMaskSize = 14;
+// @tswow-begin
+static constexpr size_t TaxiMaskSize = 64;
+// @tswow-end
 typedef std::array<uint32, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
