@@ -52,6 +52,7 @@ if(NOT NOVCPKG)
 	file(RENAME "${CMAKE_BINARY_DIR}/dep/vcpkg-47d2378c8181ece05ffc51acd2ed60d97e3c9a64" "${CMAKE_BINARY_DIR}/dep/vcpkg")
   endif()
 
+  set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE CACHE INTERNAL ${CMAKE_TOOLCHAIN_FILE})
   set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/dep/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 endif()
 
