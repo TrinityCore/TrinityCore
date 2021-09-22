@@ -316,9 +316,6 @@ struct CreatureData : public SpawnData
     uint32 npcflag = 0;
     uint32 unit_flags = 0;
     uint32 dynamicflags = 0;
-    // @tswow-begin
-    bool is_dynamic = false;
-    // @tswow-end
 };
 
 struct CreatureModelInfo

@@ -4468,9 +4468,6 @@ void Map::SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransactio
     stmt->setUInt64(2, uint64(info.respawnTime));
     stmt->setUInt16(3, GetId());
     stmt->setUInt32(4, GetInstanceId());
-    // @tswow-begin
-    stmt->setUInt32(5, info.dynamic);
-    // @tswow-end
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 }
 

@@ -311,9 +311,6 @@ struct RespawnInfo
     time_t respawnTime;
     uint32 gridId;
     RespawnListHandle handle;
-    // @tswow-begin
-    bool dynamic = false;
-    // @tswow-end
 };
 inline bool CompareRespawnInfo::operator()(RespawnInfo const* a, RespawnInfo const* b) const
 {

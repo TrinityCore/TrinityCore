@@ -678,9 +678,6 @@ struct GameObjectData : public SpawnData
     uint32 animprogress = 0;
     GOState goState = GO_STATE_ACTIVE;
     uint8 artKit = 0;
-    // @tswow-begin
-    bool is_dynamic = false;
-    // @tswow-end
 };
 
 enum class GameObjectActions : uint32
