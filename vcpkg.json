@@ -1,0 +1,22 @@
+{
+    "name": "trinitycore",
+    "version-string": "3.3.5",
+    "dependencies": [
+        "boost-accumulators",
+        "boost-asio",
+        "boost-circular-buffer",
+        "boost-dynamic-bitset",
+        "boost-filesystem",
+        "boost-heap",
+        "boost-iostreams",
+        "boost-process",
+        "boost-program-options",
+        "boost-property-tree",
+        "boost-regex",
+        "boost-system",
+        "boost-thread",
+        "bzip2",
+        "openssl",
+        "zlib"
+    ]
+}

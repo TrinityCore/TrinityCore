@@ -8,14 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.18)
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-
-# Set projectname (must be done AFTER setting configurationtypes)
-project(TrinityCore)
 
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 NEW)
@@ -29,6 +26,37 @@ cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or ke
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
 endif()
+
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW) # option() honors normal variables.
+endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+endif()
+
+set(VCPKG_LIBRARY_LINKAGE static)
+set(VCPKG_CRT_LINKAGE dynamic)
+set(VCPKG_MANIFEST_MODE ON)
+set(VCPKG_MANIFEST_INSTALL ON)
+set(VCPKG_PREFER_SYSTEM_LIBS ON)
+set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
+
+if(NOT NOVCPKG)
+  if(NOT EXISTS "${CMAKE_BINARY_DIR}/dep/vcpkg/scripts/buildsystems/vcpkg.cmake")
+    file(DOWNLOAD https://github.com/microsoft/vcpkg/archive/47d2378c8181ece05ffc51acd2ed60d97e3c9a64.tar.gz "${CMAKE_BINARY_DIR}/dep/vcpkg.zip")
+    file(ARCHIVE_EXTRACT
+      INPUT "${CMAKE_BINARY_DIR}/dep/vcpkg.zip"
+      DESTINATION "${CMAKE_BINARY_DIR}/dep/"
+    )
+	file(RENAME "${CMAKE_BINARY_DIR}/dep/vcpkg-47d2378c8181ece05ffc51acd2ed60d97e3c9a64" "${CMAKE_BINARY_DIR}/dep/vcpkg")
+  endif()
+
+  set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/dep/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+endif()
+
+# Set projectname (must be done AFTER setting configurationtypes)
+project(TrinityCore)
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
@@ -49,10 +77,6 @@ endif()
 if(CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
   set(CMAKE_DEFAULT_BUILD_TYPE "RelWithDebInfo" CACHE INTERNAL "")
 endif()
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-endif()
-
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
 include(ConfigureScripts)
