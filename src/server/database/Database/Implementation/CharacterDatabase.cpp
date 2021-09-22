@@ -322,7 +322,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // Respawns
     PrepareStatement(CHAR_SEL_RESPAWNS, "SELECT type, spawnId, respawnTime FROM respawn WHERE mapId = ? AND instanceId = ?", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_REP_RESPAWN, "REPLACE INTO respawn (type, spawnId, respawnTime, mapId, instanceId) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    // @tswow-begin
+    PrepareStatement(CHAR_REP_RESPAWN, "REPLACE INTO respawn (type, spawnId, respawnTime, mapId, instanceId, dynamic) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    // @tswow-end
     PrepareStatement(CHAR_DEL_RESPAWN, "DELETE FROM respawn WHERE type = ? AND spawnId = ? AND mapId = ? AND instanceId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_ALL_RESPAWNS, "DELETE FROM respawn WHERE mapId = ? AND instanceId = ?", CONNECTION_ASYNC);
 

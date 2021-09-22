@@ -2570,6 +2570,9 @@ void Creature::SaveRespawnTime(uint32 forceDelay)
         ri.type = SPAWN_TYPE_CREATURE;
         ri.spawnId = m_spawnId;
         ri.respawnTime = m_respawnTime;
+        // @tswow-begin
+        ri.dynamic = m_creatureData && m_creatureData->is_dynamic;
+        // @tswow-end
         GetMap()->SaveRespawnInfoDB(ri);
         return;
     }

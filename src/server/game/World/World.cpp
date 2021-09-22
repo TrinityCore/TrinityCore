@@ -1547,6 +1547,26 @@ void World::LoadConfigSettings(bool reload)
 /// Initialize the World
 void World::SetInitialWorldSettings()
 {
+    // @tswow-begin -- check worlddb and chardb for version
+    QueryResult charRes = CharacterDatabase.Query("SELECT last_build from tswow_builds;");
+    uint64_t charVer = charRes ? charRes->Fetch()[0].GetUInt64() : 0;
+    QueryResult worldRes = WorldDatabase.Query("SELECT last_build from tswow_builds;");
+    uint64_t worldVer = worldRes ? worldRes->Fetch()[0].GetUInt64() : 0;
+    if (charVer != worldVer)
+    {
+        CharacterDatabase.Query("DELETE from tswow_build;");
+        CharacterDatabase.Query(
+                (
+                    "INSERT INTO tswow_build VALUES ("
+                    + std::to_string(worldVer)
+                    + ");"
+                )
+            .c_str()
+        );
+        CharacterDatabase.Query("DELETE FROM respawns WHERE dynamic = 1;");
+    }
+
+    // @tswow-end
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
 

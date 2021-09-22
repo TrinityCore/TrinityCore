@@ -1265,6 +1265,9 @@ void GameObject::SaveRespawnTime(uint32 forceDelay)
             ri.type = SPAWN_TYPE_GAMEOBJECT;
             ri.spawnId = m_spawnId;
             ri.respawnTime = m_respawnTime;
+            // @tswow-begin
+            ri.dynamic = m_goData && m_goData->is_dynamic;
+            // @tswow-end
             GetMap()->SaveRespawnInfoDB(ri);
             return;
         }
