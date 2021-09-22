@@ -7848,6 +7848,9 @@ void Player::CastAllObtainSpells()
 
 void Player::ApplyItemObtainSpells(Item* item, bool apply)
 {
+    if (item->GetTemplate()->GetFlags() & ITEM_FLAG_LEGACY)
+        return;
+
     for (ItemEffectEntry const* effect : item->GetEffects())
     {
         if (effect->TriggerType != ITEM_SPELLTRIGGER_ON_OBTAIN) // On obtain trigger
@@ -7947,7 +7950,7 @@ bool Player::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEf
 
 void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/)
 {
-    if (!item)
+    if (!item || item->GetTemplate()->GetFlags() & ITEM_FLAG_LEGACY)
         return;
 
     for (ItemEffectEntry const* effectData : item->GetEffects())
@@ -8294,36 +8297,39 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
     bool canTrigger = (damageInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB)) != 0;
     if (canTrigger)
     {
-        for (ItemEffectEntry const* effectData : item->GetEffects())
+        if (!(item->GetTemplate()->GetFlags() & ITEM_FLAG_LEGACY))
         {
-            // wrong triggering type
-            if (effectData->TriggerType != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
-                continue;
-
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
-            if (!spellInfo)
+            for (ItemEffectEntry const* effectData : item->GetEffects())
             {
-                TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '%s' (%s) cast unknown item spell (ID: %i)",
-                    GetName().c_str(), GetGUID().ToString().c_str(), effectData->SpellID);
-                continue;
+                // wrong triggering type
+                if (effectData->TriggerType != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
+                    continue;
+
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
+                if (!spellInfo)
+                {
+                    TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '%s' (%s) cast unknown item spell (ID: %i)",
+                        GetName().c_str(), GetGUID().ToString().c_str(), effectData->SpellID);
+                    continue;
+                }
+
+                // not allow proc extra attack spell at extra attack
+                if (m_extraAttacks && spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+                    return;
+
+                float chance = (float)spellInfo->ProcChance;
+
+                if (proto->SpellPPMRate)
+                {
+                    uint32 WeaponSpeed = GetBaseAttackTime(damageInfo.GetAttackType());
+                    chance = GetPPMProcChance(WeaponSpeed, proto->SpellPPMRate, spellInfo);
+                }
+                else if (chance > 100.0f)
+                    chance = GetWeaponProcChance();
+
+                if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
+                    CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
             }
-
-            // not allow proc extra attack spell at extra attack
-            if (m_extraAttacks && spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
-                return;
-
-            float chance = (float)spellInfo->ProcChance;
-
-            if (proto->SpellPPMRate)
-            {
-                uint32 WeaponSpeed = GetBaseAttackTime(damageInfo.GetAttackType());
-                chance = GetPPMProcChance(WeaponSpeed, proto->SpellPPMRate, spellInfo);
-            }
-            else if (chance > 100.0f)
-                chance = GetWeaponProcChance();
-
-            if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
-                CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
         }
     }
 
@@ -8417,20 +8423,51 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
 void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, int32* misc)
 {
-    // special learning case
-    if (item->GetBonus()->EffectCount >= 2)
+    if (!(item->GetTemplate()->GetFlags() & ITEM_FLAG_LEGACY))
     {
-        if (item->GetEffect(0)->SpellID == 483 || item->GetEffect(0)->SpellID == 55884)
+        // special learning case
+        if (item->GetBonus()->EffectCount >= 2)
         {
-            uint32 learn_spell_id = item->GetEffect(0)->SpellID;
-            uint32 learning_spell_id = item->GetEffect(1)->SpellID;
+            if (item->GetEffect(0)->SpellID == 483 || item->GetEffect(0)->SpellID == 55884)
+            {
+                uint32 learn_spell_id = item->GetEffect(0)->SpellID;
+                uint32 learning_spell_id = item->GetEffect(1)->SpellID;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id, DIFFICULTY_NONE);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id, DIFFICULTY_NONE);
+                if (!spellInfo)
+                {
+                    TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), learn_spell_id);
+                    SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, nullptr);
+                    return;
+                }
+
+                Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
+
+                WorldPackets::Spells::SpellPrepare spellPrepare;
+                spellPrepare.ClientCastID = castCount;
+                spellPrepare.ServerCastID = spell->m_castId;
+                SendDirectMessage(spellPrepare.Write());
+
+                spell->m_fromClient = true;
+                spell->m_CastItem = item;
+                spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
+                spell->prepare(targets);
+                return;
+            }
+        }
+
+        // item spells cast at use
+        for (ItemEffectEntry const* effectData : item->GetEffects())
+        {
+            // wrong triggering type
+            if (effectData->TriggerType != ITEM_SPELLTRIGGER_ON_USE)
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), learn_spell_id);
-                SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, nullptr);
-                return;
+                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), effectData->SpellID);
+                continue;
             }
 
             Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
@@ -8442,39 +8479,11 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
 
             spell->m_fromClient = true;
             spell->m_CastItem = item;
-            spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
+            spell->m_misc.Raw.Data[0] = misc[0];
+            spell->m_misc.Raw.Data[1] = misc[1];
             spell->prepare(targets);
             return;
         }
-    }
-
-    // item spells cast at use
-    for (ItemEffectEntry const* effectData : item->GetEffects())
-    {
-        // wrong triggering type
-        if (effectData->TriggerType != ITEM_SPELLTRIGGER_ON_USE)
-            continue;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
-        if (!spellInfo)
-        {
-            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", item->GetEntry(), effectData->SpellID);
-            continue;
-        }
-
-        Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
-
-        WorldPackets::Spells::SpellPrepare spellPrepare;
-        spellPrepare.ClientCastID = castCount;
-        spellPrepare.ServerCastID = spell->m_castId;
-        SendDirectMessage(spellPrepare.Write());
-
-        spell->m_fromClient = true;
-        spell->m_CastItem = item;
-        spell->m_misc.Raw.Data[0] = misc[0];
-        spell->m_misc.Raw.Data[1] = misc[1];
-        spell->prepare(targets);
-        return;
     }
 
     // Item enchantments spells cast at use
