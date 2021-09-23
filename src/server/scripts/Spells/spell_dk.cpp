@@ -539,7 +539,9 @@ class spell_dk_death_strike_heal : public SpellScript
     void HandleBloodShield()
     {
         Unit* target = GetHitUnit();
-        if (!target)
+
+        // Patch 4.1.0 (2011-04-26): Now only works while in Blood Presence.
+        if (!target || !target->GetAuraEffect(SPELL_AURA_MOD_BASE_RESISTANCE_PCT, SPELLFAMILY_DEATHKNIGHT, 0x00800000, 0x0, 0x0, target->GetGUID()))
             return;
 
         AuraEffect const* bloodShieldAurEff = target->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_BLOOD_SHIELD_MASTERY, EFFECT_0);
