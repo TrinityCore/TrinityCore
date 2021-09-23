@@ -482,6 +482,7 @@ SpellValue::SpellValue(SpellInfo const* proto, WorldObject const* caster)
     AuraStackAmount = 1;
     CriticalChance = 0.0f;
     DurationMul = 1;
+    Duration = 0;
 }
 
 class TC_GAME_API SpellEvent : public BasicEvent
@@ -2875,29 +2876,34 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
 
                     _spellAura->SetDiminishGroup(hitInfo.DRGroup);
 
-                    hitInfo.AuraDuration = caster->ModSpellDuration(m_spellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, _spellAura->GetEffectMask());
-
-                    if (hitInfo.AuraDuration > 0)
+                    if (m_spellValue->Duration == 0)
                     {
-                        hitInfo.AuraDuration *= m_spellValue->DurationMul;
+                        hitInfo.AuraDuration = caster->ModSpellDuration(m_spellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, _spellAura->GetEffectMask());
 
-                        // Haste modifies duration of channeled spells
-                        if (m_spellInfo->IsChanneled())
-                            caster->ModSpellDurationTime(m_spellInfo, hitInfo.AuraDuration, this);
-                        else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
+                        if (hitInfo.AuraDuration > 0)
                         {
-                            int32 origDuration = hitInfo.AuraDuration;
-                            hitInfo.AuraDuration = 0;
-                            for (AuraEffect const* auraEff : _spellAura->GetAuraEffects())
-                                if (auraEff)
-                                    if (int32 period = auraEff->GetPeriod())  // period is hastened by UNIT_MOD_CAST_SPEED
-                                        hitInfo.AuraDuration = std::max(std::max(origDuration / period, 1) * period, hitInfo.AuraDuration);
+                            hitInfo.AuraDuration *= m_spellValue->DurationMul;
 
-                            // if there is no periodic effect
-                            if (!hitInfo.AuraDuration)
-                                hitInfo.AuraDuration = int32(origDuration * m_originalCaster->m_unitData->ModCastingSpeed);
+                            // Haste modifies duration of channeled spells
+                            if (m_spellInfo->IsChanneled())
+                                caster->ModSpellDurationTime(m_spellInfo, hitInfo.AuraDuration, this);
+                            else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
+                            {
+                                int32 origDuration = hitInfo.AuraDuration;
+                                hitInfo.AuraDuration = 0;
+                                for (AuraEffect const* auraEff : _spellAura->GetAuraEffects())
+                                    if (auraEff)
+                                        if (int32 period = auraEff->GetPeriod())  // period is hastened by UNIT_MOD_CAST_SPEED
+                                            hitInfo.AuraDuration = std::max(std::max(origDuration / period, 1) * period, hitInfo.AuraDuration);
+
+                                // if there is no periodic effect
+                                if (!hitInfo.AuraDuration)
+                                    hitInfo.AuraDuration = int32(origDuration * m_originalCaster->m_unitData->ModCastingSpeed);
+                            }
                         }
                     }
+                    else
+                        hitInfo.AuraDuration = m_spellValue->Duration;
 
                     if (hitInfo.AuraDuration != _spellAura->GetMaxDuration())
                     {
@@ -3574,17 +3580,22 @@ void Spell::handle_immediate()
     if (m_spellInfo->IsChanneled())
     {
         int32 duration = m_spellInfo->GetDuration();
-        if (duration > 0)
+        if (duration > 0 || m_spellValue->Duration != 0)
         {
-            // First mod_duration then haste - see Missile Barrage
-            // Apply duration mod
-            if (Player* modOwner = m_caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(m_spellInfo, SpellModOp::Duration, duration);
+            if (m_spellValue->Duration == 0)
+            {
+                // First mod_duration then haste - see Missile Barrage
+                // Apply duration mod
+                if (Player* modOwner = m_caster->GetSpellModOwner())
+                    modOwner->ApplySpellMod(m_spellInfo, SpellModOp::Duration, duration);
 
-            duration *= m_spellValue->DurationMul;
+                duration *= m_spellValue->DurationMul;
 
-            // Apply haste mods
-            m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
+                // Apply haste mods
+                m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
+            }
+            else
+                duration = m_spellValue->Duration;
 
             m_channeledDuration = duration;
             SendChannelStart(duration);
@@ -7760,6 +7771,9 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_DURATION_PCT:
             m_spellValue->DurationMul = float(value) / 100.0f;
+            break;
+        case SPELLVALUE_DURATION:
+            m_spellValue->Duration = value;
             break;
         default:
             break;
