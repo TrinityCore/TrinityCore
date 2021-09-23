@@ -1168,8 +1168,10 @@ class spell_dk_runic_empowerment : public AuraScript
         }
 
         if (!fullyDepletedRuneIndexes.empty())
-            if (uint8 runeIndex = Trinity::Containers::SelectRandomContainerElement(fullyDepletedRuneIndexes))
-                ActivateRune(player, runeIndex);
+        {
+            uint8 runeIndex = Trinity::Containers::SelectRandomContainerElement(fullyDepletedRuneIndexes);
+            ActivateRune(player, runeIndex);
+        }
     }
 
     void Register() override
