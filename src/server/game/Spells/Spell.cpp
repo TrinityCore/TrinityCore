@@ -2876,7 +2876,7 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
 
                     _spellAura->SetDiminishGroup(hitInfo.DRGroup);
 
-                    if (m_spellValue->Duration == 0)
+                    if (!m_spellValue->Duration)
                     {
                         hitInfo.AuraDuration = caster->ModSpellDuration(m_spellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, _spellAura->GetEffectMask());
 
@@ -2903,7 +2903,7 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                         }
                     }
                     else
-                        hitInfo.AuraDuration = m_spellValue->Duration;
+                        hitInfo.AuraDuration = m_spellValue->Duration.get();
 
                     if (hitInfo.AuraDuration != _spellAura->GetMaxDuration())
                     {
@@ -3580,9 +3580,9 @@ void Spell::handle_immediate()
     if (m_spellInfo->IsChanneled())
     {
         int32 duration = m_spellInfo->GetDuration();
-        if (duration > 0 || m_spellValue->Duration != 0)
+        if (duration > 0 || m_spellValue->Duration)
         {
-            if (m_spellValue->Duration == 0)
+            if (!m_spellValue->Duration)
             {
                 // First mod_duration then haste - see Missile Barrage
                 // Apply duration mod
@@ -3595,7 +3595,7 @@ void Spell::handle_immediate()
                 m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
             }
             else
-                duration = m_spellValue->Duration;
+                duration = m_spellValue->Duration.get();
 
             m_channeledDuration = duration;
             SendChannelStart(duration);
