@@ -153,7 +153,7 @@ public:
                         break;
                     case EVENT_RUN_AWAY:
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionY() + (std::sin(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionZ() + 1.0f);
+                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(me->GetAbsoluteAngle(CrashSite)) * 28.0f), me->GetPositionY() + (std::sin(me->GetAbsoluteAngle(CrashSite)) * 28.0f), me->GetPositionZ() + 1.0f);
                         me->DespawnOrUnsummon(Seconds(4));
                         break;
                     default:

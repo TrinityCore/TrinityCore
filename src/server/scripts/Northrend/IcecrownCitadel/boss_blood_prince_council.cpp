@@ -645,7 +645,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                 summons.Summon(summon);
                 Position pos = me->GetPosition();
                 float maxRange = me->GetDistance2d(summon);
-                float angle = me->GetAngle(summon);
+                float angle = me->GetAbsoluteAngle(summon);
                 me->MovePositionToFirstCollision(pos, maxRange, angle);
                 summon->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
                 summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);

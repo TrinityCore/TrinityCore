@@ -7487,7 +7487,6 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
         return;
 
     ItemTemplate const* proto = item->GetTemplate();
-
     if (!proto)
         return;
 
@@ -7767,7 +7766,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     }
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
-    if (attType != MAX_ATTACK && CanUseAttackType(attType))
+    if (attType != MAX_ATTACK)
         _ApplyWeaponDamage(slot, item, apply);
 }
 
@@ -7775,7 +7774,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
 {
     ItemTemplate const* proto = item->GetTemplate();
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
-    if (attType == MAX_ATTACK)
+    if (!IsInFeralForm() && apply && !CanUseAttackType(attType))
         return;
 
     float damage = 0.0f;
@@ -12568,8 +12567,6 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 if (pProto->GetItemSet())
                     RemoveItemsSetItem(this, pProto);
 
-                // remove here before _ApplyItemMods (for example to register correct damages of unequipped weapon)
-                m_items[slot] = nullptr;
                 _ApplyItemMods(pItem, slot, false, update);
 
                 pItem->RemoveItemFlag2(ITEM_FIELD_FLAG2_EQUIPPED);
@@ -12593,9 +12590,8 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                     }
                 }
             }
-            else
-                m_items[slot] = nullptr;
 
+            m_items[slot] = nullptr;
             SetInvSlot(slot, ObjectGuid::Empty);
 
             if (slot < EQUIPMENT_SLOT_END)
@@ -12711,9 +12707,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                 if (pProto->GetItemSet())
                     RemoveItemsSetItem(this, pProto);
 
-                // clear m_items so weapons for example can be registered as unequipped
-                m_items[slot] = nullptr;
-
                 _ApplyItemMods(pItem, slot, false);
             }
 
@@ -12738,9 +12731,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                 SetVisibleItemSlot(slot, nullptr);
             }
 
-            // clear for rest of items (ie nonequippable)
-            if (slot >= INVENTORY_SLOT_BAG_END)
-                m_items[slot] = nullptr;
+            m_items[slot] = nullptr;
         }
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
