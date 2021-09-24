@@ -910,7 +910,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     if (GetTemplate() && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR))
     {
         G3D::Vector3 const& nextPoint = _spline->getPoint(lastPositionIndex + 1);
-        orientation = GetAngle(nextPoint.x, nextPoint.y);
+        orientation = GetAbsoluteAngle(nextPoint.x, nextPoint.y);
     }
 
     GetMap()->AreaTriggerRelocation(this, currentPosition.x, currentPosition.y, currentPosition.z, orientation);

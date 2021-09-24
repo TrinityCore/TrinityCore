@@ -536,7 +536,7 @@ public:
 
                 SeenAtiesh = true;
                 Talk(SAY_ATIESH);
-                me->SetFacingTo(me->GetAngle(player));
+                me->SetFacingTo(me->GetAbsoluteAngle(player));
                 me->ClearUnitState(UNIT_STATE_MOVING);
                 me->GetMotionMaster()->MoveDistract(7 * IN_MILLISECONDS);
                 break;

@@ -336,7 +336,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
+                    float angle = varos->GetAbsoluteAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
@@ -380,7 +380,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
+                    float angle = varos->GetAbsoluteAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
