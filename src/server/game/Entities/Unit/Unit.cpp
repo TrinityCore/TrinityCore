@@ -2366,12 +2366,23 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
     return urand(uint32(minDamage), uint32(maxDamage));
 }
 
+// @tswow-begin
 float Unit::CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInfo) const
 {
+    float result;
     if (!spellInfo->MaxLevel || GetLevel() < spellInfo->MaxLevel)
-        return 1.0f;
-
-    return std::max(0.0f, std::min(1.0f, (22.0f + spellInfo->MaxLevel - GetLevel()) / 20.0f));
+        result = 1.0f;
+    else
+        result = std::max(0.0f, std::min(1.0f, (22.0f + spellInfo->MaxLevel - GetLevel()) / 20.0f));
+    FIRE_MAP(
+          spellInfo->events
+        , SpellOnSpellPowerLevelPenalty
+        , TSSpellInfo(spellInfo)
+        , TSUnit(const_cast<Unit*>(this))
+        , TSMutable<float>(&result)
+    );
+    return result;
+    // @tswow-end
 }
 
 void Unit::SendMeleeAttackStart(Unit* victim)
