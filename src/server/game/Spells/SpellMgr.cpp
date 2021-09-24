@@ -2949,6 +2949,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         SpellInfo* spellInfoMutable = const_cast<SpellInfo*>(&spellInfo);
         for (SpellEffectInfo const& spellEffectInfo : spellInfoMutable->GetEffects())
         {
+            // all bleed effects and spells ignore armor
+            if (spellInfo.GetEffectMechanicMask(spellEffectInfo.EffectIndex) & (1 << MECHANIC_BLEED))
+                spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+
             switch (spellEffectInfo.ApplyAuraName)
             {
                 case SPELL_AURA_MOD_POSSESS:
@@ -3230,6 +3234,14 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             if (spellInfo.HasAttribute(SPELL_ATTR2_CANT_CRIT))
                 spellInfoMutable->AttributesCu &= ~SPELL_ATTR0_CU_CAN_CRIT;
 
+    }
+
+    // add custom attribute to liquid auras
+    for (LiquidTypeEntry const* liquid : sLiquidTypeStore)
+    {
+        if (liquid->SpellID)
+            for (SpellInfo const& spellInfo : _GetSpellInfo(liquid->SpellID))
+                const_cast<SpellInfo&>(spellInfo).AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));

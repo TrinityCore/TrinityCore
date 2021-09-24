@@ -468,7 +468,7 @@ public:
             float x, y, z;
             target->GetContactPoint(_player, x, y, z);
 
-            _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE);
+            _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAbsoluteAngle(target), TELE_TO_GM_MODE);
             PhasingHandler::InheritPhaseShift(_player, target);
             _player->UpdateObjectVisibility();
         }

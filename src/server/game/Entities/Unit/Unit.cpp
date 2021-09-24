@@ -590,19 +590,6 @@ bool Unit::IsWithinBoundaryRadius(const Unit* obj) const
     return IsInDist(obj, objBoundaryRadius);
 }
 
-void Unit::GetRandomContactPoint(Unit const* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const
-{
-    float combat_reach = GetCombatReach();
-    if (combat_reach < 0.1f) // sometimes bugged for players
-        combat_reach = DEFAULT_PLAYER_COMBAT_REACH;
-
-    uint32 attacker_number = uint32(getAttackers().size());
-    if (attacker_number > 0)
-        --attacker_number;
-    GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin) * (float)rand_norm(),
-        GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
-}
-
 void Unit::SetVisibleAura(AuraApplication* aurApp)
 {
     m_visibleAuras.insert(aurApp);
@@ -1507,27 +1494,13 @@ void Unit::HandleEmoteCommand(uint32 anim_id, Trinity::IteratorPair<int32 const*
     SendMessageToSet(packet.Write(), true);
 }
 
-/*static*/ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo /*= nullptr*/, SpellEffectInfo const* spellEffectInfo /*= nullptr*/)
+/*static*/ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo /*= nullptr*/)
 {
     // only physical spells damage gets reduced by armor
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
         return false;
-    if (spellInfo)
-    {
-        // there are spells with no specific attribute but they have "ignores armor" in tooltip
-        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_IGNORE_ARMOR))
-            return false;
 
-        // bleeding effects are not reduced by armor
-        if (spellEffectInfo)
-        {
-            if (spellEffectInfo->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
-                spellEffectInfo->Effect == SPELL_EFFECT_SCHOOL_DAMAGE)
-                if (spellInfo->GetEffectMechanicMask(spellEffectInfo->EffectIndex) & (1 << MECHANIC_BLEED))
-                    return false;
-        }
-    }
-    return true;
+    return !spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_IGNORE_ARMOR);
 }
 
 /*static*/ uint32 Unit::CalcArmorReducedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, WeaponAttackType /*attackType*/ /*= MAX_ATTACK*/, uint8 attackerLevel /*= 0*/)
@@ -7394,7 +7367,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
 
         // Shred, Maul - "Effects which increase Bleed damage also increase Shred damage"
         if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[0] & 0x00008800)
-            mechanicMask |= (1<<MECHANIC_BLEED);
+            mechanicMask |= (1 << MECHANIC_BLEED);
 
         if (mechanicMask)
         {
@@ -11727,7 +11700,7 @@ void Unit::JumpTo(WorldObject* obj, float speedZ, bool withOrientation)
     float x, y, z;
     obj->GetContactPoint(this, x, y, z);
     float speedXY = GetExactDist2d(x, y) * 10.0f / speedZ;
-    GetMotionMaster()->MoveJump(x, y, z, GetAngle(obj), speedXY, speedZ, EVENT_JUMP, withOrientation);
+    GetMotionMaster()->MoveJump(x, y, z, GetAbsoluteAngle(obj), speedXY, speedZ, EVENT_JUMP, withOrientation);
 }
 
 void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
@@ -12302,7 +12275,7 @@ bool CharmInfo::IsReturning()
 void Unit::SetInFront(WorldObject const* target)
 {
     if (!HasUnitState(UNIT_STATE_CANNOT_TURN))
-        SetOrientation(GetAngle(target));
+        SetOrientation(GetAbsoluteAngle(target));
 }
 
 void Unit::SetFacingTo(float ori, bool force)
@@ -12328,7 +12301,7 @@ void Unit::SetFacingToObject(WorldObject const* object, bool force)
     /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
     Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-    init.SetFacing(GetAngle(object));   // when on transport, GetAngle will still return global coordinates (and angle) that needs transforming
+    init.SetFacing(GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
     init.Launch();
 }
 
