@@ -568,7 +568,7 @@ namespace MMAP
         int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
         int holeRow = row % 8;
-        int holeCol = (square - (row * 128 + cellCol * 8));
+        int holeCol = col % 8;
 
         return (holes[cellRow][cellCol][holeRow] & (1 << holeCol)) != 0;
     }
