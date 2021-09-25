@@ -1833,6 +1833,7 @@ GridMap::GridMap()
     _liquidEntry = nullptr;
     _liquidFlags = nullptr;
     _liquidMap  = nullptr;
+    _holes = nullptr;
 }
 
 GridMap::~GridMap()
@@ -1880,6 +1881,13 @@ GridMap::LoadResult GridMap::loadData(char const* filename)
             fclose(in);
             return LoadResult::InvalidFile;
         }
+        // loadup holes data (if any. check header.holesOffset)
+        if (header.holesSize && !loadHolesData(in, header.holesOffset, header.holesSize))
+        {
+            TC_LOG_ERROR("maps", "Error loading map holes data\n");
+            fclose(in);
+            return LoadResult::InvalidFile;
+        }
         fclose(in);
         return LoadResult::Ok;
     }
@@ -1899,6 +1907,7 @@ void GridMap::unloadData()
     delete[] _liquidEntry;
     delete[] _liquidFlags;
     delete[] _liquidMap;
+    delete[] _holes;
     _areaMap = nullptr;
     m_V9 = nullptr;
     m_V8 = nullptr;
@@ -1906,6 +1915,7 @@ void GridMap::unloadData()
     _liquidEntry = nullptr;
     _liquidFlags = nullptr;
     _liquidMap  = nullptr;
+    _holes = nullptr;
     _gridGetHeight = &GridMap::getHeightFromFlat;
 }
 
@@ -2051,6 +2061,18 @@ bool GridMap::loadLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
     return true;
 }
 
+bool GridMap::loadHolesData(FILE* in, uint32 offset, uint32 /*size*/)
+{
+    if (fseek(in, offset, SEEK_SET) != 0)
+        return false;
+
+    _holes = new uint8[16 * 16 * 8];
+    if (fread(_holes, sizeof(uint8), 16 * 16 * 8, in) != 16 * 16 * 8)
+        return false;
+
+    return true;
+}
+
 uint16 GridMap::getArea(float x, float y) const
 {
     if (!_areaMap)
@@ -2082,6 +2104,9 @@ float GridMap::getHeightFromFloat(float x, float y) const
     y -= y_int;
     x_int&=(MAP_RESOLUTION - 1);
     y_int&=(MAP_RESOLUTION - 1);
+
+    if (isHole(x_int, y_int))
+        return INVALID_HEIGHT;
 
     // Height stored as: h5 - its v8 grid, h1-h4 - its v9 grid
     // +--------------> X
@@ -2165,6 +2190,9 @@ float GridMap::getHeightFromUint8(float x, float y) const
     x_int&=(MAP_RESOLUTION - 1);
     y_int&=(MAP_RESOLUTION - 1);
 
+    if (isHole(x_int, y_int))
+        return INVALID_HEIGHT;
+
     int32 a, b, c;
     uint8 *V9_h1_ptr = &m_uint8_V9[x_int*128 + x_int + y_int];
     if (x+y < 1)
@@ -2232,6 +2260,9 @@ float GridMap::getHeightFromUint16(float x, float y) const
     x_int&=(MAP_RESOLUTION - 1);
     y_int&=(MAP_RESOLUTION - 1);
 
+    if (isHole(x_int, y_int))
+        return INVALID_HEIGHT;
+
     int32 a, b, c;
     uint16 *V9_h1_ptr = &m_uint16_V9[x_int*128 + x_int + y_int];
     if (x+y < 1)
@@ -2284,6 +2315,19 @@ float GridMap::getHeightFromUint16(float x, float y) const
     return (float)((a * x) + (b * y) + c)*_gridIntHeightMultiplier + _gridHeight;
 }
 
+bool GridMap::isHole(int row, int col) const
+{
+    if (!_holes)
+        return false;
+
+    int cellRow = row / 8;     // 8 squares per cell
+    int cellCol = col / 8;
+    int holeRow = row % 8;
+    int holeCol = col % 8;
+
+    return (_holes[cellRow * 16 * 8 + cellCol * 8 + holeRow] & (1 << holeCol)) != 0;
+}
+
 float GridMap::getMinHeight(float x, float y) const
 {
     if (!_minHeightPlanes)
@@ -2331,19 +2375,6 @@ float GridMap::getLiquidLevel(float x, float y) const
         return INVALID_HEIGHT;
 
     return _liquidMap[cx_int*_liquidWidth + cy_int];
-}
-
-// Why does this return LIQUID data?
-map_liquidHeaderTypeFlags GridMap::getTerrainType(float x, float y) const
-{
-    if (!_liquidFlags)
-        return map_liquidHeaderTypeFlags::NoWater;
-
-    x = 16 * (CENTER_GRID_ID - x/SIZE_OF_GRIDS);
-    y = 16 * (CENTER_GRID_ID - y/SIZE_OF_GRIDS);
-    int lx = (int)x & 15;
-    int ly = (int)y & 15;
-    return _liquidFlags[lx*16 + ly];
 }
 
 // Get water state on map
@@ -2495,7 +2526,7 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
     if (GridMap* gmap = GetGrid(terrainMapId, x, y))
     {
         float gridHeight = gmap->getHeight(x, y);
-        if (z > gridHeight)
+        if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
             mapHeight = gridHeight;
     }
 
@@ -2537,46 +2568,12 @@ float Map::GetMinHeight(PhaseShift const& phaseShift, float x, float y)
     return -500.0f;
 }
 
-inline bool IsOutdoorWMO(uint32 mogpFlags, WMOAreaTableEntry const* wmoEntry, AreaTableEntry const* atEntry)
+static inline bool IsInWMOInterior(uint32 mogpFlags)
 {
-    if (wmoEntry && atEntry)
-    {
-        if (atEntry->Flags[0] & AREA_FLAG_OUTSIDE)
-            return true;
-        if (atEntry->Flags[0] & AREA_FLAG_INSIDE)
-            return false;
-    }
-
-    if (wmoEntry)
-    {
-        if (wmoEntry->Flags & 4)
-            return true;
-        if (wmoEntry->Flags & 2)
-            return false;
-    }
-    return (mogpFlags & 0x8);
+    return (mogpFlags & 0x2000) != 0;
 }
 
-bool Map::IsOutdoors(PhaseShift const& phaseShift, float x, float y, float z)
-{
-    uint32 mogpFlags;
-    int32 adtId, rootId, groupId;
-
-    // no wmo found? -> outside by default
-    if (!GetAreaInfo(phaseShift, x, y, z, mogpFlags, adtId, rootId, groupId))
-        return true;
-
-    AreaTableEntry const* atEntry = nullptr;
-    WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId);
-    if (wmoEntry)
-    {
-        TC_LOG_DEBUG("maps", "Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->AreaTableID);
-        atEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
-    }
-    return IsOutdoorWMO(mogpFlags, wmoEntry, atEntry);
-}
-
-bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId)
+bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId)
 {
     float vmap_z = z;
     float dynamic_z = z;
@@ -2594,8 +2591,8 @@ bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, u
 
     bool hasVmapAreaInfo = vmgr->getAreaInfo(terrainMapId, x, y, vmap_z, vflags, vadtId, vrootId, vgroupId);
     bool hasDynamicAreaInfo = _dynamicTree.getAreaInfo(x, y, dynamic_z, phaseShift, dflags, dadtId, drootId, dgroupId);
-    auto useVmap = [&]() { check_z = vmap_z; flags = vflags; adtId = vadtId; rootId = vrootId; groupId = vgroupId; };
-    auto useDyn = [&]() { check_z = dynamic_z; flags = dflags; adtId = dadtId; rootId = drootId; groupId = dgroupId; };
+    auto useVmap = [&]() { check_z = vmap_z; mogpflags = vflags; adtId = vadtId; rootId = vrootId; groupId = vgroupId; };
+    auto useDyn = [&]() { check_z = dynamic_z; mogpflags = dflags; adtId = dadtId; rootId = drootId; groupId = dgroupId; };
 
     if (hasVmapAreaInfo)
     {
@@ -2615,7 +2612,8 @@ bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, u
         if (GridMap* gmap = GetGrid(terrainMapId, x, y))
         {
             float mapHeight = gmap->getHeight(x, y);
-            if (z > mapHeight && mapHeight > vmap_z)
+            // z + 2.0f condition taken from GetHeight(), not sure if it's such a great choice...
+            if (z + 2.0f > mapHeight && mapHeight > check_z)
                 return false;
         }
         return true;
@@ -2623,43 +2621,39 @@ bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, u
     return false;
 }
 
-uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, bool *isOutdoors)
+uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z)
 {
     uint32 mogpFlags;
     int32 adtId, rootId, groupId;
-    WMOAreaTableEntry const* wmoEntry = nullptr;
-    AreaTableEntry const* atEntry = nullptr;
-    bool haveAreaInfo = false;
+    float vmapZ = z;
+    bool hasVmapArea = GetAreaInfo(phaseShift, x, y, vmapZ, mogpFlags, adtId, rootId, groupId);
+
+    uint32 gridAreaId = 0;
+    float gridMapHeight = INVALID_HEIGHT;
+    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
+    {
+        gridAreaId = gmap->getArea(x, y);
+        gridMapHeight = gmap->getHeight(x, y);
+    }
+
     uint32 areaId = 0;
 
-    if (GetAreaInfo(phaseShift, x, y, z, mogpFlags, adtId, rootId, groupId))
+    // floor is the height we are closer to (but only if above)
+    if (hasVmapArea && G3D::fuzzyGe(z, vmapZ - GROUND_HEIGHT_TOLERANCE) && (G3D::fuzzyLt(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE) || vmapZ > gridMapHeight))
     {
-        haveAreaInfo = true;
-        wmoEntry = sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId);
-        if (wmoEntry)
-        {
+        // wmo found
+        if (WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(rootId, adtId, groupId))
             areaId = wmoEntry->AreaTableID;
-            atEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
-        }
+
+        if (!areaId)
+            areaId = gridAreaId;
     }
+    else
+        areaId = gridAreaId;
 
     if (!areaId)
-    {
-        if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
-            areaId = gmap->getArea(x, y);
+        areaId = i_mapEntry->AreaTableID;
 
-        // this used while not all *.map files generated (instances)
-        if (!areaId)
-            areaId = i_mapEntry->AreaTableID;
-    }
-
-    if (isOutdoors)
-    {
-        if (haveAreaInfo)
-            *isOutdoors = IsOutdoorWMO(mogpFlags, wmoEntry, atEntry);
-        else
-            *isOutdoors = true;
-    }
     return areaId;
 }
 
@@ -2681,14 +2675,6 @@ void Map::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32&
             zoneid = area->ParentAreaID;
 }
 
-map_liquidHeaderTypeFlags Map::GetTerrainType(PhaseShift const& phaseShift, float x, float y)
-{
-    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
-        return gmap->getTerrainType(x, y);
-    else
-        return map_liquidHeaderTypeFlags::NoWater;
-}
-
 ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data, float collisionHeight)
 {
     ZLiquidStatus result = LIQUID_MAP_NO_WATER;
@@ -2696,12 +2682,15 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
     float liquid_level = INVALID_HEIGHT;
     float ground_level = INVALID_HEIGHT;
     uint32 liquid_type = 0;
+    uint32 mogpFlags = 0;
+    bool useGridLiquid = true;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
-    if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, AsUnderlyingType(ReqLiquidType), liquid_level, ground_level, liquid_type))
+    if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, AsUnderlyingType(ReqLiquidType), liquid_level, ground_level, liquid_type, mogpFlags))
     {
+        useGridLiquid = !IsInWMOInterior(mogpFlags);
         TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: %f ground: %f type: %u", liquid_level, ground_level, liquid_type);
         // Check water level and ground level
-        if (liquid_level > ground_level && z > ground_level - 2)
+        if (liquid_level > ground_level && G3D::fuzzyGe(z, ground_level - GROUND_HEIGHT_TOLERANCE))
         {
             // All ok in water -> store data
             if (data)
@@ -2754,22 +2743,25 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
         }
     }
 
-    if (GridMap* gmap = GetGrid(terrainMapId, x, y))
+    if (useGridLiquid)
     {
-        LiquidData map_data;
-        ZLiquidStatus map_result = gmap->GetLiquidStatus(x, y, z, ReqLiquidType, &map_data, collisionHeight);
-        // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
-        if (map_result != LIQUID_MAP_NO_WATER && (map_data.level > ground_level))
+        if (GridMap* gmap = GetGrid(terrainMapId, x, y))
         {
-            if (data)
+            LiquidData map_data;
+            ZLiquidStatus map_result = gmap->GetLiquidStatus(x, y, z, ReqLiquidType, &map_data, collisionHeight);
+            // Not override LIQUID_MAP_ABOVE_WATER with LIQUID_MAP_NO_WATER:
+            if (map_result != LIQUID_MAP_NO_WATER && (map_data.level > ground_level))
             {
-                // hardcoded in client like this
-                if (GetId() == 530 && map_data.entry == 2)
-                    map_data.entry = 15;
+                if (data)
+                {
+                    // hardcoded in client like this
+                    if (GetId() == 530 && map_data.entry == 2)
+                        map_data.entry = 15;
 
-                *data = map_data;
+                    *data = map_data;
+                }
+                return map_result;
             }
-            return map_result;
         }
     }
     return result;
@@ -2779,58 +2771,87 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
 {
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
+    VMAP::AreaAndLiquidData dynData;
+    VMAP::AreaAndLiquidData* wmoData = nullptr;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
-    vmgr->getAreaAndLiquidData(terrainMapId, x, y, z, AsUnderlyingType(reqLiquidType), vmapData);
-    if (vmapData.areaInfo)
-        data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
-
-    float mapHeight = VMAP_INVALID_HEIGHT;
     GridMap* gmap = GetGrid(terrainMapId, x, y);
+    vmgr->getAreaAndLiquidData(terrainMapId, x, y, z, AsUnderlyingType(reqLiquidType), vmapData);
+    _dynamicTree.getAreaAndLiquidData(x, y, z, phaseShift, AsUnderlyingType(reqLiquidType), dynData);
+
+    uint32 gridAreaId = 0;
+    float gridMapHeight = INVALID_HEIGHT;
     if (gmap)
-        mapHeight = gmap->getHeight(x, y);
-
-    // area lookup
-    AreaTableEntry const* areaEntry = nullptr;
-    WMOAreaTableEntry const* wmoEntry = nullptr;
-    // the vmap floor is our floor if either
-    //  - the vmap floor is above the gridmap floor
-    // or
-    //  - we are below the gridmap floor
-    if (vmapData.areaInfo && (G3D::fuzzyLt(z, mapHeight - GROUND_HEIGHT_TOLERANCE) || mapHeight <= vmapData.floorZ))
-        if ((wmoEntry = sDB2Manager.GetWMOAreaTable(vmapData.areaInfo->rootId, vmapData.areaInfo->adtId, vmapData.areaInfo->groupId)))
-            areaEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
-
-    if (areaEntry)
     {
-        data.areaId = areaEntry->ID;
+        gridAreaId = gmap->getArea(x, y);
+        gridMapHeight = gmap->getHeight(x, y);
+    }
+
+    bool useGridLiquid = true;
+
+    // floor is the height we are closer to (but only if above)
+    data.floorZ = VMAP_INVALID_HEIGHT;
+    if (gridMapHeight > INVALID_HEIGHT && G3D::fuzzyGe(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE))
+        data.floorZ = gridMapHeight;
+    if (vmapData.floorZ > VMAP_INVALID_HEIGHT &&
+        G3D::fuzzyGe(z, vmapData.floorZ - GROUND_HEIGHT_TOLERANCE) &&
+        (G3D::fuzzyLt(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE) || vmapData.floorZ > gridMapHeight))
+    {
         data.floorZ = vmapData.floorZ;
+        wmoData = &vmapData;
+    }
+    // NOTE: Objects will not detect a case when a wmo providing area/liquid despawns from under them
+    // but this is fine as these kind of objects are not meant to be spawned and despawned a lot
+    // example: Lich King platform
+    if (dynData.floorZ > VMAP_INVALID_HEIGHT &&
+        G3D::fuzzyGe(z, dynData.floorZ - GROUND_HEIGHT_TOLERANCE) &&
+        (G3D::fuzzyLt(z, gridMapHeight - GROUND_HEIGHT_TOLERANCE) || dynData.floorZ > gridMapHeight) &&
+        (G3D::fuzzyLt(z, vmapData.floorZ - GROUND_HEIGHT_TOLERANCE) || dynData.floorZ > vmapData.floorZ))
+    {
+        data.floorZ = dynData.floorZ;
+        wmoData = &dynData;
+    }
+
+    if (wmoData)
+    {
+        if (wmoData->areaInfo)
+        {
+            data.areaInfo.emplace(wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->groupId, wmoData->areaInfo->mogpFlags);
+            // wmo found
+            WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
+            data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
+            if (wmoEntry)
+            {
+                data.areaId = wmoEntry->AreaTableID;
+                if (wmoEntry->Flags & 4)
+                    data.outdoors = true;
+                else if (wmoEntry->Flags & 2)
+                    data.outdoors = false;
+            }
+
+            if (!data.areaId)
+                data.areaId = gridAreaId;
+
+            useGridLiquid = !IsInWMOInterior(wmoData->areaInfo->mogpFlags);
+        }
     }
     else
     {
-        if (gmap)
-            data.areaId = gmap->getArea(x, y);
-        else
-            data.areaId = 0;
-
-        if (!data.areaId)
-            data.areaId = i_mapEntry->AreaTableID;
-
-        if (data.areaId)
-            areaEntry = sAreaTableStore.LookupEntry(data.areaId);
-
-        data.floorZ = mapHeight;
+        data.outdoors = true;
+        data.areaId = gridAreaId;
+        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId))
+            data.outdoors = (areaEntry->Flags[0] & (AREA_FLAG_INSIDE | AREA_FLAG_OUTSIDE)) != AREA_FLAG_INSIDE;
     }
 
-    if (vmapData.areaInfo)
-        data.outdoors = IsOutdoorWMO(vmapData.areaInfo->mogpFlags, wmoEntry, areaEntry);
-    else
-        data.outdoors = true; // @todo default true taken from old GetAreaId check, maybe review
+    if (!data.areaId)
+        data.areaId = i_mapEntry->AreaTableID;
+
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId);
 
     // liquid processing
     data.liquidStatus = LIQUID_MAP_NO_WATER;
-    if (vmapData.liquidInfo && vmapData.liquidInfo->level > vmapData.floorZ && z > vmapData.floorZ)
+    if (wmoData && wmoData->liquidInfo && wmoData->liquidInfo->level > wmoData->floorZ)
     {
-        uint32 liquidType = vmapData.liquidInfo->type;
+        uint32 liquidType = wmoData->liquidInfo->type;
         if (GetId() == 530 && liquidType == 2) // gotta love blizzard hacks
             liquidType = 15;
 
@@ -2855,13 +2876,13 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
             }
         }
 
-        data.liquidInfo = boost::in_place();
-        data.liquidInfo->level = vmapData.liquidInfo->level;
-        data.liquidInfo->depth_level = vmapData.floorZ;
+        data.liquidInfo.emplace();
+        data.liquidInfo->level = wmoData->liquidInfo->level;
+        data.liquidInfo->depth_level = wmoData->floorZ;
         data.liquidInfo->entry = liquidType;
         data.liquidInfo->type_flags = map_liquidHeaderTypeFlags(1 << liquidFlagType);
 
-        float delta = vmapData.liquidInfo->level - z;
+        float delta = wmoData->liquidInfo->level - z;
         if (delta > collisionHeight)
             data.liquidStatus = LIQUID_MAP_UNDER_WATER;
         else if (delta > 0.0f)
@@ -2872,11 +2893,11 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
             data.liquidStatus = LIQUID_MAP_ABOVE_WATER;
     }
     // look up liquid data from grid map
-    if (gmap && (data.liquidStatus == LIQUID_MAP_ABOVE_WATER || data.liquidStatus == LIQUID_MAP_NO_WATER))
+    if (gmap && useGridLiquid)
     {
         LiquidData gridMapLiquid;
         ZLiquidStatus gridMapStatus = gmap->GetLiquidStatus(x, y, z, reqLiquidType, &gridMapLiquid, collisionHeight);
-        if (gridMapStatus != LIQUID_MAP_NO_WATER && (gridMapLiquid.level > vmapData.floorZ))
+        if (gridMapStatus != LIQUID_MAP_NO_WATER && (!wmoData || gridMapLiquid.level > wmoData->floorZ))
         {
             if (GetId() == 530 && gridMapLiquid.entry == 2)
                 gridMapLiquid.entry = 15;

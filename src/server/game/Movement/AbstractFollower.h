@@ -15,16 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FOLLOWERREFMANAGER
-#define _FOLLOWERREFMANAGER
-
-#include "RefManager.h"
+#ifndef TRINITY_ABSTRACTFOLLOWER_H
+#define TRINITY_ABSTRACTFOLLOWER_H
 
 class Unit;
-class TargetedMovementGeneratorBase;
 
-class FollowerRefManager : public RefManager<Unit, TargetedMovementGeneratorBase>
+struct AbstractFollower
 {
+    public:
+        AbstractFollower(Unit* target = nullptr) { SetTarget(target); }
+        ~AbstractFollower() { SetTarget(nullptr); }
 
+        void SetTarget(Unit* unit);
+        Unit* GetTarget() const { return _target; }
+
+    private:
+        Unit* _target = nullptr;
 };
+
 #endif

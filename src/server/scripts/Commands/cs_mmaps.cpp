@@ -35,7 +35,6 @@
 #include "Player.h"
 #include "PointMovementGenerator.h"
 #include "RBAC.h"
-#include "TargetedMovementGenerator.h"
 #include "WorldSession.h"
 
 class mmaps_commandscript : public CommandScript
