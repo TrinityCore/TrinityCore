@@ -2379,6 +2379,48 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     targetUnit->SetHealth(targetUnit->CountPctFromMaxHealth(e.action.setHealthPct.percent));
             break;
         }
+        case SMART_ACTION_SET_IMMUNE_PC:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsUnit(target))
+                {
+                    if (e.action.setImmunePC.immunePC)
+                        target->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    else
+                        target->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_SET_IMMUNE_NPC:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsUnit(target))
+                {
+                    if (e.action.setImmuneNPC.immuneNPC)
+                        target->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    else
+                        target->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_SET_UNINTERACTIBLE:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsUnit(target))
+                {
+                    if (e.action.setUninteractible.uninteractible)
+                        target->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    else
+                        target->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                }
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
