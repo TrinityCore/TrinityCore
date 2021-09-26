@@ -472,7 +472,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
     {
         AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
-        AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
+        AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
     }
 
     AddUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
@@ -2553,7 +2553,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
         UNIT_FLAG_STUNNED        | UNIT_FLAG_IN_COMBAT    | UNIT_FLAG_DISARMED         |
         UNIT_FLAG_CONFUSED       | UNIT_FLAG_FLEEING      | UNIT_FLAG_NOT_SELECTABLE   |
         UNIT_FLAG_SKINNABLE      | UNIT_FLAG_MOUNT        | UNIT_FLAG_TAXI_FLIGHT      ));
-    AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);   // must be set
+    AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);   // must be set
 
     AddUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);// must be set
 

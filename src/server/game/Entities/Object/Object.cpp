@@ -2487,9 +2487,9 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
 
     Unit const* unit = ToUnit();
     Unit const* targetUnit = target->ToUnit();
-    if (unit && unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+    if (unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
     {
-        if (targetUnit && targetUnit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+        if (targetUnit && targetUnit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
         {
             if (selfPlayerOwner && targetPlayerOwner)
             {
@@ -2724,24 +2724,24 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     // ignore immunity flags when assisting
     if (!bySpell || (isPositiveSpell && !bySpell->HasAttribute(SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG)))
     {
-        if (unit && !unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && unitTarget && unitTarget->IsImmuneToNPC())
+        if (unit && !unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget && unitTarget->IsImmuneToNPC())
             return false;
 
-        if (unitTarget && !unitTarget->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && unit && unit->IsImmuneToNPC())
+        if (unitTarget && !unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && unit && unit->IsImmuneToNPC())
             return false;
 
         if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG))
         {
-            if (unit && unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && unitTarget && unitTarget->IsImmuneToPC())
+            if (unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget && unitTarget->IsImmuneToPC())
                 return false;
 
-            if (unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && unit && unit->IsImmuneToPC())
+            if (unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && unit && unit->IsImmuneToPC())
                 return false;
         }
     }
 
     // CvC case - can attack each other only when one of them is hostile
-    if (unit && !unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && unitTarget && !unitTarget->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+    if (unit && !unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget && !unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
         return IsHostileTo(target) || target->IsHostileTo(this);
 
     // PvP, PvC, CvP case
@@ -2749,8 +2749,8 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (IsFriendlyTo(target) || target->IsFriendlyTo(this))
         return false;
 
-    Player const* playerAffectingAttacker = unit && unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) ? GetAffectingPlayer() : nullptr;
-    Player const* playerAffectingTarget = unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) ? target->GetAffectingPlayer() : nullptr;
+    Player const* playerAffectingAttacker = unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : nullptr;
+    Player const* playerAffectingTarget = unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? target->GetAffectingPlayer() : nullptr;
 
     // Not all neutral creatures can be attacked (even some unfriendly faction does not react aggresive to you, like Sporaggar)
     if ((playerAffectingAttacker && !playerAffectingTarget) || (!playerAffectingAttacker && playerAffectingTarget))
@@ -2784,7 +2784,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
 
     // PvP case - can't attack when attacker or target are in sanctuary
     // however, 13850 client doesn't allow to attack when one of the unit's has sanctuary flag and is pvp
-    if (unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && unit && unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && (unitTarget->IsInSanctuary() || unit->IsInSanctuary()))
+    if (unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && (unitTarget->IsInSanctuary() || unit->IsInSanctuary()))
         return false;
 
     // additional checks - only PvP case
@@ -2853,7 +2853,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
 
     if (isNegativeSpell || !bySpell || !bySpell->HasAttribute(SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG))
     {
-        if (unit && unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+        if (unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
         {
             if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG))
                 if (unitTarget && unitTarget->IsImmuneToPC())
@@ -2871,10 +2871,10 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
         return false;
 
     // PvP case
-    if (unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+    if (unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
     {
         Player const* targetPlayerOwner = target->GetAffectingPlayer();
-        if (unit && unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+        if (unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
         {
             Player const* selfPlayerOwner = GetAffectingPlayer();
             if (selfPlayerOwner && targetPlayerOwner)
@@ -2895,7 +2895,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     }
     // PvC case - player can assist creature only if has specific type flags
     // !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) &&
-    else if (unit && unit->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+    else if (unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
     {
         if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG))
             if (unitTarget && !unitTarget->IsPvP())

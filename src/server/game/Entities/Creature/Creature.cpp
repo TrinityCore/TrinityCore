@@ -1984,8 +1984,8 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         return false;
 
     // This set of checks is should be done only for creatures
-    if ((IsImmuneToNPC() && !who->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
-        || (IsImmuneToPC() && who->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE)))
+    if ((IsImmuneToNPC() && !who->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+        || (IsImmuneToPC() && who->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)))
         return false;
 
     // Do not attack non-combat pets
