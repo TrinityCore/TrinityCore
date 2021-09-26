@@ -8064,10 +8064,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
 
         if (creature->HasUnitTypeMask(UNIT_MASK_MINION) && !creature->IsInCombat())
         {
-            MovementGenerator* top = creature->GetMotionMaster()->topOrNull();
-            if (top && top->GetMovementGeneratorType() == FOLLOW_MOTION_TYPE)
+            if (GetMotionMaster()->GetCurrentMovementGeneratorType() == FOLLOW_MOTION_TYPE)
             {
-                Unit* followed = ASSERT_NOTNULL(dynamic_cast<AbstractFollower*>(top))->GetTarget();
+                Unit* followed = ASSERT_NOTNULL(dynamic_cast<AbstractFollower*>(GetMotionMaster()->top()))->GetTarget();
                 if (followed && followed->GetGUID() == GetOwnerGUID() && !followed->IsInCombat())
                 {
                     float ownerSpeed = followed->GetSpeedRate(mtype);
@@ -9763,6 +9762,11 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
 void Unit::PropagateSpeedChange()
 {
     GetMotionMaster()->PropagateSpeedChange();
+}
+
+MovementGeneratorType Unit::GetDefaultMovementType() const
+{
+    return IDLE_MOTION_TYPE;
 }
 
 void Unit::StopMoving()

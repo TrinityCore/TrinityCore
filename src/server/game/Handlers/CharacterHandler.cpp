@@ -828,6 +828,13 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 return;
             }
 
+            // Check name uniqueness in the same step as saving to database
+            if (sCharacterCache->GetCharacterCacheByName(createInfo->Name))
+            {
+                SendCharCreate(CHAR_CREATE_NAME_IN_USE);
+                return;
+            }
+
             std::shared_ptr<Player> newChar(new Player(this), [](Player* ptr)
             {
                 ptr->CleanupsBeforeDelete();

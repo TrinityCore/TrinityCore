@@ -24,10 +24,9 @@ template <class T>
 class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGenerator<T> >
 {
     public:
-        explicit HomeMovementGenerator() : _path(nullptr), _arrived(false), _skipToHome(false) { }
-        ~HomeMovementGenerator();
+        explicit HomeMovementGenerator() : _arrived(false), _skipToHome(false) { }
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -37,7 +36,6 @@ class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGen
     private:
         void SetTargetLocation(T*);
 
-        PathGenerator* _path;
         bool _arrived;
         bool _skipToHome;
 };

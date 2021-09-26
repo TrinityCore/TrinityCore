@@ -20,6 +20,7 @@
 #include "CreatureAI.h"
 #include "Log.h"
 #include "Map.h"
+#include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
@@ -37,9 +38,9 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& pat
     _path = &path;
 }
 
-WaypointMovementGenerator<Creature>::~WaypointMovementGenerator()
+MovementGeneratorType WaypointMovementGenerator<Creature>::GetMovementGeneratorType() const
 {
-    _path = nullptr;
+    return WAYPOINT_MOTION_TYPE;
 }
 
 void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
@@ -261,7 +262,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
         // check if there is a wait time for the next movement
         if (!_nextMoveTime.Passed())
         {
-            // dont update wait timer while moving
+            // update timer since it's not moving
             _nextMoveTime.Update(diff);
             if (_nextMoveTime.Passed())
             {
@@ -272,7 +273,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
         else // if it's not moving and there is no timer, assume node is reached
         {
             OnArrived(creature); // hooks and wait timer reset (if necessary)
-            _isArrivalDone = true; // signals that the next move will happen after reaching a node
+            _isArrivalDone = true; // signals to future StartMove that it reached a node
 
             if (_nextMoveTime.Passed())
                 StartMove(creature); // check path status, get next point and move if necessary & can

@@ -452,12 +452,8 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
 
 void Quest::InitializeQueryData()
 {
-    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-    {
-        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
-        QueryData[loc] = queryTemp;
-    }
+        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
 }
 
 WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
@@ -597,7 +593,8 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.AreaGroupID = GetAreaGroupID();
     response.Info.TimeAllowed = GetLimitTime();
 
-    return *response.Write();
+    response.Write();
+    return response.Move();
 }
 
 uint32 Quest::RoundXPValue(uint32 xp)
