@@ -19,7 +19,9 @@
 #define TRINITY_POINTMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
+#include "Position.h"
 
 class Creature;
 namespace Movement
@@ -33,7 +35,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
     public:
         explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr, Optional<float> finalOrient = {}) : _movementId(id), _destination(x, y, z), _speed(speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false), _finalOrient(finalOrient) { }
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -60,9 +62,9 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
-        AssistanceMovementGenerator(float x, float y, float z) : PointMovementGenerator<Creature>(0, x, y, z, true) { }
+        explicit AssistanceMovementGenerator(float x, float y, float z) : PointMovementGenerator<Creature>(0, x, y, z, true) { }
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
         void Finalize(Unit*) override;
 };
 
@@ -75,7 +77,7 @@ class EffectMovementGenerator : public MovementGenerator
         void Finalize(Unit*) override;
         void Reset(Unit*) override { }
         bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
         void MovementInform(Unit*);

@@ -30,7 +30,8 @@
 #include <array>
 #include <map>
 
-#define WORLD_TRIGGER   12999
+#define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs
+#define WORLD_TRIGGER 12999
 #define ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE 197886
 #define SPELL_DH_DOUBLE_JUMP 196055
 #define DISPLAYID_HIDDEN_MOUNT 73200
@@ -96,6 +97,7 @@ class VehicleJoinEvent;
 
 enum class PetActionFeedback : uint8;
 enum ZLiquidStatus : uint32;
+enum MovementGeneratorType : uint8;
 
 namespace Movement
 {
@@ -1690,6 +1692,7 @@ class TC_GAME_API Unit : public WorldObject
 
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
         MotionMaster const* GetMotionMaster() const { return i_motionMaster; }
+        virtual MovementGeneratorType GetDefaultMovementType() const;
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
         void StopMoving();

@@ -18,8 +18,14 @@
 #include "FormationMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "MovementDefines.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+
+MovementGeneratorType FormationMovementGenerator::GetMovementGeneratorType() const
+{
+    return FORMATION_MOTION_TYPE;
+}
 
 void FormationMovementGenerator::DoInitialize(Creature* owner)
 {

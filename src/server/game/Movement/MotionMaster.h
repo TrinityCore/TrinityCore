@@ -19,11 +19,8 @@
 #define MOTIONMASTER_H
 
 #include "Common.h"
-#include "Errors.h"
-#include "ObjectDefines.h"
-#include "ObjectGuid.h"
 #include "Optional.h"
-#include "Position.h"
+#include "MovementDefines.h"
 #include "SharedDefines.h"
 #include <vector>
 
@@ -35,104 +32,15 @@ struct SplineChainLink;
 struct SplineChainResumeInfo;
 struct WaypointPath;
 
-namespace G3D
-{
-    class Vector3;
-}
 namespace Movement
 {
     struct SpellEffectExtraData;
 }
 
-// Creature Entry ID used for waypoints show, visible only for GMs
-#define VISUAL_WAYPOINT 1
-// assume it is 25 yard per 0.6 second
-#define SPEED_CHARGE    42.0f
-
-enum MovementGeneratorType : uint8
-{
-    IDLE_MOTION_TYPE                = 0,                  // IdleMovementGenerator.h
-    RANDOM_MOTION_TYPE              = 1,                  // RandomMovementGenerator.h
-    WAYPOINT_MOTION_TYPE            = 2,                  // WaypointMovementGenerator.h
-    MAX_DB_MOTION_TYPE              = 3,                  // Below motion types can't be set in DB.
-    CONFUSED_MOTION_TYPE            = 4,                  // ConfusedMovementGenerator.h
-    CHASE_MOTION_TYPE               = 5,                  // TargetedMovementGenerator.h
-    HOME_MOTION_TYPE                = 6,                  // HomeMovementGenerator.h
-    FLIGHT_MOTION_TYPE              = 7,                  // WaypointMovementGenerator.h
-    POINT_MOTION_TYPE               = 8,                  // PointMovementGenerator.h
-    FLEEING_MOTION_TYPE             = 9,                  // FleeingMovementGenerator.h
-    DISTRACT_MOTION_TYPE            = 10,                 // IdleMovementGenerator.h
-    ASSISTANCE_MOTION_TYPE          = 11,                 // PointMovementGenerator.h
-    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                 // IdleMovementGenerator.h
-    TIMED_FLEEING_MOTION_TYPE       = 13,                 // FleeingMovementGenerator.h
-    FOLLOW_MOTION_TYPE              = 14,
-    ROTATE_MOTION_TYPE              = 15,
-    EFFECT_MOTION_TYPE              = 16,
-    SPLINE_CHAIN_MOTION_TYPE        = 17,                 // SplineChainMovementGenerator.h
-    FORMATION_MOTION_TYPE           = 18,                 // FormationMovementGenerator.h
-    MAX_MOTION_TYPE                                       // limit
-};
-
-enum MovementSlot : uint8
-{
-    MOTION_SLOT_IDLE = 0,
-    MOTION_SLOT_ACTIVE,
-    MOTION_SLOT_CONTROLLED,
-    MAX_MOTION_SLOT
-};
-
-enum MMCleanFlag
-{
-    MMCF_NONE   = 0,
-    MMCF_UPDATE = 1, // Clear or Expire called from update
-    MMCF_RESET  = 2  // Flag if need top()->Reset()
-};
-
-enum RotateDirection
-{
-    ROTATE_DIRECTION_LEFT,
-    ROTATE_DIRECTION_RIGHT
-};
-
-struct ChaseRange
-{
-    ChaseRange(float range) : MinRange(range > CONTACT_DISTANCE ? 0 : range - CONTACT_DISTANCE), MinTolerance(range), MaxRange(range + CONTACT_DISTANCE), MaxTolerance(range) {}
-    ChaseRange(float min, float max) : MinRange(min), MinTolerance(std::min(min + CONTACT_DISTANCE, (min + max) / 2)), MaxRange(max), MaxTolerance(std::max(max - CONTACT_DISTANCE, MinTolerance)) {}
-    ChaseRange(float min, float tMin, float tMax, float max) : MinRange(min), MinTolerance(tMin), MaxRange(max), MaxTolerance(tMax) {}
-
-    // this contains info that informs how we should path!
-    float MinRange;     // we have to move if we are within this range...    (min. attack range)
-    float MinTolerance; // ...and if we are, we will move this far away
-    float MaxRange;     // we have to move if we are outside this range...   (max. attack range)
-    float MaxTolerance; // ...and if we are, we will move into this range
-};
-
-struct ChaseAngle
-{
-    ChaseAngle(float angle, float tol = M_PI_4) : RelativeAngle(Position::NormalizeOrientation(angle)), Tolerance(tol) {}
-
-    float RelativeAngle; // we want to be at this angle relative to the target (0 = front, M_PI = back)
-    float Tolerance;     // but we'll tolerate anything within +- this much
-
-    float UpperBound() const { return Position::NormalizeOrientation(RelativeAngle + Tolerance); }
-    float LowerBound() const { return Position::NormalizeOrientation(RelativeAngle - Tolerance); }
-    bool IsAngleOkay(float relAngle) const
-    {
-        float const diff = std::abs(relAngle - RelativeAngle);
-        return (std::min(diff, float(2 * M_PI) - diff) <= Tolerance);
-    }
-};
-
-struct JumpArrivalCastArgs
-{
-    uint32 SpellId;
-    ObjectGuid Target;
-};
-
 class TC_GAME_API MotionMaster
 {
     public:
-        explicit MotionMaster(Unit* unit) : _owner(unit), _top(-1), _cleanFlag(MMCF_NONE)
+        explicit MotionMaster(Unit* unit) : _owner(unit), _top(-1), _cleanFlag(MOTIONMMASTER_CLEANFLAG_NONE)
         {
             for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
             {
@@ -144,8 +52,7 @@ class TC_GAME_API MotionMaster
 
         bool empty() const { return (_top < 0); }
         int size() const { return _top + 1; }
-        MovementGenerator* topOrNull() const { return empty() ? nullptr : top(); }
-        MovementGenerator* top() const { ASSERT(!empty()); return _slot[_top]; }
+        MovementGenerator* top() const;
 
         void Initialize();
         void InitDefault();
@@ -172,10 +79,7 @@ class TC_GAME_API MotionMaster
         void MoveChase(Unit* target, float dist, float angle = 0.0f) { MoveChase(target, Optional<ChaseRange>(dist), Optional<ChaseAngle>(angle)); }
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
-        void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {})
-        {
-            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath, finalOrient);
-        }
+        void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {});
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {});
 
         /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
@@ -192,10 +96,7 @@ class TC_GAME_API MotionMaster
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
-        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr)
-        {
-            MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
-        }
+        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false);
