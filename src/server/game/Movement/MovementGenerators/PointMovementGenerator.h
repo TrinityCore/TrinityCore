@@ -19,7 +19,6 @@
 #define TRINITY_POINTMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
 
@@ -66,25 +65,6 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 
         MovementGeneratorType GetMovementGeneratorType() const override;
         void Finalize(Unit*) override;
-};
-
-class EffectMovementGenerator : public MovementGenerator
-{
-    public:
-        explicit EffectMovementGenerator(uint32 id, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty) : _pointId(id), _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
-
-        void Initialize(Unit*) override { }
-        void Finalize(Unit*) override;
-        void Reset(Unit*) override { }
-        bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() const override;
-
-    private:
-        void MovementInform(Unit*);
-
-        uint32 _pointId;
-        uint32 _arrivalSpellId;
-        ObjectGuid _arrivalSpellTargetGuid;
 };
 
 #endif

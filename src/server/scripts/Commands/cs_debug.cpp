@@ -889,6 +889,7 @@ public:
                     handler->PSendSysMessage("%s (%s, SpawnID " UI64FMTD ") is not engaged, but still has a threat list? Well, here it is:", target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
 
                 count = 0;
+                Unit* fixateVictim = mgr.GetFixateTarget();
                 for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
                     Unit* unit = ref->GetVictim();
@@ -905,17 +906,20 @@ public:
                             onlineStr = "";
                     }
                     char const* tauntStr;
-                    switch (ref->GetTauntState())
-                    {
-                        case ThreatReference::TAUNT_STATE_TAUNT:
-                            tauntStr = " [TAUNT]";
-                            break;
-                        case ThreatReference::TAUNT_STATE_DETAUNT:
-                            tauntStr = " [DETAUNT]";
-                            break;
-                        default:
-                            tauntStr = "";
-                    }
+                    if (unit == fixateVictim)
+                        tauntStr = " [FIXATE]";
+                    else
+                        switch (ref->GetTauntState())
+                        {
+                            case ThreatReference::TAUNT_STATE_TAUNT:
+                                tauntStr = " [TAUNT]";
+                                break;
+                            case ThreatReference::TAUNT_STATE_DETAUNT:
+                                tauntStr = " [DETAUNT]";
+                                break;
+                            default:
+                                tauntStr = "";
+                        }
                     handler->PSendSysMessage("   %u.   %s   (%s)  - threat %f%s%s", ++count, unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), ref->GetThreat(), tauntStr, onlineStr);
                 }
                 handler->SendSysMessage("End of threat list.");
