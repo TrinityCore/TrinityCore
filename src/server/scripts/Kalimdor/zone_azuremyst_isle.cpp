@@ -87,7 +87,7 @@ public:
 
             DoCastSelf(SPELL_IRRIDATION, true);
 
-            me->AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
+            me->AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
             me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
             me->SetHealth(me->CountPctFromMaxHealth(10));
             me->SetStandState(UNIT_STAND_STATE_SLEEP);
@@ -117,7 +117,7 @@ public:
                 _canAskForHelp = false;
                 _canUpdateEvents = true;
 
-                me->RemoveUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 _playerGUID = caster->GetGUID();

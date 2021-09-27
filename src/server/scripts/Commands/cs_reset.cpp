@@ -113,7 +113,7 @@ public:
 
         player->SetPvpFlags(UNIT_BYTE2_FLAG_PVP);
 
-        player->SetUnitFlags(UNIT_FLAG_PVP_ATTACKABLE);
+        player->SetUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED);
 
         //-1 is default value
         player->SetWatchedFactionIndex(-1);

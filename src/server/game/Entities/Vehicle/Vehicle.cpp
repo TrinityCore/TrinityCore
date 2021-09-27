@@ -22,6 +22,7 @@
 #include "DB2Stores.h"
 #include "EventProcessor.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -846,7 +847,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     init.MoveTo(veSeat->AttachmentOffset.X, veSeat->AttachmentOffset.Y, veSeat->AttachmentOffset.Z, false, true);
     init.SetFacing(0.0f);
     init.SetTransportEnter();
-    init.Launch();
+    Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_SLOT_CONTROLLED);
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
