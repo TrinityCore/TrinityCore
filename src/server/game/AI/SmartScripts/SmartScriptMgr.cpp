@@ -1465,6 +1465,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_FRIENDLY_HEALTH:
             case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_IS_BEHIND_TARGET:
+            case SMART_EVENT_TARGET_MANA_PCT:
                 TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated event_type(%u), Entry %d SourceType %u Event %u Action %u, it might be removed in the future, loaded for now.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 break;
             default:
@@ -2223,6 +2224,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         // Deprecated
         case SMART_ACTION_SET_UNIT_FLAG:
         case SMART_ACTION_REMOVE_UNIT_FLAG:
+        case SMART_ACTION_ADD_ITEM:
+        case SMART_ACTION_ADD_DYNAMIC_FLAG:
+        case SMART_ACTION_REMOVE_DYNAMIC_FLAG:
             TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated action_type(%u), Entry %d SourceType %u Event %u, it might be removed in the future, loaded for now.", e.GetActionType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
             break;
         default:
