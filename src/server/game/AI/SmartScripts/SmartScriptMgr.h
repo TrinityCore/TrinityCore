@@ -1236,6 +1236,21 @@ struct SmartAction
 
         struct
         {
+            SAIBool immunePC;
+        } setImmunePC;
+
+        struct
+        {
+            SAIBool immuneNPC;
+        } setImmuneNPC;
+
+        struct
+        {
+            SAIBool uninteractible;
+        } setUninteractible;
+
+        struct
+        {
             uint32 id;
         } conversation;
 
