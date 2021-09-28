@@ -220,22 +220,6 @@ public:
 
         return true;
     }
-
-    static bool HandleGMOnCommand(ChatHandler* handler)
-    {
-        handler->GetPlayer()->SetGameMaster(true);
-        handler->GetPlayer()->UpdateTriggerVisibility();
-        handler->GetSession()->SendNotification(LANG_GM_ON);
-        return true;
-    }
-
-    static bool HandleGMOffCommand(ChatHandler* handler)
-    {
-        handler->GetPlayer()->SetGameMaster(false);
-        handler->GetPlayer()->UpdateTriggerVisibility();
-        handler->GetSession()->SendNotification(LANG_GM_OFF);
-        return true;
-    }
 };
 
 void AddSC_gm_commandscript()
