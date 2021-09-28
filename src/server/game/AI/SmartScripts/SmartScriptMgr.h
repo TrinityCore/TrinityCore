@@ -599,8 +599,11 @@ enum SMART_ACTION
     SMART_ACTION_SET_HOVER                          = 141,    // 0/1
     SMART_ACTION_SET_HEALTH_PCT                     = 142,    // percent
     SMART_ACTION_CREATE_CONVERSATION                = 143,    // don't use on 3.3.5a
+    SMART_ACTION_SET_IMMUNE_PC                      = 144,    // 0/1
+    SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
+    SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
 
-    SMART_ACTION_END                                = 144
+    SMART_ACTION_END                                = 147
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1196,6 +1199,21 @@ struct SmartAction
         {
             uint32 percent;
         } setHealthPct;
+
+        struct
+        {
+            SAIBool immunePC;
+        } setImmunePC;
+
+        struct
+        {
+            SAIBool immuneNPC;
+        } setImmuneNPC;
+
+        struct
+        {
+            SAIBool uninteractible;
+        } setUninteractible;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

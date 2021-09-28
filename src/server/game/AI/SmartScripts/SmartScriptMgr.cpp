@@ -956,6 +956,9 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SET_HOVER: return sizeof(SmartAction::setHover);
             case SMART_ACTION_SET_HEALTH_PCT: return sizeof(SmartAction::setHealthPct);
             //case SMART_ACTION_CREATE_CONVERSATION: return sizeof(SmartAction::raw);
+            case SMART_ACTION_SET_IMMUNE_PC: return sizeof(SmartAction::setImmunePC);
+            case SMART_ACTION_SET_IMMUNE_NPC: return sizeof(SmartAction::setImmuneNPC);
+            case SMART_ACTION_SET_UNINTERACTIBLE: return sizeof(SmartAction::setUninteractible);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1462,6 +1465,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_FRIENDLY_HEALTH:
             case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_IS_BEHIND_TARGET:
+            case SMART_EVENT_TARGET_MANA_PCT:
                 TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated event_type(%u), Entry %d SourceType %u Event %u Action %u, it might be removed in the future, loaded for now.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 break;
             default:
@@ -2129,6 +2133,21 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.setHealthRegen.regenHealth);
             break;
         }
+        case SMART_ACTION_SET_IMMUNE_PC:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setImmunePC.immunePC);
+            break;
+        }
+        case SMART_ACTION_SET_IMMUNE_NPC:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setImmuneNPC.immuneNPC);
+            break;
+        }
+        case SMART_ACTION_SET_UNINTERACTIBLE:
+        {
+            TC_SAI_IS_BOOLEAN_VALID(e, e.action.setUninteractible.uninteractible);
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -2197,6 +2216,21 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
             return false;
+    }
+
+    // Additional check for deprecated
+    switch (e.GetActionType())
+    {
+        // Deprecated
+        case SMART_ACTION_SET_UNIT_FLAG:
+        case SMART_ACTION_REMOVE_UNIT_FLAG:
+        case SMART_ACTION_ADD_ITEM:
+        case SMART_ACTION_ADD_DYNAMIC_FLAG:
+        case SMART_ACTION_REMOVE_DYNAMIC_FLAG:
+            TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated action_type(%u), Entry %d SourceType %u Event %u, it might be removed in the future, loaded for now.", e.GetActionType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
+            break;
+        default:
+            break;
     }
 
     if (!CheckUnusedActionParams(e))
