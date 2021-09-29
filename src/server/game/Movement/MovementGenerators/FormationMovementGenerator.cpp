@@ -19,8 +19,16 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "MovementDefines.h"
-#include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
+
+FormationMovementGenerator::FormationMovementGenerator(uint32 id, Position destination, uint32 moveType, bool run, bool orientation) : _movementId(id), _destination(destination), _moveType(moveType), _run(run), _orientation(orientation)
+{
+    Mode = MOTION_MODE_DEFAULT;
+    Priority = MOTION_PRIORITY_NORMAL;
+    Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
+    BaseUnitState = UNIT_STATE_ROAMING;
+}
 
 MovementGeneratorType FormationMovementGenerator::GetMovementGeneratorType() const
 {
@@ -29,11 +37,12 @@ MovementGeneratorType FormationMovementGenerator::GetMovementGeneratorType() con
 
 void FormationMovementGenerator::DoInitialize(Creature* owner)
 {
-    owner->AddUnitState(UNIT_STATE_ROAMING);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
-        _interrupt = true;
+        AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
         return;
     }
@@ -67,6 +76,13 @@ void FormationMovementGenerator::DoInitialize(Creature* owner)
     init.Launch();
 }
 
+void FormationMovementGenerator::DoReset(Creature* owner)
+{
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+
+    DoInitialize(owner);
+}
+
 bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 /*diff*/)
 {
     if (!owner)
@@ -74,15 +90,14 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 /*diff*/)
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
-        _interrupt = true;
+        AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
         return true;
     }
 
-    if ((_interrupt && owner->movespline->Finalized()) || (_recalculateSpeed && !owner->movespline->Finalized()))
+    if ((HasFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED) && owner->movespline->Finalized()) || (HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()))
     {
-        _recalculateSpeed = false;
-        _interrupt = false;
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED | MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING);
 
         owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
@@ -112,21 +127,29 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 /*diff*/)
         init.Launch();
     }
 
-    return !owner->movespline->Finalized();
-}
-
-void FormationMovementGenerator::DoFinalize(Creature* owner)
-{
-    owner->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
-
     if (owner->movespline->Finalized())
-        MovementInform(owner);
+    {
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
+        AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+        return false;
+    }
+    return true;
 }
 
-void FormationMovementGenerator::DoReset(Creature* owner)
+void FormationMovementGenerator::DoDeactivate(Creature* owner)
 {
-    owner->StopMoving();
-    DoInitialize(owner);
+    AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+}
+
+void FormationMovementGenerator::DoFinalize(Creature* owner, bool active, bool movementInform)
+{
+    AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
+    if (active)
+        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+
+    if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
+        MovementInform(owner);
 }
 
 void FormationMovementGenerator::MovementInform(Creature* owner)

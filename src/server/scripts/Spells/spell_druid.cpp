@@ -69,6 +69,7 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
     SPELL_DRUID_GORE_PROC                      = 93622,
+    SPELL_DRUID_GROWL                          = 6795,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
     SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE = 102543,
@@ -118,6 +119,7 @@ class spell_dru_base_transformer : public SpellScript
 {
     PrepareSpellScript(spell_dru_base_transformer);
 
+protected:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ GetShapeshiftFormSpell() });
@@ -135,7 +137,6 @@ class spell_dru_base_transformer : public SpellScript
         BeforeCast += SpellCastFn(spell_dru_base_transformer::HandleOnCast);
     }
 
-protected:
     virtual bool ToCatForm() const = 0;
 
     ShapeshiftForm GetShapeshiftForm() const { return ToCatForm() ? FORM_CAT_FORM : FORM_BEAR_FORM; }
@@ -165,9 +166,32 @@ class spell_dru_barkskin : public AuraScript
     }
 };
 
-// 77758 - Berserk
+// 50334 - Berserk
 class spell_dru_berserk : public spell_dru_base_transformer
 {
+    PrepareSpellScript(spell_dru_berserk);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        if (!spell_dru_base_transformer::Validate(spellInfo))
+            return false;
+
+        return ValidateSpellInfo({ SPELL_DRUID_MANGLE, SPELL_DRUID_THRASH_BEAR, SPELL_DRUID_GROWL });
+    }
+
+    void ResetCooldowns()
+    {
+        GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_DRUID_MANGLE);
+        GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_DRUID_THRASH_BEAR);
+        GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_DRUID_GROWL);
+    }
+
+    void Register() override
+    {
+        spell_dru_base_transformer::Register();
+        AfterCast += SpellCastFn(spell_dru_berserk::ResetCooldowns);
+    }
+
 protected:
     bool ToCatForm() const override { return false; }
 };

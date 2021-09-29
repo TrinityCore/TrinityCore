@@ -34,10 +34,11 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
         explicit FollowMovementGenerator(Unit* target, float range, ChaseAngle angle);
         ~FollowMovementGenerator();
 
-        void Initialize(Unit* owner) override;
-        void Reset(Unit* owner) override { Initialize(owner); }
-        bool Update(Unit* owner, uint32 diff) override;
-        void Finalize(Unit* owner) override;
+        void Initialize(Unit*) override;
+        void Reset(Unit*) override;
+        bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
         void UnitSpeedChanged() override { _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f); }

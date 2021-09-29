@@ -256,7 +256,7 @@ class npc_vrykul_skeleton : public CreatureScript
                 events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -273,7 +273,7 @@ class npc_vrykul_skeleton : public CreatureScript
                         events.Reset();
                         events.ScheduleEvent(EVENT_RESURRECT, urand(18, 22) * IN_MILLISECONDS);
 
-                        me->GetMotionMaster()->MovementExpired(false);
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveIdle();
                     }
                 }

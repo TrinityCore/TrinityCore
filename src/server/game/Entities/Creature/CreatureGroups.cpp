@@ -268,7 +268,7 @@ void CreatureGroup::FormationReset(bool dismiss)
                 pair.first->GetMotionMaster()->Initialize();
             else
                 pair.first->GetMotionMaster()->MoveIdle();
-            TC_LOG_DEBUG("entities.unit", "Set %s movement for member: %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set %s movement for member %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
         }
     }
 
@@ -316,16 +316,16 @@ void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/,
         if (!member->IsFlying())
             member->UpdateGroundPositionZ(dx, dy, dz);
 
-        Position point(dx, dy, dz, destination.GetOrientation());
-
-        member->GetMotionMaster()->MoveFormation(id, point, moveType, !member->IsWithinDist(_leader, dist + MAX_DESYNC), orientation);
         member->SetHomePosition(dx, dy, dz, pathangle);
+
+        Position point(dx, dy, dz, destination.GetOrientation());
+        member->GetMotionMaster()->MoveFormation(id, point, moveType, !member->IsWithinDist(_leader, dist + MAX_DESYNC), orientation);
     }
 }
 
 bool CreatureGroup::CanLeaderStartMoving() const
 {
-    for (auto const& pair : _members)
+    for (std::unordered_map<Creature*, FormationInfo*>::value_type const& pair : _members)
     {
         if (pair.first != _leader && pair.first->IsAlive())
         {

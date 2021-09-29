@@ -130,7 +130,7 @@ void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathN
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    GetPlayer()->GetMotionMaster()->Clear(MOTION_SLOT_CONTROLLED);
+    GetPlayer()->GetMotionMaster()->Remove(FLIGHT_MOTION_TYPE);
 
     if (mountDisplayId)
         GetPlayer()->Mount(mountDisplayId);
@@ -231,11 +231,10 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
 
 void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /*taxiRequestEarlyLanding*/)
 {
-    if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+    if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator()))
     {
         if (GetPlayer()->m_taxi.RequestEarlyLanding())
         {
-            FlightPathMovementGenerator* flight = static_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->top());
             flight->LoadPath(GetPlayer(), flight->GetPath()[flight->GetCurrentNode()]->NodeIndex);
             flight->Reset(GetPlayer());
         }

@@ -29,19 +29,23 @@ namespace Movement
 }
 
 template<class T>
-class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
+class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGenerator<T>>
 {
     public:
-        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr, Optional<float> finalOrient = {}) : _movementId(id), _destination(x, y, z), _speed(speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false), _finalOrient(finalOrient) { }
+        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Optional<float> finalOrient = {},
+            Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(T*);
-        void DoFinalize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*);
+        void DoFinalize(T*, bool, bool);
 
-        void UnitSpeedChanged() override { _recalculateSpeed = true; }
+        void UnitSpeedChanged() override { PointMovementGenerator<T>::AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
+
+        uint32 GetId() const { return _movementId; }
 
     private:
         void MovementInform(T*);
@@ -49,22 +53,20 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         uint32 _movementId;
         Position _destination;
         float _speed;
-        Unit const* i_faceTarget;
-        Movement::SpellEffectExtraData const* i_spellEffectExtra;
         bool _generatePath;
-        bool _recalculateSpeed;
-        bool _interrupt;
         //! if set then unit will turn to specified _orient in provided _pos
         Optional<float> _finalOrient;
+        Unit const* i_faceTarget;
+        Movement::SpellEffectExtraData const* i_spellEffectExtra;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
-        explicit AssistanceMovementGenerator(float x, float y, float z) : PointMovementGenerator<Creature>(0, x, y, z, true) { }
+        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z) : PointMovementGenerator<Creature>(id, x, y, z, true) { }
 
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
-        void Finalize(Unit*) override;
 };
 
 #endif
