@@ -1038,6 +1038,32 @@ class spell_deathwhisper_vampiric_might : public AuraScript
     }
 };
 
+// 69483 - Dark Reckoning
+class spell_deathwhisper_dark_reckoning : public AuraScript
+{
+    PrepareAuraScript(spell_deathwhisper_dark_reckoning);
+
+    bool Validate(SpellInfo const* spell) override
+    {
+        return ValidateSpellInfo({ spell->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+        {
+            uint32 spellId = GetSpellInfo()->GetEffect(EFFECT_0).TriggerSpell;
+            caster->CastSpell(GetTarget(), spellId, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathwhisper_dark_reckoning::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 class at_lady_deathwhisper_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
@@ -1068,6 +1094,7 @@ void AddSC_boss_lady_deathwhisper()
     RegisterSpellScript(spell_deathwhisper_dominated_mind);
     RegisterSpellScript(spell_deathwhisper_summon_spirits);
     RegisterSpellScript(spell_deathwhisper_vampiric_might);
+    RegisterSpellScript(spell_deathwhisper_dark_reckoning);
 
     // AreaTriggers
     new at_lady_deathwhisper_entrance();
