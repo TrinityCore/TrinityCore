@@ -22,6 +22,8 @@
 #include "DatabaseEnvFwd.h"
 #include <unordered_map>
 
+struct BattlePetSpeciesEntry;
+
 enum BattlePetMisc
 {
     MAX_PET_BATTLE_SLOTS                = 3,
