@@ -73,6 +73,7 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   enum TypeCase {
     kUserOptions = 10,
     kClubOptions = 11,
+    kEntityOptions = 20,
     TYPE_NOT_SET = 0,
   };
 
@@ -127,13 +128,6 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   inline ::std::string* release_user_description();
   inline void set_allocated_user_description(::std::string* user_description);
 
-  // optional uint32 program = 3;
-  inline bool has_program() const;
-  inline void clear_program();
-  static const int kProgramFieldNumber = 3;
-  inline ::google::protobuf::uint32 program() const;
-  inline void set_program(::google::protobuf::uint32 value);
-
   // optional .bgs.protocol.report.v2.UserOptions user_options = 10;
   inline bool has_user_options() const;
   inline void clear_user_options();
@@ -152,6 +146,15 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::report::v2::ClubOptions* release_club_options();
   inline void set_allocated_club_options(::bgs::protocol::report::v2::ClubOptions* club_options);
 
+  // optional .bgs.protocol.report.v2.EntityOptions entity_options = 20;
+  inline bool has_entity_options() const;
+  inline void clear_entity_options();
+  static const int kEntityOptionsFieldNumber = 20;
+  inline const ::bgs::protocol::report::v2::EntityOptions& entity_options() const;
+  inline ::bgs::protocol::report::v2::EntityOptions* mutable_entity_options();
+  inline ::bgs::protocol::report::v2::EntityOptions* release_entity_options();
+  inline void set_allocated_entity_options(::bgs::protocol::report::v2::EntityOptions* entity_options);
+
   inline TypeCase type_case() const;
   // @@protoc_insertion_point(class_scope:bgs.protocol.report.v2.SubmitReportRequest)
  private:
@@ -159,10 +162,9 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   inline void clear_has_agent_id();
   inline void set_has_user_description();
   inline void clear_has_user_description();
-  inline void set_has_program();
-  inline void clear_has_program();
   inline void set_has_user_options();
   inline void set_has_club_options();
+  inline void set_has_entity_options();
 
   inline bool has_type();
   void clear_type();
@@ -174,10 +176,10 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* agent_id_;
   ::std::string* user_description_;
-  ::google::protobuf::uint32 program_;
   union TypeUnion {
     ::bgs::protocol::report::v2::UserOptions* user_options_;
     ::bgs::protocol::report::v2::ClubOptions* club_options_;
+    ::bgs::protocol::report::v2::EntityOptions* entity_options_;
   } type_;
   ::google::protobuf::uint32 _oneof_case_[1];
 
@@ -338,30 +340,6 @@ inline void SubmitReportRequest::set_allocated_user_description(::std::string* u
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v2.SubmitReportRequest.user_description)
 }
 
-// optional uint32 program = 3;
-inline bool SubmitReportRequest::has_program() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void SubmitReportRequest::set_has_program() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void SubmitReportRequest::clear_has_program() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void SubmitReportRequest::clear_program() {
-  program_ = 0u;
-  clear_has_program();
-}
-inline ::google::protobuf::uint32 SubmitReportRequest::program() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.report.v2.SubmitReportRequest.program)
-  return program_;
-}
-inline void SubmitReportRequest::set_program(::google::protobuf::uint32 value) {
-  set_has_program();
-  program_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.report.v2.SubmitReportRequest.program)
-}
-
 // optional .bgs.protocol.report.v2.UserOptions user_options = 10;
 inline bool SubmitReportRequest::has_user_options() const {
   return type_case() == kUserOptions;
@@ -445,6 +423,49 @@ inline void SubmitReportRequest::set_allocated_club_options(::bgs::protocol::rep
   if (club_options) {
     set_has_club_options();
     type_.club_options_ = club_options;
+  }
+}
+
+// optional .bgs.protocol.report.v2.EntityOptions entity_options = 20;
+inline bool SubmitReportRequest::has_entity_options() const {
+  return type_case() == kEntityOptions;
+}
+inline void SubmitReportRequest::set_has_entity_options() {
+  _oneof_case_[0] = kEntityOptions;
+}
+inline void SubmitReportRequest::clear_entity_options() {
+  if (has_entity_options()) {
+    delete type_.entity_options_;
+    clear_has_type();
+  }
+}
+inline const ::bgs::protocol::report::v2::EntityOptions& SubmitReportRequest::entity_options() const {
+  return has_entity_options() ? *type_.entity_options_
+                      : ::bgs::protocol::report::v2::EntityOptions::default_instance();
+}
+inline ::bgs::protocol::report::v2::EntityOptions* SubmitReportRequest::mutable_entity_options() {
+  if (!has_entity_options()) {
+    clear_type();
+    set_has_entity_options();
+    type_.entity_options_ = new ::bgs::protocol::report::v2::EntityOptions;
+  }
+  return type_.entity_options_;
+}
+inline ::bgs::protocol::report::v2::EntityOptions* SubmitReportRequest::release_entity_options() {
+  if (has_entity_options()) {
+    clear_has_type();
+    ::bgs::protocol::report::v2::EntityOptions* temp = type_.entity_options_;
+    type_.entity_options_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void SubmitReportRequest::set_allocated_entity_options(::bgs::protocol::report::v2::EntityOptions* entity_options) {
+  clear_type();
+  if (entity_options) {
+    set_has_entity_options();
+    type_.entity_options_ = entity_options;
   }
 }
 

@@ -148,7 +148,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ModuleMessageRequest));
   LogonRequest_descriptor_ = file->message_type(3);
-  static const int LogonRequest_offsets_[11] = {
+  static const int LogonRequest_offsets_[12] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, program_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, platform_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, locale_),
@@ -160,6 +160,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, cached_web_credentials_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, user_agent_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, device_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, phone_number_),
   };
   LogonRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -556,106 +557,107 @@ void protobuf_AddDesc_authentication_5fservice_2eproto() {
     "rotocol.ContentHandle\022\017\n\007message\030\002 \001(\014\"7"
     "\n\022ModuleNotification\022\021\n\tmodule_id\030\002 \001(\005\022"
     "\016\n\006result\030\003 \001(\r\":\n\024ModuleMessageRequest\022"
-    "\021\n\tmodule_id\030\001 \002(\005\022\017\n\007message\030\002 \001(\014\"\216\002\n\014"
+    "\021\n\tmodule_id\030\001 \002(\005\022\017\n\007message\030\002 \001(\014\"\264\002\n\014"
     "LogonRequest\022\017\n\007program\030\001 \001(\t\022\020\n\010platfor"
-    "m\030\002 \001(\t\022\016\n\006locale\030\003 \001(\t\022\r\n\005email\030\004 \001(\t\022\017"
-    "\n\007version\030\005 \001(\t\022\033\n\023application_version\030\006"
-    " \001(\005\022\027\n\017public_computer\030\007 \001(\010\022.\n\037allow_l"
-    "ogon_queue_notifications\030\n \001(\010:\005false\022\036\n"
-    "\026cached_web_credentials\030\014 \001(\014\022\022\n\nuser_ag"
-    "ent\030\016 \001(\t\022\021\n\tdevice_id\030\017 \001(\t\"\255\002\n\013LogonRe"
-    "sult\022\022\n\nerror_code\030\001 \002(\r\022*\n\naccount_id\030\002"
-    " \001(\0132\026.bgs.protocol.EntityId\022/\n\017game_acc"
-    "ount_id\030\003 \003(\0132\026.bgs.protocol.EntityId\022\r\n"
-    "\005email\030\004 \001(\t\022\030\n\020available_region\030\005 \003(\r\022\030"
-    "\n\020connected_region\030\006 \001(\r\022\022\n\nbattle_tag\030\007"
-    " \001(\t\022\025\n\rgeoip_country\030\010 \001(\t\022\023\n\013session_k"
-    "ey\030\t \001(\014\022\027\n\017restricted_mode\030\n \001(\010\022\021\n\tcli"
-    "ent_id\030\013 \001(\t\"*\n\027GenerateSSOTokenRequest\022"
-    "\017\n\007program\030\001 \001(\007\">\n\030GenerateSSOTokenResp"
-    "onse\022\016\n\006sso_id\030\001 \001(\014\022\022\n\nsso_secret\030\002 \001(\014"
-    "\"(\n\022LogonUpdateRequest\022\022\n\nerror_code\030\001 \002"
-    "(\r\"a\n\027LogonQueueUpdateRequest\022\020\n\010positio"
-    "n\030\001 \002(\r\022\026\n\016estimated_time\030\002 \002(\004\022\034\n\024eta_d"
-    "eviation_in_sec\030\003 \002(\004\"\276\001\n\033AccountSetting"
-    "sNotification\0229\n\010licenses\030\001 \003(\0132\'.bgs.pr"
-    "otocol.account.v1.AccountLicense\022\024\n\014is_u"
-    "sing_rid\030\002 \001(\010\022\033\n\023is_playing_from_igr\030\003 "
-    "\001(\010\022\031\n\021can_receive_voice\030\004 \001(\010\022\026\n\016can_se"
-    "nd_voice\030\005 \001(\010\"=\n\030ServerStateChangeReque"
-    "st\022\r\n\005state\030\001 \002(\r\022\022\n\nevent_time\030\002 \002(\004\"T\n"
-    "\013VersionInfo\022\016\n\006number\030\001 \001(\r\022\r\n\005patch\030\002 "
-    "\001(\t\022\023\n\013is_optional\030\003 \001(\010\022\021\n\tkick_time\030\004 "
-    "\001(\004\"\\\n\027VersionInfoNotification\022A\n\014versio"
-    "n_info\030\001 \001(\0132+.bgs.protocol.authenticati"
-    "on.v1.VersionInfo\"_\n\024MemModuleLoadReques"
-    "t\022+\n\006handle\030\001 \002(\0132\033.bgs.protocol.Content"
-    "Handle\022\013\n\003key\030\002 \002(\014\022\r\n\005input\030\003 \002(\014\"%\n\025Me"
-    "mModuleLoadResponse\022\014\n\004data\030\001 \002(\014\"K\n\030Sel"
-    "ectGameAccountRequest\022/\n\017game_account_id"
-    "\030\001 \002(\0132\026.bgs.protocol.EntityId\"]\n\032GameAc"
-    "countSelectedRequest\022\016\n\006result\030\001 \002(\r\022/\n\017"
-    "game_account_id\030\002 \001(\0132\026.bgs.protocol.Ent"
-    "ityId\"0\n\035GenerateWebCredentialsRequest\022\017"
-    "\n\007program\030\001 \001(\007\"9\n\036GenerateWebCredential"
-    "sResponse\022\027\n\017web_credentials\030\001 \001(\014\"6\n\033Ve"
-    "rifyWebCredentialsRequest\022\027\n\017web_credent"
-    "ials\030\001 \001(\0142\237\t\n\026AuthenticationListener\022g\n"
-    "\014OnModuleLoad\0221.bgs.protocol.authenticat"
-    "ion.v1.ModuleLoadRequest\032\031.bgs.protocol."
-    "NO_RESPONSE\"\t\210\002\001\202\371+\002\010\001\022h\n\017OnModuleMessag"
-    "e\0224.bgs.protocol.authentication.v1.Modul"
-    "eMessageRequest\032\024.bgs.protocol.NoData\"\t\210"
-    "\002\001\202\371+\002\010\002\022r\n\023OnServerStateChange\0228.bgs.pr"
-    "otocol.authentication.v1.ServerStateChan"
-    "geRequest\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371"
-    "+\002\010\004\022a\n\017OnLogonComplete\022+.bgs.protocol.a"
-    "uthentication.v1.LogonResult\032\031.bgs.proto"
-    "col.NO_RESPONSE\"\006\202\371+\002\010\005\022\206\001\n\017OnMemModuleL"
-    "oad\0224.bgs.protocol.authentication.v1.Mem"
-    "ModuleLoadRequest\0325.bgs.protocol.authent"
-    "ication.v1.MemModuleLoadResponse\"\006\202\371+\002\010\006"
-    "\022f\n\rOnLogonUpdate\0222.bgs.protocol.authent"
-    "ication.v1.LogonUpdateRequest\032\031.bgs.prot"
-    "ocol.NO_RESPONSE\"\006\202\371+\002\010\n\022r\n\024OnVersionInf"
-    "oUpdated\0227.bgs.protocol.authentication.v"
-    "1.VersionInfoNotification\032\031.bgs.protocol"
-    ".NO_RESPONSE\"\006\202\371+\002\010\013\022p\n\022OnLogonQueueUpda"
-    "te\0227.bgs.protocol.authentication.v1.Logo"
-    "nQueueUpdateRequest\032\031.bgs.protocol.NO_RE"
-    "SPONSE\"\006\202\371+\002\010\014\022J\n\017OnLogonQueueEnd\022\024.bgs."
-    "protocol.NoData\032\031.bgs.protocol.NO_RESPON"
-    "SE\"\006\202\371+\002\010\r\022y\n\025OnGameAccountSelected\022:.bg"
-    "s.protocol.authentication.v1.GameAccount"
-    "SelectedRequest\032\031.bgs.protocol.NO_RESPON"
-    "SE\"\t\210\002\001\202\371+\002\010\016\032=\202\371+3\n1bnet.protocol.authe"
-    "ntication.AuthenticationClient\212\371+\002\010\0012\366\007\n"
-    "\025AuthenticationService\022S\n\005Logon\022,.bgs.pr"
-    "otocol.authentication.v1.LogonRequest\032\024."
-    "bgs.protocol.NoData\"\006\202\371+\002\010\001\022c\n\014ModuleNot"
-    "ify\0222.bgs.protocol.authentication.v1.Mod"
-    "uleNotification\032\024.bgs.protocol.NoData\"\t\210"
-    "\002\001\202\371+\002\010\002\022f\n\rModuleMessage\0224.bgs.protocol"
-    ".authentication.v1.ModuleMessageRequest\032"
-    "\024.bgs.protocol.NoData\"\t\210\002\001\202\371+\002\010\003\022W\n\034Sele"
-    "ctGameAccount_DEPRECATED\022\026.bgs.protocol."
-    "EntityId\032\024.bgs.protocol.NoData\"\t\210\002\001\202\371+\002\010"
-    "\004\022\215\001\n\020GenerateSSOToken\0227.bgs.protocol.au"
-    "thentication.v1.GenerateSSOTokenRequest\032"
-    "8.bgs.protocol.authentication.v1.Generat"
-    "eSSOTokenResponse\"\006\202\371+\002\010\005\022n\n\021SelectGameA"
-    "ccount\0228.bgs.protocol.authentication.v1."
-    "SelectGameAccountRequest\032\024.bgs.protocol."
-    "NoData\"\t\210\002\001\202\371+\002\010\006\022q\n\024VerifyWebCredential"
-    "s\022;.bgs.protocol.authentication.v1.Verif"
-    "yWebCredentialsRequest\032\024.bgs.protocol.No"
-    "Data\"\006\202\371+\002\010\007\022\237\001\n\026GenerateWebCredentials\022"
-    "=.bgs.protocol.authentication.v1.Generat"
-    "eWebCredentialsRequest\032>.bgs.protocol.au"
-    "thentication.v1.GenerateWebCredentialsRe"
-    "sponse\"\006\202\371+\002\010\010\032M\202\371+C\n1bnet.protocol.auth"
-    "entication.AuthenticationServer*\016authent"
-    "ication\212\371+\002\020\001B\005H\001\200\001\000", 4300);
+    "m\030\002 \001(\t\022\016\n\006locale\030\003 \001(\t\022\025\n\005email\030\004 \001(\tB\006"
+    "\202\371+\002\010\001\022\017\n\007version\030\005 \001(\t\022\033\n\023application_v"
+    "ersion\030\006 \001(\005\022\027\n\017public_computer\030\007 \001(\010\022.\n"
+    "\037allow_logon_queue_notifications\030\n \001(\010:\005"
+    "false\022\036\n\026cached_web_credentials\030\014 \001(\014\022\022\n"
+    "\nuser_agent\030\016 \001(\t\022\021\n\tdevice_id\030\017 \001(\t\022\034\n\014"
+    "phone_number\030\020 \001(\tB\006\202\371+\002\010\001\"\275\002\n\013LogonResu"
+    "lt\022\022\n\nerror_code\030\001 \002(\r\022*\n\naccount_id\030\002 \001"
+    "(\0132\026.bgs.protocol.EntityId\022/\n\017game_accou"
+    "nt_id\030\003 \003(\0132\026.bgs.protocol.EntityId\022\025\n\005e"
+    "mail\030\004 \001(\tB\006\202\371+\002\010\001\022\030\n\020available_region\030\005"
+    " \003(\r\022\030\n\020connected_region\030\006 \001(\r\022\032\n\nbattle"
+    "_tag\030\007 \001(\tB\006\202\371+\002\010\001\022\025\n\rgeoip_country\030\010 \001("
+    "\t\022\023\n\013session_key\030\t \001(\014\022\027\n\017restricted_mod"
+    "e\030\n \001(\010\022\021\n\tclient_id\030\013 \001(\t\"*\n\027GenerateSS"
+    "OTokenRequest\022\017\n\007program\030\001 \001(\007\">\n\030Genera"
+    "teSSOTokenResponse\022\016\n\006sso_id\030\001 \001(\014\022\022\n\nss"
+    "o_secret\030\002 \001(\014\"(\n\022LogonUpdateRequest\022\022\n\n"
+    "error_code\030\001 \002(\r\"a\n\027LogonQueueUpdateRequ"
+    "est\022\020\n\010position\030\001 \002(\r\022\026\n\016estimated_time\030"
+    "\002 \002(\004\022\034\n\024eta_deviation_in_sec\030\003 \002(\004\"\276\001\n\033"
+    "AccountSettingsNotification\0229\n\010licenses\030"
+    "\001 \003(\0132\'.bgs.protocol.account.v1.AccountL"
+    "icense\022\024\n\014is_using_rid\030\002 \001(\010\022\033\n\023is_playi"
+    "ng_from_igr\030\003 \001(\010\022\031\n\021can_receive_voice\030\004"
+    " \001(\010\022\026\n\016can_send_voice\030\005 \001(\010\"=\n\030ServerSt"
+    "ateChangeRequest\022\r\n\005state\030\001 \002(\r\022\022\n\nevent"
+    "_time\030\002 \002(\004\"T\n\013VersionInfo\022\016\n\006number\030\001 \001"
+    "(\r\022\r\n\005patch\030\002 \001(\t\022\023\n\013is_optional\030\003 \001(\010\022\021"
+    "\n\tkick_time\030\004 \001(\004\"\\\n\027VersionInfoNotifica"
+    "tion\022A\n\014version_info\030\001 \001(\0132+.bgs.protoco"
+    "l.authentication.v1.VersionInfo\"_\n\024MemMo"
+    "duleLoadRequest\022+\n\006handle\030\001 \002(\0132\033.bgs.pr"
+    "otocol.ContentHandle\022\013\n\003key\030\002 \002(\014\022\r\n\005inp"
+    "ut\030\003 \002(\014\"%\n\025MemModuleLoadResponse\022\014\n\004dat"
+    "a\030\001 \002(\014\"K\n\030SelectGameAccountRequest\022/\n\017g"
+    "ame_account_id\030\001 \002(\0132\026.bgs.protocol.Enti"
+    "tyId\"]\n\032GameAccountSelectedRequest\022\016\n\006re"
+    "sult\030\001 \002(\r\022/\n\017game_account_id\030\002 \001(\0132\026.bg"
+    "s.protocol.EntityId\"0\n\035GenerateWebCreden"
+    "tialsRequest\022\017\n\007program\030\001 \001(\007\"9\n\036Generat"
+    "eWebCredentialsResponse\022\027\n\017web_credentia"
+    "ls\030\001 \001(\014\"6\n\033VerifyWebCredentialsRequest\022"
+    "\027\n\017web_credentials\030\001 \001(\0142\237\t\n\026Authenticat"
+    "ionListener\022g\n\014OnModuleLoad\0221.bgs.protoc"
+    "ol.authentication.v1.ModuleLoadRequest\032\031"
+    ".bgs.protocol.NO_RESPONSE\"\t\210\002\001\202\371+\002\010\001\022h\n\017"
+    "OnModuleMessage\0224.bgs.protocol.authentic"
+    "ation.v1.ModuleMessageRequest\032\024.bgs.prot"
+    "ocol.NoData\"\t\210\002\001\202\371+\002\010\002\022r\n\023OnServerStateC"
+    "hange\0228.bgs.protocol.authentication.v1.S"
+    "erverStateChangeRequest\032\031.bgs.protocol.N"
+    "O_RESPONSE\"\006\202\371+\002\010\004\022a\n\017OnLogonComplete\022+."
+    "bgs.protocol.authentication.v1.LogonResu"
+    "lt\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\005\022\206\001"
+    "\n\017OnMemModuleLoad\0224.bgs.protocol.authent"
+    "ication.v1.MemModuleLoadRequest\0325.bgs.pr"
+    "otocol.authentication.v1.MemModuleLoadRe"
+    "sponse\"\006\202\371+\002\010\006\022f\n\rOnLogonUpdate\0222.bgs.pr"
+    "otocol.authentication.v1.LogonUpdateRequ"
+    "est\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\n\022r"
+    "\n\024OnVersionInfoUpdated\0227.bgs.protocol.au"
+    "thentication.v1.VersionInfoNotification\032"
+    "\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\013\022p\n\022On"
+    "LogonQueueUpdate\0227.bgs.protocol.authenti"
+    "cation.v1.LogonQueueUpdateRequest\032\031.bgs."
+    "protocol.NO_RESPONSE\"\006\202\371+\002\010\014\022J\n\017OnLogonQ"
+    "ueueEnd\022\024.bgs.protocol.NoData\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\006\202\371+\002\010\r\022y\n\025OnGameAccoun"
+    "tSelected\022:.bgs.protocol.authentication."
+    "v1.GameAccountSelectedRequest\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\t\210\002\001\202\371+\002\010\016\032=\202\371+3\n1bnet."
+    "protocol.authentication.AuthenticationCl"
+    "ient\212\371+\002\010\0012\366\007\n\025AuthenticationService\022S\n\005"
+    "Logon\022,.bgs.protocol.authentication.v1.L"
+    "ogonRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010"
+    "\001\022c\n\014ModuleNotify\0222.bgs.protocol.authent"
+    "ication.v1.ModuleNotification\032\024.bgs.prot"
+    "ocol.NoData\"\t\210\002\001\202\371+\002\010\002\022f\n\rModuleMessage\022"
+    "4.bgs.protocol.authentication.v1.ModuleM"
+    "essageRequest\032\024.bgs.protocol.NoData\"\t\210\002\001"
+    "\202\371+\002\010\003\022W\n\034SelectGameAccount_DEPRECATED\022\026"
+    ".bgs.protocol.EntityId\032\024.bgs.protocol.No"
+    "Data\"\t\210\002\001\202\371+\002\010\004\022\215\001\n\020GenerateSSOToken\0227.b"
+    "gs.protocol.authentication.v1.GenerateSS"
+    "OTokenRequest\0328.bgs.protocol.authenticat"
+    "ion.v1.GenerateSSOTokenResponse\"\006\202\371+\002\010\005\022"
+    "n\n\021SelectGameAccount\0228.bgs.protocol.auth"
+    "entication.v1.SelectGameAccountRequest\032\024"
+    ".bgs.protocol.NoData\"\t\210\002\001\202\371+\002\010\006\022q\n\024Verif"
+    "yWebCredentials\022;.bgs.protocol.authentic"
+    "ation.v1.VerifyWebCredentialsRequest\032\024.b"
+    "gs.protocol.NoData\"\006\202\371+\002\010\007\022\237\001\n\026GenerateW"
+    "ebCredentials\022=.bgs.protocol.authenticat"
+    "ion.v1.GenerateWebCredentialsRequest\032>.b"
+    "gs.protocol.authentication.v1.GenerateWe"
+    "bCredentialsResponse\"\006\202\371+\002\010\010\032M\202\371+C\n1bnet"
+    ".protocol.authentication.AuthenticationS"
+    "erver*\016authentication\212\371+\002\020\001B\005H\001\200\001\000", 4354);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "authentication_service.proto", &protobuf_RegisterTypes);
   ModuleLoadRequest::default_instance_ = new ModuleLoadRequest();
@@ -1550,6 +1552,7 @@ const int LogonRequest::kAllowLogonQueueNotificationsFieldNumber;
 const int LogonRequest::kCachedWebCredentialsFieldNumber;
 const int LogonRequest::kUserAgentFieldNumber;
 const int LogonRequest::kDeviceIdFieldNumber;
+const int LogonRequest::kPhoneNumberFieldNumber;
 #endif  // !_MSC_VER
 
 LogonRequest::LogonRequest()
@@ -1582,6 +1585,7 @@ void LogonRequest::SharedCtor() {
   cached_web_credentials_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   user_agent_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   device_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1614,6 +1618,9 @@ void LogonRequest::SharedDtor() {
   }
   if (device_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete device_id_;
+  }
+  if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete phone_number_;
   }
   if (this != default_instance_) {
   }
@@ -1679,7 +1686,7 @@ void LogonRequest::Clear() {
       }
     }
   }
-  if (_has_bits_[8 / 32] & 1792) {
+  if (_has_bits_[8 / 32] & 3840) {
     if (has_cached_web_credentials()) {
       if (cached_web_credentials_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         cached_web_credentials_->clear();
@@ -1693,6 +1700,11 @@ void LogonRequest::Clear() {
     if (has_device_id()) {
       if (device_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         device_id_->clear();
+      }
+    }
+    if (has_phone_number()) {
+      if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        phone_number_->clear();
       }
     }
   }
@@ -1710,7 +1722,7 @@ bool LogonRequest::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:bgs.protocol.authentication.v1.LogonRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(16383);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -1886,6 +1898,23 @@ bool LogonRequest::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(130)) goto parse_phone_number;
+        break;
+      }
+
+      // optional string phone_number = 16;
+      case 16: {
+        if (tag == 130) {
+         parse_phone_number:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_phone_number()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->phone_number().data(), this->phone_number().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "phone_number");
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -2006,6 +2035,16 @@ void LogonRequest::SerializeWithCachedSizes(
       15, this->device_id(), output);
   }
 
+  // optional string phone_number = 16;
+  if (has_phone_number()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->phone_number().data(), this->phone_number().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "phone_number");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      16, this->phone_number(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2115,6 +2154,17 @@ void LogonRequest::SerializeWithCachedSizes(
         15, this->device_id(), target);
   }
 
+  // optional string phone_number = 16;
+  if (has_phone_number()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->phone_number().data(), this->phone_number().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "phone_number");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        16, this->phone_number(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -2202,6 +2252,13 @@ int LogonRequest::ByteSize() const {
           this->device_id());
     }
 
+    // optional string phone_number = 16;
+    if (has_phone_number()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->phone_number());
+    }
+
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -2264,6 +2321,9 @@ void LogonRequest::MergeFrom(const LogonRequest& from) {
     if (from.has_device_id()) {
       set_device_id(from.device_id());
     }
+    if (from.has_phone_number()) {
+      set_phone_number(from.phone_number());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2298,6 +2358,7 @@ void LogonRequest::Swap(LogonRequest* other) {
     std::swap(cached_web_credentials_, other->cached_web_credentials_);
     std::swap(user_agent_, other->user_agent_);
     std::swap(device_id_, other->device_id_);
+    std::swap(phone_number_, other->phone_number_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
