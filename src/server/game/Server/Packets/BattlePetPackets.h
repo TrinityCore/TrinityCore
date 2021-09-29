@@ -158,6 +158,16 @@ namespace WorldPackets
             uint8 ControlType = 0;
         };
 
+        class BattlePetClearFanfare final : public ClientPacket
+        {
+        public:
+            BattlePetClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_CLEAR_FANFARE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGuid;
+        };
+
         class CageBattlePet final : public ClientPacket
         {
         public:

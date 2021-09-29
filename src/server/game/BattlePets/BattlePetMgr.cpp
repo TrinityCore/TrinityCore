@@ -196,9 +196,9 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
 
             if (BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(species))
             {
-                if (GetPetCount(species) >= MAX_BATTLE_PETS_PER_SPECIES)
+                if (HasMaxPetCount(speciesEntry))
                 {
-                    TC_LOG_ERROR("misc", "Battlenet account with id %u has more than 3 battle pets of species %u", _owner->GetBattlenetAccountId(), species);
+                    TC_LOG_ERROR("misc", "Battlenet account with id %u has more than maximum battle pets of species %u", _owner->GetBattlenetAccountId(), species);
                     continue;
                 }
 
@@ -314,6 +314,9 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8
     if (!battlePetSpecies) // should never happen
         return;
 
+    if (!battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown)) // Not learnable
+        return;
+
     BattlePet pet;
     pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
     pet.PacketInfo.Species = species;
@@ -351,12 +354,40 @@ void BattlePetMgr::RemovePet(ObjectGuid guid)
             _owner->GetPlayer()->RemoveSpell(speciesEntry->SummonSpellID);*/
 }
 
+void BattlePetMgr::ClearFanfare(ObjectGuid guid)
+{
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    pet->PacketInfo.Flags &= ~uint16(BattlePetDbFlags::FanfareNeeded);
+
+    if (pet->SaveInfo != BATTLE_PET_NEW)
+        pet->SaveInfo = BATTLE_PET_CHANGED;
+}
+
+bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
+{
+    for (WorldPackets::BattlePet::BattlePetSlot const& slot : _slots)
+        if (slot.Pet.Guid == guid)
+            return true;
+
+    return false;
+}
+
 uint8 BattlePetMgr::GetPetCount(uint32 species) const
 {
     return uint8(std::count_if(_pets.begin(), _pets.end(), [species](std::pair<uint64 const, BattlePet> const& pet)
     {
         return pet.second.PacketInfo.Species == species && pet.second.SaveInfo != BATTLE_PET_REMOVED;
     }));
+}
+
+bool BattlePetMgr::HasMaxPetCount(BattlePetSpeciesEntry const* speciesEntry) const
+{
+    uint8 maxPetsPerSpecies = speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::LegacyAccountUnique) ? 1 : DEFAULT_MAX_BATTLE_PETS_PER_SPECIES;
+
+    return GetPetCount(speciesEntry->ID) >= maxPetsPerSpecies;
 }
 
 uint32 BattlePetMgr::GetPetUniqueSpeciesCount() const
@@ -399,6 +430,16 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     if (!pet)
         return;
 
+    if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::NotTradable))
+            return;
+
+    if (IsPetInSlot(guid))
+        return;
+
+    if (pet->PacketInfo.Health < pet->PacketInfo.MaxHealth)
+        return;
+
     ItemPosCountVec dest;
 
     if (_owner->GetPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, BATTLE_PET_CAGE_ITEM_ID, 1) != EQUIP_ERR_OK)
@@ -413,7 +454,6 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     item->SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, pet->PacketInfo.Level);
     item->SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, pet->PacketInfo.CreatureID);
 
-    // FIXME: "You create: ." - item name missing in chat
     _owner->GetPlayer()->SendNewItem(item, 1, true, false);
 
     RemovePet(guid);
