@@ -140,6 +140,11 @@ void WorldPackets::BattlePet::BattlePetSetFlags::Read()
     ControlType = _worldPacket.ReadBits(2);
 }
 
+void WorldPackets::BattlePet::BattlePetClearFanfare::Read()
+{
+    _worldPacket >> PetGuid;
+}
+
 void WorldPackets::BattlePet::CageBattlePet::Read()
 {
     _worldPacket >> PetGuid;

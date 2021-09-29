@@ -5607,7 +5607,7 @@ void Spell::EffectUncageBattlePet()
         return;
     }
 
-    if (battlePetMgr->GetPetCount(speciesId) >= MAX_BATTLE_PETS_PER_SPECIES)
+    if (battlePetMgr->HasMaxPetCount(speciesEntry))
     {
         battlePetMgr->SendError(BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE, creatureId); // or speciesEntry.CreatureID
         SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);

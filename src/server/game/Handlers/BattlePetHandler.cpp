@@ -62,6 +62,11 @@ void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSet
     }
 }
 
+void WorldSession::HandleBattlePetClearFanfare(WorldPackets::BattlePet::BattlePetClearFanfare& battlePetClearFanfare)
+{
+    GetBattlePetMgr()->ClearFanfare(battlePetClearFanfare.PetGuid);
+}
+
 void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet)
 {
     GetBattlePetMgr()->CageBattlePet(cageBattlePet.PetGuid);
