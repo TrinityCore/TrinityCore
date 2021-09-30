@@ -193,6 +193,28 @@ enum AzeriteTierUnlockSetFlags
 
 #define BATTLE_PET_SPECIES_MAX_ID 3159
 
+enum class BattlePetSpeciesFlags : uint16
+{
+    NoRename                 = 0x0001,
+    WellKnown                = 0x0002,
+    NotAccountWide           = 0x0004,
+    Capturable               = 0x0008,
+    NotTradable              = 0x0010,
+    HideFromJournal          = 0x0020,
+    LegacyAccountUnique      = 0x0040,
+    CantBattle               = 0x0080,
+    HordeOnly                = 0x0100,
+    AllianceOnly             = 0x0200,
+    Boss                     = 0x0400,
+    RandomDisplay            = 0x0800,
+    NoLicenseRequired        = 0x1000,
+    AddsAllowedWithBoss      = 0x2000,
+    HideUntilLearned         = 0x4000,
+    MatchPlayerHighPetLevel  = 0x8000
+};
+
+DEFINE_ENUM_FLAG(BattlePetSpeciesFlags);
+
 enum class BattlemasterListFlags : uint32
 {
     InternalOnly                = 0x01,

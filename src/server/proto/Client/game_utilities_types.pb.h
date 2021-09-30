@@ -26,6 +26,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
+#include "rpc_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 

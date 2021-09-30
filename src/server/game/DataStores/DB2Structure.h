@@ -479,6 +479,8 @@ struct BattlePetSpeciesEntry
     int32 CardUIModelSceneID;
     int32 LoadoutUIModelSceneID;
     int32 CovenantID;
+
+    EnumFlag<BattlePetSpeciesFlags> GetFlags() const { return static_cast<BattlePetSpeciesFlags>(Flags); }
 };
 
 struct BattlePetSpeciesStateEntry

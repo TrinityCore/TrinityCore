@@ -324,19 +324,20 @@ void protobuf_AddDesc_channel_5ftypes_2eproto() {
     "\022\026\n\022PRIVACY_LEVEL_OPEN\020\001\022,\n(PRIVACY_LEVE"
     "L_OPEN_INVITATION_AND_FRIEND\020\002\022!\n\035PRIVAC"
     "Y_LEVEL_OPEN_INVITATION\020\003\022\030\n\024PRIVACY_LEV"
-    "EL_CLOSED\020\004*\005\010d\020\220N\"\'\n\021MemberAccountInfo\022"
-    "\022\n\nbattle_tag\030\003 \001(\t\"\234\001\n\013MemberState\022*\n\ta"
-    "ttribute\030\001 \003(\0132\027.bgs.protocol.Attribute\022"
-    "\020\n\004role\030\002 \003(\rB\002\020\001\022\025\n\nprivileges\030\003 \001(\004:\0010"
-    "\0228\n\004info\030\004 \001(\0132*.bgs.protocol.channel.v1"
-    ".MemberAccountInfo\"g\n\006Member\022(\n\010identity"
-    "\030\001 \002(\0132\026.bgs.protocol.Identity\0223\n\005state\030"
-    "\002 \002(\0132$.bgs.protocol.channel.v1.MemberSt"
-    "ate\"\273\001\n\014SubscriberId\0227\n\007account\030\001 \001(\0132\"."
-    "bgs.protocol.account.v1.AccountIdB\002\030\001\022@\n"
-    "\014game_account\030\002 \001(\0132*.bgs.protocol.accou"
-    "nt.v1.GameAccountHandle\022(\n\007process\030\003 \001(\013"
-    "2\027.bgs.protocol.ProcessId:\006\202\371+\002\020\001B\002H\001P\000", 1759);
+    "EL_CLOSED\020\004*\005\010d\020\220N\"/\n\021MemberAccountInfo\022"
+    "\032\n\nbattle_tag\030\003 \001(\tB\006\202\371+\002\010\001\"\234\001\n\013MemberSt"
+    "ate\022*\n\tattribute\030\001 \003(\0132\027.bgs.protocol.At"
+    "tribute\022\020\n\004role\030\002 \003(\rB\002\020\001\022\025\n\nprivileges\030"
+    "\003 \001(\004:\0010\0228\n\004info\030\004 \001(\0132*.bgs.protocol.ch"
+    "annel.v1.MemberAccountInfo\"g\n\006Member\022(\n\010"
+    "identity\030\001 \002(\0132\026.bgs.protocol.Identity\0223"
+    "\n\005state\030\002 \002(\0132$.bgs.protocol.channel.v1."
+    "MemberState\"\273\001\n\014SubscriberId\0227\n\007account\030"
+    "\001 \001(\0132\".bgs.protocol.account.v1.AccountI"
+    "dB\002\030\001\022@\n\014game_account\030\002 \001(\0132*.bgs.protoc"
+    "ol.account.v1.GameAccountHandle\022(\n\007proce"
+    "ss\030\003 \001(\0132\027.bgs.protocol.ProcessId:\006\202\371+\002\020"
+    "\001B\002H\001P\000", 1767);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "channel_types.proto", &protobuf_RegisterTypes);
   Message::default_instance_ = new Message();

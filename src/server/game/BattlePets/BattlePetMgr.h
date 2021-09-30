@@ -22,13 +22,31 @@
 #include "DatabaseEnvFwd.h"
 #include <unordered_map>
 
+struct BattlePetSpeciesEntry;
+
 enum BattlePetMisc
 {
-    MAX_PET_BATTLE_SLOTS            = 3,
-    MAX_BATTLE_PETS_PER_SPECIES     = 3,
-    BATTLE_PET_CAGE_ITEM_ID         = 82800,
-    DEFAULT_SUMMON_BATTLE_PET_SPELL = 118301
+    MAX_PET_BATTLE_SLOTS                = 3,
+    DEFAULT_MAX_BATTLE_PETS_PER_SPECIES = 3,
+    BATTLE_PET_CAGE_ITEM_ID             = 82800,
+    DEFAULT_SUMMON_BATTLE_PET_SPELL     = 118301
 };
+
+enum class BattlePetDbFlags : uint16
+{
+    None                = 0x000,
+    Favorite            = 0x001,
+    Converted           = 0x002,
+    Revoked             = 0x004,
+    LockedForConvert    = 0x008,
+    Ability0Selection   = 0x010,
+    Ability1Selection   = 0x020,
+    Ability2Selection   = 0x040,
+    FanfareNeeded       = 0x080,
+    DisplayOverridden   = 0x100
+};
+
+DEFINE_ENUM_FLAG(BattlePetDbFlags);
 
 // 6.2.4
 enum FlagsControlType
@@ -112,8 +130,11 @@ public:
     BattlePet* GetPet(ObjectGuid guid);
     void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
+    void ClearFanfare(ObjectGuid guid);
+    bool IsPetInSlot(ObjectGuid guid);
 
     uint8 GetPetCount(uint32 species) const;
+    bool HasMaxPetCount(BattlePetSpeciesEntry const* speciesEntry) const;
     uint32 GetPetUniqueSpeciesCount() const;
 
     WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return slot < _slots.size() ? &_slots[slot] : nullptr; }
