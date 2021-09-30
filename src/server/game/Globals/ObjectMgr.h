@@ -610,6 +610,8 @@ struct PlayerInfo
     PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
+    uint32 introMovieId = 0;
+    uint32 introSceneId = 0;
 
     //[level-1] 0..MaxPlayerLevel-1
     std::unique_ptr<PlayerLevelInfo[]> levelInfo;

@@ -438,6 +438,9 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder* holder)
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
         raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
+        if (sWorld->getBoolConfig(CONFIG_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT))
+            raceUnlock.HasAchievement = requirement.second.AchievementId != 0;
+        // @TODO: add else check after battlenet accwide achievements are implemented
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 
@@ -1125,19 +1128,29 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         pCurrChar->setCinematic(1);
 
-        if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
+        if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
         {
-            if (pCurrChar->getClass() == CLASS_DEMON_HUNTER) /// @todo: find a more generic solution
-                pCurrChar->SendMovieStart(469);
-            else if (cEntry->CinematicSequenceID)
-                pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
-            else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
-                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
-
-            // send new char string if not empty
-            if (!sWorld->GetNewCharString().empty())
-                chH.PSendSysMessage("%s", sWorld->GetNewCharString().c_str());
+            if (pInfo->introMovieId != 0)
+                pCurrChar->SendMovieStart(pInfo->introMovieId);
+            else if (pInfo->introSceneId != 0)
+                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneId);
+            else
+            {
+                if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
+                {
+                    if (cEntry->CinematicSequenceID)
+                        pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
+                    else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
+                    {
+                        if (rEntry->CinematicSequenceID)
+                            pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+                    }
+                }
+            }
         }
+        // send new char string if not empty
+        if (!sWorld->GetNewCharString().empty())
+            chH.PSendSysMessage("%s", sWorld->GetNewCharString().c_str());
     }
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))

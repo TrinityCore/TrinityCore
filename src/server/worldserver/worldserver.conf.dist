@@ -911,6 +911,14 @@ StartAlliedRacePlayerLevel = 10
 StartPlayerMoney = 0
 
 #
+#    DisableAlliedRaceAchievementRequirement
+#        Description: Disable achievement requirements for allied race character creation
+#        Default:     0 (Keep requirements active)
+#                     1 (Disable requirements)
+
+DisableAlliedRaceAchievementRequirement = 0
+
+#
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.

@@ -3476,8 +3476,8 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate
     {
         uint32 oldMSTime = getMSTime();
-        //                                                0     1      2       3           4           5           6           7           8               9               10              11                 12
-        QueryResult result = WorldDatabase.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid FROM playercreateinfo");
+        //                                                0     1      2       3           4           5           6           7           8               9               10              11                 12                13              14
+        QueryResult result = WorldDatabase.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid, intro_movie_id, intro_scene_id FROM playercreateinfo");
 
         if (!result)
         {
@@ -3563,6 +3563,8 @@ void ObjectMgr::LoadPlayerInfo()
                     }
                 }
 
+                info->introMovieId = fields[13].GetUInt32();
+                info->introSceneId = fields[14].GetUInt32();
                 _playerInfo[current_race][current_class] = std::move(info);
 
                 ++count;
