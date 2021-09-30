@@ -116,6 +116,8 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
         ChatHandler(GetPlayer()->GetSession()).PSendSysMessage(LANG_COMMAND_SCENE_DEBUG_CANCEL, sceneInstanceID);
 
     SceneTemplate const* sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_NOT_CANCELABLE)
+        return;
 
     // Must be done before removing aura
     RemoveSceneInstanceId(sceneInstanceID);
@@ -125,7 +127,7 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
 
     sScriptMgr->OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate);
 
-    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+    if (sceneTemplate->PlaybackFlags & (SCENEFLAG_FADE_TO_BLACKSCREEN_ON_CANCEL | SCENEFLAG_PLAY_AS_LOGIN_CINEMATIC))
         CancelScene(sceneInstanceID, false);
 }
 
@@ -147,7 +149,7 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
 
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
 
-    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_FADE_TO_BLACKSCREEN_ON_COMPLETE)
         CancelScene(sceneInstanceID, false);
 }
 

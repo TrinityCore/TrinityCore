@@ -95,7 +95,7 @@ public:
             return false;
 
         uint32 scenePackageId = atoi(scenePackageIdStr);
-        uint32 flags = flagsStr ? atoi(flagsStr) : SCENEFLAG_UNK16;
+        uint32 flags = flagsStr ? atoi(flagsStr) : SCENEFLAG_INFINITE_AOI;
         Player* target = handler->getSelectedPlayerOrSelf();
 
         if (!target)

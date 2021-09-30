@@ -20,7 +20,7 @@
 WorldPacket const* WorldPackets::Scenes::PlayScene::Write()
 {
     _worldPacket << int32(SceneID);
-    _worldPacket << uint32(PlaybackFlags);
+    _worldPacket << uint32(PlaybackFlags & ~SCENEFLAG_PLAY_AS_LOGIN_CINEMATIC);
     _worldPacket << uint32(SceneInstanceID);
     _worldPacket << int32(SceneScriptPackageID);
     _worldPacket << TransportGUID;
