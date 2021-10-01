@@ -222,7 +222,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
         WorldPackets::NPC::ClientGossipOptions& opt = packet.GossipOptions[count];
         GossipMenuItem const& item = itr->second;
         opt.ClientOption = itr->first;
-        opt.OptionIcon = item.MenuItemIcon;
+        opt.OptionNPC = item.MenuItemIcon;
         opt.OptionFlags = item.IsCoded;     // makes pop up box password
         opt.OptionCost = item.BoxMoney;     // money required to open menu, 2.0.3
         opt.Text = item.Message;            // text for gossip item

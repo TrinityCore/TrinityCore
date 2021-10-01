@@ -64,7 +64,7 @@ namespace WorldPackets
         struct ClientGossipOptions
         {
             int32 ClientOption  = 0;
-            GossipOptionIcon OptionIcon = GossipOptionIcon(0);
+            GossipOptionIcon OptionNPC = GossipOptionIcon(0);
             uint8 OptionFlags   = 0;
             int32 OptionCost    = 0;
             GossipOptionStatus Status = GossipOptionStatus(0);

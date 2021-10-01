@@ -74,7 +74,7 @@ WorldPacket const* GossipMessage::Write()
     for (ClientGossipOptions const& options : GossipOptions)
     {
         _worldPacket << int32(options.ClientOption);
-        _worldPacket << uint8(options.OptionIcon);
+        _worldPacket << uint8(options.OptionNPC);
         _worldPacket << int8(options.OptionFlags);
         _worldPacket << int32(options.OptionCost);
         _worldPacket.WriteBits(options.Text.size(), 12);
