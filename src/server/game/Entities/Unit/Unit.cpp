@@ -5827,8 +5827,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
             SetCritterGUID(minion->GetGUID());
             if (Player const* thisPlayer = ToPlayer())
             {
-                BattlePetMgr::BattlePet* pet = thisPlayer->GetSession()->GetBattlePetMgr()->GetPet(thisPlayer->m_activePlayerData->SummonedBattlePetGUID);
-                if (pet)
+                if (BattlePetMgr::BattlePet const* pet = thisPlayer->GetSession()->GetBattlePetMgr()->GetPet(thisPlayer->m_activePlayerData->SummonedBattlePetGUID))
                 {
                     minion->SetBattlePetCompanionGUID(thisPlayer->m_activePlayerData->SummonedBattlePetGUID);
                     minion->SetWildBattlePetLevel(pet->PacketInfo.Level);
