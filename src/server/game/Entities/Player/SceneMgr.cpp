@@ -57,7 +57,7 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
 
     WorldPackets::Scenes::PlayScene playScene;
     playScene.SceneID              = sceneTemplate->SceneId;
-    playScene.PlaybackFlags        = sceneTemplate->PlaybackFlags;
+    playScene.PlaybackFlags        = sceneTemplate->PlaybackFlags & ~SCENEFLAG_PLAY_AS_LOGIN_CINEMATIC;
     playScene.SceneInstanceID      = sceneInstanceID;
     playScene.SceneScriptPackageID = sceneTemplate->ScenePackageId;
     playScene.Location             = *position;
