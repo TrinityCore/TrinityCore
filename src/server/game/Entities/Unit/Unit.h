@@ -834,7 +834,6 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWithinMeleeRangeAt(Position const& pos, Unit const* obj) const;
         float GetMeleeRange(Unit const* target) const;
         virtual SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = BASE_ATTACK, uint8 damageIndex = 0) const = 0;
-        uint32 m_extraAttacks;
         bool m_canDualWield;
 
         void _addAttacker(Unit* pAttacker);                  // must be called only from Unit::Attack(Unit*)
@@ -991,7 +990,13 @@ class TC_GAME_API Unit : public WorldObject
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss);
-        void HandleProcExtraAttackFor(Unit* victim);
+        void HandleProcExtraAttackFor(Unit* victim, uint32 count);
+
+        void SetLastExtraAttackSpell(uint32 spellId) { _lastExtraAttackSpell = spellId; }
+        uint32 GetLastExtraAttackSpell() const { return _lastExtraAttackSpell; }
+        void AddExtraAttacks(uint32 count);
+        void SetLastDamagedTargetGuid(ObjectGuid guid) { _lastDamagedTargetGuid = guid; }
+        ObjectGuid GetLastDamagedTargetGuid() const { return _lastDamagedTargetGuid; }
 
         void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false, Spell* spell = nullptr);
         void DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss);
@@ -1883,6 +1888,10 @@ class TC_GAME_API Unit : public WorldObject
         Unit* m_comboTarget;
         int8 m_comboPoints;
         std::unordered_set<Unit*> m_ComboPointHolders;
+
+        uint32 _lastExtraAttackSpell;
+        std::unordered_map<ObjectGuid /*guid*/, uint32 /*count*/> extraAttacksTargets;
+        ObjectGuid _lastDamagedTargetGuid;
 
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world

@@ -314,7 +314,6 @@ Unit::Unit(bool isWorldObject) :
     m_modAttackSpeedPct[OFF_ATTACK] = 1.0f;
     m_modAttackSpeedPct[RANGED_ATTACK] = 1.0f;
 
-    m_extraAttacks = 0;
     m_canDualWield = false;
 
     m_movementCounter = 0;
@@ -389,6 +388,8 @@ Unit::Unit(bool isWorldObject) :
     _isWalkingBeforeCharm = false;
     _instantCast = false;
     _isCombatDisallowed = false;
+
+    _lastExtraAttackSpell = 0;
 }
 
 ////////////////////////////////////////////////////////////
@@ -444,6 +445,21 @@ void Unit::Update(uint32 p_time)
     ASSERT(!m_procDeep);
 
     m_combatManager.Update(p_time);
+
+    _lastDamagedTargetGuid = ObjectGuid::Empty;
+    if (_lastExtraAttackSpell)
+    {
+        while (!extraAttacksTargets.empty())
+        {
+            auto itr = extraAttacksTargets.begin();
+            ObjectGuid targetGuid = itr->first;
+            uint32 count = itr->second;
+            extraAttacksTargets.erase(itr);
+            if (Unit* victim = ObjectAccessor::GetUnit(*this, targetGuid))
+                HandleProcExtraAttackFor(victim, count);
+        }
+        _lastExtraAttackSpell = 0;
+    }
 
     // not implemented before 3.0.2
     if (uint32 base_att = getAttackTimer(BASE_ATTACK))
@@ -2056,7 +2072,10 @@ void Unit::HandleEmoteCommand(Emote emoteId)
 
 void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extra)
 {
-    if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+        return;
+
+    if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) && !extra)
         return;
 
     if (!victim->IsAlive())
@@ -2070,6 +2089,9 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
 
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
         return;                                             // ignore ranged case
+
+    if (!extra && _lastExtraAttackSpell)
+        _lastExtraAttackSpell = 0;
 
     if (GetTypeId() == TYPEID_UNIT && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED) && !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CANNOT_TURN))
         SetFacingToObject(victim, false); // update client side facing to face the target (prevents visual glitches when casting untargeted spells)
@@ -2090,6 +2112,8 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
             Unit::DealDamageMods(victim, damageInfo.Damages[i].Damage, &damageInfo.Damages[i].Absorb);
         SendAttackStateUpdate(&damageInfo);
 
+        _lastDamagedTargetGuid = victim->GetGUID();
+
         DealMeleeDamage(&damageInfo, true);
 
         DamageInfo dmgInfo(damageInfo);
@@ -2104,13 +2128,27 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
     }
 }
 
-void Unit::HandleProcExtraAttackFor(Unit* victim)
+void Unit::HandleProcExtraAttackFor(Unit* victim, uint32 count)
 {
-    while (m_extraAttacks)
+    while (count)
     {
+        --count;
         AttackerStateUpdate(victim, BASE_ATTACK, true);
-        --m_extraAttacks;
     }
+}
+
+void Unit::AddExtraAttacks(uint32 count)
+{
+    ObjectGuid targetGUID = _lastDamagedTargetGuid;
+    if (!targetGUID)
+    {
+        if (ObjectGuid selection = GetTarget())
+            targetGUID = selection; // Spell was cast directly (not triggered by aura)
+        else
+            return;
+    }
+
+    extraAttacksTargets[targetGUID] += count;
 }
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType) const
