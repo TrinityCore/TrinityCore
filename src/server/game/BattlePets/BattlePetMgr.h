@@ -20,6 +20,7 @@
 
 #include "BattlePetPackets.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumFlag.h"
 #include <unordered_map>
 
 struct BattlePetSpeciesEntry;
@@ -30,6 +31,18 @@ enum BattlePetMisc
     DEFAULT_MAX_BATTLE_PETS_PER_SPECIES = 3,
     BATTLE_PET_CAGE_ITEM_ID             = 82800,
     DEFAULT_SUMMON_BATTLE_PET_SPELL     = 118301
+};
+
+enum class BattlePetBreedQuality : uint8
+{
+    Poor       = 0,
+    Common     = 1,
+    Uncommon   = 2,
+    Rare       = 3,
+    Epic       = 4,
+    Legendary  = 5,
+
+    Count
 };
 
 enum class BattlePetDbFlags : uint16

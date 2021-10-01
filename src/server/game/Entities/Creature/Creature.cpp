@@ -1620,6 +1620,16 @@ void Creature::UpdateLevelDependantStats()
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
 }
 
+void Creature::SelectWildBattlePetLevel()
+{
+    if (IsWildBattlePet())
+    {
+        AreaTableEntry const* areaTable = sAreaTableStore.AssertEntry(GetZoneId());
+        uint8 wildBattlePetLevel = areaTable->WildBattlePetLevelMin > 0 ? urand(areaTable->WildBattlePetLevelMin, areaTable->WildBattlePetLevelMax) : WILD_BATTLE_PET_DEFAULT_LEVEL;
+        SetWildBattlePetLevel(wildBattlePetLevel);
+    }
+}
+
 float Creature::_GetHealthMod(int32 Rank)
 {
     switch (Rank)                                           // define rates for each elite rank
@@ -1803,6 +1813,8 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
     }
 
     SetSpawnHealth();
+
+    SelectWildBattlePetLevel();
 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);

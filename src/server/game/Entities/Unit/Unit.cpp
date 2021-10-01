@@ -22,6 +22,7 @@
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "CharacterCache.h"
 #include "ChatPackets.h"
@@ -5825,7 +5826,14 @@ void Unit::SetMinion(Minion *minion, bool apply)
         {
             SetCritterGUID(minion->GetGUID());
             if (Player const* thisPlayer = ToPlayer())
-                minion->SetBattlePetCompanionGUID(thisPlayer->m_activePlayerData->SummonedBattlePetGUID);
+            {
+                BattlePetMgr::BattlePet* pet = thisPlayer->GetSession()->GetBattlePetMgr()->GetPet(thisPlayer->m_activePlayerData->SummonedBattlePetGUID);
+                if (pet)
+                {
+                    minion->SetBattlePetCompanionGUID(thisPlayer->m_activePlayerData->SummonedBattlePetGUID);
+                    minion->SetWildBattlePetLevel(pet->PacketInfo.Level);
+                }
+            }
         }
 
         // PvP, FFAPvP
