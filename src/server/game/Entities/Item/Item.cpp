@@ -35,6 +35,7 @@
 #include "Player.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
@@ -740,6 +741,53 @@ bool Item::CanBeTraded(bool mail, bool trade) const
         return false;
 
     return true;
+}
+
+uint32 Item::CalculateDurabilityRepairCost(float discount) const
+{
+    uint32 maxDurability = GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
+    if (!maxDurability)
+        return 0;
+
+    uint32 curDurability = GetUInt32Value(ITEM_FIELD_DURABILITY);
+    ASSERT(maxDurability >= curDurability);
+
+    uint32 lostDurability = maxDurability - curDurability;
+    if (!lostDurability)
+        return 0;
+
+    ItemTemplate const* itemTemplate = GetTemplate();
+
+    DurabilityCostsEntry const* durabilityCost = sDurabilityCostsStore.LookupEntry(itemTemplate->ItemLevel);
+    if (!durabilityCost)
+        return 0;
+
+    uint32 durabilityQualityEntryId = (itemTemplate->Quality + 1) * 2;
+    DurabilityQualityEntry const* durabilityQualityEntry = sDurabilityQualityStore.LookupEntry(durabilityQualityEntryId);
+    if (!durabilityQualityEntry)
+        return 0;
+
+    uint32 dmultiplier;
+    switch (itemTemplate->Class)
+    {
+        case ITEM_CLASS_WEAPON:
+            dmultiplier = durabilityCost->WeaponSubClassCost[itemTemplate->SubClass];
+            break;
+        case ITEM_CLASS_ARMOR:
+            dmultiplier = durabilityCost->ArmorSubClassCost[itemTemplate->SubClass];
+            break;
+        default:
+            dmultiplier = 0;
+            break;
+    }
+
+    uint32 cost = static_cast<uint32>(std::round(lostDurability * dmultiplier * double(durabilityQualityEntry->Data)));
+    cost = uint32(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+
+    if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
+        cost = 1;
+
+    return cost;
 }
 
 bool Item::HasEnchantRequiredSkill(Player const* player) const
