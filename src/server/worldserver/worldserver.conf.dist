@@ -1208,6 +1208,14 @@ Event.Announce = 0
 BeepAtStart = 1
 
 #
+#    FlashAtStart
+#        Description: Flashes in taskbar when the world server finished starting. (Works on Windows only)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+FlashAtStart = 1
+
+#
 #    Motd
 #        Description: Message of the Day, displayed at login. Use '@' for a newline.
 #        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
