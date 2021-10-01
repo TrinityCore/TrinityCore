@@ -824,6 +824,7 @@ class TC_GAME_API Guild
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, GuildRankId newRank);
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
+        uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
 
         // Bank
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);

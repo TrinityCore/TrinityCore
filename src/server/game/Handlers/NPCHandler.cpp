@@ -583,7 +583,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet
 
         Item* item = _player->GetItemByGuid(packet.ItemGUID);
         if (item)
-            _player->DurabilityRepair(item->GetPos(), true, discountMod, packet.UseGuildBank);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod);
     }
     else
     {

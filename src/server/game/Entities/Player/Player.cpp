@@ -4619,110 +4619,118 @@ void Player::DurabilityPointLossForEquipSlot(EquipmentSlots slot)
         DurabilityPointsLoss(pItem, 1);
 }
 
-uint32 Player::DurabilityRepairAll(bool cost, float discountMod, bool guildBank)
+void Player::DurabilityRepairAll(bool takeCost, float discountMod, bool guildBank)
 {
-    uint32 TotalCost = 0;
+    // Collecting all items that can be repaired and repair costs
+    std::list<std::pair<Item*, uint64>> itemRepairCostStore;
+
     // equipped, backpack, bags itself
     uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
     for (uint8 i = EQUIPMENT_SLOT_START; i < inventoryEnd; i++)
-        TotalCost += DurabilityRepair(((INVENTORY_SLOT_BAG_0 << 8) | i), cost, discountMod, guildBank);
+        if (Item* item = GetItemByPos(((INVENTORY_SLOT_BAG_0 << 8) | i)))
+            if (uint64 cost = item->CalculateDurabilityRepairCost(discountMod))
+                itemRepairCostStore.push_back(std::make_pair(item, cost));
 
     // bank, buyback and keys not repaired
 
     // items in inventory bags
     for (uint8 j = INVENTORY_SLOT_BAG_START; j < INVENTORY_SLOT_BAG_END; j++)
         for (uint8 i = 0; i < MAX_BAG_SIZE; i++)
-            TotalCost += DurabilityRepair(((j << 8) | i), cost, discountMod, guildBank);
-    return TotalCost;
-}
+            if (Item* item = GetItemByPos(((j << 8) | i)))
+                if (uint64 cost = item->CalculateDurabilityRepairCost(discountMod))
+                    itemRepairCostStore.push_back(std::make_pair(item, cost));
 
-uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool guildBank)
-{
-    Item* item = GetItemByPos(pos);
-
-    uint32 TotalCost = 0;
-    if (!item)
-        return TotalCost;
-
-    uint32 maxDurability = item->m_itemData->MaxDurability;
-    if (!maxDurability)
-        return TotalCost;
-
-    uint32 curDurability = item->m_itemData->Durability;
-
-    if (cost)
+    // Handling a free repair case - just repair every item without taking cost.
+    if (!takeCost)
     {
-        uint32 LostDurability = maxDurability - curDurability;
-        if (LostDurability>0)
-        {
-            ItemTemplate const* ditemProto = item->GetTemplate();
+        for (auto const& [item, cost] : itemRepairCostStore)
+            DurabilityRepair(item->GetPos(), false, 0.f);
 
-            DurabilityCostsEntry const* dcost = sDurabilityCostsStore.LookupEntry(ditemProto->GetBaseItemLevel());
-            if (!dcost)
-            {
-                TC_LOG_ERROR("entities.player.items", "Player::DurabilityRepair: Player '%s' (%s) tried to repair an item (ItemID: %u) with invalid item level %u",
-                    GetName().c_str(), GetGUID().ToString().c_str(), ditemProto->GetId(), ditemProto->GetBaseItemLevel());
-                return TotalCost;
-            }
-
-            uint32 dQualitymodEntryId = (ditemProto->GetQuality() + 1) * 2;
-            DurabilityQualityEntry const* dQualitymodEntry = sDurabilityQualityStore.LookupEntry(dQualitymodEntryId);
-            if (!dQualitymodEntry)
-            {
-                TC_LOG_ERROR("entities.player.items", "Player::DurabilityRepair: Player '%s' (%s) tried to repair an item (ItemID: %u) with invalid QualitymodEntry %u",
-                    GetName().c_str(), GetGUID().ToString().c_str(), ditemProto->GetId(), dQualitymodEntryId);
-                return TotalCost;
-            }
-
-            uint32 dmultiplier = 0;
-            if (ditemProto->GetClass() == ITEM_CLASS_WEAPON)
-                dmultiplier = dcost->WeaponSubClassCost[ditemProto->GetSubClass()];
-            else if (ditemProto->GetClass() == ITEM_CLASS_ARMOR)
-                dmultiplier = dcost->ArmorSubClassCost[ditemProto->GetSubClass()];
-
-            uint32 costs = uint32(LostDurability * dmultiplier * double(dQualitymodEntry->Data) * item->GetRepairCostMultiplier());
-
-            costs = uint32(costs * discountMod * sWorld->getRate(RATE_REPAIRCOST));
-
-            if (costs == 0)                                   //fix for ITEM_QUALITY_ARTIFACT
-                costs = 1;
-
-            if (guildBank)
-            {
-                if (!GetGuildId())
-                {
-                    TC_LOG_DEBUG("entities.player.items", "Player::DurabilityRepair: Player '%s' (%s) tried to repair item in a guild bank but is not member of a guild",
-                        GetName().c_str(), GetGUID().ToString().c_str());
-                    return TotalCost;
-                }
-
-                Guild* guild = sGuildMgr->GetGuildById(GetGuildId());
-                if (!guild)
-                    return TotalCost;
-
-                if (!guild->HandleMemberWithdrawMoney(GetSession(), costs, true))
-                    return TotalCost;
-
-                TotalCost = costs;
-            }
-            else if (!HasEnoughMoney(uint64(costs)))
-            {
-                TC_LOG_DEBUG("entities.player.items", "Player::DurabilityRepair: Player '%s' (%s) has not enough money to repair item",
-                    GetName().c_str(), GetGUID().ToString().c_str());
-                return TotalCost;
-            }
-            else
-                ModifyMoney(-int64(costs));
-        }
+        return;
     }
 
-    item->SetDurability(maxDurability);
+    if (guildBank)
+    {
+        // Handling a repair for guild money case.
+        // We have to repair items one by one until the guild bank has enough money available for withdrawal or until all items are repaired.
+
+        Guild* guild = GetGuild();
+        if (!guild)
+            return; // silent return, client shouldn't display this button for players without guild.
+
+        uint64 const availableGuildMoney = guild->GetMemberAvailableMoneyForRepairItems(GetGUID());
+        if (availableGuildMoney == 0)
+            return;
+
+        // Sort the items by repair cost from lowest to highest
+        itemRepairCostStore.sort([](auto const& a, auto const& b) -> bool { return a.second < b.second; });
+
+        // We must calculate total repair cost and take money once to avoid spam in the guild bank log and reduce number of transactions in the database
+        uint64 totalCost = 0;
+
+        for (auto const& [item, cost] : itemRepairCostStore)
+        {
+            uint64 newTotalCost = totalCost + cost;
+            if (newTotalCost > availableGuildMoney || newTotalCost > MAX_MONEY_AMOUNT)
+                break;
+
+            totalCost = newTotalCost;
+
+            // Repair item without taking cost. We'll do it later.
+            DurabilityRepair(item->GetPos(), false, 0.f);
+        }
+
+        // Take money for repairs from the guild bank
+        guild->HandleMemberWithdrawMoney(GetSession(), totalCost, true);
+    }
+    else
+    {
+        // Handling a repair for player's money case.
+        // Unlike repairing for guild money, in this case we must first check if player has enough money to repair all the items at once.
+
+        uint64 totalCost = 0;
+        for (auto const& [item, cost] : itemRepairCostStore)
+            totalCost += cost;
+
+        if (!HasEnoughMoney(totalCost))
+            return; // silent return, client should display error by itself and not send opcode.
+
+        ModifyMoney(-int32(totalCost));
+
+        // Payment for repair has already been taken, so just repair every item without taking cost.
+        for (auto const& [item, cost] : itemRepairCostStore)
+            DurabilityRepair(item->GetPos(), false, 0.f);
+    }
+}
+
+void Player::DurabilityRepair(uint16 pos, bool takeCost, float discountMod)
+{
+    Item* item = GetItemByPos(pos);
+    if (!item)
+        return;
+
+    if (takeCost)
+    {
+        uint64 cost = item->CalculateDurabilityRepairCost(discountMod);
+
+        if (!HasEnoughMoney(cost))
+        {
+            TC_LOG_DEBUG("entities.player.items", "Player::DurabilityRepair: Player '%s' (%s) has not enough money to repair item",
+                GetName().c_str(), GetGUID().ToString().c_str());
+            return;
+        }
+
+        ModifyMoney(-int32(cost));
+    }
+
+    bool isBroken = item->IsBroken();
+
+    item->SetDurability(item->m_itemData->MaxDurability);
     item->SetState(ITEM_CHANGED, this);
 
     // reapply mods for total broken and repaired item if equipped
-    if (IsEquipmentPos(pos) && !curDurability)
+    if (IsEquipmentPos(pos) && isBroken)
         _ApplyItemMods(item, pos & 255, true);
-    return TotalCost;
 }
 
 void Player::RepopAtGraveyard()
