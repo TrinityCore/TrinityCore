@@ -886,10 +886,17 @@ public:
 
                     bool known = target && target->HasSpell(spellInfo->Id);
 
-                    SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
-                    bool learn = spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL);
-
-                    SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo->Difficulty);
+                    bool learn = false;
++                   SpellInfo const* learnSpellInfo = nullptr;
++                   for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
++                   {
++                       if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
++                       {
++                           learn = true;
++                           learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo->Difficulty);
++                           break;
++                       }
++                   }
 
                     bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
                     bool passive = spellInfo->IsPassive();
@@ -897,7 +904,7 @@ public:
 
                     // unit32 used to prevent interpreting uint8 as char at output
                     // find rank of learned spell for learning spell, or talent rank
-                    uint32 rank = learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
+                    uint32 rank = learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
 
                     // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                     std::ostringstream ss;
@@ -960,14 +967,16 @@ public:
             bool known = target && target->HasSpell(id);
 
             bool learn = false;
-            SpellInfo const* learnSpellInfo;
-            if (spellInfo->GetEffects().size()) {
-                SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
-                learn = spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL);
-
-                if (learn)
-                    learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, DIFFICULTY_NONE);
-            }
++           SpellInfo const* learnSpellInfo = nullptr;
++           for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
++           {
++               if (spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
++               {
++                   learn = true;
++                   learnSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, DIFFICULTY_NONE);
++                   break;
++               }
++           }
 
             bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
             bool passive = spellInfo->IsPassive();
