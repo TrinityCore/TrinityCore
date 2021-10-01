@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTriggerAI.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h" // for RAND()
 #include "GridNotifiersImpl.h"
@@ -76,6 +77,7 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
+    SPELL_SHAMAN_WINDRUSH                       = 192082,
 };
 
 enum MiscSpells
@@ -1436,6 +1438,51 @@ public:
     }
 };
 
+// 192078 - Windrush Totem (Spell)
+//  12676 - AreaTriggerId
+struct areatrigger_sha_windrush_totem : AreaTriggerAI
+{
+    static uint32 const REFRESH_TIME = 4500;
+
+    areatrigger_sha_windrush_totem(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(REFRESH_TIME) { }
+
+    void OnInitialize() override
+    {
+        _refreshTimer = REFRESH_TIME;
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        if (_refreshTimer <= diff)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                for (ObjectGuid const& guid : at->GetInsideUnits())
+                {
+                    if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                        caster->CastSpell(unit, SPELL_SHAMAN_WINDRUSH, true);
+                }
+            }
+            _refreshTimer = REFRESH_TIME;
+        }
+        else
+            _refreshTimer -= diff;
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (!caster->IsFriendlyTo(unit))
+                return;
+
+            caster->CastSpell(unit, SPELL_SHAMAN_WINDRUSH, true);
+        }
+    }
+private:
+    uint32 _refreshTimer;
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_guidance();
@@ -1470,4 +1517,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_t10_elemental_4p_bonus();
     new spell_sha_t10_restoration_4p_bonus();
     new spell_sha_windfury();
+    RegisterAreaTriggerAI(areatrigger_sha_windrush_totem);
 }
