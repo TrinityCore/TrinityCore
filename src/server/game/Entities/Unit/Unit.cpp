@@ -2747,13 +2747,6 @@ float Unit::GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType at
     else
         chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
 
-    chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER, [attacker](AuraEffect const* aurEff) -> bool
-    {
-        if (aurEff->GetCasterGUID() == attacker->GetGUID())
-            return true;
-        return false;
-    });
-
     // reduce crit chance from Rating for players
     if (attacker->CanApplyResilience())
         Unit::ApplyResilience(this, &chance, nullptr, false, (attackType == RANGED_ATTACK ? CR_CRIT_TAKEN_RANGED : CR_CRIT_TAKEN_MELEE));
@@ -7213,8 +7206,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
             return 0.f;
     }
 
-    // for this types the bonus was already added in GetUnitCriticalChance, do not add twice
-    if (caster && spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && spellInfo->DmgClass != SPELL_DAMAGE_CLASS_RANGED)
+    if (caster)
     {
         crit_chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER, [caster, spellInfo](AuraEffect const* aurEff) -> bool
         {
