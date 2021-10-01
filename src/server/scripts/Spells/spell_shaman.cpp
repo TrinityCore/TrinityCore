@@ -1446,11 +1446,6 @@ struct areatrigger_sha_windrush_totem : AreaTriggerAI
 
     areatrigger_sha_windrush_totem(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(REFRESH_TIME) { }
 
-    void OnInitialize() override
-    {
-        _refreshTimer = REFRESH_TIME;
-    }
-
     void OnUpdate(uint32 diff) override
     {
         if (_refreshTimer <= diff)
