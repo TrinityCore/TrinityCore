@@ -18258,19 +18258,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
                 map = sMapMgr->CreateMap(mapId, this);
             }
         }
-        else
-        {
-            TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player '%s' (%s) Map: %u, X: %f, Y: %f, Z: %f, O: %f. Areatrigger not found.",
-                m_name.c_str(), guid.ToString().c_str(), mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-            RelocateToHomebind();
-            map = nullptr;
-        }
     }
 
     if (!map)
     {
-        mapId = info->mapId;
-        Relocate(info->positionX, info->positionY, info->positionZ, 0.0f);
+        RelocateToHomebind();
         map = sMapMgr->CreateMap(mapId, this);
         if (!map)
         {
