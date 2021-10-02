@@ -114,6 +114,12 @@ namespace WorldPackets
 TC_GAME_API uint32 GetBagSize(Bag const* bag);
 TC_GAME_API Item* GetItemInBag(Bag const* bag, uint8 slot);
 
+enum class PlayerCreateMode : int8
+{
+    Normal  = 0,
+    NPE     = 1
+};
+
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS                       256
@@ -2900,6 +2906,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         JoinedChannelsList m_channels;
 
+        time_t m_createTime;
+        PlayerCreateMode m_createMode;
         uint8 m_cinematic;
 
         uint32 m_movie;
