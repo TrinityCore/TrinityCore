@@ -9376,7 +9376,9 @@ void ObjectMgr::LoadTrainers()
     _trainers.clear();
 
     std::unordered_map<int32, std::vector<Trainer::Spell>> spellsByTrainer;
-    if (QueryResult trainerSpellsResult = WorldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell"))
+    // @tswow-begin masks
+    if (QueryResult trainerSpellsResult = WorldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel, raceMask, classMask FROM trainer_spell"))
+    // @tswow-end
     {
         do
         {
@@ -9392,6 +9394,10 @@ void ObjectMgr::LoadTrainers()
             spell.ReqAbility[1] = fields[6].GetUInt32();
             spell.ReqAbility[2] = fields[7].GetUInt32();
             spell.ReqLevel = fields[8].GetUInt8();
+            // @tswow-begin
+            spell.raceMask = fields[9].GetUInt32();
+            spell.classMask = fields[10].GetUInt32();
+            // @tswow-end
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell.SpellId);
             if (!spellInfo)
@@ -9432,7 +9438,9 @@ void ObjectMgr::LoadTrainers()
         } while (trainerSpellsResult->NextRow());
     }
 
-    if (QueryResult trainersResult = WorldDatabase.Query("SELECT Id, Type, Requirement, Greeting FROM trainer"))
+    // @tswow-begin
+    if (QueryResult trainersResult = WorldDatabase.Query("SELECT Id, Type, Requirement, Greeting, raceMask, classMask FROM trainer"))
+    // @tswow-end
     {
         do
         {
@@ -9442,6 +9450,10 @@ void ObjectMgr::LoadTrainers()
             Trainer::Type trainerType = Trainer::Type(fields[1].GetUInt8());
             uint32 requirement = fields[2].GetUInt32();
             std::string greeting = fields[3].GetString();
+            // @tswow-begin
+            uint32 raceMask = fields[4].GetUInt32();
+            uint32 classMask = fields[5].GetUInt32();
+            // @tswow-end
             std::vector<Trainer::Spell> spells;
             auto spellsItr = spellsByTrainer.find(trainerId);
             if (spellsItr != spellsByTrainer.end())
@@ -9478,7 +9490,9 @@ void ObjectMgr::LoadTrainers()
                     break;
             }
 
-            auto [it, isNew] = _trainers.emplace(std::piecewise_construct, std::forward_as_tuple(trainerId), std::forward_as_tuple(trainerId, trainerType, requirement, std::move(greeting), std::move(spells)));
+            // @tswow-begin
+            auto [it, isNew] = _trainers.emplace(std::piecewise_construct, std::forward_as_tuple(trainerId), std::forward_as_tuple(trainerId, trainerType, requirement, std::move(greeting), classMask, raceMask, std::move(spells)));
+            // @tswow-end
             ASSERT(isNew);
             if (trainerType == Trainer::Type::Class)
                 _classTrainers[requirement].push_back(&it->second);

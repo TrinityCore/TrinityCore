@@ -58,6 +58,10 @@ namespace Trainer
         uint32 ReqSkillRank = 0;
         std::array<uint32, 3> ReqAbility = { };
         uint8 ReqLevel = 0;
+        // @tswow-begin
+        uint32 classMask = 0;
+        uint32 raceMask = 0;
+        // @tswow-end
 
         bool IsCastable() const;
     };
@@ -65,7 +69,9 @@ namespace Trainer
     class TC_GAME_API Trainer
     {
     public:
-        Trainer(uint32 trainerId, Type type, uint32 requirement, std::string greeting, std::vector<Spell> spells);
+        // @tswow-begin
+        Trainer(uint32 trainerId, Type type, uint32 requirement, std::string greeting, uint32 classMask, uint32 raceMask, std::vector<Spell> spells);
+        // @tswow-end
 
         Spell const* GetSpell(uint32 spellId) const;
         std::vector<Spell> const& GetSpells() const { return _spells; }
@@ -89,6 +95,10 @@ namespace Trainer
         uint32 _trainerId;
         Type _type;
         uint32 _requirement;
+        // @tswow-begin
+        uint32 _classMask;
+        uint32 _raceMask;
+        // @tswow-endk
         std::vector<Spell> _spells;
         std::array<std::string, TOTAL_LOCALES> _greeting;
     };

@@ -29,7 +29,9 @@ namespace Trainer
         return sSpellMgr->AssertSpellInfo(SpellId)->HasEffect(SPELL_EFFECT_LEARN_SPELL);
     }
 
-    Trainer::Trainer(uint32 trainerId, Type type, uint32 requirement, std::string greeting, std::vector<Spell> spells) : _trainerId(trainerId), _type(type), _requirement(requirement), _spells(std::move(spells))
+    // @tswow-begin
+    Trainer::Trainer(uint32 trainerId, Type type, uint32 requirement, std::string greeting, uint32 classMask, uint32 raceMask, std::vector<Spell> spells) : _trainerId(trainerId), _type(type), _requirement(requirement), _classMask(classMask), _raceMask(raceMask), _spells(std::move(spells))
+    // @tswow-end
     {
         _greeting[DEFAULT_LOCALE] = std::move(greeting);
     }
@@ -43,8 +45,16 @@ namespace Trainer
         trainerList.TrainerType = AsUnderlyingType(_type);
         trainerList.Greeting = GetGreeting(locale);
         trainerList.Spells.reserve(_spells.size());
-        for (Spell const& trainerSpell : _spells)
+        // @tswow-begin
+        for(Spell const& trainerSpell : _spells)
         {
+            uint32 raceMask = trainerSpell.raceMask;
+            uint32 classMask = trainerSpell.classMask;
+            if ((((player->GetClassMask() & _classMask) == 0) && _classMask) || ((((player->GetRaceMask() & _raceMask) == 0)) && _raceMask))
+            {
+                continue;
+            }
+        // @tswow-end
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
 
@@ -209,6 +219,14 @@ namespace Trainer
 
     bool Trainer::IsTrainerValidForPlayer(Player const* player) const
     {
+        // @tswow-begin
+        TC_LOG_ERROR("lol.lol", "I'm checking the classmask now and ... %u %u",_classMask,_raceMask);
+        if ((((player->GetClassMask() & _classMask) == 0) && _classMask) || ((((player->GetRaceMask() & _raceMask) == 0)) && _raceMask))
+        {
+            return false;
+        }
+        // @tswow-end
+
         if (!GetTrainerRequirement())
             return true;
 
