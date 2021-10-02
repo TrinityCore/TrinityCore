@@ -60,6 +60,14 @@ public:
             { "password",           HandleAccountSetPasswordCommand,    LANG_COMMAND_ACC_SET_PASSWORD_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,       Console::Yes },
             { "2fa",                HandleAccountSet2FACommand,         LANG_COMMAND_ACC_SET_2FA_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,            Console::Yes },
         };
+        static ChatCommandTable accountOnlinelistCommandTable =
+        {
+            { "",         HandleAccountOnlineListCommand,               LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "ip",       HandleAccountOnlineListWithIpFilterCommand,   LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "limit",    HandleAccountOnlineListWithLimitCommand,      LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "map",      HandleAccountOnlineListWithMapFilterCommand,  LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "zone",     HandleAccountOnlineListWithZoneFilterCommand, LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+        };
         static ChatCommandTable accountCommandTable =
         {
             { "2fa setup",          HandleAccount2FASetupCommand,       LANG_COMMAND_ACC_2FA_SETUP_HELP,        rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,          Console::No  },
@@ -68,7 +76,7 @@ public:
             { "create",             HandleAccountCreateCommand,         LANG_COMMAND_ACC_CREATE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,             Console::Yes },
             { "delete",             HandleAccountDeleteCommand,         LANG_COMMAND_ACC_DELETE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,             Console::Yes },
             { "email",              HandleAccountEmailCommand,          LANG_COMMAND_ACC_EMAIL_HELP,            rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,              Console::No  },
-            { "onlinelist",         HandleAccountOnlineListCommand,     LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "onlinelist",         accountOnlinelistCommandTable },
             { "lock country",       HandleAccountLockCountryCommand,    LANG_COMMAND_ACC_LOCK_COUNTRY_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,       Console::No  },
             { "lock ip",            HandleAccountLockIpCommand,         LANG_COMMAND_ACC_LOCK_IP_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,            Console::No  },
             { "set",                accountSetCommandTable },
@@ -332,16 +340,32 @@ public:
     /// Display info on users currently in the realm
     static bool HandleAccountOnlineListCommand(ChatHandler* handler)
     {
-        if (!sWorld->GetActiveAndQueuedSessionCount())
-        {
-            handler->SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
-            return true;
-        }
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, {}, {});
+    }
 
-        ///- Display the list of account/characters online
-        handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR_HEADER);
-        handler->SendSysMessage(LANG_ACCOUNT_LIST_HEADER);
-        handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
+    static bool HandleAccountOnlineListWithIpFilterCommand(ChatHandler* handler, std::string ipAddress)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, ipAddress, {}, {}, {});
+    }
+
+    static bool HandleAccountOnlineListWithLimitCommand(ChatHandler* handler, uint32 limit)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, limit, {}, {});
+    }
+
+    static bool HandleAccountOnlineListWithMapFilterCommand(ChatHandler* handler, uint32 mapId)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, mapId, {});
+    }
+
+    static bool HandleAccountOnlineListWithZoneFilterCommand(ChatHandler* handler, uint32 zoneId)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, {}, zoneId);
+    }
+
+    static bool HandleAccountOnlineListCommandWithParameters(ChatHandler* handler, Optional<std::string> ipAddress, Optional<uint32> limit, Optional<uint32> mapId, Optional<uint32> zoneId)
+    {
+        size_t sessionsMatchCount = 0;
 
         SessionMap const& sessionsMap = sWorld->GetAllSessions();
         for (SessionMap::value_type const& sessionPair : sessionsMap)
@@ -349,14 +373,54 @@ public:
             WorldSession* session = sessionPair.second;
             Player* player = session->GetPlayer();
 
+            // Ignore sessions on character selection screen
+            if (!player)
+                continue;
+
+            uint32 playerMapId = player->GetMapId();
+            uint32 playerZoneId = player->GetZoneId();
+
+            // Apply optional ipAddress filter
+            if (ipAddress && ipAddress != session->GetRemoteAddress())
+                continue;
+
+            // Apply optional mapId filter
+            if (mapId && mapId != playerMapId)
+                continue;
+
+            // Apply optional zoneId filter
+            if (zoneId && zoneId != playerZoneId)
+                continue;
+
+            if (!sessionsMatchCount)
+            {
+                ///- Display the list of account/characters online on the first matched sessions
+                handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR_HEADER);
+                handler->SendSysMessage(LANG_ACCOUNT_LIST_HEADER);
+                handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
+            }
+
             handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
                 session->GetAccountName().c_str(),
                 session->GetPlayerName().c_str(),
                 session->GetRemoteAddress().c_str(),
-                player ? player->GetMapId() : -1,
-                player ? player->GetZoneId() : -1,
+                playerMapId,
+                playerZoneId,
                 session->Expansion(),
                 AsUnderlyingType(session->GetSecurity()));
+
+            ++sessionsMatchCount;
+
+            // Apply optional count limit
+            if (limit && sessionsMatchCount >= limit)
+                break;
+        }
+
+        // Header is printed on first matched session. If it wasn't printed then no sessions matched the criteria
+        if (!sessionsMatchCount)
+        {
+            handler->SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
+            return true;
         }
 
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
