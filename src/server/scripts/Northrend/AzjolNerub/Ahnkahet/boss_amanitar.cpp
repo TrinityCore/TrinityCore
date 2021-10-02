@@ -147,7 +147,7 @@ struct boss_amanitar : public BossAI
             switch (eventId)
             {
                 case EVENT_SPAWN:
-                    for (Position const pos : MushroomPositions)
+                    for (Position const& pos : MushroomPositions)
                         SpawnMushroom(pos);
                     break;
                 case EVENT_MINI:

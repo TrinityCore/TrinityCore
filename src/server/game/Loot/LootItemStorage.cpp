@@ -250,7 +250,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
         auto itr = _lootItemStore.find(loot->containerID.GetCounter());
         if (itr != _lootItemStore.end())
         {
-            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: %lu that is already in storage!", player->GetGUID().ToString().c_str(), loot->containerID.GetCounter());
+            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: " UI64FMTD " that is already in storage!", player->GetGUID().ToString().c_str(), loot->containerID.GetCounter());
             return;
         }
     }

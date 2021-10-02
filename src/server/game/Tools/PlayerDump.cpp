@@ -523,7 +523,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
     s = str.find("` (`");
     if (s == std::string::npos)
     {
-        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") dump format not recognized.", lineNumber);
+        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") dump format not recognized.", lineNumber);
         return false;
     }
     s += 4;
@@ -532,7 +532,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
     std::string::size_type e = str.find('`', s);
     if (e == std::string::npos || valPos == std::string::npos)
     {
-        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") unexpected end of line", lineNumber);
+        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") unexpected end of line", lineNumber);
         return false;
     }
 
@@ -542,7 +542,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
         int32 columnIndex = GetColumnIndexByName(ts, column);
         if (columnIndex == -1)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") unknown column name `%s` for table `%s`, aborting due to incompatible DB structure.", lineNumber, column.c_str(), ts.TableName.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") unknown column name `%s` for table `%s`, aborting due to incompatible DB structure.", lineNumber, column.c_str(), ts.TableName.c_str());
             return false;
         }
 
@@ -944,7 +944,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         std::string tn = GetTableName(line);
         if (tn.empty())
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") Can't extract table name!", lineNumber);
+            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") Can't extract table name!", lineNumber);
             return DUMP_FILE_BROKEN;
         }
 
@@ -961,7 +961,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") Unknown table: `%s`!", lineNumber, tn.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") Unknown table: `%s`!", lineNumber, tn.c_str());
             return DUMP_FILE_BROKEN;
         }
 

@@ -1,3 +1,5 @@
+include(CheckCXXSourceCompiles)
+
 # Set build-directive (used in core to tell which buildtype we used)
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
@@ -13,8 +15,11 @@ if(WITH_WARNINGS)
       -Wfatal-errors
       -Wno-mismatched-tags
       -Woverloaded-virtual)
- 
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
+
+  set(CMAKE_REQUIRED_FLAGS "-Wno-deprecated-copy")
+  check_cxx_source_compiles("int main() { return 0; }" CLANG_HAS_DEPRECATED_COPY)
+  unset(CMAKE_REQUIRED_FLAGS)
+  if(CLANG_HAS_DEPRECATED_COPY)
     target_compile_options(trinity-warning-interface
       INTERFACE
         -Wno-deprecated-copy) # warning in g3d

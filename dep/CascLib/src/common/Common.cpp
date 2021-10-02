@@ -81,7 +81,7 @@ static DWORD dwLastError = ERROR_SUCCESS;
 
 DWORD GetCascError()
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
     return GetLastError();
 #else
     return dwLastError;
@@ -90,7 +90,7 @@ DWORD GetCascError()
 
 void SetCascError(DWORD dwErrCode)
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
     SetLastError(dwErrCode);
 #endif
     dwLastError = dwErrCode;
@@ -301,7 +301,7 @@ size_t CascStrPrintf(char * buffer, size_t nCount, const char * format, ...)
     // Start the argument list
     va_start(argList, format);
     
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
     StringCchVPrintfExA(buffer, nCount, &buffend, NULL, 0, format, argList);
 //  buffend = buffer + vsnprintf(buffer, nCount, format, argList);
 #else
@@ -321,7 +321,7 @@ size_t CascStrPrintf(wchar_t * buffer, size_t nCount, const wchar_t * format, ..
     // Start the argument list
     va_start(argList, format);
 
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
     StringCchVPrintfExW(buffer, nCount, &buffend, NULL, 0, format, argList);
 //  buffend = buffer + vswprintf(buffer, nCount, format, argList);
 #else
