@@ -455,6 +455,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     m_createTime = GameTime::GetGameTime();
     UpdatePositionData();
 
+    // set initial homebind position
+    SetHomebind(*this, GetAreaId());
+
     uint8 powertype = cEntry->DisplayPower;
 
     SetObjectScale(1.0f);
@@ -17975,6 +17978,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     SetPlayerFlagsEx(fields.playerFlagsEx);
     SetWatchedFactionIndex(fields.watchedFaction);
 
+    m_atLoginFlags = fields.at_login;
+
     if (!GetSession()->ValidateAppearance(Races(getRace()), Classes(getClass()), fields.gender, MakeChrCustomizationChoiceRange(customizations)))
     {
         TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has wrong Appearance values (Hair/Skin/Color), can't load.", guid.ToString().c_str());
@@ -18329,8 +18334,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
             GetGUID().ToString().c_str(), MAX_PET_STABLES, uint32(m_stableSlots));
         m_stableSlots = MAX_PET_STABLES;
     }
-
-    m_atLoginFlags = fields.at_login;
 
     if (HasAtLoginFlag(AT_LOGIN_RENAME))
     {
@@ -20271,7 +20274,19 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         }
     }
 
-    if (!ok)
+    auto saveHomebindToDb = [&]()
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt16(1, m_homebindMapId);
+        stmt->setUInt16(2, m_homebindAreaId);
+        stmt->setFloat(3, m_homebindX);
+        stmt->setFloat(4, m_homebindY);
+        stmt->setFloat(5, m_homebindZ);
+        CharacterDatabase.Execute(stmt);
+    };
+
+    if (!ok && HasAtLoginFlag(AT_LOGIN_FIRST))
     {
         m_homebindMapId = info->mapId;
         m_homebindAreaId = info->areaId;
@@ -20279,14 +20294,23 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         m_homebindY = info->positionY;
         m_homebindZ = info->positionZ;
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        stmt->setUInt16(1, m_homebindMapId);
-        stmt->setUInt16(2, m_homebindAreaId);
-        stmt->setFloat (3, m_homebindX);
-        stmt->setFloat (4, m_homebindY);
-        stmt->setFloat (5, m_homebindZ);
-        CharacterDatabase.Execute(stmt);
+        saveHomebindToDb();
+        ok = true;
+    }
+
+    if (!ok)
+    {
+        WorldSafeLocsEntry const* loc = sObjectMgr->GetDefaultGraveyard(GetTeam());
+        if (!loc && getRace() == RACE_PANDAREN_NEUTRAL)
+            loc = sObjectMgr->GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
+
+        ASSERT(loc, "Missing fallback graveyard location for faction %u", uint32(GetTeamId()));
+
+        m_homebindMapId = loc->Loc.GetMapId();
+        m_homebindAreaId = sMapMgr->GetAreaId(PhasingHandler::GetEmptyPhaseShift(), loc->Loc);
+        loc->Loc.GetPosition(m_homebindX, m_homebindY, m_homebindZ);
+
+        saveHomebindToDb();
     }
 
     TC_LOG_DEBUG("entities.player", "Player::_LoadHomeBind: Setting home position (MapID: %u, AreaID: %u, X: %f, Y: %f, Z: %f) of player '%s' (%s)",
