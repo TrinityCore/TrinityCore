@@ -1184,19 +1184,35 @@ public:
         }
 
         char const* ccount = strtok(nullptr, " ");
+        char const* playerTargetArg = nullptr;
 
         int32 count = 1;
 
         if (ccount)
+        {
             count = strtol(ccount, nullptr, 10);
 
-        if (count == 0)
-            count = 1;
+            if (count == 0)
+            {
+                count = 1;
+                // if the conversion to number fails it might be the target player name instead
+                playerTargetArg = ccount;
+            }
+            else
+            {
+                // otherwise get the next word from the arguments
+                playerTargetArg = strtok(nullptr, " ");
+            }
+        }
 
         Player* player = handler->GetSession()->GetPlayer();
-        Player* playerTarget = handler->getSelectedPlayer();
-        if (!playerTarget)
-            playerTarget = player;
+
+        Player* playerTarget = nullptr;
+        if (!handler->extractPlayerTarget((char*)playerTargetArg, &playerTarget))
+        {
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_ADDITEM), itemId, count);
 
