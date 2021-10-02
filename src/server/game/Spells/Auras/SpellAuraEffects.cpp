@@ -6009,16 +6009,14 @@ void AuraEffect::HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode
         return;
 
     if (apply)
-    {
-        aurApp->GetTarget()->Dismount();
         aurApp->GetTarget()->SetCosmeticMountDisplayId(GetMiscValue());
-    }
     else
-        aurApp->GetTarget()->SetCosmeticMountDisplayId(0);
+        aurApp->GetTarget()->SetCosmeticMountDisplayId(0); // set cosmetic mount to 0, even if multiple auras are active; tested with zandalari racial + divine steed
 
     Player* playerTarget = aurApp->GetTarget()->ToPlayer();
     if (!playerTarget)
         return;
+
     playerTarget->SendMovementSetCollisionHeight(playerTarget->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Force);
 }
 

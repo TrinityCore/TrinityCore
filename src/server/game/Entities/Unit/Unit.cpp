@@ -7471,7 +7471,10 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, SpellInfo const* spe
 void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 {
     if (mount)
+    {
+        RemoveAurasByType(SPELL_AURA_COSMETIC_MOUNTED);
         SetMountDisplayId(mount);
+    }
 
     AddUnitFlag(UNIT_FLAG_MOUNT);
 
