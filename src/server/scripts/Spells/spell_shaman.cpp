@@ -1442,7 +1442,7 @@ public:
 //  12676 - AreaTriggerId
 struct areatrigger_sha_windrush_totem : AreaTriggerAI
 {
-    static uint32 const REFRESH_TIME = 4500;
+    constexpr uint32 REFRESH_TIME = 4500;
 
     areatrigger_sha_windrush_totem(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(REFRESH_TIME) { }
 
