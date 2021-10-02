@@ -596,14 +596,15 @@ typedef std::vector<SkillRaceClassInfoEntry const*> PlayerCreateInfoSkills;
 // existence checked by displayId != 0
 struct PlayerInfo
 {
-    uint32 mapId = 0;
-    uint32 areaId = 0;
-    float positionX = 0.0f;
-    float positionY = 0.0f;
-    float positionZ = 0.0f;
-    float orientation = 0.0f;
-    uint32 displayId_m = 0;
-    uint32 displayId_f = 0;
+    struct CreatePosition
+    {
+        WorldLocation Loc;
+        Optional<ObjectGuid::LowType> TransportGuid;
+    };
+
+    CreatePosition createPosition;
+    Optional<CreatePosition> createPositionNPE;
+
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
     PlayerCreateInfoSpells castSpells;
