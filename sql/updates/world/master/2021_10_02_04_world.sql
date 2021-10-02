@@ -1,0 +1,4 @@
+--
+UPDATE `quest_objectives` SET `VerifiedBuild`=40120 WHERE `ID` IN (256445,256853,256854,259624,276209,276210,276219,276221);
+
+UPDATE `quest_visual_effect` SET `VerifiedBuild`=40120 WHERE `ID` IN (259624,276219,276221) AND `Index`=0;
