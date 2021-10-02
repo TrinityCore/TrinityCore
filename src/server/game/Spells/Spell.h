@@ -534,6 +534,7 @@ class TC_GAME_API Spell
         bool IsChannelActive() const;
         bool IsAutoActionResetSpell() const;
         bool IsPositive() const;
+        bool IsDelayedSpell() const;
 
         bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
@@ -574,6 +575,7 @@ class TC_GAME_API Spell
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
         void _cast(bool skipCheck = false);
+        void HandleWithMeleeReset();
 
         void SendLoot(ObjectGuid guid, LootType loottype);
         std::pair<float, float> GetMinMaxRange(bool strict) const;
