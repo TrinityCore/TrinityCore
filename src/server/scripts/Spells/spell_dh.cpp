@@ -22,6 +22,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
@@ -30,6 +32,9 @@
 enum DemonHunterSpells
 {
     SPELL_CHAOS_STRIKE_ENERGIZE             = 193840,
+    SPELL_DH_SIGIL_OF_SILENCE_AOE           = 204490,
+    SPELL_DH_SIGIL_OF_MISERY_AOE            = 207685,
+    SPELL_DH_SIGIL_OF_FLAME_AOE             = 204598,
 };
 
 // 197125 - Chaos Strike
@@ -57,7 +62,38 @@ class spell_dh_chaos_strike : public AuraScript
     }
 };
 
+// 202137 - Sigil of Silence
+// 207684 - Sigil of Misery
+// 204596 - Sigil of Flame
+template<uint32 TriggerSpellId>
+class areatrigger_dh_generic_sigil : public AreaTriggerEntityScript
+{
+public:
+    areatrigger_dh_generic_sigil(char const* script) : AreaTriggerEntityScript(script) { }
+
+    template<uint32 Trigger>
+    struct areatrigger_dh_generic_sigilAI : AreaTriggerAI
+    {
+        areatrigger_dh_generic_sigilAI(AreaTrigger* at) : AreaTriggerAI(at) { }
+
+        void OnRemove() override
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), Trigger);
+        }
+    };
+
+    AreaTriggerAI* GetAI(AreaTrigger* at) const override
+    {
+        return new areatrigger_dh_generic_sigilAI<TriggerSpellId>(at);
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterAuraScript(spell_dh_chaos_strike);
+
+    new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>("areatrigger_dh_sigil_of_silence");
+    new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>("areatrigger_dh_sigil_of_misery");
+    new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE>("areatrigger_dh_sigil_of_flame");
 }
