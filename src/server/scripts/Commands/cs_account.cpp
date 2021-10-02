@@ -407,7 +407,7 @@ public:
                 playerMapId,
                 playerZoneId,
                 session->Expansion(),
-                AsUnderlyingType(session->GetSecurity()));
+                int32(session->GetSecurity()));
 
             ++sessionsMatchCount;
 
