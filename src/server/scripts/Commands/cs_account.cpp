@@ -332,10 +332,7 @@ public:
     /// Display info on users currently in the realm
     static bool HandleAccountOnlineListCommand(ChatHandler* handler)
     {
-        ///- Get the list of accounts ID logged to the realm
-        PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE));
-
-        if (!result)
+        if (!sWorld->GetActiveAndQueuedSessionCount())
         {
             handler->SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
             return true;
@@ -346,31 +343,21 @@ public:
         handler->SendSysMessage(LANG_ACCOUNT_LIST_HEADER);
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
 
-        ///- Cycle through accounts
-        do
+        SessionMap const& sessionsMap = sWorld->GetAllSessions();
+        for (SessionMap::value_type const& sessionPair : sessionsMap)
         {
-            Field* fieldsDB = result->Fetch();
-            std::string name = fieldsDB[0].GetString();
-            uint32 account = fieldsDB[1].GetUInt32();
+            WorldSession* session = sessionPair.second;
+            Player* player = session->GetPlayer();
 
-            ///- Get the username, last IP and GM level of each account
-            // No SQL injection. account is uint32.
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
-            stmt->setUInt32(0, account);
-            PreparedQueryResult resultLogin = LoginDatabase.Query(stmt);
-
-            if (resultLogin)
-            {
-                Field* fieldsLogin = resultLogin->Fetch();
-                handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
-                    fieldsLogin[0].GetCString(), name.c_str(), fieldsLogin[1].GetCString(),
-                    fieldsDB[2].GetUInt16(), fieldsDB[3].GetUInt16(), fieldsLogin[3].GetUInt8(),
-                    fieldsLogin[2].GetUInt8());
-            }
-            else
-                handler->PSendSysMessage(LANG_ACCOUNT_LIST_ERROR, name.c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
+                session->GetAccountName().c_str(),
+                session->GetPlayerName().c_str(),
+                session->GetRemoteAddress().c_str(),
+                player ? player->GetMapId() : -1,
+                player ? player->GetZoneId() : -1,
+                session->Expansion(),
+                AsUnderlyingType(session->GetSecurity()));
         }
-        while (result->NextRow());
 
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
         return true;
