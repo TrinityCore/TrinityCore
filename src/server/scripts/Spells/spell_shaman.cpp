@@ -1448,7 +1448,8 @@ struct areatrigger_sha_windrush_totem : AreaTriggerAI
 
     void OnUpdate(uint32 diff) override
     {
-        if (_refreshTimer <= diff)
+        _refreshTimer -= diff;
+        if (_refreshTimer <= 0)
         {
             if (Unit* caster = at->GetCaster())
             {
@@ -1458,10 +1459,8 @@ struct areatrigger_sha_windrush_totem : AreaTriggerAI
                         caster->CastSpell(unit, SPELL_SHAMAN_WINDRUSH, true);
                 }
             }
-            _refreshTimer = REFRESH_TIME;
+            _refreshTimer += REFRESH_TIME;
         }
-        else
-            _refreshTimer -= diff;
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -1475,7 +1474,7 @@ struct areatrigger_sha_windrush_totem : AreaTriggerAI
         }
     }
 private:
-    uint32 _refreshTimer;
+    int32 _refreshTimer;
 };
 
 void AddSC_shaman_spell_scripts()
