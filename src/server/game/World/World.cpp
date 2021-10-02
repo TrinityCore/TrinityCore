@@ -91,6 +91,10 @@
 
 #include <boost/asio/ip/address.hpp>
 
+// @tswow-begin - avoid including from StatSystem.h
+void LoadAPFormulas();
+// @tswow-end
+
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 
@@ -1925,6 +1929,9 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadPlayerInfo();
 
     // @tswow-begin
+    TC_LOG_INFO("server.loading", "Loading Class Stat formula overrides...");
+    LoadAPFormulas();
+
     TC_LOG_INFO("server.loading", "Loading Spell Autolearn Data...");
     sObjectMgr->LoadSpellAutolearn();
     // @tswow-end
