@@ -98,6 +98,11 @@ class spell_dh_sigil_of_chains : public SpellScript
 {
     PrepareSpellScript(spell_dh_sigil_of_chains);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_CHAINS_SLOW, SPELL_DH_SIGIL_OF_CHAINS_GRIP });
+    }
+
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (WorldLocation const* loc = GetExplTargetDest())
