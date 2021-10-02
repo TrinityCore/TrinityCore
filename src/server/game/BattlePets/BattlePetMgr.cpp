@@ -176,13 +176,13 @@ uint16 BattlePetMgr::RollPetBreed(uint32 species)
     return Trinity::Containers::SelectRandomContainerElement(itr->second);
 }
 
-uint8 BattlePetMgr::GetDefaultPetQuality(uint32 species)
+BattlePetBreedQuality BattlePetMgr::GetDefaultPetQuality(uint32 species)
 {
     auto itr = _defaultQualityPerSpecies.find(species);
     if (itr == _defaultQualityPerSpecies.end())
-        return AsUnderlyingType(BattlePetBreedQuality::Poor); // Default
+        return BattlePetBreedQuality::Poor; // Default
 
-    return itr->second;
+    return BattlePetBreedQuality(itr->second);
 }
 
 BattlePetMgr::BattlePetMgr(WorldSession* owner)
@@ -319,7 +319,7 @@ BattlePetMgr::BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
     return Trinity::Containers::MapGetValuePtr(_pets, guid.GetCounter());
 }
 
-void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level /*= 1*/)
+void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, BattlePetBreedQuality quality, uint16 level /*= 1*/)
 {
     BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(species);
     if (!battlePetSpecies) // should never happen
@@ -336,7 +336,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8
     pet.PacketInfo.Exp = 0;
     pet.PacketInfo.Flags = 0;
     pet.PacketInfo.Breed = breed;
-    pet.PacketInfo.Quality = quality;
+    pet.PacketInfo.Quality = AsUnderlyingType(quality);
     pet.PacketInfo.Name = "";
     pet.CalculateStats();
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;

@@ -135,13 +135,13 @@ public:
     static void Initialize();
 
     static uint16 RollPetBreed(uint32 species);
-    static uint8 GetDefaultPetQuality(uint32 species);
+    static BattlePetBreedQuality GetDefaultPetQuality(uint32 species);
 
     void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
     void SaveToDB(LoginDatabaseTransaction& trans);
 
     BattlePet* GetPet(ObjectGuid guid);
-    void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1);
+    void AddPet(uint32 species, uint32 creatureId, uint16 breed, BattlePetBreedQuality quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
     bool IsPetInSlot(ObjectGuid guid);

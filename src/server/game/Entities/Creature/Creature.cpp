@@ -1624,8 +1624,12 @@ void Creature::SelectWildBattlePetLevel()
 {
     if (IsWildBattlePet())
     {
-        AreaTableEntry const* areaTable = sAreaTableStore.AssertEntry(GetZoneId());
-        uint8 wildBattlePetLevel = areaTable->WildBattlePetLevelMin > 0 ? urand(areaTable->WildBattlePetLevelMin, areaTable->WildBattlePetLevelMax) : WILD_BATTLE_PET_DEFAULT_LEVEL;
+        uint8 wildBattlePetLevel = WILD_BATTLE_PET_DEFAULT_LEVEL;
+
+        if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(GetZoneId()))
+            if (areaTable->WildBattlePetLevelMin > 0)
+                wildBattlePetLevel = urand(areaTable->WildBattlePetLevelMin, areaTable->WildBattlePetLevelMax);
+
         SetWildBattlePetLevel(wildBattlePetLevel);
     }
 }
