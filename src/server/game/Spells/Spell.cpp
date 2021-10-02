@@ -215,28 +215,6 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
         data.Name = m_strTarget;
 }
 
-ObjectGuid SpellCastTargets::GetOrigUnitTargetGUID() const
-{
-    switch (m_origObjectTargetGUID.GetHigh())
-    {
-        case HighGuid::Player:
-        case HighGuid::Vehicle:
-        case HighGuid::Unit:
-        case HighGuid::Pet:
-            return m_origObjectTargetGUID;
-        default:
-            return ObjectGuid();
-    }
-}
-
-void SpellCastTargets::SetOrigUnitTarget(Unit* target)
-{
-    if (!target)
-        return;
-
-    m_origObjectTargetGUID = target->GetGUID();
-}
-
 ObjectGuid SpellCastTargets::GetUnitTargetGUID() const
 {
     if (m_objectTargetGUID.IsUnit())
@@ -651,7 +629,7 @@ Spell::~Spell()
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 {
     m_targets = targets;
-    m_targets.SetOrigUnitTarget(m_targets.GetUnitTarget());
+
     // this function tries to correct spell explicit targets for spell
     // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
     // this also makes sure that we correctly send explicit targets to client (removes redundant data)
@@ -2515,6 +2493,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             }
             else
             {
+                caster->SetLastDamagedTargetGuid(spell->unitTarget->GetGUID());
+
                 // Add bonuses and fill damageInfo struct
                 caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, spell);
                 Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
@@ -3711,13 +3691,8 @@ void Spell::_handle_finish_phase()
             unitCaster->AddComboPoints(m_comboTarget, m_comboPointGain);
         }
 
-        if (unitCaster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
-        {
-            if (Unit* victim = ObjectAccessor::GetUnit(*unitCaster, m_targets.GetOrigUnitTargetGUID()))
-                unitCaster->HandleProcExtraAttackFor(victim);
-            else
-                unitCaster->m_extraAttacks = 0;
-        }
+        if (m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+            unitCaster->SetLastExtraAttackSpell(m_spellInfo->Id);
     }
 
     // Handle procs on finish

@@ -127,6 +127,18 @@ void CliThread()
     if (sConfigMgr->GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    if (sConfigMgr->GetBoolDefault("FlashAtStart", true))
+    {
+        FLASHWINFO fInfo;
+        fInfo.cbSize = sizeof(FLASHWINFO);
+        fInfo.dwFlags = FLASHW_TRAY | FLASHW_TIMERNOFG;
+        fInfo.hwnd = GetConsoleWindow();
+        fInfo.uCount = 0;
+        fInfo.dwTimeout = 0;
+        FlashWindowEx(&fInfo);
+    }
+#endif
     ///- As long as the World is running (no World::m_stopEvent), get the command line and handle it
     while (!World::IsStopped())
     {
