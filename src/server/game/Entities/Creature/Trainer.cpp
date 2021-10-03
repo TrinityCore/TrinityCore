@@ -142,6 +142,11 @@ namespace Trainer
 
     bool Trainer::CanTeachSpell(Player const* player, Spell const* trainerSpell) const
     {
+        if ((((player->GetClassMask() & trainerSpell->classMask) == 0) && trainerSpell->classMask) || ((((player->GetRaceMask() & trainerSpell->raceMask) == 0)) && trainerSpell->raceMask))
+        {
+            return false;
+        }
+
         SpellState state = GetSpellState(player, trainerSpell);
         if (state != SpellState::Available)
             return false;
@@ -220,7 +225,6 @@ namespace Trainer
     bool Trainer::IsTrainerValidForPlayer(Player const* player) const
     {
         // @tswow-begin
-        TC_LOG_ERROR("lol.lol", "I'm checking the classmask now and ... %u %u",_classMask,_raceMask);
         if ((((player->GetClassMask() & _classMask) == 0) && _classMask) || ((((player->GetRaceMask() & _raceMask) == 0)) && _raceMask))
         {
             return false;
