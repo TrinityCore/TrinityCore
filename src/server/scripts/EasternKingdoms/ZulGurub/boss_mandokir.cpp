@@ -608,7 +608,7 @@ class spell_mandokir_devastating_slam : public SpellScriptLoader
                         angle = float(rand_norm()) * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
                         caster->GetClosePoint(x, y, z, 4.0f, frand(-2.5f, 50.0f), angle);
 
-                        caster->CastSpell({ x, y, z }, SPELL_DEVASTATING_SLAM_DAMAGE, true);
+                        caster->CastSpell(Position{ x, y, z }, SPELL_DEVASTATING_SLAM_DAMAGE, true);
                     }
                 }
             }

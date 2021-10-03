@@ -462,9 +462,7 @@ class spell_sha_flametongue_weapon : public SpellScript
         if (!targetItem || !targetItem->GetTemplate()->IsWeapon())
             return;
 
-        SpellCastTargets targets;
-        targets.SetItemTarget(targetItem);
-        player->CastSpell(targets, SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT, true);
+        player->CastSpell(targetItem, SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT, true);
     }
 
     void Register() override
