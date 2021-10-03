@@ -1456,7 +1456,12 @@ struct areatrigger_sha_windrush_totem : AreaTriggerAI
                 for (ObjectGuid const& guid : at->GetInsideUnits())
                 {
                     if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))
+                    {
+                        if (!caster->IsFriendlyTo(unit))
+                            continue;
+
                         caster->CastSpell(unit, SPELL_SHAMAN_WINDRUSH, true);
+                    }
                 }
             }
             _refreshTimer += REFRESH_TIME;
