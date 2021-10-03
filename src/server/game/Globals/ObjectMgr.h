@@ -1524,7 +1524,9 @@ class TC_GAME_API ObjectMgr
 
             return &iter->second;
         }
-        void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist = true); // for event
+        // @tswow-begin masks
+        void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint32 raceMask, uint32 classMask, bool persist = true); // for event
+        // @tswow-end
         bool RemoveVendorItem(uint32 entry, uint32 item, bool persist = true); // for event
         bool IsVendorItemValid(uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
 

@@ -21940,6 +21940,28 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     }
 
     VendorItem const* crItem = vItems->GetItem(vendorslot);
+    // @tswow-begin check masks
+    bool shouldSend = true;
+    FIRE_MAP(
+          creature->GetCreatureTemplate()->events
+        , CreatureOnSendVendorItem
+        , TSCreature(creature)
+        , TSItemTemplate(pProto)
+        , TSPlayer(this)
+        , TSMutable<bool>(&shouldSend)
+    )
+    if (!shouldSend)
+    {
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
+        return false;
+    }
+    if (!MatchRaceClassMask(crItem->raceMask, crItem->classMask))
+    {
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
+        return false;
+    }
+    // @tswow-end
+
     // store diff item (cheating)
     if (!crItem || crItem->item != item)
     {

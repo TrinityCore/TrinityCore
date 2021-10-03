@@ -95,6 +95,10 @@ struct NPCVendorEntry
     int32  maxcount;                                        // 0 for infinite
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    // @tswow-begin masks
+    uint32 raceMask = 0;
+    uint32 classMask = 0;
+    // @tswow-end
 };
 
 class Player;

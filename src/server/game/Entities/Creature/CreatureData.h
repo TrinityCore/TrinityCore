@@ -353,13 +353,19 @@ struct CreatureAddon
 // Vendors
 struct VendorItem
 {
-    VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost)
-        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost) { }
+    // @tswow-begin masks
+    VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost, uint32 _raceMask, uint32 _classMask)
+        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost), raceMask(_raceMask), classMask(_classMask) { }
+    // @tswow-end
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    // @tswow-begin masks
+    uint32 raceMask;
+    uint32 classMask;
+    // @tswow-end
 
     //helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const;
@@ -378,10 +384,12 @@ struct VendorItemData
     }
     bool Empty() const { return m_items.empty(); }
     uint8 GetItemCount() const { return m_items.size(); }
-    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost)
+    // @tswow-begin masks
+    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint32 raceMask, uint32 classMask)
     {
-        m_items.emplace_back(item, maxcount, ptime, ExtendedCost);
+        m_items.emplace_back(item, maxcount, ptime, ExtendedCost, raceMask, classMask);
     }
+    // @tswow-end
     bool RemoveItem(uint32 item_id);
     VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost) const;
     void Clear()

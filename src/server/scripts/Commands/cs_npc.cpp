@@ -199,7 +199,9 @@ public:
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
+        // @tswow-begin
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, 0 ,0);
+        // @tswow-end
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 

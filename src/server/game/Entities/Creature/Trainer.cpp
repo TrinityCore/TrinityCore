@@ -15,6 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSPlayer.h"
+#include "TSSpellInfo.h"
+#include "TSMutable.h"
+#include "TSEvents.h"
+// @tswow-end
 #include "Trainer.h"
 #include "Creature.h"
 #include "NPCPackets.h"
@@ -45,21 +51,35 @@ namespace Trainer
         trainerList.TrainerType = AsUnderlyingType(_type);
         trainerList.Greeting = GetGreeting(locale);
         trainerList.Spells.reserve(_spells.size());
-        // @tswow-begin
         for(Spell const& trainerSpell : _spells)
         {
-            uint32 raceMask = trainerSpell.raceMask;
-            uint32 classMask = trainerSpell.classMask;
-            if ((((player->GetClassMask() & _classMask) == 0) && _classMask) || ((((player->GetRaceMask() & _raceMask) == 0)) && _raceMask))
-            {
-                continue;
-            }
-        // @tswow-end
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
 
             SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
 
+            // @tswow-begin masks and event
+            uint32 raceMask = trainerSpell.raceMask;
+            uint32 classMask = trainerSpell.classMask;
+            if(!player->MatchRaceClassMask(trainerSpell.raceMask,trainerSpell.classMask))
+            {
+                continue;
+            }
+            bool allowTrain = true;
+
+            FIRE_MAP(
+                trainerSpellInfo->events
+                , SpellOnTrainerSend
+                , TSSpellInfo(trainerSpellInfo)
+                , _trainerId
+                , TSPlayer(const_cast<Player*>(player))
+                , TSMutable<bool>(&allowTrain)
+            )
+            if (!allowTrain)
+            {
+                continue;
+            }
+            // @tswow-end
             bool primaryProfessionFirstRank = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
@@ -142,16 +162,30 @@ namespace Trainer
 
     bool Trainer::CanTeachSpell(Player const* player, Spell const* trainerSpell) const
     {
-        if ((((player->GetClassMask() & trainerSpell->classMask) == 0) && trainerSpell->classMask) || ((((player->GetRaceMask() & trainerSpell->raceMask) == 0)) && trainerSpell->raceMask))
-        {
-            return false;
-        }
-
         SpellState state = GetSpellState(player, trainerSpell);
         if (state != SpellState::Available)
             return false;
 
         SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell->SpellId);
+        // @tswow-begin
+        if (!player->MatchRaceClassMask(trainerSpell->raceMask, trainerSpell->classMask))
+        {
+            return false;
+        }
+        bool allowTrain = true;
+        FIRE_MAP(
+              trainerSpellInfo->events
+            , SpellOnTrainerSend
+            , TSSpellInfo(trainerSpellInfo)
+            , _trainerId
+            , TSPlayer(const_cast<Player*>(player))
+            , TSMutable<bool>(&allowTrain)
+        )
+        if (!allowTrain)
+        {
+            return false;
+        }
+        // @tswow-end
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
@@ -225,7 +259,7 @@ namespace Trainer
     bool Trainer::IsTrainerValidForPlayer(Player const* player) const
     {
         // @tswow-begin
-        if ((((player->GetClassMask() & _classMask) == 0) && _classMask) || ((((player->GetRaceMask() & _raceMask) == 0)) && _raceMask))
+        if (!player->MatchRaceClassMask(_raceMask, _classMask))
         {
             return false;
         }

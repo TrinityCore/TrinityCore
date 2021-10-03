@@ -854,6 +854,13 @@ class TC_GAME_API Unit : public WorldObject
         void SetGender(uint8 gender) { SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender); }
         virtual uint8 GetNativeGender() const { return GetGender(); }
         virtual void SetNativeGender(uint8 gender) { SetGender(gender); }
+        // @tswow-begin
+        bool MatchRaceClassMask(uint32 raceMask, uint32 classMask, bool allowZero = true) const
+        {
+            return ((allowZero && classMask == 0) || (GetClassMask() & classMask))
+                && ((allowZero && raceMask == 0) || (GetRaceMask() & raceMask));
+        }
+        // @tswow-end
 
         float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STAT0+stat)); }
         void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STAT0+stat, val); }

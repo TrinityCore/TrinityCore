@@ -9590,13 +9590,19 @@ uint32 ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>
             int32  maxcount     = fields[1].GetUInt8();
             uint32 incrtime     = fields[2].GetUInt32();
             uint32 ExtendedCost = fields[3].GetUInt32();
+            // @tswow-begin masks
+            uint32 raceMask     = fields[4].GetUInt32();
+            uint32 classMask    = fields[5].GetUInt32();
+            // @tswow-end
 
             if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, nullptr, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
+            // @tswow-begin masks
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, raceMask, classMask);
+            // @tswow-end
             ++count;
         }
     } while (result->NextRow());
@@ -9615,7 +9621,9 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC");
+    // @tswow-begin masks
+    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, raceMask, classMask FROM npc_vendor ORDER BY entry, slot ASC");
+    // @tswow-end
     if (!result)
     {
 
@@ -9640,13 +9648,19 @@ void ObjectMgr::LoadVendors()
             uint32 maxcount     = fields[2].GetUInt8();
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
+            // @tswow-begin load masks
+            uint32 raceMask     = fields[5].GetUInt32();
+            uint32 classMask    = fields[6].GetUInt32();
+            // @tswow-end
 
             if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, nullptr, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
+            // @tswow-begin
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, raceMask, classMask);
+            // @tswow-end
             ++count;
         }
     }
@@ -9776,10 +9790,14 @@ Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 creatureId) const
     return nullptr;
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist /*= true*/)
+// @tswow-begin masks
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint32 raceMask, uint32 classMask, bool persist /*= true*/)
+// @tswow-end
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedCost);
+    // @tswow-begin masks
+    vList.AddItem(item, maxcount, incrtime, extendedCost, raceMask, classMask);
+    // @tswow-end
 
     if (persist)
     {
@@ -9790,6 +9808,10 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
         stmt->setUInt8(2, maxcount);
         stmt->setUInt32(3, incrtime);
         stmt->setUInt32(4, extendedCost);
+        // @tswow-begin masks
+        stmt->setUInt32(5, raceMask);
+        stmt->setUInt32(6, classMask);
+        // @tswow-end
 
         WorldDatabase.Execute(stmt);
     }
