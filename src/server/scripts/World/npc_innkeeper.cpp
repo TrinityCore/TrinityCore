@@ -72,7 +72,7 @@ public:
                     case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
                     case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionIcon::None, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
 
             if (me->IsQuestGiver())
@@ -88,7 +88,7 @@ public:
                     case LOCALE_esES: localizedEntry = LOCALE_VENDOR_6; break;
                     case LOCALE_enUS: default: localizedEntry = LOCALE_VENDOR_0;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionIcon::Vendor, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
             }
 
             if (me->IsInnkeeper())
@@ -101,7 +101,7 @@ public:
                     case LOCALE_esES: localizedEntry = LOCALE_INNKEEPER_6; break;
                     case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
+                AddGossipItemFor(player, GossipOptionIcon::Binder, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
             }
 
             player->TalkedToCreature(me->GetEntry(), me->GetGUID());
