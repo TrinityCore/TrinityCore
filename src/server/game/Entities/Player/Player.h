@@ -1059,14 +1059,6 @@ enum class ZonePVPTypeOverride : uint32
     Combat      = 4
 };
 
-enum class Role : uint8
-{
-    Tank   = 0,
-    Healer = 1,
-    Damage = 2,
-    NotSet = 3,
-};
-
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1769,7 +1761,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
-        Role GetRole() const;
 
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();

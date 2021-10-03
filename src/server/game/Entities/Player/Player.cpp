@@ -28891,11 +28891,3 @@ bool Player::CanEnableWarModeInArea() const
 
     return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
 }
-
-Role Player::GetRole() const
-{
-    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization()))
-        return (Role)chrSpec->Role;
-
-    return Role::NotSet;
-};
