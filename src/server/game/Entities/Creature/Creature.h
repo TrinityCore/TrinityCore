@@ -54,6 +54,12 @@ typedef std::list<VendorItemCount> VendorItemCounts;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
 
+enum class VendorInventoryReason : uint8
+{
+    None    = 0,
+    Empty   = 1
+};
+
 static constexpr uint8 WILD_BATTLE_PET_DEFAULT_LEVEL = 1;
 
 //used for handling non-repeatable random texts
