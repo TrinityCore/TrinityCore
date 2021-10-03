@@ -31,6 +31,7 @@ EndScriptData */
 #include "Chat.h"
 #include "ChatPackets.h"
 #include "Conversation.h"
+#include "DB2Stores.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"

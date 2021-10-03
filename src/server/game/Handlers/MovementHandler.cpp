@@ -19,6 +19,7 @@
 #include "Battleground.h"
 #include "Common.h"
 #include "Corpse.h"
+#include "DB2Stores.h"
 #include "FlightPathMovementGenerator.h"
 #include "GameTime.h"
 #include "Garrison.h"

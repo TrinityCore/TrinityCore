@@ -23,6 +23,7 @@
 #include "VehicleDefines.h"
 
 struct CreatureData;
+struct SummonPropertiesEntry;
 
 class TC_GAME_API Transport : public GameObject, public TransportBase
 {

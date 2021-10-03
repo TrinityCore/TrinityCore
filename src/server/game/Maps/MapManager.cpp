@@ -18,6 +18,7 @@
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Transport.h"

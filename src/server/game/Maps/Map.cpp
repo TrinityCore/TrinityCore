@@ -21,6 +21,7 @@
 #include "CharacterPackets.h"
 #include "Conversation.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"

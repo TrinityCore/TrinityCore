@@ -46,9 +46,12 @@ enum PaladinSpells
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
+    SPELL_PALADIN_DIVINE_STEED_DWARF             = 276111,
     SPELL_PALADIN_DIVINE_STEED_DRAENEI           = 221887,
+    SPELL_PALADIN_DIVINE_STEED_DARK_IRON_DWARF   = 276112,
     SPELL_PALADIN_DIVINE_STEED_BLOODELF          = 221886,
     SPELL_PALADIN_DIVINE_STEED_TAUREN            = 221885,
+    SPELL_PALADIN_DIVINE_STEED_ZANDALARI_TROLL   = 294133,
     SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
@@ -355,9 +358,12 @@ class spell_pal_divine_steed : public SpellScript
         return ValidateSpellInfo(
         {
             SPELL_PALADIN_DIVINE_STEED_HUMAN,
+            SPELL_PALADIN_DIVINE_STEED_DWARF,
             SPELL_PALADIN_DIVINE_STEED_DRAENEI,
+            SPELL_PALADIN_DIVINE_STEED_DARK_IRON_DWARF,
             SPELL_PALADIN_DIVINE_STEED_BLOODELF,
-            SPELL_PALADIN_DIVINE_STEED_TAUREN
+            SPELL_PALADIN_DIVINE_STEED_TAUREN,
+            SPELL_PALADIN_DIVINE_STEED_ZANDALARI_TROLL
         });
     }
 
@@ -369,17 +375,26 @@ class spell_pal_divine_steed : public SpellScript
         switch (caster->getRace())
         {
             case RACE_HUMAN:
-            case RACE_DWARF:
                 spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
                 break;
+            case RACE_DWARF:
+                spellId = SPELL_PALADIN_DIVINE_STEED_DWARF;
+                break;
             case RACE_DRAENEI:
+            case RACE_LIGHTFORGED_DRAENEI:
                 spellId = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
+                break;
+            case RACE_DARK_IRON_DWARF:
+                spellId = SPELL_PALADIN_DIVINE_STEED_DARK_IRON_DWARF;
                 break;
             case RACE_BLOODELF:
                 spellId = SPELL_PALADIN_DIVINE_STEED_BLOODELF;
                 break;
             case RACE_TAUREN:
                 spellId = SPELL_PALADIN_DIVINE_STEED_TAUREN;
+                break;
+            case RACE_ZANDALARI_TROLL:
+                spellId = SPELL_PALADIN_DIVINE_STEED_ZANDALARI_TROLL;
                 break;
             default:
                 break;

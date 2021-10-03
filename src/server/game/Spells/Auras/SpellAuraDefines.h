@@ -572,7 +572,7 @@ enum AuraType : uint32
     SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,  // NYI
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
     SPELL_AURA_486                                          = 486,
-    SPELL_AURA_487                                          = 487,
+    SPELL_AURA_COSMETIC_MOUNTED                             = 487,
     SPELL_AURA_488                                          = 488,
     SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE             = 489,
     SPELL_AURA_490                                          = 490,
