@@ -59,28 +59,51 @@ enum Gossip_Option
 
 enum GossipOptionIcon
 {
-    GOSSIP_ICON_CHAT                = 0,                    // white chat bubble
-    GOSSIP_ICON_VENDOR              = 1,                    // brown bag
-    GOSSIP_ICON_TAXI                = 2,                    // flightmarker (paperplane)
-    GOSSIP_ICON_TRAINER             = 3,                    // brown book (trainer)
-    GOSSIP_ICON_INTERACT_1          = 4,                    // golden interaction wheel
-    GOSSIP_ICON_INTERACT_2          = 5,                    // golden interaction wheel
-    GOSSIP_ICON_MONEY_BAG           = 6,                    // brown bag (with gold coin in lower corner)
-    GOSSIP_ICON_TALK                = 7,                    // white chat bubble (with "..." inside)
-    GOSSIP_ICON_TABARD              = 8,                    // white tabard
-    GOSSIP_ICON_BATTLE              = 9,                    // two crossed swords
-    GOSSIP_ICON_DOT                 = 10,                   // yellow dot/point
-    GOSSIP_ICON_CHAT_11             = 11,                   // white chat bubble
-    GOSSIP_ICON_CHAT_12             = 12,                   // white chat bubble
-    GOSSIP_ICON_CHAT_13             = 13,                   // white chat bubble
-    GOSSIP_ICON_UNK_14              = 14,                   // INVALID - DO NOT USE
-    GOSSIP_ICON_UNK_15              = 15,                   // INVALID - DO NOT USE
-    GOSSIP_ICON_CHAT_16             = 16,                   // white chat bubble
-    GOSSIP_ICON_CHAT_17             = 17,                   // white chat bubble
-    GOSSIP_ICON_CHAT_18             = 18,                   // white chat bubble
-    GOSSIP_ICON_CHAT_19             = 19,                   // white chat bubble
-    GOSSIP_ICON_CHAT_20             = 20,                   // white chat bubble
-    GOSSIP_ICON_CHAT_21             = 21,                   // transmogrifier?
+    GOSSIP_ICON_CHAT                      = 0,              // white chat bubble
+    GOSSIP_ICON_VENDOR                    = 1,              // brown bag
+    GOSSIP_ICON_TAXI_NODE                 = 2,              // flightmarker (paperplane)
+    GOSSIP_ICON_TRAINER                   = 3,              // brown book (trainer)
+    GOSSIP_ICON_SPIRIT_HEALER             = 4,              // golden interaction wheel
+    GOSSIP_ICON_BINDER                    = 5,              // golden interaction wheel
+    GOSSIP_ICON_BANKER                    = 6,              // brown bag (with gold coin in lower corner)
+    GOSSIP_ICON_PETITION_VENDOR           = 7,              // white chat bubble (with "..." inside)
+    GOSSIP_ICON_TABARD_VENDOR             = 8,              // white tabard
+    GOSSIP_ICON_BATTLEMASTER              = 9,              // two crossed swords
+    GOSSIP_ICON_AUCTIONEER                = 10,             // yellow dot/point
+    GOSSIP_ICON_TALENT_MASTER             = 11,             // white chat bubble
+    GOSSIP_ICON_STABLEMASTER              = 12,             // white chat bubble
+    GOSSIP_ICON_PET_SPECIALIZATION_MASTER = 13,             // white chat bubble
+    GOSSIP_ICON_GUILD_BANKER              = 14,             //
+    GOSSIP_ICON_SPELLCLICK                = 15,             //
+    GOSSIP_ICON_DISABLE_XP_GAIN           = 16,             // white chat bubble
+    GOSSIP_ICON_ENABLE_XP_GAIN            = 17,             // white chat bubble
+    GOSSIP_ICON_MAILBOX                   = 18,             // white chat bubble
+    GOSSIP_ICON_WORLD_PVP_QUEUE           = 19,             // white chat bubble
+    GOSSIP_ICON_DUNGEON_FINDER            = 20,             // white chat bubble
+    GOSSIP_ICON_ARTIFACT_RESPEC           = 21,             // Artifact respec
+    GOSSIP_ICON_CEMETERY_SELECT           = 22,             //
+    GOSSIP_ICON_SPECIALIZATION_MASTER     = 23,             //
+    GOSSIP_ICON_GLYPH_MASTER              = 24,             //
+    GOSSIP_ICON_SCENARIO_QUEUE            = 25,             //
+    GOSSIP_ICON_GARRISON_ARCHITECT        = 26,             //
+    GOSSIP_ICON_GARRISON_MISSION_NPC      = 27,             // autoselects the option
+    GOSSIP_ICON_GARRISON_SHIPMENT_NPC     = 28,             // Scroll
+    GOSSIP_ICON_GARRISON_TRADESKILL_NPC   = 29,             //
+    GOSSIP_ICON_GARRISON_RECRUITMENT_NPC  = 30,             //
+    GOSSIP_ICON_ADVENTURE_MAP             = 31,             //
+    GOSSIP_ICON_GARRISON_TALENT_NPC       = 32,             //
+    GOSSIP_ICON_CONTRIBUTION_COLLECTOR    = 33,             //
+    GOSSIP_ICON_TRANSMOGRIFY_NPC          = 34,             //
+    GOSSIP_ICON_AZERITE_RESPEC            = 35,             //
+    GOSSIP_ICON_ISLAND_QUEUE_NPC          = 36,             //
+    GOSSIP_ICON_UI_INTERACTION_NPC        = 37,             //
+    GOSSIP_ICON_WORLD_MAP_NPC             = 38,             //
+    GOSSIP_ICON_CHROMIE_TIME              = 40,             //
+    GOSSIP_ICON_RUNEFORGE_CRAFTING        = 42,             //
+    GOSSIP_ICON_GUIDE_RECRUITER           = 43,             //
+    GOSSIP_ICON_RUNEFORGE_UPGRADING       = 44,             //
+    GOSSIP_ICON_COVENANT_RENOWN           = 45,             //
+
     GOSSIP_ICON_MAX
 };
 
