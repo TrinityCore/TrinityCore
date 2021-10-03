@@ -142,13 +142,24 @@ void BattlePetMgr::LoadDefaultPetQualities()
         uint32 speciesId = fields[0].GetUInt32();
         uint8 quality = fields[1].GetUInt8();
 
-        if (!sBattlePetSpeciesStore.LookupEntry(speciesId))
+        BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(speciesId);
+        if (!battlePetSpecies)
         {
             TC_LOG_ERROR("sql.sql", "Non-existing BattlePetSpecies.db2 entry %u was referenced in `battle_pet_quality` by row (%u, %u).", speciesId, speciesId, quality);
             continue;
         }
 
-        // TODO: verify quality (0 - 3 for player pets or 0 - 5 for both player and tamer pets) if needed
+        if (quality >= AsUnderlyingType(BattlePetBreedQuality::Count))
+        {
+            TC_LOG_ERROR("sql.sql", "BattlePetSpecies.db2 entry %u was referenced in `battle_pet_quality` with non-existing quality %u).", speciesId, quality);
+            continue;
+        }
+
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown) && quality > AsUnderlyingType(BattlePetBreedQuality::Rare))
+        {
+            TC_LOG_ERROR("sql.sql", "Learnable BattlePetSpecies.db2 entry %u was referenced in `battle_pet_quality` with invalid quality %u. Maximum allowed quality is BattlePetBreedQuality::Rare.", speciesId, quality);
+            continue;
+        }
 
         _defaultQualityPerSpecies[speciesId] = quality;
     } while (result->NextRow());
@@ -165,13 +176,13 @@ uint16 BattlePetMgr::RollPetBreed(uint32 species)
     return Trinity::Containers::SelectRandomContainerElement(itr->second);
 }
 
-uint8 BattlePetMgr::GetDefaultPetQuality(uint32 species)
+BattlePetBreedQuality BattlePetMgr::GetDefaultPetQuality(uint32 species)
 {
     auto itr = _defaultQualityPerSpecies.find(species);
     if (itr == _defaultQualityPerSpecies.end())
-        return 0; // default poor
+        return BattlePetBreedQuality::Poor; // Default
 
-    return itr->second;
+    return BattlePetBreedQuality(itr->second);
 }
 
 BattlePetMgr::BattlePetMgr(WorldSession* owner)
@@ -308,7 +319,7 @@ BattlePetMgr::BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
     return Trinity::Containers::MapGetValuePtr(_pets, guid.GetCounter());
 }
 
-void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level /*= 1*/)
+void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, BattlePetBreedQuality quality, uint16 level /*= 1*/)
 {
     BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(species);
     if (!battlePetSpecies) // should never happen
@@ -325,7 +336,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8
     pet.PacketInfo.Exp = 0;
     pet.PacketInfo.Flags = 0;
     pet.PacketInfo.Breed = breed;
-    pet.PacketInfo.Quality = quality;
+    pet.PacketInfo.Quality = AsUnderlyingType(quality);
     pet.PacketInfo.Name = "";
     pet.CalculateStats();
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
@@ -495,6 +506,7 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
 
     // TODO: set proper CreatureID for spell DEFAULT_SUMMON_BATTLE_PET_SPELL (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
     _owner->GetPlayer()->SetSummonedBattlePetGUID(guid);
+    _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(pet->PacketInfo.Quality);
     _owner->GetPlayer()->CastSpell(_owner->GetPlayer(), speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
 
     // TODO: set pet level, quality... update fields
@@ -508,6 +520,7 @@ void BattlePetMgr::DismissPet()
     {
         pet->DespawnOrUnsummon();
         ownerPlayer->SetSummonedBattlePetGUID(ObjectGuid::Empty);
+        ownerPlayer->SetCurrentBattlePetBreedQuality(AsUnderlyingType(BattlePetBreedQuality::Poor));
     }
 }
 
