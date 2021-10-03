@@ -465,6 +465,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
         packet.Objectives[i].Type = objs[i].Type;
     }
 
+    packet.QuestPackageID = quest->GetQuestPackageID();
     _session->SendPacket(packet.Write());
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
