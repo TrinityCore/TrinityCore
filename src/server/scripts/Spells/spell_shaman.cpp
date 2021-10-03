@@ -77,7 +77,7 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
-    SPELL_SHAMAN_WINDRUSH                       = 192082,
+    SPELL_SHAMAN_WIND_RUSH                      = 192082,
 };
 
 enum MiscSpells
@@ -1438,13 +1438,13 @@ public:
     }
 };
 
-// 192078 - Windrush Totem (Spell)
+// 192078 - Wind Rush Totem (Spell)
 //  12676 - AreaTriggerId
-struct areatrigger_sha_windrush_totem : AreaTriggerAI
+struct areatrigger_sha_wind_rush_totem : AreaTriggerAI
 {
     static constexpr uint32 REFRESH_TIME = 4500;
 
-    areatrigger_sha_windrush_totem(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(REFRESH_TIME) { }
+    areatrigger_sha_wind_rush_totem(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(REFRESH_TIME) { }
 
     void OnUpdate(uint32 diff) override
     {
@@ -1460,7 +1460,7 @@ struct areatrigger_sha_windrush_totem : AreaTriggerAI
                         if (!caster->IsFriendlyTo(unit))
                             continue;
 
-                        caster->CastSpell(unit, SPELL_SHAMAN_WINDRUSH, true);
+                        caster->CastSpell(unit, SPELL_SHAMAN_WIND_RUSH, true);
                     }
                 }
             }
@@ -1475,7 +1475,7 @@ struct areatrigger_sha_windrush_totem : AreaTriggerAI
             if (!caster->IsFriendlyTo(unit))
                 return;
 
-            caster->CastSpell(unit, SPELL_SHAMAN_WINDRUSH, true);
+            caster->CastSpell(unit, SPELL_SHAMAN_WIND_RUSH, true);
         }
     }
 private:
@@ -1516,5 +1516,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_t10_elemental_4p_bonus();
     new spell_sha_t10_restoration_4p_bonus();
     new spell_sha_windfury();
-    RegisterAreaTriggerAI(areatrigger_sha_windrush_totem);
+    RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
 }
