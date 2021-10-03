@@ -686,7 +686,8 @@ void Spell::EffectTriggerSpell()
         }
     }
 
-    CastSpellExtraArgs args(m_originalCasterGUID);
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+    args.SetOriginalCaster(m_originalCasterGUID);
     // set basepoints for trigger with value effect
     if (effectInfo->Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -733,7 +734,8 @@ void Spell::EffectTriggerMissileSpell()
             targets.SetGOTarget(go);
     }
 
-    CastSpellExtraArgs args(m_originalCasterGUID);
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+    args.SetOriginalCaster(m_originalCasterGUID);
     // set basepoints for trigger with value effect
     if (effectInfo->Effect == SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -773,7 +775,8 @@ void Spell::EffectForceCast()
             case 52463: // Hide In Mine Car
             case 52349: // Overtake
             {
-                CastSpellExtraArgs args(m_originalCasterGUID);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SetOriginalCaster(m_originalCasterGUID);
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
                 unitTarget->CastSpell(unitTarget, spellInfo->Id, args);
                 return;
@@ -784,7 +787,8 @@ void Spell::EffectForceCast()
     switch (spellInfo->Id)
     {
         case 72298: // Malleable Goo Summon
-            unitTarget->CastSpell(unitTarget, spellInfo->Id, m_originalCasterGUID);
+            unitTarget->CastSpell(unitTarget, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                .SetOriginalCaster(m_originalCasterGUID));
             return;
     }
 
@@ -3323,7 +3327,8 @@ void Spell::EffectScriptEffect()
                     // proc a spellcast
                     if (Aura* chargesAura = m_caster->ToCreature()->GetAura(59907))
                     {
-                        m_caster->CastSpell(unitTarget, spell_heal, m_caster->ToCreature()->ToTempSummon()->GetSummonerGUID());
+                        m_caster->CastSpell(unitTarget, spell_heal, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                            .SetOriginalCaster(m_caster->ToCreature()->ToTempSummon()->GetSummonerGUID()));
                         if (chargesAura->ModCharges(-1))
                             m_caster->ToCreature()->ToTempSummon()->UnSummon();
                     }
@@ -4130,7 +4135,8 @@ void Spell::EffectCharge()
             unitCaster->Attack(unitTarget, true);
 
         if (effectInfo->TriggerSpell)
-            m_caster->CastSpell(unitTarget, effectInfo->TriggerSpell, m_originalCasterGUID);
+            m_caster->CastSpell(unitTarget, effectInfo->TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                .SetOriginalCaster(m_originalCasterGUID));
     }
 }
 
@@ -4158,7 +4164,8 @@ void Spell::EffectChargeDest()
     else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
         if (effectInfo->TriggerSpell)
-            m_caster->CastSpell(*destTarget, effectInfo->TriggerSpell, m_originalCasterGUID);
+            m_caster->CastSpell(*destTarget, effectInfo->TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                .SetOriginalCaster(m_originalCasterGUID));
     }
 }
 

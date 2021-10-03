@@ -107,7 +107,9 @@ class npc_warp_splinter_treant : public CreatureScript
                             if (me->IsWithinMeleeRange(Warp))
                             {
                                 int32 CurrentHP_Treant = (int32)me->GetHealth();
-                                Warp->CastSpell(Warp, SPELL_HEAL_FATHER, CastSpellExtraArgs(me->GetGUID()).AddSpellBP0(CurrentHP_Treant));
+                                Warp->CastSpell(Warp, SPELL_HEAL_FATHER, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(me->GetGUID())
+                                    .AddSpellBP0(CurrentHP_Treant));
                                 me->KillSelf();
                                 return;
                             }

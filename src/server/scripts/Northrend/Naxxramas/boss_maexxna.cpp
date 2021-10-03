@@ -221,7 +221,8 @@ public:
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
             {
                 visibleTimer = (me->GetDistance2d(victim)/WEB_WRAP_MOVE_SPEED + 0.5f) * IN_MILLISECONDS;
-                victim->CastSpell(victim, SPELL_WEB_WRAP, me->GetGUID());
+                victim->CastSpell(victim, SPELL_WEB_WRAP, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCaster(me->GetGUID()));
             }
         }
 

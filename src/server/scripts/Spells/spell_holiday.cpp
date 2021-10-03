@@ -578,7 +578,8 @@ class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
                         if (Player* player = target->ToPlayer())
                         {
                             player->CastSpell(player, SPELL_ON_PLATE_EAT_VISUAL, true);
-                            caster->CastSpell(player, _spellId, player->GetGUID());
+                            caster->CastSpell(player, _spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                .SetOriginalCaster(player->GetGUID()));
                         }
 
                 if (Aura* aura = caster->GetAura(GetEffectValue()))
