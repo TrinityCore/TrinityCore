@@ -51,7 +51,6 @@ enum PaladinSpells
     SPELL_PALADIN_CONSECRATION                   = 26573,
     SPELL_PALADIN_CONSECRATION_DAMAGE            = 81297,
     SPELL_PALADIN_CONSECRATION_PROTECTION_AURA   = 188370,
-    SPELL_PALADIN_CONSECRATION_PROTECTION_MOD    = 344172,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
     SPELL_PALADIN_DIVINE_STEED_DWARF             = 276111,
@@ -324,8 +323,7 @@ struct areatrigger_pal_consecration : AreaTriggerAI
         {
             if (unit == caster && caster->IsPlayer() && caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PALADIN_PROTECTION)
             {
-                // 243597 is also being cast as protection, but CreateObject is not sent, either serverside areatrigger for these two auras or unused - also no visual is seen
-                caster->CastSpell(caster, SPELL_PALADIN_CONSECRATION_PROTECTION_MOD);
+                // 243597 is also being cast as protection, but CreateObject is not sent, either serverside areatrigger for this aura or unused - also no visual is seen
                 caster->CastSpell(caster, SPELL_PALADIN_CONSECRATION_PROTECTION_AURA);
             }
 
@@ -342,10 +340,7 @@ struct areatrigger_pal_consecration : AreaTriggerAI
         if (Unit* caster = at->GetCaster())
         {
             if (caster == unit)
-            {
-                unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_PROTECTION_MOD, at->GetCasterGuid());
                 unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_PROTECTION_AURA, at->GetCasterGuid());
-            }
         }
         unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATED_GROUND_SLOW, at->GetCasterGuid());
     }
