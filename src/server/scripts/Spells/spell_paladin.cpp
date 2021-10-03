@@ -322,7 +322,7 @@ struct areatrigger_pal_consecration : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
-            if (unit == caster && caster->IsPlayer() && caster->ToPlayer()->GetRole() == Role::Tank)
+            if (unit == caster && caster->IsPlayer() && caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PALADIN_PROTECTION)
             {
                 // 243597 is also being cast as protection, but CreateObject is not sent, either serverside areatrigger for these two auras or unused - also no visual is seen
                 caster->CastSpell(caster, SPELL_PALADIN_CONSECRATION_PROTECTION_MOD);
