@@ -2638,7 +2638,7 @@ void WorldObject::CastSpell(SpellCastTargets const& targets, uint32 spellId, Cas
         return;
     }
 
-    Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster);
+    Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId);
     for (auto const& pair : args.SpellValueOverrides)
         spell->SetSpellValue(pair.first, pair.second);
 

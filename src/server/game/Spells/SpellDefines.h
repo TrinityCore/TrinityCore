@@ -257,15 +257,16 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs(bool triggered) : TriggerFlags(triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE) {}
     CastSpellExtraArgs(TriggerCastFlags trigger) : TriggerFlags(trigger) {}
     CastSpellExtraArgs(Item* item) : TriggerFlags(TRIGGERED_FULL_MASK), CastItem(item) {}
-    CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK), TriggeringAura(eff) {}
+    CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) : CastDifficulty(castDifficulty) {}
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); }
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
-    CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura) { TriggeringAura = triggeringAura; return *this; }
+    CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura);
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }
+    CastSpellExtraArgs& SetOriginalCastId(ObjectGuid const& castId) { OriginalCastId = castId; return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); return *this; }
     CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
 
@@ -274,18 +275,19 @@ struct TC_GAME_API CastSpellExtraArgs
     AuraEffect const* TriggeringAura = nullptr;
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
     Difficulty CastDifficulty = Difficulty(0);
+    ObjectGuid OriginalCastId = ObjectGuid::Empty;
     struct
     {
         friend struct CastSpellExtraArgs;
         friend class WorldObject;
 
-        private:
-            void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }
+    private:
+        void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }
 
-            auto begin() const { return data.cbegin(); }
-            auto end() const { return data.cend(); }
+        auto begin() const { return data.cbegin(); }
+        auto end() const { return data.cend(); }
 
-            std::vector<std::pair<SpellValueMod, int32>> data;
+        std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
 };
 
