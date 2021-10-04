@@ -1131,12 +1131,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             // INFO: scenes gotta be executed after initial packets; a few lines down
             if (!pInfo->createPositionNPE || pCurrChar->GetMapId() != pInfo->createPositionNPE->Loc.GetMapId())
             {
-                if (pInfo->introMovieId != 0)
+                if (pInfo->introMovieId)
                 {
                     pCurrChar->setCinematic(1);
-                    pCurrChar->SendMovieStart(pInfo->introMovieId);
+                    pCurrChar->SendMovieStart(pInfo->introMovieId.get());
                 }
-                else if (pInfo->introSceneId == 0)
+                else if (!pInfo->introSceneId)
                 {
                     pCurrChar->setCinematic(1);
                     if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
@@ -1190,15 +1190,15 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
         {
-            if (pInfo->createPositionNPE && pCurrChar->GetMapId() == pInfo->createPositionNPE->Loc.GetMapId() && pInfo->introSceneIdNPE != 0)
+            if (pInfo->createPositionNPE && pCurrChar->GetMapId() == pInfo->createPositionNPE->Loc.GetMapId() && pInfo->introSceneIdNPE)
             {
                 pCurrChar->setCinematic(1);
-                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneIdNPE);
+                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneIdNPE.get());
             }
-            else if (pInfo->introSceneId != 0)
+            else if (pInfo->introSceneId)
             {
                 pCurrChar->setCinematic(1);
-                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneId);
+                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneId.get());
             }
         }
     }

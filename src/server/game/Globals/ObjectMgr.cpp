@@ -3563,9 +3563,12 @@ void ObjectMgr::LoadPlayerInfo()
                     }
                 }
 
-                info->introSceneIdNPE = fields[13].GetUInt32();
-                info->introMovieId = fields[14].GetUInt32();
-                info->introSceneId = fields[15].GetUInt32();
+                if (!fields[13].IsNull())
+                    info->introSceneIdNPE = fields[13].GetUInt32();
+                if (!fields[14].IsNull())
+                    info->introMovieId = fields[14].GetUInt32();
+                if (!fields[15].IsNull())
+                    info->introSceneId = fields[15].GetUInt32();
                 _playerInfo[current_race][current_class] = std::move(info);
 
                 ++count;
