@@ -790,6 +790,17 @@ typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
 
 typedef std::unordered_map<uint32, std::string> RealmNameContainer;
 
+struct SceneTemplate
+{
+    uint32 SceneId = 0;
+    uint32 PlaybackFlags = 0;
+    uint32 ScenePackageId = 0;
+    bool Encrypted = false;
+    uint32 ScriptId = 0;
+
+    EnumFlag<SceneFlag> GetFlags() const { return static_cast<SceneFlag>(PlaybackFlags); }
+};
+
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
 struct PlayerChoiceResponseRewardItem

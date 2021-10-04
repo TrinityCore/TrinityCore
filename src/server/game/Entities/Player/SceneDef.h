@@ -19,6 +19,7 @@
 #define SceneDef_h__
 
 #include "Common.h"
+#include "EnumFlag.h"
 
 enum class SceneFlag : uint32
 {
@@ -34,16 +35,5 @@ enum class SceneFlag : uint32
 };
 
 DEFINE_ENUM_FLAG(SceneFlag);
-
-struct SceneTemplate
-{
-    uint32 SceneId = 0;
-    uint32 PlaybackFlags = 0;
-    uint32 ScenePackageId = 0;
-    bool Encrypted = false;
-    uint32 ScriptId = 0;
-
-    EnumFlag<SceneFlag> GetFlags() const { return static_cast<SceneFlag>(PlaybackFlags); }
-};
 
 #endif
