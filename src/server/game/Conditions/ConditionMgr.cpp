@@ -17,6 +17,8 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerDataStore.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -74,7 +76,9 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "Npc Vendor",
     "Spell Proc",
     "Terrain Swap",
-    "Phase"
+    "Phase",
+    "Graveyard",
+    "AreaTrigger",
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -931,7 +935,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
-            sourceType == CONDITION_SOURCE_TYPE_PHASE);
+            sourceType == CONDITION_SOURCE_TYPE_PHASE ||
+            sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1044,6 +1049,17 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
             ConditionSourceInfo sourceInfo(player, vendor);
             return IsObjectMeetToConditions(sourceInfo, i->second);
         }
+    }
+    return true;
+}
+
+bool ConditionMgr::IsObjectMeetingAreaTriggerConditions(std::pair<uint32, bool> const& areaTriggerId, WorldObject* object) const
+{
+    ConditionEntriesByAreaTriggerIdMap::const_iterator itr = AreaTriggerConditionContainerStore.find(areaTriggerId);
+    if (itr != AreaTriggerConditionContainerStore.end())
+    {
+        ConditionSourceInfo sourceInfo(object);
+        return IsObjectMeetToConditions(sourceInfo, itr->second);
     }
     return true;
 }
@@ -1284,6 +1300,13 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_PHASE:
                     valid = addToPhases(cond);
                     break;
+                case CONDITION_SOURCE_TYPE_AREATRIGGER:
+                {
+                    AreaTriggerConditionContainerStore[{ cond->SourceGroup, cond->SourceEntry}].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
+                }
                 default:
                     break;
             }
@@ -1883,6 +1906,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             if (!sObjectMgr->GetWorldSafeLoc(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        case CONDITION_SOURCE_TYPE_AREATRIGGER:
+            if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ uint32(cond->SourceGroup), bool(cond->SourceEntry) }))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `areatrigger_template`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
