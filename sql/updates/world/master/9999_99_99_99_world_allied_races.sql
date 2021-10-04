@@ -30,6 +30,7 @@ ALTER TABLE `playercreateinfo`
 	
 UPDATE `playercreateinfo` SET `npe_intro_scene_id`=2236 WHERE `race` IN (1,3,4,7,11,22,25) AND `class` NOT IN (@CLASS_DEATH_KNIGHT, @CLASS_DEMON_HUNTER); -- Alliance
 UPDATE `playercreateinfo` SET `npe_intro_scene_id`=2486 WHERE `race` IN (2,5,6,8,9,10,26) AND `class` NOT IN (@CLASS_DEATH_KNIGHT, @CLASS_DEMON_HUNTER); -- Horde
+UPDATE `playercreateinfo` SET `intro_movie_id`=469 WHERE `class`=@CLASS_DEMON_HUNTER;
 
 DELETE FROM `playercreateinfo` WHERE `race` IN(@RACE_NIGHTBORNE, @RACE_HIGHMOUNTAIN_TAUREN, @RACE_VOID_ELF, @RACE_LF_DRAENEI, @RACE_ZANDALARI, @RACE_KUL_TIRAN, @RACE_DARK_IRON_DWARF, @RACE_VULPERA, @RACE_MAGHAR_ORC, @RACE_MECHAGNOME);
 INSERT INTO `playercreateinfo` (`race`, `class`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `intro_movie_id`, `intro_scene_id`) VALUES
@@ -134,8 +135,6 @@ INSERT INTO `playercreateinfo` (`race`, `class`, `map`, `position_x`, `position_
 (@RACE_MECHAGNOME, @CLASS_WARLOCK , 2268, 711.45001220703125, 606.843994140625, -238.526992797851562, 2.214142, 0, 2393),
 (@RACE_MECHAGNOME, @CLASS_MONK , 2268, 711.45001220703125, 606.843994140625, -238.526992797851562, 2.214142, 0, 2393),
 (@RACE_MECHAGNOME, @CLASS_DEATH_KNIGHT, 2297, 481.803009033203125, -2124.659912109375, 840.85699462890625, 3.1104908, 0, 2394);
-
-UPDATE `playercreateinfo` SET `intro_movie_id`=469, `intro_scene_id`=0 WHERE `class`=@CLASS_DEMON_HUNTER;
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 DELETE FROM `playercreateinfo_action` WHERE `race` IN(@RACE_NIGHTBORNE, @RACE_HIGHMOUNTAIN_TAUREN, @RACE_VOID_ELF, @RACE_LF_DRAENEI, @RACE_ZANDALARI, @RACE_KUL_TIRAN, @RACE_DARK_IRON_DWARF, @RACE_VULPERA, @RACE_MAGHAR_ORC, @RACE_MECHAGNOME);
