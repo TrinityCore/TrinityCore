@@ -1126,25 +1126,28 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     //Show cinematic at the first time that player login
     if (!pCurrChar->getCinematic())
     {
-        pCurrChar->setCinematic(1);
         if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
         {
-            if (pInfo->createPositionNPE && pCurrChar->GetMapId() == pInfo->createPositionNPE->Loc.GetMapId() && pInfo->introSceneIdNPE != 0)
-                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneIdNPE, &pInfo->createPositionNPE->Loc.GetPosition());
-            else if (pInfo->introMovieId != 0)
-                pCurrChar->SendMovieStart(pInfo->introMovieId);
-            else if (pInfo->introSceneId != 0)
-                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneId);
-            else
+            // INFO: scenes gotta be executed after initial packets; a few lines down
+            if (!pInfo->createPositionNPE || pCurrChar->GetMapId() != pInfo->createPositionNPE->Loc.GetMapId())
             {
-                if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
+                if (pInfo->introMovieId != 0)
                 {
-                    if (cEntry->CinematicSequenceID)
-                        pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
-                    else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
+                    pCurrChar->setCinematic(1);
+                    pCurrChar->SendMovieStart(pInfo->introMovieId);
+                }
+                else if (pInfo->introSceneId == 0)
+                {
+                    pCurrChar->setCinematic(1);
+                    if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
                     {
-                        if (rEntry->CinematicSequenceID)
-                            pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+                        if (cEntry->CinematicSequenceID)
+                            pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
+                        else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
+                        {
+                            if (rEntry->CinematicSequenceID)
+                                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+                        }
                     }
                 }
             }
@@ -1181,6 +1184,24 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
+
+    // scene intros are executed after initial packets
+    if (!pCurrChar->getCinematic())
+    {
+        if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
+        {
+            if (pInfo->createPositionNPE && pCurrChar->GetMapId() == pInfo->createPositionNPE->Loc.GetMapId() && pInfo->introSceneIdNPE != 0)
+            {
+                pCurrChar->setCinematic(1);
+                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneIdNPE);
+            }
+            else if (pInfo->introSceneId != 0)
+            {
+                pCurrChar->setCinematic(1);
+                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneId);
+            }
+        }
+    }
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
     stmt->setUInt64(0, pCurrChar->GetGUID().GetCounter());
