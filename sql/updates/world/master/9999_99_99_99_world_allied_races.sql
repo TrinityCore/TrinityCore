@@ -24,9 +24,13 @@ SET @CLASS_DRUID := 11;
 SET @CLASS_DEMON_HUNTER := 12;
 
 ALTER TABLE `playercreateinfo`
-    ADD COLUMN `intro_movie_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `npe_transport_guid`,
+    ADD COLUMN `npe_intro_scene_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `npe_transport_guid`,
+    ADD COLUMN `intro_movie_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `npe_intro_scene_id`,
     ADD COLUMN `intro_scene_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `intro_movie_id`;
 	
+UPDATE `playercreateinfo` SET `npe_intro_scene_id`=2236 WHERE `race` IN (1,3,4,7,11,22,25) AND `class` NOT IN (@CLASS_DEATH_KNIGHT, @CLASS_DEMON_HUNTER); -- Alliance
+UPDATE `playercreateinfo` SET `npe_intro_scene_id`=2486 WHERE `race` IN (2,5,6,8,9,10,26) AND `class` NOT IN (@CLASS_DEATH_KNIGHT, @CLASS_DEMON_HUNTER); -- Horde
+
 DELETE FROM `playercreateinfo` WHERE `race` IN(@RACE_NIGHTBORNE, @RACE_HIGHMOUNTAIN_TAUREN, @RACE_VOID_ELF, @RACE_LF_DRAENEI, @RACE_ZANDALARI, @RACE_KUL_TIRAN, @RACE_DARK_IRON_DWARF, @RACE_VULPERA, @RACE_MAGHAR_ORC, @RACE_MECHAGNOME);
 INSERT INTO `playercreateinfo` (`race`, `class`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `intro_movie_id`, `intro_scene_id`) VALUES
 -- Nightborne
@@ -1099,7 +1103,7 @@ INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `typ
 (@RACE_MECHAGNOME, @CLASS_DEATH_KNIGHT, 1, 47541, 0), -- Death Coil
 (@RACE_MECHAGNOME, @CLASS_DEATH_KNIGHT, 0, 316239, 0); -- Rune Strike
     
-DELETE FROM `scene_template` WHERE (`SceneId`=1903 AND `ScriptPackageID`=2006) OR (`SceneId`=1903 AND `ScriptPackageID`=2006) OR (`SceneId`=1902 AND `ScriptPackageID`=2005) OR (`SceneId`=2137 AND `ScriptPackageID`=2086) OR (`SceneId`=2239 AND `ScriptPackageID`=2494) OR (`SceneId`=2393 AND `ScriptPackageID`=2763) OR (`SceneId`=1900 AND `ScriptPackageID`=2007) OR (`SceneId`=1901 AND `ScriptPackageID`=1984) OR (`SceneId`=2138 AND `ScriptPackageID`=2085) OR (`SceneId`=2395 AND `ScriptPackageID`=2790) OR (`SceneId`=2247 AND `ScriptPackageID`=2087) OR (`SceneId`=2394 AND `ScriptPackageID`=2780);
+DELETE FROM `scene_template` WHERE (`SceneId`=1903 AND `ScriptPackageID`=2006) OR (`SceneId`=1903 AND `ScriptPackageID`=2006) OR (`SceneId`=1902 AND `ScriptPackageID`=2005) OR (`SceneId`=2137 AND `ScriptPackageID`=2086) OR (`SceneId`=2239 AND `ScriptPackageID`=2494) OR (`SceneId`=2393 AND `ScriptPackageID`=2763) OR (`SceneId`=1900 AND `ScriptPackageID`=2007) OR (`SceneId`=1901 AND `ScriptPackageID`=1984) OR (`SceneId`=2138 AND `ScriptPackageID`=2085) OR (`SceneId`=2395 AND `ScriptPackageID`=2790) OR (`SceneId`=2247 AND `ScriptPackageID`=2087) OR (`SceneId`=2394 AND `ScriptPackageID`=2780) OR (`SceneId`=2486 AND `ScriptPackageID`=2894) OR (`SceneId`=2236 AND `ScriptPackageID`=2578);
 INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`) VALUES
 (1903, 0x9, 2006, 0), -- Void Elf
 (1902, 0x9, 2005, 0), -- Lightforged Draenei
@@ -1111,4 +1115,6 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`
 (2138, 0x9, 2085, 0), -- Maghar Orc
 (2395, 0x9, 2790, 0), -- Vulpera
 (2247, 0x9, 2087, 0), -- Zandalari Troll
-(2394, 0x9, 2780, 0); -- Allied Race + Panda DK
+(2394, 0x9, 2780, 0), -- Allied Race + Panda DK
+(2486, 0x28, 2894, 0), -- NPE Horde
+(2236, 0x28, 2578, 0); -- NPE Alliance

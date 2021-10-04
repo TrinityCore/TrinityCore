@@ -1127,10 +1127,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (!pCurrChar->getCinematic())
     {
         pCurrChar->setCinematic(1);
-
         if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
         {
-            if (pInfo->introMovieId != 0)
+            if (pInfo->createPositionNPE && pCurrChar->GetMapId() == pInfo->createPositionNPE->Loc.GetMapId() && pInfo->introSceneIdNPE != 0)
+                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneIdNPE, &pInfo->createPositionNPE->Loc.GetPosition());
+            else if (pInfo->introMovieId != 0)
                 pCurrChar->SendMovieStart(pInfo->introMovieId);
             else if (pInfo->introSceneId != 0)
                 pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneId);

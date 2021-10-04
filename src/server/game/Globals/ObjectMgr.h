@@ -610,6 +610,7 @@ struct PlayerInfo
     PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
+    uint32 introSceneIdNPE = 0;
     uint32 introMovieId = 0;
     uint32 introSceneId = 0;
 
