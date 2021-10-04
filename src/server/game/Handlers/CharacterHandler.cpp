@@ -1129,7 +1129,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
         {
             // INFO: scenes gotta be executed after initial packets; a few lines down
-            if (!pInfo->createPositionNPE || pCurrChar->GetMapId() != pInfo->createPositionNPE->Loc.GetMapId())
+            if (pCurrChar->GetCreateMode() == PlayerCreateMode::Normal)
             {
                 if (pInfo->introMovieId)
                 {
@@ -1190,7 +1190,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
         {
-            if (pInfo->createPositionNPE && pCurrChar->GetMapId() == pInfo->createPositionNPE->Loc.GetMapId() && pInfo->introSceneIdNPE)
+            if (pCurrChar->GetCreateMode() == PlayerCreateMode::NPE && pInfo->introSceneIdNPE)
             {
                 pCurrChar->setCinematic(1);
                 pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneIdNPE.get());
