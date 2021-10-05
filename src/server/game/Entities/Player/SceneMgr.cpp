@@ -31,6 +31,8 @@ SceneMgr::SceneMgr(Player* player) : _player(player)
     _isDebuggingScenes = false;
 }
 
+SceneMgr::~SceneMgr() = default;
+
 uint32 SceneMgr::PlayScene(uint32 sceneId, Position const* position /*= nullptr*/)
 {
     SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId);
@@ -63,8 +65,12 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     playScene.Location             = *position;
     playScene.TransportGUID        = GetPlayer()->GetTransGUID();
     playScene.Encrypted            = sceneTemplate->Encrypted;
+    playScene.Write();
 
-    GetPlayer()->SendDirectMessage(playScene.Write());
+    if (GetPlayer()->IsInWorld())
+        GetPlayer()->SendDirectMessage(playScene.GetRawPacket());
+    else
+        _delayedScenes.push_back(playScene.Move());
 
     AddInstanceIdToSceneMap(sceneInstanceID, sceneTemplate);
 
@@ -227,4 +233,12 @@ uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId /*= 0*/)
             ++activeSceneCount;
 
     return activeSceneCount;
+}
+
+void SceneMgr::TriggerDelayedScenes()
+{
+    for (WorldPacket& playScene : _delayedScenes)
+        GetPlayer()->SendDirectMessage(&playScene);
+
+    _delayedScenes.clear();
 }

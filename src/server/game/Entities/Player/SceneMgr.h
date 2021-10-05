@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include <map>
+#include <vector>
 
 enum SceneFlags
 {
@@ -32,6 +33,7 @@ enum SceneFlags
 };
 
 class Player;
+class WorldPacket;
 struct Position;
 struct SceneTemplate;
 
@@ -41,6 +43,7 @@ class TC_GAME_API SceneMgr
 {
 public:
     SceneMgr(Player* player);
+    ~SceneMgr();
 
     SceneMgr(SceneMgr const&) = delete;
     SceneMgr(SceneMgr&&) = delete;
@@ -76,6 +79,8 @@ public:
 
     uint32 GetNewStandaloneSceneInstanceID() { return ++_standaloneSceneInstanceID; }
 
+    void TriggerDelayedScenes();
+
     void ToggleDebugSceneMode() { _isDebuggingScenes = !_isDebuggingScenes; }
     bool IsInDebugSceneMode() const { return _isDebuggingScenes; }
 
@@ -83,6 +88,7 @@ private:
     Player* _player;
     SceneTemplateByInstance _scenesByInstance;
     uint32 _standaloneSceneInstanceID;
+    std::vector<WorldPacket> _delayedScenes;
     bool _isDebuggingScenes;
 };
 
