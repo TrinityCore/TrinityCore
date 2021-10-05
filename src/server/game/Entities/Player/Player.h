@@ -1836,6 +1836,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResurrectUsingRequestData();
         void ResurrectUsingRequestDataImpl();
 
+        PlayerCreateMode GetCreateMode() const { return m_createMode;  }
+
         uint8 getCinematic() const { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
 
