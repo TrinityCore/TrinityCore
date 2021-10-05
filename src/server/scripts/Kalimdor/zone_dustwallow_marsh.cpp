@@ -70,7 +70,7 @@ public:
 
             if (me->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
             {
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
                 SendGossipMenuFor(player, 7640, me->GetGUID());
             }
             else

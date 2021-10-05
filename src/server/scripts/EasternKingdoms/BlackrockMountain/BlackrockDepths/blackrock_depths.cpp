@@ -473,13 +473,13 @@ class npc_lokhtos_darkbargainer : public CreatureScript
                     player->PrepareQuestMenu(me->GetGUID());
 
                 if (me->IsVendor() && player->GetReputationRank(59) >= REP_FRIENDLY)
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
                 if (!player->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) &&
                     !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
                     player->HasItemCount(ITEM_SULFURON_INGOT))
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
 
                 if (player->GetReputationRank(59) < REP_FRIENDLY)

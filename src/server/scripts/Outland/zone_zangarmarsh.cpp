@@ -69,10 +69,10 @@ public:
             if (player->GetReputationRank(942) > REP_NEUTRAL)
             {
                 if (me->GetEntry() == NPC_ASHYEN)
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                 if (me->GetEntry() == NPC_KELETH)
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
 

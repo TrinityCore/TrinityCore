@@ -20,6 +20,7 @@
 
 #include "BattlePetPackets.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumFlag.h"
 #include <unordered_map>
 
 struct BattlePetSpeciesEntry;
@@ -30,6 +31,18 @@ enum BattlePetMisc
     DEFAULT_MAX_BATTLE_PETS_PER_SPECIES = 3,
     BATTLE_PET_CAGE_ITEM_ID             = 82800,
     DEFAULT_SUMMON_BATTLE_PET_SPELL     = 118301
+};
+
+enum class BattlePetBreedQuality : uint8
+{
+    Poor       = 0,
+    Common     = 1,
+    Uncommon   = 2,
+    Rare       = 3,
+    Epic       = 4,
+    Legendary  = 5,
+
+    Count
 };
 
 enum class BattlePetDbFlags : uint16
@@ -122,13 +135,13 @@ public:
     static void Initialize();
 
     static uint16 RollPetBreed(uint32 species);
-    static uint8 GetDefaultPetQuality(uint32 species);
+    static BattlePetBreedQuality GetDefaultPetQuality(uint32 species);
 
     void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
     void SaveToDB(LoginDatabaseTransaction& trans);
 
     BattlePet* GetPet(ObjectGuid guid);
-    void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1);
+    void AddPet(uint32 species, uint32 creatureId, uint16 breed, BattlePetBreedQuality quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
     bool IsPetInSlot(ObjectGuid guid);

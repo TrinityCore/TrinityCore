@@ -57,77 +57,56 @@ enum Gossip_Option
     GOSSIP_OPTION_MAX
 };
 
-enum GossipOptionIcon
+enum class GossipOptionIcon : uint8
 {
-    GOSSIP_ICON_CHAT                = 0,                    // white chat bubble
-    GOSSIP_ICON_VENDOR              = 1,                    // brown bag
-    GOSSIP_ICON_TAXI                = 2,                    // flightmarker (paperplane)
-    GOSSIP_ICON_TRAINER             = 3,                    // brown book (trainer)
-    GOSSIP_ICON_INTERACT_1          = 4,                    // golden interaction wheel
-    GOSSIP_ICON_INTERACT_2          = 5,                    // golden interaction wheel
-    GOSSIP_ICON_MONEY_BAG           = 6,                    // brown bag (with gold coin in lower corner)
-    GOSSIP_ICON_TALK                = 7,                    // white chat bubble (with "..." inside)
-    GOSSIP_ICON_TABARD              = 8,                    // white tabard
-    GOSSIP_ICON_BATTLE              = 9,                    // two crossed swords
-    GOSSIP_ICON_DOT                 = 10,                   // yellow dot/point
-    GOSSIP_ICON_CHAT_11             = 11,                   // white chat bubble
-    GOSSIP_ICON_CHAT_12             = 12,                   // white chat bubble
-    GOSSIP_ICON_CHAT_13             = 13,                   // white chat bubble
-    GOSSIP_ICON_UNK_14              = 14,                   // INVALID - DO NOT USE
-    GOSSIP_ICON_UNK_15              = 15,                   // INVALID - DO NOT USE
-    GOSSIP_ICON_CHAT_16             = 16,                   // white chat bubble
-    GOSSIP_ICON_CHAT_17             = 17,                   // white chat bubble
-    GOSSIP_ICON_CHAT_18             = 18,                   // white chat bubble
-    GOSSIP_ICON_CHAT_19             = 19,                   // white chat bubble
-    GOSSIP_ICON_CHAT_20             = 20,                   // white chat bubble
-    GOSSIP_ICON_CHAT_21             = 21,                   // transmogrifier?
-    GOSSIP_ICON_MAX
-};
+    None                    = 0,    // White chat bubble. Default
+    Vendor                  = 1,    // Brown bag
+    TaxiNode                = 2,    // White wing
+    Trainer                 = 3,    // Brown book
+    SpiritHealer            = 4,    // Golden interaction wheel (with red center)
+    Binder                  = 5,    // Golden interaction wheel
+    Banker                  = 6,    // Brown bag (with gold coin in lower corner)
+    PetitionVendor          = 7,    // White chat bubble (with "..." inside)
+    TabardVendor            = 8,    // White tabard
+    BattleMaster            = 9,    // Two crossed swords
+    Auctioneer              = 10,   // Stack of gold coins
+    TalentMaster            = 11,   // White chat bubble
+    StableMaster            = 12,   // White chat bubble
+    PetSpecializationMaster = 13,   // White chat bubble
+    GuildBanker             = 14,   // White chat bubble
+    SpellClick              = 15,   // White chat bubble
+    DisableXPGain           = 16,   // White chat bubble
+    EnableXPGain            = 17,   // White chat bubble
+    Mailbox                 = 18,   // White chat bubble
+    WorldPVPQueue           = 19,   // White chat bubble
+    DungeonFinder           = 20,   // White chat bubble
+    ArtifactRespec          = 21,   // White chat bubble
+    CemeterySelect          = 22,   // White chat bubble
+    SpecializationMaster    = 23,   // White chat bubble
+    GlyphMaster             = 24,   // White chat bubble
+    ScenarioQueue           = 25,   // White chat bubble
+    GarrisonArchitect       = 26,   // White chat bubble
+    GarrisonMission         = 27,   // White chat bubble
+    GarrisonShipment        = 28,   // Brown document
+    GarrisonTradeskill      = 29,   // White chat bubble
+    GarrisonRecruitment     = 30,   // White chat bubble
+    AdventureMap            = 31,   // White chat bubble
+    GarrisonTalent          = 32,   // White chat bubble
+    ContributionCollector   = 33,   // White chat bubble
+    Transmogrify            = 34,   // Purple helm
+    AzeriteRespec           = 35,   // White chat bubble
+    IslandsQueue            = 36,   // White chat bubble
+    UIItemInteraction       = 37,   // White chat bubble
+    WorldMap                = 38,   // White chat bubble
+    Unk39                   = 39,   // 
+    ChromieTime             = 40,   // White chat bubble
+    Unk41                   = 41,   // 
+    RuneforgeCrafting       = 42,   // White chat bubble
+    GuideRecruiter          = 43,   // White chat bubble
+    RuneforgeUpgrading      = 44,   // White chat bubble
+    CovenantRenown          = 45,   // White chat bubble
 
-//POI icons. Many more exist, list not complete.
-enum Poi_Icon
-{
-    ICON_POI_BLANK              =   0,                      // Blank (not visible)
-    ICON_POI_GREY_AV_MINE       =   1,                      // Grey mine lorry
-    ICON_POI_RED_AV_MINE        =   2,                      // Red mine lorry
-    ICON_POI_BLUE_AV_MINE       =   3,                      // Blue mine lorry
-    ICON_POI_BWTOMB             =   4,                      // Blue and White Tomb Stone
-    ICON_POI_SMALL_HOUSE        =   5,                      // Small house
-    ICON_POI_GREYTOWER          =   6,                      // Grey Tower
-    ICON_POI_REDFLAG            =   7,                      // Red Flag w/Yellow !
-    ICON_POI_TOMBSTONE          =   8,                      // Normal tomb stone (brown)
-    ICON_POI_BWTOWER            =   9,                      // Blue and White Tower
-    ICON_POI_REDTOWER           =   10,                     // Red Tower
-    ICON_POI_BLUETOWER          =   11,                     // Blue Tower
-    ICON_POI_RWTOWER            =   12,                     // Red and White Tower
-    ICON_POI_REDTOMB            =   13,                     // Red Tomb Stone
-    ICON_POI_RWTOMB             =   14,                     // Red and White Tomb Stone
-    ICON_POI_BLUETOMB           =   15,                     // Blue Tomb Stone
-    ICON_POI_16                 =   16,                     // Grey ?
-    ICON_POI_17                 =   17,                     // Blue/White ?
-    ICON_POI_18                 =   18,                     // Blue ?
-    ICON_POI_19                 =   19,                     // Red and White ?
-    ICON_POI_20                 =   20,                     // Red ?
-    ICON_POI_GREYLOGS           =   21,                     // Grey Wood Logs
-    ICON_POI_BWLOGS             =   22,                     // Blue and White Wood Logs
-    ICON_POI_BLUELOGS           =   23,                     // Blue Wood Logs
-    ICON_POI_RWLOGS             =   24,                     // Red and White Wood Logs
-    ICON_POI_REDLOGS            =   25,                     // Red Wood Logs
-    ICON_POI_26                 =   26,                     // Grey ?
-    ICON_POI_27                 =   27,                     // Blue and White ?
-    ICON_POI_28                 =   28,                     // Blue ?
-    ICON_POI_29                 =   29,                     // Red and White ?
-    ICON_POI_30                 =   30,                     // Red ?
-    ICON_POI_GREYHOUSE          =   31,                     // Grey House
-    ICON_POI_BWHOUSE            =   32,                     // Blue and White House
-    ICON_POI_BLUEHOUSE          =   33,                     // Blue House
-    ICON_POI_RWHOUSE            =   34,                     // Red and White House
-    ICON_POI_REDHOUSE           =   35,                     // Red House
-    ICON_POI_GREYHORSE          =   36,                     // Grey Horse
-    ICON_POI_BWHORSE            =   37,                     // Blue and White Horse
-    ICON_POI_BLUEHORSE          =   38,                     // Blue Horse
-    ICON_POI_RWHORSE            =   39,                     // Red and White Horse
-    ICON_POI_REDHORSE           =   40                      // Red Horse
+    Count
 };
 
 enum class GossipOptionStatus : uint8
@@ -146,13 +125,13 @@ enum class GossipOptionRewardType : uint8
 
 struct GossipMenuItem
 {
-    uint8       MenuItemIcon;
-    bool        IsCoded;
-    std::string Message;
-    uint32      Sender;
-    uint32      OptionType;
-    std::string BoxMessage;
-    uint32      BoxMoney;
+    GossipOptionIcon MenuItemIcon;
+    bool             IsCoded;
+    std::string      Message;
+    uint32           Sender;
+    uint32           OptionType;
+    std::string      BoxMessage;
+    uint32           BoxMoney;
 };
 
 // need an ordered container
@@ -181,7 +160,7 @@ class TC_GAME_API GossipMenu
         GossipMenu();
         ~GossipMenu();
 
-        uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+        uint32 AddMenuItem(int32 optionIndex, GossipOptionIcon icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
         void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
 
         void SetMenuId(uint32 menu_id) { _menuId = menu_id; }

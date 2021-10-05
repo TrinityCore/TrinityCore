@@ -3476,8 +3476,8 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate
     {
         uint32 oldMSTime = getMSTime();
-        //                                                0     1      2       3           4           5           6           7           8               9               10              11                 12
-        QueryResult result = WorldDatabase.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid FROM playercreateinfo");
+        //                                                0     1      2       3           4           5           6           7           8               9               10              11                 12                13              14                15
+        QueryResult result = WorldDatabase.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid, intro_movie_id, intro_scene_id, npe_intro_scene_id FROM playercreateinfo");
 
         if (!result)
         {
@@ -3561,6 +3561,36 @@ void ObjectMgr::LoadPlayerInfo()
                             *info->createPositionNPE->TransportGuid, current_class, current_race);
                         info->createPositionNPE.reset(); // remove entire NPE data - assume user put transport offsets into npe_position fields
                     }
+                }
+
+                if (!fields[13].IsNull())
+                {
+                    uint32 introMovieId = fields[13].GetUInt32();
+                    if (sMovieStore.LookupEntry(introMovieId))
+                        info->introMovieId = introMovieId;
+                    else
+                        TC_LOG_ERROR("sql.sql", "Invalid intro movie id %u for class %u race %u pair in `playercreateinfo` table, ignoring.",
+                            introMovieId, current_class, current_race);
+                }
+
+                if (!fields[14].IsNull())
+                {
+                    uint32 introSceneId = fields[14].GetUInt32();
+                    if (GetSceneTemplate(introSceneId))
+                        info->introSceneId = introSceneId;
+                    else
+                        TC_LOG_ERROR("sql.sql", "Invalid intro scene id %u for class %u race %u pair in `playercreateinfo` table, ignoring.",
+                            introSceneId, current_class, current_race);
+                }
+
+                if (!fields[15].IsNull())
+                {
+                    uint32 introSceneId = fields[15].GetUInt32();
+                    if (GetSceneTemplate(introSceneId))
+                        info->introSceneIdNPE = introSceneId;
+                    else
+                        TC_LOG_ERROR("sql.sql", "Invalid NPE intro scene id %u for class %u race %u pair in `playercreateinfo` table, ignoring.",
+                            introSceneId, current_class, current_race);
                 }
 
                 _playerInfo[current_race][current_class] = std::move(info);
@@ -9251,7 +9281,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
         gMenuItem.MenuId                = fields[0].GetUInt32();
         gMenuItem.OptionIndex           = fields[1].GetUInt32();
-        gMenuItem.OptionIcon            = fields[2].GetUInt8();
+        gMenuItem.OptionIcon            = GossipOptionIcon(fields[2].GetUInt8());
         gMenuItem.OptionText            = fields[3].GetString();
         gMenuItem.OptionBroadcastTextId = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt32();
@@ -9263,10 +9293,10 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.BoxText               = fields[11].GetString();
         gMenuItem.BoxBroadcastTextId    = fields[12].GetUInt32();
 
-        if (gMenuItem.OptionIcon >= GOSSIP_ICON_MAX)
+        if (gMenuItem.OptionIcon >= GossipOptionIcon::Count)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has unknown icon id %u. Replacing with GOSSIP_ICON_CHAT", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionIcon);
-            gMenuItem.OptionIcon = GOSSIP_ICON_CHAT;
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has unknown icon id %u. Replacing with GossipOptionIcon::None", gMenuItem.MenuId, gMenuItem.OptionIndex, uint8(gMenuItem.OptionIcon));
+            gMenuItem.OptionIcon = GossipOptionIcon::None;
         }
 
         if (gMenuItem.OptionBroadcastTextId)
@@ -10462,7 +10492,7 @@ void ObjectMgr::LoadSceneTemplates()
         uint32 sceneId = fields[0].GetUInt32();
         SceneTemplate& sceneTemplate    = _sceneTemplateStore[sceneId];
         sceneTemplate.SceneId           = sceneId;
-        sceneTemplate.PlaybackFlags     = fields[1].GetUInt32();
+        sceneTemplate.PlaybackFlags     = static_cast<SceneFlag>(fields[1].GetUInt32());
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
         sceneTemplate.Encrypted         = fields[3].GetUInt8() != 0;
         sceneTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[4].GetCString());

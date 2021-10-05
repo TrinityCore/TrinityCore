@@ -1193,28 +1193,28 @@ public:
                         QuestStatus status = player->GetQuestStatus(13149);
                         if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
                             return true;
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                         SendGossipMenuFor(player, 907, me->GetGUID());
                         break;
                     }
                     case 1:
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                         SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_1, me->GetGUID());
                         break;
                     case 2:
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_ARTHAS_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                         SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_2, me->GetGUID());
                         break;
                     case 3:
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_ARTHAS_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                         SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_3, me->GetGUID());
                         break;
                     case 4:
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_ARTHAS_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                         SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_4, me->GetGUID());
                         break;
                     case 5:
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_ARTHAS_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                         SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_5, me->GetGUID());
                         break;
                     default:

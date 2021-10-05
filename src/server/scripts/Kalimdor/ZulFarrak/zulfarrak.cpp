@@ -177,7 +177,7 @@ public:
         {
             if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 1517, me->GetGUID());
             }
             else
@@ -369,7 +369,7 @@ public:
             switch (instance->GetData(EVENT_PYRAMID))
             {
                 case PYRAMID_KILLED_ALL_TROLLS:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     SendGossipMenuFor(player, 1514, me->GetGUID());  //if event can proceed to end
                     break;
                 case PYRAMID_NOT_STARTED:
