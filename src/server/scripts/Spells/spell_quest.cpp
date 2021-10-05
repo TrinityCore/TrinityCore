@@ -2269,7 +2269,7 @@ class spell_q11896_weakness_to_lightning_46444 : public SpellScript
     }
 };
 
-enum QuestTame
+enum TamingTheBeast
 {
     SPELL_TAME_ICE_CLAW_BEAR           = 19548,
     SPELL_TAME_LARGE_CRAG_BOAR         = 19674,
@@ -2309,9 +2309,9 @@ enum QuestTame
     SPELL_TAME_MISTBAT_1               = 30104
 };
 
-class spell_quest_tame : public AuraScript
+class spell_quest_taming_the_beast : public AuraScript
 {
-    PrepareAuraScript(spell_quest_tame);
+    PrepareAuraScript(spell_quest_taming_the_beast);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2375,7 +2375,7 @@ class spell_quest_tame : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_quest_tame::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_quest_taming_the_beast::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2453,5 +2453,5 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11306_mixing_vrykul_blood);
     RegisterSpellScript(spell_q11306_failed_mix_43376);
     RegisterSpellScript(spell_q11306_failed_mix_43378);
-    RegisterSpellScript(spell_quest_tame);
+    RegisterSpellScript(spell_quest_taming_the_beast);
 }
