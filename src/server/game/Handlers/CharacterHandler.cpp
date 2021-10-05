@@ -438,9 +438,9 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder* holder)
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
         raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
-        if (sWorld->getBoolConfig(CONFIG_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT))
-            raceUnlock.HasAchievement = requirement.second.AchievementId != 0;
-        // @TODO: add else check after battlenet accwide achievements are implemented
+        raceUnlock.HasAchievement = requirement.second.AchievementId != 0
+            && (sWorld->getBoolConfig(CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT)
+                /* || HasAccountAchievement(requirement.second.AchievementId)*/);
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 
@@ -1126,32 +1126,31 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     //Show cinematic at the first time that player login
     if (!pCurrChar->getCinematic())
     {
-        if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
+        pCurrChar->setCinematic(1);
+
+        if (PlayerInfo const* playerInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
         {
-            // INFO: scenes gotta be executed after initial packets; a few lines down
-            if (pCurrChar->GetCreateMode() == PlayerCreateMode::Normal)
+            switch (pCurrChar->GetCreateMode())
             {
-                if (pInfo->introMovieId)
-                {
-                    pCurrChar->setCinematic(1);
-                    pCurrChar->SendMovieStart(pInfo->introMovieId.get());
-                }
-                else if (!pInfo->introSceneId)
-                {
-                    pCurrChar->setCinematic(1);
-                    if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
-                    {
-                        if (cEntry->CinematicSequenceID)
-                            pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
-                        else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
-                        {
-                            if (rEntry->CinematicSequenceID)
-                                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
-                        }
-                    }
-                }
+                case PlayerCreateMode::Normal:
+                    if (playerInfo->introMovieId)
+                        pCurrChar->SendMovieStart(playerInfo->introMovieId.get());
+                    else if (playerInfo->introSceneId)
+                        pCurrChar->GetSceneMgr().PlayScene(*playerInfo->introSceneId);
+                    else if (sChrClassesStore.AssertEntry(pCurrChar->getClass())->CinematicSequenceID)
+                        pCurrChar->SendCinematicStart(sChrClassesStore.AssertEntry(pCurrChar->getClass())->CinematicSequenceID);
+                    else if (sChrRacesStore.AssertEntry(pCurrChar->getRace())->CinematicSequenceID)
+                        pCurrChar->SendCinematicStart(sChrRacesStore.AssertEntry(pCurrChar->getRace())->CinematicSequenceID);
+                    break;
+                case PlayerCreateMode::NPE:
+                    if (playerInfo->introSceneIdNPE)
+                        pCurrChar->GetSceneMgr().PlayScene(*playerInfo->introSceneIdNPE);
+                    break;
+                default:
+                    break;
             }
         }
+
         // send new char string if not empty
         if (!sWorld->GetNewCharString().empty())
             chH.PSendSysMessage("%s", sWorld->GetNewCharString().c_str());

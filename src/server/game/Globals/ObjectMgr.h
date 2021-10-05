@@ -610,9 +610,10 @@ struct PlayerInfo
     PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
-    Optional<uint32> introSceneIdNPE;
+
     Optional<uint32> introMovieId;
     Optional<uint32> introSceneId;
+    Optional<uint32> introSceneIdNPE;
 
     //[level-1] 0..MaxPlayerLevel-1
     std::unique_ptr<PlayerLevelInfo[]> levelInfo;
