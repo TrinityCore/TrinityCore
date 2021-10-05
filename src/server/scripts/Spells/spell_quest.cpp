@@ -2338,13 +2338,11 @@ class spell_quest_tame : public AuraScript
         });
     }
 
-    bool Load() override
-    {
-        return GetCaster() && GetCaster()->IsAlive() && GetTarget()->IsAlive();
-    }
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
+        if (!GetCaster() || !GetCaster()->IsAlive() || !GetTarget()->IsAlive())
+            return;
+
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
