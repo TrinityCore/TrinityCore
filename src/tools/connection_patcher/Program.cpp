@@ -41,6 +41,10 @@
 #include <Shlobj.h>
 #endif
 
+#ifdef __linux__
+#include <pwd.h>
+#endif
+
 using namespace boost::asio;
 using boost::asio::ip::tcp;
 
@@ -251,9 +255,8 @@ int main(int argc, char** argv)
 
         std::string const binary_path(argv[1]);
         std::string renamed_binary_path(binary_path);
-
-        wchar_t* commonAppData(nullptr);
 #ifdef _WIN32
+        wchar_t* commonAppData(nullptr);
         SHGetKnownFolderPath(FOLDERID_ProgramData, 0, nullptr, &commonAppData);
 #endif
 
@@ -292,11 +295,29 @@ int main(int argc, char** argv)
                 boost::algorithm::replace_all(renamed_dll_path, ".dll", "_Patched.dll");
                 do_dll_patches<Patches::Windows::x86, Patterns::Windows::x86>
                     (&bnetPatcher, renamed_dll_path);
+                
+                #ifdef __linux__
+                const char *homedir;
+                if ((homedir = getenv("HOME")) == NULL) {
+                    homedir = getpwuid(getuid())->pw_dir;
+                }
+                const size_t length = strlen(homedir);
 
+                std::wstring homedir_wstring(length, L'#');
+                mbstowcs(&homedir_wstring[0], homedir, length);
+
+                do_module<Patches::Windows::x86, Patterns::Windows::x86>
+                    ("8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth",
+                     homedir_wstring + 
+                     std::wstring(L"/.wine/drive_c/ProgramData/Blizzard Entertainment/Battle.net/Cache/"));
+                #endif
+
+                #ifdef _WIN32
                 do_module<Patches::Windows::x86, Patterns::Windows::x86>
                     ("8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
                         , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
                         );
+                #endif
 
                 break;
             }
@@ -318,11 +339,29 @@ int main(int argc, char** argv)
                 boost::algorithm::replace_all(renamed_dll_path, ".dll", "_Patched.dll");
                 do_dll_patches<Patches::Windows::x64, Patterns::Windows::x64>
                     (&bnetPatcher, renamed_dll_path);
+                
+                #ifdef __linux__
+                const char *homedir;
+                if ((homedir = getenv("HOME")) == NULL) {
+                    homedir = getpwuid(getuid())->pw_dir;
+                }
+                const size_t length = strlen(homedir);
 
+                std::wstring homedir_wstring(length, L'#');
+                mbstowcs(&homedir_wstring[0], homedir, length);
+
+                do_module<Patches::Windows::x64, Patterns::Windows::x64>
+                    ("0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth",
+                     homedir_wstring + 
+                     std::wstring(L"/.wine/drive_c/ProgramData/Blizzard Entertainment/Battle.net/Cache/"));
+                #endif
+
+                #ifdef _WIN32
                 do_module<Patches::Windows::x64, Patterns::Windows::x64>
                     ("0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
                         , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
                         );
+                #endif
 
                 break;
             }
