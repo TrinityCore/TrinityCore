@@ -362,7 +362,7 @@ void AreaTrigger::UpdateTargetList()
     AreaTriggerId areaTriggerId = GetTemplate()->Id;
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [areaTriggerId](Unit* target) -> bool
     {
-        return !sConditionMgr->IsObjectMeetingAreaTriggerConditions({ areaTriggerId.Id, areaTriggerId.IsServerSide }, target);
+        return !sConditionMgr->IsObjectMeetingAreaTriggerConditions(areaTriggerId.Id, areaTriggerId.IsServerSide, target);
     }), targetList.end());
     HandleUnitEnterExit(targetList);
 }

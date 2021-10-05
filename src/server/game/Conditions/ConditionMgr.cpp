@@ -1053,9 +1053,9 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingAreaTriggerConditions(std::pair<uint32, bool> const& areaTriggerId, WorldObject* object) const
+bool ConditionMgr::IsObjectMeetingAreaTriggerConditions(uint32 areaTriggerId, bool isServerSide, WorldObject* object) const
 {
-    ConditionEntriesByAreaTriggerIdMap::const_iterator itr = AreaTriggerConditionContainerStore.find(areaTriggerId);
+    ConditionEntriesByAreaTriggerIdMap::const_iterator itr = AreaTriggerConditionContainerStore.find({ areaTriggerId, isServerSide });
     if (itr != AreaTriggerConditionContainerStore.end())
     {
         ConditionSourceInfo sourceInfo(object);
@@ -1912,7 +1912,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_AREATRIGGER:
             if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ uint32(cond->SourceGroup), bool(cond->SourceEntry) }))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `areatrigger_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s in `condition` table, does not exist in `areatrigger_template`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
