@@ -296,7 +296,14 @@ class spell_pal_consecration : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_CONSECRATION_DAMAGE });
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_CONSECRATION_DAMAGE,
+            // validate for areatrigger_pal_consecration
+            SPELL_PALADIN_CONSECRATION_PROTECTION_AURA,
+            SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE,
+            SPELL_PALADIN_CONSECRATED_GROUND_SLOW
+        });
     }
 
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -321,27 +328,21 @@ struct areatrigger_pal_consecration : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
+            // 243597 is also being cast as protection, but CreateObject is not sent, either serverside areatrigger for this aura or unused - also no visual is seen
             if (unit == caster && caster->IsPlayer() && caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_PALADIN_PROTECTION)
-            {
-                // 243597 is also being cast as protection, but CreateObject is not sent, either serverside areatrigger for this aura or unused - also no visual is seen
                 caster->CastSpell(caster, SPELL_PALADIN_CONSECRATION_PROTECTION_AURA);
-            }
 
             if (caster->IsValidAttackTarget(unit))
-            {
                 if (caster->HasAura(SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE))
                     caster->CastSpell(unit, SPELL_PALADIN_CONSECRATED_GROUND_SLOW);
-            }
         }
     }
 
     void OnUnitExit(Unit* unit) override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            if (caster == unit)
-                unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_PROTECTION_AURA, at->GetCasterGuid());
-        }
+        if (at->GetCasterGuid() == unit->GetGUID())
+            unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATION_PROTECTION_AURA, at->GetCasterGuid());
+
         unit->RemoveAurasDueToSpell(SPELL_PALADIN_CONSECRATED_GROUND_SLOW, at->GetCasterGuid());
     }
 };
