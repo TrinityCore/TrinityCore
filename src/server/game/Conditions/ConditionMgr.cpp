@@ -1055,11 +1055,10 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
 
 bool ConditionMgr::IsObjectMeetingAreaTriggerConditions(uint32 areaTriggerId, bool isServerSide, WorldObject* object) const
 {
-    ConditionEntriesByAreaTriggerIdMap::const_iterator itr = AreaTriggerConditionContainerStore.find({ areaTriggerId, isServerSide });
-    if (itr != AreaTriggerConditionContainerStore.end())
+    if (ConditionContainer const* conds = Trinity::Containers::MapGetValuePtr(AreaTriggerConditionContainerStore, { areaTriggerId, isServerSide }))
     {
         ConditionSourceInfo sourceInfo(object);
-        return IsObjectMeetToConditions(sourceInfo, itr->second);
+        return IsObjectMeetToConditions(sourceInfo, *conds);
     }
     return true;
 }
@@ -1302,7 +1301,7 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
                 case CONDITION_SOURCE_TYPE_AREATRIGGER:
                 {
-                    AreaTriggerConditionContainerStore[{ cond->SourceGroup, cond->SourceEntry}].push_back(cond);
+                    AreaTriggerConditionContainerStore[{ cond->SourceGroup, cond->SourceEntry }].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -1910,6 +1909,11 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         case CONDITION_SOURCE_TYPE_AREATRIGGER:
+            if (cond->SourceEntry != 0 && cond->SourceEntry != 1)
+            {
+                TC_LOG_ERROR("sql.sql", "%s in `condition` table, unexpected SourceEntry value (expected 0 or 1), ignoring.", cond->ToString().c_str());
+                return false;
+            }
             if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ uint32(cond->SourceGroup), bool(cond->SourceEntry) }))
             {
                 TC_LOG_ERROR("sql.sql", "%s in `condition` table, does not exist in `areatrigger_template`, ignoring.", cond->ToString().c_str());
