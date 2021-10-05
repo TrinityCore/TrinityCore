@@ -1184,24 +1184,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
-    // scene intros are executed after initial packets
-    if (!pCurrChar->getCinematic())
-    {
-        if (PlayerInfo const* pInfo = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass()))
-        {
-            if (pCurrChar->GetCreateMode() == PlayerCreateMode::NPE && pInfo->introSceneIdNPE)
-            {
-                pCurrChar->setCinematic(1);
-                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneIdNPE.get());
-            }
-            else if (pInfo->introSceneId)
-            {
-                pCurrChar->setCinematic(1);
-                pCurrChar->GetSceneMgr().PlayScene(pInfo->introSceneId.get());
-            }
-        }
-    }
-
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
     stmt->setUInt64(0, pCurrChar->GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
