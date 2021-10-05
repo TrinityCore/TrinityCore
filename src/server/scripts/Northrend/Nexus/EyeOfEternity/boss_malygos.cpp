@@ -2029,7 +2029,8 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
             void TriggerDamageSpellFromPlayer()
             {
                 if (Player* hitTarget = GetHitPlayer())
-                    hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, GetCaster()->GetGUID());
+                    hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                        .SetOriginalCaster(GetCaster()->GetGUID()));
             }
 
             void Register() override

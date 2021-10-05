@@ -479,7 +479,8 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                     return;
 
                 triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty);
+                GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCaster(GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty));
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -556,7 +557,9 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValue()), { aurEff, GetCasterGUID() });
+                target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetTriggeringAura(aurEff)
+                    .SetOriginalCaster(GetCasterGUID()));
             }
 
             void Register() override
@@ -781,12 +784,11 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
 
                 uint32 triggered_spell_id = GetEffectInfo().TriggerSpell;
 
-                float x, y, z;
-                GetExplTargetDest()->GetPosition(x, y, z);
                 // let Rotface handle the cast - caster dies before this executes
                 if (InstanceScript* script = GetCaster()->GetInstanceScript())
                     if (Creature* rotface = script->instance->GetCreature(script->GetGuidData(DATA_ROTFACE)))
-                        rotface->CastSpell({x, y, z}, triggered_spell_id, GetCaster()->GetGUID());
+                        rotface->CastSpell(*GetExplTargetDest(), triggered_spell_id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                            .SetOriginalCaster(GetCaster()->GetGUID()));
             }
 
             void Register() override

@@ -500,7 +500,8 @@ protected:
     Spell* m_Spell;
 };
 
-Spell::Spell(WorldObject* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID) :
+Spell::Spell(WorldObject* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID /*= ObjectGuid::Empty*/,
+    ObjectGuid originalCastId /*= ObjectGuid::Empty*/) :
 m_spellInfo(info), m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster),
 m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
 {
@@ -575,6 +576,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_hitMask = 0;
     focusObject = nullptr;
     m_castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, m_caster->GetMapId(), m_spellInfo->Id, m_caster->GetMap()->GenerateLowGuid<HighGuid::Cast>());
+    m_originalCastId = originalCastId;
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
     m_SpellVisual.SpellXSpellVisualID = caster->GetCastSpellXSpellVisualId(m_spellInfo);
     m_triggeredByAuraSpell  = nullptr;
@@ -2626,7 +2628,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
     // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
     if (MissCondition == SPELL_MISS_NONE && spell->m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
-        caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
+        caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+            .SetOriginalCastId(spell->m_castId));
 
     if (_spellHitTarget)
     {
@@ -2930,7 +2933,9 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
         {
             if (CanExecuteTriggersOnHit(effMask, i->triggeredByAura) && roll_chance_i(i->chance))
             {
-                m_caster->CastSpell(unit, i->triggeredSpell->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(i->triggeredSpell->Difficulty));
+                m_caster->CastSpell(unit, i->triggeredSpell->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCastId(m_castId)
+                    .SetCastDifficulty(i->triggeredSpell->Difficulty));
                 TC_LOG_DEBUG("spells", "Spell %d triggered spell %d by SPELL_AURA_ADD_TARGET_TRIGGER aura", m_spellInfo->Id, i->triggeredSpell->Id);
 
                 // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
@@ -2961,7 +2966,9 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
             if (*i < 0)
                 unit->RemoveAurasDueToSpell(-(*i));
             else
-                unit->CastSpell(unit, *i, m_caster->GetGUID());
+                unit->CastSpell(unit, *i, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCaster(m_caster->GetGUID())
+                    .SetOriginalCastId(m_castId));
         }
     }
 }
@@ -3508,7 +3515,8 @@ void Spell::_cast(bool skipCheck)
                     unitCaster->RemoveAurasDueToSpell(-id);
             }
             else
-                m_caster->CastSpell(m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster, id, true);
+                m_caster->CastSpell(m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster, id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCastId(m_castId));
         }
     }
 
@@ -5778,7 +5786,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     {
                         if (strict)                         //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
                             if (Pet* pet = unitCaster->ToPlayer()->GetPet())
-                                pet->CastSpell(pet, 32752, pet->GetGUID());
+                                pet->CastSpell(pet, 32752, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(pet->GetGUID())
+                                    .SetOriginalCastId(m_castId));
                     }
                     else if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
@@ -6808,7 +6818,8 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                                 return SPELL_FAILED_DONT_REPORT;
                             }
                             else if (m_spellInfo->GetEffects().size() > EFFECT_1)
-                                player->CastSpell(player, m_spellInfo->GetEffect(EFFECT_1).CalcValue(), false);        // move this to anywhere
+                                player->CastSpell(player, m_spellInfo->GetEffect(EFFECT_1).CalcValue(), CastSpellExtraArgs()
+                                    .SetOriginalCastId(m_castId));        // move this to anywhere
                             return SPELL_FAILED_DONT_REPORT;
                         }
                     }
@@ -8358,6 +8369,32 @@ bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
 }
 
 } //namespace Trinity
+
+CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
+{
+    if (target)
+    {
+        if (Unit* unitTarget = target->ToUnit())
+        {
+            Targets.emplace();
+            Targets->SetUnitTarget(unitTarget);
+        }
+        else if (GameObject* goTarget = target->ToGameObject())
+        {
+            Targets.emplace();
+            Targets->SetGOTarget(goTarget);
+        }
+    }
+}
+
+CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* triggeringAura)
+{
+    TriggeringAura = triggeringAura;
+    if (triggeringAura)
+        OriginalCastId = triggeringAura->GetBase()->GetCastId();
+
+    return *this;
+}
 
 SpellCastVisual::operator UF::SpellCastVisual() const
 {

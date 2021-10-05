@@ -31,8 +31,6 @@ namespace WorldPackets
 {
     namespace Spells
     {
-        struct SpellCastRequest;
-        struct SpellTargetData;
         struct SpellAmmo;
         struct SpellCastData;
     }
@@ -62,7 +60,6 @@ struct SummonPropertiesEntry;
 enum AuraType : uint32;
 enum CurrentSpellTypes : uint8;
 enum LootType : uint8;
-enum SpellCastTargetFlags : uint32;
 enum SpellTargetCheckTypes : uint8;
 enum SpellTargetObjectTypes : uint8;
 enum SpellValueMod : uint8;
@@ -153,22 +150,6 @@ enum SpellRangeFlag
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
 };
 
-struct TC_GAME_API SpellDestination
-{
-    SpellDestination();
-    SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
-    SpellDestination(Position const& pos);
-    SpellDestination(WorldObject const& wObj);
-
-    void Relocate(Position const& pos);
-    void RelocateOffset(Position const& offset);
-
-    WorldLocation _position;
-    ObjectGuid _transportGUID;
-    Position _transportOffset;
-};
-
-
 struct SpellLogEffectPowerDrainParams
 {
     ObjectGuid Victim;
@@ -215,100 +196,6 @@ struct SpellLogEffect
     Optional<std::vector<SpellLogEffectGenericVictimParams>> GenericVictimTargets;
     Optional<std::vector<SpellLogEffectTradeSkillItemParams>> TradeSkillTargets;
     Optional<std::vector<SpellLogEffectFeedPetParams>> FeedPetTargets;
-};
-
-class TC_GAME_API SpellCastTargets
-{
-    public:
-        SpellCastTargets();
-        SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
-        ~SpellCastTargets();
-
-        void Write(WorldPackets::Spells::SpellTargetData& data);
-
-        uint32 GetTargetMask() const { return m_targetMask; }
-        void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
-
-        void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
-
-        ObjectGuid GetOrigUnitTargetGUID() const;
-        void SetOrigUnitTarget(Unit* target);
-
-        ObjectGuid GetUnitTargetGUID() const;
-        Unit* GetUnitTarget() const;
-        void SetUnitTarget(Unit* target);
-
-        ObjectGuid GetGOTargetGUID() const;
-        GameObject* GetGOTarget() const;
-        void SetGOTarget(GameObject* target);
-
-        ObjectGuid GetCorpseTargetGUID() const;
-        Corpse* GetCorpseTarget() const;
-
-        WorldObject* GetObjectTarget() const;
-        ObjectGuid GetObjectTargetGUID() const;
-        void RemoveObjectTarget();
-
-        ObjectGuid GetItemTargetGUID() const { return m_itemTargetGUID; }
-        Item* GetItemTarget() const { return m_itemTarget; }
-        uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
-        void SetItemTarget(Item* item);
-        void SetTradeItemTarget(Player* caster);
-        void UpdateTradeSlotItem();
-
-        SpellDestination const* GetSrc() const;
-        Position const* GetSrcPos() const;
-        void SetSrc(float x, float y, float z);
-        void SetSrc(Position const& pos);
-        void SetSrc(WorldObject const& wObj);
-        void ModSrc(Position const& pos);
-        void RemoveSrc();
-
-        SpellDestination const* GetDst() const;
-        WorldLocation const* GetDstPos() const;
-        void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
-        void SetDst(Position const& pos);
-        void SetDst(WorldObject const& wObj);
-        void SetDst(SpellDestination const& spellDest);
-        void SetDst(SpellCastTargets const& spellTargets);
-        void ModDst(Position const& pos);
-        void ModDst(SpellDestination const& spellDest);
-        void RemoveDst();
-
-        bool HasSrc() const;
-        bool HasDst() const;
-        bool HasTraj() const { return m_speed != 0; }
-
-        float GetPitch() const { return m_pitch; }
-        void SetPitch(float pitch) { m_pitch = pitch; }
-        float GetSpeed() const { return m_speed; }
-        void SetSpeed(float speed) { m_speed = speed; }
-
-        float GetDist2d() const { return m_src._position.GetExactDist2d(&m_dst._position); }
-        float GetSpeedXY() const { return m_speed * std::cos(m_pitch); }
-        float GetSpeedZ() const { return m_speed * std::sin(m_pitch); }
-
-        void Update(WorldObject* caster);
-        std::string GetTargetString() const { return m_strTarget; }
-
-    private:
-        uint32 m_targetMask;
-
-        // objects (can be used at spell creating and after Update at casting)
-        WorldObject* m_objectTarget;
-        Item* m_itemTarget;
-
-        // object GUID/etc, can be used always
-        ObjectGuid m_origObjectTargetGUID;
-        ObjectGuid m_objectTargetGUID;
-        ObjectGuid m_itemTargetGUID;
-        uint32 m_itemTargetEntry;
-
-        SpellDestination m_src;
-        SpellDestination m_dst;
-
-        float m_pitch, m_speed;
-        std::string m_strTarget;
 };
 
 struct SpellValue
@@ -507,7 +394,7 @@ class TC_GAME_API Spell
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
-        Spell(WorldObject* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty);
+        Spell(WorldObject* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, ObjectGuid originalCastId = ObjectGuid::Empty);
         ~Spell();
 
         void InitExplicitTargets(SpellCastTargets const& targets);

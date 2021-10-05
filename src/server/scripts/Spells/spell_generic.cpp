@@ -1737,7 +1737,8 @@ class spell_gen_lifebloom : public SpellScriptLoader
                     return;
 
                 // final heal
-                GetTarget()->CastSpell(GetTarget(), _spellId, { aurEff, GetCasterGUID() });
+                GetTarget()->CastSpell(GetTarget(), _spellId, CastSpellExtraArgs(aurEff)
+                    .SetOriginalCaster(GetCasterGUID()));
             }
 
             void Register() override
@@ -3161,7 +3162,8 @@ class spell_gen_turkey_marker : public AuraScript
 
         // on stack 15 cast the achievement crediting spell
         if (GetStackAmount() >= 15)
-            target->CastSpell(target, SPELL_TURKEY_VENGEANCE, { aurEff, GetCasterGUID() });
+            target->CastSpell(target, SPELL_TURKEY_VENGEANCE, CastSpellExtraArgs(aurEff)
+                .SetOriginalCaster(GetCasterGUID()));
     }
 
     void OnPeriodic(AuraEffect const* /*aurEff*/)

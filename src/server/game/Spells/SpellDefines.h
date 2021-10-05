@@ -21,10 +21,17 @@
 #include "Define.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
+#include "Position.h"
 #include <vector>
 
-class Item;
 class AuraEffect;
+class Corpse;
+class GameObject;
+class Item;
+class Player;
+class Unit;
+class WorldObject;
 enum Difficulty : uint8;
 
 namespace UF
@@ -36,7 +43,9 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        struct SpellCastRequest;
         struct SpellCastVisual;
+        struct SpellTargetData;
     }
 }
 
@@ -251,23 +260,191 @@ enum TriggerCastFlags : uint32
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
+enum SpellCastTargetFlags : uint32
+{
+    TARGET_FLAG_NONE            = 0x00000000,
+    TARGET_FLAG_UNUSED_1        = 0x00000001,               // not used
+    TARGET_FLAG_UNIT            = 0x00000002,               // pguid
+    TARGET_FLAG_UNIT_RAID       = 0x00000004,               // not sent, used to validate target (if raid member)
+    TARGET_FLAG_UNIT_PARTY      = 0x00000008,               // not sent, used to validate target (if party member)
+    TARGET_FLAG_ITEM            = 0x00000010,               // pguid
+    TARGET_FLAG_SOURCE_LOCATION = 0x00000020,               // pguid, 3 float
+    TARGET_FLAG_DEST_LOCATION   = 0x00000040,               // pguid, 3 float
+    TARGET_FLAG_UNIT_ENEMY      = 0x00000080,               // not sent, used to validate target (if enemy)
+    TARGET_FLAG_UNIT_ALLY       = 0x00000100,               // not sent, used to validate target (if ally)
+    TARGET_FLAG_CORPSE_ENEMY    = 0x00000200,               // pguid
+    TARGET_FLAG_UNIT_DEAD       = 0x00000400,               // not sent, used to validate target (if dead creature)
+    TARGET_FLAG_GAMEOBJECT      = 0x00000800,               // pguid, used with TARGET_GAMEOBJECT_TARGET
+    TARGET_FLAG_TRADE_ITEM      = 0x00001000,               // pguid
+    TARGET_FLAG_STRING          = 0x00002000,               // string
+    TARGET_FLAG_GAMEOBJECT_ITEM = 0x00004000,               // not sent, used with TARGET_GAMEOBJECT_ITEM_TARGET
+    TARGET_FLAG_CORPSE_ALLY     = 0x00008000,               // pguid
+    TARGET_FLAG_UNIT_MINIPET    = 0x00010000,               // pguid, used to validate target (if non combat pet)
+    TARGET_FLAG_GLYPH_SLOT      = 0x00020000,               // used in glyph spells
+    TARGET_FLAG_DEST_TARGET     = 0x00040000,               // sometimes appears with DEST_TARGET spells (may appear or not for a given spell)
+    TARGET_FLAG_EXTRA_TARGETS   = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
+    TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
+    TARGET_FLAG_UNK400000       = 0X00400000,
+    TARGET_FLAG_UNK1000000      = 0X01000000,
+    TARGET_FLAG_UNK4000000      = 0X04000000,
+    TARGET_FLAG_UNK10000000     = 0X10000000,
+    TARGET_FLAG_UNK40000000     = 0X40000000,
+
+    TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY
+        | TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_DEAD | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER,
+    TARGET_FLAG_GAMEOBJECT_MASK = TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM,
+    TARGET_FLAG_CORPSE_MASK = TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY,
+    TARGET_FLAG_ITEM_MASK = TARGET_FLAG_TRADE_ITEM | TARGET_FLAG_ITEM | TARGET_FLAG_GAMEOBJECT_ITEM
+};
+
+struct TC_GAME_API SpellDestination
+{
+    SpellDestination();
+    SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
+    SpellDestination(Position const& pos);
+    SpellDestination(WorldObject const& wObj);
+
+    void Relocate(Position const& pos);
+    void RelocateOffset(Position const& offset);
+
+    WorldLocation _position;
+    ObjectGuid _transportGUID;
+    Position _transportOffset;
+};
+
+class TC_GAME_API SpellCastTargets
+{
+public:
+    SpellCastTargets();
+    SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
+    ~SpellCastTargets();
+
+    void Write(WorldPackets::Spells::SpellTargetData& data);
+
+    uint32 GetTargetMask() const { return m_targetMask; }
+    void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
+
+    void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
+
+    ObjectGuid GetOrigUnitTargetGUID() const;
+    void SetOrigUnitTarget(Unit* target);
+
+    ObjectGuid GetUnitTargetGUID() const;
+    Unit* GetUnitTarget() const;
+    void SetUnitTarget(Unit* target);
+
+    ObjectGuid GetGOTargetGUID() const;
+    GameObject* GetGOTarget() const;
+    void SetGOTarget(GameObject* target);
+
+    ObjectGuid GetCorpseTargetGUID() const;
+    Corpse* GetCorpseTarget() const;
+
+    WorldObject* GetObjectTarget() const;
+    ObjectGuid GetObjectTargetGUID() const;
+    void RemoveObjectTarget();
+
+    ObjectGuid GetItemTargetGUID() const { return m_itemTargetGUID; }
+    Item* GetItemTarget() const { return m_itemTarget; }
+    uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
+    void SetItemTarget(Item* item);
+    void SetTradeItemTarget(Player* caster);
+    void UpdateTradeSlotItem();
+
+    SpellDestination const* GetSrc() const;
+    Position const* GetSrcPos() const;
+    void SetSrc(float x, float y, float z);
+    void SetSrc(Position const& pos);
+    void SetSrc(WorldObject const& wObj);
+    void ModSrc(Position const& pos);
+    void RemoveSrc();
+
+    SpellDestination const* GetDst() const;
+    WorldLocation const* GetDstPos() const;
+    void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
+    void SetDst(Position const& pos);
+    void SetDst(WorldObject const& wObj);
+    void SetDst(SpellDestination const& spellDest);
+    void SetDst(SpellCastTargets const& spellTargets);
+    void ModDst(Position const& pos);
+    void ModDst(SpellDestination const& spellDest);
+    void RemoveDst();
+
+    bool HasSrc() const;
+    bool HasDst() const;
+    bool HasTraj() const { return m_speed != 0; }
+
+    float GetPitch() const { return m_pitch; }
+    void SetPitch(float pitch) { m_pitch = pitch; }
+    float GetSpeed() const { return m_speed; }
+    void SetSpeed(float speed) { m_speed = speed; }
+
+    float GetDist2d() const { return m_src._position.GetExactDist2d(&m_dst._position); }
+    float GetSpeedXY() const { return m_speed * std::cos(m_pitch); }
+    float GetSpeedZ() const { return m_speed * std::sin(m_pitch); }
+
+    void Update(WorldObject* caster);
+    std::string GetTargetString() const { return m_strTarget; }
+
+private:
+    uint32 m_targetMask;
+
+    // objects (can be used at spell creating and after Update at casting)
+    WorldObject* m_objectTarget;
+    Item* m_itemTarget;
+
+    // object GUID/etc, can be used always
+    ObjectGuid m_origObjectTargetGUID;
+    ObjectGuid m_objectTargetGUID;
+    ObjectGuid m_itemTargetGUID;
+    uint32 m_itemTargetEntry;
+
+    SpellDestination m_src;
+    SpellDestination m_dst;
+
+    float m_pitch, m_speed;
+    std::string m_strTarget;
+};
+
+struct TC_GAME_API CastSpellTargetArg
+{
+    CastSpellTargetArg() { Targets.emplace(); }
+    CastSpellTargetArg(std::nullptr_t) { Targets.emplace(); }
+    CastSpellTargetArg(WorldObject* target);
+    CastSpellTargetArg(Item* itemTarget)
+    {
+        Targets.emplace();
+        Targets->SetItemTarget(itemTarget);
+    }
+    CastSpellTargetArg(Position const& dest)
+    {
+        Targets.emplace();
+        Targets->SetDst(dest);
+    }
+    CastSpellTargetArg(SpellCastTargets&& targets)
+    {
+        Targets.emplace(std::move(targets));
+    }
+
+    Optional<SpellCastTargets> Targets; // empty optional used to signal error state
+};
+
 struct TC_GAME_API CastSpellExtraArgs
 {
     CastSpellExtraArgs() = default;
     CastSpellExtraArgs(bool triggered) : TriggerFlags(triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE) {}
     CastSpellExtraArgs(TriggerCastFlags trigger) : TriggerFlags(trigger) {}
     CastSpellExtraArgs(Item* item) : TriggerFlags(TRIGGERED_FULL_MASK), CastItem(item) {}
-    CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK), TriggeringAura(eff) {}
-    CastSpellExtraArgs(ObjectGuid const& origCaster) : TriggerFlags(TRIGGERED_FULL_MASK), OriginalCaster(origCaster) {}
-    CastSpellExtraArgs(AuraEffect const* eff, ObjectGuid const& origCaster) : TriggerFlags(TRIGGERED_FULL_MASK), TriggeringAura(eff), OriginalCaster(origCaster) {}
+    CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) : CastDifficulty(castDifficulty) {}
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); }
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
-    CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura) { TriggeringAura = triggeringAura; return *this; }
+    CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura);
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }
+    CastSpellExtraArgs& SetOriginalCastId(ObjectGuid const& castId) { OriginalCastId = castId; return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); return *this; }
     CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
 
@@ -276,18 +453,19 @@ struct TC_GAME_API CastSpellExtraArgs
     AuraEffect const* TriggeringAura = nullptr;
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
     Difficulty CastDifficulty = Difficulty(0);
+    ObjectGuid OriginalCastId = ObjectGuid::Empty;
     struct
     {
         friend struct CastSpellExtraArgs;
         friend class WorldObject;
 
-        private:
-            void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }
+    private:
+        void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }
 
-            auto begin() const { return data.cbegin(); }
-            auto end() const { return data.cend(); }
+        auto begin() const { return data.cbegin(); }
+        auto end() const { return data.cend(); }
 
-            std::vector<std::pair<SpellValueMod, int32>> data;
+        std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
 };
 

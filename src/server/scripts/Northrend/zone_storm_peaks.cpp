@@ -140,12 +140,12 @@ public:
 
             //Trainer Menu
             if (me->IsTrainer())
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
             //Vendor Menu
             if (me->IsVendor())
                 if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;

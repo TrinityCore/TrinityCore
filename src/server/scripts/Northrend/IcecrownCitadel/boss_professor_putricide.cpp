@@ -475,7 +475,8 @@ class boss_professor_putricide : public CreatureScript
                     case ACTION_ROTFACE_OOZE:
                         Talk(SAY_ROTFACE_OOZE_FLOOD);
                         if (Creature* dummy = ObjectAccessor::GetCreature(*me, _oozeFloodDummyGUIDs[_oozeFloodStage]))
-                            dummy->CastSpell(dummy, oozeFloodSpells[_oozeFloodStage], me->GetGUID()); // cast from self for LoS (with prof's GUID for logs)
+                            dummy->CastSpell(dummy, oozeFloodSpells[_oozeFloodStage], CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                .SetOriginalCaster(me->GetGUID())); // cast from self for LoS (with prof's GUID for logs)
                         if (++_oozeFloodStage == 4)
                             _oozeFloodStage = 0;
                         break;
@@ -1155,7 +1156,8 @@ class spell_putricide_choking_gas_bomb : public SpellScriptLoader
                         continue;
 
                     uint32 spellId = uint32(spellEffectInfo.CalcValue());
-                    GetCaster()->CastSpell(GetCaster(), spellId, GetCaster()->GetGUID());
+                    GetCaster()->CastSpell(GetCaster(), spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                        .SetOriginalCaster(GetCaster()->GetGUID()));
                 }
             }
 
@@ -1337,7 +1339,8 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                     return;
 
                 int32 heal = healSpellInfo->GetEffect(EFFECT_0).CalcValue() * GetStackAmount();
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SetOriginalCaster(GetCasterGUID());
                 args.AddSpellBP0(heal);
                 GetTarget()->CastSpell(GetTarget(), healSpell, args);
             }

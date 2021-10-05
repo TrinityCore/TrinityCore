@@ -143,7 +143,8 @@ public:
         void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
-                victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, me->GetGUID());
+                victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCaster(me->GetGUID()));
 
             Talk(SAY_SLAY);
         }
@@ -198,7 +199,8 @@ public:
                         {
                             if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(guardCorpses)))
                             {
-                                creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, me->GetGUID());
+                                creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(me->GetGUID()));
                                 creatureTarget->AI()->Talk(EMOTE_SCARAB);
                                 creatureTarget->DespawnOrUnsummon();
                             }

@@ -141,7 +141,7 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
             SendGossipMenuFor(player, 7013, me->GetGUID());
 

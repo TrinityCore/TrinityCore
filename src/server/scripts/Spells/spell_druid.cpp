@@ -890,7 +890,8 @@ public:
                 }
             }
 
-            target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, { aurEff, GetCasterGUID() });
+            target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff)
+                .SetOriginalCaster(GetCasterGUID()));
         }
 
         void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1185,7 +1186,8 @@ public:
         void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
-            target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, { aurEff, GetCasterGUID() });
+            target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, CastSpellExtraArgs(aurEff)
+                .SetOriginalCaster(GetCasterGUID()));
         }
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

@@ -14605,16 +14605,6 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     if (!isDead())
                         canTalk = false;
                     break;
-                case GOSSIP_OPTION_VENDOR:
-                {
-                    VendorItemData const* vendorItems = creature->GetVendorItems();
-                    if (!vendorItems || vendorItems->Empty())
-                    {
-                        TC_LOG_ERROR("sql.sql", "Creature %s (%s DB GUID: " UI64FMTD ") has UNIT_NPC_FLAG_VENDOR set but has an empty trading item list.", creature->GetName().c_str(), creature->GetGUID().ToString().c_str(), creature->GetSpawnId());
-                        canTalk = false;
-                    }
-                    break;
-                }
                 case GOSSIP_OPTION_LEARNDUALSPEC:
                     canTalk = false;
                     break;
@@ -14638,6 +14628,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     canTalk = false;
                     break;
                 case GOSSIP_OPTION_GOSSIP:
+                case GOSSIP_OPTION_VENDOR:
                 case GOSSIP_OPTION_TRAINER:
                 case GOSSIP_OPTION_SPIRITGUIDE:
                 case GOSSIP_OPTION_INNKEEPER:
@@ -14793,7 +14784,8 @@ void Player::OnGossipSelect(WorldObject* source, uint32 optionIndex, uint32 menu
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if (isDead())
-                source->ToCreature()->CastSpell(source->ToCreature(), 17251, GetGUID());
+                source->ToCreature()->CastSpell(source->ToCreature(), 17251, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCaster(GetGUID()));
             break;
         case GOSSIP_OPTION_QUESTGIVER:
             PrepareQuestMenu(guid);
@@ -24385,6 +24377,8 @@ void Player::SendInitialPacketsAfterAddToMap()
         else
             ClearQuestSharingInfo();
     }
+
+    GetSceneMgr().TriggerDelayedScenes();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -25590,7 +25584,8 @@ void Player::ResurrectUsingRequestDataImpl()
     SetPower(POWER_LUNAR_POWER, 0);
 
     if (uint32 aura = resurrectAura)
-        CastSpell(this, aura, resurrectGUID);
+        CastSpell(this, aura, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+            .SetOriginalCaster(resurrectGUID));
 
     SpawnCorpseBones();
 }

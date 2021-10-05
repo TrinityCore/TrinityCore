@@ -42,7 +42,7 @@ GossipMenu::~GossipMenu()
     ClearMenu();
 }
 
-uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
+uint32 GossipMenu::AddMenuItem(int32 optionIndex, GossipOptionIcon icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
 {
     ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 
@@ -429,6 +429,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.QuestGiverGUID = npcGUID;
     packet.InformUnit = _session->GetPlayer()->GetPlayerSharingQuest();
     packet.QuestID = quest->GetQuestId();
+    packet.QuestPackageID = quest->GetQuestPackageID();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
     packet.PortraitGiverMount = quest->GetQuestGiverPortraitMount();
     packet.PortraitGiverModelSceneID = quest->GetQuestGiverPortraitModelSceneId();

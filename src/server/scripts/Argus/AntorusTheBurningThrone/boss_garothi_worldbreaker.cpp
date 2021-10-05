@@ -870,7 +870,7 @@ class spell_garothi_cannon_chooser : public SpellScript
                 float x = AnnihilationCenterReferencePos.GetPositionX() + cos(frand(0.0f, float(M_PI * 2))) * frand(15.0f, 30.0f);
                 float y = AnnihilationCenterReferencePos.GetPositionY() + sin(frand(0.0f, float(M_PI * 2))) * frand(15.0f, 30.0f);
                 float z = caster->GetMap()->GetHeight(caster->GetPhaseShift(), x, y, AnnihilationCenterReferencePos.GetPositionZ());
-                annihilator->CastSpell({ x, y, z }, SPELL_ANNIHILATION_SUMMON, true);
+                annihilator->CastSpell(Position{ x, y, z }, SPELL_ANNIHILATION_SUMMON, true);
             }
 
             annihilator->CastSpell(annihilator, SPELL_ANNIHILATION_DUMMY);

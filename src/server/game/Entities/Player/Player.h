@@ -2558,6 +2558,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
+        SceneMgr const& GetSceneMgr() const { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
         void SetRestState(RestTypes type, PlayerRestState state)
         {
@@ -2624,6 +2625,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetArenaFaction(uint8 arenaFaction) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction); }
         void ApplyModFakeInebriation(int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::FakeInebriation), mod, apply); }
         void SetVirtualPlayerRealm(uint32 virtualRealmAddress) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::VirtualPlayerRealm), virtualRealmAddress); }
+        void SetCurrentBattlePetBreedQuality(uint8 battlePetBreedQuality) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentBattlePetBreedQuality), battlePetBreedQuality);  }
 
         void AddHeirloom(int32 itemId, uint32 flags)
         {

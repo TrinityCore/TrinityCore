@@ -22,6 +22,7 @@
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "CharacterCache.h"
 #include "ChatPackets.h"
@@ -1885,7 +1886,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id, Trinity::IteratorPair<int32 const*
             uint32 split_absorb = 0;
             Unit::DealDamageMods(damageInfo.GetAttacker(), caster, splitDamage, &split_absorb);
 
-            SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetSpellInfo(), (*itr)->GetBase()->GetSpellVisual(), damageInfo.GetSchoolMask(), (*itr)->GetBase()->GetCastGUID());
+            SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetSpellInfo(), (*itr)->GetBase()->GetSpellVisual(), damageInfo.GetSchoolMask(), (*itr)->GetBase()->GetCastId());
             CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             Unit::DealDamage(damageInfo.GetAttacker(), caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
             log.damage = splitDamage;
@@ -2025,10 +2026,7 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         }
         else
         {
-            CastSpellExtraArgs args;
-            args.TriggerFlags = TRIGGERED_FULL_MASK;
-            args.TriggeringAura = meleeAttackAuraEffect;
-            CastSpell(victim, meleeAttackSpellId, args);
+            CastSpell(victim, meleeAttackSpellId, meleeAttackAuraEffect);
 
             uint32 hitInfo = HITINFO_AFFECTS_VICTIM | HITINFO_NO_ANIMATION;
             if (attType == OFF_ATTACK)
@@ -3370,7 +3368,7 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
         {
             Unit* caster = aura->GetCaster();
             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), aura->GetSpellVisual(), aura->GetCastGUID(), SPELL_FAILED_AURA_BOUNCED);
+                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), aura->GetSpellVisual(), aura->GetCastId(), SPELL_FAILED_AURA_BOUNCED);
         }
 
         aura->Remove();
@@ -3737,7 +3735,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                     if (aura->IsSingleTarget())
                         aura->UnregisterSingleTarget();
 
-                    AuraCreateInfo createInfo(aura->GetCastGUID(), aura->GetSpellInfo(), aura->GetCastDifficulty(), effMask, unitStealer);
+                    AuraCreateInfo createInfo(aura->GetCastId(), aura->GetSpellInfo(), aura->GetCastDifficulty(), effMask, unitStealer);
                     createInfo
                         .SetCasterGUID(aura->GetCasterGUID())
                         .SetBaseAmount(baseDamage);
@@ -5826,7 +5824,13 @@ void Unit::SetMinion(Minion *minion, bool apply)
         {
             SetCritterGUID(minion->GetGUID());
             if (Player const* thisPlayer = ToPlayer())
-                minion->SetBattlePetCompanionGUID(thisPlayer->m_activePlayerData->SummonedBattlePetGUID);
+            {
+                if (BattlePetMgr::BattlePet const* pet = thisPlayer->GetSession()->GetBattlePetMgr()->GetPet(thisPlayer->m_activePlayerData->SummonedBattlePetGUID))
+                {
+                    minion->SetBattlePetCompanionGUID(thisPlayer->m_activePlayerData->SummonedBattlePetGUID);
+                    minion->SetWildBattlePetLevel(pet->PacketInfo.Level);
+                }
+            }
         }
 
         // PvP, FFAPvP
@@ -9029,10 +9033,7 @@ void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
                     break;
             }
 
-            CastSpellExtraArgs args;
-            args.TriggerFlags = TRIGGERED_FULL_MASK;
-            args.TriggeringAura = effect;
-            CastSpell(this, triggerSpell, args);
+            CastSpell(this, triggerSpell, effect);
         }
     }
 }

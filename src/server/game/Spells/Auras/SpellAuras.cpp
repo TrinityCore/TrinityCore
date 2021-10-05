@@ -233,7 +233,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     Aura const* aura = GetBase();
 
     WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData.get();
-    auraData.CastID = aura->GetCastGUID();
+    auraData.CastID = aura->GetCastId();
     auraData.SpellID = aura->GetId();
     auraData.Visual = aura->GetSpellVisual();
     auraData.Flags = GetFlags();
@@ -446,7 +446,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
 }
 
 Aura::Aura(AuraCreateInfo const& createInfo) :
-m_spellInfo(createInfo._spellInfo), m_castDifficulty(createInfo._castDifficulty), m_castGuid(createInfo._castId), m_casterGuid(createInfo.CasterGUID),
+m_spellInfo(createInfo._spellInfo), m_castDifficulty(createInfo._castDifficulty), m_castId(createInfo._castId), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItemGUID), m_castItemId(createInfo.CastItemId),
 m_castItemLevel(createInfo.CastItemLevel), m_spellVisual({ createInfo.Caster ? createInfo.Caster->GetCastSpellXSpellVisualId(createInfo._spellInfo) : createInfo._spellInfo->GetSpellXSpellVisualId(), 0 }),
 m_applyTime(GameTime::GetGameTime()), m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
@@ -1332,7 +1332,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             else if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST)
             {
                 if (!target->HasAura(itr->second->spellId))
-                    target->CastSpell(target, itr->second->spellId, true);
+                    target->CastSpell(target, itr->second->spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                        .SetOriginalCastId(GetCastId()));
             }
         }
     }
@@ -1364,7 +1365,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (*itr < 0)
                         target->RemoveAurasDueToSpell(-(*itr));
                     else if (removeMode != AURA_REMOVE_BY_DEATH)
-                        target->CastSpell(target, *itr, GetCasterGUID());
+                        target->CastSpell(target, *itr, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                            .SetOriginalCaster(GetCasterGUID())
+                            .SetOriginalCastId(GetCastId()));
                 }
             }
             if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
@@ -1405,11 +1408,13 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                     case 33572: // Gronn Lord's Grasp, becomes stoned
                         if (GetStackAmount() >= 5 && !target->HasAura(33652))
-                            target->CastSpell(target, 33652, true);
+                            target->CastSpell(target, 33652, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                .SetOriginalCastId(GetCastId()));
                         break;
                     case 50836: //Petrifying Grip, becomes stoned
                         if (GetStackAmount() >= 5 && !target->HasAura(50812))
-                            target->CastSpell(target, 50812, true);
+                            target->CastSpell(target, 50812, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                .SetOriginalCastId(GetCastId()));
                         break;
                     case 60970: // Heroic Fury (remove Intercept cooldown)
                         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -1480,6 +1485,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         {
                             float multiplier = float(aurEff->GetAmount());
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                            args.SetOriginalCastId(GetCastId());
                             args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(caster->GetMaxPower(POWER_MANA), multiplier));
                             caster->CastSpell(caster, 47755, args);
                         }
@@ -1524,7 +1530,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (target->HasAura(70755))
                     {
                         if (apply)
-                            target->CastSpell(target, 71166, true);
+                            target->CastSpell(target, 71166, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                .SetOriginalCastId(GetCastId()));
                         else
                             target->RemoveAurasDueToSpell(71166);
                     }

@@ -355,7 +355,8 @@ class boss_halion : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                             {
                                 _meteorStrikePos = target->GetPosition();
-                                me->CastSpell(_meteorStrikePos, SPELL_METEOR_STRIKE, me->GetGUID());
+                                me->CastSpell(_meteorStrikePos, SPELL_METEOR_STRIKE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(me->GetGUID()));
                                 Talk(SAY_METEOR_STRIKE);
                             }
                             events.ScheduleEvent(EVENT_METEOR_STRIKE, Seconds(38));
@@ -1568,7 +1569,8 @@ class spell_halion_marks : public SpellScriptLoader
                     return;
 
                 // Stacks marker
-                CastSpellExtraArgs args(GetCasterGUID());
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SetOriginalCaster(GetCasterGUID());
                 args.AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount());
                 GetTarget()->CastSpell(GetTarget(), _summonSpellId, args);
             }

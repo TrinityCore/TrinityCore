@@ -255,7 +255,7 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (player->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE) //It's the same dragon for both quests.
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
@@ -307,7 +307,7 @@ public:
         bool GossipHello(Player* player) override
         {
             if (player->GetQuestStatus(QUEST_SPIRITS_WATCH_OVER_US) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_I, me->GetGUID());
             return true;
@@ -1066,7 +1066,7 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE && me->GetAreaId() == 4128)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
@@ -2315,10 +2315,10 @@ public:
             }
 
             if (player->HasAura(SPELL_RIGHTEOUS_VISION) && player->GetQuestStatus(QUEST_THE_HUNT_IS_ON) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, charGossipItem, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionIcon::None, charGossipItem, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             if (me->IsVendor())
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
             SendGossipMenuFor(player, uiGossipText, me->GetGUID());
 
