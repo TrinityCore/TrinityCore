@@ -37,7 +37,7 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 + MS Visual Studio ≥ 16.4 (2019) (Windows only)
 + zlib ≥ 1.2.7
 + ZeroMQ:
-+ apt-get install libzmq-dev (Linux only)
++ apt-get install libzmq3-dev (Linux only)
 + x64 - https://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x64.exe (Windows only)
 + or x86 - https://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x86.exe (Windows only)
 
