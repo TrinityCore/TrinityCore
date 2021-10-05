@@ -15,25 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SceneDef_h__
-#define SceneDef_h__
+#ifndef SceneDefines_h__
+#define SceneDefines_h__
 
-#include "Common.h"
+#include "Define.h"
 #include "EnumFlag.h"
 
 enum class SceneFlag : uint32
 {
     None                        = 0x00,
-    PlayerNonInteractablePhased = 0x01, // Player Is Non-Interactable and Phased
+    PlayerNonInteractablePhased = 0x01, // Sets UNIT_FLAG_IMMUNE_TO_PC + UNIT_FLAG_IMMUNE_TO_NPC + UNIT_FLAG_PACIFIED
     FadeToBlackscreenOnComplete = 0x02,
     NotCancelable               = 0x04,
-    GiganticAOI                 = 0x08,
-    InfiniteAOI                 = 0x10, // 16, most common value
-    FadeToBlackscreenOnCancel   = 0x20,
-    IgnoreTransport             = 0x40,
-    PlayAsLoginCinematic        = 0x80,
+    FadeToBlackscreenOnCancel   = 0x08,
+
+    IgnoreTransport             = 0x20
 };
 
 DEFINE_ENUM_FLAG(SceneFlag);
 
-#endif
+#endif // SceneDefines_h__

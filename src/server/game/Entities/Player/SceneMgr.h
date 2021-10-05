@@ -19,7 +19,7 @@
 #define SceneMgr_h__
 
 #include "Common.h"
-#include "SceneDef.h"
+#include "SceneDefines.h"
 #include <map>
 #include <vector>
 
@@ -43,14 +43,14 @@ public:
 
     uint32 PlayScene(uint32 sceneId, Position const* position = nullptr);
     uint32 PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Position const* position = nullptr);
-    uint32 PlaySceneByPackageId(uint32 sceneScriptPackageId, EnumFlag<SceneFlag> playbackflags = SceneFlag::InfiniteAOI, Position const* position = nullptr);
+    uint32 PlaySceneByPackageId(uint32 sceneScriptPackageId, EnumFlag<SceneFlag> playbackflags, Position const* position = nullptr);
     void CancelScene(uint32 sceneInstanceID, bool removeFromMap = true);
 
     void OnSceneTrigger(uint32 sceneInstanceID, std::string const& triggerName);
     void OnSceneCancel(uint32 sceneInstanceID);
     void OnSceneComplete(uint32 sceneInstanceID);
 
-    void RecreateScene(uint32 sceneScriptPackageId, EnumFlag<SceneFlag> playbackflags = SceneFlag::InfiniteAOI, Position const* position = nullptr)
+    void RecreateScene(uint32 sceneScriptPackageId, EnumFlag<SceneFlag> playbackflags, Position const* position = nullptr)
     {
         CancelSceneByPackageId(sceneScriptPackageId);
         PlaySceneByPackageId(sceneScriptPackageId, playbackflags, position);

@@ -55,14 +55,11 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     uint32 sceneInstanceID = GetNewStandaloneSceneInstanceID();
 
     if (_isDebuggingScenes)
-        ChatHandler(GetPlayer()->GetSession()).PSendSysMessage(LANG_COMMAND_SCENE_DEBUG_PLAY, sceneInstanceID, sceneTemplate->ScenePackageId, sceneTemplate->GetFlags().AsUnderlyingType());
-
-    EnumFlag<SceneFlag> playbackFlags = sceneTemplate->GetFlags();
-    playbackFlags.RemoveFlag(SceneFlag::PlayAsLoginCinematic);
+        ChatHandler(GetPlayer()->GetSession()).PSendSysMessage(LANG_COMMAND_SCENE_DEBUG_PLAY, sceneInstanceID, sceneTemplate->ScenePackageId, sceneTemplate->PlaybackFlags.AsUnderlyingType());
 
     WorldPackets::Scenes::PlayScene playScene;
     playScene.SceneID              = sceneTemplate->SceneId;
-    playScene.PlaybackFlags        = playbackFlags.AsUnderlyingType();
+    playScene.PlaybackFlags        = sceneTemplate->PlaybackFlags.AsUnderlyingType();
     playScene.SceneInstanceID      = sceneInstanceID;
     playScene.SceneScriptPackageID = sceneTemplate->ScenePackageId;
     playScene.Location             = *position;
@@ -87,7 +84,7 @@ uint32 SceneMgr::PlaySceneByPackageId(uint32 sceneScriptPackageId, EnumFlag<Scen
     SceneTemplate sceneTemplate;
     sceneTemplate.SceneId           = 0;
     sceneTemplate.ScenePackageId    = sceneScriptPackageId;
-    sceneTemplate.PlaybackFlags     = playbackflags.AsUnderlyingType();
+    sceneTemplate.PlaybackFlags     = playbackflags;
     sceneTemplate.Encrypted         = false;
     sceneTemplate.ScriptId          = 0;
 
@@ -125,7 +122,7 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
         ChatHandler(GetPlayer()->GetSession()).PSendSysMessage(LANG_COMMAND_SCENE_DEBUG_CANCEL, sceneInstanceID);
 
     SceneTemplate const* sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
-    if (sceneTemplate->GetFlags().HasFlag(SceneFlag::NotCancelable))
+    if (sceneTemplate->PlaybackFlags.HasFlag(SceneFlag::NotCancelable))
         return;
 
     // Must be done before removing aura
@@ -136,7 +133,7 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
 
     sScriptMgr->OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate);
 
-    if (sceneTemplate->GetFlags().HasFlag(SceneFlag::FadeToBlackscreenOnCancel | SceneFlag::PlayAsLoginCinematic))
+    if (sceneTemplate->PlaybackFlags.HasFlag(SceneFlag::FadeToBlackscreenOnCancel))
         CancelScene(sceneInstanceID, false);
 }
 
@@ -158,7 +155,7 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
 
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
 
-    if (sceneTemplate->GetFlags().HasFlag(SceneFlag::FadeToBlackscreenOnComplete))
+    if (sceneTemplate->PlaybackFlags.HasFlag(SceneFlag::FadeToBlackscreenOnComplete))
         CancelScene(sceneInstanceID, false);
 }
 
