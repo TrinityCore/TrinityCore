@@ -2429,32 +2429,32 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             WorldObject* baseObject = GetBaseObject();
 
             GuidVector dynamicActors;
-            Player* playerTarget = nullptr;
+            Player* creator = nullptr;
             for (WorldObject* const target : targets)
             {
                 // first player in target list will implicitly be creator
-                if (!playerTarget && target->IsPlayer())
+                if (!creator && target->IsPlayer())
                 {
-                    playerTarget = target->ToPlayer();
+                    creator = target->ToPlayer();
 
-                    if (e.action.conversation.includePlayerAsActor)
+                    if (e.action.conversation.includeCreatorAsActor)
                         dynamicActors.push_back(target->GetGUID());
                 }
                 else
                     dynamicActors.push_back(target->GetGUID());
             }
 
-            if (!playerTarget)
+            if (!creator)
             {
                 TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s - unable to find creating player", e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str());
                 break;
             }
 
-            Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
-                *playerTarget, { playerTarget->GetGUID() }, nullptr, dynamicActors);
+            Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, creator,
+                *creator, { creator->GetGUID() }, nullptr, dynamicActors);
             if (!conversation)
                 TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s, target %s - failed to create conversation",
-                    e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str(), playerTarget->GetName().c_str());
+                    e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str(), creator->GetName().c_str());
 
             break;
         }

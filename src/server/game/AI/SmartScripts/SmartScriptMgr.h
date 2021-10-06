@@ -1200,7 +1200,7 @@ struct SmartAction
         struct
         {
             uint32 id;
-            uint32 includePlayerAsActor;
+            uint32 includeCreatorAsActor;
         } conversation;
 
         //! Note for any new future actions

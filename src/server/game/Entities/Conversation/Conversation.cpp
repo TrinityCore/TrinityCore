@@ -160,7 +160,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     {
         for (ObjectGuid const& actorGuid : dynamicActors.get())
         {
-            if (WorldObject* obj = ObjectAccessor::GetWorldObject(*creator, actorGuid))
+            if (ObjectAccessor::GetWorldObject(*creator, actorGuid))
             {
                 AddActor(actorGuid, actorIndex);
                 actorIndex++;
