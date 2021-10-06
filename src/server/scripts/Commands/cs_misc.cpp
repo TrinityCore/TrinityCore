@@ -72,6 +72,7 @@ public:
         static ChatCommandTable commandTable =
         {
             { "additem",          HandleAddItemCommand,          rbac::RBAC_PERM_COMMAND_ADDITEM,          Console::No },
+            { "additem to",       HandleAddItemToCommand,        rbac::RBAC_PERM_COMMAND_ADDITEM,          Console::No },
             { "additem set",      HandleAddItemSetCommand,       rbac::RBAC_PERM_COMMAND_ADDITEMSET,       Console::No },
             { "appear",           HandleAppearCommand,           rbac::RBAC_PERM_COMMAND_APPEAR,           Console::No },
             { "aura",             HandleAuraCommand,             rbac::RBAC_PERM_COMMAND_AURA,             Console::No },
@@ -1259,6 +1260,164 @@ public:
         Player* playerTarget = handler->getSelectedPlayer();
         if (!playerTarget)
             playerTarget = player;
+
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+        if (!itemTemplate)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // Subtract
+        if (count < 0)
+        {
+            uint32 destroyedItemCount = playerTarget->DestroyItemCount(itemId, -count, true, false);
+
+            if (destroyedItemCount > 0)
+            {
+                // output the amount of items successfully destroyed
+                handler->PSendSysMessage(LANG_REMOVEITEM, itemId, destroyedItemCount, handler->GetNameLink(playerTarget).c_str());
+
+                // check to see if we were unable to destroy all of the amount requested.
+                uint32 unableToDestroyItemCount = -count - destroyedItemCount;
+                if (unableToDestroyItemCount > 0)
+                {
+                    // output message for the amount of items we couldn't destroy
+                    handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, itemId, unableToDestroyItemCount, handler->GetNameLink(playerTarget).c_str());
+                }
+            }
+            else
+            {
+                // failed to destroy items of the amount requested
+                handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, itemId, -count, handler->GetNameLink(playerTarget).c_str());
+            }
+
+            return true;
+        }
+
+        // Adding items
+        uint32 noSpaceForCount = 0;
+
+        // check space and find places
+        ItemPosCountVec dest;
+        InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+        if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
+            count -= noSpaceForCount;
+
+        if (count == 0 || dest.empty())                         // can't add any
+        {
+            handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), itemContext, bonusListIDs);
+
+        // remove binding (let GM give it to another player later)
+        if (player == playerTarget)
+            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+                if (Item* item1 = player->GetItemByPos(itr->pos))
+                    item1->SetBinding(false);
+
+        if (count > 0 && item)
+        {
+            player->SendNewItem(item, count, false, true);
+            if (player != playerTarget)
+                playerTarget->SendNewItem(item, count, true, false);
+        }
+
+        if (noSpaceForCount > 0)
+            handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+
+        return true;
+    }
+
+    static bool HandleAddItemToCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Player* playerTarget = nullptr;
+        if (!handler->extractPlayerTarget((char*)args, &playerTarget))
+        {
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        char* tailArgs = strtok(nullptr, "");
+        if (!tailArgs)
+            return false;
+
+        uint32 itemId = 0;
+
+        if (tailArgs[0] == '[')                                        // [name] manual form
+        {
+            char const* itemNameStr = strtok(tailArgs, "]");
+
+            if (itemNameStr && itemNameStr[0])
+            {
+                std::string itemName = itemNameStr+1;
+                auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
+                {
+                    for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+                        if (itemName == sparse->Display[i])
+                            return true;
+                    return false;
+                });
+
+                if (itr == sItemSparseStore.end())
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr+1);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                itemId = itr->ID;
+            }
+            else
+                return false;
+        }
+        else                                                    // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
+        {
+            char const* id = handler->extractKeyFromLink(tailArgs, "Hitem");
+            if (!id)
+                return false;
+            itemId = atoul(id);
+        }
+
+        char const* ccount = strtok(nullptr, " ");
+
+        int32 count = 1;
+
+        if (ccount)
+            count = strtol(ccount, nullptr, 10);
+
+        if (count == 0)
+            count = 1;
+
+        std::vector<int32> bonusListIDs;
+        char const* bonuses = strtok(nullptr, " ");
+
+        char const* context = strtok(nullptr, " ");
+
+        // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
+        if (bonuses)
+            for (std::string_view token : Trinity::Tokenize(bonuses, ';', false))
+                if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token))
+                    bonusListIDs.push_back(*bonusListId);
+
+        ItemContext itemContext = ItemContext::NONE;
+        if (context)
+        {
+            itemContext = ItemContext(atoul(context));
+            if (itemContext != ItemContext::NONE && itemContext < ItemContext::Max)
+            {
+                std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itemId, itemContext);
+                bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
+            }
+        }
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         if (!itemTemplate)
