@@ -359,11 +359,17 @@ void AreaTrigger::UpdateTargetList()
             break;
     }
 
-    AreaTriggerId areaTriggerId = GetTemplate()->Id;
-    targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [areaTriggerId](Unit* target) -> bool
+    if (GetTemplate())
     {
-        return !sConditionMgr->IsObjectMeetingAreaTriggerConditions(areaTriggerId.Id, areaTriggerId.IsServerSide, target);
-    }), targetList.end());
+        if (ConditionContainer const* conditions = sConditionMgr->GetConditionsForAreaTrigger(GetTemplate()->Id.Id, GetTemplate()->Id.IsServerSide))
+        {
+            targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [conditions](Unit* target)
+            {
+                return !sConditionMgr->IsObjectMeetToConditions(target, *conditions);
+            }), targetList.end());
+        }
+    }
+
     HandleUnitEnterExit(targetList);
 }
 

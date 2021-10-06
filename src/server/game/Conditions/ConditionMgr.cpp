@@ -1053,14 +1053,9 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingAreaTriggerConditions(uint32 areaTriggerId, bool isServerSide, WorldObject* object) const
+ConditionContainer const* ConditionMgr::GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const
 {
-    if (ConditionContainer const* conds = Trinity::Containers::MapGetValuePtr(AreaTriggerConditionContainerStore, { areaTriggerId, isServerSide }))
-    {
-        ConditionSourceInfo sourceInfo(object);
-        return IsObjectMeetToConditions(sourceInfo, *conds);
-    }
-    return true;
+    return Trinity::Containers::MapGetValuePtr(AreaTriggerConditionContainerStore, { areaTriggerId, isServerSide });
 }
 
 ConditionMgr* ConditionMgr::instance()
