@@ -168,7 +168,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25,
     CONDITION_SOURCE_TYPE_PHASE                          = 26,
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27,
-    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
+    CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28,
+    CONDITION_SOURCE_TYPE_MAX                            = 29  // MAX
 };
 
 enum RelationType
@@ -259,6 +260,7 @@ typedef std::array<ConditionsByEntryMap, CONDITION_SOURCE_TYPE_MAX> ConditionEnt
 typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
 typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
 typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
+typedef std::unordered_map<std::pair<int32, bool>, ConditionContainer> ConditionEntriesByAreaTriggerIdMap;
 
 class TC_GAME_API ConditionMgr
 {
@@ -286,6 +288,7 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const;
         bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
+        ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
@@ -321,6 +324,7 @@ class TC_GAME_API ConditionMgr
         ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
         ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
         SmartEventConditionContainer    SmartEventConditionStore;
+        ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()
