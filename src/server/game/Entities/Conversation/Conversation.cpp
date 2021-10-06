@@ -20,6 +20,7 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "Unit.h"
