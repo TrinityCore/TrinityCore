@@ -2346,31 +2346,31 @@ class spell_quest_taming_the_beast : public AuraScript
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
-        uint32 finalSpelId = 0;
+        uint32 finalSpellId = 0;
         switch (GetId())
         {
-            case SPELL_TAME_ICE_CLAW_BEAR:         finalSpelId = SPELL_TAME_ICE_CLAW_BEAR_1; break;
-            case SPELL_TAME_LARGE_CRAG_BOAR:       finalSpelId = SPELL_TAME_LARGE_CRAG_BOAR_1; break;
-            case SPELL_TAME_SNOW_LEOPARD:          finalSpelId = SPELL_TAME_SNOW_LEOPARD_1; break;
-            case SPELL_TAME_ADULT_PLAINSTRIDER:    finalSpelId = SPELL_TAME_ADULT_PLAINSTRIDER_1; break;
-            case SPELL_TAME_PRAIRIE_STALKER:       finalSpelId = SPELL_TAME_PRAIRIE_STALKER_1; break;
-            case SPELL_TAME_SWOOP:                 finalSpelId = SPELL_TAME_SWOOP_1; break;
-            case SPELL_TAME_WEBWOOD_LURKER:        finalSpelId = SPELL_TAME_WEBWOOD_LURKER_1; break;
-            case SPELL_TAME_DIRE_MOTTLED_BOAR:     finalSpelId = SPELL_TAME_DIRE_MOTTLED_BOAR_1; break;
-            case SPELL_TAME_SURF_CRAWLER:          finalSpelId = SPELL_TAME_SURF_CRAWLER_1; break;
-            case SPELL_TAME_ARMORED_SCORPID:       finalSpelId = SPELL_TAME_ARMORED_SCORPID_1; break;
-            case SPELL_TAME_NIGHTSABER_STALKER:    finalSpelId = SPELL_TAME_NIGHTSABER_STALKER_1; break;
-            case SPELL_TAME_STRIGID_SCREECHER:     finalSpelId = SPELL_TAME_STRIGID_SCREECHER_1; break;
-            case SPELL_TAME_BARBED_CRAWLER:        finalSpelId = SPELL_TAME_BARBED_CRAWLER_1; break;
-            case SPELL_TAME_GREATER_TIMBERSTRIDER: finalSpelId = SPELL_TAME_GREATER_TIMBERSTRIDER_1; break;
-            case SPELL_TAME_NIGHTSTALKER:          finalSpelId = SPELL_TAME_NIGHTSTALKER_1; break;
-            case SPELL_TAME_CRAZED_DRAGONHAWK:     finalSpelId = SPELL_TAME_CRAZED_DRAGONHAWK_1; break;
-            case SPELL_TAME_ELDER_SPRINGPAW:       finalSpelId = SPELL_TAME_ELDER_SPRINGPAW_1; break;
-            case SPELL_TAME_MISTBAT:               finalSpelId = SPELL_TAME_MISTBAT_1; break;
+            case SPELL_TAME_ICE_CLAW_BEAR:         finalSpellId = SPELL_TAME_ICE_CLAW_BEAR_1; break;
+            case SPELL_TAME_LARGE_CRAG_BOAR:       finalSpellId = SPELL_TAME_LARGE_CRAG_BOAR_1; break;
+            case SPELL_TAME_SNOW_LEOPARD:          finalSpellId = SPELL_TAME_SNOW_LEOPARD_1; break;
+            case SPELL_TAME_ADULT_PLAINSTRIDER:    finalSpellId = SPELL_TAME_ADULT_PLAINSTRIDER_1; break;
+            case SPELL_TAME_PRAIRIE_STALKER:       finalSpellId = SPELL_TAME_PRAIRIE_STALKER_1; break;
+            case SPELL_TAME_SWOOP:                 finalSpellId = SPELL_TAME_SWOOP_1; break;
+            case SPELL_TAME_WEBWOOD_LURKER:        finalSpellId = SPELL_TAME_WEBWOOD_LURKER_1; break;
+            case SPELL_TAME_DIRE_MOTTLED_BOAR:     finalSpellId = SPELL_TAME_DIRE_MOTTLED_BOAR_1; break;
+            case SPELL_TAME_SURF_CRAWLER:          finalSpellId = SPELL_TAME_SURF_CRAWLER_1; break;
+            case SPELL_TAME_ARMORED_SCORPID:       finalSpellId = SPELL_TAME_ARMORED_SCORPID_1; break;
+            case SPELL_TAME_NIGHTSABER_STALKER:    finalSpellId = SPELL_TAME_NIGHTSABER_STALKER_1; break;
+            case SPELL_TAME_STRIGID_SCREECHER:     finalSpellId = SPELL_TAME_STRIGID_SCREECHER_1; break;
+            case SPELL_TAME_BARBED_CRAWLER:        finalSpellId = SPELL_TAME_BARBED_CRAWLER_1; break;
+            case SPELL_TAME_GREATER_TIMBERSTRIDER: finalSpellId = SPELL_TAME_GREATER_TIMBERSTRIDER_1; break;
+            case SPELL_TAME_NIGHTSTALKER:          finalSpellId = SPELL_TAME_NIGHTSTALKER_1; break;
+            case SPELL_TAME_CRAZED_DRAGONHAWK:     finalSpellId = SPELL_TAME_CRAZED_DRAGONHAWK_1; break;
+            case SPELL_TAME_ELDER_SPRINGPAW:       finalSpellId = SPELL_TAME_ELDER_SPRINGPAW_1; break;
+            case SPELL_TAME_MISTBAT:               finalSpellId = SPELL_TAME_MISTBAT_1; break;
         }
 
-        if (finalSpelId)
-            GetCaster()->CastSpell(GetTarget(), finalSpelId, true);
+        if (finalSpellId)
+            GetCaster()->CastSpell(GetTarget(), finalSpellId, true);
     }
 
     void Register() override
