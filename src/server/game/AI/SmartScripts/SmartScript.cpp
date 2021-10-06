@@ -2428,17 +2428,33 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             WorldObject* baseObject = GetBaseObject();
 
+            GuidVector dynamicActors;
+            Player* playerTarget = nullptr;
             for (WorldObject* const target : targets)
             {
-                if (Player* playerTarget = target->ToPlayer())
+                // first player in target list will implicitly be creator
+                if (!playerTarget && target->IsPlayer())
                 {
-                    Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
-                        *playerTarget, { playerTarget->GetGUID() }, nullptr);
-                    if (!conversation)
-                        TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s, target %s - failed to create conversation",
-                            e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str(), playerTarget->GetName().c_str());
+                    playerTarget = target->ToPlayer();
+
+                    if (e.action.conversation.includePlayerAsActor)
+                        dynamicActors.push_back(target->GetGUID());
                 }
+                else
+                    dynamicActors.push_back(target->GetGUID());
             }
+
+            if (!playerTarget)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s - unable to find creating player", e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str());
+                break;
+            }
+
+            Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
+                *playerTarget, { playerTarget->GetGUID() }, nullptr, dynamicActors);
+            if (!conversation)
+                TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s, target %s - failed to create conversation",
+                    e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str(), playerTarget->GetName().c_str());
 
             break;
         }
