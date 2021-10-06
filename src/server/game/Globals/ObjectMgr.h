@@ -32,6 +32,7 @@
 #include "Position.h"
 #include "QuestDef.h"
 #include "RaceMask.h"
+#include "SceneDefines.h"
 #include "SharedDefines.h"
 #include "Trainer.h"
 #include "VehicleDefines.h"
@@ -42,6 +43,7 @@ class Item;
 class Unit;
 class Vehicle;
 class Map;
+enum class GossipOptionIcon : uint8;
 struct AccessRequirement;
 struct DeclinedName;
 struct DungeonEncounterEntry;
@@ -611,6 +613,10 @@ struct PlayerInfo
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
 
+    Optional<uint32> introMovieId;
+    Optional<uint32> introSceneId;
+    Optional<uint32> introSceneIdNPE;
+
     //[level-1] 0..MaxPlayerLevel-1
     std::unique_ptr<PlayerLevelInfo[]> levelInfo;
 };
@@ -689,7 +695,7 @@ struct GossipMenuItems
 {
     uint32               MenuId;
     uint32               OptionIndex;
-    uint8                OptionIcon;
+    GossipOptionIcon     OptionIcon;
     std::string          OptionText;
     uint32               OptionBroadcastTextId;
     uint32               OptionType;
@@ -791,7 +797,7 @@ typedef std::unordered_map<uint32, std::string> RealmNameContainer;
 struct SceneTemplate
 {
     uint32 SceneId = 0;
-    uint32 PlaybackFlags = 0;
+    EnumFlag<SceneFlag> PlaybackFlags = SceneFlag::None;
     uint32 ScenePackageId = 0;
     bool Encrypted = false;
     uint32 ScriptId = 0;

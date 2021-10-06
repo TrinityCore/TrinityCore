@@ -845,6 +845,14 @@ CharactersPerRealm = 50
 CharacterCreating.MinLevelForDemonHunter = 0
 
 #
+#    CharacterCreating.DisableAlliedRaceAchievementRequirement
+#        Description: Disable achievement requirements for allied race character creation
+#        Default:     0 (Keep requirements active)
+#                     1 (Disable requirements)
+
+CharacterCreating.DisableAlliedRaceAchievementRequirement = 0
+
+#
 #    SkipCinematics
 #        Description: Disable cinematic intro at first login after character creation.
 #                     Prevents buggy intros in case of custom start location coordinates.

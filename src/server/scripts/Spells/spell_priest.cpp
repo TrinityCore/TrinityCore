@@ -497,7 +497,7 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
                 SpellCastTargets targets;
                 targets.SetDst(destPos);
                 targets.SetUnitTarget(GetCaster());
-                GetHitUnit()->CastSpell(targets, GetEffectValue(), GetCastDifficulty());
+                GetHitUnit()->CastSpell(std::move(targets), GetEffectValue(), GetCastDifficulty());
             }
 
             void Register() override
@@ -856,9 +856,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             int32 stackAmount = GetStackAmount();
             if (stackAmount > 1)
             {
-                CastSpellExtraArgs args;
-                args.TriggerFlags = TRIGGERED_FULL_MASK;
-                args.TriggeringAura = aurEff;
+                CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount - 1);
                 target->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, args);
@@ -1263,12 +1261,10 @@ class spell_pri_angelic_feather_trigger : public SpellScriptLoader
                 }
                 else
                 {
-                    SpellCastTargets targets;
-                    targets.SetDst(destPos);
                     CastSpellExtraArgs args;
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
                     args.CastDifficulty = GetCastDifficulty();
-                    GetCaster()->CastSpell(targets, SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER, args);
+                    GetCaster()->CastSpell(destPos, SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER, args);
                 }
             }
 
