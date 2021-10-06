@@ -482,7 +482,6 @@ SpellValue::SpellValue(SpellInfo const* proto, WorldObject const* caster)
     AuraStackAmount = 1;
     CriticalChance = 0.0f;
     DurationMul = 1;
-    Duration = 0;
 }
 
 class TC_GAME_API SpellEvent : public BasicEvent
