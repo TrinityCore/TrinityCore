@@ -167,7 +167,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             }
             else
             {
-                TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to non existent actor (ActorIdx: %u, Entry: %u, Name: %s).", conversationEntry, actorIndex, actorGuid.GetEntry());
+                TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to non existent actor (ActorIdx: %u, Entry: %u).", conversationEntry, actorIndex, actorGuid.GetEntry());
                 return false;
             }
         }
