@@ -34,13 +34,7 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattleP
 
 void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName)
 {
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetModifyName.PetGuid))
-    {
-        pet->PacketInfo.Name = battlePetModifyName.Name;
-
-        if (pet->SaveInfo != BATTLE_PET_NEW)
-            pet->SaveInfo = BATTLE_PET_CHANGED;
-    }
+    GetBattlePetMgr()->ModifyName(battlePetModifyName.PetGuid, battlePetModifyName.Name, battlePetModifyName.DeclinedName.get_ptr());
 }
 
 void WorldSession::HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDeletePet& battlePetDeletePet)

@@ -127,6 +127,7 @@ public:
         void CalculateStats();
 
         WorldPackets::BattlePet::BattlePet PacketInfo;
+        std::unique_ptr<DeclinedName> DeclinedName;
         BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
     };
 
@@ -144,6 +145,7 @@ public:
     void AddPet(uint32 species, uint32 creatureId, uint16 breed, BattlePetBreedQuality quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
+    void ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName);
     bool IsPetInSlot(ObjectGuid guid);
 
     uint8 GetPetCount(uint32 species) const;
