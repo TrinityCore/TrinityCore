@@ -16,4 +16,4 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, 
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup`=@AREATRIGGERID+0 AND `SourceEntry`=1;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `Comment`) VALUES
-(28, @AREATRIGGERID+0, 1, 0, 9, 0, 58877, "Only allow spell when quest Death's Power Grows is taken");
+(28, @AREATRIGGERID+0, 1, 0, 9, 0, 58877, "Only trigger areatrigger when quest Death's Power Grows is taken");
