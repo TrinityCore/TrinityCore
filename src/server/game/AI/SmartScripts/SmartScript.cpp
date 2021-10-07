@@ -110,6 +110,7 @@ bool SmartScript::IsSmart(bool silent)
 
 void SmartScript::StoreTargetList(ObjectVector const& targets, uint32 id)
 {
+    // insert or replace
     _storedTargets.erase(id);
     _storedTargets.emplace(id, ObjectGuidVector(targets));
 }

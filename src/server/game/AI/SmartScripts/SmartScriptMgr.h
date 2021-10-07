@@ -602,7 +602,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_MOVEMENT_SPEED                 = 136,    // movementType, speedInteger, speedFraction
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId, kitType (unknown values, copypaste from packet dumps), duration
     SMART_ACTION_CREATE_CONVERSATION                = 143,    // conversation_template.id
-    SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 144,    // varid
+    SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 144,    // varID
     SMART_ACTION_END                                = 145
 };
 
