@@ -1455,23 +1455,15 @@ Emote const BrewfestRandomEmote[5] = { EMOTE_ONESHOT_QUESTION, EMOTE_ONESHOT_APP
 
 struct npc_brewfest_reveler_2 : ScriptedAI
 {
-    npc_brewfest_reveler_2(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
+    npc_brewfest_reveler_2(Creature* creature) : ScriptedAI(creature) {}
 
-    void Initialize()
+    void Reset() override
     {
         _events.Reset();
         _events.ScheduleEvent(EVENT_FILL_LIST, 1s, 2s);
     }
 
-    void Reset() override
-    {
-        Initialize();
-    }
-
-    //Copied from old script. I don't think this is 100% correct.
+    // Copied from old script. I don't know if this is 100% correct.
     void ReceiveEmote(Player* player, uint32 emote) override
     {
         if (!IsHolidayActive(HOLIDAY_BREWFEST))
@@ -1511,10 +1503,10 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                 break;
             }
             case EVENT_EMOTE:
-                //Play random emote or dance
+                // Play random emote or dance
                 if (roll_chance_i(50))
                 {
-                    me->HandleEmoteCommand(BrewfestRandomEmote[urand(0, 4)]);
+                    me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
                     _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
                 }
                 else
