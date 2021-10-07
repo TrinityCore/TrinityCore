@@ -930,11 +930,6 @@ bool SpellInfo::IsLootCrafting() const
         ((TotemCategory[0] != 0 || (Totem[0] != 0 && SpellIconID == 1)) || GetEffect(EFFECT_0).ItemType == 0)));
 }
 
-bool SpellInfo::IsQuestTame() const
-{
-    return GetEffect(EFFECT_0).Effect == SPELL_EFFECT_THREAT && GetEffect(EFFECT_1).Effect == SPELL_EFFECT_APPLY_AURA && GetEffect(EFFECT_1).ApplyAuraName == SPELL_AURA_DUMMY;
-}
-
 bool SpellInfo::IsProfessionOrRiding() const
 {
     for (SpellEffectInfo const& effect : GetEffects())
