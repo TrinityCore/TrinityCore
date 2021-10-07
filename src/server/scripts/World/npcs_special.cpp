@@ -1498,11 +1498,10 @@ public:
                     {
                         std::list<Creature*> creatureList;
                         GetCreatureListWithEntryInGrid(creatureList, me, NPC_BREWFEST_REVELER, 5.0f);
-                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                        for (Creature* creature : creatureList)
                         {
-                            if (Creature* creature = *itr)
-                                if (creature != me)
-                                    _revelerList.push_back(creature->GetGUID());
+                            if (creature != me)
+                                _revelerList.push_back(creature->GetGUID());
                         }
                         _events.ScheduleEvent(EVENT_FACETO, 1s, 2s);
                         break;
