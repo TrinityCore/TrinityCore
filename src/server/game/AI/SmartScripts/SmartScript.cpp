@@ -110,9 +110,20 @@ bool SmartScript::IsSmart(bool silent)
 
 void SmartScript::StoreTargetList(ObjectVector const& targets, uint32 id)
 {
-    // insert or replace
     _storedTargets.erase(id);
     _storedTargets.emplace(id, ObjectGuidVector(targets));
+}
+
+void SmartScript::AddToStoredTargetList(ObjectVector const& targets, uint32 id)
+{
+    auto itr = _storedTargets.find(id);
+    if (itr != _storedTargets.end())
+    {
+        for (WorldObject* obj : targets)
+            itr->second.AddGuid(obj->GetGUID());
+    }
+    else
+        _storedTargets.emplace(id, ObjectGuidVector(targets));
 }
 
 ObjectVector const* SmartScript::GetStoredTargetVector(uint32 id, WorldObject const& ref) const
@@ -2440,6 +2451,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
+            break;
+        }
+        case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
+        {
+            if (!targets.empty())
+                AddToStoredTargetList(targets, e.action.addToStoredTargets.id);
+            else
+            {
+                WorldObject* baseObject = GetBaseObject();
+                TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ADD_TO_STORED_TARGET_LIST: var %u, baseObject %s, event %u - tried to add no targets to stored target list",
+                    e.action.addToStoredTargets.id, !baseObject ? "" : baseObject->GetName().c_str(), e.event_id);
+            }
             break;
         }
         default:
