@@ -416,7 +416,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         }
                         break;
                     case DATA_DESPAWN_SNOBOLDS:
-                        for (ObjectGuid const guid : snoboldGUIDS)
+                        for (ObjectGuid guid : snoboldGUIDS)
                             if (Creature* snobold = instance->GetCreature(guid))
                                 snobold->DespawnOrUnsummon();
                         snoboldGUIDS.clear();

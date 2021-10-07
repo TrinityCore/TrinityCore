@@ -228,7 +228,7 @@ struct boss_shade_of_akama : public BossAI
         events.Reset();
         summons.DespawnAll();
 
-        for (ObjectGuid const spawnerGuid : _spawners)
+        for (ObjectGuid spawnerGuid : _spawners)
             if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                 spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
@@ -260,7 +260,7 @@ struct boss_shade_of_akama : public BossAI
             me->SetWalk(false);
             events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
-            for (ObjectGuid const spawnerGuid : _spawners)
+            for (ObjectGuid spawnerGuid : _spawners)
                 if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                     spawner->AI()->DoAction(ACTION_STOP_SPAWNING);
         }
@@ -273,7 +273,7 @@ struct boss_shade_of_akama : public BossAI
         if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
             akama->AI()->DoAction(ACTION_SHADE_OF_AKAMA_DEAD);
 
-        for (ObjectGuid const spawnerGuid : _spawners)
+        for (ObjectGuid spawnerGuid : _spawners)
             if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                 spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
@@ -315,11 +315,11 @@ struct boss_shade_of_akama : public BossAI
                 }
                 case EVENT_START_CHANNELERS_AND_SPAWNERS:
                 {
-                    for (ObjectGuid const summonGuid : summons)
+                    for (ObjectGuid summonGuid : summons)
                         if (Creature* channeler = ObjectAccessor::GetCreature(*me, summonGuid))
                             channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
-                    for (ObjectGuid const spawnerGuid : _spawners)
+                    for (ObjectGuid spawnerGuid : _spawners)
                         if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                             spawner->AI()->DoAction(ACTION_START_SPAWNING);
 
