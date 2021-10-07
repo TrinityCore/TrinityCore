@@ -21942,6 +21942,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     VendorItem const* crItem = vItems->GetItem(vendorslot);
     // @tswow-begin check masks
     bool shouldSend = true;
+
     FIRE_MAP(
           creature->GetCreatureTemplate()->events
         , CreatureOnSendVendorItem

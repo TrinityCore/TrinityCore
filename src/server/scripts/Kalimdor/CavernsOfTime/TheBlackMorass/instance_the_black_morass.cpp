@@ -130,6 +130,9 @@ public:
                 return;
 
             player->SendUpdateWorldState(WORLD_STATE_BM, 0);
+            // @tswow-begin
+            InstanceScript::OnPlayerEnter(player);
+            // @tswow-end
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -333,6 +336,9 @@ public:
                 DoSpawnPortal();
                 ScheduleEventNextPortal(RiftWaves[GetRiftWaveId()].NextPortalTime);
             }
+            // @tswow-begin call super
+            InstanceScript::Update(diff);
+            // @tswow-end
         }
 
         void ScheduleEventNextPortal(Milliseconds nextPortalTime)

@@ -1527,9 +1527,23 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
 #undef SCR_MAP_BGN
 #undef SCR_MAP_END
 
+// @tswow-begin
+class TC_GAME_API CustomInstance : public InstanceScript{
+public:
+    CustomInstance(InstanceMap * map): InstanceScript(map) {}
+};
+// @tswow-end
+
 InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
 {
     ASSERT(map);
+
+    // @tswow-begin
+    if (map->GetScriptName() == "custom_script")
+    {
+        return new CustomInstance(map);
+    }
+    // @tswow-end
 
     GET_SCRIPT_RET(InstanceMapScript, map->GetScriptId(), tmpscript, nullptr);
     return tmpscript->GetInstanceScript(map);

@@ -185,6 +185,9 @@ class instance_magisters_terrace : public InstanceMapScript
                         kalecgos->AI()->Talk(SAY_KALECGOS_SPAWN);
                     }
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

@@ -18,6 +18,13 @@
 #ifndef TRINITY_INSTANCE_DATA_H
 #define TRINITY_INSTANCE_DATA_H
 
+// @tswow-begin - so not every individual script needs to include these
+#include "TSPlayer.h"
+#include "TSEvents.h"
+#include "TSMutable.h"
+#include "TSInstance.h"
+#include "TSWorldPacket.h"
+// @tswow-end
 #include "ZoneScript.h"
 #include "Common.h"
 #include "Duration.h"
@@ -172,7 +179,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         void SaveToDB();
 
-        virtual void Update(uint32 /*diff*/) { }
+        // @tswow-begin - move impl to cpp
+        virtual void Update(uint32 /*diff*/);
+        // @tswow-end
 
         // Used by the map's CannotEnter function.
         // This is to prevent players from entering during boss encounters.
@@ -192,10 +201,12 @@ class TC_GAME_API InstanceScript : public ZoneScript
         Creature* GetCreature(uint32 type);
         GameObject* GetGameObject(uint32 type);
 
+        // @tswow-begin move impl to cpp
         // Called when a player successfully enters the instance.
-        virtual void OnPlayerEnter(Player* /*player*/) { }
+        virtual void OnPlayerEnter(Player* /*player*/);
         // Called when a player successfully leaves the instance.
-        virtual void OnPlayerLeave(Player* /*player*/) { }
+        virtual void OnPlayerLeave(Player* /*player*/);
+        // @tswow-end
 
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -243,7 +254,12 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = nullptr, uint32 /*miscvalue1*/ = 0);
 
         // Checks boss requirements (one boss required to kill other)
-        virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
+        // @tswow-begin call helper in cpp
+        virtual bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const {
+            return _CheckRequiredBosses(bossId, player, true);
+        };
+        bool _CheckRequiredBosses(uint32, Player const*, bool valIn) const;
+        // @tswow-end
 
         // Checks encounter state at kill/spellcast
         void UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source);
@@ -257,7 +273,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+        // @tswow-begin move impl to cpp
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/);
+        // @tswow-end
 
         uint32 GetEncounterCount() const { return bosses.size(); }
 

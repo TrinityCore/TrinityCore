@@ -134,7 +134,13 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] != DONE)
                     m_auiEncounter[i] = NOT_STARTED;
-
+            // @tswow-begin
+            FIRE_MAP(
+                GetInstanceEvent(instance->GetEntry()->ID)
+                , InstanceOnLoad
+                , TSInstance(this)
+            );
+            // @tswow-end
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 

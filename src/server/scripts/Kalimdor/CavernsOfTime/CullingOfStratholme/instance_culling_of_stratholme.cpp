@@ -283,6 +283,9 @@ class instance_culling_of_stratholme : public InstanceMapScript
             {
                 for (WorldStateMap::const_iterator itr = _sentWorldStates.begin(); itr != _sentWorldStates.end(); ++itr)
                     packet.Worldstates.emplace_back(itr->first, itr->second);
+                // @tswow-begin call super
+                InstanceScript::FillInitialWorldStates(packet);
+                // @tswow-end
             }
 
             void WriteSaveDataMore(std::ostringstream& data) override
@@ -591,6 +594,9 @@ class instance_culling_of_stratholme : public InstanceMapScript
                             break;
                     }
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void OnCreatureCreate(Creature* creature) override

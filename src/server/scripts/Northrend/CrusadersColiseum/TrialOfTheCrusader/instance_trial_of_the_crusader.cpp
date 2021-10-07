@@ -137,6 +137,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (NorthrendBeasts == GORMOK_IN_PROGRESS)
                     player->CreateVehicleKit(PLAYER_VEHICLE_ID, 0);
+                // @tswow-begin call super
+                InstanceScript::OnPlayerEnter(player);
+                // @tswow-end
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -568,6 +571,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     else
                         ResilienceWillFixItTimer -= diff;
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void Save()
@@ -615,7 +621,13 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 loadStream >> TrialCounter;
                 EventStage = 0;
-
+                // @tswow-begin
+                FIRE_MAP(
+                    GetInstanceEvent(instance->GetEntry()->ID)
+                    , InstanceOnLoad
+                    , TSInstance(this)
+                );
+                // @tswow-end
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 

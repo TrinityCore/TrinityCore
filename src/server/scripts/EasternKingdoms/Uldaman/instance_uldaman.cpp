@@ -340,6 +340,9 @@ class instance_uldaman : public InstanceMapScript
                 }
                 else
                     ironayaSealDoorTimer -= diff;
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -441,7 +444,13 @@ class instance_uldaman : public InstanceMapScript
                     if (m_auiEncounter[i] == IN_PROGRESS)
                         m_auiEncounter[i] = NOT_STARTED;
                 }
-
+                // @tswow-begin
+                FIRE_MAP(
+                    GetInstanceEvent(instance->GetEntry()->ID)
+                    , InstanceOnLoad
+                    , TSInstance(this)
+                );
+                // @tswow-end
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 

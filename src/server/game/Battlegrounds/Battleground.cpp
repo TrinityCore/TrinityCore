@@ -1976,6 +1976,11 @@ bool Battleground::SetupBattleground()
 {
     bool result = true;
     FIRE_MAP(
+          GetBattlegroundEvent(m_TypeID)
+        , BattlegroundOnReload
+        , TSBattleground(this)
+    );
+    FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnSetup
         , TSBattleground(this)

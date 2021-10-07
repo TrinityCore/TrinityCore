@@ -15,6 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSEvents.h"
+#include "TSInstance.h"
+#include "TSPlayer.h"
+#include "TSWorldPacket.h"
+#include "TSMutable.h"
+// @tswow-end
 #include "InstanceScript.h"
 #include "AreaBoundary.h"
 #include "Creature.h"
@@ -68,6 +75,13 @@ void InstanceScript::SaveToDB()
     stmt->setString(1, data);
     stmt->setUInt32(2, instance->GetInstanceId());
     CharacterDatabase.Execute(stmt);
+    // @tswow-begin
+    FIRE_MAP(
+          GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnSave
+        , TSInstance(this)
+    );
+    // @tswow-end
 }
 
 bool InstanceScript::IsEncounterInProgress() const
@@ -379,6 +393,15 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 UpdateMinionState(minion, state);
 
         UpdateSpawnGroups();
+        // @tswow-begin
+        FIRE_MAP(
+            GetInstanceEvent(instance->GetEntry()->ID)
+            , InstanceOnBossStateChange
+            , TSInstance(this)
+            , id
+            , state
+        );
+        // @tswow-end
         return true;
     }
     return false;
@@ -394,6 +417,18 @@ void InstanceScript::Create()
     for (size_t i = 0; i < bosses.size(); ++i)
         SetBossState(i, NOT_STARTED);
     UpdateSpawnGroups();
+    // @tswow-begin
+    FIRE_MAP(
+          GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnCreate
+        , TSInstance(this)
+    );
+    FIRE_MAP(
+          GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnReload
+        , TSInstance(this)
+    );
+    // @tswow-end
 }
 
 void InstanceScript::Load(char const* data)
@@ -415,6 +450,14 @@ void InstanceScript::Load(char const* data)
     }
     else
         OUT_LOAD_INST_DATA_FAIL;
+
+    // @tswow-begin
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnLoad
+        , TSInstance(this)
+    );
+    // @tswow-end
 
     OUT_LOAD_INST_DATA_COMPLETE;
 }
@@ -814,3 +857,60 @@ bool InstanceHasScript(WorldObject const* obj, char const* scriptName)
 
     return false;
 }
+
+// @tswow-begin - moved impls
+void InstanceScript::Update(uint32 diff)
+{
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnUpdate
+        , TSInstance(this)
+        , diff
+    );
+}
+
+void InstanceScript::OnPlayerEnter(Player* player)
+{
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnPlayerEnter
+        , TSInstance(this)
+        , TSPlayer(player)
+    );
+}
+
+void InstanceScript::OnPlayerLeave(Player* player)
+{
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnPlayerLeave
+        , TSInstance(this)
+        , TSPlayer(player)
+    );
+}
+
+bool InstanceScript::_CheckRequiredBosses(uint32 bossId, Player const* player, bool in) const
+{
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnCanKillBoss
+        , TSInstance(const_cast<InstanceScript*>(this))
+        , bossId
+        , TSPlayer(const_cast<Player*>(player))
+        , TSMutable<bool>(&in)
+    );
+    return in;
+}
+
+void InstanceScript::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
+{
+    FIRE_MAP(
+          GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnFillInitialWorldStates
+        , TSInstance(this)
+        , TSWorldStatePacket(&packet)
+    );
+}
+
+
+// @tswow-end

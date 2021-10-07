@@ -130,6 +130,9 @@ class instance_deadmines : public InstanceMapScript
                         } else SmiteAlarmDelay_Timer -= diff;
                         break;
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void SummonCreatures()

@@ -144,6 +144,9 @@ class instance_scarlet_monastery : public InstanceMapScript
                             break;
                     }
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
         private:

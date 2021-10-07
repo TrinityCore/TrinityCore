@@ -74,7 +74,9 @@ public:
             }
         }
 
-        void Update(uint32 /*diff*/) override
+        // @tswow-begin arg
+        void Update(uint32 diff) override
+        // @tswow-end
         {
             if (WardKeeperDeath == WARD_KEEPERS_NR)
                 if (GameObject* go = instance->GetGameObject(DoorWardGUID))
@@ -82,6 +84,9 @@ public:
                     go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
                     go->SetGoState(GO_STATE_ACTIVE);
                 }
+            // @tswow-begin call super
+            InstanceScript::Update(diff);
+            // @tswow-end
         }
 
         void SetData(uint32 type, uint32 /*data*/) override

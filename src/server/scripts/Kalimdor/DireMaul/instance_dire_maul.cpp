@@ -174,6 +174,9 @@ public:
                          break;
                 }
             }
+            // @tswow-begin call super
+            InstanceScript::Update(diff);
+            // @tswow-end
         }
 
         void CrystalCreatureStore()

@@ -438,7 +438,13 @@ class instance_stratholme : public InstanceMapScript
                     EncounterState[4] = NOT_STARTED;
                 if (EncounterState[5] == IN_PROGRESS)
                     EncounterState[5] = NOT_STARTED;
-
+                // @tswow-begin
+                FIRE_MAP(
+                    GetInstanceEvent(instance->GetEntry()->ID)
+                    , InstanceOnLoad
+                    , TSInstance(this)
+                );
+                // @tswow-end
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
@@ -508,6 +514,9 @@ class instance_stratholme : public InstanceMapScript
                             break;
                     }
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
         };
 

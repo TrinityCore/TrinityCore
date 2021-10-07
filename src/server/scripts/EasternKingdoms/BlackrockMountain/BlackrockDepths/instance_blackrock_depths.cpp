@@ -367,7 +367,13 @@ public:
                 GhostKillCount = 0;//reset tomb of seven event
             if (GhostKillCount >= 7)
                 GhostKillCount = 7;
-
+            // @tswow-begin
+            FIRE_MAP(
+                GetInstanceEvent(instance->GetEntry()->ID)
+                , InstanceOnLoad
+                , TSInstance(this)
+            );
+            // @tswow-end
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
@@ -446,6 +452,9 @@ public:
             }
             if (GhostKillCount >= 7 && TombEventStarterGUID)
                 TombOfSevenEnd();
+            // @tswow-begin call super
+            InstanceScript::Update(diff);
+            // @tswow-end
         }
     };
 };

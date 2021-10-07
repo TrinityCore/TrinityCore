@@ -201,19 +201,25 @@ class instance_gundrak : public InstanceMapScript
                 {
                     case DATA_ECK_THE_FEROCIOUS:
                         if (!instance->IsHeroic() || GetBossState(DATA_MOORABI) != DONE)
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     case DATA_GAL_DARAH:
                         if (SladRanStatueState != GO_STATE_DESTROYED
                             || DrakkariColossusStatueState != GO_STATE_DESTROYED
                             || MoorabiStatueState != GO_STATE_DESTROYED)
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     default:
                         break;
                 }
 
-                return true;
+                // @tswow-begin
+                return _CheckRequiredBosses(bossId, player, true);
+                // @tswow-end
             }
 
             bool IsBridgeReady() const
@@ -332,6 +338,9 @@ class instance_gundrak : public InstanceMapScript
 
                     SaveToDB();
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
         protected:

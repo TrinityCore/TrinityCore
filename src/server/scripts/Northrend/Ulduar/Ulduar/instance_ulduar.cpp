@@ -228,6 +228,9 @@ class instance_ulduar : public InstanceMapScript
             {
                 packet.Worldstates.emplace_back(WORLD_STATE_ALGALON_TIMER_ENABLED, (_algalonTimer && _algalonTimer <= 60) ? 1 : 0);
                 packet.Worldstates.emplace_back(WORLD_STATE_ALGALON_DESPAWN_TIMER, std::min<int32>(_algalonTimer, 60));
+                // @tswow-begin call super
+                InstanceScript::FillInitialWorldStates(packet);
+                // @tswow-end
             }
 
             void OnPlayerEnter(Player* player) override
@@ -276,6 +279,9 @@ class instance_ulduar : public InstanceMapScript
                     instance->SummonCreature(NPC_THORIM_YS, YSKeepersPos[2]);
                 if (_summonYSKeeper[3])
                     instance->SummonCreature(NPC_MIMIRON_YS, YSKeepersPos[3]);
+                // @tswow-begin call super
+                InstanceScript::OnPlayerEnter(player);
+                // @tswow-end
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -1022,6 +1028,9 @@ class instance_ulduar : public InstanceMapScript
                             break;
                     }
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void DespawnLeviatanVehicle(Creature* vehicleCreature)

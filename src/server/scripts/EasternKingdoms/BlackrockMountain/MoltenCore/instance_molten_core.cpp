@@ -55,11 +55,14 @@ class instance_molten_core : public InstanceMapScript
                 _ragnarosAddDeaths = 0;
             }
 
-            void OnPlayerEnter(Player* /*player*/) override
+            // @tswow-begin call super
+            void OnPlayerEnter(Player* player) override
             {
                 if (_executusSchedule)
                     SummonMajordomoExecutus();
+                InstanceScript::OnPlayerEnter(player);
             }
+            // @tswow-end
 
             void OnCreatureCreate(Creature* creature) override
             {
