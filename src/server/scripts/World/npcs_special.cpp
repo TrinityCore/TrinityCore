@@ -1510,20 +1510,9 @@ public:
                     case EVENT_FACETO:
                     {
                         // Turn to random brewfest reveler within set range
-                        int count = 0;
-                        int unitIndex = rand() % _revelerList.size();
-
-                        for (GuidList::const_iterator itr = _revelerList.begin(); itr != _revelerList.end(); ++itr)
-                        {
-                            if (Creature* creature = ObjectAccessor::GetCreature(*me, *itr))
-                                if (count == unitIndex)
-                                {
-                                    me->SetFacingToObject(creature);
-                                    break;
-                                }
-                            ++count;
-                        }
-
+                        if (!_revelerList.empty())
+                            if (Creature* creature = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(_revelerList)))
+                                me->SetFacingToObject(creature);
                         _events.ScheduleEvent(EVENT_EMOTE, 2s, 6s);
                         break;
                     }
