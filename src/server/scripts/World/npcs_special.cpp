@@ -1467,8 +1467,8 @@ public:
 
         void Initialize()
         {
-            events.Reset();
-            events.ScheduleEvent(EVENT_FILL_LIST, 1s, 2s);
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_FILL_LIST, 1s, 2s);
         }
 
         void Reset() override
@@ -1488,15 +1488,15 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
-            {
-                events.Update(diff);
+            _events.Update(diff);
 
-                while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
                 {
-                    switch (eventId)
-                    {
                     case EVENT_FILL_LIST:
+                    {
+                        std::list<Creature*> creatureList;
                         GetCreatureListWithEntryInGrid(creatureList, me, NPC_BREWFEST_REVELER, 5.0f);
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                         {
@@ -1504,8 +1504,9 @@ public:
                                 if (creature != me)
                                     _revelerList.push_back(creature->GetGUID());
                         }
-                        events.ScheduleEvent(EVENT_FACETO, 1s, 2s);
+                        _events.ScheduleEvent(EVENT_FACETO, 1s, 2s);
                         break;
+                    }
                     case EVENT_FACETO:
                     {
                         // Turn to random brewfest reveler within set range
@@ -1523,7 +1524,7 @@ public:
                             ++count;
                         }
 
-                        events.ScheduleEvent(EVENT_EMOTE, 2s, 6s);
+                        _events.ScheduleEvent(EVENT_EMOTE, 2s, 6s);
                         break;
                     }
                     case EVENT_EMOTE:
@@ -1531,12 +1532,12 @@ public:
                         if (roll_chance_i(50))
                         {
                             me->HandleEmoteCommand(BrewfestRandomEmote[urand(0, 4)]);
-                            events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
+                            _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
                         }
                         else
                         {
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
-                            events.ScheduleEvent(EVENT_NEXT, 8s, 12s);
+                            _events.ScheduleEvent(EVENT_NEXT, 8s, 12s);
                         }
                         break;
                     case EVENT_NEXT:
@@ -1546,24 +1547,18 @@ public:
 
                         // Random EVENT_EMOTE or EVENT_FACETO
                         if (roll_chance_i(50))
-                            events.ScheduleEvent(EVENT_FACETO, 1s);
+                            _events.ScheduleEvent(EVENT_FACETO, 1s);
                         else
-                            events.ScheduleEvent(EVENT_EMOTE, 1s);
+                            _events.ScheduleEvent(EVENT_EMOTE, 1s);
                         break;
                     default:
                         break;
-                    }
                 }
-                return;
             }
-
-            events.Update(diff);
-
-            DoMeleeAttackIfReady();
+            return;
         }
     private:
-        EventMap events;
-        std::list<Creature*> creatureList;
+        EventMap _events;
         GuidList _revelerList;
     };
 
