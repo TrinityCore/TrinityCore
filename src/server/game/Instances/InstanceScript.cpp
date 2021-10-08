@@ -57,6 +57,9 @@ InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncou
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
     auto const scriptname = sObjectMgr->GetScriptName(scriptId);
+    // @tswow-begin
+    if (scriptname == "custom_script") return;
+    // @tswow-end
     ASSERT(!scriptname.empty());
    // Acquire a strong reference from the script module
    // to keep it loaded until this object is destroyed.
