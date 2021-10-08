@@ -1438,6 +1438,115 @@ class npc_brewfest_reveler : public CreatureScript
         }
 };
 
+/*######
+# npc_brewfest_reveler_2
+######*/
+
+Emote const BrewfestRandomEmote[] =
+{
+    EMOTE_ONESHOT_QUESTION,
+    EMOTE_ONESHOT_APPLAUD,
+    EMOTE_ONESHOT_SHOUT,
+    EMOTE_ONESHOT_EAT_NO_SHEATHE,
+    EMOTE_ONESHOT_LAUGH_NO_SHEATHE
+};
+
+struct npc_brewfest_reveler_2 : ScriptedAI
+{
+    enum BrewfestReveler2
+    {
+        NPC_BREWFEST_REVELER    = 24484,
+
+        EVENT_FILL_LIST         = 1,
+        EVENT_FACE_TO           = 2,
+        EVENT_EMOTE             = 3,
+        EVENT_NEXT              = 4
+    };
+
+    npc_brewfest_reveler_2(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_FILL_LIST, 1s, 2s);
+    }
+
+    // Copied from old script. I don't know if this is 100% correct.
+    void ReceiveEmote(Player* player, uint32 emote) override
+    {
+        if (!IsHolidayActive(HOLIDAY_BREWFEST))
+            return;
+
+        if (emote == TEXT_EMOTE_DANCE)
+            me->CastSpell(player, SPELL_BREWFEST_TOAST, false);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FILL_LIST:
+                {
+                    std::list<Creature*> creatureList;
+                    GetCreatureListWithEntryInGrid(creatureList, me, NPC_BREWFEST_REVELER, 5.0f);
+                    for (Creature* creature : creatureList)
+                        if (creature != me)
+                            _revelerGuids.push_back(creature->GetGUID());
+
+                    _events.ScheduleEvent(EVENT_FACE_TO, 1s, 2s);
+                    break;
+                }
+                case EVENT_FACE_TO:
+                {
+                    // Turn to random brewfest reveler within set range
+                    if (!_revelerGuids.empty())
+                        if (Creature* creature = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(_revelerGuids)))
+                            me->SetFacingToObject(creature);
+
+                    _events.ScheduleEvent(EVENT_EMOTE, 2s, 6s);
+                    break;
+                }
+                case EVENT_EMOTE:
+                    // Play random emote or dance
+                    if (roll_chance_i(50))
+                    {
+                        me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
+                        _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
+                    }
+                    else
+                    {
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                        _events.ScheduleEvent(EVENT_NEXT, 8s, 12s);
+                    }
+                    break;
+                case EVENT_NEXT:
+                    // If dancing stop before next random state
+                    if (me->GetUInt32Value(UNIT_NPC_EMOTESTATE) == EMOTE_STATE_DANCE)
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+
+                    // Random EVENT_EMOTE or EVENT_FACETO
+                    if (roll_chance_i(50))
+                        _events.ScheduleEvent(EVENT_FACE_TO, 1s);
+                    else
+                        _events.ScheduleEvent(EVENT_EMOTE, 1s);
+                    break;
+                default:
+                    break;
+                }
+        }
+    }
+
+private:
+    EventMap _events;
+    GuidVector _revelerGuids;
+};
+
 struct npc_training_dummy : NullCreatureAI
 {
     npc_training_dummy(Creature* creature) : NullCreatureAI(creature) { }
@@ -2599,6 +2708,7 @@ void AddSC_npcs_special()
     new npc_steam_tonk();
     new npc_tournament_mount();
     new npc_brewfest_reveler();
+    RegisterCreatureAI(npc_brewfest_reveler_2);
     RegisterCreatureAI(npc_training_dummy);
     new npc_wormhole();
     new npc_pet_trainer();
