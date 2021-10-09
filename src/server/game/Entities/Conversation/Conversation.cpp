@@ -123,7 +123,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     SetObjectScale(1.0f);
 
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::LastLineEndTime), conversationTemplate->LastLineEndTime);
-    _duration = conversationTemplate->LastLineEndTime;
+    _duration = conversationTemplate->LastLineEndTime + 10 * IN_MILLISECONDS;
     _textureKitId = conversationTemplate->TextureKitId;
 
     for (ConversationActor const& actor : conversationTemplate->Actors)

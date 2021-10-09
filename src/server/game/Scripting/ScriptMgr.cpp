@@ -2171,6 +2171,14 @@ void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
     tmpscript->OnConversationCreate(conversation, creator);
 }
 
+void ScriptMgr::OnConversationLineStarted(Conversation* conversation, uint32 lineId)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnConversationLineStarted(conversation, lineId);
+}
+
 // Scene
 void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
