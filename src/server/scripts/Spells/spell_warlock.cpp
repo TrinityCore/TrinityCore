@@ -721,10 +721,10 @@ class spell_warl_life_tap : public SpellScript
         return ValidateSpellInfo({ SPELL_WARLOCK_LIFE_TAP_ENERGIZE, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2 });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleDummy(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
-        int32 base = GetEffectValue();
+        int32 base = GetEffectInfo(effIndex).CalcValue();
 
         float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
         float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f * penalty;
