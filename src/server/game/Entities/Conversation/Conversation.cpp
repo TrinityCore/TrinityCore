@@ -16,6 +16,7 @@
  */
 
 #include "Conversation.h"
+#include "ConversationDataStore.h"
 #include "Creature.h"
 #include "IteratorPair.h"
 #include "Log.h"
@@ -56,14 +57,6 @@ void Conversation::RemoveFromWorld()
     }
 }
 
-bool Conversation::IsNeverVisibleFor(WorldObject const* seer) const
-{
-    if (_participants.find(seer->GetGUID()) == _participants.end())
-        return true;
-
-    return WorldObject::IsNeverVisibleFor(seer);
-}
-
 void Conversation::Update(uint32 diff)
 {
     if (GetDuration() > int32(diff))
@@ -93,7 +86,7 @@ void Conversation::Remove()
     }
 }
 
-Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo /*= nullptr*/)
+Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo /*= nullptr*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     if (!conversationTemplate)
@@ -102,7 +95,7 @@ Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* c
     ObjectGuid::LowType lowGuid = creator->GetMap()->GenerateLowGuid<HighGuid::Conversation>();
 
     Conversation* conversation = new Conversation();
-    if (!conversation->Create(lowGuid, conversationEntry, creator->GetMap(), creator, pos, std::move(participants), spellInfo))
+    if (!conversation->Create(lowGuid, conversationEntry, creator->GetMap(), creator, pos, privateObjectOwner, spellInfo))
     {
         delete conversation;
         return nullptr;
@@ -111,13 +104,13 @@ Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* c
     return conversation;
 }
 
-bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* /*spellInfo = nullptr*/)
+bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* /*spellInfo = nullptr*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     ASSERT(conversationTemplate);
 
     _creatorGuid = creator->GetGUID();
-    _participants = std::move(participants);
+    SetPrivateObjectOwner(privateObjectOwner);
 
     SetMap(map);
     Relocate(pos);
@@ -195,11 +188,6 @@ void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
     auto actorField = m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors, actorIdx);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), actorGuid);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ActorType::WorldObjectActor));
-}
-
-void Conversation::AddParticipant(ObjectGuid const& participantGuid)
-{
-    _participants.insert(participantGuid);
 }
 
 uint32 Conversation::GetScriptId() const

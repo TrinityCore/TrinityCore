@@ -1631,7 +1631,7 @@ public:
             return false;
         }
 
-        return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
+        return Conversation::CreateConversation(conversationEntry, target, *target, target->GetGUID()) != nullptr;
     }
 
     static bool HandleDebugWorldStateCommand(ChatHandler* handler, char const* args)
