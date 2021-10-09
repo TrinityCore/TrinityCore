@@ -47,6 +47,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 #include "World.h"
