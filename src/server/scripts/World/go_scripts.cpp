@@ -35,6 +35,8 @@ go_bells
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "DB2Structure.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -1517,6 +1519,243 @@ public:
     }
 };
 
+struct go_generic_capture_point : public GameObjectAI
+{
+    go_generic_capture_point(GameObject* go) : GameObjectAI(go) { }
+
+    enum ScheduleGroup : uint8
+    {
+        AllianceCapturing,
+        HordeCapturing
+    };
+
+    enum Spells
+    {
+        SPELL_CAPTURING = 156098
+    };
+
+    using State = WorldPackets::Battleground::BattlegroundCapturePointState;
+
+    void Reset() override
+    {
+        GameObjectAI::Reset();
+        _currentState = State::Neutral;
+        _lastTeamCapture = TEAM_NEUTRAL;
+        UpdateCapturePoint();
+    }
+
+    bool OnReportUse(Player* player) override
+    {
+        player->CastSpell(me, SPELL_CAPTURING);
+        return false;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        GameObjectAI::UpdateAI(diff);
+        _eventMap.Update(diff);
+
+        while (uint32 eventId = _eventMap.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case ScheduleGroup::AllianceCapturing:
+                {
+                    _lastTeamCapture = TEAM_ALLIANCE;
+
+                    ProcessEvent(me, me->GetGOInfo()->capturePoint.CaptureEventAlliance, nullptr);
+                    SendMessage(me->GetGOInfo()->capturePoint.CaptureBroadcastAlliance, nullptr);
+                    UpdateWorldState(me->GetGOInfo()->capturePoint.worldState1);
+                    UpdateCapturePoint();
+                    break;
+                }
+                case ScheduleGroup::HordeCapturing:
+                {
+                    _lastTeamCapture = TEAM_HORDE;
+
+                    ProcessEvent(me, me->GetGOInfo()->capturePoint.CaptureEventHorde, nullptr);
+                    SendMessage(me->GetGOInfo()->capturePoint.CaptureBroadcastHorde, nullptr);
+                    UpdateWorldState(me->GetGOInfo()->capturePoint.worldState1);
+                    UpdateCapturePoint();
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+    void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+    {
+        GameObjectAI::SpellHit(caster, spellInfo);
+        if (spellInfo->Id != SPELL_CAPTURING)
+            return;
+
+        if (Player* player = caster->ToPlayer())
+        {
+            if (player->GetBGTeam() == HORDE)
+            {
+                _eventMap.CancelEvent(ScheduleGroup::AllianceCapturing);
+                if (_lastTeamCapture == TEAM_HORDE)
+                {
+                    // defended. capture instantly.
+                    _currentState = State::HordeCaptured;
+                    ProcessEvent(me, me->GetGOInfo()->capturePoint.DefendedEventHorde, player);
+                    SendMessage(me->GetGOInfo()->capturePoint.DefendedBroadcastHorde, player);
+                    UpdateWorldState(me->GetGOInfo()->capturePoint.worldState1);
+                    UpdateCapturePoint();
+                    return;
+                }
+
+                switch (_currentState)
+                {
+                    case State::Neutral:
+                    case State::AllianceCaptured:
+                    case State::ContestedAlliance:
+                        _currentState = State::ContestedHorde;
+                        ProcessEvent(me, me->GetGOInfo()->capturePoint.ContestedEventHorde, player);
+                        SendMessage(me->GetGOInfo()->capturePoint.AssaultBroadcastHorde, player);
+                        UpdateWorldState(me->GetGOInfo()->capturePoint.worldState1);
+                        UpdateCapturePoint();
+                        _eventMap.ScheduleEvent(ScheduleGroup::HordeCapturing, Milliseconds(me->GetGOInfo()->capturePoint.CaptureTime));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                _eventMap.CancelEvent(ScheduleGroup::AllianceCapturing);
+                if (_lastTeamCapture == TEAM_ALLIANCE)
+                {
+                    // defended. capture instantly.
+                    _currentState = State::AllianceCaptured;
+                    ProcessEvent(me, me->GetGOInfo()->capturePoint.DefendedEventAlliance, player);
+                    SendMessage(me->GetGOInfo()->capturePoint.DefendedBroadcastAlliance, player);
+                    UpdateWorldState(me->GetGOInfo()->capturePoint.worldState1);
+                    UpdateCapturePoint();
+                    return;
+                }
+
+                switch (_currentState)
+                {
+                    case State::Neutral:
+                    case State::HordeCaptured:
+                    case State::ContestedHorde:
+                        _currentState = State::ContestedAlliance;
+                        ProcessEvent(me, me->GetGOInfo()->capturePoint.ContestedEventAlliance, player);
+                        SendMessage(me->GetGOInfo()->capturePoint.AssaultBroadcastAlliance, player);
+                        UpdateWorldState(me->GetGOInfo()->capturePoint.worldState1);
+                        UpdateCapturePoint();
+                        _eventMap.ScheduleEvent(ScheduleGroup::AllianceCapturing, Milliseconds(me->GetGOInfo()->capturePoint.CaptureTime));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    void UpdateCapturePoint()
+    {
+        uint32 spellVisualId = 0;
+        uint32 customAnim = 0;
+
+        switch (_currentState)
+        {
+            case State::Neutral:
+                spellVisualId = me->GetGOInfo()->capturePoint.SpellVisual1;
+                break;
+            case State::ContestedHorde:
+                customAnim = 1;
+                spellVisualId = me->GetGOInfo()->capturePoint.SpellVisual2;
+                break;
+            case State::ContestedAlliance:
+                customAnim = 2;
+                spellVisualId = me->GetGOInfo()->capturePoint.SpellVisual3;
+                break;
+            case State::HordeCaptured:
+                customAnim = 3;
+                spellVisualId = me->GetGOInfo()->capturePoint.SpellVisual4;
+                break;
+            case State::AllianceCaptured:
+                customAnim = 4;
+                spellVisualId = me->GetGOInfo()->capturePoint.SpellVisual5;
+                break;
+            default:
+                break;
+        }
+
+        if (customAnim != 0)
+            me->SendCustomAnim(customAnim);
+
+        me->SetSpellVisualId(spellVisualId);
+
+        if (Battleground* bg = GetBattleground())
+        {
+            WorldPackets::Battleground::UpdateCapturePoint packet;
+            packet.CapturePointInfo.State = _currentState;
+            packet.CapturePointInfo.Pos = me->GetPosition();
+            packet.CapturePointInfo.Guid = me->GetGUID();
+            packet.CapturePointInfo.CaptureTotalDuration = Milliseconds(me->GetGOInfo()->capturePoint.CaptureTime);
+
+            if (_currentState == State::ContestedAlliance)
+                packet.CapturePointInfo.CaptureTime = _eventMap.GetTimeUntilEvent(ScheduleGroup::AllianceCapturing);
+            else if (_currentState == State::ContestedHorde)
+                packet.CapturePointInfo.CaptureTime = _eventMap.GetTimeUntilEvent(ScheduleGroup::HordeCapturing);
+
+            bg->SendPacketToAll(packet.Write());
+        }
+    }
+
+    void ProcessEvent(WorldObject* src, uint32 eventId, WorldObject* invoker)
+    {
+        if (Battleground* bg = GetBattleground())
+            bg->ProcessEvent(src, eventId, invoker);
+    }
+
+    void SendMessage(uint32 broadCastTextId, Player* invoker)
+    {
+        if (Battleground* bg = GetBattleground())
+        {
+            ChatMsg type = CHAT_MSG_BG_SYSTEM_NEUTRAL;
+            switch (_currentState)
+            {
+                case State::AllianceCaptured:
+                case State::ContestedAlliance:
+                    type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+                    break;
+                case State::ContestedHorde:
+                case State::HordeCaptured:
+                    type = CHAT_MSG_BG_SYSTEM_HORDE;
+                    break;
+            }
+
+            bg->SendBroadcastText(broadCastTextId, type, invoker);
+            // what about sound?
+        }
+    }
+
+    void UpdateWorldState(uint32 worldState)
+    {
+        if (Battleground* bg = GetBattleground())
+            bg->UpdateWorldState(worldState, AsUnderlyingType(_currentState));
+    }
+
+    Battleground* GetBattleground() const
+    {
+        if (BattlegroundMap* map = me->GetMap()->ToBattlegroundMap())
+            return map->GetBG();
+
+        return nullptr;
+    }
+
+private:
+    TeamId _lastTeamCapture;
+    State _currentState;
+    EventMap _eventMap;
+};
+
 void AddSC_go_scripts()
 {
     new go_gilded_brazier();
@@ -1547,4 +1786,5 @@ void AddSC_go_scripts()
     new go_darkmoon_faire_music();
     new go_pirate_day_music();
     new go_bells();
+    RegisterGameObjectAI(go_generic_capture_point);
 }
