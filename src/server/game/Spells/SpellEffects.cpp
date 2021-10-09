@@ -1864,6 +1864,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     extraArgs.PrivateObjectOwner = privateObjectOwner;
 
     uint32 summonCount = 1;
+    bool useHardcodedRideSpell = false;
 
     if (uint8 const* parameter = sObjectMgr->GetSummonPropertiesParameter(properties->ID))
     {
@@ -1878,8 +1879,11 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 summonCount = std::max<int32>(damage, 1);
                 break;
             case SummonPropertiesParamType::SeatNumber:
-                if (damage > 0 && damage < MAX_VEHICLE_SEATS)
+                if (damage < MAX_VEHICLE_SEATS)
+                {
+                    useHardcodedRideSpell = true;
                     extraArgs.SeatNumber = damage;
+                }
                 break;
             case SummonPropertiesParamType::RideSpell:
                 if (sSpellMgr->GetSpellInfo(damage))
@@ -1918,7 +1922,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
             if (summonCount == 1 && summon->IsVehicle())
             {
-                if (extraArgs.SeatNumber)
+                if (useHardcodedRideSpell)
                     m_originalCaster->CastSpell(summon, VEHICLE_SPELL_RIDE_HARDCODED, CastSpellExtraArgs(true).AddSpellBP0(extraArgs.SeatNumber));
                 else if (extraArgs.RideSpell)
                     m_originalCaster->CastSpell(summon, extraArgs.RideSpell, true);
