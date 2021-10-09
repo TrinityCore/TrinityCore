@@ -506,7 +506,7 @@ namespace WorldPackets
             TaggedPosition<Position::XY> Pos;
             BattlegroundCapturePointState State = BattlegroundCapturePointState::Neutral;
             Timestamp<> CaptureTime;
-            WorldPackets::Duration<Milliseconds> CaptureTotalDuration;
+            Duration<Milliseconds, uint32> CaptureTotalDuration;
         };
 
         class UpdateCapturePoint final : public ServerPacket
