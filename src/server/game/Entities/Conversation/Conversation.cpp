@@ -71,6 +71,7 @@ void Conversation::Update(uint32 diff)
     }
     else
     {
+        sScriptMgr->OnConversationExpire(this);
         Remove(); // expired
         return;
     }
