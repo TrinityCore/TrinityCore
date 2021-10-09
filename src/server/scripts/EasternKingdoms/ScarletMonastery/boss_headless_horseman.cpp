@@ -199,7 +199,7 @@ struct npc_headless_horseman_head : public PassiveAI
     void HandleInitialSetup()
     {
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_HEAD_STUN);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         _phase = PHASE_1;
         _events.SetPhase(PHASE_1);
     }
@@ -256,7 +256,7 @@ struct npc_headless_horseman_head : public PassiveAI
     {
         me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_C_HEAD_STUN);
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_HEAD_VISUAL, true);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         me->GetMotionMaster()->MoveRandom(30.0f);
 
         switch (_phase)
@@ -311,11 +311,11 @@ struct npc_headless_horseman_head : public PassiveAI
                         DoCast(horseman, SPELL_HEADLESS_HORSEMAN_C_RETURN_HEAD, true);
                     me->RemoveAllAttackers();
                     me->GetMotionMaster()->Clear();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     break;
                 case EVENT_RAIN_OF_TREATS:
                     DoCastSelf(SPELL_RAIN_OF_TREATS);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     _instance->SetData(DATA_PREPARE_RESET, 0);
                     if (GameObject* pumpkin = me->SummonGameObject(GO_PUMPKIN_SHRINE, GOPumpkinSpawnPosition, GOPumpkinSpawnQuat, 7_days))
                         me->RemoveGameObject(pumpkin, false);
@@ -456,7 +456,7 @@ struct boss_headless_horseman : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* who, uint32& damage) override
+    void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && who != me)
         {
@@ -708,7 +708,7 @@ struct npc_sir_thomas : public PassiveAI
     void Reset() override
     {
         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_WISP_INVIS);
 
         _scheduler.Schedule(9s, [this](TaskContext /*context*/)
@@ -721,7 +721,7 @@ struct npc_sir_thomas : public PassiveAI
     {
         if (spellInfo->Id == SPELL_HEADLESS_HORSEMAN_WISP_FLIGHT_PORT)
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_WISP_INVIS);
             DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_GHOST_VISUAL, true);

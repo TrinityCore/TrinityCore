@@ -147,7 +147,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         void LoadTemplateImmunities();
         bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster) const override;
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const override;
         bool isElite() const;
         bool isWorldBoss() const;
 
@@ -376,11 +376,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
-        bool HasSwimmingFlagOutOfCombat() const
+        bool HasCanSwimFlagOutOfCombat() const
         {
-            return !_isMissingSwimmingFlagOutOfCombat;
+            return !_isMissingCanSwimFlagOutOfCombat;
         }
-        void RefreshSwimmingFlag(bool recheck = false);
+        void RefreshCanSwimFlag(bool recheck = false);
 
         std::string GetDebugInfo() const override;
 
@@ -474,7 +474,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool _regenerateHealth; // Set on creation
         bool _regenerateHealthLock; // Dynamically set
 
-        bool _isMissingSwimmingFlagOutOfCombat;
+        bool _isMissingCanSwimFlagOutOfCombat;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

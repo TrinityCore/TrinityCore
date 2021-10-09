@@ -220,6 +220,8 @@ class DatabaseWorkerPool
         uint32 PrepareCustomStatement(std::string const& sql);
         // @tswow-end
 
+        size_t QueueSize() const;
+
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 

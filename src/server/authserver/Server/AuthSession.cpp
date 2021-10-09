@@ -507,9 +507,10 @@ bool AuthSession::HandleLogonProof()
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
 
+        std::string address = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true) ? GetRemoteIpAddress().to_string() : "127.0.0.1";
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setBinary(0, _sessionKey);
-        stmt->setString(1, GetRemoteIpAddress().to_string());
+        stmt->setString(1, address);
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
         stmt->setString(4, _accountInfo.Login);
@@ -679,12 +680,9 @@ bool AuthSession::HandleReconnectProof()
     if (_accountInfo.Login.empty())
         return false;
 
-    BigNumber t1;
-    t1.SetBinary(reconnectProof->R1, 16);
-
     Trinity::Crypto::SHA1 sha;
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateData(t1.ToByteArray<16>());
+    sha.UpdateData(reconnectProof->R1, 16);
     sha.UpdateData(_reconnectProof);
     sha.UpdateData(_sessionKey);
     sha.Finalize();
@@ -834,7 +832,7 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::
     if (!sConfigMgr->GetBoolDefault("StrictVersionCheck", false))
         return true;
 
-    Trinity::Crypto::SHA1::Digest zeros;
+    Trinity::Crypto::SHA1::Digest zeros = { };
     Trinity::Crypto::SHA1::Digest const* versionHash = nullptr;
     if (!isReconnect)
     {

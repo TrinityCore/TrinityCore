@@ -538,7 +538,7 @@ class spell_marrowgar_coldflame_damage : public AuraScript
         if (target->HasAura(SPELL_IMPALED))
             return false;
 
-        if (target->GetExactDist2d(GetOwner()) > GetSpellInfo()->Effects[EFFECT_0].CalcRadius())
+        if (target->GetExactDist2d(GetOwner()) > GetEffectInfo(EFFECT_0).CalcRadius())
             return false;
 
         if (Aura* aur = target->GetAura(GetId()))

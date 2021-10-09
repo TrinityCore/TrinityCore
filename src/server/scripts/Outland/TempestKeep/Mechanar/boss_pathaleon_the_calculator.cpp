@@ -92,7 +92,7 @@ struct boss_pathaleon_the_calculator : public BossAI
         Talk(SAY_DEATH);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(20, damage) && !me->HasAura(SPELL_FRENZY))
         {

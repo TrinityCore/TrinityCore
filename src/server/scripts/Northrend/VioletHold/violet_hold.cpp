@@ -369,7 +369,6 @@ struct npc_sinclari_vh : public ScriptedAI
             if (Creature* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[i], TEMPSUMMON_MANUAL_DESPAWN))
                 summon->AI()->SetData(DATA_PORTAL_LOCATION, i);
 
-        me->SetVisible(true);
         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         std::list<Creature*> guardList;
@@ -424,10 +423,7 @@ struct npc_sinclari_vh : public ScriptedAI
     void DoAction(int32 actionId) override
     {
         if (actionId == ACTION_SINCLARI_OUTRO)
-        {
-            me->SetVisible(true);
             ScheduleOutro();
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -831,7 +827,8 @@ struct violet_hold_trashAI : public EscortAI
 
     void Reset() override
     {
-        _scheduler.CancelAll();
+        if (!me->HasReactState(REACT_DEFENSIVE))
+            _scheduler.CancelAll();
     }
 
     template <size_t N>
@@ -894,11 +891,23 @@ struct violet_hold_trashAI : public EscortAI
     void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
         if (waypointId == _lastWaypointId)
-            CreatureStartAttackDoor();
+        {
+            me->SetReactState(REACT_DEFENSIVE);
+            DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
+            _scheduler.Schedule(Seconds(2), [this](TaskContext destroyDoorCheck)
+            {
+                if (!me->HasAura(SPELL_DESTROY_DOOR_SEAL))
+                    DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
+                destroyDoorCheck.Repeat();
+            });
+        }
     }
 
     void JustEngagedWith(Unit* who) override
     {
+        if (me->HasReactState(REACT_DEFENSIVE))
+            return;
+
         EscortAI::JustEngagedWith(who);
         ScheduledTasks();
     }
@@ -916,12 +925,6 @@ struct violet_hold_trashAI : public EscortAI
     }
 
     virtual void ScheduledTasks() { }
-
-    void CreatureStartAttackDoor()
-    {
-        me->SetReactState(REACT_DEFENSIVE);
-        DoCastAOE(SPELL_DESTROY_DOOR_SEAL);
-    }
 
 protected:
     InstanceScript* _instance;

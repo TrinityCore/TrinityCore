@@ -87,10 +87,9 @@ struct boss_the_beast : public BossAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spellInfo->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
-                if (!me->IsAlive()) // can that even happen?
-                    DoCastAOE(SPELL_FINKLE_IS_EINHORN, true);
+        if (spellInfo->HasEffect(SPELL_EFFECT_SKINNING))
+            if (!me->IsAlive()) // can that even happen?
+                DoCastAOE(SPELL_FINKLE_IS_EINHORN, true);
     }
 
     void SetData(uint32 type, uint32 /*data*/) override

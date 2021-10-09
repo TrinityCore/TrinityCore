@@ -58,6 +58,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <future>
 #include <memory>
 #include <sstream>
+#include <thread>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>

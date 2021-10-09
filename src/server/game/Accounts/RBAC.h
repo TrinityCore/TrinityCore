@@ -111,8 +111,8 @@ enum RBACPermissions
     RBAC_ROLE_MODERATOR                                      = 198,
     RBAC_ROLE_PLAYER                                         = 199,
 
-    RBAC_PERM_COMMAND_RBAC                                   = 200,
-    RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
+    // 200 previously used, do not reuse
+    // 201 previously used, do not reuse
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST                     = 202,
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT                    = 203,
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 204,
@@ -273,11 +273,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GUILD_UNINVITE                         = 405,
     RBAC_PERM_COMMAND_GUILD_RANK                             = 406,
     RBAC_PERM_COMMAND_GUILD_RENAME                           = 407,
-    RBAC_PERM_COMMAND_HONOR                                  = 408,
+    // 408 previously used, do not reuse
     RBAC_PERM_COMMAND_HONOR_ADD                              = 409,
     RBAC_PERM_COMMAND_HONOR_ADD_KILL                         = 410,
     RBAC_PERM_COMMAND_HONOR_UPDATE                           = 411,
-    RBAC_PERM_COMMAND_INSTANCE                               = 412,
+    // 412 previously used, do not reuse
     RBAC_PERM_COMMAND_INSTANCE_LISTBINDS                     = 413,
     RBAC_PERM_COMMAND_INSTANCE_UNBIND                        = 414,
     RBAC_PERM_COMMAND_INSTANCE_STATS                         = 415,
@@ -626,11 +626,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_UNASSIGN                        = 758,
     RBAC_PERM_COMMAND_TICKET_VIEWID                          = 759,
     RBAC_PERM_COMMAND_TICKET_VIEWNAME                        = 760,
-    RBAC_PERM_COMMAND_TITLES                                 = 761,
+    // 761 previously used, do not reuse
     RBAC_PERM_COMMAND_TITLES_ADD                             = 762,
     RBAC_PERM_COMMAND_TITLES_CURRENT                         = 763,
     RBAC_PERM_COMMAND_TITLES_REMOVE                          = 764,
-    RBAC_PERM_COMMAND_TITLES_SET                             = 765,
+    // 765 previously used, do not reuse
     RBAC_PERM_COMMAND_TITLES_SET_MASK                        = 766,
     RBAC_PERM_COMMAND_WP                                     = 767,
     RBAC_PERM_COMMAND_WP_ADD                                 = 768,

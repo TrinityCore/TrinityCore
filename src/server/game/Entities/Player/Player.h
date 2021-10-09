@@ -934,7 +934,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const override;
 
         void SetInWater(bool apply);
 
@@ -1737,8 +1737,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DurabilityPointsLossAll(int32 points, bool inventory);
         void DurabilityPointsLoss(Item* item, int32 points);
         void DurabilityPointLossForEquipSlot(EquipmentSlots slot);
-        uint32 DurabilityRepairAll(bool cost, float discountMod, bool guildBank);
-        uint32 DurabilityRepair(uint16 pos, bool cost, float discountMod, bool guildBank);
+        // @tswow-begin return types
+        uint32 DurabilityRepairAll(bool takeCost, float discountMod, bool guildBank);
+        uint32 DurabilityRepair(uint16 pos, bool takeCost, float discountMod);
+        // @tswow-end
 
         void UpdateMirrorTimers();
         void StopMirrorTimers();

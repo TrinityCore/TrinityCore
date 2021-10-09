@@ -254,25 +254,13 @@ class spell_varos_centrifuge_shield : public AuraScript
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-        {
-            // flags taken from sniffs
-            if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6))
-            {
-                caster->ToCreature()->SetReactState(REACT_PASSIVE);
-                caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING|UNIT_FLAG_UNK_6);
-                caster->SetImmuneToAll(true, true);
-            }
-        }
+            caster->SetImmuneToAll(true, true);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-        {
-            caster->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-            caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING|UNIT_FLAG_UNK_6);
             caster->SetImmuneToAll(false);
-        }
     }
 
     void Register() override

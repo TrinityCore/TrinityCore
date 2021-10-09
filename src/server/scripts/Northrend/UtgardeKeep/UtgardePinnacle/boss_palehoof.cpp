@@ -572,7 +572,7 @@ class spell_palehoof_awaken_subboss : public SpellScript
     {
         Unit* target = GetHitUnit();
         GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500ms));
     }
 
@@ -590,7 +590,7 @@ class spell_palehoof_awaken_gortok : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8s));
     }
 

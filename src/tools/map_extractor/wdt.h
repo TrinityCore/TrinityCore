@@ -26,16 +26,6 @@
 
 #pragma pack(push, 1)
 
-class wdt_MWMO{
-    union{
-        uint32 fcc;
-        char   fcc_txt[4];
-    };
-public:
-    uint32 size;
-    bool prepareLoadedData();
-};
-
 class wdt_MPHD{
     union{
         uint32 fcc;
@@ -81,7 +71,6 @@ public:
 
     wdt_MPHD *mphd;
     wdt_MAIN *main;
-    wdt_MWMO *wmo;
 };
 
 #pragma pack(pop)

@@ -148,6 +148,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25, // only master
     CONDITION_SOURCE_TYPE_PHASE                          = 26, // only master
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27, // only master
+    CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28, // only master
     CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
 };
 

@@ -211,7 +211,7 @@ struct boss_xt002 : public BossAI
     {
         Talk(SAY_DEATH);
         _JustDied();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void ExposeHeart()
@@ -242,7 +242,7 @@ struct boss_xt002 : public BossAI
 
         DoCastSelf(SPELL_STAND);
         DoCastSelf(SPELL_COOLDOWN_CREATURE_SPECIAL_2);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         if (Creature* heart = instance->GetCreature(DATA_XT002_HEART))
         {
             if (heart->IsAlive())
@@ -351,6 +351,7 @@ struct boss_xt002 : public BossAI
                     break;
                 case EVENT_SUBMERGE:
                     DoCastSelf(SPELL_SUBMERGE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     Talk(EMOTE_HEART_OPENED);
                     if (Creature* heart = instance->GetCreature(DATA_XT002_HEART))
                         heart->AI()->DoAction(ACTION_START_PHASE_HEART);
@@ -413,13 +414,13 @@ struct npc_xt002_heart : public NullCreatureAI
             DoCastSelf(SPELL_FULL_HEAL);
             DoCast(xt002, SPELL_RIDE_VEHICLE_EXPOSED, true);
             DoCastSelf(SPELL_HEART_OVERLOAD);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         }
         else if (action == ACTION_DISPOSE_HEART)
         {
             DoCast(xt002, SPELL_HEART_RIDE_VEHICLE, true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         }
     }
@@ -594,7 +595,7 @@ struct npc_boombot : public ScriptedAI
             });
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
         {
@@ -661,7 +662,7 @@ struct npc_xt_void_zone : public PassiveAI
     {
         int32 bp = 0;
         if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(me->GetUInt32Value(UNIT_CREATED_BY_SPELL)))
-            bp = createdBySpell->Effects[EFFECT_1].CalcValue();
+            bp = createdBySpell->GetEffect(EFFECT_1).CalcValue();
 
         _scheduler.Schedule(1s, [this, bp](TaskContext consumption)
         {
@@ -878,27 +879,6 @@ class spell_xt002_tympanic_tantrum : public SpellScript
     }
 };
 
-// 37751 - Submerged
-class spell_xt002_submerged : public SpellScript
-{
-    PrepareSpellScript(spell_xt002_submerged);
-
-    void HandleScript(SpellEffIndex /*eff*/)
-    {
-        Creature* target = GetHitCreature();
-        if (!target)
-            return;
-
-        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        target->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_xt002_submerged::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 65032 - 321-Boombot Aura
 class spell_xt002_321_boombot_aura : public AuraScript
 {
@@ -1025,7 +1005,6 @@ void AddSC_boss_xt002()
     RegisterSpellScript(spell_xt002_heart_overload_periodic);
     RegisterSpellScript(spell_xt002_energy_orb);
     RegisterSpellScript(spell_xt002_tympanic_tantrum);
-    RegisterSpellScript(spell_xt002_submerged);
     RegisterSpellScript(spell_xt002_321_boombot_aura);
     RegisterSpellScript(spell_xt002_exposed_heart);
 

@@ -185,7 +185,7 @@ class boss_janalai : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void DamageDealt(Unit* target, uint32 &damage, DamageEffectType /*damagetype*/) override
+            void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damagetype*/) override
             {
                 if (isFlameBreathing)
                 {
@@ -278,9 +278,9 @@ class boss_janalai : public CreatureScript
                 {
                     if (Unit* FireBomb = ObjectAccessor::GetUnit(*me, FireBombGUIDs[BombCount]))
                     {
-                        FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);
-                        FireBomb->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        FireBomb->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     }
                     ++BombCount;
                     if (BombCount == 40)

@@ -27,13 +27,11 @@ npc_commander_dawnforge
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
-#include "GameObjectAI.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_commander_dawnforge
@@ -461,9 +459,81 @@ public:
     };
 };
 
+/*######
+## Quest 10857: Teleport This!
+######*/
+
+enum DetonateTeleporter
+{
+    SPELL_TELEPORTER_KILL_CREDIT_1   = 38982,    // 22348
+    SPELL_TELEPORTER_KILL_CREDIT_2   = 38983,    // 22351
+    SPELL_TELEPORTER_KILL_CREDIT_3   = 38984,    // 22350
+    NPC_WESTERN_TELEPORTER_CREDIT    = 22348,
+    NPC_EASTERN_TELEPORTER_CREDIT    = 22351,
+    NPC_CENTRAL_TELEPORTER_CREDIT    = 22350
+};
+
+// 38920 - Detonate Teleporter
+class spell_detonate_teleporter : public SpellScript
+{
+    PrepareSpellScript(spell_detonate_teleporter);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_TELEPORTER_KILL_CREDIT_1,
+            SPELL_TELEPORTER_KILL_CREDIT_2,
+            SPELL_TELEPORTER_KILL_CREDIT_3
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* creature = GetHitCreature())
+        {
+            if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
+            {
+                if (Player* player = charmer->ToPlayer())
+                {
+                    uint32 spellId = 0;
+
+                    switch (creature->GetEntry())
+                    {
+                        case NPC_WESTERN_TELEPORTER_CREDIT:
+                            spellId = SPELL_TELEPORTER_KILL_CREDIT_1;
+                            break;
+                        case NPC_EASTERN_TELEPORTER_CREDIT:
+                            spellId = SPELL_TELEPORTER_KILL_CREDIT_2;
+                            break;
+                        case NPC_CENTRAL_TELEPORTER_CREDIT:
+                            spellId = SPELL_TELEPORTER_KILL_CREDIT_3;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    player->CastSpell(player, spellId);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_detonate_teleporter::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_netherstorm()
 {
     new npc_commander_dawnforge();
     new at_commander_dawnforge();
     new npc_phase_hunter();
+    RegisterSpellScript(spell_detonate_teleporter);
 }

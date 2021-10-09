@@ -299,101 +299,79 @@ public:
 
 enum DancingFlames
 {
-    SPELL_BRAZIER           = 45423,
-    SPELL_SEDUCTION         = 47057,
-    SPELL_FIERY_AURA        = 45427
+    SPELL_SUMMON_BRAZIER    = 45423,
+    SPELL_BRAZIER_DANCE     = 45427,
+    SPELL_FIERY_SEDUCTION   = 47057
 };
 
-class npc_dancing_flames : public CreatureScript
+struct npc_dancing_flames : public ScriptedAI
 {
-public:
-    npc_dancing_flames() : CreatureScript("npc_dancing_flames") { }
+    npc_dancing_flames(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_dancing_flamesAI : public ScriptedAI
+    void Reset() override
     {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Active = true;
-            CanIteract = 3500;
-        }
-
-        bool Active;
-        uint32 CanIteract;
-
-        void Reset() override
-        {
-            Initialize();
-            DoCast(me, SPELL_BRAZIER, true);
-            DoCast(me, SPELL_FIERY_AURA, false);
-            float x, y, z;
-            me->GetPosition(x, y, z);
-            me->Relocate(x, y, z + 0.94f);
-            me->SetDisableGravity(true);
-            me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-            WorldPacket data;                       //send update position to client
-            me->BuildHeartBeatMsg(&data);
-            me->SendMessageToSet(&data, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!Active)
-            {
-                if (CanIteract <= diff)
-                {
-                    Active = true;
-                    CanIteract = 3500;
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-                }
-                else
-                    CanIteract -= diff;
-            }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void ReceiveEmote(Player* player, uint32 emote) override
-        {
-            if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
-            {
-                me->SetFacingToObject(player);
-                Active = false;
-
-                WorldPacket data;
-                me->BuildHeartBeatMsg(&data);
-                me->SendMessageToSet(&data, true);
-                switch (emote)
-                {
-                    case TEXT_EMOTE_KISS:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
-                        break;
-                    case TEXT_EMOTE_WAVE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                        break;
-                    case TEXT_EMOTE_BOW:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                        break;
-                    case TEXT_EMOTE_JOKE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        break;
-                    case TEXT_EMOTE_DANCE:
-                        if (!player->HasAura(SPELL_SEDUCTION))
-                            DoCast(player, SPELL_SEDUCTION, true);
-                        break;
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dancing_flamesAI(creature);
+        DoCastSelf(SPELL_SUMMON_BRAZIER, true);
+        DoCastSelf(SPELL_BRAZIER_DANCE, false);
+        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+        float x, y, z;
+        me->GetPosition(x, y, z);
+        me->Relocate(x, y, z + 1.05f);
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    void ReceiveEmote(Player* player, uint32 emote) override
+    {
+        if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
+        {
+            // She responds to emotes not instantly but ~1500ms later
+            // If you first /bow, then /wave before dancing flames bow back, it doesnt bow at all and only does wave
+            // If you're performing emotes too fast, she will not respond to them
+            // Means she just replaces currently scheduled event with new after receiving new emote
+            _scheduler.CancelAll();
+
+            switch (emote)
+            {
+                case TEXT_EMOTE_KISS:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
+                    });
+                    break;
+                case TEXT_EMOTE_WAVE:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                    });
+                    break;
+                case TEXT_EMOTE_BOW:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                    });
+                    break;
+                case TEXT_EMOTE_JOKE:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                    });
+                    break;
+                case TEXT_EMOTE_DANCE:
+                    if (!player->HasAura(SPELL_FIERY_SEDUCTION))
+                    {
+                        DoCast(player, SPELL_FIERY_SEDUCTION, true);
+                        me->SetFacingTo(me->GetAbsoluteAngle(player));
+                    }
+                    break;
+            }
+        }
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 /*######
@@ -655,7 +633,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void BeginEvent(Player* player)
@@ -680,7 +658,7 @@ public:
             }
 
             Event = true;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void PatientDied(Position const* point)
@@ -788,7 +766,7 @@ public:
             Initialize();
 
             //no select
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             //no regen health
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -828,8 +806,8 @@ public:
                     if (Creature* doctor = ObjectAccessor::GetCreature(*me, DoctorGUID))
                         ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
-            //make not selectable
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //make uninteractible
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             //regen health
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -866,7 +844,7 @@ public:
             if (me->IsAlive() && me->GetHealth() <= 6)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->setDeathState(JUST_DIED);
                 me->SetFlag(UNIT_DYNAMIC_FLAGS, 32);
 
@@ -1460,15 +1438,129 @@ class npc_brewfest_reveler : public CreatureScript
         }
 };
 
+/*######
+# npc_brewfest_reveler_2
+######*/
+
+Emote const BrewfestRandomEmote[] =
+{
+    EMOTE_ONESHOT_QUESTION,
+    EMOTE_ONESHOT_APPLAUD,
+    EMOTE_ONESHOT_SHOUT,
+    EMOTE_ONESHOT_EAT_NO_SHEATHE,
+    EMOTE_ONESHOT_LAUGH_NO_SHEATHE
+};
+
+struct npc_brewfest_reveler_2 : ScriptedAI
+{
+    enum BrewfestReveler2
+    {
+        NPC_BREWFEST_REVELER    = 24484,
+
+        EVENT_FILL_LIST         = 1,
+        EVENT_FACE_TO           = 2,
+        EVENT_EMOTE             = 3,
+        EVENT_NEXT              = 4
+    };
+
+    npc_brewfest_reveler_2(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_FILL_LIST, 1s, 2s);
+    }
+
+    // Copied from old script. I don't know if this is 100% correct.
+    void ReceiveEmote(Player* player, uint32 emote) override
+    {
+        if (!IsHolidayActive(HOLIDAY_BREWFEST))
+            return;
+
+        if (emote == TEXT_EMOTE_DANCE)
+            me->CastSpell(player, SPELL_BREWFEST_TOAST, false);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FILL_LIST:
+                {
+                    std::list<Creature*> creatureList;
+                    GetCreatureListWithEntryInGrid(creatureList, me, NPC_BREWFEST_REVELER, 5.0f);
+                    for (Creature* creature : creatureList)
+                        if (creature != me)
+                            _revelerGuids.push_back(creature->GetGUID());
+
+                    _events.ScheduleEvent(EVENT_FACE_TO, 1s, 2s);
+                    break;
+                }
+                case EVENT_FACE_TO:
+                {
+                    // Turn to random brewfest reveler within set range
+                    if (!_revelerGuids.empty())
+                        if (Creature* creature = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(_revelerGuids)))
+                            me->SetFacingToObject(creature);
+
+                    _events.ScheduleEvent(EVENT_EMOTE, 2s, 6s);
+                    break;
+                }
+                case EVENT_EMOTE:
+                    // Play random emote or dance
+                    if (roll_chance_i(50))
+                    {
+                        me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
+                        _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
+                    }
+                    else
+                    {
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                        _events.ScheduleEvent(EVENT_NEXT, 8s, 12s);
+                    }
+                    break;
+                case EVENT_NEXT:
+                    // If dancing stop before next random state
+                    if (me->GetUInt32Value(UNIT_NPC_EMOTESTATE) == EMOTE_STATE_DANCE)
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+
+                    // Random EVENT_EMOTE or EVENT_FACETO
+                    if (roll_chance_i(50))
+                        _events.ScheduleEvent(EVENT_FACE_TO, 1s);
+                    else
+                        _events.ScheduleEvent(EVENT_EMOTE, 1s);
+                    break;
+                default:
+                    break;
+                }
+        }
+    }
+
+private:
+    EventMap _events;
+    GuidVector _revelerGuids;
+};
+
 struct npc_training_dummy : NullCreatureAI
 {
     npc_training_dummy(Creature* creature) : NullCreatureAI(creature) { }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void JustEnteredCombat(Unit* who) override
+    {
+        _combatTimer[who->GetGUID()] = 5s;
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType damageType, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         damage = 0;
 
-        if (!attacker)
+        if (!attacker || damageType == DOT)
             return;
 
         _combatTimer[attacker->GetGUID()] = 5s;
@@ -1929,8 +2021,8 @@ public:
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
 
-            if (spellInfo && spellInfo->Effects[0].Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                return spellInfo->Effects[0].MiscValue;
+            if (spellInfo && spellInfo->GetEffect(EFFECT_0).Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                return spellInfo->GetEffect(EFFECT_0).MiscValue;
 
             return 0;
         }
@@ -2213,7 +2305,6 @@ enum TrainWrecker
     GO_TOY_TRAIN          = 193963,
     SPELL_TOY_TRAIN_PULSE =  61551,
     SPELL_WRECK_TRAIN     =  62943,
-    ACTION_WRECKED        =      1,
     EVENT_DO_JUMP         =      1,
     EVENT_DO_FACING       =      2,
     EVENT_DO_WRECK        =      3,
@@ -2287,7 +2378,6 @@ class npc_train_wrecker : public CreatureScript
                             if (GameObject* target = VerifyTarget())
                             {
                                 me->CastSpell(target, SPELL_WRECK_TRAIN, false);
-                                target->AI()->DoAction(ACTION_WRECKED);
                                 _timer = 2 * IN_MILLISECONDS;
                                 _nextAction = EVENT_DO_DANCE;
                             }
@@ -2608,7 +2698,7 @@ void AddSC_npcs_special()
 {
     new npc_air_force_bots();
     new npc_chicken_cluck();
-    new npc_dancing_flames();
+    RegisterCreatureAI(npc_dancing_flames);
     new npc_torch_tossing_target_bunny_controller();
     new npc_midsummer_bunny_pole();
     new npc_doctor();
@@ -2618,6 +2708,7 @@ void AddSC_npcs_special()
     new npc_steam_tonk();
     new npc_tournament_mount();
     new npc_brewfest_reveler();
+    RegisterCreatureAI(npc_brewfest_reveler_2);
     RegisterCreatureAI(npc_training_dummy);
     new npc_wormhole();
     new npc_pet_trainer();

@@ -298,7 +298,7 @@ public:
     {
         events.SetPhase(PHASE_TRANSITION);
 
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
         events.ScheduleEvent(EVENT_TRANSITION_1, 10s, 0, PHASE_TRANSITION);
         events.ScheduleEvent(EVENT_TRANSITION_2, 12s, 0, PHASE_TRANSITION);
@@ -316,7 +316,7 @@ public:
 
         me->DespawnOrUnsummon(0s, 30s);
 
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
         me->SetImmuneToPC(true);
         me->setActive(false);
         me->SetFarVisible(false);
@@ -504,7 +504,7 @@ public:
                 me->SetFullHealth();
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
                 Talk(EMOTE_FEIGN_REVIVE);
                 isFeignDeath = false;
@@ -557,7 +557,7 @@ public:
                 AddThreat(who, 0.0f, feugen);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage < me->GetHealth())
             return;
@@ -575,7 +575,7 @@ public:
         if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
             thaddius->AI()->DoAction(ACTION_STALAGG_DIED);
 
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         me->RemoveAllAuras();
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
@@ -738,7 +738,7 @@ public:
                 me->SetFullHealth();
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
                 Talk(EMOTE_FEIGN_REVIVE);
                 isFeignDeath = false;
@@ -796,7 +796,7 @@ public:
                 AddThreat(who, 0.0f, stalagg);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage < me->GetHealth())
             return;
@@ -814,7 +814,7 @@ public:
         if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
             thaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
 
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         me->RemoveAllAuras();
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
@@ -936,7 +936,7 @@ struct npc_tesla : public ScriptedAI
     void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
     void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
     void JustEngagedWith(Unit* /*who*/) override { }
-    void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override { damage = 0; } // no, you can't kill it
 };
 
 // 28062 - Positive Charge

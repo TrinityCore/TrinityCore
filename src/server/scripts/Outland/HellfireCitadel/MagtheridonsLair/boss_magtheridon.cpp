@@ -184,7 +184,7 @@ struct boss_magtheridon : public BossAI
             Talk(SAY_BANISHED);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(30, damage) && !events.IsInPhase(PHASE_3))
         {
@@ -244,7 +244,7 @@ struct boss_magtheridon : public BossAI
                     CombatStart();
                     break;
                 case EVENT_RELEASED:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     me->SetImmuneToPC(false);
                     DoZoneInCombat();
                     events.SetPhase(PHASE_2);
