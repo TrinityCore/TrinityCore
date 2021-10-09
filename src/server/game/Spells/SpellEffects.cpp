@@ -1699,6 +1699,12 @@ void Spell::EffectOpenLock()
                 return;
             }
         }
+        else if (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
+        {
+            // handled in script SpellHit
+            // Maybe we could call another script hook here (on open lock?)
+            return;
+        }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
             //CanUseBattlegroundObject() already called in CheckCast()
