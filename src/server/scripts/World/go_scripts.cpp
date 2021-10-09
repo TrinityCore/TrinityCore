@@ -2138,6 +2138,8 @@ struct go_generic_capture_point : public GameObjectAI
                 case State::HordeCaptured:
                     type = CHAT_MSG_BG_SYSTEM_HORDE;
                     break;
+                default:
+                    break;
             }
 
             bg->SendBroadcastText(broadCastTextId, type, invoker);
