@@ -1015,7 +1015,7 @@ void Creature::Motion_Initialize()
     if (m_formation)
     {
         if (m_formation->GetLeader() == this)
-            m_formation->FormationReset(false);
+            m_formation->FormationReset();
         else if (m_formation->IsFormed())
         {
             GetMotionMaster()->MoveIdle(); // wait the order of leader
@@ -1994,7 +1994,7 @@ void Creature::setDeathState(DeathState s)
 
         //Dismiss group if is leader
         if (m_formation && m_formation->GetLeader() == this)
-            m_formation->FormationReset(true);
+            m_formation->FormationReset();
 
         bool needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater();
         SetHover(false, false);

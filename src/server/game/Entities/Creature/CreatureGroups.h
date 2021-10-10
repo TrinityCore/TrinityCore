@@ -90,7 +90,7 @@ class TC_GAME_API CreatureGroup
         bool HasMember(Creature* member) const { return _members.count(member) > 0; }
         void AddMember(Creature* member);
         void RemoveMember(Creature* member);
-        void FormationReset(bool dismiss);
+        void FormationReset();
 
         void LeaderStartedMoving();
         void MemberEngagingTarget(Creature* member, Unit* target);
