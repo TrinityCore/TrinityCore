@@ -2932,7 +2932,7 @@ void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)
 
 void GameObject::AssaultCapturePoint(Player* player)
 {
-    if (GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (!CanInteractWithCapturePoint(player))
         return;
 
     // only supported in battlegrounds
@@ -3040,6 +3040,7 @@ void GameObject::UpdateCapturePoint()
         SendCustomAnim(customAnim);
 
     SetSpellVisualId(spellVisualId);
+    AddDynamicFlag(GO_DYNFLAG_LO_NO_INTERACT_2);
 
     if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
     {
@@ -3055,6 +3056,25 @@ void GameObject::UpdateCapturePoint()
             bg->UpdateWorldState(GetGOInfo()->capturePoint.worldState1, AsUnderlyingType(m_goValue.CapturePoint.State));
         }
     }
+}
+
+bool GameObject::CanInteractWithCapturePoint(Player const* target) const
+{
+    if (m_goInfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
+        return false;
+
+    if (m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::Neutral)
+        return true;
+
+    if (target->GetBGTeam() == HORDE)
+    {
+        return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance
+            || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
+    }
+
+    // For Alliance players
+    return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde
+        || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
 }
 
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
