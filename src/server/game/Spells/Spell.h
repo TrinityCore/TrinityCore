@@ -371,6 +371,7 @@ class TC_GAME_API Spell
         void EffectLearnGarrisonBuilding();
         void EffectCreateGarrison();
         void EffectCreateConversation();
+        void EffectCancelConversation();
         void EffectAddGarrisonFollower();
         void EffectActivateGarrisonBuilding();
         void EffectHealBattlePetPct();
