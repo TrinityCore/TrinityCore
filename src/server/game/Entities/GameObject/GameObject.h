@@ -331,6 +331,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
         void AssaultCapturePoint(Player* player);
         void UpdateCapturePoint();
+        bool CanInteractWithCapturePoint(Player const* target) const;
 
         void AIM_Destroy();
         bool AIM_Initialize();
