@@ -1555,7 +1555,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                     for (uint32 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
                         if (!e.action.equip.mask || (e.action.equip.mask & (1 << i)))
-                            npc->SetVirtualItem(0, slot[i].ItemId, slot[i].AppearanceModId, slot[i].ItemVisual);
+                            npc->SetVirtualItem(i, slot[i].ItemId, slot[i].AppearanceModId, slot[i].ItemVisual);
                 }
             }
             break;
