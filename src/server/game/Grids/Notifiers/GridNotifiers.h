@@ -1609,7 +1609,6 @@ namespace Trinity
         uint32 _entry;
     };
 
-
     // Player checks and do
 
     // Prepare using Builder localized packets with caching and send to player

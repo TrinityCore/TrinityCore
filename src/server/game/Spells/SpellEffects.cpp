@@ -5554,13 +5554,16 @@ void Spell::EffectCancelConversation()
     if (!unitTarget)
         return;
 
-    WorldObject* obj = nullptr;
+    std::vector<WorldObject*> objs;
     Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(unitTarget->GetGUID(), effectInfo->MiscValue);
-    Trinity::WorldObjectSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(unitTarget, obj, check, GRID_MAP_TYPE_MASK_CONVERSATION);
-    Cell::VisitAllObjects(unitTarget, checker, 100.0f);
+    Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(unitTarget, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
+    Cell::VisitGridObjects(unitTarget, checker, 100.0f);
 
-    if (Conversation* convo = obj->ToConversation())
-        convo->Remove();
+    for (WorldObject* obj : objs)
+    {
+        if (Conversation* convo = obj->ToConversation())
+            convo->Remove();
+    }
 }
 
 void Spell::EffectAddGarrisonFollower()
