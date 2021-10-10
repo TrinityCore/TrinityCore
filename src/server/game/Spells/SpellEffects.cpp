@@ -1582,8 +1582,7 @@ void Spell::EffectOpenLock()
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
         {
-            // handled in script SpellHit
-            // Maybe we could call another script hook here (on open lock?)
+            gameObjTarget->AssaultCapturePoint(player);
             return;
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)

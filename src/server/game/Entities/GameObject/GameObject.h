@@ -34,6 +34,14 @@ class Unit;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
 
+namespace WorldPackets
+{
+    namespace Battleground
+    {
+        enum class BattlegroundCapturePointState : uint8;
+    }
+}
+
 union GameObjectValue
 {
     //11 GAMEOBJECT_TYPE_TRANSPORT
@@ -61,6 +69,13 @@ union GameObjectValue
         uint32 Health;
         uint32 MaxHealth;
     } Building;
+    //42 GAMEOBJECT_TYPE_CAPTURE_POINT
+    struct
+    {
+        TeamId LastTeamCapture;
+        WorldPackets::Battleground::BattlegroundCapturePointState State;
+        uint32 AssaultTimer;
+    } CapturePoint;
 };
 
 // For containers:  [GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY        -> ...
@@ -314,6 +329,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
 
         void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
+        void AssaultCapturePoint(Player* player);
+        void UpdateCapturePoint();
 
         void AIM_Destroy();
         bool AIM_Initialize();
