@@ -2557,6 +2557,9 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellReagentsEntry const* reagents : sSpellReagentsStore)
         loadData[{ reagents->SpellID, DIFFICULTY_NONE }].Reagents = reagents;
 
+    for (SpellReagentsCurrencyEntry const* reagentsCurrency : sSpellReagentsCurrencyStore)
+        loadData[{ reagentsCurrency->SpellID, DIFFICULTY_NONE }].ReagentsCurrency.push_back(reagentsCurrency);
+
     for (SpellScalingEntry const* scaling : sSpellScalingStore)
         loadData[{ scaling->SpellID, DIFFICULTY_NONE }].Scaling = scaling;
 
@@ -2638,6 +2641,9 @@ void SpellMgr::LoadSpellInfoStore()
 
                     if (!data.second.Reagents)
                         data.second.Reagents = fallbackData->Reagents;
+
+                    if (data.second.ReagentsCurrency.empty())
+                        data.second.ReagentsCurrency = fallbackData->ReagentsCurrency;
 
                     if (!data.second.Scaling)
                         data.second.Scaling = fallbackData->Scaling;

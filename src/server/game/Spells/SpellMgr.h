@@ -56,6 +56,7 @@ struct SpellMiscEntry;
 struct SpellNameEntry;
 struct SpellPowerEntry;
 struct SpellReagentsEntry;
+struct SpellReagentsCurrencyEntry;
 struct SpellScalingEntry;
 struct SpellShapeshiftEntry;
 struct SpellTargetRestrictionsEntry;
@@ -617,6 +618,7 @@ struct SpellInfoLoadHelper
     SpellMiscEntry const* Misc = nullptr;
     std::array<SpellPowerEntry const*, MAX_POWERS_PER_SPELL> Powers;
     SpellReagentsEntry const* Reagents = nullptr;
+    std::vector<SpellReagentsCurrencyEntry const*> ReagentsCurrency;
     SpellScalingEntry const* Scaling = nullptr;
     SpellShapeshiftEntry const* Shapeshift = nullptr;
     SpellTargetRestrictionsEntry const* TargetRestrictions = nullptr;

@@ -5467,6 +5467,22 @@ struct SpellReagentsLoadInfo
     }
 };
 
+struct SpellReagentsCurrencyLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "SpellID" },
+            { false, FT_SHORT, "CurrencyTypesID" },
+            { false, FT_SHORT, "CurrencyCount" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellReagentsCurrencyMeta::Instance(), HOTFIX_SEL_SPELL_REAGENTS_CURRENCY);
+        return &loadInfo;
+    }
+};
+
 struct SpellScalingLoadInfo
 {
     static DB2LoadInfo const* Instance()

@@ -212,6 +212,7 @@ TC_GAME_API extern DB2Storage<SpellProcsPerMinuteEntry>             sSpellProcsP
 TC_GAME_API extern DB2Storage<SpellRadiusEntry>                     sSpellRadiusStore;
 TC_GAME_API extern DB2Storage<SpellRangeEntry>                      sSpellRangeStore;
 TC_GAME_API extern DB2Storage<SpellReagentsEntry>                   sSpellReagentsStore;
+TC_GAME_API extern DB2Storage<SpellReagentsCurrencyEntry>           sSpellReagentsCurrencyStore;
 TC_GAME_API extern DB2Storage<SpellScalingEntry>                    sSpellScalingStore;
 TC_GAME_API extern DB2Storage<SpellShapeshiftEntry>                 sSpellShapeshiftStore;
 TC_GAME_API extern DB2Storage<SpellShapeshiftFormEntry>             sSpellShapeshiftFormStore;

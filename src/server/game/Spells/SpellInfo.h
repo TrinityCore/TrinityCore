@@ -402,6 +402,7 @@ class TC_GAME_API SpellInfo
         std::array<uint32, MAX_SPELL_TOTEMS> TotemCategory = {};
         std::array<int32, MAX_SPELL_REAGENTS> Reagent = {};
         std::array<uint32, MAX_SPELL_REAGENTS> ReagentCount = {};
+        std::vector<SpellReagentsCurrencyEntry const*> ReagentsCurrency;
         int32 EquippedItemClass = -1;
         int32 EquippedItemSubClassMask = 0;
         int32 EquippedItemInventoryTypeMask = 0;
