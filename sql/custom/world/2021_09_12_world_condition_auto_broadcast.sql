@@ -1,0 +1,1 @@
+ALTER TABLE `game_event_condition` ADD COLUMN `auto_broadcast` tinyint(1) unsigned DEFAULT 1;
