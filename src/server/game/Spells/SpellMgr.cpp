@@ -2588,9 +2588,6 @@ void SpellMgr::LoadSpellInfoStore()
         if (!spellNameEntry)
             continue;
 
-        std::vector<SpellLabelEntry const*> labels = data.second.Labels; // copy, need to ensure source remains unmodified
-        SpellVisualVector visuals = data.second.Visuals; // copy, need to ensure source remains unmodified
-
         // fill blanks
         if (DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(data.first.second))
         {
@@ -2604,8 +2601,14 @@ void SpellMgr::LoadSpellInfoStore()
                     if (!data.second.AuraRestrictions)
                         data.second.AuraRestrictions = fallbackData->AuraRestrictions;
 
+                    if (!data.second.CastingRequirements)
+                        data.second.CastingRequirements = fallbackData->CastingRequirements;
+
                     if (!data.second.Categories)
                         data.second.Categories = fallbackData->Categories;
+
+                    if (!data.second.ClassOptions)
+                        data.second.ClassOptions = fallbackData->ClassOptions;
 
                     if (!data.second.Cooldowns)
                         data.second.Cooldowns = fallbackData->Cooldowns;
@@ -2614,10 +2617,14 @@ void SpellMgr::LoadSpellInfoStore()
                         if (!data.second.Effects[i])
                             data.second.Effects[i] = fallbackData->Effects[i];
 
+                    if (!data.second.EquippedItems)
+                        data.second.EquippedItems = fallbackData->EquippedItems;
+
                     if (!data.second.Interrupts)
                         data.second.Interrupts = fallbackData->Interrupts;
 
-                    labels.insert(labels.end(), fallbackData->Labels.begin(), fallbackData->Labels.end());
+                    if (data.second.Labels.empty())
+                        data.second.Labels = fallbackData->Labels;
 
                     if (!data.second.Levels)
                         data.second.Levels = fallbackData->Levels;
@@ -2629,17 +2636,32 @@ void SpellMgr::LoadSpellInfoStore()
                         if (!data.second.Powers[i])
                             data.second.Powers[i] = fallbackData->Powers[i];
 
+                    if (!data.second.Reagents)
+                        data.second.Reagents = fallbackData->Reagents;
+
+                    if (!data.second.Scaling)
+                        data.second.Scaling = fallbackData->Scaling;
+
+                    if (!data.second.Shapeshift)
+                        data.second.Shapeshift = fallbackData->Shapeshift;
+
                     if (!data.second.TargetRestrictions)
                         data.second.TargetRestrictions = fallbackData->TargetRestrictions;
 
-                    visuals.insert(visuals.end(), fallbackData->Visuals.begin(), fallbackData->Visuals.end());
+                    if (!data.second.Totems)
+                        data.second.Totems = fallbackData->Totems;
+
+                    // visuals fall back only to first difficulty that defines any visual
+                    // they do not stack all difficulties in fallback chain
+                    if (data.second.Visuals.empty())
+                        data.second.Visuals = fallbackData->Visuals;
                 }
 
                 difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
             } while (difficultyEntry);
         }
 
-        mSpellInfoMap.emplace(spellNameEntry, data.first.second, data.second, labels, std::move(visuals));
+        mSpellInfoMap.emplace(spellNameEntry, data.first.second, data.second);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));

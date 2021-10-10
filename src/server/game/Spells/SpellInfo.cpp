@@ -1072,8 +1072,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 285 SPELL_EFFECT_MODIFY_KEYSTONE_2
 };
 
-SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data,
-    std::vector<SpellLabelEntry const*> const& labels, SpellVisualVector&& visuals)
+SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
     : Id(spellName->ID), Difficulty(difficulty)
 {
     _effects.reserve(32);
@@ -1118,8 +1117,6 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         ContentTuningId = _misc->ContentTuningID;
         ShowFutureSpellPlayerConditionID = _misc->ShowFutureSpellPlayerConditionID;
     }
-
-    _visuals = std::move(visuals);
 
     // SpellScalingEntry
     if (SpellScalingEntry const* _scaling = data.Scaling)
@@ -1210,7 +1207,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         ChannelInterruptFlags2 = SpellAuraInterruptFlags2(_interrupt->ChannelInterruptFlags[1]);
     }
 
-    for (SpellLabelEntry const* label : labels)
+    for (SpellLabelEntry const* label : data.Labels)
         Labels.insert(label->LabelID);
 
     // SpellLevelsEntry
@@ -1255,6 +1252,8 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         std::copy(std::begin(_totem->RequiredTotemCategoryID), std::end(_totem->RequiredTotemCategoryID), TotemCategory.begin());
         std::copy(std::begin(_totem->Totem), std::end(_totem->Totem), Totem.begin());
     }
+
+    _visuals = data.Visuals;
 }
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects)
