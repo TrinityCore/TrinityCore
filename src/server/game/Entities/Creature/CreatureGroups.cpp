@@ -266,7 +266,7 @@ void CreatureGroup::FormationReset()
         if (pair.first != _leader && pair.first->IsAlive())
         {
             pair.first->GetMotionMaster()->MoveIdle();
-            TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set %s movement for member %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
+            // TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set %s movement for member %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
         }
     }
 
