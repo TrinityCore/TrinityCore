@@ -40,7 +40,7 @@ public:
             player->KilledMonsterCredit(NPC_TALK_TO_YOUR_COMMANDER_CREDIT);
     }
 
-    void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender) override
+    void OnConversationLineStarted(Conversation* /*conversation*/, uint32 lineId, Player* sender) override
     {
         if (lineId != CONVERSATION_LINE_PLAYER)
             return;
