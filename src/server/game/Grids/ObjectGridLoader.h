@@ -40,7 +40,8 @@ class TC_GAME_API ObjectGridLoader
         void Visit(AreaTriggerMapType &m);
         void Visit(CorpseMapType &) const { }
         void Visit(DynamicObjectMapType&) const { }
-        void Visit(ConversationMapType &) const { }
+        void Visit(SceneObjectMapType&) const { }
+        void Visit(ConversationMapType&) const { }
 
         void LoadN(void);
 

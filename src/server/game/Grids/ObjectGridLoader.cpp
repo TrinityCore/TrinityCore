@@ -30,6 +30,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
+#include "SceneObject.h"
 #include "World.h"
 #include "ScriptMgr.h"
 
@@ -285,12 +286,14 @@ void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 template void ObjectGridUnloader::Visit(CreatureMapType &);
 template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
-template void ObjectGridUnloader::Visit(ConversationMapType &);
+template void ObjectGridUnloader::Visit(AreaTriggerMapType&);
+template void ObjectGridUnloader::Visit(SceneObjectMapType&);
+template void ObjectGridUnloader::Visit(ConversationMapType&);
 
-template void ObjectGridUnloader::Visit(AreaTriggerMapType &);
 template void ObjectGridCleaner::Visit(CreatureMapType &);
 template void ObjectGridCleaner::Visit<GameObject>(GameObjectMapType &);
 template void ObjectGridCleaner::Visit<DynamicObject>(DynamicObjectMapType &);
 template void ObjectGridCleaner::Visit<Corpse>(CorpseMapType &);
 template void ObjectGridCleaner::Visit<AreaTrigger>(AreaTriggerMapType &);
+template void ObjectGridCleaner::Visit<SceneObject>(SceneObjectMapType &);
 template void ObjectGridCleaner::Visit<Conversation>(ConversationMapType &);

@@ -26,6 +26,7 @@
 #include "GameObject.h"
 #include "Packet.h"
 #include "Player.h"
+#include "SceneObject.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
@@ -115,6 +116,7 @@ namespace Trinity
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
+        void Visit(SceneObjectMapType &m) { updateObjects<SceneObject>(m); }
         void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
@@ -259,6 +261,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -281,6 +284,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -304,6 +308,7 @@ namespace Trinity
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -368,6 +373,15 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
                 return;
             for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if (itr->GetSource()->IsInPhase(_searcher))
+                    i_do(itr->GetSource());
+        }
+
+        void Visit(SceneObjectMapType& m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_SCENEOBJECT))
+                return;
+            for (SceneObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
                 if (itr->GetSource()->IsInPhase(_searcher))
                     i_do(itr->GetSource());
         }

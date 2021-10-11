@@ -385,6 +385,8 @@ class TC_GAME_API Spell
         void EffectGiveArtifactPower();
         void EffectGiveArtifactPowerNoBonus();
         void EffectPlaySceneScriptPackage();
+        void EffectCreateSceneObject();
+        void EffectCreatePrivateSceneObject();
         void EffectPlayScene();
         void EffectGiveHonor();
         void EffectLearnTransmogSet();

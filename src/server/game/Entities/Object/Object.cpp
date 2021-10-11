@@ -145,7 +145,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint16 objectTypeMask = m_objectType;
     CreateObjectBits flags = m_updateFlag;
 
-    /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
     {
         flags.ThisIsYou = true;
@@ -161,6 +160,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         case HighGuid::Corpse:
         case HighGuid::DynamicObject:
         case HighGuid::AreaTrigger:
+        case HighGuid::SceneObject:
         case HighGuid::Conversation:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
@@ -620,11 +620,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
     //        *data << ObjectGuid(ReplaceObject);
     //}
 
-    //if (flags.SceneObject)
-    //{
-    //    data->WriteBit(HasLocalScriptData);
-    //    data->WriteBit(HasPetBattleFullUpdate);
-    //    data->FlushBits();
+    if (flags.SceneObject)
+    {
+        data->WriteBit(false);                                          // HasLocalScriptData
+        data->WriteBit(false);                                          // HasPetBattleFullUpdate
+        data->FlushBits();
 
     //    if (HasLocalScriptData)
     //    {
@@ -728,7 +728,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
     //        data->WriteBit(CanAwardXP);
     //        data->FlushBits();
     //    }
-    //}
+    }
 
     if (flags.ActivePlayer)
     {
