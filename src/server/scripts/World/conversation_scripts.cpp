@@ -40,13 +40,12 @@ public:
             player->KilledMonsterCredit(NPC_TALK_TO_YOUR_COMMANDER_CREDIT);
     }
 
-    void OnConversationLineStarted(Conversation* conversation, uint32 lineId) override
+    void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender) override
     {
         if (lineId != CONVERSATION_LINE_PLAYER)
             return;
 
-        if (Player* creator = ObjectAccessor::GetPlayer(*conversation, conversation->GetCreatorGuid()))
-            creator->KilledMonsterCredit(NPC_LISTEN_TO_YOUR_COMMANDER_CREDIT);
+        sender->KilledMonsterCredit(NPC_LISTEN_TO_YOUR_COMMANDER_CREDIT);
     }
 };
 
