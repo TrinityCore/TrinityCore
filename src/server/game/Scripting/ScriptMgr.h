@@ -828,6 +828,9 @@ class TC_GAME_API ConversationScript : public ScriptObject
 
         // Called when Conversation is created but not added to Map yet.
         virtual void OnConversationCreate(Conversation* /*conversation*/, Unit* /*creator*/) { }
+
+        // Called when player sends CMSG_CONVERSATION_LINE_STARTED with valid conversation guid
+        virtual void OnConversationLineStarted(Conversation* /*conversation*/, uint32 /*lineId*/, Player* /*sender*/) { }
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -1132,6 +1135,7 @@ class TC_GAME_API ScriptMgr
     public: /* ConversationScript */
 
         void OnConversationCreate(Conversation* conversation, Unit* creator);
+        void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender);
 
     public: /* SceneScript */
 

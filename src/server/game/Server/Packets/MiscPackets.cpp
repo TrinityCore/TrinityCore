@@ -722,3 +722,9 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::ConversationLineStarted::Read()
+{
+    _worldPacket >> ConversationGUID;
+    _worldPacket >> LineID;
+}
