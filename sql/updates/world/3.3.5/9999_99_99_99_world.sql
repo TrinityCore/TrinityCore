@@ -33,5 +33,5 @@ INSERT INTO `spell_dbc` (`Id`,`Attributes`,`CastingTimeIndex`,`ProcChance`,`Rang
 (39282,256,1,101,11,-1,90,25,22504,'Warp-Gate South Kill Bunny Credit',1);
 
 -- Fix flags and aura for Unstable Fel-Imp
-UPDATE `creature_template` SET `unit_flags`=0, `unit_flags2`=0, `flags_extra`=64 WHERE `entry`=22474;
+UPDATE `creature_template` SET `unit_flags`=33554688, `unit_flags2`=2048, `flags_extra`=64 WHERE `entry`=22474;
 UPDATE `creature_template_addon` SET `auras`='39227' WHERE `entry`=22474;
