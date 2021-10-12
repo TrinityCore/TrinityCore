@@ -154,10 +154,12 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (1118,1,2,"Destroy!",12,0,100,0,0,0,1915,0,"Rockjaw Backbreaker");
 
 -- Dark Iron Spy
-UPDATE `smart_scripts` SET `id`=`id`+1 WHERE `entryorguid`=6123 AND `source_type`=0 AND `id` IN (1,2);
-DELETE FROM `smart_scripts` WHERE `entryorguid`=6123 AND `source_type`=0 AND `id`=1;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(6123,0,1,0,4,0,20,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Spy - On Aggro - Say Line 0");
+DELETE FROM `smart_scripts` WHERE `entryorguid`=6123 AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(6123,0,0,0,2,0,100,1,0,15,0,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,'Dark Iron Spy - Between 0-15% Health - Flee For Assist (No Repeat)'),
+(6123,0,1,0,4,0,20,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Dark Iron Spy - On Aggro - Say Line 0'),
+(6123,0,2,0,0,0,100,0,3000,4500,11500,17500,0,11,14873,0,0,0,0,0,2,0,0,0,0,0,0,0,'Dark Iron Spy - In Combat - Cast \'Sinister Strike\''),
+(6123,0,3,0,0,0,100,0,8000,11000,27000,32000,0,11,3583,0,0,0,0,0,2,0,0,0,0,0,0,0,'Dark Iron Spy - In Combat - Cast \'Deadly Poison\'');
 
 DELETE FROM `creature_text` WHERE `CreatureID`=6123;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
