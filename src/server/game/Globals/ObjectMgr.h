@@ -1032,7 +1032,22 @@ class TC_GAME_API ObjectMgr
 
         typedef std::unordered_map<uint32, PointOfInterest> PointOfInterestContainer;
 
-        typedef std::vector<std::string> ScriptNameContainer;
+        class ScriptNameContainer
+        {
+            using NameMap = std::map<std::string, uint32>;
+
+            NameMap NameToIndex;
+            std::vector<NameMap::const_iterator> IndexToName;
+
+        public:
+            void reserve(size_t capacity);
+            void insert(std::string&& scriptName);
+            size_t size() const;
+            std::string const& operator[](size_t index) const;
+            uint32 operator[](std::string const& name) const;
+
+            std::unordered_set<std::string> GetAllScriptNames() const;
+        };
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
 
@@ -1588,7 +1603,7 @@ class TC_GAME_API ObjectMgr
         bool IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
-        ScriptNameContainer const& GetAllScriptNames() const;
+        std::unordered_set<std::string> GetAllScriptNames() const;
         std::string const& GetScriptName(uint32 id) const;
         uint32 GetScriptId(std::string const& name);
 

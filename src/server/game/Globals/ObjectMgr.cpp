@@ -9492,13 +9492,60 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, 
     return true;
 }
 
+void ObjectMgr::ScriptNameContainer::reserve(size_t capacity)
+{
+    IndexToName.reserve(capacity);
+}
+
+void ObjectMgr::ScriptNameContainer::insert(std::string&& scriptName)
+{
+    auto insertResult = NameToIndex.insert({ std::move(scriptName), NameToIndex.size() });
+    if (insertResult.second)
+        IndexToName.push_back(insertResult.first);
+}
+
+size_t ObjectMgr::ScriptNameContainer::size() const
+{
+    return IndexToName.size();
+}
+
+std::string const& ObjectMgr::ScriptNameContainer::operator[](size_t index) const
+{
+    static std::string const empty;
+    return index < IndexToName.size() ? IndexToName[index]->first : empty;
+}
+
+uint32 ObjectMgr::ScriptNameContainer::operator[](std::string const& name) const
+{
+    // assume "" is the first element
+    if (name.empty())
+        return 0;
+
+    if (uint32 const* id = Trinity::Containers::MapGetValuePtr(NameToIndex, name))
+        return *id;
+
+    return 0;
+}
+
+std::unordered_set<std::string> ObjectMgr::ScriptNameContainer::GetAllScriptNames() const
+{
+    std::unordered_set<std::string> scriptNames;
+    std::transform(NameToIndex.begin(), NameToIndex.end(), std::inserter(scriptNames, scriptNames.end()),
+        [](std::pair<std::string const, uint32> const& pair)
+    {
+        return pair.first;
+    });
+
+    return scriptNames;
+}
+
 void ObjectMgr::LoadScriptNames()
 {
     uint32 oldMSTime = getMSTime();
 
     // We insert an empty placeholder here so we can use the
     // script id 0 as dummy for "no script found".
-    _scriptNamesStore.emplace_back("");
+    _scriptNamesStore.insert("");
 
     QueryResult result = WorldDatabase.Query(
         "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
@@ -9547,38 +9594,26 @@ void ObjectMgr::LoadScriptNames()
 
     do
     {
-        _scriptNamesStore.push_back((*result)[0].GetString());
+        _scriptNamesStore.insert((*result)[0].GetString());
     }
     while (result->NextRow());
-
-    std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " ScriptNames in %u ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-ObjectMgr::ScriptNameContainer const& ObjectMgr::GetAllScriptNames() const
+std::unordered_set<std::string> ObjectMgr::GetAllScriptNames() const
 {
-    return _scriptNamesStore;
+    return _scriptNamesStore.GetAllScriptNames();
 }
 
 std::string const& ObjectMgr::GetScriptName(uint32 id) const
 {
-    static std::string const empty = "";
-    return (id < _scriptNamesStore.size()) ? _scriptNamesStore[id] : empty;
+    return _scriptNamesStore[id];
 }
 
 uint32 ObjectMgr::GetScriptId(std::string const& name)
 {
-    // use binary search to find the script name in the sorted vector
-    // assume "" is the first element
-    if (name.empty())
-        return 0;
-
-    ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
-    if (itr == _scriptNamesStore.end() || *itr != name)
-        return 0;
-
-    return uint32(itr - _scriptNamesStore.begin());
+    return _scriptNamesStore[name];
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
