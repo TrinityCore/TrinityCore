@@ -24,7 +24,7 @@ UPDATE `creature_template` SET `unit_flags`=256, `unit_flags2`=0, `ScriptName` =
 UPDATE `creature_template` SET `ScriptName` = "npc_deaths_door_warp_gate" WHERE `entry` IN (22471,22472);
 
 -- Unstable Fel-Imp are only spawned during quest
-DELETE FROM creature WHERE id=22474;
+DELETE FROM `creature` WHERE id=22474;
 
 -- Add missing quest credit spells
 DELETE FROM `spell_dbc` WHERE `Id` IN (39281,39282);
