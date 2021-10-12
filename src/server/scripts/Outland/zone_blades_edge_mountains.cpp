@@ -1122,10 +1122,11 @@ struct npc_deaths_door_warp_gate : ScriptedAI
                 summon->DespawnOrUnsummon();
     }
 
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_ARTILLERY_ON_THE_WARP_GATE)
             ++_hitCount;
+
         switch (_hitCount)
         {
         case 1:
