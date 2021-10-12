@@ -1077,8 +1077,6 @@ struct npc_deaths_door_fel_cannon : ScriptedAI
 # npc_deaths_door_warp_gate
 ######*/
 
-
-
 struct npc_deaths_door_warp_gate : ScriptedAI
 {
     npc_deaths_door_warp_gate(Creature* creature) : ScriptedAI(creature)
