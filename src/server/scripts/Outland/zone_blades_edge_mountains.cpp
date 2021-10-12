@@ -1049,10 +1049,13 @@ struct npc_deaths_door_fel_cannon : ScriptedAI
 
         if (Player* player = me->GetCharmerOrOwner()->ToPlayer())
         {
-            if (type == 1 && data == NORTH)
-                player->CastSpell(player, SPELL_WARP_GATE_NORTH_KILL_BUNNY_CREDIT);
-            else if (type == 1 && data == SOUTH)
-                player->CastSpell(player, SPELL_WARP_GATE_SOUTH_KILL_BUNNY_CREDIT);
+            if (type == 1)
+            {
+                if (data == NORTH)
+                    player->CastSpell(player, SPELL_WARP_GATE_NORTH_KILL_BUNNY_CREDIT);
+                else if (data == SOUTH)
+                    player->CastSpell(player, SPELL_WARP_GATE_SOUTH_KILL_BUNNY_CREDIT);
+            }
         }
     }
 
