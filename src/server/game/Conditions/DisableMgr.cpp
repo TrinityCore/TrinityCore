@@ -327,6 +327,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
         }
         case DISABLE_TYPE_MAP:
         case DISABLE_TYPE_LFG_MAP:
+            if (!ref)
+                return true;
             if (Player const* player = ref->ToPlayer())
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
