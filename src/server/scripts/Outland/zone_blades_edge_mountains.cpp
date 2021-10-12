@@ -1129,91 +1129,91 @@ struct npc_deaths_door_warp_gate : ScriptedAI
 
         switch (_hitCount)
         {
-        case 1:
-            // Start spawning after first hit
-            _running = true;
-            _events.ScheduleEvent(EVENT_SPAWN, 4s, 4s);
-            break;
-        case 2:
-            // Add temp damage objects
-            if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
-            {
-                me->SummonGameObject(185317, 2198.4897f, 5474.8267f, 153.578f, 3.0717661f, QuaternionData(0.0f, 0.0f, 0.9993906f, 0.034906134f), 100s);
-                me->SummonGameObject(185318, 2197.9363f, 5474.7460f, 153.578f, 3.0717661f, QuaternionData(0.0f, 0.0f, 0.4461975f, 0.89493454f), 100s);
-            }
-            else
-            {
-                me->SummonGameObject(185317, 1972.7279f, 5327.164f, 153.97116f, 4.4505906f, QuaternionData(0.0f, 0.0f, -0.7933531f, 0.6087617f), 100s);
-                me->SummonGameObject(185318, 1965.8635f, 5316.677f, 154.05159f, 3.0368383f, QuaternionData(0.0f, 0.0f, 0.9986286f, 0.052353222f), 100s);
-            }
-            break;
-        case 4:
-            // Add temp damage objects
-            if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
-            {
-                me->SummonGameObject(185317, 2196.0012f, 5481.5137f, 163.917f, 3.6477413f, QuaternionData(0.0f, 0.0f, -0.9681473f, 0.2503814f), 100s);
-                me->SummonGameObject(185317, 2197.4363f, 5482.3050f, 153.578f, 1.2740883f, QuaternionData(0.0f, 0.0f, 0.59482193f, 0.80385745f), 100s);
-                me->SummonGameObject(185317, 2184.1506f, 5466.7817f, 153.578f, 3.1765332f, QuaternionData(0.0f, 0.0f, -0.9998474f, 0.017469281f), 100s);
-            }
-            else
-            {
-                me->SummonGameObject(185317, 1973.4948f, 5324.799f, 168.2289f, 0.43633157f, QuaternionData(0.0f, 0.0f, 0.21643925f, 0.97629607f), 100s);
-                me->SummonGameObject(185317, 1979.4006f, 5301.2056f, 154.07814f, 4.1713376f, QuaternionData(0.0f, 0.0f, -0.8703556f, 0.4924237f), 100s);
-                me->SummonGameObject(185318, 1982.5284f, 5331.3804f, 153.94067f, 5.742135f, QuaternionData(0.0f, 0.0f, -0.26723766f, 0.9636307f), 100s);
-                me->SummonGameObject(185318, 1996.5634f, 5308.444f, 154.07855f, 3.1590624f, QuaternionData(0.0f, 0.0f, -0.99996185f, 0.008734641f), 100s);
-            }
-            break;
-        case 6:
-            // Add temp damage objects
-            if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
-            {
-                me->SummonGameObject(185317, 2191.7375f, 5490.0728f, 153.578f, 4.5378590f, QuaternionData(0.0f, 0.0f, -0.76604366f, 0.6427886f), 100s);
-                me->SummonGameObject(185317, 2191.8486f, 5489.4440f, 153.578f, 5.9341200f, QuaternionData(0.0f, 0.0f, -0.17364788f, 0.9848078f), 100s);
-                me->SummonGameObject(185317, 2179.1096f, 5472.8433f, 153.578f, 1.5358895f, QuaternionData(0.0f, 0.0f, 0.6946583f, 0.71933985f), 100s);
-            }
-            else
-            {
-                me->SummonGameObject(185317, 1966.9023f, 5317.7563f, 154.04146f, 0.24434558f, QuaternionData(0.0f, 0.0f, 0.12186909f, 0.9925462f), 100s);
-                me->SummonGameObject(185317, 1983.484f, 5331.969f, 153.9547f, 2.1991146f, QuaternionData(0.0f, 0.0f, 0.89100647f, 0.45399064f), 100s);
-                me->SummonGameObject(185317, 1993.6677f, 5324.2227f, 153.98749f, 1.1693686f, QuaternionData(0.0f, 0.0f, 0.55193615f, 0.8338864f), 100s);
-            }
-            break;
-        case 7:
-            // Bunnuy cast Explosion on self after 7 hits
-            if (Creature* bunny = GetClosestCreatureWithEntry(me, NPC_DEATHS_DOOR_WARP_GATE_EXPLOSION_BUNNY, 10.0f))
-                bunny->CastSpell(bunny, SPELL_EXPLOSION);
-
-            // Add temp damage objects
-            if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
-            {
-                me->SummonGameObject(185317, 2191.8987f, 5469.6094f, 153.578f, 1.0821029f, QuaternionData(0.0f, 0.0f, 0.51503754f, 0.8571676f), 100s);
-                me->SummonGameObject(185317, 2176.1740f, 5480.4850f, 153.578f, 2.1293006f, QuaternionData(0.0f, 0.0f, 0.8746195f, 0.48481005f), 100s);
-                me->SummonGameObject(185317, 2179.8990f, 5473.3460f, 156.965f, 4.9567375f, QuaternionData(0.0f, 0.0f, -0.61566067f, 0.7880114f), 100s);
-                me->SummonGameObject(185317, 2196.5095f, 5481.8906f, 156.247f, 1.4311681f, QuaternionData(0.0f, 0.0f, 0.6560583f, 0.7547102f), 100s);
-                me->SummonGameObject(185319, 2188.6553f, 5476.9404f, 155.072f, 1.2391833f, QuaternionData(0.0f, 0.0f, 0.5807028f, 0.81411564f), 100s);
-            }
-            else
-            {
-                me->SummonGameObject(185317, 1971.0684f, 5308.371f, 154.06831f, 1.0995564f, QuaternionData(0.0f, 0.0f, 0.52249813f, 0.85264045f), 100s);
-                me->SummonGameObject(185317, 1973.6345f, 5325.835f, 156.27843f, 5.585054f, QuaternionData(0.0f, 0.0f, -0.34202003f, 0.9396927f), 100s);
-                me->SummonGameObject(185317, 1988.9869f, 5305.6284f, 157.18161f, 5.759588f, QuaternionData(0.0f, 0.0f, -0.25881863f, 0.96592593f), 100s);
-                me->SummonGameObject(185317, 1990.178f, 5303.917f, 154.07854f, 5.358162f, QuaternionData(0.0f, 0.0f, -0.4461975f, 0.89493454f), 100s);
-                me->SummonGameObject(185319, 1982.7994f, 5316.811f, 156.56001f, 3.5255723f, QuaternionData(0.0f, 0.0f, -0.9816265f, 0.19081241f), 100s);
-            }
-
-            if (Creature* cannon = GetClosestCreatureWithEntry(me, NPC_DEATHS_DOOR_FEL_CANNON, 60.0f))
-            {
-                // Let the cannon know which gate to give player credit for
+            case 1:
+                // Start spawning after first hit
+                _running = true;
+                _events.ScheduleEvent(EVENT_SPAWN, 4s, 4s);
+                break;
+            case 2:
+                // Add temp damage objects
                 if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
-                    cannon->AI()->SetData(1, NORTH);
-                else if (me->GetEntry() == NPC_DEATHS_DOOR_SOUTH_WARP_GATE)
-                    cannon->AI()->SetData(1, SOUTH);
-            }
+                {
+                    me->SummonGameObject(185317, 2198.4897f, 5474.8267f, 153.578f, 3.0717661f, QuaternionData(0.0f, 0.0f, 0.9993906f, 0.034906134f), 100s);
+                    me->SummonGameObject(185318, 2197.9363f, 5474.7460f, 153.578f, 3.0717661f, QuaternionData(0.0f, 0.0f, 0.4461975f, 0.89493454f), 100s);
+                }
+                else
+                {
+                    me->SummonGameObject(185317, 1972.7279f, 5327.164f, 153.97116f, 4.4505906f, QuaternionData(0.0f, 0.0f, -0.7933531f, 0.6087617f), 100s);
+                    me->SummonGameObject(185318, 1965.8635f, 5316.677f, 154.05159f, 3.0368383f, QuaternionData(0.0f, 0.0f, 0.9986286f, 0.052353222f), 100s);
+                }
+                break;
+            case 4:
+                // Add temp damage objects
+                if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
+                {
+                    me->SummonGameObject(185317, 2196.0012f, 5481.5137f, 163.917f, 3.6477413f, QuaternionData(0.0f, 0.0f, -0.9681473f, 0.2503814f), 100s);
+                    me->SummonGameObject(185317, 2197.4363f, 5482.3050f, 153.578f, 1.2740883f, QuaternionData(0.0f, 0.0f, 0.59482193f, 0.80385745f), 100s);
+                    me->SummonGameObject(185317, 2184.1506f, 5466.7817f, 153.578f, 3.1765332f, QuaternionData(0.0f, 0.0f, -0.9998474f, 0.017469281f), 100s);
+                }
+                else
+                {
+                    me->SummonGameObject(185317, 1973.4948f, 5324.799f, 168.2289f, 0.43633157f, QuaternionData(0.0f, 0.0f, 0.21643925f, 0.97629607f), 100s);
+                    me->SummonGameObject(185317, 1979.4006f, 5301.2056f, 154.07814f, 4.1713376f, QuaternionData(0.0f, 0.0f, -0.8703556f, 0.4924237f), 100s);
+                    me->SummonGameObject(185318, 1982.5284f, 5331.3804f, 153.94067f, 5.742135f, QuaternionData(0.0f, 0.0f, -0.26723766f, 0.9636307f), 100s);
+                    me->SummonGameObject(185318, 1996.5634f, 5308.444f, 154.07855f, 3.1590624f, QuaternionData(0.0f, 0.0f, -0.99996185f, 0.008734641f), 100s);
+                }
+                break;
+            case 6:
+                // Add temp damage objects
+                if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
+                {
+                    me->SummonGameObject(185317, 2191.7375f, 5490.0728f, 153.578f, 4.5378590f, QuaternionData(0.0f, 0.0f, -0.76604366f, 0.6427886f), 100s);
+                    me->SummonGameObject(185317, 2191.8486f, 5489.4440f, 153.578f, 5.9341200f, QuaternionData(0.0f, 0.0f, -0.17364788f, 0.9848078f), 100s);
+                    me->SummonGameObject(185317, 2179.1096f, 5472.8433f, 153.578f, 1.5358895f, QuaternionData(0.0f, 0.0f, 0.6946583f, 0.71933985f), 100s);
+                }
+                else
+                {
+                    me->SummonGameObject(185317, 1966.9023f, 5317.7563f, 154.04146f, 0.24434558f, QuaternionData(0.0f, 0.0f, 0.12186909f, 0.9925462f), 100s);
+                    me->SummonGameObject(185317, 1983.484f, 5331.969f, 153.9547f, 2.1991146f, QuaternionData(0.0f, 0.0f, 0.89100647f, 0.45399064f), 100s);
+                    me->SummonGameObject(185317, 1993.6677f, 5324.2227f, 153.98749f, 1.1693686f, QuaternionData(0.0f, 0.0f, 0.55193615f, 0.8338864f), 100s);
+                }
+                break;
+            case 7:
+                // Bunnuy cast Explosion on self after 7 hits
+                if (Creature* bunny = GetClosestCreatureWithEntry(me, NPC_DEATHS_DOOR_WARP_GATE_EXPLOSION_BUNNY, 10.0f))
+                    bunny->CastSpell(bunny, SPELL_EXPLOSION);
 
-            ClearAll();
-            break;
-        default:
-            break;
+                // Add temp damage objects
+                if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
+                {
+                    me->SummonGameObject(185317, 2191.8987f, 5469.6094f, 153.578f, 1.0821029f, QuaternionData(0.0f, 0.0f, 0.51503754f, 0.8571676f), 100s);
+                    me->SummonGameObject(185317, 2176.1740f, 5480.4850f, 153.578f, 2.1293006f, QuaternionData(0.0f, 0.0f, 0.8746195f, 0.48481005f), 100s);
+                    me->SummonGameObject(185317, 2179.8990f, 5473.3460f, 156.965f, 4.9567375f, QuaternionData(0.0f, 0.0f, -0.61566067f, 0.7880114f), 100s);
+                    me->SummonGameObject(185317, 2196.5095f, 5481.8906f, 156.247f, 1.4311681f, QuaternionData(0.0f, 0.0f, 0.6560583f, 0.7547102f), 100s);
+                    me->SummonGameObject(185319, 2188.6553f, 5476.9404f, 155.072f, 1.2391833f, QuaternionData(0.0f, 0.0f, 0.5807028f, 0.81411564f), 100s);
+                }
+                else
+                {
+                    me->SummonGameObject(185317, 1971.0684f, 5308.371f, 154.06831f, 1.0995564f, QuaternionData(0.0f, 0.0f, 0.52249813f, 0.85264045f), 100s);
+                    me->SummonGameObject(185317, 1973.6345f, 5325.835f, 156.27843f, 5.585054f, QuaternionData(0.0f, 0.0f, -0.34202003f, 0.9396927f), 100s);
+                    me->SummonGameObject(185317, 1988.9869f, 5305.6284f, 157.18161f, 5.759588f, QuaternionData(0.0f, 0.0f, -0.25881863f, 0.96592593f), 100s);
+                    me->SummonGameObject(185317, 1990.178f, 5303.917f, 154.07854f, 5.358162f, QuaternionData(0.0f, 0.0f, -0.4461975f, 0.89493454f), 100s);
+                    me->SummonGameObject(185319, 1982.7994f, 5316.811f, 156.56001f, 3.5255723f, QuaternionData(0.0f, 0.0f, -0.9816265f, 0.19081241f), 100s);
+                }
+
+                if (Creature* cannon = GetClosestCreatureWithEntry(me, NPC_DEATHS_DOOR_FEL_CANNON, 60.0f))
+                {
+                    // Let the cannon know which gate to give player credit for
+                    if (me->GetEntry() == NPC_DEATHS_DOOR_NORTH_WARP_GATE)
+                        cannon->AI()->SetData(1, NORTH);
+                    else if (me->GetEntry() == NPC_DEATHS_DOOR_SOUTH_WARP_GATE)
+                        cannon->AI()->SetData(1, SOUTH);
+                }
+
+                ClearAll();
+                break;
+            default:
+                break;
         }
     }
 
@@ -1228,14 +1228,14 @@ struct npc_deaths_door_warp_gate : ScriptedAI
         {
             switch (eventId)
             {
-            case EVENT_SPAWN:
-            {
-                me->SummonCreature(NPC_UNSTABLE_FEL_IMP, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3min);
-                _events.ScheduleEvent(EVENT_SPAWN, 4s, 4s);
-                break;
-            }
-            default:
-                break;
+                case EVENT_SPAWN:
+                {
+                    me->SummonCreature(NPC_UNSTABLE_FEL_IMP, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3min);
+                    _events.ScheduleEvent(EVENT_SPAWN, 4s, 4s);
+                    break;
+                }
+                default:
+                    break;
             }
         }
     }
