@@ -2416,6 +2416,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ActivatePvpItemLevels(bool activate) { _usePvpItemLevels = activate; }
         bool IsUsingPvpItemLevels() const { return _usePvpItemLevels; }
 
+        void SendEmote(ObjectGuid guid, uint32 animId, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {});
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
