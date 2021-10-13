@@ -185,6 +185,16 @@ BattlePetBreedQuality BattlePetMgr::GetDefaultPetQuality(uint32 species)
     return BattlePetBreedQuality(itr->second);
 }
 
+uint32 BattlePetMgr::SelectPetDisplay(BattlePetSpeciesEntry const* speciesEntry)
+{
+    if (CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(speciesEntry->CreatureID))
+        if (!speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::RandomDisplay))
+            if (CreatureModel const* creatureModel = creatureTemplate->GetRandomValidModel())
+                return creatureModel->CreatureDisplayID;
+
+    return 0;
+}
+
 BattlePetMgr::BattlePetMgr(WorldSession* owner)
 {
     _owner = owner;
@@ -217,12 +227,13 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(fields[0].GetUInt64());
                 pet.PacketInfo.Species = species;
                 pet.PacketInfo.Breed = fields[2].GetUInt16();
-                pet.PacketInfo.Level = fields[3].GetUInt16();
-                pet.PacketInfo.Exp = fields[4].GetUInt16();
-                pet.PacketInfo.Health = fields[5].GetUInt32();
-                pet.PacketInfo.Quality = fields[6].GetUInt8();
-                pet.PacketInfo.Flags = fields[7].GetUInt16();
-                pet.PacketInfo.Name = fields[8].GetString();
+                pet.PacketInfo.DisplayID = fields[3].GetUInt32();
+                pet.PacketInfo.Level = fields[4].GetUInt16();
+                pet.PacketInfo.Exp = fields[5].GetUInt16();
+                pet.PacketInfo.Health = fields[6].GetUInt32();
+                pet.PacketInfo.Quality = fields[7].GetUInt8();
+                pet.PacketInfo.Flags = fields[8].GetUInt16();
+                pet.PacketInfo.Name = fields[9].GetString();
                 pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
 
                 if (!fields[9].IsNull())
@@ -270,12 +281,13 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt32(1, _owner->GetBattlenetAccountId());
                 stmt->setUInt32(2, itr->second.PacketInfo.Species);
                 stmt->setUInt16(3, itr->second.PacketInfo.Breed);
-                stmt->setUInt16(4, itr->second.PacketInfo.Level);
-                stmt->setUInt16(5, itr->second.PacketInfo.Exp);
-                stmt->setUInt32(6, itr->second.PacketInfo.Health);
-                stmt->setUInt8(7, itr->second.PacketInfo.Quality);
-                stmt->setUInt16(8, itr->second.PacketInfo.Flags);
-                stmt->setString(9, itr->second.PacketInfo.Name);
+                stmt->setUInt32(4, itr->second.PacketInfo.DisplayID);
+                stmt->setUInt16(5, itr->second.PacketInfo.Level);
+                stmt->setUInt16(6, itr->second.PacketInfo.Exp);
+                stmt->setUInt32(7, itr->second.PacketInfo.Health);
+                stmt->setUInt8(8, itr->second.PacketInfo.Quality);
+                stmt->setUInt16(9, itr->second.PacketInfo.Flags);
+                stmt->setString(10, itr->second.PacketInfo.Name);
                 trans->Append(stmt);
 
                 if (itr->second.DeclinedName)
@@ -360,7 +372,7 @@ BattlePetMgr::BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
     return Trinity::Containers::MapGetValuePtr(_pets, guid.GetCounter());
 }
 
-void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, BattlePetBreedQuality quality, uint16 level /*= 1*/)
+void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePetBreedQuality quality, uint16 level /*= 1*/)
 {
     BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(species);
     if (!battlePetSpecies) // should never happen
@@ -372,7 +384,8 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, Battl
     BattlePet pet;
     pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
     pet.PacketInfo.Species = species;
-    pet.PacketInfo.CreatureID = creatureId;
+    pet.PacketInfo.CreatureID = battlePetSpecies->CreatureID;
+    pet.PacketInfo.DisplayID = display;
     pet.PacketInfo.Level = level;
     pet.PacketInfo.Exp = 0;
     pet.PacketInfo.Flags = 0;
@@ -520,7 +533,7 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     item->SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, pet->PacketInfo.Species);
     item->SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, pet->PacketInfo.Breed | (pet->PacketInfo.Quality << 24));
     item->SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, pet->PacketInfo.Level);
-    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, pet->PacketInfo.CreatureID);
+    item->SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, pet->PacketInfo.DisplayID);
 
     _owner->GetPlayer()->SendNewItem(item, 1, true, false);
 
@@ -565,8 +578,6 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
     _owner->GetPlayer()->SetSummonedBattlePetGUID(guid);
     _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(pet->PacketInfo.Quality);
     _owner->GetPlayer()->CastSpell(_owner->GetPlayer(), speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
-
-    // TODO: set pet level, quality... update fields
 }
 
 void BattlePetMgr::DismissPet()

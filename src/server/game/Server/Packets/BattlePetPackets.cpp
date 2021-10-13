@@ -33,7 +33,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     data << pet.Guid;
     data << uint32(pet.Species);
     data << uint32(pet.CreatureID);
-    data << uint32(pet.CollarID);
+    data << uint32(pet.DisplayID);
     data << uint16(pet.Breed);
     data << uint16(pet.Level);
     data << uint16(pet.Exp);
@@ -45,7 +45,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     data << uint8(pet.Quality);
     data.WriteBits(pet.Name.size(), 7);
     data.WriteBit(pet.OwnerInfo.is_initialized());
-    data.WriteBit(pet.Name.empty()); // NoRename
+    data.WriteBit(false); // NoRename
     data.FlushBits();
 
     data.WriteString(pet.Name);

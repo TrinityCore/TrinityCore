@@ -650,8 +650,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
     //            {
     //                *data << ObjectGuid(Players[i].Pets[j].BattlePetGUID);
     //                *data << int32(Players[i].Pets[j].SpeciesID);
+    //                *data << int32(Players[i].Pets[j].CreatureID);
     //                *data << int32(Players[i].Pets[j].DisplayID);
-    //                *data << int32(Players[i].Pets[j].CollarID);
     //                *data << int16(Players[i].Pets[j].Level);
     //                *data << int16(Players[i].Pets[j].Xp);
     //                *data << int32(Players[i].Pets[j].CurHealth);
