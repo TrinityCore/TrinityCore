@@ -259,7 +259,7 @@ void CreatureGroup::MemberEngagingTarget(Creature* member, Unit* target)
     _engaging = false;
 }
 
-void CreatureGroup::FormationReset()
+void CreatureGroup::FormationReset(bool /*dismiss*/)
 {
     for (auto const& pair : _members)
     {
