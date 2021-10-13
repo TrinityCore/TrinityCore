@@ -2357,6 +2357,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
         void SendBindPointUpdate() const;
+        void SendPlayerBound(ObjectGuid const& binderGuid, uint32 areaId) const;
 
         // Homebind coordinates
         uint32 m_homebindMapId;
