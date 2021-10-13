@@ -28885,16 +28885,3 @@ bool Player::CanEnableWarModeInArea() const
 
     return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
 }
-
-void Player::SendEmote(ObjectGuid guid, uint32 animId, Trinity::IteratorPair<int32 const*> spellVisualKitIds /*= {}*/)
-{
-    WorldPackets::Chat::Emote packet;
-    packet.Guid = guid;
-    packet.EmoteID = animId;
-
-    if (EmotesEntry const* emotesEntry = sEmotesStore.LookupEntry(animId))
-        if (emotesEntry->AnimID == ANIM_MOUNT_SPECIAL || emotesEntry->AnimID == ANIM_MOUNT_SELF_SPECIAL)
-            std::copy(spellVisualKitIds.begin(), spellVisualKitIds.end(), std::back_inserter(packet.SpellVisualKitIDs));
-
-    SendDirectMessage(packet.Write());
-}
