@@ -792,6 +792,14 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::SpellVisualLoadScreen::Write()
+{
+    _worldPacket << int32(SpellVisualKitID);
+    _worldPacket << int32(Delay);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Spells::CancelCast::Read()
 {
     _worldPacket >> CastID;

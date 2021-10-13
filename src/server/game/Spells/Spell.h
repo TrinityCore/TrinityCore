@@ -247,6 +247,7 @@ class TC_GAME_API Spell
         void EffectInstaKill();
         void EffectDummy();
         void EffectTeleportUnits();
+        void EffectTeleportUnitsWithVisualLoadingScreen();
         void EffectApplyAura();
         void EffectSendEvent();
         void EffectPowerBurn();
