@@ -907,3 +907,51 @@ bool InstanceHasScript(WorldObject const* obj, char const* scriptName)
 
     return false;
 }
+
+/*void InstanceScript::DoTeleportPlayers(uint32 mapId, Position pos)
+{
+    DoOnPlayers([pos, mapId](Player* player)
+        {
+            player->TeleportTo(mapId, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+        });
+}
+*/
+/*void InstanceScript::GetScenarioByID(Player* p_Player, uint32 p_ScenarioId)
+{
+    InstanceMap* map = instance->ToInstanceMap();
+
+    if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenarioByID(map, p_ScenarioId))
+    {
+        TC_LOG_ERROR("scripts", "GetScenarioByID CreateInstanceScenario %s", "");
+        map->SetInstanceScenario(instanceScenario);
+    }
+    else
+        TC_LOG_DEBUG("scripts", "InstanceScript: GetScenarioByID failed");
+}*/
+
+/*void InstanceScript::DoSendScenarioEvent(uint32 eventId)
+{
+    DoOnPlayers([eventId](Player* player)
+        {
+            player->GetScenario()->SendScenarioEvent(player, eventId);
+            return;
+        });
+}*/
+
+/*void InstanceScript::DoNearTeleportPlayers(const Position pos, bool casting /*=false)
+{
+    DoOnPlayers([pos, casting](Player* player)
+        {
+            player->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), casting);
+        });
+}*/
+/*void InstanceScript::DoOnPlayers(std::function<void(Player*)>&& function)
+{
+    Map::PlayerList const& plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* player = i->GetSource())
+                function(player);
+}
+*/

@@ -290,7 +290,19 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void ResetCombatResurrections();
         uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
         uint32 GetCombatResurrectionChargeInterval() const;
+        //void GetScenarioByID(Player* p_Player, uint32 p_ScenarioId);
+        //void DoOnPlayers(std::function<void(Player*)>&& function);
+        //void DoNearTeleportPlayers(const Position pos, bool /*casting*/);
+        //void DoTeleportPlayers(uint32 mapId, const Position pos);
+        //Thordekk
+        void AddTimedDelayedOperation(uint32 timeout, std::function<void()>&& function)
+        {
+            emptyWarned = false;
+            timedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(timeout, function));
+        }
 
+        std::vector<std::pair<int32, std::function<void()>>>    timedDelayedOperations;   ///< Delayed operations
+        bool                                                    emptyWarned;              ///< Warning when there are no more delayed operations
     protected:
         void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }

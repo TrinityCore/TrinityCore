@@ -764,7 +764,7 @@ class boss_flame_leviathan_overload_device : public CreatureScript
             {
             }
 
-            void OnSpellClick(Unit* /*clicker*/, bool spellClickHandled) override
+            void OnSpellClick(Unit* /*clicker*/, bool spellClickHandled)
             {
                 if (!spellClickHandled)
                     return;

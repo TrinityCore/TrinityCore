@@ -26,6 +26,7 @@
 #include "Timer.h"
 #include "UnitDefines.h"
 #include "Util.h"
+#include "TaskScheduler.h"
 #include <boost/container/flat_set.hpp>
 #include <array>
 #include <map>
@@ -766,10 +767,11 @@ class TC_GAME_API Unit : public WorldObject
 
         UnitAI* GetAI() { return i_AI; }
         void SetAI(UnitAI* newAI) { i_AI = newAI; }
-
+        TaskScheduler& GetScheduler() { return _scheduler; }
+        TaskScheduler _scheduler;
         void AddToWorld() override;
         void RemoveFromWorld() override;
-
+        void DestroyForPlayer(Player* target) const override;
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
 
@@ -1847,7 +1849,6 @@ class TC_GAME_API Unit : public WorldObject
             UF::UnitData::Mask const& requestedUnitMask, Player const* target) const;
 
     protected:
-        void DestroyForPlayer(Player* target) const override;
         void ClearUpdateMask(bool remove) override;
 
         UnitAI* i_AI, *i_disabledAI;
@@ -1950,7 +1951,6 @@ class TC_GAME_API Unit : public WorldObject
         void SetRooted(bool apply, bool packetOnly = false);
 
         uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
-
     private:
 
         uint32 m_state;                                     // Even derived shouldn't modify

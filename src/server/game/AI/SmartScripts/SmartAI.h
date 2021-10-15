@@ -186,7 +186,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         }
         void StartDespawn() { mDespawnState = 2; }
 
-        void OnSpellClick(Unit* clicker, bool spellClickHandled) override;
+        void OnSpellClick(Unit* clicker, bool spellClickHandled);
 
         void SetWPPauseTimer(uint32 time) { _waypointPauseTimer = time; }
 

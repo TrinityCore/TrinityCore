@@ -50,7 +50,7 @@ public:
             lasherClicked = false;
         }
 
-        void OnSpellClick(Unit* clicker, bool spellClickHandled) override
+        void OnSpellClick(Unit* clicker, bool spellClickHandled)
         {
             if (!spellClickHandled)
                 return;

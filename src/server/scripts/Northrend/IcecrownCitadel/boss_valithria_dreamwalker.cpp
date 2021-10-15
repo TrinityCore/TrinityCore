@@ -1036,7 +1036,7 @@ class npc_dream_portal : public CreatureScript
             {
             }
 
-            void OnSpellClick(Unit* /*clicker*/, bool spellClickHandled) override
+            void OnSpellClick(Unit* /*clicker*/, bool spellClickHandled)
             {
                 if (!spellClickHandled)
                     return;

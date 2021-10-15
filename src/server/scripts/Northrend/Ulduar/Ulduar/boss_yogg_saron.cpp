@@ -1436,7 +1436,7 @@ class npc_descend_into_madness : public CreatureScript
         {
             npc_descend_into_madnessAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void OnSpellClick(Unit* clicker, bool spellClickHandled) override
+            void OnSpellClick(Unit* clicker, bool spellClickHandled)
             {
                 if (!spellClickHandled)
                     return;
