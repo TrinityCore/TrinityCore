@@ -116,13 +116,14 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
 
     if (hasDeclinedNames)
     {
+        DeclinedName.emplace();
         uint8 declinedNameLengths[MAX_DECLINED_NAME_CASES];
 
-        for (uint8 i = 0; i < 5; ++i)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             declinedNameLengths[i] = _worldPacket.ReadBits(7);
 
-        for (uint8 i = 0; i < 5; ++i)
-            Declined.name[i] = _worldPacket.ReadString(declinedNameLengths[i]);
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            DeclinedName->name[i] = _worldPacket.ReadString(declinedNameLengths[i]);
     }
 
     Name = _worldPacket.ReadString(nameLength);

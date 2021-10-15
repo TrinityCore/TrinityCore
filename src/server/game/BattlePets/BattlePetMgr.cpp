@@ -224,9 +224,17 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 pet.PacketInfo.Flags = fields[7].GetUInt16();
                 pet.PacketInfo.Name = fields[8].GetString();
                 pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
+
+                if (!fields[9].IsNull())
+                {
+                    pet.DeclinedName.reset(new DeclinedName);
+                    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                        pet.DeclinedName->name[i] = fields[9 + i].GetString();
+                }
+
                 pet.SaveInfo = BATTLE_PET_UNCHANGED;
                 pet.CalculateStats();
-                _pets[pet.PacketInfo.Guid.GetCounter()] = pet;
+                _pets[pet.PacketInfo.Guid.GetCounter()] = std::move(pet);
             }
         } while (pets->NextRow());
     }
@@ -269,6 +277,18 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt16(8, itr->second.PacketInfo.Flags);
                 stmt->setString(9, itr->second.PacketInfo.Name);
                 trans->Append(stmt);
+
+                if (itr->second.DeclinedName)
+                {
+                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BATTLE_PET_DECLINED_NAME);
+                    stmt->setUInt64(0, itr->first);
+
+                    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
+                        stmt->setString(i + 1, itr->second.DeclinedName->name[i]);
+
+                    trans->Append(stmt);
+                }
+
                 itr->second.SaveInfo = BATTLE_PET_UNCHANGED;
                 ++itr;
                 break;
@@ -283,14 +303,35 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt32(6, _owner->GetBattlenetAccountId());
                 stmt->setUInt64(7, itr->first);
                 trans->Append(stmt);
+
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BATTLE_PET_DECLINED_NAME);
+                stmt->setUInt64(0, itr->first);
+                trans->Append(stmt);
+
+                if (itr->second.DeclinedName)
+                {
+                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BATTLE_PET_DECLINED_NAME);
+                    stmt->setUInt64(0, itr->first);
+
+                    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
+                        stmt->setString(i + 1, itr->second.DeclinedName->name[i]);
+
+                    trans->Append(stmt);
+                }
+
                 itr->second.SaveInfo = BATTLE_PET_UNCHANGED;
                 ++itr;
                 break;
             case BATTLE_PET_REMOVED:
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BATTLE_PET_DECLINED_NAME);
+                stmt->setUInt64(0, itr->first);
+                trans->Append(stmt);
+
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BATTLE_PETS);
                 stmt->setUInt32(0, _owner->GetBattlenetAccountId());
                 stmt->setUInt64(1, itr->first);
                 trans->Append(stmt);
+
                 itr = _pets.erase(itr);
                 break;
             default:
@@ -342,7 +383,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, Battl
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
     pet.SaveInfo = BATTLE_PET_NEW;
 
-    _pets[pet.PacketInfo.Guid.GetCounter()] = pet;
+    _pets[pet.PacketInfo.Guid.GetCounter()] = std::move(pet);
 
     std::vector<std::reference_wrapper<BattlePet>> updates;
     updates.push_back(std::ref(pet));
@@ -372,6 +413,22 @@ void BattlePetMgr::ClearFanfare(ObjectGuid guid)
         return;
 
     pet->PacketInfo.Flags &= ~uint16(BattlePetDbFlags::FanfareNeeded);
+
+    if (pet->SaveInfo != BATTLE_PET_NEW)
+        pet->SaveInfo = BATTLE_PET_CHANGED;
+}
+
+void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName)
+{
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    pet->PacketInfo.Name = name;
+
+    pet->DeclinedName.reset();
+    if (declinedName)
+        pet->DeclinedName = std::make_unique<DeclinedName>(*declinedName);
 
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
