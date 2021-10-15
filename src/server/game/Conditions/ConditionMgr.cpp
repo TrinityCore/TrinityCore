@@ -1728,7 +1728,21 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                         break;
                 }
 
-                TC_LOG_ERROR("sql.sql", "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, __CHAIN__ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(spellEffectInfo.EffectIndex));
+                switch (spellEffectInfo.Effect)
+                {
+                    case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+                        continue;
+                    default:
+                        break;
+                }
+
+                TC_LOG_ERROR("sql.sql", "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, __CHAIN__ or is not SPELL_EFFECT_PERSISTENT_AREA_AURA or SPELL_EFFECT_APPLY_AREA_AURA_* for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(spellEffectInfo.EffectIndex));
                 cond->SourceGroup &= ~(1 << spellEffectInfo.EffectIndex);
             }
             // all effects were removed, no need to add the condition at all

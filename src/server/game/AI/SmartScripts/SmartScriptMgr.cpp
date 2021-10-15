@@ -1433,6 +1433,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled event_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
         }
+
+        // Additional check for deprecated
+        switch (e.GetEventType())
+        {
+            // Deprecated
+            case SMART_EVENT_EVENT_PHASE_CHANGE:
+            case SMART_EVENT_WAYPOINT_START:
+            case SMART_EVENT_CHARMED_TARGET:
+                TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated event_type(%u), Entry %d SourceType %u Event %u Action %u, it might be removed in the future, loaded for now.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                break;
+            default:
+                break;
+        }
     }
 
     if (!CheckUnusedEventParams(e))
