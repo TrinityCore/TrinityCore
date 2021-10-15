@@ -54,7 +54,7 @@ namespace Battlenet
         template<class Service>
         void AddService()
         {
-            _dispatchers[Service::NameHash::value] = &WorldserverServiceDispatcher::Dispatch<Service>;
+            _dispatchers[Service::OriginalHash::value] = &WorldserverServiceDispatcher::Dispatch<Service>;
         }
 
         template<class Service>
