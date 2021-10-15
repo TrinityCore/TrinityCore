@@ -7663,6 +7663,23 @@ CREATE TABLE `spell_reagents` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `spell_reagents_currency`
+--
+
+DROP TABLE IF EXISTS `spell_reagents_currency`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spell_reagents_currency` (
+  `ID` int(10) unsigned NOT NULL DEFAULT '0',
+  `SpellID` int(11) NOT NULL DEFAULT '0',
+  `CurrencyTypesID` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `CurrencyCount` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `spell_scaling`
 --
 
@@ -8799,4 +8816,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-18 15:14:20
+-- Dump completed on 2021-10-15 10:11:51
