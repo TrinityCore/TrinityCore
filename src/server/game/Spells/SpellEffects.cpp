@@ -2138,10 +2138,22 @@ void Spell::EffectLearnSpell()
 
     Player* player = unitTarget->ToPlayer();
 
-    uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : effectInfo->TriggerSpell;
-    player->LearnSpell(spellToLearn, false);
+    if (m_CastItem && !effectInfo->TriggerSpell)
+    {
+        for (ItemEffectEntry const* itemEffect : m_CastItem->GetEffects())
+        {
+            if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                continue;
 
-    TC_LOG_DEBUG("spells", "Spell: %s has learned spell %u from %s", player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
+            player->LearnSpell(itemEffect->SpellID, false);
+        }
+    }
+
+    if (effectInfo->TriggerSpell)
+    {
+        player->LearnSpell(effectInfo->TriggerSpell, false);
+        TC_LOG_DEBUG("spells", "Spell: %s has learned spell %u from %s", player->GetGUID().ToString().c_str(), effectInfo->TriggerSpell, m_caster->GetGUID().ToString().c_str());
+    }
 }
 
 void Spell::EffectDispel()
