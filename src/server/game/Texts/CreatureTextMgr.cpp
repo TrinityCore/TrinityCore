@@ -112,7 +112,7 @@ void CreatureTextMgr::LoadCreatureTexts()
             }
         }
 
-        if (temp.TextRange > TEXT_RANGE_WORLD)
+        if (temp.TextRange > TEXT_RANGE_PERSONAL)
         {
             TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u, Id %u in table `creature_text` has incorrect TextRange %u.", temp.creatureId, temp.groupId, temp.id, temp.TextRange);
             temp.TextRange = TEXT_RANGE_NORMAL;
@@ -333,6 +333,12 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
                         player->SendDirectMessage(data);
             return;
         }
+        case TEXT_RANGE_PERSONAL:
+            if (!whisperTarget || !whisperTarget->IsPlayer())
+                return;
+            
+            whisperTarget->ToPlayer()->SendDirectMessage(data);
+            return;
         case TEXT_RANGE_NORMAL:
         default:
             break;
