@@ -303,8 +303,8 @@ enum AuraType : uint32
     SPELL_AURA_ARENA_PREPARATION                            = 215,
     SPELL_AURA_HASTE_SPELLS                                 = 216,
     SPELL_AURA_MOD_MELEE_HASTE_2                            = 217,
-    SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL              = 218,  // NYI
-    SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL             = 219,  // NYI
+    SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL              = 218,
+    SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL             = 219,
     SPELL_AURA_MOD_ABILITY_SCHOOL_MASK                      = 220,  // NYI
     SPELL_AURA_MOD_DETAUNT                                  = 221,
     SPELL_AURA_REMOVE_TRANSMOG_COST                         = 222,

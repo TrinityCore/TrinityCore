@@ -1729,9 +1729,22 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
     if (!affectSpell)
         return false;
 
-    // TEMP: dont use IsAffected - !familyName and !familyFlags are not valid options for spell mods
-    // TODO: investigate if the !familyName and !familyFlags conditions are even valid for all other (nonmod) uses of SpellInfo::IsAffected
-    return affectSpell->SpellFamilyName == SpellFamilyName && mod->mask & SpellFamilyFlags;
+    switch (mod->type)
+    {
+        case SPELLMOD_FLAT:
+        case SPELLMOD_PCT:
+            // TEMP: dont use IsAffected - !familyName and !familyFlags are not valid options for spell mods
+            // TODO: investigate if the !familyName and !familyFlags conditions are even valid for all other (nonmod) uses of SpellInfo::IsAffected
+            return affectSpell->SpellFamilyName == SpellFamilyName && static_cast<SpellModifierByClassMask const*>(mod)->mask & SpellFamilyFlags;
+        case SPELLMOD_LABEL_FLAT:
+            return HasLabel(static_cast<SpellFlatModifierByLabel const*>(mod)->value.LabelID);
+        case SPELLMOD_LABEL_PCT:
+            return HasLabel(static_cast<SpellPctModifierByLabel const*>(mod)->value.LabelID);
+        default:
+            break;
+    }
+
+    return false;
 }
 
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const

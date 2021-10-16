@@ -729,13 +729,14 @@ public:
         {
             if (!spellMod)
             {
-                spellMod = new SpellModifier(GetAura());
-                spellMod->op = SpellModOp::PeriodicHealingAndDamage;
-                spellMod->type = SPELLMOD_FLAT;
-                spellMod->spellId = GetId();
-                spellMod->mask = aurEff->GetSpellEffectInfo().SpellClassMask;
+                SpellModifierByClassMask* mod = new SpellModifierByClassMask(GetAura());
+                mod->op = SpellModOp::PeriodicHealingAndDamage;
+                mod->type = SPELLMOD_FLAT;
+                mod->spellId = GetId();
+                mod->mask = aurEff->GetSpellEffectInfo().SpellClassMask;
+                spellMod = mod;
             }
-            spellMod->value = aurEff->GetAmount() / 7;
+            static_cast<SpellModifierByClassMask*>(spellMod)->value = aurEff->GetAmount() / 7;
         }
 
         void Register() override

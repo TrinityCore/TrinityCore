@@ -22283,7 +22283,7 @@ void Player::SendRemoveControlBar() const
     SendDirectMessage(packet.Write());
 }
 
-bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell)
+bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier const* mod, Spell* spell)
 {
     if (!mod || !spellInfo)
         return false;
@@ -22326,10 +22326,25 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (base < T(10000) && mod->value <= -100)
+                if (base < T(10000) && static_cast<SpellModifierByClassMask*>(mod)->value <= -100)
                 {
                     modInstantSpell = mod;
                     break;
+                }
+            }
+
+            if (!modInstantSpell)
+            {
+                for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_PCT])
+                {
+                    if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                        continue;
+
+                    if (base < T(10000) && static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue <= -1.0f)
+                    {
+                        modInstantSpell = mod;
+                        break;
+                    }
                 }
             }
 
@@ -22350,10 +22365,25 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (mod->value >= 100)
+                if (static_cast<SpellModifierByClassMask*>(mod)->value >= 100)
                 {
                     modCritical = mod;
                     break;
+                }
+            }
+
+            if (!modCritical)
+            {
+                for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_FLAT])
+                {
+                    if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+                        continue;
+
+                    if (static_cast<SpellFlatModifierByLabel*>(mod)->value.ModifierValue >= 100)
+                    {
+                        modCritical = mod;
+                        break;
+                    }
                 }
             }
 
@@ -22374,7 +22404,16 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
-        *flat += mod->value;
+        *flat += static_cast<SpellModifierByClassMask*>(mod)->value;
+        Player::ApplyModToSpell(mod, spell);
+    }
+
+    for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_FLAT])
+    {
+        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+            continue;
+
+        *flat += static_cast<SpellFlatModifierByLabel*>(mod)->value.ModifierValue;
         Player::ApplyModToSpell(mod, spell);
     }
 
@@ -22390,11 +22429,31 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         // special case (skip > 10sec spell casts for instant cast setting)
         if (op == SpellModOp::ChangeCastTime)
         {
-            if (base >= T(10000) && mod->value <= -100)
+            if (base >= T(10000) && static_cast<SpellModifierByClassMask*>(mod)->value <= -100)
                 continue;
         }
 
-        *pct *= 1.0f + CalculatePct(1.0f, mod->value);
+        *pct *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask*>(mod)->value);
+        Player::ApplyModToSpell(mod, spell);
+    }
+
+    for (SpellModifier* mod : m_spellMods[AsUnderlyingType(op)][SPELLMOD_LABEL_PCT])
+    {
+        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+            continue;
+
+        // skip percent mods for null basevalue (most important for spell mods with charges)
+        if (base + *flat == T(0))
+            continue;
+
+        // special case (skip > 10sec spell casts for instant cast setting)
+        if (op == SpellModOp::ChangeCastTime)
+        {
+            if (base >= T(10000) && static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue <= -1.0f)
+                continue;
+        }
+
+        *pct *= static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue;
         Player::ApplyModToSpell(mod, spell);
     }
 }
@@ -22429,48 +22488,84 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         m_spellMods[AsUnderlyingType(mod->op)][mod->type].erase(mod);
 
     /// Now, send spellmodifier packet
-    if (!IsLoading())
+    switch (mod->type)
     {
-        OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
-
-        WorldPackets::Spells::SetSpellModifier packet(opcode);
-
-        /// @todo Implement sending of bulk modifiers instead of single
-        packet.Modifiers.resize(1);
-        WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
-
-        spellMod.ModIndex = AsUnderlyingType(mod->op);
-
-        for (int eff = 0; eff < 128; ++eff)
-        {
-            flag128 mask;
-            mask[eff / 32] = 1u << (eff % 32);
-            if (mod->mask & mask)
+        case SPELLMOD_FLAT:
+        case SPELLMOD_PCT:
+            if (!IsLoading())
             {
-                WorldPackets::Spells::SpellModifierData modData;
+                OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
-                if (mod->type == SPELLMOD_FLAT)
+                WorldPackets::Spells::SetSpellModifier packet(opcode);
+
+                /// @todo Implement sending of bulk modifiers instead of single
+                packet.Modifiers.resize(1);
+                WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
+
+                spellMod.ModIndex = AsUnderlyingType(mod->op);
+
+                for (int eff = 0; eff < 128; ++eff)
                 {
-                    modData.ModifierValue = 0.0f;
-                    for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_FLAT])
-                        if (spellMod->mask & mask)
-                            modData.ModifierValue += spellMod->value;
-                }
-                else
-                {
-                    modData.ModifierValue = 1.0f;
-                    for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_PCT])
-                        if (spellMod->mask & mask)
-                            modData.ModifierValue *= 1.0f + CalculatePct(1.0f, spellMod->value);
+                    flag128 mask;
+                    mask[eff / 32] = 1u << (eff % 32);
+                    if (static_cast<SpellModifierByClassMask const*>(mod)->mask & mask)
+                    {
+                        WorldPackets::Spells::SpellModifierData modData;
+
+                        if (mod->type == SPELLMOD_FLAT)
+                        {
+                            modData.ModifierValue = 0.0f;
+                            for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_FLAT])
+                                if (static_cast<SpellModifierByClassMask const*>(spellMod)->mask & mask)
+                                    modData.ModifierValue += static_cast<SpellModifierByClassMask const*>(spellMod)->value;
+                        }
+                        else
+                        {
+                            modData.ModifierValue = 1.0f;
+                            for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_PCT])
+                                if (static_cast<SpellModifierByClassMask const*>(spellMod)->mask & mask)
+                                    modData.ModifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(spellMod)->value);
+                        }
+
+                        modData.ClassIndex = eff;
+
+                        spellMod.ModifierData.push_back(modData);
+                    }
                 }
 
-                modData.ClassIndex = eff;
-
-                spellMod.ModifierData.push_back(modData);
+                SendDirectMessage(packet.Write());
             }
-        }
-
-        SendDirectMessage(packet.Write());
+            break;
+        case SPELLMOD_LABEL_FLAT:
+            if (apply)
+            {
+                AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                    .ModifyValue(&UF::ActivePlayerData::SpellFlatModByLabel)) = static_cast<SpellFlatModifierByLabel const*>(mod)->value;
+            }
+            else
+            {
+                int32 firstIndex = m_activePlayerData->SpellFlatModByLabel.FindIndex(static_cast<SpellFlatModifierByLabel const*>(mod)->value);
+                if (firstIndex >= 0)
+                    RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                        .ModifyValue(&UF::ActivePlayerData::SpellFlatModByLabel), firstIndex);
+            }
+            break;
+        case SPELLMOD_LABEL_PCT:
+            if (apply)
+            {
+                AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                    .ModifyValue(&UF::ActivePlayerData::SpellPctModByLabel)) = static_cast<SpellPctModifierByLabel const*>(mod)->value;
+            }
+            else
+            {
+                int32 firstIndex = m_activePlayerData->SpellPctModByLabel.FindIndex(static_cast<SpellPctModifierByLabel const*>(mod)->value);
+                if (firstIndex >= 0)
+                    RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+                        .ModifyValue(&UF::ActivePlayerData::SpellPctModByLabel), firstIndex);
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -22520,12 +22615,12 @@ void Player::SendSpellModifiers() const
             pctMod.ModifierData[j].ModifierValue = 1.0f;
 
             for (SpellModifier* mod : m_spellMods[i][SPELLMOD_FLAT])
-                if (mod->mask & mask)
-                    flatMod.ModifierData[j].ModifierValue += mod->value;
+                if (static_cast<SpellModifierByClassMask const*>(mod)->mask & mask)
+                    flatMod.ModifierData[j].ModifierValue += static_cast<SpellModifierByClassMask const*>(mod)->value;
 
             for (SpellModifier* mod : m_spellMods[i][SPELLMOD_PCT])
-                if (mod->mask & mask)
-                    pctMod.ModifierData[j].ModifierValue *= 1.0f + CalculatePct(1.0f, mod->value);
+                if (static_cast<SpellModifierByClassMask const*>(mod)->mask & mask)
+                    pctMod.ModifierData[j].ModifierValue *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask const*>(mod)->value);
         }
 
         flatMod.ModifierData.erase(std::remove_if(flatMod.ModifierData.begin(), flatMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
