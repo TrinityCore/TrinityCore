@@ -336,6 +336,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
         case TEXT_RANGE_PERSONAL:
             if (!whisperTarget || !whisperTarget->IsPlayer())
                 return;
+            
             whisperTarget->ToPlayer()->SendDirectMessage(data);
             return;
         case TEXT_RANGE_NORMAL:
