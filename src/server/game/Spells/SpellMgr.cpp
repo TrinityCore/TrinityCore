@@ -2533,7 +2533,7 @@ void SpellMgr::LoadSpellInfoStore()
         loadData[{ interrupts->SpellID, Difficulty(interrupts->DifficultyID) }].Interrupts = interrupts;
 
     for (SpellLabelEntry const* label : sSpellLabelStore)
-        loadData[{ label->LabelID, DIFFICULTY_NONE }].Labels.push_back(label);
+        loadData[{ label->SpellID, DIFFICULTY_NONE }].Labels.push_back(label);
 
     for (SpellLevelsEntry const* levels : sSpellLevelsStore)
         loadData[{ levels->SpellID, Difficulty(levels->DifficultyID) }].Levels = levels;
