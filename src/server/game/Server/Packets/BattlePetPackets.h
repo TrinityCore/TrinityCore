@@ -39,7 +39,7 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint32 Species = 0;
             uint32 CreatureID = 0;
-            uint32 CollarID = 0;
+            uint32 DisplayID = 0;
             uint16 Breed = 0;
             uint16 Level = 0;
             uint16 Exp = 0;

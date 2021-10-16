@@ -3120,7 +3120,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         if (entry->SummonSpellID == int32(spellId) && GetSession()->GetBattlePetMgr()->GetPetCount(entry->ID) == 0)
         {
-            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+            GetSession()->GetBattlePetMgr()->AddPet(entry->ID, BattlePetMgr::SelectPetDisplay(entry), BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
             UpdateCriteria(CriteriaType::UniquePetsOwned);
             break;
         }

@@ -743,9 +743,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Source;
-            ObjectGuid Target; // Exclusive with TargetPosition
+            ObjectGuid Target;
             ObjectGuid Transport; // Used when Target = Empty && (SpellVisual::Flags & 0x400) == 0
-            TaggedPosition<Position::XYZ> TargetPosition; // Exclusive with Target
+            TaggedPosition<Position::XYZ> TargetPosition; // Overrides missile destination for SpellVisual::SpellVisualMissileSetID
             uint32 SpellVisualID = 0;
             float TravelSpeed = 0.0f;
             uint16 HitReason = 0;

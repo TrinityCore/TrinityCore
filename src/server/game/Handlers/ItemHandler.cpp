@@ -1208,7 +1208,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
 
     if (BattlePetSpeciesEntry const* entry = sSpellMgr->GetBattlePetSpecies(uint32(spellToLearn)))
     {
-        GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+        GetBattlePetMgr()->AddPet(entry->ID, BattlePetMgr::SelectPetDisplay(entry), BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
         _player->UpdateCriteria(CriteriaType::UniquePetsOwned);
     }
 
