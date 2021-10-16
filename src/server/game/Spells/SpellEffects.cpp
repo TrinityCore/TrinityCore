@@ -2146,6 +2146,9 @@ void Spell::EffectLearnSpell()
                 continue;
 
             player->LearnSpell(itemEffect->SpellID, false);
+
+            if (BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(uint32(itemEffect->SpellID)))
+                player->GetSession()->GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
         }
     }
 
@@ -5713,8 +5716,9 @@ void Spell::EffectUncageBattlePet()
 
     battlePetMgr->AddPet(speciesId, displayId, breed, BattlePetBreedQuality(quality), level);
 
-    if (!plr->HasSpell(speciesEntry->SummonSpellID))
-        plr->LearnSpell(speciesEntry->SummonSpellID, false);
+    if (speciesEntry->SummonSpellID)
+        if (!plr->HasSpell(speciesEntry->SummonSpellID))
+            plr->LearnSpell(speciesEntry->SummonSpellID, false);
 
     plr->SendPlaySpellVisual(plr, SPELL_VISUAL_UNCAGE_PET, 0, 0, 0.f, false);
 
