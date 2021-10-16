@@ -236,11 +236,11 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 pet.PacketInfo.Name = fields[9].GetString();
                 pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
 
-                if (!fields[9].IsNull())
+                if (!fields[10].IsNull())
                 {
                     pet.DeclinedName.reset(new DeclinedName);
                     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                        pet.DeclinedName->name[i] = fields[9 + i].GetString();
+                        pet.DeclinedName->name[i] = fields[10 + i].GetString();
                 }
 
                 pet.SaveInfo = BATTLE_PET_UNCHANGED;
