@@ -392,7 +392,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_FAKE_INEBRIATE                           = 304,
     SPELL_AURA_MOD_MINIMUM_SPEED                            = 305,
     SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER                   = 306,
-    SPELL_AURA_CAST_WHILE_WALKING_BY_SPELL_LABEL            = 307,  // NYI
+    SPELL_AURA_CAST_WHILE_WALKING_BY_SPELL_LABEL            = 307,
     SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER_WITH_ABILITIES    = 308,
     SPELL_AURA_MOD_RESILIENCE                               = 309,  // NYI
     SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE            = 310,
@@ -462,7 +462,7 @@ enum AuraType : uint32
     SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,  // NYI
     SPELL_AURA_HIDE_MODEL_AND_EQUIPEMENT_SLOTS              = 375,
     SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE                = 376,  // NYI
-    SPELL_AURA_CAST_WHILE_WALKING_2                         = 377,  // NYI
+    SPELL_AURA_CAST_WHILE_WALKING_ALL                       = 377,  // Enables casting all spells while moving
     SPELL_AURA_MOD_POSSESS_PET                              = 378,
     SPELL_AURA_MOD_MANA_REGEN_PCT                           = 379,
     SPELL_AURA_380                                          = 380,
