@@ -402,6 +402,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     updates.push_back(std::ref(pet));
     SendUpdates(std::move(updates), true);
 
+    _owner->GetPlayer()->UpdateCriteria(CriteriaType::UniquePetsOwned);
     _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnedNewPet, species);
 }
 
