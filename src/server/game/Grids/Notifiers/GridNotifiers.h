@@ -888,7 +888,7 @@ namespace Trinity
                 Player* player = nullptr;
                 if (u->GetTypeId() == TYPEID_PLAYER)
                     player = u->ToPlayer();
-                if (u->IsPet())
+                else if (u->IsPet())
                     player = u->GetOwner()->ToPlayer();
 
                 if (!player)
