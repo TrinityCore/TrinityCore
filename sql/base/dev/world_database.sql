@@ -360,6 +360,7 @@ CREATE TABLE `creature_addon` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MountCreatureID` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` int(10) unsigned NOT NULL DEFAULT '0',
@@ -482,6 +483,21 @@ CREATE TABLE `creature_model_info` (
   `DisplayID_Other_Gender` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`DisplayID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Creature System (Model related info)';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `creature_movement_info`
+--
+
+DROP TABLE IF EXISTS `creature_movement_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_movement_info` (
+  `MovementID` int(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template.movementId value',
+  `WalkSpeed` float unsigned DEFAULT NULL,
+  `RunSpeed` float unsigned DEFAULT NULL,
+  PRIMARY KEY (`MovementID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -674,6 +690,7 @@ CREATE TABLE `creature_template_addon` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MountCreatureID` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -4044,4 +4061,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-28 20:48:13
+-- Dump completed on 2021-10-15  8:43:44
