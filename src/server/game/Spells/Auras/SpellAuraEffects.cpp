@@ -5762,7 +5762,12 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
         {
             float radius = GetSpellEffectInfo().CalcRadius(caster);
 
-            if (Unit* triggerTarget = target->GetNextRandomRaidMemberOrPet(radius))
+            Unit* triggerTarget = nullptr;
+            Trinity::MostHPMissingGroupInRange u_check(target, radius, 0);
+            Trinity::UnitLastSearcher<Trinity::MostHPMissingGroupInRange> searcher(target, triggerTarget, u_check);
+            Cell::VisitAllObjects(target, searcher, radius);
+
+            if (triggerTarget)
             {
                 target->CastSpell(triggerTarget, GetId(), args);
                 if (Aura* aura = triggerTarget->GetAura(GetId(), GetCasterGUID()))
