@@ -1480,7 +1480,7 @@ struct npc_counselor_talbot : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* /*killer*/) override
     {
         if (me->IsSummon())
             if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
