@@ -895,10 +895,13 @@ struct go_mammoth_trap : public GameObjectAI
                     _events.ScheduleEvent(EVENT_MAMMOTH_RESPAWN, 120s);
                     break;
                 case EVENT_MAMMOTH_RESPAWN:
-                    if (Creature* mammoth = me->FindNearestCreature(NPC_TRAPPED_MAMMOTH, 1.0f, true))
+                {
+                    Creature* mammoth = me->FindNearestCreature(NPC_TRAPPED_MAMMOTH, 1.0f, true);
+                    if (mammoth)
                         Reset();
                     else
                         _events.ScheduleEvent(EVENT_MAMMOTH_RESPAWN, 2s);
+                }
                     break;
                 default:
                     break;
