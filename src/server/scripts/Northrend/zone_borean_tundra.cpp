@@ -785,7 +785,6 @@ private:
     ObjectGuid _goFurGUID;
     ObjectGuid _playerGUID;
     ObjectGuid _trapperGUID;
-
 };
 
 /*######
@@ -1385,7 +1384,6 @@ struct npc_thassarian : public CreatureAI
         bool _leryssaInPosition;
         bool _talbotJustDied;
 };
-
 
 // NPC 25250: General Arlos
 struct npc_general_arlos : public ScriptedAI
