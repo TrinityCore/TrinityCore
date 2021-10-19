@@ -2223,31 +2223,31 @@ void World::SetInitialWorldSettings()
         });
     }
 
-    Position vehicle1(2812.3342f, 7051.673f, 0.12631302f, 4.73480987548828125f); // just hardcode from sniff
+    Position vehicle1(2810.8567f, 7038.6357f, 5.0758133f, 4.73480987548828125f); // just hardcode from sniff
     Position exitGlobal1(2807.8577f, 7038.5713f, 7.0758133f, 4.73480987548828125f); // taken from sniff
     Position offset1;
     vehicle1.GetPositionOffsetTo(exitGlobal1, offset1); // now print offset however you want
     TC_LOG_ERROR("server.loading", "32576 Seat: 4 (2730) %s", offset1.ToString().c_str());
 
-    Position vehicle2(2812.3342f, 7051.673f, 0.12631302f, 4.73480987548828125f); // just hardcode from sniff
+    Position vehicle2(2816.163f, 7046.7896f, 1.362013f, 4.73480987548828125f); // just hardcode from sniff
     Position exitGlobal2(2801.1677f, 7046.4683f, 5.362013f, 4.73480987548828125f); // taken from sniff
     Position offset2;
     vehicle2.GetPositionOffsetTo(exitGlobal2, offset2); // now print offset however you want
     TC_LOG_ERROR("server.loading", "32577 Seat: 2 (2728) %s", offset2.ToString().c_str());
 
-    Position vehicle3(2812.3342f, 7051.673f, 0.12631302f, 4.73480987548828125f); // just hardcode from sniff
+    Position vehicle3(2808.7278f, 7046.6226f, 1.362013f, 4.73480987548828125f); // just hardcode from sniff
     Position exitGlobal3(2803.7292f, 7046.5156f, 5.362013f, 4.73480987548828125f); // taken from sniff
     Position offset3;
     vehicle3.GetPositionOffsetTo(exitGlobal3, offset3); // now print offset however you want
     TC_LOG_ERROR("server.loading", "32578 Seat: 3 (2729) %s", offset3.ToString().c_str());
 
-    Position vehicle4(2812.3342f, 7051.673f, 0.12631302f, 4.73480987548828125f); // just hardcode from sniff
+    Position vehicle4(2816.475f, 7051.7007f, 1.362913f, 4.73480987548828125f); // just hardcode from sniff
     Position exitGlobal4(2801.4797f, 7051.3794f, 5.362913f, 4.73480987548828125f); // taken from sniff
     Position offset4;
     vehicle4.GetPositionOffsetTo(exitGlobal4, offset4); // now print offset however you want
     TC_LOG_ERROR("server.loading", "32579 Seat: 1 (2727) %s", offset4.ToString().c_str());
 
-    Position vehicle5(2812.3342f, 7051.673f, 0.12631302f, 4.73480987548828125f); // just hardcode from sniff
+    Position vehicle5(2808.3171f, 7051.5176f, 1.362913f, 4.73480987548828125f); // just hardcode from sniff
     Position exitGlobal5(2803.3186f, 7051.4106f, 5.362913f, 4.73480987548828125f); // taken from sniff
     Position offset5;
     vehicle5.GetPositionOffsetTo(exitGlobal5, offset5); // now print offset however you want
