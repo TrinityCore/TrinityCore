@@ -1914,7 +1914,6 @@ void AddSC_borean_tundra()
     new spell_windsoul_totem_aura();
     new spell_q11719_bloodspore_ruination_45997();
     new npc_bloodmage_laurith();
-    new npc_orabus_the_helmsman_ship_exit_pos();
     RegisterSpellScript(spell_q11653_shortening_blaster);
     RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest);
     RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest_dummy);
