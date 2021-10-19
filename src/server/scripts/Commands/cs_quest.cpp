@@ -249,6 +249,12 @@ public:
                     player->ModifyMoney(obj.Amount);
                     break;
                 }
+                case QUEST_OBJECTIVE_PLAYERKILLS:
+                {
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        player->KilledPlayerCredit(ObjectGuid::Empty);
+                    break;
+                }
             }
         }
 
