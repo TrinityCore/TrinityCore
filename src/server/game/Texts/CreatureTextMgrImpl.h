@@ -147,7 +147,7 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
             if (!whisperTarget || !whisperTarget->IsPlayer())
                 return;
 
-            localizer(whisperTarget->ToPlayer());
+            localizer(const_cast<Player*>whisperTarget->ToPlayer());
             return;
         case TEXT_RANGE_NORMAL:
         default:
