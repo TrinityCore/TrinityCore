@@ -17,6 +17,28 @@ set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 # Set projectname (must be done AFTER setting configurationtypes)
 project(TrinityCore)
 
+#tswow-begin add tswow sources
+get_filename_component(
+  TSWOW_CORE_MAIN_INCLUDE ${CMAKE_SOURCE_DIR}/../tswow-core ABSOLUTE
+)
+get_filename_component(
+  TSWOW_CORE_PRIVATE ${CMAKE_SOURCE_DIR}/../tswow-core/Scripting/Private ABSOLUTE
+)
+get_filename_component(
+  TSWOW_CORE_PUBLIC ${CMAKE_SOURCE_DIR}/../tswow-core/Scripting/Public ABSOLUTE
+)
+
+SET(TSWOW_INCLUDES
+  ${TSWOW_CORE_MAIN_INCLUDE}
+  ${TSWOW_CORE_PRIVATE}
+  ${TSWOW_CORE_PUBLIC}
+)
+
+FILE(GLOB_RECURSE TSWOW_SOURCES
+    ${CMAKE_SOURCE_DIR}/../tswow-core/*
+)
+#tswow-end
+
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 NEW)
 if(CMAKE_VERSION VERSION_LESS "3.16.0")

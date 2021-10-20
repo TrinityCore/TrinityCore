@@ -14,10 +14,6 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-# tswow-begin
-add_subdirectory(${CMAKE_SOURCE_DIR}/../tswow-core ${CMAKE_BUILD_DIRECTORY}/tswow-core)
-# tswow-end
-
 if(USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/gamePCH.h)
 endif()
