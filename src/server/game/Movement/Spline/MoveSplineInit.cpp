@@ -110,9 +110,10 @@ namespace Movement
 
         if (!args.HasVelocity)
             args.velocity = unit->GetSpeed(SelectSpeedType(moveFlags));
-            if (Creature* creature = unit->ToCreature())
-                if (creature->HasSearchedAssistance())
-                    args.velocity *= 0.66f;
+
+        if (Creature* creature = unit->ToCreature())
+            if (creature->HasSearchedAssistance())
+                args.velocity *= 0.66f;
 
         // limit the speed in the same way the client does
         args.velocity = std::min(args.velocity, args.flags.catmullrom || args.flags.flying ? 50.0f : std::max(28.0f, unit->GetSpeed(MOVE_RUN) * 4.0f));
