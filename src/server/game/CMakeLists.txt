@@ -69,6 +69,12 @@ FetchContent_Populate (json)
 endif()
 add_subdirectory (${json_SOURCE_DIR} ${json_BINARY_DIR})
 
+FILE(GLOB TSWOW_PUBLIC ${TSWOW_CORE_PUBLIC}/*)
+FILE(GLOB TSWOW_PRIVATE ${TSWOW_CORE_PRIVATE}/*)
+source_group("tswow-public" FILES ${TSWOW_PUBLIC})
+source_group("tswow-private" FILES ${TSWOW_PRIVATE})
+
+
 # tswow-end
 
 target_link_libraries(game

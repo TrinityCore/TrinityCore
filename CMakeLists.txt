@@ -19,17 +19,13 @@ project(TrinityCore)
 
 #tswow-begin add tswow sources
 get_filename_component(
-  TSWOW_CORE_MAIN_INCLUDE ${CMAKE_SOURCE_DIR}/../tswow-core ABSOLUTE
+  TSWOW_CORE_PRIVATE ${CMAKE_SOURCE_DIR}/../tswow-core/Private ABSOLUTE
 )
 get_filename_component(
-  TSWOW_CORE_PRIVATE ${CMAKE_SOURCE_DIR}/../tswow-core/Scripting/Private ABSOLUTE
-)
-get_filename_component(
-  TSWOW_CORE_PUBLIC ${CMAKE_SOURCE_DIR}/../tswow-core/Scripting/Public ABSOLUTE
+  TSWOW_CORE_PUBLIC ${CMAKE_SOURCE_DIR}/../tswow-core/Public ABSOLUTE
 )
 
 SET(TSWOW_INCLUDES
-  ${TSWOW_CORE_MAIN_INCLUDE}
   ${TSWOW_CORE_PRIVATE}
   ${TSWOW_CORE_PUBLIC}
 )
