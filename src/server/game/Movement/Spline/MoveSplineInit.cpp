@@ -103,21 +103,16 @@ namespace Movement
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
 
-        if (!args.HasVelocity)
-        {
-            // If spline is initialized with SetWalk method it only means we need to select
-            // walk move speed for it but not add walk flag to unit
-            uint32 moveFlagsForSpeed = moveFlags;
-            if (args.walk)
-                moveFlagsForSpeed |= MOVEMENTFLAG_WALKING;
-            else
-                moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
+        if (args.walk)
+            moveFlags |= MOVEMENTFLAG_WALKING;
+        else
+            moveFlags &= ~MOVEMENTFLAG_WALKING;
 
-            args.velocity = unit->GetSpeed(SelectSpeedType(moveFlagsForSpeed));
+        if (!args.HasVelocity)
+            args.velocity = unit->GetSpeed(SelectSpeedType(moveFlags));
             if (Creature* creature = unit->ToCreature())
                 if (creature->HasSearchedAssistance())
                     args.velocity *= 0.66f;
-        }
 
         // limit the speed in the same way the client does
         args.velocity = std::min(args.velocity, args.flags.catmullrom || args.flags.flying ? 50.0f : std::max(28.0f, unit->GetSpeed(MOVE_RUN) * 4.0f));
