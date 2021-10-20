@@ -14,6 +14,10 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
+# tswow-begin
+add_subdirectory(${CMAKE_SOURCE_DIR}/../tswow-core ${CMAKE_BUILD_DIRECTORY}/tswow-core)
+# tswow-end
+
 if(USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/gamePCH.h)
 endif()
@@ -42,11 +46,19 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_SOURCES})
+  ${PRIVATE_SOURCES}
+  # tswow-begin
+  ${TSWOW_SOURCES}
+  # tswow-end
+  )
 
 target_include_directories(game
   PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
+    ${CMAKE_CURRENT_BINARY_DIR}
+    # tswow-begin
+    ${TSWOW_INCLUDES}
+    # tswow-end
+    )
 
 #tswow-begin
 include(FetchContent)
@@ -60,6 +72,7 @@ message (STATUS "Installing json.hpp...")
 FetchContent_Populate (json)
 endif()
 add_subdirectory (${json_SOURCE_DIR} ${json_BINARY_DIR})
+
 # tswow-end
 
 target_link_libraries(game
