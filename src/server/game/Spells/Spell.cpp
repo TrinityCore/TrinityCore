@@ -3357,15 +3357,8 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     }
 
     // Creatures focus their target when possible
-    if (m_casttime && m_caster->IsCreature() && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
-    {
-        // Channeled spells and some triggered spells do not focus a cast target. They face their target later on via channel object guid and via spell attribute or not at all
-        bool const focusTarget = !m_spellInfo->IsChanneled() && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING);
-        if (focusTarget && m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-            m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
-        else
-            m_caster->ToCreature()->SetSpellFocus(this, nullptr);
-    }
+    if (m_casttime && m_caster->IsCreature() && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
+        m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
 
     // set timer base at cast time
     ReSetTimer();
@@ -3658,6 +3651,10 @@ void Spell::_cast(bool skipCheck)
             TakeReagents();
     }
 
+    if (!m_spellInfo->IsChanneled())
+        if (Creature* creatureCaster = m_caster->ToCreature())
+            creatureCaster->ReleaseSpellFocus(this);
+
     // CAST SPELL
     SendSpellCooldown();
 
@@ -3667,10 +3664,6 @@ void Spell::_cast(bool skipCheck)
 
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
-
-    if (!m_spellInfo->IsChanneled())
-        if (Creature* creatureCaster = m_caster->ToCreature())
-            creatureCaster->ReleaseSpellFocus(this);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4))
@@ -4893,7 +4886,14 @@ void Spell::SendChannelUpdate(uint32 time)
 
 void Spell::SendChannelStart(uint32 duration)
 {
-    ObjectGuid channelTarget = m_targets.HasDst() ? m_caster->GetGUID() : m_targets.GetObjectTargetGUID();
+    ObjectGuid channelTarget = [&]()
+    {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR1_SELF_CHANNELED))
+            return m_caster->GetGUID();
+
+        return  m_targets.GetObjectTargetGUID();
+    }();
+
     if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
     {
         // this is for TARGET_SELECT_CATEGORY_NEARBY

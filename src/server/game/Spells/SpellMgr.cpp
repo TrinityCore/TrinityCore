@@ -4848,7 +4848,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Spore Cloud
     ApplySpellFix({ 75701 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED;
     });
 
     // Noxious Spores
@@ -4921,7 +4921,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Gaze of Occu'thar
     ApplySpellFix({ 96942, 101009 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED;
     });
 
     // Meteor Slash
@@ -5173,7 +5173,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Nurture
     ApplySpellFix({ 85425 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_SELF_CHANNELED;
     });
 
     // Soothing Breeze

@@ -343,11 +343,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid guid) override;
         void ReacquireSpellFocusTarget();
-        void DoNotReacquireSpellFocusTarget();
         void SetSpellFocus(Spell const* focusSpell, WorldObject const* target);
         bool HasSpellFocus(Spell const* focusSpell = nullptr) const override;
         void ReleaseSpellFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
-        void ResetSpellFocusReacquisition() { _spellFocusInfo.delay = 0; }
+        void ResetSpellFocusInfo() { _spellFocusInfo.Reset(); }
 
         bool IsMovementPreventedByCasting() const override;
 
@@ -452,14 +451,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_triggerJustAppeared;
         bool m_respawnCompatibilityMode;
 
-        /* Spell focus system */
-        struct
-        {
-            Spell const* spell = nullptr;
-            uint32 delay = 0;         // ms until the creature's target should snap back (0 = no snapback scheduled)
-            ObjectGuid target;        // the creature's "real" target while casting
-            float orientation = 0.0f; // the creature's "real" orientation while casting
-        } _spellFocusInfo;
+        // Spell Focusing
+        CreatureSpellFocusData _spellFocusInfo;
 
         CreatureTextRepeatGroup m_textRepeat;
 

@@ -1447,7 +1447,7 @@ bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 
 bool SpellInfo::IsChanneled() const
 {
-    return HasAttribute(SpellAttr1(SPELL_ATTR1_CHANNELED_1 | SPELL_ATTR1_CHANNELED_2));
+    return HasAttribute(SpellAttr1(SPELL_ATTR1_CHANNELED | SPELL_ATTR1_SELF_CHANNELED));
 }
 
 bool SpellInfo::IsMoveAllowedChannel() const

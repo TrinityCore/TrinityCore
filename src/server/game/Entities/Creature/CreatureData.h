@@ -28,6 +28,7 @@
 #include <vector>
 #include <cmath>
 
+class Spell;
 class WorldPacket;
 struct ItemTemplate;
 enum class VisibilityDistanceType : uint8;
@@ -394,5 +395,19 @@ struct CreatureMovementInfo
     bool HasWalkSpeedOverriden = false;
 };
 
+struct CreatureSpellFocusData
+{
+    Spell const* FocusSpell = nullptr;
+    ObjectGuid OriginalUnitTarget;
+    uint32 ReacquiringTargetDelay = 0;
+    float OriginalOrientation = 0.f;
+
+public:
+    void Reset()
+    {
+        FocusSpell = nullptr;
+        ReacquiringTargetDelay = 0;
+    }
+};
 
 #endif // CreatureData_h__
