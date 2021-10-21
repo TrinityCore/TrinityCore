@@ -347,6 +347,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetSpellFocus(Spell const* focusSpell, WorldObject const* target);
         bool HasSpellFocus(Spell const* focusSpell = nullptr) const override;
         void ReleaseSpellFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
+        void ResetSpellFocusReacquisition() { _spellFocusInfo.delay = 0; }
 
         bool IsMovementPreventedByCasting() const override;
 
