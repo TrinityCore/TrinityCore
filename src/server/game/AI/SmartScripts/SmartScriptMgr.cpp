@@ -2193,6 +2193,24 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             return false;
     }
 
+    // Additional check for deprecated
+    switch (e.GetActionType())
+    {
+        // Deprecated
+        case SMART_ACTION_SET_SWIM:
+        case SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT:
+        case SMART_ACTION_RESET_SCRIPT_BASE_OBJECT:
+        case SMART_ACTION_SET_CAN_FLY:
+        case SMART_ACTION_REMOVE_AURAS_BY_TYPE:
+        case SMART_ACTION_SET_SIGHT_DIST:
+        case SMART_ACTION_FLEE:
+        case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
+            TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated action_type(%u), Entry %d SourceType %u Event %u, it might be removed in the future, loaded for now.", e.GetActionType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
+            break;
+        default:
+            break;
+    }
+
     if (!CheckUnusedActionParams(e))
         return false;
 
