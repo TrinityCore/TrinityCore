@@ -1128,6 +1128,10 @@ class TC_GAME_API WorldSession
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
 
+        // @tswow-begin
+        void HandleCustom(WorldPacket& recvPacket);
+        // @tswow-end
+
     public:
         QueryCallbackProcessor& GetQueryProcessor() { return _queryProcessor; }
         TransactionCallback& AddTransactionCallback(TransactionCallback&& callback);

@@ -21,17 +21,26 @@ project(TrinityCore)
 get_filename_component(
   TSWOW_CORE_PRIVATE ${CMAKE_SOURCE_DIR}/../tswow-core/Private ABSOLUTE
 )
+
 get_filename_component(
   TSWOW_CORE_PUBLIC ${CMAKE_SOURCE_DIR}/../tswow-core/Public ABSOLUTE
+)
+
+get_filename_component(
+  TSWOW_MESSAGES_INCLUDES ${CMAKE_SOURCE_DIR}/../ClientExtensions/CustomPackets ABSOLUTE
 )
 
 SET(TSWOW_INCLUDES
   ${TSWOW_CORE_PRIVATE}
   ${TSWOW_CORE_PUBLIC}
+  ${TSWOW_MESSAGES_INCLUDES}
 )
 
 FILE(GLOB_RECURSE TSWOW_SOURCES
-    ${CMAKE_SOURCE_DIR}/../tswow-core/*
+    ${TSWOW_CORE_PRIVATE}/*
+    ${TSWOW_CORE_PUBLIC}/*
+    ${TSWOW_MESSAGES_INCLUDES}/*.h
+    ${TSWOW_MESSAGES_INCLUDES}/*.cpp
 )
 #tswow-end
 

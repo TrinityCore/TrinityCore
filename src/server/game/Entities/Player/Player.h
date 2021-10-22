@@ -18,6 +18,9 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+// @tswow-begin
+#include "TSCustomPacket.h"
+// @tswow-end
 #include "GridObject.h"
 #include "Unit.h"
 #include "DatabaseEnvFwd.h"
@@ -906,6 +909,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     public:
         // @tswow-begin
         TSMessageBuffer m_message_buffer;
+        TSServerBuffer m_msg_buffer;
         void ApplyAutolearnSpells(uint32 fromLevel);
         // @tswow-end
         explicit Player(WorldSession* session);

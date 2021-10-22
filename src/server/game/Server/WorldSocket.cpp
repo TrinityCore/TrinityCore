@@ -691,3 +691,11 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
     SendPacketAndLogOpcode(packet);
     return true;
 }
+
+// @tswow-begin
+bool ClientPktHeader::IsValidSize() const {
+    // @tswow-begin
+    return size >= 4;
+    // @tswow-end
+}
+// @tswow-end

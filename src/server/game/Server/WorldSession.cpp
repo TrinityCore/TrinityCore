@@ -19,6 +19,11 @@
     \ingroup u2w
 */
 
+// @tswow-begin
+#include "TSPlayer.h"
+#include "TSEvents.h"
+#include "TSCustomPacket.h"
+// @tswow-end
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "AddonMgr.h"
@@ -1701,3 +1706,12 @@ bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
 
     return true;
 }
+
+// @tswow-begin
+void WorldSession::HandleCustom(WorldPacket& packet)
+{
+    TSPlayer(GetPlayer())->SendBroadcastMessage(JSTR("Received message fragment:"+std::to_string(packet.size())));
+    GetPlayer()->m_msg_buffer
+        .ReceivePacket(packet.size(),(char*)packet.contents());
+}
+// @tswow-end

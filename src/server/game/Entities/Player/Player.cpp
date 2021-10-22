@@ -187,6 +187,7 @@ uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::
 Player::Player(WorldSession* session): Unit(true)
 // @tswow-begin
 , m_message_buffer(TSPlayer(this))
+, m_msg_buffer(TSPlayer(this))
 // @tswow-end
 {
     m_speakTime = 0;
@@ -14444,7 +14445,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 {
                     // @tswow-begin (Using Rochet2/Multitrainer)
                     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(itr->second.ActionMenuID ? itr->second.ActionMenuID : creature->GetEntry());
-                    // @tswow-end 
+                    // @tswow-end
                     if (!trainer || !trainer->IsTrainerValidForPlayer(this))
                     {
                         TC_LOG_ERROR("sql.sql", "GOSSIP_OPTION_TRAINER:: Player %s %s requested wrong gossip menu: %u at Creature: %s (Entry: %u)",
