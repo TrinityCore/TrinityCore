@@ -34,6 +34,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "CreatureAIFactory.h"
 #include "CreatureGroups.h"
 #include "DB2Stores.h"
 #include "Formulas.h"
@@ -9181,9 +9182,9 @@ void Unit::UpdateCharmAI()
                 {
                     i_disabledAI = i_AI;
                     if (isPossessed() || IsVehicle())
-                        i_AI = new PossessedAI(ToCreature());
+                        i_AI = ASSERT_NOTNULL(sCreatureAIRegistry->GetRegistryItem("PossessedAI"))->Create(ToCreature());
                     else
-                        i_AI = new PetAI(ToCreature());
+                        i_AI = ASSERT_NOTNULL(sCreatureAIRegistry->GetRegistryItem("PetAI"))->Create(ToCreature());
                 }
             }
             break;

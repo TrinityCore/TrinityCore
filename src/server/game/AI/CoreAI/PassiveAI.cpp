@@ -18,9 +18,9 @@
 #include "PassiveAI.h"
 #include "Creature.h"
 
-PassiveAI::PassiveAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-PossessedAI::PossessedAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-NullCreatureAI::NullCreatureAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+PassiveAI::PassiveAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId) { me->SetReactState(REACT_PASSIVE); }
+PossessedAI::PossessedAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId) { me->SetReactState(REACT_PASSIVE); }
+NullCreatureAI::NullCreatureAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId) { me->SetReactState(REACT_PASSIVE); }
 
 int32 NullCreatureAI::Permissible(Creature const* creature)
 {

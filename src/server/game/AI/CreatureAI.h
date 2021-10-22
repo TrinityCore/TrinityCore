@@ -67,9 +67,12 @@ class TC_GAME_API CreatureAI : public UnitAI
             EVADE_REASON_OTHER
         };
 
-        explicit CreatureAI(Creature* creature);
+        explicit CreatureAI(Creature* creature, uint32 scriptId = {});
 
         virtual ~CreatureAI();
+
+        // Gets the id of the AI (script id)
+        uint32 GetId() const { return _scriptId; }
 
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
 
@@ -230,6 +233,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool _negateBoundary;
 
     private:
+        uint32 const _scriptId;
+
         bool m_MoveInLineOfSight_locked;
         void _OnOwnerCombatInteraction(Unit* target);
 };

@@ -33,11 +33,19 @@ enum class QuestGiverStatus : uint32;
 
 class TC_GAME_API GameObjectAI
 {
+    private:
+        // Script Id
+        uint32 const _scriptId;
+
     protected:
         GameObject* const me;
+
     public:
-        explicit GameObjectAI(GameObject* g) : me(g) { }
+        explicit GameObjectAI(GameObject* g, uint32 scriptId = {});
         virtual ~GameObjectAI() { }
+
+        // Gets the id of the AI (script id)
+        uint32 GetId() const { return _scriptId; }
 
         virtual void UpdateAI(uint32 /*diff*/) { }
 
@@ -99,7 +107,7 @@ class TC_GAME_API GameObjectAI
 class TC_GAME_API NullGameObjectAI : public GameObjectAI
 {
     public:
-        explicit NullGameObjectAI(GameObject* g);
+        using GameObjectAI::GameObjectAI;
 
         void UpdateAI(uint32 /*diff*/) override { }
 

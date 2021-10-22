@@ -116,7 +116,9 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
     }
 }
 
-ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
+ScriptedAI::ScriptedAI(Creature* creature) : ScriptedAI(creature, creature->GetScriptId()) { }
+
+ScriptedAI::ScriptedAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId),
     IsFleeing(false),
     _isCombatMovementAllowed(true)
 {

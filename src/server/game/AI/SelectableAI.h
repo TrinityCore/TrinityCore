@@ -27,12 +27,19 @@ class DBPermit
         virtual bool IsScriptNameAllowedInDB() const = 0;
 };
 
-template <class O, class AI, bool is_db_allowed = true>
+template <class O, class AI>
 struct SelectableAI : public FactoryHolder<AI, O>, public Permissible<O>, public DBPermit
 {
-    SelectableAI(std::string const& name) : FactoryHolder<AI, O>(name), Permissible<O>(), DBPermit() { }
+    SelectableAI(std::string const& name, uint32 scriptId, bool isDBAllowed)
+        : FactoryHolder<AI, O>(name), Permissible<O>(), DBPermit(), _scriptId(scriptId), _isDBAllowed(isDBAllowed) { }
 
-    bool IsScriptNameAllowedInDB() const final override { return is_db_allowed; }
+    bool IsScriptNameAllowedInDB() const final override { return _isDBAllowed; }
+
+    uint32 GetScriptId() const { return _scriptId; }
+
+private:
+    uint32 _scriptId;
+    bool _isDBAllowed;
 };
 
 

@@ -25,6 +25,7 @@
 #include "ReactorAI.h"
 #include "SmartAI.h"
 #include "TotemAI.h"
+#include "ObjectMgr.h"
 
 #include "MovementGenerator.h"
 
@@ -37,6 +38,7 @@ namespace AIRegistry
         (new CreatureAIFactory<AggressorAI>("AggressorAI"))->RegisterSelf();
         (new CreatureAIFactory<ReactorAI>("ReactorAI"))->RegisterSelf();
         (new CreatureAIFactory<PassiveAI>("PassiveAI"))->RegisterSelf();
+        (new CreatureAIFactory<PossessedAI, false>("PossessedAI"))->RegisterSelf();
         (new CreatureAIFactory<CritterAI>("CritterAI"))->RegisterSelf();
         (new CreatureAIFactory<GuardAI>("GuardAI"))->RegisterSelf();
         (new CreatureAIFactory<PetAI, false>("PetAI"))->RegisterSelf();
@@ -54,5 +56,7 @@ namespace AIRegistry
         (new IdleMovementFactory())->RegisterSelf();
         (new RandomMovementFactory())->RegisterSelf();
         (new WaypointMovementFactory())->RegisterSelf();
+
+        (void)sObjectMgr->GetScriptId("NullAreaTriggerAI", false);
     }
 }

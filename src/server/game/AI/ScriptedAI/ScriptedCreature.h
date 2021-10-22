@@ -134,6 +134,7 @@ class TC_GAME_API DummyEntryCheckPredicate
 struct TC_GAME_API ScriptedAI : public CreatureAI
 {
     explicit ScriptedAI(Creature* creature);
+    explicit ScriptedAI(Creature* creature, uint32 scriptId);
     virtual ~ScriptedAI() { }
 
     // *************

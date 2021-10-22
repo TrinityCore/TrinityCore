@@ -786,6 +786,7 @@ enum RBACPermissions
     // 878-879 previously used, do not reuse
     RBAC_PERM_COMMAND_PDUMP_COPY                             = 880,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPT_NAMES              = 882,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
     //

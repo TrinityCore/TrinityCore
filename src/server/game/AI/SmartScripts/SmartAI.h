@@ -44,7 +44,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
         ~SmartAI() { }
-        explicit SmartAI(Creature* c);
+        explicit SmartAI(Creature* c, uint32 scriptId = {});
 
         // core related
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
@@ -247,7 +247,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
+        SmartGameObjectAI(GameObject* g, uint32 scriptId = {}) : GameObjectAI(g, scriptId), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;

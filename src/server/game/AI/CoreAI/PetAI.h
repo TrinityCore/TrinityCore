@@ -30,7 +30,7 @@ class TC_GAME_API PetAI : public CreatureAI
 {
     public:
 
-        explicit PetAI(Creature* c);
+        explicit PetAI(Creature* c, uint32 scriptId = {});
 
         void UpdateAI(uint32) override;
         static int32 Permissible(Creature const* creature);

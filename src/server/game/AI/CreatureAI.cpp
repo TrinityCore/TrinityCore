@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
+#include "Errors.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
@@ -48,8 +49,11 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
     return Trinity::Containers::MapGetValuePtr(UnitAI::AISpellInfo, { spellId, difficulty });
 }
 
-CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false)
+CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
+    : UnitAI(creature), me(creature), _boundary(nullptr),
+      _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), m_MoveInLineOfSight_locked(false)
 {
+    ASSERT(_scriptId, "A CreatureAI was initialized with an invalid scriptId!");
 }
 
 CreatureAI::~CreatureAI()
