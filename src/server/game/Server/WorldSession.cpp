@@ -1710,7 +1710,6 @@ bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
 // @tswow-begin
 void WorldSession::HandleCustom(WorldPacket& packet)
 {
-    TSPlayer(GetPlayer())->SendBroadcastMessage(JSTR("Received message fragment:"+std::to_string(packet.size())));
     GetPlayer()->m_msg_buffer
         .ReceivePacket(packet.size(),(char*)packet.contents());
 }
