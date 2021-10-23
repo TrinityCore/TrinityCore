@@ -1872,7 +1872,7 @@ class spell_igb_rocket_pack_useable : public SpellScriptLoader
                 if (Creature* owner = GetOwner()->ToCreature())
                     if (Player* target = GetTarget()->ToPlayer())
                         if (target->HasItemCount(ITEM_GOBLIN_ROCKET_PACK, 1))
-                            sCreatureTextMgr->SendChat(owner, SAY_ZAFOD_ROCKET_PACK_ACTIVE, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
+                            sCreatureTextMgr->SendChat(owner, SAY_ZAFOD_ROCKET_PACK_ACTIVE, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, target);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1880,7 +1880,7 @@ class spell_igb_rocket_pack_useable : public SpellScriptLoader
                 if (Creature* owner = GetOwner()->ToCreature())
                     if (Player* target = GetTarget()->ToPlayer())
                         if (target->HasItemCount(ITEM_GOBLIN_ROCKET_PACK, 1))
-                            sCreatureTextMgr->SendChat(owner, SAY_ZAFOD_ROCKET_PACK_DISABLED, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
+                            sCreatureTextMgr->SendChat(owner, SAY_ZAFOD_ROCKET_PACK_DISABLED, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, target);
             }
 
             void Register() override

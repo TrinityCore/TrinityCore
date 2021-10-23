@@ -667,14 +667,14 @@ class spell_summoning_rhyme_aura : public AuraScript
         switch (aurEff->GetTickNumber())
         {
             case 1:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_1, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_1, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
                 player->CastSpell(player, SPELL_SUMMONING_RHYME_BONFIRE, true);
                 break;
             case 2:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_2, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_2, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
                 break;
             case 3:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_3, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_3, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
                 Remove();
                 break;
         }
