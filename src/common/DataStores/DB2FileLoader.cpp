@@ -1902,6 +1902,11 @@ void DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
             idTable.resize(idTableSize + section.IdTableSize / sizeof(uint32));
             if (!source->Read(&idTable[idTableSize], section.IdTableSize))
                 throw DB2FileLoadException(Trinity::StringFormat("Unable to read non-inline record ids from %s for section %u", source->GetFileName(), i));
+
+            // This is a hack fix for broken db2 files that have invalid id tables
+            for (std::size_t i = idTableSize; i < idTable.size(); ++i)
+                if (idTable[i] <= _header.MinId)
+                    idTable[i] = _header.MinId + i;
         }
 
         if (!(_header.Flags & 0x1) && section.CopyTableCount)
