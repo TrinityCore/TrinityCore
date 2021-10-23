@@ -6055,14 +6055,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (unitCaster->IsInWater() && m_spellInfo->HasAura(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
                     return SPELL_FAILED_ONLY_ABOVEWATER;
 
-                // Ignore map check if spell have AreaId. AreaId already checked and this prevent special mount spells
-                bool allowMount = !unitCaster->GetMap()->IsDungeon() || unitCaster->GetMap()->IsBattlegroundOrArena();
-                InstanceTemplate const* it = sObjectMgr->GetInstanceTemplate(unitCaster->GetMapId());
-                if (it)
-                    allowMount = it->AllowMount;
-                if (unitCaster->GetTypeId() == TYPEID_PLAYER && !allowMount && !m_spellInfo->RequiredAreasID)
-                    return SPELL_FAILED_NO_MOUNTS_ALLOWED;
-
                 if (unitCaster->IsInDisallowedMountForm())
                 {
                     SendMountResult(MountResult::Shapeshifted); // mount result gets sent before the cast result
