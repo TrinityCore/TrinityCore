@@ -19,13 +19,16 @@
 #include "ConditionMgr.h"
 #include "ConversationDataStore.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
 #include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "WorldSession.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
@@ -123,8 +126,6 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     SetEntry(conversationEntry);
     SetObjectScale(1.0f);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::LastLineEndTime), conversationTemplate->LastLineEndTime);
-    _duration = conversationTemplate->LastLineEndTime + 10 * IN_MILLISECONDS;
     _textureKitId = conversationTemplate->TextureKitId;
 
     for (ConversationActor const& actor : conversationTemplate->Actors)
@@ -149,8 +150,13 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         }
     }
 
+    LocaleConstant locale = DEFAULT_LOCALE;
+    if (creator->IsPlayer())
+        locale = creator->ToPlayer()->GetSession()->GetSessionDbLocaleIndex();
+
     std::set<uint16> actorIndices;
     std::vector<UF::ConversationLine> lines;
+    uint32 nextStartTime = 0;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
     {
         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CONVERSATION_LINE, line->Id, creator))
@@ -158,15 +164,28 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
         actorIndices.insert(line->ActorIdx);
         lines.emplace_back();
+
         UF::ConversationLine& lineField = lines.back();
         lineField.ConversationLineID = line->Id;
-        lineField.StartTime = line->StartTime;
+        lineField.StartTime = nextStartTime;
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
+
+        ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
+        BroadcastTextDurationEntry const* broadcastTextDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale);
+
+        if (broadcastTextDuration)
+            nextStartTime += broadcastTextDuration->Duration;
+        nextStartTime += convoLine->AdditionalDuration;
     }
 
+    _duration = nextStartTime;
+    SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::LastLineEndTime), _duration);
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Lines), std::move(lines));
+
+    // conversations are despawned 5-20s after LastLineEndTime
+    _duration += 10 * IN_MILLISECONDS;;
 
     sScriptMgr->OnConversationCreate(this, creator);
 
