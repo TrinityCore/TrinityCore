@@ -22,6 +22,7 @@
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "WaypointDefines.h"
+#include <limits>
 #include <map>
 #include <string>
 #include <unordered_map>
