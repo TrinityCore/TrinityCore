@@ -532,6 +532,14 @@ struct BroadcastTextEntry
     uint16 EmoteDelay[MAX_BROADCAST_TEXT_EMOTES];
 };
 
+struct BroadcastTextDurationEntry
+{
+    uint32 ID;
+    int32 BroadcastTextID;
+    int32 Locale;
+    int32 Duration;
+};
+
 struct Cfg_RegionsEntry
 {
     uint32 ID;

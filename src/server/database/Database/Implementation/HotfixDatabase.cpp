@@ -276,6 +276,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BROADCAST_TEXT, "SELECT ID, Text_lang, Text1_lang FROM broadcast_text_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
 
+    // BroadcastTextDuration.db2
+    PrepareStatement(HOTFIX_SEL_BROADCAST_TEXT_DURATION, "SELECT ID, BroadcastTextID, Locale, Duration FROM broadcast_text_duration"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BROADCAST_TEXT_DURATION, "SELECT MAX(ID) + 1 FROM broadcast_text_duration", CONNECTION_SYNCH);
+
     // CfgRegions.db2
     PrepareStatement(HOTFIX_SEL_CFG_REGIONS, "SELECT ID, Tag, RegionID, Raidorigin, RegionGroupMask, ChallengeOrigin FROM cfg_regions"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
