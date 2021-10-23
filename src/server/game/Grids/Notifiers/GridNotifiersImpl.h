@@ -355,7 +355,7 @@ void Trinity::GameObjectListSearcher<Check>::Visit(GameObjectMapType &m)
 {
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         // @tswow-begin
-        if (!itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
+        if (itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
         // @tswow-end
             if (i_check(itr->GetSource()))
                 Insert(itr->GetSource());
@@ -442,7 +442,7 @@ void Trinity::UnitListSearcher<Check>::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         // @tswow-begin
-        if (!itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
+        if (itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
         // @tswow-end
             if (i_check(itr->GetSource()))
                 Insert(itr->GetSource());
@@ -453,7 +453,7 @@ void Trinity::UnitListSearcher<Check>::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         // @tswow-begin
-        if (!itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
+        if (itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
         // @tswow-end
             if (i_check(itr->GetSource()))
                 Insert(itr->GetSource());
@@ -503,7 +503,7 @@ void Trinity::CreatureListSearcher<Check>::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         // @tswow-begin
-        if (!itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
+        if (itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
         // @tswow-end
             if (i_check(itr->GetSource()))
                 Insert(itr->GetSource());
@@ -514,7 +514,7 @@ void Trinity::PlayerListSearcher<Check>::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         // @tswow-begin
-        if (!itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
+        if (itr->GetSource()->InSamePhase(i_phaseMask, i_phase_id))
         // @tswow-end
             if (i_check(itr->GetSource()))
                 Insert(itr->GetSource());
