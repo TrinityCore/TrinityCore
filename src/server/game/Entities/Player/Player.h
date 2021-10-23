@@ -35,7 +35,6 @@
 #include "QuestDef.h"
 // @tswow-begin (Using Rochet2/Transmog)
 #include "Transmogrification.h"
-#include "TSMessageBuffer.h"
 // @tswow-end
 #include <memory>
 #include <queue>
@@ -908,7 +907,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
         // @tswow-begin
-        TSMessageBuffer m_message_buffer;
         TSServerBuffer m_msg_buffer;
         void ApplyAutolearnSpells(uint32 fromLevel);
         // @tswow-end

@@ -186,7 +186,6 @@ uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::
 
 Player::Player(WorldSession* session): Unit(true)
 // @tswow-begin
-, m_message_buffer(TSPlayer(this))
 , m_msg_buffer(TSPlayer(this))
 // @tswow-end
 {
