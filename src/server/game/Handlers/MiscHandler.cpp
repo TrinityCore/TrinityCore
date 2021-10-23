@@ -232,7 +232,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
             FIRE_BOOL_MAP(go->GetGOInfo()->events,GameObjectOnGossipSelect,b,TSGameObject(go),TSPlayer(_player),menuId,gossipListId);
             if (!b && !go->AI()->OnGossipSelect(_player, menuId, gossipListId))
                 _player->OnGossipSelect(go, gossipListId, menuId);
-        } 
+        }
         else if(item)
         {
             bool b = false;

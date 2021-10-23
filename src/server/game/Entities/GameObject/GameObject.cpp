@@ -1507,7 +1507,7 @@ void GameObject::Use(Unit* user)
     // @tswow-begin
     bool shouldCancel = false;
     FIRE_MAP(GetGOInfo()->events,GameObjectOnUse,TSGameObject(this),TSUnit(user),TSMutable<bool>(&shouldCancel));
-    if(shouldCancel) 
+    if(shouldCancel)
     {
         return;
     }

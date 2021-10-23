@@ -1943,8 +1943,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             if (properties->Flags & 512)
             {
                 summon = new TotemCreature(properties, summonerUnit);
-            } 
-            else 
+            }
+            else
             {
                 summon = new Totem(properties, summonerUnit);
             }

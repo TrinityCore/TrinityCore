@@ -182,12 +182,12 @@ std::vector<LanguageDesc> lang_description
     { LANG_GOBLIN_BINARY,   0, 0                       }
 };
 
-static void LoadLanguageDescs() 
+static void LoadLanguageDescs()
 {
-    for(auto sl : sSkillLineStore) 
+    for(auto sl : sSkillLineStore)
     {
         // Check category ID
-        if(sl->CategoryID != 10) 
+        if(sl->CategoryID != 10)
         {
             continue;
         }

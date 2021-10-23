@@ -348,9 +348,9 @@ void Player::ApplyFeralAPBonus(int32 amount, bool apply)
 uint32 meleeAPFormulas[32];
 uint32 rangedAPFormulas[32];
 
-void LoadAPFormulas() 
+void LoadAPFormulas()
 {
-    for (int i = 0; i < 32; ++i) 
+    for (int i = 0; i < 32; ++i)
     {
         meleeAPFormulas[i] = i;
         rangedAPFormulas[i] = i;
