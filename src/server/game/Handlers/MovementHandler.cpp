@@ -143,9 +143,9 @@ void WorldSession::HandleMoveWorldportAck()
         GetPlayer()->UpdateVisibilityForPlayer();
         if (Garrison* garrison = GetPlayer()->GetGarrison())
             garrison->SendRemoteInfo();
-
-        GetPlayer()->UpdateActiveMountAuras();
     }
+
+    GetPlayer()->UpdateActiveMountAuras();
 
     // flight fast teleport case
     if (GetPlayer()->IsInFlight())
