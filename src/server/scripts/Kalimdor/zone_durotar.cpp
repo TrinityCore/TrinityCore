@@ -15,8 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "CreatureAIImpl.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 
 enum VoodooSpells
