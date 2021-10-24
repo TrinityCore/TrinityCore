@@ -24439,6 +24439,8 @@ void Player::SendInitialPacketsAfterAddToMap()
             ClearQuestSharingInfo();
     }
 
+    UpdateActiveMountAuras();
+
     GetSceneMgr().TriggerDelayedScenes();
 }
 

@@ -7660,6 +7660,41 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     return nullptr;
 }
 
+void Unit::UpdateActiveMountAuras()
+{
+    for (AuraEffect* aurEff : GetAuraEffectsByType(SPELL_AURA_MOUNTED))
+    {
+        uint32 mountType = aurEff->GetMiscValueB();
+        if (MountEntry const* mountEntry = sDB2Manager.GetMount(aurEff->GetId()))
+            mountType = mountEntry->MountTypeID;
+
+        MountCapabilityEntry const* capability = GetMountCapability(mountType);
+        if (!capability)
+        {
+            // no valid mount capability entry found, remove aura
+            if (Aura* aura = aurEff->GetBase())
+                aura->Remove();
+            continue;
+        }
+
+        // new capability differs from old
+        if (capability->ID != uint32(aurEff->GetAmount()))
+        {
+            if (MountCapabilityEntry const* oldCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
+                RemoveAurasDueToSpell(oldCapability->ModSpellAuraID, aurEff->GetCasterGUID());
+
+            CastSpell(this, capability->ModSpellAuraID, true);
+            aurEff->SetAmount(capability->ID);
+        }
+        else
+        {
+            // readd aura if it was lost due to SpellAuraInterruptFlags::EnterWorld
+            if (!GetAuraCount(capability->ModSpellAuraID))
+                CastSpell(this, capability->ModSpellAuraID, true);
+        }
+    }
+}
+
 bool Unit::IsServiceProvider() const
 {
     return HasNpcFlag(NPCFlags(
