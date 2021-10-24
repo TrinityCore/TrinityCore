@@ -393,9 +393,6 @@ public:
             LocaleConstant locale = LOCALE_enUS;
             for (; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
             {
-                if (locale == handler->GetSessionDbcLocale())
-                    continue;
-
                 name = skillInfo->DisplayName[locale];
                 if (!name || !*name)
                     continue;
