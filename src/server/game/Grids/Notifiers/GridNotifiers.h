@@ -882,13 +882,13 @@ namespace Trinity
 
             bool operator()(Unit* u)
             {
-                if (i_obj == u)
+                if (!u || i_obj == u)
                     return false;
 
                 Player* player = nullptr;
                 if (u->GetTypeId() == TYPEID_PLAYER)
                     player = u->ToPlayer();
-                else if (u->IsPet())
+                else if (u->IsPet() && u->GetOwner())
                     player = u->GetOwner()->ToPlayer();
 
                 if (!player)
@@ -903,6 +903,7 @@ namespace Trinity
                     i_hp = u->GetMaxHealth() - u->GetHealth();
                     return true;
                 }
+
                 return false;
             }
 

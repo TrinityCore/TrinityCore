@@ -971,7 +971,7 @@ class spell_pri_prayer_of_mending_heal : public SpellScript
     {
         if (Unit* caster = GetOriginalCaster())
         {
-            int32 heal = GetHitHeal();
+            int32 heal = GetEffectValue();
             if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_PRIEST_T9_HEALING_2P, EFFECT_0))
                 AddPct(heal, aurEff->GetAmount());
 
@@ -984,13 +984,13 @@ class spell_pri_prayer_of_mending_heal : public SpellScript
             if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_PRIEST_DIVINE_PROVIDENCE_R1, EFFECT_0))
                 AddPct(heal, aurEff->GetAmount());
 
-            SetHitHeal(heal);
+            SetEffectValue(heal);
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
