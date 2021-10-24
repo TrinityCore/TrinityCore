@@ -302,6 +302,17 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
         return false;
     }
 
+    // Case: Unit is a minion (Guardian/Pet) but owner is already dead.
+    // Fight ends without minions death - we despawn the minion here.
+    if (me->GetOwner())
+    {
+        if ((me->IsGuardian() || me->IsPet()) && !me->GetOwner()->IsAlive())
+        {
+            me->DespawnOrUnsummon();
+            return true;
+        }
+    }
+
     me->RemoveAurasOnEvade();
     me->ClearComboPointHolders(); // Remove all combo points targeting this unit
     me->CombatStop(true);

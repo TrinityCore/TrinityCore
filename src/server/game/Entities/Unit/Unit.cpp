@@ -6269,6 +6269,8 @@ Unit* Unit::GetFirstControlled() const
     return unit;
 }
 
+// RemoveAllControlled gets called twice - in Unit::setDeathState() & void Unit::RemoveFromWorld()
+// It removes charming effects, controlled vehicles and unsummons minions.
 void Unit::RemoveAllControlled()
 {
     // possessed pet and vehicle
@@ -6277,23 +6279,37 @@ void Unit::RemoveAllControlled()
 
     while (!m_Controlled.empty())
     {
+        bool controlledKeepsFighting = false;
+
         Unit* target = *m_Controlled.begin();
         m_Controlled.erase(m_Controlled.begin());
         if (target->GetCharmerGUID() == GetGUID())
             target->RemoveCharmAuras();
+        // A pet/guardian should continue combat. Since we despawned every other summon type in UnsummonAllTotems(), we can waive on a additional type check and continue with IsSummon().
         else if (target->GetOwnerGUID() == GetGUID() && target->IsSummon())
-            target->ToTempSummon()->UnSummon();
+        {
+            if (!target->IsInCombat())
+                target->ToTempSummon()->UnSummon();
+            else
+                // we set this for edge case checks
+                controlledKeepsFighting = true;
+        }
         else
             TC_LOG_ERROR("entities.unit", "Unit %u is trying to release unit %u which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
+
+        // checking for edge cases
+        if (!controlledKeepsFighting)
+        {
+            if (GetPetGUID())
+                TC_LOG_FATAL("entities.unit", "Unit %u is not able to release its pet %s", GetEntry(), GetPetGUID().ToString().c_str());
+            if (GetMinionGUID())
+                TC_LOG_FATAL("entities.unit", "Unit %u is not able to release its minion %s", GetEntry(), GetMinionGUID().ToString().c_str());
+            if (GetCharmedGUID())
+                TC_LOG_FATAL("entities.unit", "Unit %u is not able to release its charm %s", GetEntry(), GetCharmedGUID().ToString().c_str());
+            if (!IsPet()) // pets don't use the flag for this
+                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); // m_controlled is now empty, so we know none of our minions are in combat
+        }
     }
-    if (GetPetGUID())
-        TC_LOG_FATAL("entities.unit", "Unit %u is not able to release its pet %s", GetEntry(), GetPetGUID().ToString().c_str());
-    if (GetMinionGUID())
-        TC_LOG_FATAL("entities.unit", "Unit %u is not able to release its minion %s", GetEntry(), GetMinionGUID().ToString().c_str());
-    if (GetCharmedGUID())
-        TC_LOG_FATAL("entities.unit", "Unit %u is not able to release its charm %s", GetEntry(), GetCharmedGUID().ToString().c_str());
-    if (!IsPet()) // pets don't use the flag for this
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); // m_controlled is now empty, so we know none of our minions are in combat
 }
 
 bool Unit::isPossessedByPlayer() const
@@ -6408,6 +6424,8 @@ void Unit::RemoveCharmAuras()
     RemoveAurasByType(SPELL_AURA_AOE_CHARM);
 }
 
+// UnsummonAllTotems gets called twice - in Unit::setDeathState() & void Unit::RemoveFromWorld()
+// It iterates through all summon slots and despawns the summons
 void Unit::UnsummonAllTotems()
 {
     for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
@@ -6416,8 +6434,15 @@ void Unit::UnsummonAllTotems()
             continue;
 
         if (Creature* OldTotem = GetMap()->GetCreature(m_SummonSlot[i]))
+        {
             if (OldTotem->IsSummon())
-                OldTotem->ToTempSummon()->UnSummon();
+            // We want to keep guardians and pets alive for now. A InCombat check is not needed here, we do this
+            // in void Unit::RemoveAllControlled()
+            {
+                if (!OldTotem->IsGuardian() && !OldTotem->IsPet())
+                    OldTotem->ToTempSummon()->UnSummon();
+            }
+        }
     }
 }
 
