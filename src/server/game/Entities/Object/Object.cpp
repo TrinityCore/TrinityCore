@@ -142,7 +142,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     uint8 updateType = UPDATETYPE_CREATE_OBJECT;
     uint8 objectType = m_objectTypeId;
-    uint16 objectTypeMask = m_objectType;
     CreateObjectBits flags = m_updateFlag;
 
     if (target == this)                                      // building packet for yourself
@@ -150,7 +149,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         flags.ThisIsYou = true;
         flags.ActivePlayer = true;
         objectType = TYPEID_ACTIVE_PLAYER;
-        objectTypeMask |= TYPEMASK_ACTIVE_PLAYER;
     }
 
     switch (GetGUID().GetHigh())

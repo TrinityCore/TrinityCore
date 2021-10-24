@@ -128,7 +128,7 @@ public:
         void CalculateStats();
 
         WorldPackets::BattlePet::BattlePet PacketInfo;
-        std::unique_ptr<DeclinedName> DeclinedName;
+        std::unique_ptr<::DeclinedName> DeclinedName;
         BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
     };
 
