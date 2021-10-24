@@ -38,7 +38,7 @@ namespace UF
 void ObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
 {
     data << int32(EntryID);
-    data << uint32(ViewerDependentValue<DynamicFlagsTag>::GetValue(DynamicFlags, owner, receiver));
+    data << uint32(ViewerDependentValue<DynamicFlagsTag>::GetValue(this, owner, receiver));
     data << float(Scale);
 }
 
@@ -60,7 +60,7 @@ void ObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         if (changesMask[2])
         {
-            data << uint32(ViewerDependentValue<DynamicFlagsTag>::GetValue(DynamicFlags, owner, receiver));
+            data << uint32(ViewerDependentValue<DynamicFlagsTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[3])
         {
@@ -932,10 +932,10 @@ bool PassiveSpellHistory::operator==(PassiveSpellHistory const& right) const
 
 void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
-    data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(DisplayID, owner, receiver));
+    data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(this, owner, receiver));
     for (std::size_t i = 0; i < 2; ++i)
     {
-        data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(NpcFlags[i], i, owner, receiver));
+        data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, i, owner, receiver));
     }
     data << uint32(StateSpellVisualID);
     data << uint32(StateAnimID);
@@ -993,15 +993,15 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << int32(ScalingFactionGroup);
     data << int32(ScalingHealthItemLevelCurveID);
     data << int32(ScalingDamageItemLevelCurveID);
-    data << int32(ViewerDependentValue<FactionTemplateTag>::GetValue(FactionTemplate, owner, receiver));
+    data << int32(ViewerDependentValue<FactionTemplateTag>::GetValue(this, owner, receiver));
     for (std::size_t i = 0; i < 3; ++i)
     {
         VirtualItems[i].WriteCreate(data, owner, receiver);
     }
-    data << uint32(ViewerDependentValue<FlagsTag>::GetValue(Flags, owner, receiver));
+    data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
     data << uint32(Flags2);
     data << uint32(Flags3);
-    data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(AuraState, owner, receiver));
+    data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(this, owner, receiver));
     for (std::size_t i = 0; i < 2; ++i)
     {
         data << uint32(AttackRoundBaseTime[i]);
@@ -1073,7 +1073,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
         data << int32(BaseHealth);
     }
     data << uint8(SheatheState);
-    data << uint8(ViewerDependentValue<PvpFlagsTag>::GetValue(PvpFlags, owner, receiver));
+    data << uint8(ViewerDependentValue<PvpFlagsTag>::GetValue(this, owner, receiver));
     data << uint8(PetFlags);
     data << uint8(ShapeshiftForm);
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
@@ -1232,7 +1232,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[5])
         {
-            data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(DisplayID, owner, receiver));
+            data << int32(ViewerDependentValue<DisplayIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[6])
         {
@@ -1379,11 +1379,11 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[42])
         {
-            data << int32(ViewerDependentValue<FactionTemplateTag>::GetValue(FactionTemplate, owner, receiver));
+            data << int32(ViewerDependentValue<FactionTemplateTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[43])
         {
-            data << uint32(ViewerDependentValue<FlagsTag>::GetValue(Flags, owner, receiver));
+            data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[44])
         {
@@ -1395,7 +1395,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[46])
         {
-            data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(AuraState, owner, receiver));
+            data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[47])
         {
@@ -1538,7 +1538,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[82])
         {
-            data << uint8(ViewerDependentValue<PvpFlagsTag>::GetValue(PvpFlags, owner, receiver));
+            data << uint8(ViewerDependentValue<PvpFlagsTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[83])
         {
@@ -1694,7 +1694,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         {
             if (changesMask[121 + i])
             {
-                data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(NpcFlags[i], i, owner, receiver));
+                data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, i, owner, receiver));
             }
         }
     }
@@ -4261,19 +4261,19 @@ void GameObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fie
     }
     data << CreatedBy;
     data << GuildGUID;
-    data << uint32(ViewerDependentValue<FlagsTag>::GetValue(Flags, owner, receiver));
+    data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
     data << float(ParentRotation->x);
     data << float(ParentRotation->y);
     data << float(ParentRotation->z);
     data << float(ParentRotation->w);
     data << int32(FactionTemplate);
-    data << int8(ViewerDependentValue<StateTag>::GetValue(State, owner, receiver));
+    data << int8(ViewerDependentValue<StateTag>::GetValue(this, owner, receiver));
     data << int8(TypeID);
     data << uint8(PercentHealth);
     data << uint32(ArtKit);
     data << uint32(EnableDoodadSets.size());
     data << uint32(CustomParam);
-    data << int32(ViewerDependentValue<LevelTag>::GetValue(Level, owner, receiver));
+    data << int32(ViewerDependentValue<LevelTag>::GetValue(this, owner, receiver));
     data << uint32(AnimGroupInstance);
     for (std::size_t i = 0; i < EnableDoodadSets.size(); ++i)
     {
@@ -4359,7 +4359,7 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[11])
         {
-            data << uint32(ViewerDependentValue<FlagsTag>::GetValue(Flags, owner, receiver));
+            data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[12])
         {
@@ -4374,7 +4374,7 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[14])
         {
-            data << int8(ViewerDependentValue<StateTag>::GetValue(State, owner, receiver));
+            data << int8(ViewerDependentValue<StateTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[15])
         {
@@ -4394,7 +4394,7 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[19])
         {
-            data << int32(ViewerDependentValue<LevelTag>::GetValue(Level, owner, receiver));
+            data << int32(ViewerDependentValue<LevelTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[20])
         {
