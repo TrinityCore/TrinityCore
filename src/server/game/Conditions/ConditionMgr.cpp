@@ -1924,6 +1924,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                 return false;
             }
             break;
+        case CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED:
+            if (!sAreaTriggerStore.LookupEntry(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exists in AreaTrigger.db2, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
         default:
             TC_LOG_ERROR("sql.sql", "%s Invalid ConditionSourceType in `condition` table, ignoring.", cond->ToString().c_str());
             return false;
