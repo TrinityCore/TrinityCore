@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConditionMgr.h"
 #include "Conversation.h"
+#include "ConditionMgr.h"
 #include "ConversationDataStore.h"
 #include "Creature.h"
 #include "IteratorPair.h"
