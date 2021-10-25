@@ -882,7 +882,7 @@ namespace Trinity
 
             bool operator()(Unit* u)
             {
-                if (!u || i_obj == u)
+                if (i_obj == u)
                     return false;
 
                 Player* player = nullptr;
