@@ -169,7 +169,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_PHASE                          = 26,
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27,
     CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28,
-    CONDITION_SOURCE_TYPE_MAX                            = 29  // MAX
+    CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29,
+    CONDITION_SOURCE_TYPE_MAX                            = 30  // MAX
 };
 
 enum RelationType

@@ -67,6 +67,7 @@ public:
     void LoadConversationTemplates();
 
     ConversationTemplate const* GetConversationTemplate(uint32 conversationId) const;
+    ConversationLineTemplate const* GetConversationLineTemplate(uint32 conversationLineId) const;
 
     static ConversationDataStore* Instance();
 };
