@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "Conversation.h"
 #include "ConditionMgr.h"
 #include "ConversationDataStore.h"
@@ -28,7 +29,6 @@
 #include "ScriptMgr.h"
 #include "Unit.h"
 #include "UpdateData.h"
-#include "WorldSession.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
@@ -37,6 +37,9 @@ Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0
 
     m_updateFlag.Stationary = true;
     m_updateFlag.Conversation = true;
+
+    for (LocaleConstant locale = LOCALE_enUS; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
+        _lastLineEndTimes[locale] = 0;
 }
 
 Conversation::~Conversation() = default;
@@ -150,13 +153,8 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         }
     }
 
-    LocaleConstant locale = DEFAULT_LOCALE;
-    if (creator->IsPlayer())
-        locale = creator->ToPlayer()->GetSession()->GetSessionDbLocaleIndex();
-
     std::set<uint16> actorIndices;
     std::vector<UF::ConversationLine> lines;
-    uint32 nextStartTime = 0;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
     {
         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CONVERSATION_LINE, line->Id, creator))
@@ -167,20 +165,30 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
         UF::ConversationLine& lineField = lines.back();
         lineField.ConversationLineID = line->Id;
-        lineField.StartTime = nextStartTime;
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
 
         ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
-        BroadcastTextDurationEntry const* broadcastTextDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale);
 
-        if (broadcastTextDuration)
-            nextStartTime += broadcastTextDuration->Duration;
-        nextStartTime += convoLine->AdditionalDuration;
+        for (LocaleConstant locale = LOCALE_enUS; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
+        {
+            if (locale == LOCALE_none)
+                continue;
+
+            _lineStartTimes[{ locale, line->Id }] = _lastLineEndTimes[locale];
+            if (locale == DEFAULT_LOCALE)
+                lineField.StartTime = _lineStartTimes[{ locale, line->Id }];
+
+            BroadcastTextDurationEntry const* broadcastTextDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale);
+            if (broadcastTextDuration)
+                _lastLineEndTimes[locale] += broadcastTextDuration->Duration;
+
+            _lastLineEndTimes[locale] += convoLine->AdditionalDuration;
+        }
     }
 
-    _duration = nextStartTime;
+    _duration = _lastLineEndTimes[DEFAULT_LOCALE];
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::LastLineEndTime), _duration);
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Lines), std::move(lines));
 
@@ -211,6 +219,16 @@ void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
     auto actorField = m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors, actorIdx);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), actorGuid);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ActorType::WorldObjectActor));
+}
+
+int32 const* Conversation::GetLineStartTime(LocaleConstant locale, int32 lineId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_lineStartTimes, { locale, lineId });
+}
+
+int32 const* Conversation::GetLastLineEndTime(LocaleConstant locale) const
+{
+    return Trinity::Containers::MapGetValuePtr(_lastLineEndTimes, locale);
 }
 
 uint32 Conversation::GetScriptId() const

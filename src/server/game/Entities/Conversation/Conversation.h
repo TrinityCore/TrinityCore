@@ -60,6 +60,9 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
+        int32 const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
+        int32 const* GetLastLineEndTime(LocaleConstant locale) const;
+
         uint32 GetScriptId() const;
 
         UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
@@ -75,6 +78,9 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         ObjectGuid _creatorGuid;
         uint32 _duration;
         uint32 _textureKitId;
+
+        std::map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, int32 /*startTime*/> _lineStartTimes;
+        std::map<LocaleConstant /*locale*/, int32 /*endTime*/> _lastLineEndTimes;
 };
 
 #endif // TRINITYCORE_CONVERSATION_H

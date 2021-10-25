@@ -4836,7 +4836,7 @@ void SceneObjectData::ClearChangesMask()
 void ConversationLine::WriteCreate(ByteBuffer& data, Conversation const* owner, Player const* receiver) const
 {
     data << int32(ConversationLineID);
-    data << uint32(StartTime);
+    data << uint32(ViewerDependentValue<StartTimeTag>::GetValue(this, owner, receiver));
     data << int32(UiCameraID);
     data << uint8(ActorIndex);
     data << uint8(Flags);
@@ -4846,7 +4846,7 @@ void ConversationLine::WriteCreate(ByteBuffer& data, Conversation const* owner, 
 void ConversationLine::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Conversation const* owner, Player const* receiver) const
 {
     data << int32(ConversationLineID);
-    data << uint32(StartTime);
+    data << uint32(ViewerDependentValue<StartTimeTag>::GetValue(this, owner, receiver));
     data << int32(UiCameraID);
     data << uint8(ActorIndex);
     data << uint8(Flags);
@@ -4898,7 +4898,7 @@ bool ConversationActor::operator==(ConversationActor const& right) const
 void ConversationData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const
 {
     data << uint32(Lines->size());
-    data << int32(LastLineEndTime);
+    data << int32(ViewerDependentValue<LastLineEndTimeTag>::GetValue(this, owner, receiver));
     data << uint32(Progress);
     for (std::size_t i = 0; i < Lines->size(); ++i)
     {
@@ -4963,7 +4963,7 @@ void ConversationData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[4])
         {
-            data << int32(LastLineEndTime);
+            data << int32(ViewerDependentValue<LastLineEndTimeTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[5])
         {

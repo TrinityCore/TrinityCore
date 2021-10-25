@@ -18,6 +18,7 @@
 #ifndef ViewerDependentValues_h__
 #define ViewerDependentValues_h__
 
+#include "Conversation.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "Map.h"
@@ -277,6 +278,42 @@ public:
                 state = GO_STATE_TRANSPORT_STOPPED;
 
         return state;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::ConversationData::LastLineEndTimeTag>
+{
+public:
+    using value_type = UF::ConversationData::LastLineEndTimeTag::value_type;
+
+    static value_type GetValue(UF::ConversationData const* conversationData, Conversation const* conversation, Player const* receiver)
+    {
+        value_type lastLineEndTime = conversationData->LastLineEndTime;
+        LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
+
+        if (int32 const* localizedEndTime = conversation->GetLastLineEndTime(locale))
+            lastLineEndTime = *localizedEndTime;
+
+        return lastLineEndTime;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::ConversationLine::StartTimeTag>
+{
+public:
+    using value_type = UF::ConversationLine::StartTimeTag::value_type;
+
+    static value_type GetValue(UF::ConversationLine const* conversationLineData, Conversation const* conversation, Player const* receiver)
+    {
+        value_type startTime = conversationLineData->StartTime;
+        LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
+
+        if (int32 const* localizedStartTime = conversation->GetLineStartTime(locale, conversationLineData->ConversationLineID))
+            startTime = *localizedStartTime;
+
+        return startTime;
     }
 };
 }
