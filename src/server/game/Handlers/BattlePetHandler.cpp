@@ -44,6 +44,9 @@ void WorldSession::HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDe
 
 void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags)
 {
+    if (!GetBattlePetMgr()->HasJournalLock())
+        return;
+
     if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
     {
         if (battlePetSetFlags.ControlType == FLAGS_CONTROL_TYPE_APPLY)

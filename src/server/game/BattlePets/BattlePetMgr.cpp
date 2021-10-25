@@ -408,16 +408,14 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
 
 void BattlePetMgr::RemovePet(ObjectGuid guid)
 {
+    if (!HasJournalLock())
+        return;
+
     BattlePet* pet = GetPet(guid);
     if (!pet)
         return;
 
     pet->SaveInfo = BATTLE_PET_REMOVED;
-
-    // spell is not unlearned on retail
-    /*if (GetPetCount(pet->PacketInfo.Species) == 0)
-        if (BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
-            _owner->GetPlayer()->RemoveSpell(speciesEntry->SummonSpellID);*/
 }
 
 void BattlePetMgr::ClearFanfare(ObjectGuid guid)
@@ -434,6 +432,9 @@ void BattlePetMgr::ClearFanfare(ObjectGuid guid)
 
 void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName)
 {
+    if (!HasJournalLock())
+        return;
+
     BattlePet* pet = GetPet(guid);
     if (!pet)
         return;
@@ -508,6 +509,9 @@ uint16 BattlePetMgr::GetMaxPetLevel() const
 
 void BattlePetMgr::CageBattlePet(ObjectGuid guid)
 {
+    if (!HasJournalLock())
+        return;
+
     BattlePet* pet = GetPet(guid);
     if (!pet)
         return;
@@ -595,8 +599,12 @@ void BattlePetMgr::DismissPet()
 
 void BattlePetMgr::SendJournal()
 {
+    if (!HasJournalLock())
+        SendJournalLockStatus();
+
     WorldPackets::BattlePet::BattlePetJournal battlePetJournal;
     battlePetJournal.Trap = _trapLevel;
+    battlePetJournal.HasJournalLock = HasJournalLock();
 
     for (auto& pet : _pets)
         if (pet.second.SaveInfo != BATTLE_PET_REMOVED)
@@ -623,4 +631,41 @@ void BattlePetMgr::SendError(BattlePetError error, uint32 creatureId)
     battlePetError.Result = AsUnderlyingType(error);
     battlePetError.CreatureID = creatureId;
     _owner->SendPacket(battlePetError.Write());
+}
+
+void BattlePetMgr::SendJournalLockStatus()
+{
+    if (_journalLockPlayerGuid.IsEmpty())
+        ToggleJournalLock(true);
+
+    if (HasJournalLock())
+    {
+        WorldPackets::BattlePet::BattlePetJournalLockAcquired battlePetJournalLockAcquired;
+        _owner->SendPacket(battlePetJournalLockAcquired.Write());
+    }
+    else
+    {
+        WorldPackets::BattlePet::BattlePetJournalLockDenied BattlePetJournalLockDenied;
+        _owner->SendPacket(BattlePetJournalLockDenied.Write());
+    }
+}
+
+bool BattlePetMgr::HasJournalLock() const
+{
+    Player* player = _owner->GetPlayer();
+    if (!player)
+        return false;
+
+    return player->GetGUID() == _journalLockPlayerGuid;
+}
+
+void BattlePetMgr::ToggleJournalLock(bool lock)
+{
+    if (lock)
+    {
+        if (Player* player = _owner->GetPlayer())
+            _journalLockPlayerGuid = player->GetGUID();
+    }
+    else
+        _journalLockPlayerGuid.Clear();
 }

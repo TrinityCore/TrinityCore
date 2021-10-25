@@ -163,10 +163,13 @@ public:
     void SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded);
     void SendError(BattlePetError error, uint32 creatureId);
 
-    bool HasJournalLock() const { return true; }
+    void SendJournalLockStatus();
+    bool HasJournalLock() const;
+    void ToggleJournalLock(bool lock);
 
 private:
     WorldSession* _owner;
+    ObjectGuid _journalLockPlayerGuid;
     uint16 _trapLevel = 0;
     std::unordered_map<uint64 /*battlePetGuid*/, BattlePet> _pets;
     std::vector<WorldPackets::BattlePet::BattlePetSlot> _slots;

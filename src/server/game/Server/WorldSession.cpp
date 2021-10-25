@@ -562,6 +562,10 @@ void WorldSession::LogoutPlayer(bool save)
         ///- Remove pet
         _player->RemovePet(nullptr, PET_SAVE_AS_CURRENT, true);
 
+        ///- Release battle pet journal lock
+        if (_battlePetMgr->HasJournalLock())
+            _battlePetMgr->ToggleJournalLock(false);
+
         ///- Clear whisper whitelist
         _player->ClearWhisperWhiteList();
 
