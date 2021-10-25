@@ -20,6 +20,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
 #include "Containers.h"
+#include "ConversationDataStore.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameEventMgr.h"
@@ -79,6 +80,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "Phase",
     "Graveyard",
     "AreaTrigger",
+    "ConversationLine"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -1912,6 +1914,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ uint32(cond->SourceGroup), bool(cond->SourceEntry) }))
             {
                 TC_LOG_ERROR("sql.sql", "%s in `condition` table, does not exist in `areatrigger_template`, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        case CONDITION_SOURCE_TYPE_CONVERSATION_LINE:
+            if (!sConversationDataStore->GetConversationLineTemplate(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s does not exist in `conversation_line_template`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;

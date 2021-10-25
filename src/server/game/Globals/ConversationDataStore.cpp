@@ -184,6 +184,11 @@ ConversationTemplate const* ConversationDataStore::GetConversationTemplate(uint3
     return Trinity::Containers::MapGetValuePtr(_conversationTemplateStore, conversationId);
 }
 
+ConversationLineTemplate const* ConversationDataStore::GetConversationLineTemplate(uint32 conversationLineId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_conversationLineTemplateStore, conversationLineId);
+}
+
 ConversationDataStore* ConversationDataStore::Instance()
 {
     static ConversationDataStore instance;
