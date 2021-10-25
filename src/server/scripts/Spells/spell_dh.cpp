@@ -31,14 +31,15 @@
 
 enum DemonHunterSpells
 {
-    SPELL_CHAOS_STRIKE_ENERGIZE                 = 193840,
-    SPELL_DH_SIGIL_OF_CHAINS_GRIP               = 208674,
-    SPELL_DH_SIGIL_OF_CHAINS_SLOW               = 204843,
-    SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT      = 204834,
-    SPELL_DH_SIGIL_OF_CHAINS_VISUAL             = 208673,
-    SPELL_DH_SIGIL_OF_FLAME_AOE                 = 204598,
-    SPELL_DH_SIGIL_OF_MISERY_AOE                = 207685,
-    SPELL_DH_SIGIL_OF_SILENCE_AOE               = 204490,
+    SPELL_DH_CHAOS_STRIKE_ENERGIZE                  = 193840,
+    SPELL_DH_FIRST_BLOOD                            = 206416,
+    SPELL_DH_SIGIL_OF_CHAINS_GRIP                   = 208674,
+    SPELL_DH_SIGIL_OF_CHAINS_SLOW                   = 204843,
+    SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT          = 204834,
+    SPELL_DH_SIGIL_OF_CHAINS_VISUAL                 = 208673,
+    SPELL_DH_SIGIL_OF_FLAME_AOE                     = 204598,
+    SPELL_DH_SIGIL_OF_MISERY_AOE                    = 207685,
+    SPELL_DH_SIGIL_OF_SILENCE_AOE                   = 204490,
 };
 
 // 197125 - Chaos Strike
@@ -48,7 +49,7 @@ class spell_dh_chaos_strike : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_CHAOS_STRIKE_ENERGIZE });
+        return ValidateSpellInfo({ SPELL_DH_CHAOS_STRIKE_ENERGIZE });
     }
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -57,12 +58,109 @@ class spell_dh_chaos_strike : public AuraScript
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
         args.SetTriggeringAura(aurEff);
-        GetTarget()->CastSpell(GetTarget(), SPELL_CHAOS_STRIKE_ENERGIZE, args);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DH_CHAOS_STRIKE_ENERGIZE, args);
     }
 
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+
+// 206416 - First Blood
+class spell_dh_first_blood : public AuraScript
+{
+    PrepareAuraScript(spell_dh_first_blood);
+
+public:
+    ObjectGuid const& GetFirstTarget() const { return _firstTargetGUID; }
+    void SetFirstTarget(ObjectGuid const& targetGuid) { _firstTargetGUID = targetGuid; }
+
+private:
+    void Register() override
+    {
+    }
+
+private:
+    ObjectGuid _firstTargetGUID;
+};
+
+// 188499 - Blade Dance
+// 210152 - Death Sweep
+class spell_dh_blade_dance : public SpellScript
+{
+    PrepareSpellScript(spell_dh_blade_dance);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
+    }
+
+    void DecideFirstTarget(std::list<WorldObject*>& targetList)
+    {
+        if (targetList.empty())
+            return;
+
+        Aura* aura = GetCaster()->GetAura(SPELL_DH_FIRST_BLOOD);
+        if (!aura)
+            return;
+
+        ObjectGuid firstTargetGUID = ObjectGuid::Empty;
+        ObjectGuid selectedTarget = GetCaster()->GetTarget();
+
+        // Prefer the selected target if he is one of the enemies
+        if (targetList.size() > 1 && !selectedTarget.IsEmpty())
+        {
+            auto it = std::find_if(targetList.begin(), targetList.end(), [selectedTarget](WorldObject* object)
+            {
+                return object->GetGUID() == selectedTarget;
+            });
+            if (it != targetList.end())
+                firstTargetGUID = (*it)->GetGUID();
+        }
+
+        if (firstTargetGUID.IsEmpty())
+            firstTargetGUID = targetList.front()->GetGUID();
+
+        if (spell_dh_first_blood* script = aura->GetScript<spell_dh_first_blood>(STRINGIZE(spell_dh_first_blood)))
+            script->SetFirstTarget(firstTargetGUID);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dh_blade_dance::DecideFirstTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+// 199552 - Blade Dance
+// 200685 - Blade Dance
+// 210153 - Death Sweep
+// 210155 - Death Sweep
+class spell_dh_blade_dance_damage : public SpellScript
+{
+    PrepareSpellScript(spell_dh_blade_dance_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_FIRST_BLOOD });
+    }
+
+    void HandleHitTarget()
+    {
+        int32 damage = GetHitDamage();
+
+        if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_DH_FIRST_BLOOD, EFFECT_0))
+            if (spell_dh_first_blood* script = aurEff->GetBase()->GetScript<spell_dh_first_blood>(STRINGIZE(spell_dh_first_blood)))
+                if (GetHitUnit()->GetGUID() == script->GetFirstTarget())
+                    AddPct(damage, aurEff->GetAmount());
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_dh_blade_dance_damage::HandleHitTarget);
     }
 };
 
@@ -142,4 +240,22 @@ void AddSC_demon_hunter_spell_scripts()
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE>("areatrigger_dh_sigil_of_flame");
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_sigil_of_chains);
+
+    // Havoc
+
+    /* Spells & Auras */
+
+
+    /* Auras */
+
+    RegisterAuraScript(spell_dh_first_blood);
+
+    /* AreaTrigger */
+
+
+    /* Spells */
+
+    RegisterSpellScript(spell_dh_blade_dance);
+    RegisterSpellScript(spell_dh_blade_dance_damage);
+
 }
