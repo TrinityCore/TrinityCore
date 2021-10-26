@@ -208,9 +208,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 class spell_rog_killing_spree : public SpellScriptLoader
 {
     public:
-        static char constexpr const ScriptName[] = "spell_rog_killing_spree";
-
-        spell_rog_killing_spree() : SpellScriptLoader(ScriptName) { }
+        spell_rog_killing_spree() : SpellScriptLoader("spell_rog_killing_spree") { }
 
         class spell_rog_killing_spree_SpellScript : public SpellScript
         {
@@ -225,7 +223,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_KILLING_SPREE))
-                    if (spell_rog_killing_spree_AuraScript* script = aura->GetScript<spell_rog_killing_spree_AuraScript>(ScriptName))
+                    if (spell_rog_killing_spree_AuraScript* script = aura->GetScript<spell_rog_killing_spree_AuraScript>())
                         script->AddTarget(GetHitUnit());
             }
 
@@ -303,7 +301,6 @@ class spell_rog_killing_spree : public SpellScriptLoader
             return new spell_rog_killing_spree_AuraScript();
         }
 };
-char constexpr const spell_rog_killing_spree::ScriptName[];
 
 // 1943 - Rupture
 class spell_rog_rupture : public SpellScriptLoader
@@ -528,7 +525,7 @@ class spell_rog_tricks_of_the_trade : public SpellScript
     void DoAfterHit()
     {
         if (Aura* aura = GetHitAura())
-            if (auto* script = aura->GetScript<spell_rog_tricks_of_the_trade_aura>("spell_rog_tricks_of_the_trade"))
+            if (spell_rog_tricks_of_the_trade_aura* script = aura->GetScript<spell_rog_tricks_of_the_trade_aura>())
             {
                 if (Unit* explTarget = GetExplTargetUnit())
                     script->SetRedirectTarget(explTarget->GetGUID());

@@ -166,9 +166,7 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
 class spell_pri_atonement : public SpellScriptLoader
 {
 public:
-    static char constexpr const ScriptName[] = "spell_pri_atonement";
-
-    spell_pri_atonement() : SpellScriptLoader(ScriptName) { }
+    spell_pri_atonement() : SpellScriptLoader("spell_pri_atonement") { }
 
     class spell_pri_atonement_AuraScript : public AuraScript
     {
@@ -227,7 +225,6 @@ public:
         return new spell_pri_atonement_AuraScript();
     }
 };
-char constexpr const spell_pri_atonement::ScriptName[];
 
 // 194384, 214206 - Atonement
 class spell_pri_atonement_triggered : public SpellScriptLoader
@@ -261,7 +258,7 @@ public:
         {
             if (Unit* caster = GetCaster())
                 if (Aura* atonement = caster->GetAura(SPELL_PRIEST_ATONEMENT))
-                    if (AtonementScript* script = atonement->GetScript<AtonementScript>(spell_pri_atonement::ScriptName))
+                    if (AtonementScript* script = atonement->GetScript<AtonementScript>())
                         (script->*func)(GetTarget()->GetGUID());
         }
 

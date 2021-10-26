@@ -123,7 +123,7 @@ class spell_dh_blade_dance : public SpellScript
         if (firstTargetGUID.IsEmpty())
             firstTargetGUID = targetList.front()->GetGUID();
 
-        if (spell_dh_first_blood* script = aura->GetScript<spell_dh_first_blood>(STRINGIZE(spell_dh_first_blood)))
+        if (spell_dh_first_blood* script = aura->GetScript<spell_dh_first_blood>())
             script->SetFirstTarget(firstTargetGUID);
     }
 
@@ -151,7 +151,7 @@ class spell_dh_blade_dance_damage : public SpellScript
         int32 damage = GetHitDamage();
 
         if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_DH_FIRST_BLOOD, EFFECT_0))
-            if (spell_dh_first_blood* script = aurEff->GetBase()->GetScript<spell_dh_first_blood>(STRINGIZE(spell_dh_first_blood)))
+            if (spell_dh_first_blood* script = aurEff->GetBase()->GetScript<spell_dh_first_blood>())
                 if (GetHitUnit()->GetGUID() == script->GetFirstTarget())
                     AddPct(damage, aurEff->GetAmount());
 
