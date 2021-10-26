@@ -890,6 +890,22 @@ struct BroadcastTextLoadInfo
     }
 };
 
+struct BroadcastTextDurationLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "BroadcastTextID" },
+            { true, FT_INT, "Locale" },
+            { true, FT_INT, "Duration" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BroadcastTextDurationMeta::Instance(), HOTFIX_SEL_BROADCAST_TEXT_DURATION);
+        return &loadInfo;
+    }
+};
+
 struct CfgRegionsLoadInfo
 {
     static DB2LoadInfo const* Instance()

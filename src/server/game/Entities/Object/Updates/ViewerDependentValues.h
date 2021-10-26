@@ -18,6 +18,7 @@
 #ifndef ViewerDependentValues_h__
 #define ViewerDependentValues_h__
 
+#include "Conversation.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "Map.h"
@@ -26,6 +27,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 namespace UF
 {
@@ -277,6 +279,37 @@ public:
                 state = GO_STATE_TRANSPORT_STOPPED;
 
         return state;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::ConversationData::LastLineEndTimeTag>
+{
+public:
+    using value_type = UF::ConversationData::LastLineEndTimeTag::value_type;
+
+    static value_type GetValue(UF::ConversationData const* /*conversationData*/, Conversation const* conversation, Player const* receiver)
+    {
+        LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
+        return conversation->GetLastLineEndTime(locale).count();
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::ConversationLine::StartTimeTag>
+{
+public:
+    using value_type = UF::ConversationLine::StartTimeTag::value_type;
+
+    static value_type GetValue(UF::ConversationLine const* conversationLineData, Conversation const* conversation, Player const* receiver)
+    {
+        value_type startTime = conversationLineData->StartTime;
+        LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
+
+        if (Milliseconds const* localizedStartTime = conversation->GetLineStartTime(locale, conversationLineData->ConversationLineID))
+            startTime = localizedStartTime->count();
+
+        return startTime;
     }
 };
 }

@@ -98,9 +98,32 @@ enum LocaleConstant : uint8
 const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
 #define DEFAULT_LOCALE LOCALE_enUS
 
+enum class CascLocaleBit : uint8
+{
+    None        = 0,
+    enUS        = 1,
+    koKR        = 2,
+    Reserved    = 3,
+    frFR        = 4,
+    deDE        = 5,
+    zhCN        = 6,
+    esES        = 7,
+    zhTW        = 8,
+    enGB        = 9,
+    enCN        = 10,
+    enTW        = 11,
+    esMX        = 12,
+    ruRU        = 13,
+    ptBR        = 14,
+    itIT        = 15,
+    ptPT        = 16
+};
+
 TC_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
 TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
+
+TC_COMMON_API extern CascLocaleBit WowLocaleToCascLocaleBit[TOTAL_LOCALES];
 
 constexpr inline bool IsValidLocale(LocaleConstant locale)
 {

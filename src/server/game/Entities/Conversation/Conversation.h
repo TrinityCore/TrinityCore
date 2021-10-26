@@ -19,6 +19,7 @@
 #define TRINITYCORE_CONVERSATION_H
 
 #include "Object.h"
+#include "Hash.h"
 
 class Unit;
 class SpellInfo;
@@ -43,7 +44,7 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
 
         void Update(uint32 diff) override;
         void Remove();
-        int32 GetDuration() const { return _duration; }
+        Milliseconds GetDuration() const { return _duration; }
         uint32 GetTextureKitId() const { return _textureKitId; }
 
         static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
@@ -60,6 +61,9 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
+        Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
+        Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
+
         uint32 GetScriptId() const;
 
         UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
@@ -73,8 +77,11 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
     private:
         Position _stationaryPosition;
         ObjectGuid _creatorGuid;
-        uint32 _duration;
+        Milliseconds _duration;
         uint32 _textureKitId;
+
+        std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
+        std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
 };
 
 #endif // TRINITYCORE_CONVERSATION_H

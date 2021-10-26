@@ -906,6 +906,7 @@ struct ConversationLine : public IsUpdateFieldStructureTag
 {
     int32 ConversationLineID;
     uint32 StartTime;
+    struct StartTimeTag : ViewerDependentValueTag<uint32> {};
     int32 UiCameraID;
     uint8 ActorIndex;
     uint8 Flags;
@@ -938,6 +939,7 @@ struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<std::vector<UF::ConversationLine>, 0, 2> Lines;
     DynamicUpdateField<UF::ConversationActor, 0, 3> Actors;
     UpdateField<int32, 0, 4> LastLineEndTime;
+    struct LastLineEndTimeTag : ViewerDependentValueTag<int32> {};
     UpdateField<uint32, 0, 5> Progress;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const;
