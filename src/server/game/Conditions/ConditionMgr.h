@@ -154,7 +154,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27, // only master
     CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28, // only master (this refers to dynamically spawned areatriggers, not the ones from AreaTrigger.dbc/db2)
     CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29, // only master
-    CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30, // only master (TODO: cherry-pick)
+    CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30,
     CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31, // only master (TODO: cherry-pick)
     CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32, // only master (TODO: cherry-pick)
     CONDITION_SOURCE_TYPE_SPAWN_GROUP                    = 33, // only master (TODO: cherry-pick)
