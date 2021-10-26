@@ -288,15 +288,10 @@ class ViewerDependentValue<UF::ConversationData::LastLineEndTimeTag>
 public:
     using value_type = UF::ConversationData::LastLineEndTimeTag::value_type;
 
-    static value_type GetValue(UF::ConversationData const* conversationData, Conversation const* conversation, Player const* receiver)
+    static value_type GetValue(UF::ConversationData const* /*conversationData*/, Conversation const* conversation, Player const* receiver)
     {
-        value_type lastLineEndTime = conversationData->LastLineEndTime;
         LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
-
-        if (int32 const* localizedEndTime = conversation->GetLastLineEndTime(locale))
-            lastLineEndTime = *localizedEndTime;
-
-        return lastLineEndTime;
+        return conversation->GetLastLineEndTime(locale).count();
     }
 };
 
@@ -311,8 +306,8 @@ public:
         value_type startTime = conversationLineData->StartTime;
         LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
 
-        if (int32 const* localizedStartTime = conversation->GetLineStartTime(locale, conversationLineData->ConversationLineID))
-            startTime = *localizedStartTime;
+        if (Milliseconds const* localizedStartTime = conversation->GetLineStartTime(locale, conversationLineData->ConversationLineID))
+            startTime = localizedStartTime->count();
 
         return startTime;
     }
