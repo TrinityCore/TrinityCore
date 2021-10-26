@@ -1396,6 +1396,22 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
 {
     // If the assert is called, means that BgObjects must be resized!
     // @tswow-begin
+    FIRE_MAP(
+          GetBattlegroundEvent(m_TypeID)
+        , BattlegroundOnAddGameObject
+        , TSBattleground(this)
+        , type
+        , TSMutable<uint32>(&entry)
+        , TSMutable<uint8>((uint8*)&goState)
+        , TSMutable<float>(&x)
+        , TSMutable<float>(&y)
+        , TSMutable<float>(&z)
+        , TSMutable<float>(&o)
+        , TSMutable<float>(&rotation0)
+        , TSMutable<float>(&rotation1)
+        , TSMutable<float>(&rotation2)
+        , TSMutable<float>(&rotation3)
+    );
     if (type >= BgObjects.size()) BgObjects.resize(type + 1);
     //ASSERT(type < BgObjects.size());
     // @tswow-end
@@ -1553,6 +1569,18 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
 {
     // If the assert is called, means that BgCreatures must be resized!
     // @tswow-begin
+    FIRE_MAP(
+          GetBattlegroundEvent(m_TypeID)
+        , BattlegroundOnAddCreature
+        , TSBattleground(this)
+        , type
+        , TSMutable<uint32>(&entry)
+        , TSMutable<float>(&x)
+        , TSMutable<float>(&y)
+        , TSMutable<float>(&z)
+        , TSMutable<float>(&o)
+        , TSMutable<uint32_t>(&respawntime)
+    );
     if (type >= BgCreatures.size()) BgCreatures.resize(type + 1);
     //ASSERT(type < BgCreatures.size());
     // @tswow-end
@@ -1667,6 +1695,23 @@ bool Battleground::RemoveObjectFromWorld(uint32 type)
 bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float o, TeamId teamId /*= TEAM_NEUTRAL*/)
 {
     uint32 entry = (teamId == TEAM_ALLIANCE) ? BG_CREATURE_ENTRY_A_SPIRITGUIDE : BG_CREATURE_ENTRY_H_SPIRITGUIDE;
+
+    uint8 _teamId = (uint8)teamId;
+    // @tswow-begin
+    FIRE_MAP(
+        GetBattlegroundEvent(m_TypeID)
+        , BattlegroundOnAddSpiritGuide
+        , TSBattleground(this)
+        , type
+        , TSMutable<uint32>(&entry)
+        , TSMutable<uint8>(&_teamId)
+        , TSMutable<float>(&x)
+        , TSMutable<float>(&y)
+        , TSMutable<float>(&z)
+        , TSMutable<float>(&o)
+    );
+    teamId = (TeamId)_teamId;
+    // @tswow-end
 
     if (Creature* creature = AddCreature(entry, type, x, y, z, o, teamId))
     {
