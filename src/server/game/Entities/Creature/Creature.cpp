@@ -338,6 +338,23 @@ void Creature::RemoveFromWorld()
 
 void Creature::SetOutfit(std::shared_ptr<CreatureOutfit> const & outfit)
 {
+    // @tswow-begin apply weapons
+    if (outfit->mainhand >= 0)
+    {
+        SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, outfit->mainhand);
+    }
+
+    if (outfit->offhand >= 0)
+    {
+        SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, outfit->offhand);
+    }
+
+    if (outfit->ranged >= 0)
+    {
+        SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+2, outfit->ranged);
+    }
+    // @tswow-end
+
     // Set new outfit
     if (m_outfit)
     {

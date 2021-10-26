@@ -9070,10 +9070,15 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, "
+    // @tswow-begin : weapons
+    QueryResult result = WorldDatabase.Query("SELECT "
+        "entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, "
         "head, shoulders, body, chest, waist, "
         "legs, feet, wrists, hands, back, tabard, "
-        "guildid FROM creature_template_outfits");
+        "guildid, "
+        "mainhand, offhand, ranged "
+        "FROM creature_template_outfits");
+    // @tswow-end
 
     if (!result)
     {
@@ -9159,6 +9164,11 @@ void ObjectMgr::LoadCreatureOutfits()
             }
         }
         co->guild = fields[i++].GetUInt32();
+        // @tswow-begin
+        co->mainhand = fields[i++].GetInt32();
+        co->offhand = fields[i++].GetInt32();
+        co->ranged = fields[i++].GetInt32();
+        // @tswow-end
 
         _creatureOutfitStore[co->id] = std::move(co);
 
