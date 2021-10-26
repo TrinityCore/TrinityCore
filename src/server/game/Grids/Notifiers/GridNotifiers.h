@@ -23,6 +23,7 @@
 #include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "Group.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
@@ -872,6 +873,44 @@ namespace Trinity
             float i_range;
             uint8 i_pct;
             bool i_excludeSelf;
+    };
+
+    class MostHPMissingGroupInRange
+    {
+        public:
+            MostHPMissingGroupInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) { }
+
+            bool operator()(Unit* u)
+            {
+                if (i_obj == u)
+                    return false;
+
+                Player* player = nullptr;
+                if (u->GetTypeId() == TYPEID_PLAYER)
+                    player = u->ToPlayer();
+                else if (u->IsPet() && u->GetOwner())
+                    player = u->GetOwner()->ToPlayer();
+
+                if (!player)
+                    return false;
+
+                Group* group = player->GetGroup();
+                if (!group || !group->IsMember(i_obj->IsPet() ? i_obj->GetOwnerGUID() : i_obj->GetGUID()))
+                    return false;
+
+                if (u->IsAlive() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
+                {
+                    i_hp = u->GetMaxHealth() - u->GetHealth();
+                    return true;
+                }
+
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            float i_range;
+            uint32 i_hp;
     };
 
     class FriendlyCCedInRange
