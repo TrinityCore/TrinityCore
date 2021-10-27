@@ -545,8 +545,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0       1       2      3       4       5        6             7              8                  9              10
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
+    //                                                 0       1       2      3       4       5        6             7              8                  9              10               11
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras, noNPCDamageBelowHealthPct FROM creature_template_addon");
 
     if (!result)
     {
@@ -578,6 +578,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.movementAnimKit           = fields[7].GetUInt16();
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        creatureAddon.noNPCDamageBelowHealthPct = fields[11].GetUInt16();
 
         Tokenizer tokens(fields[10].GetString(), ' ');
         uint8 i = 0;
@@ -642,6 +643,13 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid visibilityDistanceType (%u) defined in `creature_template_addon`.",
                 entry, AsUnderlyingType(creatureAddon.visibilityDistanceType));
             creatureAddon.visibilityDistanceType = VisibilityDistanceType::Normal;
+        }
+
+        if (creatureAddon.noNPCDamageBelowHealthPct < 0 || creatureAddon.noNPCDamageBelowHealthPct > 100)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid noNPCDamageBelowHealthPct (%u) defined in `creature_template_addon`.",
+                entry, creatureAddon.noNPCDamageBelowHealthPct);
+            creatureAddon.noNPCDamageBelowHealthPct = 0;
         }
 
         ++count;
@@ -1059,8 +1067,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5        6             7              8                  9              10
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
+    //                                                0       1       2      3       4       5        6             7              8                  9              10               11
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras, noNPCDamageBelowHealthPct FROM creature_addon");
 
     if (!result)
     {
@@ -1099,6 +1107,7 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.movementAnimKit           = fields[7].GetUInt16();
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        creatureAddon.noNPCDamageBelowHealthPct = fields[11].GetUInt16();
 
         Tokenizer tokens(fields[10].GetString(), ' ');
         uint8 i = 0;
@@ -1163,6 +1172,13 @@ void ObjectMgr::LoadCreatureAddons()
             TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid visibilityDistanceType (%u) defined in `creature_addon`.",
                 guid, AsUnderlyingType(creatureAddon.visibilityDistanceType));
             creatureAddon.visibilityDistanceType = VisibilityDistanceType::Normal;
+        }
+
+        if (creatureAddon.noNPCDamageBelowHealthPct < 0 || creatureAddon.noNPCDamageBelowHealthPct > 100)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid noNPCDamageBelowHealthPct (%u) defined in `creature_addon`.",
+                guid, creatureAddon.noNPCDamageBelowHealthPct);
+            creatureAddon.noNPCDamageBelowHealthPct = 0;
         }
 
         ++count;

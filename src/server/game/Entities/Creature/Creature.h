@@ -367,6 +367,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEnterCombat() override;
         void AtExitCombat() override;
 
+        void SetNoNPCDamageBelowHealthPct(float healthPct) { _noNPCDamageBelowHealthPct = healthPct; }
+        float GetNoNpcDamageBelowPctHealthValue() { return _noNPCDamageBelowHealthPct; }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -446,6 +449,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Regenerate health
         bool _regenerateHealth; // Set on creation
         bool _regenerateHealthLock; // Dynamically set
+
+        float _noNPCDamageBelowHealthPct;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent
