@@ -1465,8 +1465,8 @@ struct CreatureDifficultyLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { true, FT_INT, "Unk901_Min" },
-            { true, FT_INT, "Unk901_Max" },
+            { true, FT_INT, "LevelDeltaMin" },
+            { true, FT_INT, "LevelDeltaMax" },
             { false, FT_SHORT, "FactionID" },
             { true, FT_INT, "ContentTuningID" },
             { true, FT_INT, "Flags1" },

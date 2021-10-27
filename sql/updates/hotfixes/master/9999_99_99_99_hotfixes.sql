@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS `creature_difficulty`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_difficulty` (
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
-  `Unk901_Min` int(11) NOT NULL DEFAULT '0',
-  `Unk901_Max` int(11) NOT NULL DEFAULT '0',
+  `LevelDeltaMin` int(11) NOT NULL DEFAULT '0',
+  `LevelDeltaMax` int(11) NOT NULL DEFAULT '0',
   `FactionID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `ContentTuningID` int(11) NOT NULL DEFAULT '0',
   `Flags1` int(11) NOT NULL DEFAULT '0',

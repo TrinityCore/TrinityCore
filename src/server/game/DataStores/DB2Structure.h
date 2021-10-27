@@ -905,8 +905,8 @@ struct CorruptionEffectsEntry
 struct CreatureDifficultyEntry
 {
     uint32 ID;
-    int32 Unk901_Min;
-    int32 Unk901_Max;
+    int32 LevelDeltaMin;
+    int32 LevelDeltaMax;
     uint16 FactionID;
     int32 ContentTuningID;
     int32 Flags[8];

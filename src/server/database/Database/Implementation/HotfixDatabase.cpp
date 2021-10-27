@@ -437,8 +437,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CORRUPTION_EFFECTS, "SELECT MAX(ID) + 1 FROM corruption_effects", CONNECTION_SYNCH);
 
     // CreatureDifficulty.db2
-    PrepareStatement(HOTFIX_SEL_CREATURE_DIFFICULTY, "SELECT ID, Unk901_Min, Unk901_Max, FactionID, ContentTuningID, Flags1, Flags2, Flags3, Flags4, "
-        "Flags5, Flags6, Flags7, Flags8, CreatureID FROM creature_difficulty WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CREATURE_DIFFICULTY, "SELECT ID, LevelDeltaMin, LevelDeltaMax, FactionID, ContentTuningID, Flags1, Flags2, Flags3, "
+        "Flags4, Flags5, Flags6, Flags7, Flags8, CreatureID FROM creature_difficulty WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CREATURE_DIFFICULTY, "SELECT MAX(ID) + 1 FROM creature_difficulty", CONNECTION_SYNCH);
 
     // CreatureDisplayInfo.db2
