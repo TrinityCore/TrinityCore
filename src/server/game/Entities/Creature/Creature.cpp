@@ -2699,7 +2699,7 @@ bool Creature::LoadCreaturesAddon()
         if (creatureDifficulty->Flags[3] & CREATURE_DIFFICULTYFLAGS_4_NO_NPC_DAMAGE_BELOW_85PCT)
             SetNoNPCDamageBelowHealthPct(85);
     }
-    SetNoNPCDamageBelowHealthPct(cainfo->noNPCDamageBelowHealthPct);
+    SetNoNPCDamageBelowHealthPct(cainfo->noNPCDamageBelowHealthPct); // we are overriding CreatureDifficulty here in case it has different values per spawnid
 
     return true;
 }
