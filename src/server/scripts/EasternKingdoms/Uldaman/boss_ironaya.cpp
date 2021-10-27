@@ -52,7 +52,7 @@ struct boss_ironaya : public ScriptedAI
         Initialize();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_hasCastKnockaway && HealthBelowPct(50) && me->GetVictim())
         {
