@@ -11530,7 +11530,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ, Movement
 
         // If speedXY is negative, the player should get knocked back into the opposite direction
         if (speedXY < 0.0f)
-            speedXY *= -1;
+            speedXY = fabs(speedXY);
 
         SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
     }
