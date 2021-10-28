@@ -1082,7 +1082,7 @@ class TC_GAME_API ObjectMgr
         GameObjectTemplateAddon const* GetGameObjectTemplateAddon(uint32 entry) const;
         GameObjectOverride const* GetGameObjectOverride(ObjectGuid::LowType spawnId) const;
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry) const;
-        std::vector<float> const* ObjectMgr::GetCreatureTemplateSparringValues(uint32 entry) const;
+        std::vector<float> const* GetCreatureTemplateSparringValues(uint32 entry) const;
         CreatureMovementData const* GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const;
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const& GetItemTemplateStore() const { return _itemTemplateStore; }
