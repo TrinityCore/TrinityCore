@@ -688,18 +688,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
     // sparring
     if (Creature* victimCreature = victim->ToCreature())
-    {
-        if (attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer())
-        {
-            if (victimCreature->GetSparringHealthPct() != 0)
-            {
-                if (damage >= victimCreature->GetHealth())
-                    damage = victimCreature->GetHealth() - 1;
-                else if (victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
-                    damage = 0;
-            }
-        }
-    }
+        damage = victimCreature->CalculateDamageForSparring(attacker, damage);
 
     if (victim->GetTypeId() == TYPEID_PLAYER && attacker != victim)
     {

@@ -370,6 +370,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void OverrideSparringHealthValues(std::vector<float>& healthPct) { _overridingSparringHealthPctValues = healthPct; }
         float GetSparringHealthPct() { return _sparringHealthPct; }
+        uint32 CalculateDamageForSparring(Unit* attacker, uint32 damage);
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
