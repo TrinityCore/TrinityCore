@@ -1,15 +1,24 @@
 -- 
-ALTER TABLE `creature_addon` ADD COLUMN `noNPCDamageBelowHealthPct` TINYINT UNSIGNED NOT NULL DEFAULT '0' AFTER `auras`;
-ALTER TABLE `creature_template_addon` ADD COLUMN `noNPCDamageBelowHealthPct` TINYINT UNSIGNED NOT NULL DEFAULT '0' AFTER `auras`;
+DROP TABLE IF EXISTS `creature_template_sparring`;
+CREATE TABLE `creature_template_sparring` (
+  `Entry` int NOT NULL,
+  `NoNPCDamageBelowHealthPct` tinyint unsigned NOT NULL,
+  PRIMARY KEY (`Entry`,`NoNPCDamageBelowHealthPct`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- transition from old sparring
-DELETE FROM `creature_template_addon` WHERE `entry` IN(32882,32883,32885,32886,32907,32908);
-INSERT INTO `creature_template_addon` (`entry`, `bytes2`, `noNPCDamageBelowHealthPct`) VALUES
-(32882, 1, 100),
-(32883, 1, 100),
-(32885, 1, 100),
-(32907, 1, 100),
-(32908, 1, 100);
+-- transition from old sparring system
+DELETE FROM `creature_template_sparring` WHERE `Entry` IN(32882,32883,32885,32886,32907,32908);
+INSERT INTO `creature_template_sparring` (`Entry`, `NoNPCDamageBelowHealthPct`) VALUES
+(32882, 100),
+(32883, 100),
+(32885, 100),
+(32907, 100),
+(32908, 100);
 
--- fix overridden data of existing creatures
-UPDATE `creature_addon` SET `noNPCDamageBelowHealthPct`=85 WHERE `guid`=454966;
+-- example in sentinel hill
+DELETE FROM `creature_template_sparring` WHERE `Entry` IN(54372, 54373, 54371, 42407);
+INSERT INTO `creature_template_sparring` (`Entry`, `NoNPCDamageBelowHealthPct`) VALUES
+(54372, 85),
+(54373, 85),
+(54371, 85),
+(42407, 85);

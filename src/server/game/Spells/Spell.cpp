@@ -2553,7 +2553,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             // sparring
             if (Creature* victimCreature = damageInfo.target->ToCreature())
                 if (caster->IsCreature() && !caster->IsCharmedOwnedByPlayerOrPlayer())
-                    if (victimCreature->GetNoNpcDamageBelowPctHealthValue() != 0 && victimCreature->GetHealthPct() <= victimCreature->GetNoNpcDamageBelowPctHealthValue())
+                    if (victimCreature->GetSparringHealthPct() != 0 && victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
                         damageInfo.damage = 0;
 
             hitMask |= createProcHitMask(&damageInfo, MissCondition);

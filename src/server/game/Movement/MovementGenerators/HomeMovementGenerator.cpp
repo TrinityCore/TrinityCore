@@ -144,6 +144,7 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, b
         owner->SetWalk(true);
         owner->SetSpawnHealth();
         owner->LoadCreaturesAddon();
+        owner->LoadCreaturesSparringHealth();
         owner->AI()->JustReachedHome();
     }
 }

@@ -691,11 +691,11 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     {
         if (attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer())
         {
-            if (victimCreature->GetNoNpcDamageBelowPctHealthValue() != 0)
+            if (victimCreature->GetSparringHealthPct() != 0)
             {
                 if (damage >= victimCreature->GetHealth())
                     damage = victimCreature->GetHealth() - 1;
-                else if (victimCreature->GetHealthPct() <= victimCreature->GetNoNpcDamageBelowPctHealthValue())
+                else if (victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
                     damage = 0;
             }
         }
@@ -1910,7 +1910,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id, Player* target /*=nullptr*/, Trini
             if (Creature* victimCreature = damageInfo.GetVictim()->ToCreature())
                 if (Unit* attacker = damageInfo.GetAttacker())
                     if (attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer())
-                        if (victimCreature->GetHealthPct() != 0 && victimCreature->GetHealthPct() <= victimCreature->GetNoNpcDamageBelowPctHealthValue())
+                        if (victimCreature->GetHealthPct() != 0 && victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
                             damageInfo.ModifyDamage(damageInfo.GetDamage() * -1);
 
             SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetSpellInfo(), (*itr)->GetBase()->GetSpellVisual(), damageInfo.GetSchoolMask(), (*itr)->GetBase()->GetCastId());
@@ -2045,8 +2045,8 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
             // sparring
             if (Creature* victimCreature = victim->ToCreature())
                 if (IsCreature() && !IsCharmedOwnedByPlayerOrPlayer())
-                    if (victimCreature->GetNoNpcDamageBelowPctHealthValue() != 0.0f)
-                        if (victimCreature->GetHealthPct() <= victimCreature->GetNoNpcDamageBelowPctHealthValue())
+                    if (victimCreature->GetSparringHealthPct() != 0.0f)
+                        if (victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
                             damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
 
             SendAttackStateUpdate(&damageInfo);
