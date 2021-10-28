@@ -2147,10 +2147,20 @@ void Spell::EffectLearnSpell()
             if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
                 continue;
 
-            player->LearnSpell(itemEffect->SpellID, false);
-
+            //  If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
             if (BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(uint32(itemEffect->SpellID)))
+            {
+                if (player->IsInWorld())
+                {
+                    WorldPackets::Spells::LearnedSpells packet;
+                    packet.SpellID.push_back(itemEffect->SpellID);
+                    packet.SuppressMessaging = false;
+                    player->SendDirectMessage(packet.Write());
+                }
                 player->GetSession()->GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
+            }
+            else
+                player->LearnSpell(itemEffect->SpellID, false);
         }
     }
 
@@ -5697,8 +5707,8 @@ void Spell::EffectUncageBattlePet()
     if (!speciesEntry)
         return;
 
-    Player* plr = m_caster->ToPlayer();
-    BattlePetMgr* battlePetMgr = plr->GetSession()->GetBattlePetMgr();
+    Player* player = m_caster->ToPlayer();
+    BattlePetMgr* battlePetMgr = player->GetSession()->GetBattlePetMgr();
     if (!battlePetMgr)
         return;
 
@@ -5718,13 +5728,9 @@ void Spell::EffectUncageBattlePet()
 
     battlePetMgr->AddPet(speciesId, displayId, breed, BattlePetBreedQuality(quality), level);
 
-    if (speciesEntry->SummonSpellID)
-        if (!plr->HasSpell(speciesEntry->SummonSpellID))
-            plr->LearnSpell(speciesEntry->SummonSpellID, false);
+    player->SendPlaySpellVisual(player, SPELL_VISUAL_UNCAGE_PET, 0, 0, 0.f, false);
 
-    plr->SendPlaySpellVisual(plr, SPELL_VISUAL_UNCAGE_PET, 0, 0, 0.f, false);
-
-    plr->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+    player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
     m_CastItem = nullptr;
 }
 
