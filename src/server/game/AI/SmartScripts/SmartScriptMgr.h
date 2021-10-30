@@ -587,10 +587,13 @@ enum SMART_ACTION
     SMART_ACTION_SET_HEALTH_PCT                     = 142,    // percent
     SMART_ACTION_CREATE_CONVERSATION                = 143,    // don't use on 3.3.5a
     SMART_ACTION_SET_IMMUNE_PC                      = 144,    // 0/1
-    SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
-    SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
+    SMART_ACTION_RESET_IMMUNE_PC                    = 145,    //
+    SMART_ACTION_SET_IMMUNE_NPC                     = 146,    // 0/1
+    SMART_ACTION_RESET_IMMUNE_NPC                   = 147,    //
+    SMART_ACTION_SET_UNINTERACTIBLE                 = 148,    // 0/1
+    SMART_ACTION_RESET_UNINTERACTIBLE               = 149,    //
 
-    SMART_ACTION_END                                = 147
+    SMART_ACTION_END                                = 150
 };
 
 enum class SmartActionSummonCreatureFlags

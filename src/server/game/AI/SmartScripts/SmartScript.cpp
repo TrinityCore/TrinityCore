@@ -2343,12 +2343,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
             {
-                if (IsUnit(target))
+                if (IsCreature(target))
                 {
                     if (e.action.setImmunePC.immunePC)
-                        target->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        target->ToCreature()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     else
-                        target->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        target->ToCreature()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_RESET_IMMUNE_PC:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsCreature(target))
+                {
+                    if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(target->ToCreature()->GetEntry()))
+                    {
+                        if (cInfo->unit_flags & UNIT_FLAG_IMMUNE_TO_PC)
+                            target->ToCreature()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        else
+                            target->ToCreature()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    }
                 }
             }
             break;
@@ -2357,12 +2374,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
             {
-                if (IsUnit(target))
+                if (IsCreature(target))
                 {
                     if (e.action.setImmuneNPC.immuneNPC)
-                        target->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        target->ToCreature()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                     else
-                        target->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        target->ToCreature()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_RESET_IMMUNE_NPC:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsCreature(target))
+                {
+                    if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(target->ToCreature()->GetEntry()))
+                    {
+                        if (cInfo->unit_flags & UNIT_FLAG_IMMUNE_TO_NPC)
+                            target->ToCreature()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        else
+                            target->ToCreature()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    }
                 }
             }
             break;
@@ -2371,12 +2405,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
             {
-                if (IsUnit(target))
+                if (IsCreature(target))
                 {
                     if (e.action.setUninteractible.uninteractible)
-                        target->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        target->ToCreature()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     else
-                        target->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        target->ToCreature()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_RESET_UNINTERACTIBLE:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsCreature(target))
+                {
+                    if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(target->ToCreature()->GetEntry()))
+                    {
+                        if (cInfo->unit_flags & UNIT_FLAG_UNINTERACTIBLE)
+                            target->ToCreature()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        else
+                            target->ToCreature()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    }
                 }
             }
             break;
