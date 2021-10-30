@@ -11068,7 +11068,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     }
 
     CastStop();
-    CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
+    AttackStop();
 
     Player* playerCharmer = charmer->ToPlayer();
 
