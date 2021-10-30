@@ -4312,7 +4312,7 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
     m_caster->ToPlayer()->UpdateGatherSkill(skill, skillValue, reqValue, creature->isElite() ? 2 : 1);
 }
 
-void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
+void Spell::EffectCharge(SpellEffIndex effIndex)
 {
     if (!unitTarget)
         return;
@@ -4334,21 +4334,23 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         else
             m_caster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed);
     }
-
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
+    else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->Attack(unitTarget, true);
+
+        if (int32 spellId = GetSpellInfo()->Effects[effIndex].TriggerSpell)
+            m_caster->CastSpell(unitTarget, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(m_originalCasterGUID));
     }
 }
 
-void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
+void Spell::EffectChargeDest(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+    if (!m_targets.HasDst())
         return;
 
-    if (m_targets.HasDst())
+    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH)
     {
         Position pos = destTarget->GetPosition();
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
@@ -4362,6 +4364,9 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
 
         m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed);
     }
+    else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
+        if (int32 spellId = GetSpellInfo()->Effects[effIndex].TriggerSpell)
+            m_caster->CastSpell(nullptr, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(m_originalCasterGUID));
 }
 
 void Spell::EffectKnockBack(SpellEffIndex effIndex)
