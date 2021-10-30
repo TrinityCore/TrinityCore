@@ -16,15 +16,20 @@
 */
 
 #include "firelands.h"
-#include "GameTime.h"
 #include "InstanceScript.h"
 #include "PassiveAI.h"
 #include "PathGenerator.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Optional.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
+#include "SpellScript.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 
