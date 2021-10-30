@@ -104,6 +104,12 @@ struct base_tag
         return true;
     }
 
+    static bool StoreTo(ObjectGuid& val, char const* pos, size_t len)
+    {
+        val = ObjectGuid::FromString(std::string(pos, len));
+        return true;
+    }
+
     template <typename T>
     static std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
     {
@@ -133,7 +139,7 @@ make_base_tag(tele, uint32);
 struct AchievementLinkData
 {
     AchievementEntry const* achievement;
-    std::string characterId; // TODO: full ObjectGuid (implement parsing guid strings)
+    ObjectGuid characterId;
     bool isFinished;
     uint16 year;
     uint8 month;
