@@ -1500,7 +1500,7 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
             TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", spellId, effectIndex);
             break;
         default:
-            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", spellId, int32(action), effectIndex));
+            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", spellId, int32(action), effectIndex);
             break;
     }
 }
