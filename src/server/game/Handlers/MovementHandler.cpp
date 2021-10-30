@@ -142,6 +142,7 @@ void WorldSession::HandleMoveWorldportAck()
         }
     }
 
+    GetPlayer()->UpdateMountCapabilities();
     GetPlayer()->SendInitialPacketsAfterAddToMap();
 
     // flight fast teleport case

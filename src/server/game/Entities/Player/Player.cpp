@@ -18473,8 +18473,7 @@ void Player::UpdateMountCapabilities()
 {
     if (HasAuraType(SPELL_AURA_MOUNTED))
     {
-        AuraEffectList mountEffects = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
-        for (AuraEffect* aurEff : mountEffects)
+        for (AuraEffect* aurEff : GetAuraEffectsByType(SPELL_AURA_MOUNTED))
         {
             MountCapabilityEntry const* capability = GetMountCapability(uint32(aurEff->GetMiscValueB()));
             if (!capability)
