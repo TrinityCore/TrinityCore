@@ -17,10 +17,10 @@
 
 #include "firelands.h"
 #include "GameTime.h"
+#include "InstanceScript.h"
 #include "PassiveAI.h"
 #include "PathGenerator.h"
 #include "MoveSplineInit.h"
-#include "MoveSpline.h"
 #include "ObjectMgr.h"
 #include "Optional.h"
 #include "ScriptedCreature.h"
