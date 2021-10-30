@@ -177,6 +177,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_PLAY_DEATH_ANIM                      = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS                   = 0x00040000,   // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
     UNIT_FLAG2_NO_ACTIONS                           = 0x00800000,
+    UNIT_FLAG2_DISABLE_UNIT_FRAME                   = 0x04000000,   // Disables the unit frame when selecting the target
     UNIT_FLAG2_IGNORE_SPELL_MIN_RANGE_RESTRICTIONS  = 0x08000000    // Allows spells with a min range restriction to be cast when closer than given range value
 };
 
