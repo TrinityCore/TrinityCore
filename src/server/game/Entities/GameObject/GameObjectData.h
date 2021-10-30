@@ -699,6 +699,7 @@ enum class GameObjectActions : uint32
     UseArtKit2,                     // Use ArtKit2
     UseArtKit3,                     // Use ArtKit3
     SetTapList,                     // Set Tap List
+    Max = SetTapList
 };
 
 #endif // GameObjectData_h__
