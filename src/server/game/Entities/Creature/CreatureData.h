@@ -118,6 +118,9 @@ struct TC_GAME_API CreatureMovementData
     bool IsSwimAllowed() const { return Swim; }
     bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
     bool IsRooted() const { return Rooted; }
+    bool IsGravityDisabled() const { return  Flight == CreatureFlightMovementType::DisableGravity; }
+    bool CanFly() const { return  Flight == CreatureFlightMovementType::CanFly; }
+    bool IsHoverEnabled() const { return  Ground == CreatureGroundMovementType::Hover; }
 
     CreatureRandomMovementType GetRandom() const { return Random; }
 

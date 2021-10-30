@@ -98,7 +98,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanSwim() const override;
         bool CanEnterWater() const override;
         bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
-        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); }
+        bool CanHover() const { return GetMovementTemplate().IsHoverEnabled() || IsHovering(); }
         bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimationTier = true) override;
         bool SetHover(bool enable, bool packetOnly = false, bool updateAnimationTier = true) override;
 

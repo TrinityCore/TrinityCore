@@ -3011,26 +3011,33 @@ void Creature::UpdateMovementFlags()
 
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
     float ground = GetFloorZ();
+    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (IsHovering() ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
 
-    bool canHover = CanHover();
-    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
-
+    // Creature has a flight state enabled in db
     if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
     {
-        if (GetMovementTemplate().Flight == CreatureFlightMovementType::CanFly)
-            SetCanFly(true);
-        else
-            SetDisableGravity(true, false, false);
+        if (GetMovementTemplate().IsGravityDisabled())
+            SetDisableGravity(true);
 
-        if (!HasAuraType(SPELL_AURA_HOVER))
-            SetHover(false);
+        if (GetMovementTemplate().CanFly())
+            SetCanFly(true);
     }
     else
     {
+        // @todo: this interferes with scripted flight movement so let's reevaluate if we want to stick with CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE to avoid that or if we want to drop that all together.
         SetCanFly(false);
-        SetDisableGravity(false, false, false);
-        if ((IsAlive() && CanHover()) || HasAuraType(SPELL_AURA_HOVER))
-            SetHover(true, false, false);
+        SetDisableGravity(false);
+    }
+
+    // Creature has a special ground state enabled in db or has a movement hover aura applied
+    if (GetMovementTemplate().IsGroundAllowed())
+    {
+        // Hovering always requires the creature to be alive to avoid visual issues
+        // @todo: sniffed spawn locations have applied hover offsets to the position z value so either substract them when parsing sniffs or skip the initial relocation from Unit::SetHover
+        if (IsAlive() && (GetMovementTemplate().IsHoverEnabled() || HasAuraType(SPELL_AURA_HOVER)))
+            SetHover(true);
+        else
+            SetHover(false);
     }
 
     if (!isInAir)
