@@ -5000,6 +5000,31 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
     });
+
+    // Summon Fragment of Rhyolith
+    ApplySpellFix({ 98136 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
+    });
+
+    // Summon Spark of Rhyolith
+    ApplySpellFix({ 98552 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
+    });
+
+    // Summon Armor Fragment
+    ApplySpellFix({ 98557 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
+    });
+
+    // Immolation
+    ApplySpellFix({ 99845 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
+    });
+
     // ENDOF FIRELANDS SPELLS
 
     //

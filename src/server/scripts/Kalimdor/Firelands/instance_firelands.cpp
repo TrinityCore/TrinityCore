@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "EventProcessor.h"
@@ -25,25 +26,33 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_BETHTILAC,           DATA_BETHTILAC          },
-    { BOSS_SHANNOX,             DATA_SHANNOX,           },
-    { BOSS_LORD_RHYOLITH,       DATA_LORD_RHYOLITH      },
-    { BOSS_ALYSRAZOR,           DATA_ALYSRAZOR          },
-    { BOSS_BALEROC,             DATA_BALEROC            },
-    { BOSS_MAJORDOMO_STAGHELM,  DATA_MAJORDOMO_STAGHELM },
-    { BOSS_RAGNAROS,            DATA_RAGNAROS           },
-    { 0,                        0,                      } // END
+    { BOSS_BETHTILAC,                           DATA_BETHTILAC                          },
+    { BOSS_SHANNOX,                             DATA_SHANNOX,                           },
+    { BOSS_LORD_RHYOLITH,                       DATA_LORD_RHYOLITH                      },
+    { BOSS_ALYSRAZOR,                           DATA_ALYSRAZOR                          },
+    { BOSS_BALEROC,                             DATA_BALEROC                            },
+    { BOSS_MAJORDOMO_STAGHELM,                  DATA_MAJORDOMO_STAGHELM                 },
+    { BOSS_RAGNAROS,                            DATA_RAGNAROS                           },
+    { NPC_MOVEMENT_CONTROLLER_LORD_RHYOLITH,    DATA_LORD_RHYOLITH_MOVEMENT_CONTROLLER  },
+    { NPC_LEFT_FOOT,                            DATA_LEFT_FOOT                          },
+    { NPC_RIGHT_FOOT,                           DATA_RIGHT_FOOT                         },
+    { 0,                                        0,                                      } // END
 };
 
 DoorData const doorData[] =
 {
-    {GO_LORD_RHYOLITH_BRIDGE,    DATA_LORD_RHYOLITH,      DOOR_TYPE_ROOM},
-    {GO_BETH_TILAC_DOOR,         DATA_BETHTILAC,          DOOR_TYPE_ROOM},
-    //{GO_BALEROC_FIREWALL,        DATA_BALEROC,            DOOR_TYPE_ROOM},
-    {GO_MAJORDOMO_FIREWALL,      DATA_MAJORDOMO_STAGHELM, DOOR_TYPE_PASSAGE},
-    {GO_RAGNAROS_DOOR,           DATA_RAGNAROS,           DOOR_TYPE_ROOM},
-    {0,                          0,                       DOOR_TYPE_ROOM}, //END
+    {GO_LORD_RHYOLITH_BRIDGE,    DATA_LORD_RHYOLITH,      DOOR_TYPE_ROOM                },
+    {GO_BETH_TILAC_DOOR,         DATA_BETHTILAC,          DOOR_TYPE_ROOM                },
+    //{GO_BALEROC_FIREWALL,        DATA_BALEROC,            DOOR_TYPE_ROOM                },
+    {GO_MAJORDOMO_FIREWALL,      DATA_MAJORDOMO_STAGHELM, DOOR_TYPE_PASSAGE             },
+    {GO_RAGNAROS_DOOR,           DATA_RAGNAROS,           DOOR_TYPE_ROOM                },
+    {0,                          0,                       DOOR_TYPE_ROOM                }, //END
 }; //Baleroc door is special, it depends on the health status of the other bosses in the instance
+
+BossBoundaryData const boundaries =
+{
+    { DATA_LORD_RHYOLITH,  new CircleBoundary(Position(-371.577393f, -318.680725f), 60.f) }
+};
 
 class DelayedAttackStartEvent : public BasicEvent
 {
@@ -85,8 +94,9 @@ class instance_firelands : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadDoorData(doorData);
                 LoadObjectData(creatureData, nullptr);
+                LoadDoorData(doorData);
+                LoadBossBoundaries(boundaries);
             }
 
             void Create() override

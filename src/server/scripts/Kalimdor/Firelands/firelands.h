@@ -34,41 +34,61 @@ enum FLDataTypes
     DATA_ALYSRAZOR          = 3,
     DATA_BALEROC            = 4,
     DATA_MAJORDOMO_STAGHELM = 5,
-    DATA_RAGNAROS           = 6
+    DATA_RAGNAROS           = 6,
+
+    // Encounter Specific
+    DATA_LORD_RHYOLITH_MOVEMENT_CONTROLLER,
+    DATA_LEFT_FOOT,
+    DATA_RIGHT_FOOT
 };
 
 enum FLCreatureIds
 {
     //Bosses
-    BOSS_SHANNOX                    = 53691,
-    BOSS_LORD_RHYOLITH              = 52558,
-    BOSS_BETHTILAC                  = 52498,
-    BOSS_ALYSRAZOR                  = 52530,
-    BOSS_BALEROC                    = 53494,
-    BOSS_MAJORDOMO_STAGHELM         = 52571,
-    BOSS_RAGNAROS                   = 52409,
+    BOSS_SHANNOX                            = 53691,
+    BOSS_LORD_RHYOLITH                      = 52558,
+    BOSS_BETHTILAC                          = 52498,
+    BOSS_ALYSRAZOR                          = 52530,
+    BOSS_BALEROC                            = 53494,
+    BOSS_MAJORDOMO_STAGHELM                 = 52571,
+    BOSS_RAGNAROS                           = 52409,
+
+    //Lord Rhyolith
+    NPC_MOVEMENT_CONTROLLER_LORD_RHYOLITH   = 52659,
+    NPC_LEFT_FOOT                           = 52577,
+    NPC_RIGHT_FOOT                          = 53087,
+    NPC_VOLCANO                             = 52582,
+    NPC_VOLCANO_HEATED                      = 54071,
+    NPC_VOLCANO_CRATER                      = 52866,
+    NPC_LORD_RHYOLITH_PHASE_TWO             = 53772,
+    NPC_LORD_RHYOLITH_DAMAGED_1             = 54192,
+    NPC_LORD_RHYOLITH_DAMAGED_2             = 54199,
+    NPC_PILLAR                              = 53122,
+    NPC_FRAGMENT_OF_RHYOLITH                = 52620,
+    NPC_SPARK_OF_RHYOLITH                   = 53211,
+    NPC_UNLEASHED_FLAME                     = 54347,
 
     //Alysrazor
-    NPC_BLAZING_MONSTROSITY_LEFT    = 53786,
-    NPC_BLAZING_MONSTROSITY_RIGHT   = 53791,
-    NPC_EGG_PILE                    = 53795,
-    NPC_HARBINGER_OF_FLAME          = 53793,
-    NPC_MOLTEN_EGG_TRASH            = 53914,
-    NPC_SMOULDERING_HATCHLING       = 53794,
+    NPC_BLAZING_MONSTROSITY_LEFT            = 53786,
+    NPC_BLAZING_MONSTROSITY_RIGHT           = 53791,
+    NPC_EGG_PILE                            = 53795,
+    NPC_HARBINGER_OF_FLAME                  = 53793,
+    NPC_MOLTEN_EGG_TRASH                    = 53914,
+    NPC_SMOULDERING_HATCHLING               = 53794,
 
     // Majordomo Staghelm
-    NPC_SPIRIT_OF_THE_FLAME         = 52593,
-    NPC_BURNING_ORB                 = 53216,
-    NPC_DRUID_OF_THE_FLAME          = 53619
+    NPC_SPIRIT_OF_THE_FLAME                 = 52593,
+    NPC_BURNING_ORB                         = 53216,
+    NPC_DRUID_OF_THE_FLAME                  = 53619
 };
 
 enum GameobjectIds
 {
-    GO_LORD_RHYOLITH_BRIDGE         = 209255,
-    GO_BETH_TILAC_DOOR              = 208877,
-    GO_BALEROC_FIREWALL             = 209066,
-    GO_MAJORDOMO_FIREWALL           = 208906,
-    GO_RAGNAROS_DOOR                = 209073,
+    GO_LORD_RHYOLITH_BRIDGE                 = 209255,
+    GO_BETH_TILAC_DOOR                      = 208877,
+    GO_BALEROC_FIREWALL                     = 209066,
+    GO_MAJORDOMO_FIREWALL                   = 208906,
+    GO_RAGNAROS_DOOR                        = 209073,
 };
 
 template <class AI, class T>
