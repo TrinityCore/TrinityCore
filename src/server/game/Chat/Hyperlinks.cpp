@@ -25,6 +25,7 @@
 #include "SharedDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StringFormat.h"
 #include "World.h"
 #include "advstd.h"
 
@@ -99,88 +100,26 @@ static bool equal_with_len(char const* str1, char const* str2, size_t len)
     return !len && !*str1;
 }
 
-template <>
-struct LinkValidator<LinkTags::achievement>
+static bool IsCreatureNameValid(uint32 creatureId, char const* pos, size_t len)
 {
-    static bool IsTextValid(AchievementLinkData const& data, char const* pos, size_t len)
+    if (CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(creatureId))
     {
-        if (!len)
-            return false;
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (equal_with_len(data.Achievement->Title[i], pos, len))
-                return true;
-        return false;
-    }
-
-    static bool IsColorValid(AchievementLinkData const&, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_ACHIEVEMENT;
-    }
-};
-
-template <>
-struct LinkValidator<LinkTags::item>
-{
-    static bool IsTextValid(ItemLinkData const& data, char const* pos, size_t len)
-    {
-        LocalizedString const* suffixStrings = nullptr;
-        if (!(data.Item->GetFlags3() & ITEM_FLAG3_HIDE_NAME_SUFFIX) && data.Suffix)
-            suffixStrings = &data.Suffix->Description;
-
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-        {
-            std::string name = data.Item->GetName(i);
-            if (name.empty())
-                continue;
-            if (suffixStrings)
-            {
-                if (len > name.length() + 1 &&
-                  (strncmp(name.c_str(), pos, name.length()) == 0) &&
-                  (*(pos + name.length()) == ' ') &&
-                  equal_with_len((*suffixStrings)[i], pos + name.length() + 1, len - name.length() - 1))
-                    return true;
-            }
-            else if (equal_with_len(name.c_str(), pos, len))
-                return true;
-        }
-        return false;
-    }
-
-    static bool IsColorValid(ItemLinkData const& data, HyperlinkColor c)
-    {
-        return c == ItemQualityColors[data.Quality];
-    }
-};
-
-template <>
-struct LinkValidator<LinkTags::quest>
-{
-    static bool IsTextValid(QuestLinkData const& data, char const* pos, size_t len)
-    {
-        QuestTemplateLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
+        CreatureLocale const* locale = sObjectMgr->GetCreatureLocale(creatureId);
         if (!locale)
-            return equal_with_len(data.Quest->GetLogTitle().c_str(), pos, len);
+            return equal_with_len(creatureTemplate->Name.c_str(), pos, len);
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            std::string const& name = (i == DEFAULT_LOCALE) ? data.Quest->GetLogTitle() : locale->LogTitle[i];
+            std::string const& name = (i == DEFAULT_LOCALE) ? creatureTemplate->Name : locale->Name[i];
             if (name.empty())
                 continue;
             if (equal_with_len(name.c_str(), pos, len))
                 return true;
         }
-
-        return false;
     }
 
-    static bool IsColorValid(QuestLinkData const&, HyperlinkColor c)
-    {
-        for (uint8 i = 0; i < MAX_QUEST_DIFFICULTY; ++i)
-            if (c == QuestDifficultyColors[i])
-                return true;
-        return false;
-    }
-};
+    return false;
+}
 
 template <>
 struct LinkValidator<LinkTags::spell>
@@ -201,6 +140,106 @@ struct LinkValidator<LinkTags::spell>
     static bool IsColorValid(SpellLinkData const&, HyperlinkColor c)
     {
         return c == CHAT_LINK_COLOR_SPELL;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::achievement>
+{
+    static bool IsTextValid(AchievementLinkData const& data, char const* pos, size_t len)
+    {
+        if (!len)
+            return false;
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len(data.Achievement->Title[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(AchievementLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_ACHIEVEMENT;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::apower>
+{
+    static bool IsTextValid(ArtifactPowerLinkData const& data, char const* pos, size_t len)
+    {
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.ArtifactPower->SpellID, DIFFICULTY_NONE))
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
+        return false;
+    }
+
+    static bool IsColorValid(ArtifactPowerLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_ARTIFACT_POWER;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::azessence>
+{
+    static bool IsTextValid(AzeriteEssenceLinkData const& data, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len(data.Essence->Name[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(AzeriteEssenceLinkData const& data, HyperlinkColor c)
+    {
+        return c == ItemQualityColors[data.Rank + 1];
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::battlepet>
+{
+    static bool IsTextValid(BattlePetLinkData const& data, char const* pos, size_t len)
+    {
+        return IsCreatureNameValid(data.Species->CreatureID, pos, len);
+    }
+
+    static bool IsColorValid(BattlePetLinkData const& data, HyperlinkColor c)
+    {
+        return c == ItemQualityColors[data.Quality];
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::conduit>
+{
+    static bool IsTextValid(SoulbindConduitRankEntry const* rank, char const* pos, size_t len)
+    {
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(rank->SpellID, DIFFICULTY_NONE))
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
+        return false;
+    }
+
+    static bool IsColorValid(SoulbindConduitRankEntry const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_SPELL;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::currency>
+{
+    static bool IsTextValid(CurrencyLinkData const& data, char const* pos, size_t len)
+    {
+        LocalizedString const* name = data.Container ? &data.Container->ContainerName : &data.Currency->Name;
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len((*name)[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(CurrencyLinkData const& data, HyperlinkColor c)
+    {
+        return c == ItemQualityColors[(data.Container ? data.Container->ContainerQuality : data.Currency->Quality)];
     }
 };
 
@@ -238,11 +277,238 @@ struct LinkValidator<LinkTags::enchant>
 };
 
 template <>
+struct LinkValidator<LinkTags::garrfollower>
+{
+    static bool IsTextValid(GarrisonFollowerLinkData const& data, char const* pos, size_t len)
+    {
+        return IsCreatureNameValid(data.Follower->HordeCreatureID, pos, len)
+            || IsCreatureNameValid(data.Follower->AllianceCreatureID, pos, len);
+    }
+
+    static bool IsColorValid(GarrisonFollowerLinkData const& data, HyperlinkColor c)
+    {
+        return c == ItemQualityColors[data.Quality];
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::garrfollowerability>
+{
+    static bool IsTextValid(GarrAbilityEntry const* ability, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len(ability->Name[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(GarrAbilityEntry const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_GARR_ABILITY;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::garrmission>
+{
+    static bool IsTextValid(GarrisonMissionLinkData const& data, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len(data.Mission->Name[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(GarrisonMissionLinkData const&, HyperlinkColor c)
+    {
+        return c == QuestDifficultyColors[2];
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::instancelock>
+{
+    static bool IsTextValid(InstanceLockLinkData const& data, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len(data.Map->MapName[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(InstanceLockLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_INSTANCE_LOCK;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::item>
+{
+    static bool IsTextValid(ItemLinkData const& data, char const* pos, size_t len)
+    {
+        LocalizedString const* suffixStrings = nullptr;
+        if (!(data.Item->GetFlags3() & ITEM_FLAG3_HIDE_NAME_SUFFIX) && data.Suffix)
+            suffixStrings = &data.Suffix->Description;
+
+        return IsTextValid(data.Item, suffixStrings, pos, len);
+    }
+
+    static bool IsTextValid(ItemTemplate const* itemTemplate, LocalizedString const* suffixStrings, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+        {
+            std::string name = itemTemplate->GetName(i);
+            if (name.empty())
+                continue;
+            if (suffixStrings)
+            {
+                if (len > name.length() + 1 &&
+                    (strncmp(name.c_str(), pos, name.length()) == 0) &&
+                    (*(pos + name.length()) == ' ') &&
+                    equal_with_len((*suffixStrings)[i], pos + name.length() + 1, len - name.length() - 1))
+                    return true;
+            }
+            else if (equal_with_len(name.c_str(), pos, len))
+                return true;
+        }
+        return false;
+    }
+
+    static bool IsColorValid(ItemLinkData const& data, HyperlinkColor c)
+    {
+        return c == ItemQualityColors[data.Quality];
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::journal>
+{
+    static bool IsTextValid(JournalLinkData const& data, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len((*data.ExpectedText)[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(JournalLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_JOURNAL;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::keystone>
+{
+    static bool IsTextValid(KeystoneLinkData const& data, char const* pos, size_t len)
+    {
+        // Skip "Keystone" prefix - not loading GlobalStrings.db2
+        char const* validateStartPos = strstr(pos, ": ");
+        if (!validateStartPos)
+            return false;
+
+        // skip ": " too
+        validateStartPos += 2;
+        size_t validateLen = len - (validateStartPos - pos);
+
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+        {
+            std::string expectedText = Trinity::StringFormat("%s (%u)", data.Map->Name[i], data.Level);
+            if (equal_with_len(expectedText.c_str(), validateStartPos, validateLen))
+                return true;
+        }
+        return false;
+    }
+
+    static bool IsColorValid(KeystoneLinkData const&, HyperlinkColor c)
+    {
+        return c == ItemQualityColors[ITEM_QUALITY_EPIC];
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::quest>
+{
+    static bool IsTextValid(QuestLinkData const& data, char const* pos, size_t len)
+    {
+        QuestTemplateLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
+        if (!locale)
+            return equal_with_len(data.Quest->GetLogTitle().c_str(), pos, len);
+
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        {
+            std::string const& name = (i == DEFAULT_LOCALE) ? data.Quest->GetLogTitle() : locale->LogTitle[i];
+            if (name.empty())
+                continue;
+            if (equal_with_len(name.c_str(), pos, len))
+                return true;
+        }
+
+        return false;
+    }
+
+    static bool IsColorValid(QuestLinkData const&, HyperlinkColor c)
+    {
+        for (uint8 i = 0; i < MAX_QUEST_DIFFICULTY; ++i)
+            if (c == QuestDifficultyColors[i])
+                return true;
+        return false;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::mawpower>
+{
+    static bool IsTextValid(MawPowerEntry const* mawPower, char const* pos, size_t len)
+    {
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(mawPower->SpellID, DIFFICULTY_NONE))
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
+        return false;
+    }
+
+    static bool IsColorValid(MawPowerEntry const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_SPELL;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::outfit>
+{
+    static bool IsTextValid(std::string const&, char const*, size_t)
+    {
+        return true;
+    }
+
+    static bool IsColorValid(std::string const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_TRANSMOG;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::pvptal>
+{
+    static bool IsTextValid(PvpTalentEntry const* mawPower, char const* pos, size_t len)
+    {
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(mawPower->SpellID, DIFFICULTY_NONE))
+            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
+        return false;
+    }
+
+    static bool IsColorValid(PvpTalentEntry const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_TALENT;
+    }
+};
+
+template <>
 struct LinkValidator<LinkTags::talent>
 {
-    static bool IsTextValid(TalentEntry const* talent, char const* pos, size_t len)
+    static bool IsTextValid(TalentEntry const* mawPower, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(mawPower->SpellID, DIFFICULTY_NONE))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }
@@ -267,6 +533,81 @@ struct LinkValidator<LinkTags::trade>
     }
 };
 
+template <>
+struct LinkValidator<LinkTags::transmogappearance>
+{
+    static bool IsTextValid(ItemModifiedAppearanceEntry const* enchantment, char const* pos, size_t len)
+    {
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(enchantment->ItemID))
+            return LinkValidator<LinkTags::item>::IsTextValid(itemTemplate, nullptr, pos, len);
+        return false;
+    }
+
+    static bool IsColorValid(ItemModifiedAppearanceEntry const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_TRANSMOG;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::transmogillusion>
+{
+    static bool IsTextValid(SpellItemEnchantmentEntry const* enchantment, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len(enchantment->Name[i], pos, len))
+                return true;
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            if (equal_with_len(enchantment->HordeName[i], pos, len))
+                return true;
+        return false;
+    }
+
+    static bool IsColorValid(SpellItemEnchantmentEntry const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_TRANSMOG;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::transmogset>
+{
+    static bool IsTextValid(TransmogSetEntry const* set, char const* pos, size_t len)
+    {
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+        {
+            if (ItemNameDescriptionEntry const* itemNameDescription = sItemNameDescriptionStore.LookupEntry(set->ItemNameDescriptionID))
+            {
+                std::string expectedText = Trinity::StringFormat("%s (%s)", set->Name[i], itemNameDescription->Description[i]);
+                if (equal_with_len(expectedText.c_str(), pos, len))
+                    return true;
+            }
+            else if (equal_with_len(set->Name[i], pos, len))
+                return true;
+        }
+        return false;
+    }
+
+    static bool IsColorValid(TransmogSetEntry const*, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_TRANSMOG;
+    }
+};
+
+template <>
+struct LinkValidator<LinkTags::worldmap>
+{
+    static bool IsTextValid(WorldMapLinkData const&, char const*, size_t)
+    {
+        return true;
+    }
+
+    static bool IsColorValid(WorldMapLinkData const&, HyperlinkColor c)
+    {
+        return c == CHAT_LINK_COLOR_ACHIEVEMENT;
+    }
+};
+
 #define TryValidateAs(tagname)                                                                          \
 {                                                                                                       \
     ASSERT(!strcmp(LinkTags::tagname::tag(), #tagname));                                                \
@@ -288,17 +629,31 @@ struct LinkValidator<LinkTags::trade>
 static bool ValidateLinkInfo(HyperlinkInfo const& info)
 {
     TryValidateAs(achievement);
+    TryValidateAs(apower);
+    TryValidateAs(azessence);
     TryValidateAs(area);
     TryValidateAs(areatrigger);
+    TryValidateAs(battlepet);
+    TryValidateAs(conduit);
     TryValidateAs(creature);
     TryValidateAs(creature_entry);
+    TryValidateAs(currency);
     TryValidateAs(enchant);
     TryValidateAs(gameevent);
     TryValidateAs(gameobject);
     TryValidateAs(gameobject_entry);
+    TryValidateAs(garrfollower);
+    TryValidateAs(garrfollowerability);
+    TryValidateAs(garrmission);
+    TryValidateAs(instancelock);
     TryValidateAs(item);
     TryValidateAs(itemset);
+    TryValidateAs(journal);
+    TryValidateAs(keystone);
+    TryValidateAs(mawpower);
+    TryValidateAs(outfit);
     TryValidateAs(player);
+    TryValidateAs(pvptal);
     TryValidateAs(quest);
     TryValidateAs(skill);
     TryValidateAs(spell);
@@ -307,6 +662,10 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(tele);
     TryValidateAs(title);
     TryValidateAs(trade);
+    TryValidateAs(transmogappearance);
+    TryValidateAs(transmogillusion);
+    TryValidateAs(transmogset);
+    TryValidateAs(worldmap);
     return false;
 }
 

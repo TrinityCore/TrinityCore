@@ -36,6 +36,20 @@ char const* Trinity::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(
     return args;
 }
 
+struct CurrencyTypesVisitor
+{
+    using value_type = CurrencyTypesEntry const*;
+    value_type operator()(Hyperlink<currency> currency) const { return currency->Currency; }
+    value_type operator()(uint32 currencyId) const { return sCurrencyTypesStore.LookupEntry(currencyId); }
+};
+char const* Trinity::ChatCommands::ArgInfo<CurrencyTypesEntry const*>::TryConsume(CurrencyTypesEntry const*& data, char const* args)
+{
+    Variant <Hyperlink<currency>, uint32> val;
+    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+        data = boost::apply_visitor(CurrencyTypesVisitor(), val);
+    return args;
+}
+
 struct GameTeleVisitor
 {
     using value_type = GameTele const*;

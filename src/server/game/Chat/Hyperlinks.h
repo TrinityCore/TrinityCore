@@ -20,17 +20,36 @@
 
 #include "advstd.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include <string>
 #include <utility>
 
 struct AchievementEntry;
+struct ArtifactPowerRankEntry;
+struct AzeriteEssenceEntry;
+struct BattlePetSpeciesEntry;
+struct CurrencyContainerEntry;
+struct CurrencyTypesEntry;
+struct GarrAbilityEntry;
+struct GarrFollowerEntry;
+struct GarrMissionEntry;
 struct GlyphPropertiesEntry;
+struct ItemModifiedAppearanceEntry;
 struct ItemNameDescriptionEntry;
 struct ItemTemplate;
+struct LocalizedString;
+struct MapEntry;
+struct MapChallengeModeEntry;
+struct MawPowerEntry;
+struct PvpTalentEntry;
 class Quest;
 struct SkillLineEntry;
+struct SoulbindConduitRankEntry;
 class SpellInfo;
+struct SpellItemEnchantmentEntry;
 struct TalentEntry;
+struct TransmogSetEntry;
+struct UiMapEntry;
 
 namespace Trinity
 {
@@ -46,6 +65,64 @@ struct AchievementLinkData
     uint8 Month;
     uint8 Day;
     uint32 Criteria[4];
+};
+
+struct ArtifactPowerLinkData
+{
+    ArtifactPowerRankEntry const* ArtifactPower;
+    uint8 PurchasedRank;
+    uint8 CurrentRankWithBonus;
+};
+
+struct AzeriteEssenceLinkData
+{
+    AzeriteEssenceEntry const* Essence;
+    uint8 Rank;
+};
+
+struct BattlePetLinkData
+{
+    BattlePetSpeciesEntry const* Species;
+    uint8 Level;
+    uint8 Quality;
+    uint32 MaxHealth;
+    uint32 Power;
+    uint32 Speed;
+    ObjectGuid PetGuid;
+    uint32 DisplayId;
+};
+
+struct CurrencyLinkData
+{
+    CurrencyTypesEntry const* Currency;
+    int32 Quantity;
+
+    CurrencyContainerEntry const* Container;
+};
+
+struct GarrisonFollowerLinkData
+{
+    GarrFollowerEntry const* Follower;
+    uint32 Quality;
+    uint32 Level;
+    uint32 ItemLevel;
+    uint32 Abilities[4];
+    uint32 Traits[4];
+    uint32 Specialization;
+};
+
+struct GarrisonMissionLinkData
+{
+    GarrMissionEntry const* Mission;
+    uint64 DbID;
+};
+
+struct InstanceLockLinkData
+{
+    ObjectGuid Owner;
+    MapEntry const* Map;
+    uint32 Difficulty;
+    uint32 CompletedEncountersMask;
 };
 
 struct ItemLinkData
@@ -73,6 +150,29 @@ struct ItemLinkData
     ItemNameDescriptionEntry const* Suffix;
 };
 
+struct JournalLinkData
+{
+    enum class Types : uint8
+    {
+        Instance            = 0,
+        Encounter           = 1,
+        EncounterSection    = 2,
+        Tier                = 3
+    };
+
+    uint8 Type;
+    LocalizedString const* ExpectedText;
+    uint32 Difficulty;
+};
+
+struct KeystoneLinkData
+{
+    uint32 ItemId;
+    MapChallengeModeEntry const* Map;
+    uint32 Level;
+    uint32 Affix[4];
+};
+
 struct QuestLinkData
 {
     ::Quest const* Quest;
@@ -90,6 +190,14 @@ struct TradeskillLinkData
     ObjectGuid Owner;
     SpellInfo const* Spell;
     SkillLineEntry const* Skill;
+};
+
+struct WorldMapLinkData
+{
+    UiMapEntry const* UiMap;
+    uint32 X;
+    uint32 Y;
+    Optional<uint32> Z;
 };
 
 namespace LinkTags {
@@ -138,6 +246,7 @@ namespace LinkTags {
     };
 
 #define make_base_tag(ltag, type) struct ltag : public base_tag { using value_type = type; static constexpr char const* tag() { return #ltag; } }
+    // custom formats
     make_base_tag(area, uint32);
     make_base_tag(areatrigger, uint32);
     make_base_tag(creature, ObjectGuid::LowType);
@@ -151,6 +260,9 @@ namespace LinkTags {
     make_base_tag(taxinode, uint32);
     make_base_tag(tele, uint32);
     make_base_tag(title, uint32);
+
+    // client format
+    make_base_tag(outfit, std::string const&); // some sort of weird base91 derived encoding
 #undef make_base_tag
 
     struct TC_GAME_API achievement
@@ -160,6 +272,41 @@ namespace LinkTags {
         static bool StoreTo(AchievementLinkData& val, char const* pos, size_t len);
     };
 
+    struct TC_GAME_API apower
+    {
+        using value_type = ArtifactPowerLinkData const&;
+        static constexpr char const* tag() { return "apower"; }
+        static bool StoreTo(ArtifactPowerLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API azessence
+    {
+        using value_type = AzeriteEssenceLinkData const&;
+        static constexpr char const* tag() { return "azessence"; }
+        static bool StoreTo(AzeriteEssenceLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API battlepet
+    {
+        using value_type = BattlePetLinkData const&;
+        static constexpr char const* tag() { return "battlepet"; }
+        static bool StoreTo(BattlePetLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API conduit
+    {
+        using value_type = SoulbindConduitRankEntry const*&;
+        static constexpr char const* tag() { return "conduit"; }
+        static bool StoreTo(SoulbindConduitRankEntry const*& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API currency
+    {
+        using value_type = CurrencyLinkData const&;
+        static constexpr char const* tag() { return "currency"; }
+        static bool StoreTo(CurrencyLinkData& val, char const* pos, size_t len);
+    };
+
     struct TC_GAME_API enchant
     {
         using value_type = SpellInfo const*;
@@ -167,11 +314,67 @@ namespace LinkTags {
         static bool StoreTo(SpellInfo const*& val, char const* pos, size_t len);
     };
 
+    struct TC_GAME_API garrfollower
+    {
+        using value_type = GarrisonFollowerLinkData const&;
+        static constexpr char const* tag() { return "garrfollower"; }
+        static bool StoreTo(GarrisonFollowerLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API garrfollowerability
+    {
+        using value_type = GarrAbilityEntry const*&;
+        static constexpr char const* tag() { return "garrfollowerability"; }
+        static bool StoreTo(GarrAbilityEntry const*& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API garrmission
+    {
+        using value_type = GarrisonMissionLinkData const&;
+        static constexpr char const* tag() { return "garrmission"; }
+        static bool StoreTo(GarrisonMissionLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API instancelock
+    {
+        using value_type = InstanceLockLinkData const&;
+        static constexpr char const* tag() { return "instancelock"; }
+        static bool StoreTo(InstanceLockLinkData& val, char const* pos, size_t len);
+    };
+
     struct TC_GAME_API item
     {
         using value_type = ItemLinkData const&;
         static constexpr char const* tag() { return "item"; }
         static bool StoreTo(ItemLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API journal
+    {
+        using value_type = JournalLinkData const&;
+        static constexpr char const* tag() { return "journal"; }
+        static bool StoreTo(JournalLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API keystone
+    {
+        using value_type = KeystoneLinkData const&;
+        static constexpr char const* tag() { return "keystone"; }
+        static bool StoreTo(KeystoneLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API mawpower
+    {
+        using value_type = MawPowerEntry const*&;
+        static constexpr char const* tag() { return "mawpower"; }
+        static bool StoreTo(MawPowerEntry const*& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API pvptal
+    {
+        using value_type = PvpTalentEntry const*&;
+        static constexpr char const* tag() { return "pvptal"; }
+        static bool StoreTo(PvpTalentEntry const*& val, char const* pos, size_t len);
     };
 
     struct TC_GAME_API quest
@@ -200,6 +403,34 @@ namespace LinkTags {
         using value_type = TradeskillLinkData const&;
         static constexpr char const* tag() { return "trade"; }
         static bool StoreTo(TradeskillLinkData& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API transmogappearance
+    {
+        using value_type = ItemModifiedAppearanceEntry const*&;
+        static constexpr char const* tag() { return "transmogappearance"; }
+        static bool StoreTo(ItemModifiedAppearanceEntry const*& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API transmogillusion
+    {
+        using value_type = SpellItemEnchantmentEntry const*&;
+        static constexpr char const* tag() { return "transmogillusion"; }
+        static bool StoreTo(SpellItemEnchantmentEntry const*& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API transmogset
+    {
+        using value_type = TransmogSetEntry const*&;
+        static constexpr char const* tag() { return "transmogset"; }
+        static bool StoreTo(TransmogSetEntry const*& val, char const* pos, size_t len);
+    };
+
+    struct TC_GAME_API worldmap
+    {
+        using value_type = WorldMapLinkData const&;
+        static constexpr char const* tag() { return "worldmap"; }
+        static bool StoreTo(WorldMapLinkData& val, char const* pos, size_t len);
     };
 }
 

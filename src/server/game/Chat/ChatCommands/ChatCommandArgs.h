@@ -116,6 +116,13 @@ struct TC_GAME_API ArgInfo<AchievementEntry const*>
     static char const* TryConsume(AchievementEntry const*&, char const*);
 };
 
+// CurrencyTypesEntry* from numeric id or link
+template <>
+struct TC_GAME_API ArgInfo<CurrencyTypesEntry const*>
+{
+    static char const* TryConsume(CurrencyTypesEntry const*&, char const*);
+};
+
 // GameTele* from string name or link
 template <>
 struct TC_GAME_API ArgInfo<GameTele const*>
