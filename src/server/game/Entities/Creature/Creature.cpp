@@ -607,7 +607,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     uint64 npcFlags;
     uint32 unitFlags, unitFlags2, unitFlags3, dynamicFlags;
-    ObjectMgr::ChooseCreatureFlags(cInfo, npcFlags, unitFlags, unitFlags2, unitFlags3, dynamicFlags, data);
+    ObjectMgr::ChooseCreatureFlags(cInfo, &npcFlags, &unitFlags, &unitFlags2, &unitFlags3, &dynamicFlags, data);
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
         npcFlags |= sGameEventMgr->GetNPCFlag(this);
@@ -2174,7 +2174,7 @@ void Creature::setDeathState(DeathState s)
 
             uint64 npcFlags;
             uint32 unitFlags, unitFlags2, unitFlags3, dynamicFlags;
-            ObjectMgr::ChooseCreatureFlags(cInfo, npcFlags, unitFlags, unitFlags2, unitFlags3, dynamicFlags, creatureData);
+            ObjectMgr::ChooseCreatureFlags(cInfo, &npcFlags, &unitFlags, &unitFlags2, &unitFlags3, &dynamicFlags, creatureData);
 
             if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
                 npcFlags |= sGameEventMgr->GetNPCFlag(this);
