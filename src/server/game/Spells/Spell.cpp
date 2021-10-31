@@ -2559,6 +2559,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         // Do not take combo points on dodge and miss
         if (MissCondition != SPELL_MISS_NONE && spell->m_needComboPoints && spell->m_targets.GetUnitTargetGUID() == TargetGUID)
             spell->m_needComboPoints = false;
+        else if (caster->GetTypeId() == TYPEID_PLAYER && MissCondition == SPELL_MISS_PARRY && MissCondition == SPELL_MISS_DODGE && spell->m_spellInfo->PowerType == POWER_RAGE)
+            caster->ModifyPower(POWER_RAGE, spell->m_powerCost);
 
         // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
         if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
