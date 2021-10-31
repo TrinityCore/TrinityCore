@@ -1629,23 +1629,20 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     return cinfo->GetFirstInvisibleModel();
 }
 
-void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data /*= nullptr*/)
+void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32* npcflag, uint32* unit_flags, uint32* dynamicflags, CreatureData const* data /*= nullptr*/)
 {
-    npcflag = cinfo->npcflag;
-    unit_flags = cinfo->unit_flags;
-    dynamicflags = cinfo->dynamicflags;
+#define ChooseCreatureFlagSource(field) ((data && data->field) ? data->field : cinfo->field)
 
-    if (data)
-    {
-        if (data->npcflag)
-            npcflag = data->npcflag;
+    if (npcflag)
+        *npcflag = ChooseCreatureFlagSource(npcflag);
 
-        if (data->unit_flags)
-            unit_flags = data->unit_flags;
+    if (unit_flags)
+        *unit_flags = ChooseCreatureFlagSource(unit_flags);
 
-        if (data->dynamicflags)
-            dynamicflags = data->dynamicflags;
-    }
+    if (dynamicflags)
+        *dynamicflags = ChooseCreatureFlagSource(dynamicflags);
+
+#undef ChooseCreatureFlagSource
 }
 
 CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID) const
