@@ -1237,6 +1237,19 @@ struct CriteriaTreeEntry
     EnumFlag<CriteriaTreeFlags> GetFlags() const { return static_cast<CriteriaTreeFlags>(Flags); }
 };
 
+struct CurrencyContainerEntry
+{
+    uint32 ID;
+    LocalizedString ContainerName;
+    LocalizedString ContainerDescription;
+    int32 MinAmount;
+    int32 MaxAmount;
+    int32 ContainerIconID;
+    int32 ContainerQuality;
+    int32 OnLootSpellVisualKitID;
+    uint32 CurrencyTypesID;
+};
+
 struct CurrencyTypesEntry
 {
     uint32 ID;
@@ -1645,6 +1658,42 @@ struct GarrFollowerXAbilityEntry
     uint8 FactionIndex;
     uint16 GarrAbilityID;
     uint32 GarrFollowerID;
+};
+
+struct GarrMissionEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Location;
+    LocalizedString Description;
+    DBCPosition2D MapPos;
+    DBCPosition2D WorldPos;
+    uint8 GarrTypeID;
+    uint8 GarrMissionTypeID;
+    uint8 GarrFollowerTypeID;
+    uint8 MaxFollowers;
+    uint32 MissionCost;
+    uint16 MissionCostCurrencyTypesID;
+    uint8 OfferedGarrMissionTextureID;
+    uint16 UiTextureKitID;
+    uint32 EnvGarrMechanicID;
+    int32 EnvGarrMechanicTypeID;
+    uint32 PlayerConditionID;
+    int32 GarrMissionSetID;
+    int8 TargetLevel;
+    uint16 TargetItemLevel;
+    int32 MissionDuration;
+    int32 TravelDuration;
+    uint32 OfferDuration;
+    uint8 BaseCompletionChance;
+    uint32 BaseFollowerXP;
+    uint32 OvermaxRewardPackID;
+    uint8 FollowerDeathChance;
+    uint32 AreaID;
+    uint32 Flags;
+    float AutoMissionScalar;
+    int32 AutoMissionScalarCurveID;
+    int32 AutoCombatantEnvCasterID;
 };
 
 struct GarrPlotEntry
@@ -2238,12 +2287,78 @@ struct ItemXItemEffectEntry
     uint32 ItemID;
 };
 
+struct JournalEncounterEntry
+{
+    LocalizedString Name;
+    LocalizedString Description;
+    DBCPosition2D Map;
+    uint32 ID;
+    uint16 JournalInstanceID;
+    uint16 DungeonEncounterID;
+    uint32 OrderIndex;
+    uint16 FirstSectionID;
+    uint16 UiMapID;
+    uint32 MapDisplayConditionID;
+    uint8 Flags;
+    int8 DifficultyMask;
+};
+
+struct JournalEncounterSectionEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString BodyText;
+    uint16 JournalEncounterID;
+    uint8 OrderIndex;
+    uint16 ParentSectionID;
+    uint16 FirstChildSectionID;
+    uint16 NextSiblingSectionID;
+    uint8 Type;
+    uint32 IconCreatureDisplayInfoID;
+    int32 UiModelSceneID;
+    int32 SpellID;
+    int32 IconFileDataID;
+    uint16 Flags;
+    uint16 IconFlags;
+    int8 DifficultyMask;
+};
+
+struct JournalInstanceEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    uint16 MapID;
+    int32 BackgroundFileDataID;
+    int32 ButtonFileDataID;
+    int32 ButtonSmallFileDataID;
+    int32 LoreFileDataID;
+    uint8 OrderIndex;
+    uint8 Flags;
+    uint16 AreaID;
+};
+
+struct JournalTierEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    int32 PlayerConditionID;
+};
+
 #define KEYCHAIN_SIZE   32
 
 struct KeychainEntry
 {
     uint32 ID;
     uint8 Key[KEYCHAIN_SIZE];
+};
+
+struct KeystoneAffixEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    int32 FiledataID;
 };
 
 struct LanguageWordsEntry
@@ -2409,6 +2524,16 @@ struct MapEntry
     bool IsGarrison() const { return (Flags[0] & MAP_FLAG_GARRISON) != 0; }
 };
 
+struct MapChallengeModeEntry
+{
+    LocalizedString Name;
+    uint32 ID;
+    uint16 MapID;
+    uint8 Flags;
+    uint32 ExpansionLevel;
+    int16 CriteriaCount[3];
+};
+
 struct MapDifficultyEntry
 {
     uint32 ID;
@@ -2440,6 +2565,13 @@ struct MapDifficultyXConditionEntry
     uint32 PlayerConditionID;
     int32 OrderIndex;
     uint32 MapDifficultyID;
+};
+
+struct MawPowerEntry
+{
+    uint32 ID;
+    int32 SpellID;
+    int32 MawPowerRarityID;
 };
 
 struct ModifierTreeEntry
@@ -2968,6 +3100,15 @@ struct SkillRaceClassInfoEntry
     int8 Availability;
     int8 MinLevel;
     int16 SkillTierID;
+};
+
+struct SoulbindConduitRankEntry
+{
+    uint32 ID;
+    int32 RankIndex;
+    int32 SpellID;
+    float AuraPointsOverride;
+    uint32 SoulbindConduitID;
 };
 
 struct SoundKitEntry
