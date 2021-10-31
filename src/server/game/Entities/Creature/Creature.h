@@ -152,7 +152,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
 
-        void UpdateMovementFlags();
+        void UpdateMovementFlags(bool initializeDBStates);
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
