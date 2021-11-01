@@ -16,6 +16,7 @@
  */
 
 #include "CreatureAIImpl.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 
