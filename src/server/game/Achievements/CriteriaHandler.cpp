@@ -843,7 +843,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::SocketAnySoulbindConduit:
             case CriteriaType::ObtainAnyItemWithCurrencyValue:
             case CriteriaType::EarnExpansionLevel:
-            case CriteriaType::LearnTransmog:                                
+            case CriteriaType::LearnTransmog:
             default:
                 break;                          // Not implemented yet :(
         }
@@ -1609,7 +1609,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (!miscValue1 || !miscValue2 || int64(miscValue2) < 0
                 || miscValue1 != uint32(criteria->Entry->Asset.CurrencyID))
                 return false;
-            break; 
+            break;
         case CriteriaType::WinArena:
             if (miscValue1 != uint32(criteria->Entry->Asset.MapID))
                 return false;
@@ -1672,7 +1672,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
 {
     uint32 reqValue = modifier->Asset;
     uint32 secondaryAsset = modifier->SecondaryAsset;
-    uint32 tertiaryAsset = modifier->TertiaryAsset;
+    int32 tertiaryAsset = modifier->TertiaryAsset;
 
     switch (ModifierTreeType(modifier->Type))
     {
@@ -2413,7 +2413,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == secondaryAsset && follower.HasAbility(reqValue);;
+                return followerBuilding->BuildingType == int32(secondaryAsset) && follower.HasAbility(reqValue);;
             });
             if (followerCount < 1)
                 return false;
@@ -2432,7 +2432,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == secondaryAsset && follower.HasAbility(reqValue);;
+                return followerBuilding->BuildingType == int32(secondaryAsset) && follower.HasAbility(reqValue);;
             });
             if (followerCount < 1)
                 return false;
@@ -2450,7 +2450,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 GarrBuildingEntry const* followerBuilding = sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID);
                 if (!followerBuilding)
                     return false;
-                return followerBuilding->BuildingType == secondaryAsset;
+                return followerBuilding->BuildingType == int32(secondaryAsset);
             });
             if (followerCount < 1)
                 return false;
@@ -2467,7 +2467,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                     continue;
 
                 GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
-                if (!building || building->UpgradeLevel < reqValue || building->BuildingType != secondaryAsset)
+                if (!building || building->UpgradeLevel < reqValue || building->BuildingType != int32(secondaryAsset))
                     continue;
 
                 return true;
@@ -2531,7 +2531,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                     continue;
 
                 GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
-                if (!building || building->UpgradeLevel != secondaryAsset || building->BuildingType != reqValue)
+                if (!building || building->UpgradeLevel != secondaryAsset || building->BuildingType != int32(reqValue))
                     continue;
 
                 return true;
@@ -2933,7 +2933,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::GarrisonFollowerType: // 187
         {
             GarrFollowerEntry const* garrFollower = sGarrFollowerStore.LookupEntry(miscValue1);
-            if (!garrFollower || garrFollower->GarrFollowerTypeID != reqValue)
+            if (!garrFollower || garrFollower->GarrFollowerTypeID != int32(reqValue))
                 return false;
             break;
         }
@@ -4011,7 +4011,7 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaType type)
             return "GuildAttainedLevel";
         case CriteriaType::CreatedItemsByCastingSpell:
             return "CreatedItemsByCastingSpell";
-        case CriteriaType::FishInAnyPool: 
+        case CriteriaType::FishInAnyPool:
             return "FishInAnyPool";
         case CriteriaType::GuildBankTabsPurchased:
             return "GuildBankTabsPurchased";

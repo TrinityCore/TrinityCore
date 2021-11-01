@@ -1390,6 +1390,8 @@ enum SpellEffectName
     SPELL_EFFECT_COMPLETE_CAMPAIGN                  = 283, // Flags all quests as completed that are assigned to campaign (MiscValueA)
     SPELL_EFFECT_SEND_CHAT_MESSAGE                  = 284, // MiscValue[0] = BroadcastTextID, MiscValue[1] = ChatType
     SPELL_EFFECT_MODIFY_KEYSTONE_2                  = 285,
+    SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE         = 286,
+    SPELL_EFFECT_SET_GARRISON_FOLLOWER_LEVEL        = 287,
     TOTAL_SPELL_EFFECTS
 };
 
