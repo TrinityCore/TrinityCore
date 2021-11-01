@@ -7662,7 +7662,9 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
 void Unit::UpdateActiveMountAuras()
 {
-    for (AuraEffect* aurEff : GetAuraEffectsByType(SPELL_AURA_MOUNTED))
+    AuraEffectList auraEffects(GetAuraEffectsByType(SPELL_AURA_MOUNTED));
+
+    for (AuraEffect* aurEff : auraEffects)
     {
         uint32 mountType = aurEff->GetMiscValueB();
         if (MountEntry const* mountEntry = sDB2Manager.GetMount(aurEff->GetId()))
