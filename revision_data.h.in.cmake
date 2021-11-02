@@ -1,4 +1,4 @@
-#ifndef __REVISION_DATA_H__
+#ifndef __REVISION_DATA_H__ 
 #define __REVISION_DATA_H__
  #define _HASH                      "@rev_hash@"
  #define _DATE                      "@rev_date@"

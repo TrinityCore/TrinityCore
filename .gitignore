@@ -22,3 +22,11 @@ nbproject/*
 .vscode
 cmake-build-*/
 .vs
+/编译后需要补充的内容/worldserver.conf
+/编译后需要补充的内容/Custom Server Connection Launcher Windows
+/编译后需要补充的内容/mysql8.0额外设置
+/编译后需要补充的内容/TDB_full_910.21101_2021_10_15
+/编译后需要补充的内容/bnetserver.cert.pem
+/编译后需要补充的内容
+/编译前备份
+/contrib/ScriptsConverter/ScriptConverter/obj/Debug/ScriptConverter.csproj.AssemblyReference.cache
