@@ -823,13 +823,17 @@ enum AccountDataType
     GLOBAL_MACROS_CACHE             = 4,                    // 0x10 g
     PER_CHARACTER_MACROS_CACHE      = 5,                    // 0x20 p
     PER_CHARACTER_LAYOUT_CACHE      = 6,                    // 0x40 p
-    PER_CHARACTER_CHAT_CACHE        = 7                     // 0x80 p
+    PER_CHARACTER_CHAT_CACHE        = 7,                    // 0x80 p
+    GLOBAL_TTS_CACHE                = 8,
+    PER_CHARACTER_TTS_CACHE         = 9,
+    GLOBAL_FLAGGED_CACHE            = 10,
+    PER_CHARACTER_FLAGGED_CACHE     = 11
 };
 
-#define NUM_ACCOUNT_DATA_TYPES        8
+#define NUM_ACCOUNT_DATA_TYPES        12
 
-#define GLOBAL_CACHE_MASK           0x15
-#define PER_CHARACTER_CACHE_MASK    0xEA
+#define GLOBAL_CACHE_MASK           0x515
+#define PER_CHARACTER_CACHE_MASK    0xAEA
 
 struct AccountData
 {
