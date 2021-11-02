@@ -29,227 +29,6 @@
 #include "Vehicle.h"
 
 /*######
-## npc_apothecary_hanes
-######*/
-enum Entries
-{
-    NPC_APOTHECARY_HANES = 23784,
-    QUEST_TRAIL_OF_FIRE  = 11241,
-
-    SPELL_HEALING_POTION = 17534,
-    SPELL_BURN           = 42685,
-
-    EVENT_EMOTE_BEG    = 1,
-    EVENT_BEGIN        = 2,
-    EVENT_START_ESCORT = 3,
-    EVENT_TALK_1       = 4,
-    EVENT_KNEEL        = 5,
-    EVENT_TALK_2       = 6,
-    EVENT_BURN_CRATES  = 7,
-    EVENT_TALK_3       = 8,
-    EVENT_TALK_4       = 9,
-    EVENT_LAUGH        = 10,
-    EVENT_TALK_5       = 11,
-    EVENT_TALK_6       = 12,
-    EVENT_TALK_8       = 13,
-
-    TALK_0 = 0,
-    TALK_1 = 1,
-    TALK_2 = 2,
-    TALK_3 = 3,
-    TALK_4 = 4,
-    TALK_5 = 5,
-    TALK_6 = 6,
-    TALK_7 = 7,
-    TALK_8 = 8,
-
-    EQUIP_TORCH = 2
-};
-
-class npc_apothecary_hanes : public CreatureScript
-{
-public:
-    npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
-
-    struct npc_Apothecary_HanesAI : public EscortAI
-    {
-        npc_Apothecary_HanesAI(Creature* creature) : EscortAI(creature)
-        {
-            Initialize();
-        }
-
-        void StartEscort(Player* player)
-        {
-            events.ScheduleEvent(EVENT_BEGIN, 2s);
-            events.ScheduleEvent(EVENT_START_ESCORT, 6s);
-            _player = player->GetGUID();
-        }
-
-        void Initialize()
-        {
-            PotTimer = 10000; //10 sec cooldown on potion
-            events.Reset();
-            events.ScheduleEvent(EVENT_EMOTE_BEG, 2s);
-            me->SetStandState(UNIT_STAND_STATE_KNEEL);
-            _player = ObjectGuid();
-        }
-
-        uint32 PotTimer;
-        EventMap events;
-        ObjectGuid _player;
-
-        void Reset() override
-        {
-            SetDespawnAtFar(false);
-            Initialize();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_TRAIL_OF_FIRE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (HealthBelowPct(75))
-            {
-                if (PotTimer <= diff)
-                {
-                    DoCast(me, SPELL_HEALING_POTION, true);
-                    PotTimer = 10000;
-                } else PotTimer -= diff;
-            }
-
-            if (IsActiveAttacker() && UpdateVictim())
-                DoMeleeAttackIfReady();
-
-            EscortAI::UpdateAI(diff);
-
-            if (me->IsInCombat())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_EMOTE_BEG:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BEG);
-                        events.ScheduleEvent(EVENT_EMOTE_BEG, 25s);
-                        break;
-                    case EVENT_BEGIN:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_0, player);
-                        break;
-                    case EVENT_START_ESCORT:
-                        events.Reset();
-                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        ENSURE_AI(EscortAI, (me->AI()))->Start(true, true, _player);
-                        break;
-                    case EVENT_TALK_1:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_1, player);
-                        break;
-                    case EVENT_KNEEL:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
-                        break;
-                    case EVENT_TALK_2:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_2, player);
-                        me->LoadEquipment(EQUIP_TORCH);
-                        me->SetSheath(SHEATH_STATE_MELEE);
-                        break;
-                    case EVENT_BURN_CRATES:
-                        DoCastAOE(SPELL_BURN, true);
-                        break;
-                    case EVENT_TALK_3:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_3, player);
-                        break;
-                    case EVENT_TALK_4:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_4, player);
-                        break;
-                    case EVENT_LAUGH:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        break;
-                    case EVENT_TALK_5:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_5, player);
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-                        break;
-                    case EVENT_TALK_6:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_6, player);
-                        break;
-                    case EVENT_TALK_8:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_8, player);
-                        break;
-                }
-            }
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 1:
-                    events.ScheduleEvent(EVENT_TALK_1, Seconds(3));
-                    events.ScheduleEvent(EVENT_KNEEL, 5s);
-                    events.ScheduleEvent(EVENT_TALK_2, Seconds(6));
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    break;
-                case 12:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 1s);
-                    events.ScheduleEvent(EVENT_TALK_3, Seconds(3));
-                    break;
-                case 20:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
-                    break;
-                case 21:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
-                    events.ScheduleEvent(EVENT_TALK_4, Seconds(3));
-                    break;
-                case 28:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
-                    events.ScheduleEvent(EVENT_LAUGH, 7s);
-                    events.ScheduleEvent(EVENT_TALK_5, Seconds(9));
-                    events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
-                    break;
-                case 35:
-                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
-                        Talk(TALK_7, pl);
-                    break;
-                case 40:
-                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
-                        pl->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
-                    events.ScheduleEvent(EVENT_TALK_8, Seconds(4));
-                    break;
-            }
-        }
-
-        void OnQuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
-                StartEscort(player);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_Apothecary_HanesAI(creature);
-    }
-};
-
-/*######
 ## npc_daegarn
 ######*/
 
@@ -423,96 +202,81 @@ private:
     SummonList _summons;
 };
 
-enum MindlessAbomination
+/*######
+## Quest 11310: Warning: Some Assembly Required
+######*/
+
+enum SomeAssemblyRequired
 {
-    EVENT_CHECK_CHARMED                = 1
+    SPELL_PING_MASTER                          = 43393, // casted on owner after spawn, presumably has a spell script to force owner cast SPELL_MINDLESS_ABOMINATION_CONTROL (currently handled by linked spells)
+    SPELL_MINDLESS_ABOMINATION_CONTROL         = 42168,
+
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON    = 42266,
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE      = 42267,
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2    = 42274
 };
 
-class npc_mindless_abomination : public CreatureScript
+struct npc_mindless_abomination : public ScriptedAI
 {
-public:
-    npc_mindless_abomination() : CreatureScript("npc_mindless_abomination") { }
+    npc_mindless_abomination(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_mindless_abominationAI : public ScriptedAI
+    void JustAppeared() override
     {
-        npc_mindless_abominationAI(Creature* creature) : ScriptedAI(creature) { }
+        me->SetCorpseDelay(0, true);
 
-        void Reset() override
+        _scheduler.Schedule(1s, [this](TaskContext task)
         {
-            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_CHECK_CHARMED:
-                        if (!me->IsCharmedOwnedByPlayerOrPlayer())
-                            me->DespawnOrUnsummon();
-                        else
-                            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_mindless_abominationAI(creature);
+            if (!me->IsCharmedOwnedByPlayerOrPlayer())
+                me->DespawnOrUnsummon();
+            else
+                task.Repeat();
+        });
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 42268 - Quest - Mindless Abomination Explosion FX Master
-class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
+class spell_mindless_abomination_explosion_fx_master : public SpellScript
 {
-    enum Spells
+    PrepareSpellScript(spell_mindless_abomination_explosion_fx_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON = 42266,
-        SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE = 43401
-    };
-
-    public:
-        spell_mindless_abomination_explosion_fx_master() : SpellScriptLoader("spell_mindless_abomination_explosion_fx_master") { }
-
-        class spell_mindless_abomination_explosion_fx_master_SpellScript : public SpellScript
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON,
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE,
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE });
-            }
+    void HandleScript(SpellEffIndex /*eff*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
 
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Creature* caster = GetCaster()->ToCreature();
-                if (!caster)
-                    return;
+        for (uint8 i = 0; i < 11; ++i)
+            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
 
-                caster->CastSpell(caster, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE);
+        for (uint8 i = 0; i < 6; ++i)
+            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
 
-                for (uint8 i = 0; i < 10; ++i)
-                    caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
-            }
+        for (uint8 i = 0; i < 4; ++i)
+            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2);
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mindless_abomination_explosion_fx_master_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 /*######
@@ -535,7 +299,7 @@ enum RivenwoodCaptives
     SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289
 };
 
-uint32 const CocoonSummonSpells[11] =
+std::array<uint32, 11> const CocoonSummonSpells =
 {
     SPELL_SUMMON_BABY_RIVEN_WIDOWS,
     SPELL_SUMMON_DARKCLAW_BAT,
@@ -600,10 +364,9 @@ class spell_rivenwood_captives_on_quest : public SpellScript
 
 void AddSC_howling_fjord()
 {
-    new npc_apothecary_hanes();
     RegisterCreatureAI(npc_daegarn);
-    new npc_mindless_abomination();
-    new spell_mindless_abomination_explosion_fx_master();
+    RegisterCreatureAI(npc_mindless_abomination);
+    RegisterSpellScript(spell_mindless_abomination_explosion_fx_master);
     RegisterSpellScript(spell_rivenwood_captives_not_on_quest);
     RegisterSpellScript(spell_rivenwood_captives_on_quest);
  }
