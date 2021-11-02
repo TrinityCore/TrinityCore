@@ -59,3 +59,5 @@ ALTER TABLE `ui_map` MODIFY `System` int(10) unsigned NOT NULL DEFAULT 0 AFTER `
 ALTER TABLE `ui_map` MODIFY `Type` int(10) unsigned NOT NULL DEFAULT 0 AFTER `System`;
 
 ALTER TABLE `world_effect` MODIFY `TargetType` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `WhenToDisplay`;
+
+ALTER TABLE `hotfix_data` ADD `UniqueId` int(10) unsigned NOT NULL DEFAULT 0 AFTER `Id`;

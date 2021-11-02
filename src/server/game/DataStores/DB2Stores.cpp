@@ -24,6 +24,7 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "ObjectDefines.h"
+#include "Random.h"
 #include "Regex.h"
 #include "Timer.h"
 #include "Util.h"
@@ -1560,7 +1561,7 @@ void DB2Manager::LoadHotfixData()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = HotfixDatabase.Query("SELECT Id, TableHash, RecordId, Status FROM hotfix_data ORDER BY Id");
+    QueryResult result = HotfixDatabase.Query("SELECT Id, UniqueId, TableHash, RecordId, Status FROM hotfix_data ORDER BY Id");
 
     if (!result)
     {
@@ -1577,9 +1578,10 @@ void DB2Manager::LoadHotfixData()
         Field* fields = result->Fetch();
 
         int32 id = fields[0].GetInt32();
-        uint32 tableHash = fields[1].GetUInt32();
-        int32 recordId = fields[2].GetInt32();
-        HotfixRecord::Status status = static_cast<HotfixRecord::Status>(fields[3].GetUInt8());
+        uint32 uniqueId = fields[1].GetUInt32();
+        uint32 tableHash = fields[2].GetUInt32();
+        int32 recordId = fields[3].GetInt32();
+        HotfixRecord::Status status = static_cast<HotfixRecord::Status>(fields[4].GetUInt8());
         if (status == HotfixRecord::Status::Valid && _stores.find(tableHash) == _stores.end())
         {
             HotfixBlobKey key = std::make_pair(tableHash, recordId);
@@ -1594,7 +1596,8 @@ void DB2Manager::LoadHotfixData()
         HotfixRecord hotfixRecord;
         hotfixRecord.TableHash = tableHash;
         hotfixRecord.RecordID = recordId;
-        hotfixRecord.HotfixID = id;
+        hotfixRecord.ID.PushID = id;
+        hotfixRecord.ID.UniqueID = uniqueId;
         hotfixRecord.HotfixStatus = status;
         _hotfixData[id].push_back(hotfixRecord);
         deletedRecords[std::make_pair(tableHash, recordId)] = status == HotfixRecord::Status::RecordRemoved;
@@ -1772,8 +1775,9 @@ void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
     HotfixRecord hotfixRecord;
     hotfixRecord.TableHash = tableHash;
     hotfixRecord.RecordID = recordId;
-    hotfixRecord.HotfixID = ++_maxHotfixId;
-    _hotfixData[hotfixRecord.HotfixID].push_back(hotfixRecord);
+    hotfixRecord.ID.PushID = ++_maxHotfixId;
+    hotfixRecord.ID.UniqueID = rand32();
+    _hotfixData[hotfixRecord.ID.PushID].push_back(hotfixRecord);
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const

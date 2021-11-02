@@ -297,6 +297,17 @@ public:
     DEFINE_DB2_SET_COMPARATOR(FriendshipRepReactionEntry)
     DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry)
 
+    struct HotfixId
+    {
+        int32 PushID = 0;
+        uint32 UniqueID = 0;
+
+        friend bool operator<(HotfixId const& left, HotfixId const& right)
+        {
+            return std::tie(left.PushID, left.UniqueID) < std::tie(right.PushID, right.UniqueID);
+        }
+    };
+
     struct HotfixRecord
     {
         enum class Status : uint8
@@ -310,22 +321,22 @@ public:
 
         uint32 TableHash = 0;
         int32 RecordID = 0;
-        int32 HotfixID = 0;
+        HotfixId ID;
         Status HotfixStatus = Status::Invalid;
 
         friend bool operator<(HotfixRecord const& left, HotfixRecord const& right)
         {
-            return std::tie(left.HotfixID, left.TableHash, left.RecordID) < std::tie(right.HotfixID, right.TableHash, right.RecordID);
+            return std::tie(left.ID, left.TableHash, left.RecordID) < std::tie(right.ID, right.TableHash, right.RecordID);
         }
     };
 
     struct HotfixOptionalData
     {
-        uint32 Key;
+        uint32 Key = 0;
         std::vector<uint8> Data;
     };
 
-    using HotfixContainer = std::unordered_map<int32, std::vector<HotfixRecord>>;
+    using HotfixContainer = std::map<int32, std::vector<HotfixRecord>>;
 
     using FriendshipRepReactionSet = std::set<FriendshipRepReactionEntry const*, FriendshipRepReactionEntryComparator>;
     using ItemBonusList = std::vector<ItemBonusEntry const*>;
