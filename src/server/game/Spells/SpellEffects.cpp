@@ -3514,7 +3514,7 @@ void Spell::EffectDuel()
     Player* target = unitTarget->ToPlayer();
 
     // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID()))
+    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID(), caster->GetSession()->GetAccountGUID()))
         return;
 
     // Players can only fight a duel in zones with this flag

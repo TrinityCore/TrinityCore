@@ -659,7 +659,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
         return;
     }
 
-    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
+    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID(), GetPlayer()->GetSession()->GetAccountGUID()))
     {
         info.Status = TRADE_STATUS_PLAYER_IGNORED;
         SendTradeStatus(info);

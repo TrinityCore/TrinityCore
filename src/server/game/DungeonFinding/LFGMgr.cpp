@@ -1906,7 +1906,9 @@ bool LFGMgr::HasIgnore(ObjectGuid guid1, ObjectGuid guid2)
 {
     Player* plr1 = ObjectAccessor::FindConnectedPlayer(guid1);
     Player* plr2 = ObjectAccessor::FindConnectedPlayer(guid2);
-    return plr1 && plr2 && (plr1->GetSocial()->HasIgnore(guid2) || plr2->GetSocial()->HasIgnore(guid1));
+    return plr1 && plr2
+        && (plr1->GetSocial()->HasIgnore(guid2, plr2->GetSession()->GetAccountGUID())
+            || plr2->GetSocial()->HasIgnore(guid1, plr1->GetSession()->GetAccountGUID()));
 }
 
 void LFGMgr::SendLfgRoleChosen(ObjectGuid guid, ObjectGuid pguid, uint8 roles)
