@@ -830,10 +830,10 @@ namespace WorldPackets
             bool FullUpdate = false;
         };
 
-        class DepositGuildBankItem final : public ClientPacket
+        class AutoGuildBankItem final : public ClientPacket
         {
         public:
-            DepositGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_DEPOSIT_GUILD_BANK_ITEM, std::move(packet)) { }
+            AutoGuildBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTO_GUILD_BANK_ITEM, std::move(packet)) { }
 
             void Read() override;
 

@@ -364,7 +364,7 @@ namespace WorldPackets
         class GuildBankQueryTab;
         class GuildBankDepositMoney;
         class GuildBankWithdrawMoney;
-        class DepositGuildBankItem;
+        class AutoGuildBankItem;
         class StoreGuildBankItem;
         class SwapItemWithGuildBankItem;
         class SwapGuildBankItemWithGuildBankItem;
@@ -1633,7 +1633,7 @@ class TC_GAME_API WorldSession
         void HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuery& packet);
         void HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet);
         void HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet);
-        void HandleDepositGuildBankItem(WorldPackets::Guild::DepositGuildBankItem& depositGuildBankItem);
+        void HandleAutoGuildBankItem(WorldPackets::Guild::AutoGuildBankItem& autoGuildBankItem);
         void HandleStoreGuildBankItem(WorldPackets::Guild::StoreGuildBankItem& storeGuildBankItem);
         void HandleSwapItemWithGuildBankItem(WorldPackets::Guild::SwapItemWithGuildBankItem& swapItemWithGuildBankItem);
         void HandleSwapGuildBankItemWithGuildBankItem(WorldPackets::Guild::SwapGuildBankItemWithGuildBankItem& swapGuildBankItemWithGuildBankItem);

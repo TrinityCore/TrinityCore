@@ -277,7 +277,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWi
             guild->HandleMemberWithdrawMoney(this, packet.Money);
 }
 
-void WorldSession::HandleDepositGuildBankItem(WorldPackets::Guild::DepositGuildBankItem& depositGuildBankItem)
+void WorldSession::HandleAutoGuildBankItem(WorldPackets::Guild::AutoGuildBankItem& depositGuildBankItem)
 {
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(depositGuildBankItem.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
