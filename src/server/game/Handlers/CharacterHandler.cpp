@@ -40,7 +40,6 @@
 #include "GitRevision.h"
 #include "Group.h"
 #include "Guild.h"
-#include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "Item.h"
 #include "Language.h"
@@ -963,7 +962,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
             sLog->outCharDump(dump.c_str(), accountId, charDelete.Guid.GetCounter(), name.c_str());
     }
 
-    sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(charDelete.Guid);
     sCalendarMgr->RemoveAllPlayerEventsAndInvites(charDelete.Guid);
     Player::DeleteFromDB(charDelete.Guid, accountId);
 

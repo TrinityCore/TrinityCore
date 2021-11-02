@@ -55,7 +55,6 @@
 #include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
-#include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "IPLocation.h"
@@ -2122,8 +2121,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Guilds...");
     sGuildMgr->LoadGuilds();
-
-    sGuildFinderMgr->LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
     sArenaTeamMgr->LoadArenaTeams();

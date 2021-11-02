@@ -27,7 +27,6 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
-#include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
 #include "Language.h"
@@ -1253,8 +1252,6 @@ void Guild::Disband()
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
-
-    sGuildFinderMgr->DeleteGuild(GetGUID());
 
     sGuildMgr->RemoveGuild(m_id);
 }
@@ -2750,8 +2747,6 @@ bool Guild::AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint
     joinNotificationPacket.Name = name;
     joinNotificationPacket.VirtualRealmAddress = GetVirtualRealmAddress();
     BroadcastPacket(joinNotificationPacket.Write());
-
-    sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(guid);
 
     // Call scripts if member was succesfully added (and stored to database)
     sScriptMgr->OnGuildAddMember(this, player, rankId);
