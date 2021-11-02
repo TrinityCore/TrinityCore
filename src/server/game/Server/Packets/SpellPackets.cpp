@@ -954,6 +954,7 @@ WorldPacket const* WorldPackets::Spells::NotifyMissileTrajectoryCollision::Write
 void WorldPackets::Spells::UpdateMissileTrajectory::Read()
 {
     _worldPacket >> Guid;
+    _worldPacket >> CastID;
     _worldPacket >> MoveMsgID;
     _worldPacket >> SpellID;
     _worldPacket >> Pitch;

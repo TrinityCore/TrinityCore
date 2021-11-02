@@ -984,6 +984,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Guid;
+            ObjectGuid CastID;
             uint16 MoveMsgID = 0;
             int32 SpellID = 0;
             float Pitch = 0.0f;
