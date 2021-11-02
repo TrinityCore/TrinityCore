@@ -195,6 +195,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 CinematicID = 0;
+            ObjectGuid ConversationGuid;
         };
 
         class TriggerMovie final : public ServerPacket

@@ -217,7 +217,7 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     data >> lfgListSearchResult->ListingCreatorGuid;
     data >> lfgListSearchResult->Unknown735;
 
-    uint32 titleLength = data.ReadBits(8);
+    uint32 titleLength = data.ReadBits(10);
     uint32 descriptionLength = data.ReadBits(11);
     uint32 voiceChatLength = data.ReadBits(8);
 
