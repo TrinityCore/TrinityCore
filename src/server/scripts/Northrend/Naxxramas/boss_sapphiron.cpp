@@ -600,10 +600,9 @@ class spell_sapphiron_wing_buffet_despawn_periodic : public AuraScript
 
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
-        if (GetTarget()->GetTypeId() != TYPEID_UNIT)
-            return;
-
-        GetTarget()->ToCreature()->DespawnOrUnsummon();
+        Unit* target = GetTarget();
+        if (Creature* creature = target->ToCreature())
+            creature->DespawnOrUnsummon();
     }
 
     void Register() override
