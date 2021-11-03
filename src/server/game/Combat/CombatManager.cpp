@@ -295,6 +295,23 @@ void CombatManager::EndAllPvECombat()
         _pveRefs.begin()->second->EndCombat();
 }
 
+void CombatManager::EndPvECombatWithPlayers()
+{
+    auto it = _pveRefs.begin(), end = _pveRefs.end();
+    while (it != end)
+    {
+        CombatReference* const ref = it->second;
+        Unit* other = ref->GetOther(_owner);
+        if (other->GetTypeId() == TYPEID_PLAYER || other->GetCharmerOrOwnerOrSelf()->GetTypeId() == TYPEID_PLAYER)
+        {
+            it = _pveRefs.erase(it), end = _pveRefs.end(); // erase manually here to avoid iterator invalidation
+            ref->EndCombat();
+        }
+        else
+            ++it;
+    }
+}
+
 void CombatManager::EndAllPvPCombat()
 {
     while (!_pvpRefs.empty())

@@ -11665,6 +11665,8 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     CastStop();
     AttackStop();
+    if (GetTypeId() == TYPEID_PLAYER)
+        m_combatManager.EndPvECombatWithPlayers();
 
     if (_oldFactionId)
     {
