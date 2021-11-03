@@ -139,9 +139,9 @@ struct AnimationDataLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_SHORT, "BehaviorID" },
+            { false, FT_SHORT, "Fallback" },
             { false, FT_BYTE, "BehaviorTier" },
-            { true, FT_INT, "Fallback" },
+            { true, FT_INT, "BehaviorID" },
             { true, FT_INT, "Flags1" },
             { true, FT_INT, "Flags2" },
         };
