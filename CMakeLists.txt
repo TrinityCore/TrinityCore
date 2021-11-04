@@ -27,7 +27,7 @@ get_filename_component(
 )
 
 get_filename_component(
-  TSWOW_MESSAGES_INCLUDES ${CMAKE_SOURCE_DIR}/../ClientExtensions/CustomPackets ABSOLUTE
+  TSWOW_MESSAGES_INCLUDES ${CMAKE_SOURCE_DIR}/../client-extensions/CustomPackets ABSOLUTE
 )
 
 SET(TSWOW_INCLUDES
