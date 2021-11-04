@@ -1632,6 +1632,7 @@ CREATE TABLE `character_stats` (
   `maxpower4` int(10) unsigned NOT NULL DEFAULT '0',
   `maxpower5` int(10) unsigned NOT NULL DEFAULT '0',
   `maxpower6` int(10) unsigned NOT NULL DEFAULT '0',
+  `maxpower7` int(10) unsigned NOT NULL DEFAULT '0',
   `strength` int(10) unsigned NOT NULL DEFAULT '0',
   `agility` int(10) unsigned NOT NULL DEFAULT '0',
   `stamina` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1843,6 +1844,7 @@ CREATE TABLE `characters` (
   `power4` int(10) unsigned NOT NULL DEFAULT '0',
   `power5` int(10) unsigned NOT NULL DEFAULT '0',
   `power6` int(10) unsigned NOT NULL DEFAULT '0',
+  `power7` int(10) unsigned NOT NULL DEFAULT '0',
   `latency` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `activeTalentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lootSpecId` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3670,7 +3672,8 @@ INSERT INTO `updates` VALUES
 ('2021_10_02_01_characters.sql','F97B956F3B5F909294CA399F75B5795A07C4D8EC','ARCHIVED','2021-10-02 21:47:38',0),
 ('2021_10_15_00_characters.sql','906FECD65CBA7C406969F45FDF28DDEF8AAF8715','ARCHIVED','2021-10-15 10:11:47',0),
 ('2021_10_16_00_characters.sql','B5A31BB6FBC34512767475EDF13099DEC948EBB7','RELEASED','2021-10-16 01:12:20',0),
-('2021_11_02_00_characters.sql','A3C0A6DA70CC70803C80685E4E2ED6255156520A','RELEASED','2021-11-02 18:11:13',0);
+('2021_11_02_00_characters.sql','A3C0A6DA70CC70803C80685E4E2ED6255156520A','RELEASED','2021-11-02 18:11:13',0),
+('2021_11_04_00_characters.sql','ED533235ADAD174F91A6B8E51D1046243B78B46D','RELEASED','2021-11-04 21:53:04',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

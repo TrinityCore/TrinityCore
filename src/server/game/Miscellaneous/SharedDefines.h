@@ -286,7 +286,7 @@ enum Powers : int8
     POWER_HEALTH                        = -2            // (-2 as signed value)
 };
 
-#define MAX_POWERS_PER_CLASS            6
+#define MAX_POWERS_PER_CLASS            7
 
 enum SpellSchools : uint16
 {

@@ -167,7 +167,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraDisableAttackingExceptAbilities(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  tracking
-        void HandleAuraTrackResources(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTrackCreatures(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTrackStealthed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModStalked(AuraApplication const* aurApp, uint8 mode, bool apply) const;

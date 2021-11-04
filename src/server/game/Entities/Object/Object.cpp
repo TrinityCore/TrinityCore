@@ -474,10 +474,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
         bool hasMorphCurveID        = createProperties && createProperties->MorphCurveId != 0;
         bool hasFacingCurveID       = createProperties && createProperties->FacingCurveId != 0;
         bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
-        bool hasAnimation           = createProperties && createProperties->AnimId;
-        bool hasUnk3                = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK3);
-        bool hasAnimKitID           = createProperties && createProperties->AnimKitId;
-        bool hasAnimProgress        = false;
         bool hasAreaTriggerSphere   = shape.IsSphere();
         bool hasAreaTriggerBox      = shape.IsBox();
         bool hasAreaTriggerPolygon  = createProperties && shape.IsPolygon();
@@ -497,10 +493,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
         data->WriteBit(hasMorphCurveID);
         data->WriteBit(hasFacingCurveID);
         data->WriteBit(hasMoveCurveID);
-        data->WriteBit(hasAnimation);
-        data->WriteBit(hasAnimKitID);
-        data->WriteBit(hasUnk3);
-        data->WriteBit(hasAnimProgress);
         data->WriteBit(hasAreaTriggerSphere);
         data->WriteBit(hasAreaTriggerBox);
         data->WriteBit(hasAreaTriggerPolygon);
@@ -508,9 +500,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
         data->WriteBit(hasAreaTriggerSpline);
         data->WriteBit(hasOrbit);
         data->WriteBit(hasMovementScript);
-
-        if (hasUnk3)
-            data->WriteBit(false);
 
         data->FlushBits();
 
@@ -536,15 +525,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
 
         if (hasMoveCurveID)
             *data << uint32(createProperties->MoveCurveId);
-
-        if (hasAnimation)
-            *data << int32(createProperties->AnimId);
-
-        if (hasAnimKitID)
-            *data << int32(createProperties->AnimKitId);
-
-        if (hasAnimProgress)
-            *data << uint32(0);
 
         if (hasAreaTriggerSphere)
         {
