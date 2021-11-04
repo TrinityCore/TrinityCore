@@ -295,7 +295,7 @@ void CombatManager::EndAllPvECombat()
         _pveRefs.begin()->second->EndCombat();
 }
 
-void CombatManager::EndAllInvalidCombat()
+void CombatManager::RevalidateCombat()
 {
     auto it = _pveRefs.begin(), end = _pveRefs.end();
     while (it != end)
