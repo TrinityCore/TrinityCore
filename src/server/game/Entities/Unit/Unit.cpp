@@ -11665,8 +11665,6 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     CastStop();
     AttackStop();
-    if (GetTypeId() == TYPEID_PLAYER)
-        m_combatManager.EndPvECombatWithPlayers();
 
     if (_oldFactionId)
     {
@@ -11687,6 +11685,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     ASSERT(type != CHARM_TYPE_VEHICLE || (GetTypeId() == TYPEID_UNIT && IsVehicle()));
 
     charmer->SetCharm(this, false);
+    m_combatManager.EndAllInvalidCombat();
 
     Player* playerCharmer = charmer->ToPlayer();
     if (playerCharmer)
