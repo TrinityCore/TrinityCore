@@ -93,7 +93,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 chestRestockTime;                        // 2 chestRestockTime, int, Min value: 0, Max value: 1800000, Default value: 0
             uint32 consumable;                              // 3 consumable, enum { false, true, }; Default: false
             uint32 minRestock;                              // 4 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
@@ -403,7 +403,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 radius;                                  // 0 radius, int, Min value: 0, Max value: 50, Default value: 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 minRestock;                              // 2 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 maxRestock;                              // 3 maxRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 open;                                    // 4 open, References: Lock_, NoValue = 0
@@ -692,7 +692,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 Unused;                                  // 2 Unused, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 notInCombat;                             // 3 notInCombat, enum { false, true, }; Default: false
             uint32 trivialSkillLow;                         // 4 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0

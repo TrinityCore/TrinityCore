@@ -133,6 +133,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2                     = 108,// You can't do that right now.
     EQUIP_ERR_NOT_IN_NPE                                   = 109,// Not available during the tutorial
     EQUIP_ERR_ITEM_COOLDOWN                                = 110,// Item is not ready yet.
+    EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND                    = 111,// You can't do that in a rated battleground.
 };
 
 enum BuyResult

@@ -489,7 +489,10 @@ namespace WorldPackets
             LockedByMobileAH                = 8,
             TemporaryGMLock                 = 9,
             LockedByCharacterUpgrade        = 10,
-            LockedByRevokedCharacterUpgrade = 11
+            LockedByRevokedCharacterUpgrade = 11,
+            LockedByRevokedVASTransaction   = 17,
+            LockedByRestriction             = 19,
+            LockedForRealmPlaytype          = 23
         };
 
         class CharacterLoginFailed  final : public ServerPacket
