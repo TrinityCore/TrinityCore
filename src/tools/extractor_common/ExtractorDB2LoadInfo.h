@@ -35,15 +35,17 @@ struct CinematicCameraLoadInfo
             { false, FT_INT, "SoundID" },
             { false, FT_FLOAT, "OriginFacing" },
             { false, FT_INT, "FileDataID" },
+            { true, FT_INT, "Unknown915" },
         };
-        static DB2MetaField const fields[4] =
+        static DB2MetaField const fields[5] =
         {
             { FT_FLOAT, 3, true },
             { FT_INT, 1, false },
             { FT_FLOAT, 1, true },
             { FT_INT, 1, false },
+            { FT_INT, 1, true },
         };
-        static DB2Meta meta(1294214, -1, 4, 4, 0x7BA7D9AC, fields, -1);
+        static DB2Meta meta(1294214, -1, 5, 5, 0xC5F2F36C, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -216,7 +218,7 @@ struct LiquidTypeLoadInfo
             { FT_INT, 4, false },
             { FT_FLOAT, 4, true },
         };
-        static DB2Meta meta(1371380, -1, 21, 21, 0xD4966711, fields, -1);
+        static DB2Meta meta(1371380, -1, 21, 21, 0xD0172A80, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -281,7 +283,7 @@ struct MapLoadInfo
             { FT_INT, 1, true },
             { FT_INT, 2, true },
         };
-        static DB2Meta meta(1349477, -1, 23, 23, 0xDA9493AF, fields, -1);
+        static DB2Meta meta(1349477, -1, 23, 23, 0x9CF2F12F, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
