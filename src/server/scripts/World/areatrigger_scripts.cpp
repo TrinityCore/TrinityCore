@@ -35,6 +35,7 @@ at_area_52_entrance
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "AreaTriggerAI.h"
 #include "DB2Structure.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -427,6 +428,28 @@ private:
     ObjectGuid stormforgedEradictorGUID;
 };
 
+struct areatrigger_stormwind_teleport_unit : AreaTriggerAI
+{
+    enum MiscIds
+    {
+        SPELL_DUST_IN_THE_STORMWIND        = 312593,
+
+        NPC_KILL_CREDIT_TELEPORT_STORMWIND = 160561
+    };
+
+    areatrigger_stormwind_teleport_unit(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        player->CastSpell(unit, SPELL_DUST_IN_THE_STORMWIND);
+        player->KilledMonsterCredit(NPC_KILL_CREDIT_TELEPORT_STORMWIND);
+    }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -438,4 +461,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_frostgrips_hollow();
+    RegisterAreaTriggerAI(areatrigger_stormwind_teleport_unit);
 }
