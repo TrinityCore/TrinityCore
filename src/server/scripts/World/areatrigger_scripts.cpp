@@ -34,8 +34,8 @@ at_brewfest
 at_area_52_entrance
 EndContentData */
 
-#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
+#include "AreaTriggerAI.h"
 #include "DB2Structure.h"
 #include "GameObject.h"
 #include "GameTime.h"
