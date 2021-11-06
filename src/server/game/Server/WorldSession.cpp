@@ -28,6 +28,7 @@
 #include "BattlenetPackets.h"
 #include "CharacterPackets.h"
 #include "ChatPackets.h"
+#include "ClientConfigPackets.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Group.h"
@@ -809,6 +810,18 @@ void WorldSession::SetAccountData(AccountDataType type, time_t time, std::string
     _accountData[type].Data = data;
 }
 
+void WorldSession::SendAccountDataTimes(ObjectGuid playerGuid, uint32 mask)
+{
+    WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
+    accountDataTimes.PlayerGuid = playerGuid;
+    accountDataTimes.ServerTime = GameTime::GetGameTimeSystemPoint();
+    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        if (mask & (1 << i))
+            accountDataTimes.AccountTimes[i] = GetAccountData(AccountDataType(i))->Time;
+
+    SendPacket(accountDataTimes.Write());
+}
+
 void WorldSession::LoadTutorialsData(PreparedQueryResult result)
 {
     memset(_tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
@@ -1089,6 +1102,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* realmHold
     SendFeatureSystemStatusGlueScreen();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendAvailableHotfixes();
+    SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
     SendTutorialsData();
 
     if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))

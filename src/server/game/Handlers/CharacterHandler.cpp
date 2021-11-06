@@ -29,7 +29,6 @@
 #include "CharacterCache.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
-#include "ClientConfigPackets.h"
 #include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
@@ -1050,6 +1049,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     pCurrChar->SetVirtualPlayerRealm(GetVirtualRealmAddress());
 
+    SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
     SendTutorialsData();
 
     pCurrChar->GetMotionMaster()->Initialize();
@@ -1062,14 +1062,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
-
-    WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
-    accountDataTimes.PlayerGuid = playerGuid;
-    accountDataTimes.ServerTime = GameTime::GetGameTimeSystemPoint();
-    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
-        accountDataTimes.AccountTimes[i] = GetAccountData(AccountDataType(i))->Time;
-
-    SendPacket(accountDataTimes.Write());
+    SendAccountDataTimes(playerGuid, ALL_ACCOUNT_DATA_CACHE_MASK);
 
     SendFeatureSystemStatus();
 
