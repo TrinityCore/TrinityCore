@@ -28,6 +28,7 @@
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "GameClient.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "Guild.h"
@@ -136,7 +137,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     m_currentBankerGUID(),
     _timeSyncClockDeltaQueue(6),
     _timeSyncClockDelta(0),
-    _pendingTimeSyncRequests()
+    _pendingTimeSyncRequests(),
+    _gameClient(new GameClient(this))
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -173,6 +175,8 @@ WorldSession::~WorldSession()
 
     delete _warden;
     delete _RBACData;
+
+    delete _gameClient;
 
     ///- empty incoming packet queue
     WorldPacket* packet = nullptr;
@@ -1588,4 +1592,28 @@ void WorldSession::SendTimeSync()
     // Schedule next sync in 5 sec (sniffs sometimes vary between 5 and 6 seconds. Probably due to their 400 batch interval)
     _timeSyncTimer = 5000;
     _timeSyncNextCounter++;
+}
+
+bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
+{
+    GameClient* client = GetGameClient();
+
+    // the client is attempting to tamper movement data
+    // edit: this wouldn't happen in retail but it does in TC, even with a legitimate client.
+    if (!client->GetActivelyMovedUnit() || client->GetActivelyMovedUnit()->GetGUID() != guid)
+    {
+        TC_LOG_DEBUG("entities.unit", "Attempt at tampering movement data by Player %s", _player->GetName().c_str());
+        return false;
+    }
+
+    // This can happen if a legitimate client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
+    // sending this packet yet. The server should silently ignore all MOVE messages coming from the client as soon
+    // as control over that unit is revoked (through a 'SMSG_CONTROL_UPDATE allowMove=false' message).
+    if (!client->IsAllowedToMove(guid))
+    {
+        TC_LOG_DEBUG("entities.unit", "Bad or outdated movement data by Player %s", _player->GetName().c_str());
+        return false;
+    }
+
+    return true;
 }

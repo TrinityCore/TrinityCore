@@ -35,6 +35,7 @@
 
 class BigNumber;
 class Creature;
+class GameClient;
 class GameObject;
 class InstanceSave;
 class Item;
@@ -471,6 +472,8 @@ class TC_GAME_API WorldSession
         void InitializeSession();
         void InitializeSessionCallback(CharacterDatabaseQueryHolder const& realmHolder);
 
+        GameClient* GetGameClient() const { return _gameClient; };
+
         rbac::RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
@@ -670,11 +673,6 @@ class TC_GAME_API WorldSession
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
 
-        // new
-        void HandleMoveUnRootAck(WorldPacket& recvPacket);
-        void HandleMoveRootAck(WorldPacket& recvPacket);
-        void HandleLookingForGroup(WorldPacket& recvPacket);
-
         // cemetery/graveyard related
         void HandleReturnToGraveyard(WorldPacket& recvPacket);
         void HandleRequestCemeteryList(WorldPacket& recvPacket);
@@ -686,11 +684,19 @@ class TC_GAME_API WorldSession
         void HandleRequestHonorStatsOpcode(WorldPackets::Inspect::RequestHonorStats& packet);
         void HandleRequestInspectRatedBgStatsOpcode(WorldPackets::Inspect::RequestInspectRatedBgStats& packet);
 
-
+        void HandleForceSpeedChangeAck(WorldPacket& recvData);
+        void HandleMoveKnockBackAck(WorldPacket& recvPacket);
+        void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
         void HandleFeatherFallAck(WorldPacket& recvData);
-
         void HandleMoveHoverAck(WorldPacket& recvData);
+        void HandleMoveUnRootAck(WorldPacket& recvPacket);
+        void HandleMoveRootAck(WorldPacket& recvPacket);
+        void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
+        void HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& recvData);
+        void HandleMoveGravityDisableAck(WorldPacket& recvData);
+        void HandleMoveGravityEnableAck(WorldPacket& recvData);
+        void HandleSetCollisionHeightAck(WorldPacket& recvData);
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
@@ -700,13 +706,6 @@ class TC_GAME_API WorldSession
 
         // repair
         void HandleRepairItemOpcode(WorldPacket& recvPacket);
-
-        // Knockback
-        void HandleMoveKnockBackAck(WorldPacket& recvPacket);
-        void HandleGravityAckMessage(WorldPacket & recvData);
-        void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
-        void HandleForceSpeedChangeAck(WorldPacket& recvData);
-        void HandleSetCollisionHeightAck(WorldPacket& recvData);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
@@ -1088,7 +1087,6 @@ class TC_GAME_API WorldSession
         void HandleSetDungeonDifficultyOpcode(WorldPacket& recvData);
         void HandleSetRaidDifficultyOpcode(WorldPacket& recvData);
         void HandleChangePlayerDifficulty(WorldPacket& recvData);
-        void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
         void HandleSetTitleOpcode(WorldPacket& recvData);
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleTimeSyncResp(WorldPacket& recvData);
@@ -1322,6 +1320,9 @@ class TC_GAME_API WorldSession
             return _legitCharacters.find(lowGUID) != _legitCharacters.end();
         }
 
+        // Movement helpers
+        bool IsRightUnitBeingMoved(ObjectGuid guid);
+
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login
         GuidSet _legitCharacters;
@@ -1394,6 +1395,8 @@ class TC_GAME_API WorldSession
         uint32 _timeSyncTimer;
 
         ConnectToKey _instanceConnectKey;
+
+        GameClient* _gameClient;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

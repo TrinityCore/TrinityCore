@@ -33,6 +33,7 @@
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "GameTime.h"
+#include "GameClient.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include <boost/accumulators/statistics/variance.hpp>
@@ -235,15 +236,16 @@ void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTok
 
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK: Guid: %s, Sequence: %u, Time: %u", packet.MoverGUID.ToString().c_str(), packet.AckIndex, packet.MoveTime);
+    if (!IsRightUnitBeingMoved(packet.MoverGUID))
+        return;
 
-    Player* plMover = _player->m_unitMovedByMe->ToPlayer();
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActivelyMovedUnit();
+    Player* plMover = mover->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
 
-    if (packet.MoverGUID != plMover->GetGUID())
-        return;
 
     plMover->SetSemaphoreTeleportNear(false);
 
@@ -294,7 +296,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
 void WorldSession::HandleMovementOpcode(uint16 opcode, MovementInfo& movementInfo)
 {
-    Unit* mover = _player->m_unitMovedByMe;
+    if (!IsRightUnitBeingMoved(movementInfo.guid))
+        return;
+
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActivelyMovedUnit();
 
     // there must always be a mover
     if (!mover)
@@ -459,12 +465,11 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     Movement::ExtraMovementStatusElement extras(&speedElement);
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
 
-    // now can skip not our packet
-    if (_player->GetGUID() != movementInfo.guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
+    if (!IsRightUnitBeingMoved(movementInfo.guid))
         return;
-    }
+
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActivelyMovedUnit();
 
     float newspeed = extras.Data.floatData;
     /*----------------*/
@@ -533,24 +538,25 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     static MovementStatusElements const speedVal = MSEExtraFloat;
     Movement::ExtraMovementStatusElement extra(&speedVal);
     extra.Data.floatData = newspeed;
-    Movement::PacketSender(_player, NULL_OPCODE, NULL_OPCODE, moveUpdateOpcode, &extra).Send();
+
+    Movement::PacketSender(mover, NULL_OPCODE, NULL_OPCODE, moveUpdateOpcode, &extra).Send();
 
     // skip all forced speed changes except last and unexpected
     // in run/mounted case used one ACK and it must be skipped. m_forced_speed_changes[MOVE_RUN] store both.
-    if (_player->m_forced_speed_changes[move_type] > 0)
+    if (mover->m_forced_speed_changes[move_type] > 0)
     {
-        --_player->m_forced_speed_changes[move_type];
-        if (_player->m_forced_speed_changes[move_type] > 0)
+        --mover->m_forced_speed_changes[move_type];
+        if (mover->m_forced_speed_changes[move_type] > 0)
             return;
     }
 
-    if (!_player->GetTransport() && std::fabs(_player->GetSpeed(move_type) - newspeed) > 0.01f)
+    if (!mover->GetTransport() && std::fabs(mover->GetSpeed(move_type) - newspeed) > 0.01f)
     {
-        if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
+        if (mover->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {
             TC_LOG_ERROR("network", "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
-                move_type_name[move_type], _player->GetName().c_str(), _player->GetSpeed(move_type), newspeed);
-            _player->SetSpeedRate(move_type, _player->GetSpeedRate(move_type));
+                move_type_name[move_type], mover->GetName().c_str(), mover->GetSpeed(move_type), newspeed);
+            mover->SetSpeedRate(move_type, mover->GetSpeedRate(move_type));
         }
         else                                                // must be lesser - cheating
         {
@@ -563,18 +569,41 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
-    if (GetPlayer()->IsInWorld())
-        if (_player->m_unitMovedByMe->GetGUID() != packet.ActiveMover)
-            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
+    GameClient* client = GetGameClient();
+
+    // step 1: look at the list of units that this client is allowed to move. check if the client is allowed to even move the
+    // unit that is mentioned in the packet. if not, either silently ignore, log this event or kick the client.
+    if (!client->IsAllowedToMove(packet.ActiveMover))
+    {
+        // @todo log or kick or do nothing depending on configuration
+        TC_LOG_DEBUG("entities.unit", "set active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), packet.ActiveMover.ToString().c_str());
+        return;
+    }
+
+    // step 2:
+    TC_LOG_DEBUG("entities.unit", "set active mover OK for client of player %s. GUID %s.", _player->GetName().c_str(), packet.ActiveMover.ToString().c_str());
+    Unit* newActivelyMovedUnit = ObjectAccessor::GetUnit(*_player, packet.ActiveMover);
+    client->SetActivelyMovedUnit(newActivelyMovedUnit);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
-    MovementInfo mi;
-    GetPlayer()->ReadMovementInfo(recvData, &mi);
-    _player->m_movementInfo = mi;
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+
+    GameClient* client = GetGameClient();
+
+    if (client->GetActivelyMovedUnit() == nullptr || client->GetActivelyMovedUnit()->GetGUID() != movementInfo.guid)
+    {
+        // this shouldn't never happen in theory
+        TC_LOG_WARN("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), movementInfo.guid.ToString().c_str());
+        return;
+    }
+
+    TC_LOG_DEBUG("entities.unit", "unset active mover OK for client of player %s. GUID %s.", _player->GetName().c_str(), movementInfo.guid.ToString().c_str());
+    client->SetActivelyMovedUnit(nullptr);
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
@@ -585,6 +614,19 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->SendMessageToSet(&data, false);
 }
 
+void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+{
+    if (!_player->IsAlive() || _player->IsInCombat())
+        return;
+
+    ObjectGuid summoner_guid;
+    bool agree;
+    recvData >> summoner_guid;
+    recvData >> agree;
+
+    _player->SummonIfPossible(agree);
+}
+
 void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_KNOCK_BACK_ACK");
@@ -592,23 +634,18 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 
-    if (_player->m_unitMovedByMe->GetGUID() != movementInfo.guid)
+    if (!IsRightUnitBeingMoved(movementInfo.guid))
         return;
 
-    _player->m_movementInfo = movementInfo;
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActivelyMovedUnit();
+
+    mover->m_movementInfo = movementInfo;
+
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
-    _player->WriteMovementInfo(data);
-    _player->SendMessageToSet(&data, false);
-}
-
-void WorldSession::HandleGravityAckMessage(WorldPacket& recvData)
-{
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
-    if (movementInfo.guid != _player->m_unitMovedByMe->GetGUID())
-        TC_LOG_ERROR("network", "HandleGravityAckMessage: incorrect mover guid: mover is %s and should be %s.", movementInfo.guid.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
-
+    mover->WriteMovementInfo(data);
+    client->GetBasePlayer()->SendMessageToSet(&data, false);
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
@@ -625,17 +662,46 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 }
 
-void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
 {
-    if (!_player->IsAlive() || _player->IsInCombat())
-        return;
+    TC_LOG_DEBUG("network", "CMSG_FORCE_MOVE_ROOT_ACK");
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+}
 
-    ObjectGuid summoner_guid;
-    bool agree;
-    recvData >> summoner_guid;
-    recvData >> agree;
+void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_MOVE_FEATHER_FALL_ACK");
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+}
 
-    _player->SummonIfPossible(agree);
+void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_FORCE_MOVE_UNROOT_ACK");
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+}
+
+void WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK");
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+}
+
+void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_MOVE_GRAVITY_DISABLE_ACK");
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+}
+
+void WorldSession::HandleMoveGravityEnableAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_MOVE_GRAVITY_ENABLE_ACK");
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 }
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvData)
@@ -644,10 +710,14 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvData)
     static MovementStatusElements const heightElement = MSEExtraFloat;
     Movement::ExtraMovementStatusElement extras(&heightElement);
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
-
-    Movement::PacketSender(_player, NULL_OPCODE, NULL_OPCODE, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extras).Send();
 }
 
+void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_MOVE_SET_CAN_FLY_ACK");
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+}
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
@@ -674,7 +744,11 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[0]);
     recvData.ReadByteSeq(guid[5]);
 
-    Unit* mover = GetPlayer()->m_unitMovedByMe;
+    if (!IsRightUnitBeingMoved(guid))
+        return;
+
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActivelyMovedUnit();
 
     if (!mover)
     {

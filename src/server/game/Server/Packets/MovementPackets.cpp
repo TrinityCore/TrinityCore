@@ -539,3 +539,26 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonster
 
     return data;
 }
+
+WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
+{
+    _worldPacket.WriteBit(MoverGUID[5]);
+    _worldPacket.WriteBit(MoverGUID[7]);
+    _worldPacket.WriteBit(MoverGUID[3]);
+    _worldPacket.WriteBit(MoverGUID[6]);
+    _worldPacket.WriteBit(MoverGUID[0]);
+    _worldPacket.WriteBit(MoverGUID[4]);
+    _worldPacket.WriteBit(MoverGUID[1]);
+    _worldPacket.WriteBit(MoverGUID[2]);
+
+    _worldPacket.WriteByteSeq(MoverGUID[6]);
+    _worldPacket.WriteByteSeq(MoverGUID[2]);
+    _worldPacket.WriteByteSeq(MoverGUID[3]);
+    _worldPacket.WriteByteSeq(MoverGUID[0]);
+    _worldPacket.WriteByteSeq(MoverGUID[5]);
+    _worldPacket.WriteByteSeq(MoverGUID[7]);
+    _worldPacket.WriteByteSeq(MoverGUID[1]);
+    _worldPacket.WriteByteSeq(MoverGUID[4]);
+
+    return &_worldPacket;
+}

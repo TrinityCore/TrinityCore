@@ -462,14 +462,14 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK,                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
     DEFINE_HANDLER(CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK,                  STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
     DEFINE_HANDLER(CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK,                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
-    DEFINE_HANDLER(CMSG_MOVE_GRAVITY_DISABLE_ACK,                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleGravityAckMessage         );
-    DEFINE_HANDLER(CMSG_MOVE_GRAVITY_ENABLE_ACK,                          STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleGravityAckMessage         );
+    DEFINE_HANDLER(CMSG_MOVE_GRAVITY_DISABLE_ACK,                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveGravityDisableAck     );
+    DEFINE_HANDLER(CMSG_MOVE_GRAVITY_ENABLE_ACK,                          STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveGravityEnableAck      );
     DEFINE_HANDLER(CMSG_MOVE_HOVER_ACK,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMoveHoverAck              );
     DEFINE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveKnockBackAck          );
     DEFINE_HANDLER(CMSG_MOVE_NOT_ACTIVE_MOVER,                            STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );
     DEFINE_HANDLER(CMSG_MOVE_SET_CAN_FLY,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_HANDLER(CMSG_MOVE_SET_CAN_FLY_ACK,                             STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSetCanFlyAckOpcode    );
-    DEFINE_HANDLER(CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
+    DEFINE_HANDLER(CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck);
     DEFINE_HANDLER(CMSG_MOVE_SET_COLLISION_HEIGHT_ACK,                    STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleSetCollisionHeightAck     );
     DEFINE_HANDLER(CMSG_MOVE_SPLINE_DONE,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSplineDoneOpcode      );
     DEFINE_HANDLER(CMSG_MOVE_TIME_SKIPPED,                                STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMoveTimeSkippedOpcode     );

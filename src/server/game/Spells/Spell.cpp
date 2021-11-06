@@ -27,6 +27,7 @@
 #include "DisableMgr.h"
 #include "DynamicObject.h"
 #include "G3DPosition.hpp"
+#include "GameClient.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -3288,7 +3289,7 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     m_powerCost = m_CastItem ? 0 : m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, this);
 
     // Set combo point requirement
-    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem || !m_caster->m_playerMovingMe)
+    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem || !m_caster->IsMovedByClient())
         m_needComboPoints = false;
 
     MountResult mountResult = MountResult::Ok;
@@ -3898,18 +3899,19 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
-    if (m_caster->m_playerMovingMe)
+    if (m_caster->IsMovedByClient())
     {
+        Player* mover = m_caster->GetGameClientMovingMe()->GetBasePlayer();
         // Take for real after all targets are processed
         if (m_needComboPoints)
-            m_caster->m_playerMovingMe->ClearComboPoints();
+            mover->ClearComboPoints();
 
         // Real add combo points from effects
         if (m_comboPointGain)
-            m_caster->m_playerMovingMe->GainSpellComboPoints(m_comboPointGain);
+            mover->GainSpellComboPoints(m_comboPointGain);
 
-        if (m_spellInfo->PowerType == POWER_HOLY_POWER && m_caster->m_playerMovingMe->getClass() == CLASS_PALADIN)
-           HandleHolyPower(m_caster->m_playerMovingMe);
+        if (m_spellInfo->PowerType == POWER_HOLY_POWER && mover->getClass() == CLASS_PALADIN)
+           HandleHolyPower(mover);
     }
 
     if (m_caster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))

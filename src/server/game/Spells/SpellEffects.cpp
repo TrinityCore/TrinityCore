@@ -28,6 +28,7 @@
 #include "Formulas.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "GameClient.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "Group.h"
@@ -3488,13 +3489,13 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    if (!m_caster->m_playerMovingMe)
+    if (!m_caster->IsMovedByClient())
         return;
 
     if (damage <= 0)
         return;
 
-    m_caster->m_playerMovingMe->AddComboPoints(unitTarget, damage, this);
+    m_caster->GetGameClientMovingMe()->GetBasePlayer()->AddComboPoints(unitTarget, damage, this);
 }
 
 void Spell::EffectDuel(SpellEffIndex effIndex)

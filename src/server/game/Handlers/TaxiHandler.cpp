@@ -210,6 +210,9 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
     MovementInfo movementInfo;                              // used only for proper packet read
     _player->ReadMovementInfo(recvData, &movementInfo);
 
+    if (!IsRightUnitBeingMoved(movementInfo.guid))
+        return;
+
     // in taxi flight packet received in 2 case:
     // 1) end taxi path in far (multi-node) flight
     // 2) switch from one map to other in case multim-map taxi path

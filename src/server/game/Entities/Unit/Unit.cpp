@@ -34,6 +34,7 @@
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
 #include "Formulas.h"
+#include "GameClient.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -325,7 +326,7 @@ bool DispelableAura::RollDispel() const
 
 
 Unit::Unit(bool isWorldObject) :
-    WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0),
+    WorldObject(isWorldObject),  m_lastSanctuaryTime(0),
     LastCharmerGUID(), m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     m_AutoRepeatFirstCast(false), m_procDeep(0),  m_removedAurasCount(0),
     m_interruptMask(SpellAuraInterruptFlags::None), m_interruptMask2(SpellAuraInterruptFlags2::None),
@@ -398,7 +399,11 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
         m_speed_rate[i] = 1.0f;
 
+    for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
+        m_forced_speed_changes[i] = 0;
+
     m_charmInfo = nullptr;
+    _gameClientMovingMe = nullptr;
 
     // remove aurastates allowing special moves
     for (uint8 i = 0; i < MAX_REACTIVE; ++i)
@@ -454,6 +459,7 @@ Unit::~Unit()
     ASSERT(m_removedAuras.empty());
     ASSERT(m_gameObj.empty());
     ASSERT(m_dynObj.empty());
+    ASSERT(!_gameClientMovingMe || _gameClientMovingMe->GetBasePlayer() == this);
 }
 
 void Unit::Update(uint32 p_time)
@@ -5611,7 +5617,7 @@ Unit* Unit::getAttackerForHelper() const                 // If someone wants to 
         return nullptr;
 
     if (Unit* victim = GetVictim())
-        if ((!IsPet() && !GetPlayerMovingMe()) || IsInCombatWith(victim))
+        if ((!IsPet() && !IsCharmerOrSelfPlayer()) || IsInCombatWith(victim))
             return victim;
 
     CombatManager const& mgr = GetCombatManager();
@@ -6428,6 +6434,14 @@ bool Unit::isPossessing() const
         return u->isPossessed();
     else
         return false;
+}
+
+Unit* Unit::GetCharmerOrSelf() const
+{
+    if (IsCharmed())
+        return GetCharmer();
+    else
+        return const_cast<Unit*>(this);
 }
 
 Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
@@ -9052,18 +9066,14 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
     {
         // register forced speed changes for WorldSession::HandleForceSpeedChangeAck
         // and do it only for real sent packets and use run for run/mounted as client expected
-        ++ToPlayer()->m_forced_speed_changes[mtype];
-
-        if (!IsInCombat())
-            if (Pet* pet = ToPlayer()->GetPet())
-                pet->SetSpeedRate(mtype, m_speed_rate[mtype]);
+        ++m_forced_speed_changes[mtype];
     }
 
     static MovementStatusElements const speedVal = MSEExtraFloat;
     Movement::ExtraMovementStatusElement extra(&speedVal);
     extra.Data.floatData = GetSpeed(mtype);
 
-    Movement::PacketSender(this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], NULL_OPCODE, &extra).Send();
+    Movement::PacketSender(IsMovedByClient() ? GetGameClientMovingMe()->GetBasePlayer() : this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], NULL_OPCODE, &extra).Send();
 }
 
 void Unit::FollowTarget(Unit* target)
@@ -10602,20 +10612,6 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
     }
 }
 
-Unit* Unit::GetUnitBeingMoved() const
-{
-    if (Player const* player = ToPlayer())
-        return player->m_unitMovedByMe;
-    return nullptr;
-}
-
-Player* Unit::GetPlayerBeingMoved() const
-{
-    if (Unit* mover = GetUnitBeingMoved())
-        return mover->ToPlayer();
-    return nullptr;
-}
-
 bool Unit::isFrozen() const
 {
     return HasAuraState(AURA_STATE_FROZEN);
@@ -11999,11 +11995,8 @@ void Unit::SetFeared(bool apply)
     }
 
     // block / allow control to real player in control (eg charmer)
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (m_playerMovingMe)
-            m_playerMovingMe->SetClientControl(this, !apply);
-    }
+    if (GetCharmerOrSelfPlayer())
+        GetCharmerOrSelfPlayer()->SetClientControl(this, !apply);
 }
 
 void Unit::SetConfused(bool apply)
@@ -12025,11 +12018,8 @@ void Unit::SetConfused(bool apply)
     }
 
     // block / allow control to real player in control (eg charmer)
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (m_playerMovingMe)
-            m_playerMovingMe->SetClientControl(this, !apply);
-    }
+    if (GetCharmerOrSelfPlayer())
+        GetCharmerOrSelfPlayer()->SetClientControl(this, !apply);
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)
@@ -12679,27 +12669,16 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
-    Player* player = ToPlayer();
-    if (!player)
-    {
-        if (Unit* charmer = GetCharmer())
-        {
-            player = charmer->ToPlayer();
-            if (player && player->m_unitMovedByMe != this)
-                player = nullptr;
-        }
-    }
-
-    if (!player)
+    if (IsMovedByServer())
         GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ);
     else
     {
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
-        SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
+        SendMoveKnockBack(GetGameClientMovingMe()->GetBasePlayer(), speedXY, -speedZ, vcos, vsin);
 
-        if (player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || player->HasAuraType(SPELL_AURA_FLY))
-            player->SetCanFly(true, false);
+        if (HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || HasAuraType(SPELL_AURA_FLY))
+            SetCanFly(true, false);
     }
 }
 
@@ -13733,8 +13712,9 @@ void Unit::SendTeleportPacket(Position const& pos)
 {
     // SMSG_MOVE_UPDATE_TELEPORT is sent to nearby players to signal the teleport
     // MSG_MOVE_TELEPORT is sent to self in order to trigger MSG_MOVE_TELEPORT_ACK and update the position server side
-    if (Player* playerMover = GetPlayerBeingMoved())
+    if (IsMovedByClient())
     {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
         float x, y, z, o;
         pos.GetPosition(x, y, z, o);
         if (TransportBase* transportBase = GetDirectTransport())
@@ -14102,10 +14082,14 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool /*u
         }
     }
 
+    WorldPacket data;
     if (disable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE).Send();
+        data.Initialize(IsMovedByClient() ? SMSG_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_DISABLE);
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_ENABLE, SMSG_MOVE_GRAVITY_ENABLE).Send();
+        data.Initialize(IsMovedByClient() ? SMSG_MOVE_GRAVITY_ENABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE);
+
+    WriteMovementInfo(data);
+
 
     return true;
 }
@@ -14975,4 +14959,12 @@ void Unit::ProcessItemCast(PendingSpellCastRequest const& castRequest, SpellCast
         // no script or script not process request by self
         player->CastItemUseSpell(item, targets, castRequest.CastRequest.CastID, castRequest.CastRequest.Misc);
     }
+}
+
+void Unit::SetGameClientMovingMe(GameClient* gameClientMovingMe)
+{
+    _gameClientMovingMe = gameClientMovingMe;
+
+    Player* mover = _gameClientMovingMe->GetBasePlayer();
+    mover->SendDirectMessage(WorldPackets::Movement::MoveSetActiveMover(mover->GetGUID()).Write());
 }
