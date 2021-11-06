@@ -69,7 +69,7 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos)
 
     if (std::fabs(dx) < 0.001f && std::fabs(dy) < 0.001f)
     {
-        float o = GetOrientation();
+        float o = NormalizeOrientation(GetOrientation() - M_PI);
         vcos = std::cos(o);
         vsin = std::sin(o);
     }
