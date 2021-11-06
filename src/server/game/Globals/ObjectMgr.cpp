@@ -6757,7 +6757,7 @@ void ObjectMgr::LoadWorldSafeLocs()
         {
             Field* fields = result->Fetch();
             uint32 id = fields[0].GetUInt32();
-            WorldLocation loc(fields[1].GetUInt32(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
+            WorldLocation loc(fields[1].GetUInt32(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), DegToRad(fields[5].GetFloat()));
             if (!MapManager::IsValidMapCoord(loc))
             {
                 TC_LOG_ERROR("sql.sql", "World location (ID: %u) has a invalid position MapID: %u %s, skipped", id, loc.GetMapId(), loc.ToString().c_str());
