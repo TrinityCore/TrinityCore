@@ -4276,18 +4276,18 @@ void Spell::EffectKnockBack()
     if (speedxy < 0.01f && speedz < 0.01f)
         return;
 
-    float x, y;
+    Position origin;
     if (effectInfo->Effect == SPELL_EFFECT_KNOCK_BACK_DEST)
     {
         if (m_targets.HasDst())
-            destTarget->GetPosition(x, y);
+            origin = destTarget->GetPosition();
         else
             return;
     }
-    else //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_KNOCK_BACK)
-        m_caster->GetPosition(x, y);
+    else //if (effectInfo->Effect == SPELL_EFFECT_KNOCK_BACK)
+        origin = m_caster->GetPosition();
 
-    unitTarget->KnockbackFrom(x, y, speedxy, speedz);
+    unitTarget->KnockbackFrom(origin, speedxy, speedz);
 }
 
 void Spell::EffectLeapBack()

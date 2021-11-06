@@ -1400,7 +1400,7 @@ class spell_gen_ds_flush_knockback : public SpellScript
                 float verticalSpeed = 8.0f;
                 // This method relies on the Dalaran Sewer map disposition and Water Spout position
                 // What we do is knock the player from a position exactly behind him and at the end of the pipe
-                player->KnockbackFrom(target->GetPositionX(), player->GetPositionY(), horizontalSpeed, verticalSpeed);
+                player->KnockbackFrom(target->GetPosition(), horizontalSpeed, verticalSpeed);
             }
         }
     }
