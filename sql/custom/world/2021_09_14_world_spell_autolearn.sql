@@ -4,4 +4,4 @@ CREATE TABLE `spell_autolearn` (
 	`classmask` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`level` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (`spell`, `racemask`, `classmask`)
-)
+);
