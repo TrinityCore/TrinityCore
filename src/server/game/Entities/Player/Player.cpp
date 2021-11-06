@@ -5715,7 +5715,11 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             LearnSkillRewardedSpells(id, newVal);
             // if skill value is going up, update enchantments after setting the new value
             if (newVal > currVal)
+            {
                 UpdateSkillEnchantments(id, currVal, newVal);
+                if (id == SKILL_RIDING)
+                    UpdateMountCapability();
+            }
 
             UpdateCriteria(CriteriaType::SkillRaised, id);
             UpdateCriteria(CriteriaType::AchieveSkillStep, id);
@@ -7220,6 +7224,8 @@ void Player::UpdateArea(uint32 newArea)
     PushQuests();
 
     UpdateCriteria(CriteriaType::EnterTopLevelArea, newArea);
+
+    UpdateMountCapability();
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)

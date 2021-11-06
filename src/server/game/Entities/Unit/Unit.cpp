@@ -3043,7 +3043,7 @@ void Unit::SetInWater(bool inWater)
 
 void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
 {
-    if (IsFlying() || (!IsControlledByPlayer()))
+    if (!IsControlledByPlayer())
         return;
 
     SetInWater(status & MAP_LIQUID_STATUS_SWIMMING);
@@ -3060,6 +3060,9 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
         if (curLiquid && curLiquid->SpellID && (!player || !player->IsGameMaster()))
             CastSpell(this, curLiquid->SpellID, true);
         _lastLiquid = curLiquid;
+
+        // mount capability depends on liquid state change
+        UpdateMountCapability();
     }
 }
 
@@ -7623,7 +7626,8 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
                 if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND))
                     continue;
             }
-            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
+            // player is on water surface
+            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT))
                 continue;
         }
         else if (isInWater)
@@ -7660,40 +7664,17 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     return nullptr;
 }
 
-void Unit::UpdateActiveMountAuras()
+void Unit::UpdateMountCapability()
 {
-    AuraEffectList auraEffects(GetAuraEffectsByType(SPELL_AURA_MOUNTED));
-
-    for (AuraEffect* aurEff : auraEffects)
+    AuraEffectList mounts = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+    for (AuraEffect* aurEff : mounts)
     {
-        uint32 mountType = aurEff->GetMiscValueB();
-        if (MountEntry const* mountEntry = sDB2Manager.GetMount(aurEff->GetId()))
-            mountType = mountEntry->MountTypeID;
-
-        MountCapabilityEntry const* capability = GetMountCapability(mountType);
-        if (!capability)
-        {
-            // no valid mount capability entry found, remove aura
-            if (Aura* aura = aurEff->GetBase())
-                aura->Remove();
-            continue;
-        }
-
-        // new capability differs from old
-        if (capability->ID != uint32(aurEff->GetAmount()))
-        {
-            if (MountCapabilityEntry const* oldCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
-                RemoveAurasDueToSpell(oldCapability->ModSpellAuraID, aurEff->GetCasterGUID());
-
-            CastSpell(this, capability->ModSpellAuraID, true);
-            aurEff->SetAmount(capability->ID);
-        }
-        else
-        {
-            // readd aura if it was lost due to SpellAuraInterruptFlags::EnterWorld
-            if (!GetAuraCount(capability->ModSpellAuraID))
-                CastSpell(this, capability->ModSpellAuraID, true);
-        }
+        aurEff->RecalculateAmount();
+        if (!aurEff->GetAmount())
+            aurEff->GetBase()->Remove();
+        else if (MountCapabilityEntry const* capability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount())) // aura may get removed by interrupt flag, reapply
+            if (!HasAura(capability->ModSpellAuraID))
+                CastSpell(this, capability->ModSpellAuraID, aurEff);
     }
 }
 

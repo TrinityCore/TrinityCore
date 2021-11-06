@@ -145,8 +145,6 @@ void WorldSession::HandleMoveWorldportAck()
             garrison->SendRemoteInfo();
     }
 
-    GetPlayer()->UpdateActiveMountAuras();
-
     // flight fast teleport case
     if (GetPlayer()->IsInFlight())
     {
