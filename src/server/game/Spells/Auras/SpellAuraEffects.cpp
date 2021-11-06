@@ -404,7 +404,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //333 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED implemented in Unit::GetCastSpellInfo
     &AuraEffect::HandleNoImmediateEffect,                         //334 SPELL_AURA_MOD_AUTOATTACK_CRIT_CHANCE implemented in Unit::RollMeleeOutcomeAgainst
     &AuraEffect::HandleNULL,                                      //335 SPELL_AURA_335
-    &AuraEffect::HandleNULL,                                      //336 SPELL_AURA_MOUNT_RESTRICTIONS implemented in Unit::GetMountCapability
+    &AuraEffect::HandleMountRestrictions,                         //336 SPELL_AURA_MOUNT_RESTRICTIONS implemented in Unit::GetMountCapability
     &AuraEffect::HandleNoImmediateEffect,                         //337 SPELL_AURA_MOD_VENDOR_ITEMS_PRICES
     &AuraEffect::HandleNoImmediateEffect,                         //338 SPELL_AURA_MOD_DURABILITY_LOSS
     &AuraEffect::HandleNoImmediateEffect,                         //339 SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER implemented in Unit::GetUnitCriticalChance and Unit::GetUnitSpellCriticalChance
@@ -653,10 +653,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 mountType = mountEntry->MountTypeID;
 
             if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(mountType))
-            {
                 amount = mountCapability->ID;
-                m_canBeRecalculated = false;
-            }
             break;
         }
         case SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY:
@@ -2489,84 +2486,88 @@ void AuraEffect::HandleAuraAllowTalentSwapping(AuraApplication const* aurApp, ui
 
 void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();
 
     if (apply)
     {
-        uint32 creatureEntry = GetMiscValue();
-        uint32 displayId = 0;
-        uint32 vehicleId = 0;
-
-        if (MountEntry const* mountEntry = sDB2Manager.GetMount(GetId()))
+        if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK)
         {
-            if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mountEntry->ID))
+            uint32 creatureEntry = GetMiscValue();
+            uint32 displayId = 0;
+            uint32 vehicleId = 0;
+
+            if (MountEntry const* mountEntry = sDB2Manager.GetMount(GetId()))
             {
-                if (mountEntry->IsSelfMount())
+                if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mountEntry->ID))
                 {
-                    displayId = DISPLAYID_HIDDEN_MOUNT;
-                }
-                else
-                {
-                    DB2Manager::MountXDisplayContainer usableDisplays;
-                    std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [target](MountXDisplayEntry const* mountDisplay)
+                    if (mountEntry->IsSelfMount())
                     {
-                        if (Player* playerTarget = target->ToPlayer())
-                            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
-                                return sConditionMgr->IsPlayerMeetingCondition(playerTarget, playerCondition);
+                        displayId = DISPLAYID_HIDDEN_MOUNT;
+                    }
+                    else
+                    {
+                        DB2Manager::MountXDisplayContainer usableDisplays;
+                        std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [target](MountXDisplayEntry const* mountDisplay)
+                        {
+                            if (Player* playerTarget = target->ToPlayer())
+                                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
+                                    return sConditionMgr->IsPlayerMeetingCondition(playerTarget, playerCondition);
 
-                        return true;
-                    });
+                            return true;
+                        });
 
-                    if (!usableDisplays.empty())
-                        displayId = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->CreatureDisplayInfoID;
+                        if (!usableDisplays.empty())
+                            displayId = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->CreatureDisplayInfoID;
+                    }
                 }
+                // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
+                //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
+                //    creatureEntry = mountVehicle->VehicleCreatureId;
             }
-            // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
-            //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
-            //    creatureEntry = mountVehicle->VehicleCreatureId;
-        }
 
-        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry))
-        {
-            vehicleId = creatureInfo->VehicleId;
-
-            if (!displayId)
+            if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry))
             {
-                CreatureModel model = *ObjectMgr::ChooseDisplayId(creatureInfo);
-                sObjectMgr->GetCreatureModelRandomGender(&model, creatureInfo);
-                displayId = model.CreatureDisplayID;
+                vehicleId = creatureInfo->VehicleId;
+
+                if (!displayId)
+                {
+                    CreatureModel model = *ObjectMgr::ChooseDisplayId(creatureInfo);
+                    sObjectMgr->GetCreatureModelRandomGender(&model, creatureInfo);
+                    displayId = model.CreatureDisplayID;
+                }
+
+                //some spell has one aura of mount and one of vehicle
+                for (SpellEffectInfo const& effect : GetSpellInfo()->GetEffects())
+                    if (effect.IsEffect(SPELL_EFFECT_SUMMON) && effect.MiscValue == GetMiscValue())
+                        displayId = 0;
             }
 
-            //some spell has one aura of mount and one of vehicle
-            for (SpellEffectInfo const& effect : GetSpellInfo()->GetEffects())
-                if (effect.IsEffect(SPELL_EFFECT_SUMMON) && effect.MiscValue == GetMiscValue())
-                    displayId = 0;
+            target->Mount(displayId, vehicleId, creatureEntry);
         }
-
-        target->Mount(displayId, vehicleId, creatureEntry);
 
         // cast speed aura
-        if (mode & AURA_EFFECT_HANDLE_REAL)
+        if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
                 target->CastSpell(target, mountCapability->ModSpellAuraID, this);
     }
     else
     {
-        target->Dismount();
+        if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK)
+            target->Dismount();
+
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
         if (mode & AURA_EFFECT_HANDLE_REAL)
-        {
             target->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
+        if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
             // remove speed aura
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
                 target->RemoveAurasDueToSpell(mountCapability->ModSpellAuraID, target->GetGUID());
-        }
     }
 }
 
@@ -6006,6 +6007,14 @@ void AuraEffect::HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, u
         playerTarget->AddStoredAuraTeleportLocation(GetSpellInfo()->Id);
     else if (!playerTarget->GetSession()->isLogingOut())
         playerTarget->RemoveStoredAuraTeleportLocation(GetSpellInfo()->Id);
+}
+
+void AuraEffect::HandleMountRestrictions(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    aurApp->GetTarget()->UpdateMountCapability();
 }
 
 void AuraEffect::HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const
