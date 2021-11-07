@@ -12497,8 +12497,9 @@ bool Unit::SetWaterWalking(bool enable)
 
 bool Unit::SetFeatherFall(bool enable)
 {
-    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
-        return false;
+    // Temporarily disabled for short lived auras that unapply before client had time to ACK applying
+    //if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
+    //    return false;
 
     if (enable)
         AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
@@ -12658,8 +12659,9 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
 
 bool Unit::SetCanTurnWhileFalling(bool enable)
 {
-    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING))
-        return false;
+    // Temporarily disabled for short lived auras that unapply before client had time to ACK applying
+    //if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING))
+    //    return false;
 
     if (enable)
         AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING);
