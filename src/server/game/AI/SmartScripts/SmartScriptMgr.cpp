@@ -1794,16 +1794,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.wpStart.quest && !IsQuestValid(e, e.action.wpStart.quest))
                 return false;
 
-            // Allow "invalid" value 3 for a while to allow cleanup the values stored in the db for SMART_ACTION_WP_START.
-            // Remember to remove this once the clean is complete.
-            constexpr uint32 TEMPORARY_EXTRA_VALUE_FOR_DB_CLEANUP = 1;
-
-            if (e.action.wpStart.reactState > (REACT_AGGRESSIVE + TEMPORARY_EXTRA_VALUE_FOR_DB_CLEANUP))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature %d Event %u Action %u uses invalid React State %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.reactState);
-                return false;
-            }
-
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.wpStart.run);
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.wpStart.repeat);
             break;
