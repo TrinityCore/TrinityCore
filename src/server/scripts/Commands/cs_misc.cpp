@@ -2530,7 +2530,8 @@ public:
                 // Add the freeze aura and set the proper duration
                 // Player combat status and flags are now handled
                 // in Freeze Spell AuraScript (OnApply)
-                Aura* freeze = player->AddAura(9454, player);
+				constexpr int FreezeAura = 9454;
+                Aura* freeze = player->AddAura(FreezeAura, player);
                 if (freeze)
                 {
                     if (freezeDuration)
@@ -2570,7 +2571,8 @@ public:
             // Remove Freeze spell (allowing movement and spells)
             // Player Flags + Neutral faction removal is now
             // handled on the Freeze Spell AuraScript (OnRemove)
-            player->RemoveAurasDueToSpell(9454);
+            constexpr int FreezeAura = 9454;			
+            player->RemoveAurasDueToSpell(FreezeAura);
         }
         else
         {
