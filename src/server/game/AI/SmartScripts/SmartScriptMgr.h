@@ -589,8 +589,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_IMMUNE_PC                      = 144,    // 0/1
     SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
     SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
+    SMART_ACTION_ACTIVATE_GAMEOBJECT                = 147,    // GameObjectActions
 
-    SMART_ACTION_END                                = 147
+    SMART_ACTION_END                                = 148
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1196,6 +1197,11 @@ struct SmartAction
         {
             SAIBool uninteractible;
         } setUninteractible;
+
+        struct
+        {
+            uint32 gameObjectAction;
+        } activateGameObject;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
