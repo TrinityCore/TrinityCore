@@ -633,9 +633,9 @@ struct ChrClassesEntry
     uint8 AttackPowerPerAgility;
     uint8 AttackPowerPerStrength;
     uint8 SpellClassSet;
-    uint8 ChatColorR;
-    uint8 ChatColorG;
-    uint8 ChatColorB;
+    uint8 ClassColorR;
+    uint8 ClassColorG;
+    uint8 ClassColorB;
 };
 
 struct ChrClassesXPowerTypesEntry
@@ -754,15 +754,15 @@ struct ChrRacesEntry
     LocalizedString NameFemale;
     LocalizedString NameLowercase;
     LocalizedString NameFemaleLowercase;
-    LocalizedString NameS;
-    LocalizedString NameFemaleS;
-    LocalizedString NameLowercaseS;
-    LocalizedString NameFemaleLowercaseS;
-    LocalizedString RaceFantasyDescription;
-    LocalizedString NameL;
-    LocalizedString NameFemaleL;
-    LocalizedString NameLowercaseL;
-    LocalizedString NameFemaleLowercaseL;
+    LocalizedString LoreName;
+    LocalizedString LoreNameFemale;
+    LocalizedString LoreNameLower;
+    LocalizedString LoreNameLowerFemale;
+    LocalizedString LoreDescription;
+    LocalizedString ShortName;
+    LocalizedString ShortNameFemale;
+    LocalizedString ShortNameLower;
+    LocalizedString ShortNameLowerFemale;
     int32 Flags;
     int32 FactionID;
     int32 CinematicSequenceID;
