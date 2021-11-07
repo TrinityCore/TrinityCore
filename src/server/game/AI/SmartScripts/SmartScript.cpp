@@ -2465,6 +2465,24 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     targetUnit->SetHealth(targetUnit->CountPctFromMaxHealth(e.action.setHealthPct.percent));
             break;
         }
+        case SMART_ACTION_CREATE_CONVERSATION:
+        {
+            WorldObject* baseObject = GetBaseObject();
+
+            for (WorldObject* const target : targets)
+            {
+                if (Player* playerTarget = target->ToPlayer())
+                {
+                    Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
+                        *playerTarget, playerTarget->GetGUID(), nullptr);
+                    if (!conversation)
+                        TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s, target %s - failed to create conversation",
+                            e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str(), playerTarget->GetName().c_str());
+                }
+            }
+
+            break;
+        }
         case SMART_ACTION_SET_IMMUNE_PC:
         {
             for (WorldObject* target : targets)
@@ -2507,22 +2525,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
-        case SMART_ACTION_CREATE_CONVERSATION:
+        case SMART_ACTION_ACTIVATE_GAMEOBJECT:
         {
-            WorldObject* baseObject = GetBaseObject();
-
-            for (WorldObject* const target : targets)
+            for (WorldObject* target : targets)
             {
-                if (Player* playerTarget = target->ToPlayer())
+                if (GameObject* targetGo = target->ToGameObject())
                 {
-                    Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
-                        *playerTarget, playerTarget->GetGUID(), nullptr);
-                    if (!conversation)
-                        TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s, target %s - failed to create conversation",
-                            e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str(), playerTarget->GetName().c_str());
+                    targetGo->ActivateObject(GameObjectActions(e.action.activateGameObject.gameObjectAction), e.action.activateGameObject.param);
                 }
             }
-
             break;
         }
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:

@@ -1637,6 +1637,132 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
     m_cooldownTime = time_to_restore ? (GameTime::GetGameTimeMS() + time_to_restore) : 0;
 }
 
+void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObject* spellCaster /*= nullptr*/, uint32 spellId /*= 0*/, int32 effectIndex /*= -1*/)
+{
+    Unit* unitCaster = spellCaster ? spellCaster->ToUnit() : nullptr;
+
+    switch (action)
+    {
+        case GameObjectActions::AnimateCustom0:
+        case GameObjectActions::AnimateCustom1:
+        case GameObjectActions::AnimateCustom2:
+        case GameObjectActions::AnimateCustom3:
+            SendCustomAnim(uint32(action) - uint32(GameObjectActions::AnimateCustom0));
+            break;
+        case GameObjectActions::Disturb: // What's the difference with Open?
+        case GameObjectActions::Open:
+            if (unitCaster)
+                Use(unitCaster);
+            break;
+        case GameObjectActions::OpenAndUnlock:
+            if (unitCaster)
+                UseDoorOrButton(0, false, unitCaster);
+            [[fallthrough]];
+        case GameObjectActions::Unlock:
+            RemoveFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Lock:
+            AddFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Close:
+        case GameObjectActions::Rebuild:
+            ResetDoorOrButton();
+            break;
+        case GameObjectActions::Despawn:
+            DespawnOrUnsummon();
+            break;
+        case GameObjectActions::MakeInert:
+            AddFlag(GO_FLAG_NOT_SELECTABLE);
+            break;
+        case GameObjectActions::MakeActive:
+            RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+            break;
+        case GameObjectActions::CloseAndLock:
+            ResetDoorOrButton();
+            AddFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Destroy:
+            if (unitCaster)
+                UseDoorOrButton(0, true, unitCaster);
+            break;
+        case GameObjectActions::UseArtKit0:
+        case GameObjectActions::UseArtKit1:
+        case GameObjectActions::UseArtKit2:
+        case GameObjectActions::UseArtKit3:
+        case GameObjectActions::UseArtKit4:
+        {
+            GameObjectTemplateAddon const* templateAddon = GetTemplateAddon();
+
+            uint32 artKitIndex = action != GameObjectActions::UseArtKit4 ? uint32(action) - uint32(GameObjectActions::UseArtKit0) : 4;
+
+            uint32 artKitValue = 0;
+            if (templateAddon != nullptr)
+                artKitValue = templateAddon->ArtKits[artKitIndex];
+
+            if (artKitValue == 0)
+                TC_LOG_ERROR("sql.sql", "GameObject %d hit by spell %d needs `artkit%d` in `gameobject_template_addon`", GetEntry(), spellId, artKitIndex);
+            else
+                SetGoArtKit(artKitValue);
+
+            break;
+        }
+        case GameObjectActions::GoTo1stFloor:
+        case GameObjectActions::GoTo2ndFloor:
+        case GameObjectActions::GoTo3rdFloor:
+        case GameObjectActions::GoTo4thFloor:
+        case GameObjectActions::GoTo5thFloor:
+        case GameObjectActions::GoTo6thFloor:
+        case GameObjectActions::GoTo7thFloor:
+        case GameObjectActions::GoTo8thFloor:
+        case GameObjectActions::GoTo9thFloor:
+        case GameObjectActions::GoTo10thFloor:
+            if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+                SetTransportState(GO_STATE_TRANSPORT_STOPPED, uint32(action) - uint32(GameObjectActions::GoTo1stFloor));
+            else
+                TC_LOG_ERROR("spell", "Spell %d targeted non-transport gameobject for transport only action \"Go to Floor\" %d in effect %d", spellId, int32(action), effectIndex);
+            break;
+        case GameObjectActions::PlayAnimKit:
+            SetAnimKitId(param, false);
+            break;
+        case GameObjectActions::OpenAndPlayAnimKit:
+            if (unitCaster)
+                UseDoorOrButton(0, false, unitCaster);
+            SetAnimKitId(param, false);
+            break;
+        case GameObjectActions::CloseAndPlayAnimKit:
+            ResetDoorOrButton();
+            SetAnimKitId(param, false);
+            break;
+        case GameObjectActions::PlayOneShotAnimKit:
+            SetAnimKitId(param, true);
+            break;
+        case GameObjectActions::StopAnimKit:
+            SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::OpenAndStopAnimKit:
+            if (unitCaster)
+                UseDoorOrButton(0, false, unitCaster);
+            SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::CloseAndStopAnimKit:
+            ResetDoorOrButton();
+            SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::PlaySpellVisual:
+            SetSpellVisualId(param, Object::GetGUID(spellCaster));
+            break;
+        case GameObjectActions::StopSpellVisual:
+            SetSpellVisualId(0);
+            break;
+        case GameObjectActions::None:
+            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", spellId, effectIndex);
+            break;
+        default:
+            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", spellId, int32(action), effectIndex);
+            break;
+    }
+}
+
 void GameObject::SetGoArtKit(uint8 kit)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::ArtKit), kit);

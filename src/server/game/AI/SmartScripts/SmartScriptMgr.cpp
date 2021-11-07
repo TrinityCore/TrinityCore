@@ -1015,7 +1015,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SET_IMMUNE_PC: return sizeof(SmartAction::setImmunePC);
             case SMART_ACTION_SET_IMMUNE_NPC: return sizeof(SmartAction::setImmuneNPC);
             case SMART_ACTION_SET_UNINTERACTIBLE: return sizeof(SmartAction::setUninteractible);
-            //case SMART_ACTION_ACTIVATE_GAMEOBJECT: return sizeof(SmartAction::raw);
+            case SMART_ACTION_ACTIVATE_GAMEOBJECT: return sizeof(SmartAction::activateGameObject);
             case SMART_ACTION_ADD_TO_STORED_TARGET_LIST: return sizeof(SmartAction::addToStoredTargets);
             case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER: return sizeof(SmartAction::becomePersonalClone);
             default:
@@ -2291,6 +2291,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.setHealthRegen.regenHealth);
             break;
         }
+        case SMART_ACTION_CREATE_CONVERSATION:
+        {
+            if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.conversation.id);
+                return false;
+            }
+
+            break;
+        }
         case SMART_ACTION_SET_IMMUNE_PC:
         {
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.setImmunePC.immunePC);
@@ -2306,14 +2316,17 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.setUninteractible.uninteractible);
             break;
         }
-        case SMART_ACTION_CREATE_CONVERSATION:
+        case SMART_ACTION_ACTIVATE_GAMEOBJECT:
         {
-            if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))
+            if (!NotNULL(e, e.action.activateGameObject.gameObjectAction))
+                return false;
+
+            if (e.action.activateGameObject.gameObjectAction >= uint32(GameObjectActions::Max))
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.conversation.id);
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u has gameObjectAction parameter out of range (max allowed %u, current value %u), skipped.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), uint32(GameObjectActions::Max), e.action.activateGameObject.gameObjectAction);
                 return false;
             }
-
             break;
         }
         case SMART_ACTION_FOLLOW:

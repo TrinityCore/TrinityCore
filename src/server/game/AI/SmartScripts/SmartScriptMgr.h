@@ -1217,6 +1217,11 @@ struct SmartAction
 
         struct
         {
+            uint32 id;
+        } conversation;
+
+        struct
+        {
             SAIBool immunePC;
         } setImmunePC;
 
@@ -1232,8 +1237,9 @@ struct SmartAction
 
         struct
         {
-            uint32 id;
-        } conversation;
+            uint32 gameObjectAction;
+            uint32 param;
+        } activateGameObject;
 
         struct
         {
