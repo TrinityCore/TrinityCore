@@ -21,10 +21,13 @@
  * Scriptnames of files in this file should be prefixed with "spell_dh_".
  */
 
-#include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Unit.h"
@@ -357,6 +360,90 @@ struct areatrigger_dh_sigil_of_chains : AreaTriggerAI
     }
 };
 
+// 131347 - Glide
+class spell_dh_glide : public SpellScript
+{
+    PrepareSpellScript(spell_dh_glide);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_GLIDE_KNOCKBACK, SPELL_DH_GLIDE_DURATION, SPELL_DH_VENGEFUL_RETREAT_TRIGGER, SPELL_DH_FEL_RUSH });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsMounted() || caster->GetVehicleBase())
+            return SPELL_FAILED_DONT_REPORT;
+
+        if (!caster->IsFalling())
+            return SPELL_FAILED_NOT_ON_GROUND;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleCast()
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_DH_GLIDE_KNOCKBACK, true);
+        caster->CastSpell(caster, SPELL_DH_GLIDE_DURATION, true);
+
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_VENGEFUL_RETREAT_TRIGGER, GetCastDifficulty()), 0, nullptr, false, 250ms);
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_DH_FEL_RUSH, GetCastDifficulty()), 0, nullptr, false, 250ms);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_dh_glide::CheckCast);
+        BeforeCast += SpellCastFn(spell_dh_glide::HandleCast);
+    }
+};
+
+// 131347 - Glide
+class spell_dh_glide_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_dh_glide_AuraScript);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_GLIDE_DURATION });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAura(SPELL_DH_GLIDE_DURATION);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 197154 - Glide
+class spell_dh_glide_timer : public AuraScript
+{
+    PrepareAuraScript(spell_dh_glide_timer);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_GLIDE });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAura(SPELL_DH_GLIDE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_glide_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterAuraScript(spell_dh_chaos_strike);
@@ -383,5 +470,10 @@ void AddSC_demon_hunter_spell_scripts()
 
     RegisterSpellScript(spell_dh_blade_dance);
     RegisterSpellScript(spell_dh_blade_dance_damage);
+
+    // Vengeance & Havoc
+
+    RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
+    RegisterAuraScript(spell_dh_glide_timer);
 
 }
