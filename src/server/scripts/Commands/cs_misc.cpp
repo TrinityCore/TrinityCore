@@ -2571,7 +2571,7 @@ public:
             // Remove Freeze spell (allowing movement and spells)
             // Player Flags + Neutral faction removal is now
             // handled on the Freeze Spell AuraScript (OnRemove)
-            constexpr int FreezeAura = 9454;			
+            constexpr int FreezeAura = 9454;
             player->RemoveAurasDueToSpell(FreezeAura);
         }
         else
