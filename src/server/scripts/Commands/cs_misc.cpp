@@ -2530,7 +2530,7 @@ public:
                 // Add the freeze aura and set the proper duration
                 // Player combat status and flags are now handled
                 // in Freeze Spell AuraScript (OnApply)
-				constexpr int FreezeAura = 9454;
+                constexpr int FreezeAura = 9454;
                 Aura* freeze = player->AddAura(FreezeAura, player);
                 if (freeze)
                 {
