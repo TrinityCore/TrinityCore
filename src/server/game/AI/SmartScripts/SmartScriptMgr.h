@@ -589,9 +589,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_IMMUNE_PC                      = 144,    // 0/1
     SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
     SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
-    SMART_ACTION_ACTIVATE_GAMEOBJECT                = 150,    // GameObjectActions
+    SMART_ACTION_ACTIVATE_GAMEOBJECT                = 147,    // GameObjectActions
 
-    SMART_ACTION_END                                = 151
+    SMART_ACTION_END                                = 148
 };
 
 enum class SmartActionSummonCreatureFlags
