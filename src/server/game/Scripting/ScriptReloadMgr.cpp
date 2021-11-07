@@ -343,7 +343,9 @@ static bool HasValidScriptModuleName(std::string const& name)
 {
     // Detects scripts_NAME.dll's / .so's
     static Trinity::regex const regex(
-        Trinity::StringFormat("^%s[sS]cripts_[a-zA-Z0-9_-]+\\.%s$",
+        // @tswow-begin allow dots
+        Trinity::StringFormat("^%s[sS]cripts_[a-zA-Z0-9._-]+\\.%s$",
+        // @tswow-end
             GetSharedLibraryPrefix(),
             GetSharedLibraryExtension()));
 
