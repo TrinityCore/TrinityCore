@@ -63,7 +63,7 @@
 
 enum Spells
 {
-    FreezeAura = 9454;
+    FreezeAura = 9454
 };
 
 using namespace Trinity::ChatCommands;
