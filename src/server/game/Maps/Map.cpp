@@ -58,6 +58,7 @@
 #include "TSPlayer.h"
 #include "TSCreature.h"
 #include "TSGameObject.h"
+#include "TSMapManager.h"
 // @tswow-end
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
@@ -3534,6 +3535,20 @@ void Map::AddFarSpellCallback(FarSpellCallback&& callback)
 
 void Map::DelayedUpdate(uint32 t_diff)
 {
+    // @tswow-begin
+    FIRE_MAP(
+          GetExtraData()->events
+        , MapOnUpdateDelayed
+        , TSMap(this)
+        , t_diff
+        , TSMapManager()
+    );
+    for (auto const& callback : m_delayCallbacks)
+    {
+        callback(TSMap(this), TSMapManager());
+    }
+    m_delayCallbacks.clear();
+    // @tswow-end
     {
         FarSpellCallback* callback;
         while (_farSpellCallbacks.Dequeue(callback))
