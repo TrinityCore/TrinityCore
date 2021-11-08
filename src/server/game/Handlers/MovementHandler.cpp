@@ -25,6 +25,7 @@
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
+#include "MovementPacketSender.h"
 #include "MovementPackets.h"
 #include "MovementStructures.h"
 #include "Transport.h"
@@ -465,106 +466,95 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     Movement::ExtraMovementStatusElement extras(&speedElement);
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
 
-    if (!IsRightUnitBeingMoved(movementInfo.guid))
-        return;
-
     GameClient* client = GetGameClient();
-    Unit* mover = client->GetActivelyMovedUnit();
 
-    float newspeed = extras.Data.floatData;
-    /*----------------*/
-
-    // client ACK send one packet for mounted/run case and need skip all except last from its
-    // in other cases anti-cheat check can be fail in false case
-    UnitMoveType move_type;
-
-    static char const* const move_type_name[MAX_MOVE_TYPE] =
+    // ACK handlers should call GameClient::IsAllowedToMove instead of WorldSession::IsRightUnitBeingMoved
+    // because the ACK could be coming from a unit that is under the control of that client but is not the 'Active Mover' unit.
+    // Example: Get a speed buff on yourself, then mount a vehicle before the end of the buff. When the buff expires,
+    // a force message will be sent to the client regarding the player and the client is required to respond with an ACK.
+    // But the vehicle will be the active mover unit at that time.
+    if (!client->IsAllowedToMove(movementInfo.guid))
     {
-        "Walk",
-        "Run",
-        "RunBack",
-        "Swim",
-        "SwimBack",
-        "TurnRate",
-        "Flight",
-        "FlightBack",
-        "PitchRate"
-    };
+        TC_LOG_ERROR("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
+        return;
+    }
 
-    OpcodeServer moveUpdateOpcode = OpcodeServer(NULL_OPCODE);
+    Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
+
+    UnitMoveType move_type;
     switch (recvData.GetOpcode())
     {
-        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:
-            move_type = MOVE_WALK;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_WALK_SPEED;
-            break;
-        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:
-            move_type = MOVE_RUN;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_RUN_SPEED;
-            break;
-        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:
-            move_type = MOVE_RUN_BACK;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_RUN_BACK_SPEED;
-            break;
-        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:
-            move_type = MOVE_SWIM;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_SWIM_SPEED;
-            break;
-        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
-            move_type = MOVE_SWIM_BACK;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_SWIM_BACK_SPEED;
-            break;
-        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:
-            move_type = MOVE_TURN_RATE;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_TURN_RATE;
-            break;
-        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:
-            move_type = MOVE_FLIGHT;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_FLIGHT_SPEED;
-            break;
-        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
-            move_type = MOVE_FLIGHT_BACK;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED;
-            break;
-        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:
-            move_type = MOVE_PITCH_RATE;
-            moveUpdateOpcode = SMSG_MOVE_UPDATE_PITCH_RATE;
-            break;
+        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:          move_type = MOVE_WALK;          break;
+        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:           move_type = MOVE_RUN;           break;
+        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:      move_type = MOVE_RUN_BACK;      break;
+        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:          move_type = MOVE_SWIM;          break;
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:     move_type = MOVE_SWIM_BACK;     break;
+        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:           move_type = MOVE_TURN_RATE;     break;
+        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:        move_type = MOVE_FLIGHT;        break;
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_FLIGHT_BACK;   break;
+        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:          move_type = MOVE_PITCH_RATE;    break;
         default:
-            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", recvData.GetOpcode());
+            TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvData.GetOpcode())).c_str());
             return;
     }
 
-    static MovementStatusElements const speedVal = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&speedVal);
-    extra.Data.floatData = newspeed;
+    float  speedReceived = extras.Data.floatData;
 
-    Movement::PacketSender(mover, NULL_OPCODE, NULL_OPCODE, moveUpdateOpcode, &extra).Send();
-
-    // skip all forced speed changes except last and unexpected
-    // in run/mounted case used one ACK and it must be skipped. m_forced_speed_changes[MOVE_RUN] store both.
-    if (mover->m_forced_speed_changes[move_type] > 0)
+    // verify that indeed the client is replying with the changes that were send to him
+    if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementInfo.movementCounter)
     {
-        --mover->m_forced_speed_changes[move_type];
-        if (mover->m_forced_speed_changes[move_type] > 0)
-            return;
+        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
+        return;
     }
 
-    if (!mover->GetTransport() && std::fabs(mover->GetSpeed(move_type) - newspeed) > 0.01f)
+    PlayerMovementPendingChange pendingChange = mover->PopPendingMovementChange();
+    float speedSent = pendingChange.newValue;
+    MovementChangeType changeType = pendingChange.movementChangeType;
+    UnitMoveType moveTypeSent;
+    switch (changeType)
     {
-        if (mover->GetSpeed(move_type) > newspeed)         // must be greater - just correct
-        {
-            TC_LOG_ERROR("network", "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
-                move_type_name[move_type], mover->GetName().c_str(), mover->GetSpeed(move_type), newspeed);
-            mover->SetSpeedRate(move_type, mover->GetSpeedRate(move_type));
-        }
-        else                                                // must be lesser - cheating
-        {
-            TC_LOG_DEBUG("misc", "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
-                _player->GetName().c_str(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
+        case MovementChangeType::SPEED_CHANGE_WALK:                 moveTypeSent = MOVE_WALK; break;
+        case MovementChangeType::SPEED_CHANGE_RUN:                  moveTypeSent = MOVE_RUN; break;
+        case MovementChangeType::SPEED_CHANGE_RUN_BACK:             moveTypeSent = MOVE_RUN_BACK; break;
+        case MovementChangeType::SPEED_CHANGE_SWIM:                 moveTypeSent = MOVE_SWIM; break;
+        case MovementChangeType::SPEED_CHANGE_SWIM_BACK:            moveTypeSent = MOVE_SWIM_BACK; break;
+        case MovementChangeType::RATE_CHANGE_TURN:                  moveTypeSent = MOVE_TURN_RATE; break;
+        case MovementChangeType::SPEED_CHANGE_FLIGHT_SPEED:         moveTypeSent = MOVE_FLIGHT; break;
+        case MovementChangeType::SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveTypeSent = MOVE_FLIGHT_BACK; break;
+        case MovementChangeType::RATE_CHANGE_PITCH:                 moveTypeSent = MOVE_PITCH_RATE; break;
+        default:
+            TC_LOG_INFO("cheat", "WorldSession::HandleForceSpeedChangeAck: Player %s from account id %u kicked for incorrect data returned in an ack",
+                _player->GetName().c_str(), _player->GetSession()->GetAccountId());
             _player->GetSession()->KickPlayer();
-        }
+            return;
     }
+
+    if (pendingChange.movementCounter != movementInfo.movementCounter || std::fabs(speedSent - speedReceived) > 0.01f || moveTypeSent!= move_type)
+    {
+        TC_LOG_INFO("cheat", "WorldSession::HandleForceSpeedChangeAck: Player %s from account id %u kicked for incorrect data returned in an ack",
+            _player->GetName().c_str(), _player->GetSession()->GetAccountId());
+        _player->GetSession()->KickPlayer();
+        return;
+    }
+
+    /* the client data has been verified. let's do the actual change now */
+    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        movementInfo.time = GameTime::GetGameTimeMS();
+    }
+    else
+    {
+        movementInfo.time = (uint32)movementTime;
+    }
+
+    mover->m_movementInfo = movementInfo;
+    mover->UpdatePosition(movementInfo.pos);
+
+    float newSpeedRate = speedSent / (mover->IsControlledByPlayer() ? playerBaseMoveSpeed[move_type] : baseMoveSpeed[move_type]);
+    mover->SetSpeedRateReal(move_type, newSpeedRate);
+    MovementPacketSender::SendSpeedChangeToObservers(mover, move_type, speedSent);
 }
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
@@ -597,8 +587,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 
     if (client->GetActivelyMovedUnit() == nullptr || client->GetActivelyMovedUnit()->GetGUID() != movementInfo.guid)
     {
-        // this shouldn't never happen in theory
-        TC_LOG_WARN("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), movementInfo.guid.ToString().c_str());
+        TC_LOG_DEBUG("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), movementInfo.guid.ToString().c_str());
         return;
     }
 
@@ -634,14 +623,31 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 
-    if (!IsRightUnitBeingMoved(movementInfo.guid))
+    GameClient* client = GetGameClient();
+
+    // ACK handlers should call GameClient::IsAllowedToMove instead of WorldSession::IsRightUnitBeingMoved
+    // because the ACK could be coming from a unit that is under the control of that client but is not the 'Active Mover' unit.
+    // Example: Get a speed buff on yourself, then mount a vehicle before the end of the buff. When the buff expires,
+    // a force message will be sent to the client regarding the player and the client is required to respond with an ACK.
+    // But the vehicle will be the active mover unit at that time.
+    if (!client->IsAllowedToMove(movementInfo.guid))
         return;
 
-    GameClient* client = GetGameClient();
-    Unit* mover = client->GetActivelyMovedUnit();
+    Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
+
+    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        movementInfo.time = GameTime::GetGameTimeMS();
+    }
+    else
+    {
+        movementInfo.time = (uint32)movementTime;
+    }
 
     mover->m_movementInfo = movementInfo;
-
+    mover->UpdatePosition(movementInfo.pos);
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
     mover->WriteMovementInfo(data);

@@ -1610,6 +1610,9 @@ void World::LoadConfigSettings(bool reload)
     // Allow to cache data queries
     m_bool_configs[CONFIG_CACHE_DATA_QUERIES] = sConfigMgr->GetBoolDefault("CacheDataQueries", true);
 
+    // Anti movement cheat measure. Time each client have to acknowledge a movement change until they are kicked
+    m_int_configs[CONFIG_PENDING_MOVE_CHANGES_TIMEOUT] = sConfigMgr->GetIntDefault("AntiCheat.PendingMoveChangesTimeoutTime", 0);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);

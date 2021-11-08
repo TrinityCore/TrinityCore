@@ -32,6 +32,7 @@
 #include <map>
 #include <memory>
 #include <stack>
+#include <queue>
 
 #define WORLD_TRIGGER   12999
 
@@ -266,23 +267,54 @@ enum UnitState : uint32
     UNIT_STATE_ALL_STATE           = 0xffffffff
 };
 
-enum UnitMoveType
-{
-    MOVE_WALK           = 0,
-    MOVE_RUN            = 1,
-    MOVE_RUN_BACK       = 2,
-    MOVE_SWIM           = 3,
-    MOVE_SWIM_BACK      = 4,
-    MOVE_TURN_RATE      = 5,
-    MOVE_FLIGHT         = 6,
-    MOVE_FLIGHT_BACK    = 7,
-    MOVE_PITCH_RATE     = 8
-};
-
-#define MAX_MOVE_TYPE 9
-
 TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
 TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
+
+enum class MovementChangeType : uint8
+{
+    INVALID,
+
+    ROOT,
+    WATER_WALK,
+    SET_HOVER,
+    SET_CAN_FLY,
+    SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY,
+    FEATHER_FALL,
+    GRAVITY_DISABLE,
+
+    SPEED_CHANGE_WALK,
+    SPEED_CHANGE_RUN,
+    SPEED_CHANGE_RUN_BACK,
+    SPEED_CHANGE_SWIM,
+    SPEED_CHANGE_SWIM_BACK,
+    RATE_CHANGE_TURN,
+    SPEED_CHANGE_FLIGHT_SPEED,
+    SPEED_CHANGE_FLIGHT_BACK_SPEED,
+    RATE_CHANGE_PITCH,
+
+    SET_COLLISION_HGT,
+    TELEPORT,
+    KNOCK_BACK
+};
+
+struct PlayerMovementPendingChange
+{
+    PlayerMovementPendingChange();
+
+    uint32 movementCounter = 0;
+    MovementChangeType movementChangeType = MovementChangeType::INVALID;
+    uint32 time;
+
+    float newValue = 0.0f; // used if speed or height change
+    bool apply = false; // used if movement flag change
+    struct KnockbackInfo
+    {
+        float vcos = 0.0f;
+        float vsin = 0.0f;
+        float speedXY = 0.0f;
+        float speedZ = 0.0f;
+    } knockbackInfo; // used if knockback
+};
 
 enum CombatRating
 {
@@ -763,6 +795,7 @@ struct PendingSpellCastRequest
 
 class TC_GAME_API Unit : public WorldObject
 {
+    friend class WorldSession;
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
@@ -1622,7 +1655,10 @@ class TC_GAME_API Unit : public WorldObject
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float newValue);
         void SetSpeedRate(UnitMoveType mtype, float rate);
+    private:
+        void SetSpeedRateReal(UnitMoveType mtype, float rate);
 
+    public:
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
         int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = nullptr) const;
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
@@ -1719,7 +1755,7 @@ class TC_GAME_API Unit : public WorldObject
         void _ExitVehicle(Position const* exitPosition = nullptr);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = nullptr);
 
-        void WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusElement* extras = nullptr);
+        void WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusElement* extras = nullptr, uint32* movementCounter = nullptr);
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
@@ -1733,6 +1769,15 @@ class TC_GAME_API Unit : public WorldObject
         {
             return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f;
         }
+
+        uint32 GetMovementCounterAndInc() { return m_movementCounter++; }
+        uint32 GetMovementCounter() { return m_movementCounter; }
+        PlayerMovementPendingChange& PeakFirstPendingMovementChange();
+        PlayerMovementPendingChange PopPendingMovementChange();
+        void PushPendingMovementChange(PlayerMovementPendingChange newChange);
+        bool HasPendingMovementChange() const { return !m_pendingMovementChanges.empty(); }
+        bool HasPendingMovementChange(MovementChangeType changeType) const;
+        void PurgeAndApplyPendingMovementChanges(bool informObservers = true);
 
         void RewardRage(uint32 baseRage, bool attacker);
 
@@ -1754,8 +1799,6 @@ class TC_GAME_API Unit : public WorldObject
 
         // Movement info
         Movement::MoveSpline * movespline;
-
-        uint8 m_forced_speed_changes[MAX_MOVE_TYPE];
 
         // Part of Evade mechanics
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
@@ -1879,6 +1922,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtDisengage() {}
 
         void InterruptMovementBasedAuras();
+        void CheckPendingMovementAcks();
 
         uint32 GetPowerUpdateInterval() const { return IsPlayer() ? PLAYER_POWER_UPDATE_INTERVAL : UNIT_POWER_UPDATE_INTERVAL; }
     private:
@@ -1898,10 +1942,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetStunned(bool apply);
         void SetRooted(bool apply, bool packetOnly = false);
 
-        uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
-
     private:
-
         uint32 m_state;                                     // Even derived shouldn't modify
         TimeTrackerSmall m_splineSyncTimer;
 
@@ -1946,6 +1987,14 @@ class TC_GAME_API Unit : public WorldObject
         void ProcessPendingSpellCastRequest();
         void ProcessItemCast(PendingSpellCastRequest const& castRequest, SpellCastTargets const& targets);
         bool CanExecutePendingSpellCastRequest(SpellInfo const* spellInfo) const;
+
+        /* Player Movement fields START*/
+
+        // when a player controls this unit, and when change is made to this unit which requires an ack from the client to be acted (change of speed for example), this movementCounter is incremented
+        uint32 m_movementCounter;
+        std::deque<PlayerMovementPendingChange> m_pendingMovementChanges;
+
+        /* Player Movement fields END*/
 };
 
 namespace Trinity

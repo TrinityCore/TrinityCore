@@ -1627,6 +1627,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (oldmap)
                 oldmap->RemovePlayerFromMap(this, false);
 
+            // players on mount will be dismounted. the speed and height change should not require an ACK and should be applied directly
+            PurgeAndApplyPendingMovementChanges(false);
+
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_transport = transport;
             m_teleport_options = options;
@@ -23413,7 +23416,7 @@ void Player::SendInitialPacketsBeforeAddToMap(bool firstLogin /*= false*/)
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
-    GetSession()->GetGameClient()->AddAllowedMover(this);
+    GetGameClient()->SetMovedUnit(this, true);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -27643,7 +27646,7 @@ void Player::SendMovementSetCollisionHeight(float height, UpdateCollisionHeightR
     WorldPackets::Movement::MoveSetCollisionHeight packet;
     packet.Height = height;
     packet.MoverGUID = GetGUID();
-    packet.SequenceIndex = m_movementCounter++;
+    //packet.SequenceIndex = m_movementCounter++;
     packet.Reason = reason;
     SendDirectMessage(packet.Write());
 }
@@ -27813,6 +27816,21 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
+    if (mi->guid.IsEmpty())
+    {
+        TC_LOG_ERROR("entities.unit", "WorldSession::ReadMovementInfo: mi->guid is empty");
+        return;
+    }
+
+    Unit* mover = GetCharmedOrSelf()->GetGUID() == mi->guid ? GetCharmedOrSelf() : ObjectAccessor::GetUnit(*GetCharmedOrSelf(), mi->guid);
+    if (!mover)
+    {
+        TC_LOG_ERROR("entities.unit", "WorldSession::ReadMovementInfo: If the server allows the unit (GUID %s) to be moved by the client of player %s, the unit should still exist!",
+            mi->guid.ToString().c_str(),
+            GetCharmedOrSelf()->GetGUID().ToString().c_str());
+        return;
+    }
+
     if (!GetCharmedOrSelf()->GetVehicleBase() || !(GetCharmedOrSelf()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
         REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
 
@@ -27824,7 +27842,7 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
         MOVEMENTFLAG_MASK_MOVING);
 
     //! Cannot hover without SPELL_AURA_HOVER
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetCharmedOrSelf()->HasAuraType(SPELL_AURA_HOVER),
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !mover->HasAuraType(SPELL_AURA_HOVER),
         MOVEMENTFLAG_HOVER);
 
     //! Cannot ascend and descend at the same time
@@ -27849,8 +27867,8 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
 
     //! Cannot walk on water without SPELL_AURA_WATER_WALK except for ghosts
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
-        !GetCharmedOrSelf()->HasAuraType(SPELL_AURA_WATER_WALK) &&
-        !GetCharmedOrSelf()->HasAuraType(SPELL_AURA_GHOST),
+        !mover->HasAuraType(SPELL_AURA_WATER_WALK) &&
+        !mover->HasAuraType(SPELL_AURA_GHOST),
         MOVEMENTFLAG_WATERWALKING);
 
     //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
@@ -27864,8 +27882,8 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
     */
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSession()->GetSecurity() == SEC_PLAYER &&
-        !GetCharmedOrSelf()->HasAuraType(SPELL_AURA_FLY) &&
-        !GetCharmedOrSelf()->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+        !mover->HasAuraType(SPELL_AURA_FLY) &&
+        !mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
@@ -28080,7 +28098,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                     data >> mi->splineElevation;
                 break;
             case MSECounter:
-                data.read_skip<uint32>();   /// @TODO: Maybe compare it with m_movementCounter to verify that packets are sent & received in order?
+                data >> mi->movementCounter;
                 break;
             case MSEZeroBit:
             case MSEOneBit:
