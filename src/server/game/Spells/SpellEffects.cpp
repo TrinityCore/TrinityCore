@@ -2147,20 +2147,17 @@ void Spell::EffectLearnSpell()
             if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
                 continue;
 
-            //  If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
+            bool dependent = false;
+
             if (BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(uint32(itemEffect->SpellID)))
             {
-                if (player->IsInWorld())
-                {
-                    WorldPackets::Spells::LearnedSpells packet;
-                    packet.SpellID.push_back(itemEffect->SpellID);
-                    packet.SuppressMessaging = false;
-                    player->SendDirectMessage(packet.Write());
-                }
                 player->GetSession()->GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
+                // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
+                // marking as dependent prevents saving the spell to database (intended)
+                dependent = true;
             }
-            else
-                player->LearnSpell(itemEffect->SpellID, false);
+
+            player->LearnSpell(itemEffect->SpellID, dependent);
         }
     }
 
