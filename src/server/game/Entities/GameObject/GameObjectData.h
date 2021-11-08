@@ -675,30 +675,31 @@ struct GameObjectData : public SpawnData
 enum class GameObjectActions : uint32
 {
                                     // Name from client executable      // Comments
-    None,                           // -NONE-
-    AnimateCustom0,                 // Animate Custom0
-    AnimateCustom1,                 // Animate Custom1
-    AnimateCustom2,                 // Animate Custom2
-    AnimateCustom3,                 // Animate Custom3
-    Disturb,                        // Disturb                          // Triggers trap
-    Unlock,                         // Unlock                           // Resets GO_FLAG_LOCKED
-    Lock,                           // Lock                             // Sets GO_FLAG_LOCKED
-    Open,                           // Open                             // Sets GO_STATE_ACTIVE
-    OpenAndUnlock,                  // Open + Unlock                    // Sets GO_STATE_ACTIVE and resets GO_FLAG_LOCKED
-    Close,                          // Close                            // Sets GO_STATE_READY
-    ToggleOpen,                     // Toggle Open
-    Destroy,                        // Destroy                          // Sets GO_STATE_DESTROYED
-    Rebuild,                        // Rebuild                          // Resets from GO_STATE_DESTROYED
-    Creation,                       // Creation
-    Despawn,                        // Despawn
-    MakeInert,                      // Make Inert                       // Disables interactions
-    MakeActive,                     // Make Active                      // Enables interactions
-    CloseAndLock,                   // Close + Lock                     // Sets GO_STATE_READY and sets GO_FLAG_LOCKED
-    UseArtKit0,                     // Use ArtKit0                      // 46904: 121
-    UseArtKit1,                     // Use ArtKit1                      // 36639: 81, 46903: 122
-    UseArtKit2,                     // Use ArtKit2
-    UseArtKit3,                     // Use ArtKit3
-    SetTapList,                     // Set Tap List
+    None                     = 0,   // -NONE-
+    AnimateCustom0           = 1,   // Animate Custom0
+    AnimateCustom1           = 2,   // Animate Custom1
+    AnimateCustom2           = 3,   // Animate Custom2
+    AnimateCustom3           = 4,   // Animate Custom3
+    Disturb                  = 5,   // Disturb                          // Triggers trap
+    Unlock                   = 6,   // Unlock                           // Resets GO_FLAG_LOCKED
+    Lock                     = 7,   // Lock                             // Sets GO_FLAG_LOCKED
+    Open                     = 8,   // Open                             // Sets GO_STATE_ACTIVE
+    OpenAndUnlock            = 9,   // Open + Unlock                    // Sets GO_STATE_ACTIVE and resets GO_FLAG_LOCKED
+    Close                    = 10,  // Close                            // Sets GO_STATE_READY
+    ToggleOpen               = 11,  // Toggle Open
+    Destroy                  = 12,  // Destroy                          // Sets GO_STATE_DESTROYED
+    Rebuild                  = 13,  // Rebuild                          // Resets from GO_STATE_DESTROYED
+    Creation                 = 14,  // Creation
+    Despawn                  = 15,  // Despawn
+    MakeInert                = 16,  // Make Inert                       // Disables interactions
+    MakeActive               = 17,  // Make Active                      // Enables interactions
+    CloseAndLock             = 18,  // Close + Lock                     // Sets GO_STATE_READY and sets GO_FLAG_LOCKED
+    UseArtKit0               = 19,  // Use ArtKit0                      // 46904: 121
+    UseArtKit1               = 20,  // Use ArtKit1                      // 36639: 81, 46903: 122
+    UseArtKit2               = 21,  // Use ArtKit2
+    UseArtKit3               = 22,  // Use ArtKit3
+    SetTapList               = 23,  // Set Tap List
+    Max
 };
 
 #endif // GameObjectData_h__

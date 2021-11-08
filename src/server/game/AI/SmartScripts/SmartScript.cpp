@@ -1394,9 +1394,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
-            // Extra validation to ignore invalid values stored in the db, see comment at TEMPORARY_EXTRA_VALUE_FOR_DB_CLEANUP definition
-            if (e.action.wpStart.reactState <= REACT_AGGRESSIVE)
-                me->SetReactState((ReactStates)e.action.wpStart.reactState);
             ENSURE_AI(SmartAI, me->AI())->StartPath(run, entry, repeat, unit);
 
             uint32 quest = e.action.wpStart.quest;
@@ -2377,6 +2374,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         target->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     else
                         target->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_ACTIVATE_GAMEOBJECT:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (GameObject* targetGo = target->ToGameObject())
+                {
+                    targetGo->ActivateObject(GameObjectActions(e.action.activateGameObject.gameObjectAction));
                 }
             }
             break;

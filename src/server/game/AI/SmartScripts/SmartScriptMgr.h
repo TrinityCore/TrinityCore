@@ -495,7 +495,7 @@ enum SMART_ACTION
     SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in s
     SMART_ACTION_KILL_UNIT                          = 51,     //
     SMART_ACTION_ACTIVATE_TAXI                      = 52,     // TaxiID
-    SMART_ACTION_WP_START                           = 53,     // run/walk, pathID, canRepeat, quest, despawntime, reactState
+    SMART_ACTION_WP_START                           = 53,     // run/walk, pathID, canRepeat, quest, despawntime
     SMART_ACTION_WP_PAUSE                           = 54,     // time
     SMART_ACTION_WP_STOP                            = 55,     // despawnTime, quest, fail?
     SMART_ACTION_ADD_ITEM                           = 56,     // itemID, count
@@ -589,8 +589,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_IMMUNE_PC                      = 144,    // 0/1
     SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
     SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
+    SMART_ACTION_ACTIVATE_GAMEOBJECT                = 147,    // GameObjectActions
 
-    SMART_ACTION_END                                = 147
+    SMART_ACTION_END                                = 148
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -852,7 +853,7 @@ struct SmartAction
             SAIBool repeat;
             uint32 quest;
             uint32 despawnTime;
-            uint32 reactState;
+            // uint32 reactState; DO NOT REUSE
         } wpStart;
 
         struct
@@ -1196,6 +1197,11 @@ struct SmartAction
         {
             SAIBool uninteractible;
         } setUninteractible;
+
+        struct
+        {
+            uint32 gameObjectAction;
+        } activateGameObject;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

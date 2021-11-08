@@ -943,6 +943,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SET_IMMUNE_PC: return sizeof(SmartAction::setImmunePC);
             case SMART_ACTION_SET_IMMUNE_NPC: return sizeof(SmartAction::setImmuneNPC);
             case SMART_ACTION_SET_UNINTERACTIBLE: return sizeof(SmartAction::setUninteractible);
+            case SMART_ACTION_ACTIVATE_GAMEOBJECT: return sizeof(SmartAction::activateGameObject);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1793,16 +1794,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.wpStart.quest && !IsQuestValid(e, e.action.wpStart.quest))
                 return false;
 
-            // Allow "invalid" value 3 for a while to allow cleanup the values stored in the db for SMART_ACTION_WP_START.
-            // Remember to remove this once the clean is complete.
-            constexpr uint32 TEMPORARY_EXTRA_VALUE_FOR_DB_CLEANUP = 1;
-
-            if (e.action.wpStart.reactState > (REACT_AGGRESSIVE + TEMPORARY_EXTRA_VALUE_FOR_DB_CLEANUP))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature %d Event %u Action %u uses invalid React State %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.reactState);
-                return false;
-            }
-
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.wpStart.run);
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.wpStart.repeat);
             break;
@@ -2121,6 +2112,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SET_UNINTERACTIBLE:
         {
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.setUninteractible.uninteractible);
+            break;
+        }
+        case SMART_ACTION_ACTIVATE_GAMEOBJECT:
+        {
+            if (!NotNULL(e, e.action.activateGameObject.gameObjectAction))
+                return false;
+
+            if (e.action.activateGameObject.gameObjectAction >= uint32(GameObjectActions::Max))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has gameObjectAction parameter out of range (max allowed %u, current value %u), skipped.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), uint32(GameObjectActions::Max), e.action.activateGameObject.gameObjectAction);
+                return false;
+            }
             break;
         }
         case SMART_ACTION_FOLLOW:
