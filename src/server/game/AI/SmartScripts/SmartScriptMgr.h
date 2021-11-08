@@ -111,13 +111,13 @@ enum SMART_EVENT
     SMART_EVENT_RANGE                    = 9,       // MinDist, MaxDist, RepeatMin, RepeatMax
     SMART_EVENT_OOC_LOS                  = 10,      // HostilityMode, MaxRnage, CooldownMin, CooldownMax
     SMART_EVENT_RESPAWN                  = 11,      // type, MapId, ZoneId
-    SMART_EVENT_TARGET_HEALTH_PCT        = 12,      // UNUSED, do not reuse
+    SMART_EVENT_TARGET_HEALTH_PCT        = 12,      // UNUSED, DO NOT REUSE
     SMART_EVENT_VICTIM_CASTING           = 13,      // RepeatMin, RepeatMax, spellid
-    SMART_EVENT_FRIENDLY_HEALTH          = 14,      // UNUSED, do not reuse
+    SMART_EVENT_FRIENDLY_HEALTH          = 14,      // UNUSED, DO NOT REUSE
     SMART_EVENT_FRIENDLY_IS_CC           = 15,      // Radius, RepeatMin, RepeatMax
     SMART_EVENT_FRIENDLY_MISSING_BUFF    = 16,      // SpellId, Radius, RepeatMin, RepeatMax
     SMART_EVENT_SUMMONED_UNIT            = 17,      // CreatureId(0 all), CooldownMin, CooldownMax
-    SMART_EVENT_TARGET_MANA_PCT          = 18,      // UNUSED, do not reuse
+    SMART_EVENT_TARGET_MANA_PCT          = 18,      // UNUSED, DO NOT REUSE
     SMART_EVENT_ACCEPTED_QUEST           = 19,      // QuestID (0 = any), CooldownMin, CooldownMax
     SMART_EVENT_REWARD_QUEST             = 20,      // QuestID (0 = any), CooldownMin, CooldownMax
     SMART_EVENT_REACHED_HOME             = 21,      // NONE
@@ -129,7 +129,7 @@ enum SMART_EVENT
     SMART_EVENT_PASSENGER_BOARDED        = 27,      // CooldownMin, CooldownMax
     SMART_EVENT_PASSENGER_REMOVED        = 28,      // CooldownMin, CooldownMax
     SMART_EVENT_CHARMED                  = 29,      // onRemove (0 - on apply, 1 - on remove)
-    SMART_EVENT_CHARMED_TARGET           = 30,      // NONE
+    SMART_EVENT_CHARMED_TARGET           = 30,      // UNUSED, DO NOT REUSE
     SMART_EVENT_SPELLHIT_TARGET          = 31,      // SpellID, School, CooldownMin, CooldownMax
     SMART_EVENT_DAMAGED                  = 32,      // MinDmg, MaxDmg, CooldownMin, CooldownMax
     SMART_EVENT_DAMAGED_TARGET           = 33,      // MinDmg, MaxDmg, CooldownMin, CooldownMax
@@ -138,7 +138,7 @@ enum SMART_EVENT
     SMART_EVENT_CORPSE_REMOVED           = 36,      // NONE
     SMART_EVENT_AI_INIT                  = 37,      // NONE
     SMART_EVENT_DATA_SET                 = 38,      // Id, Value, CooldownMin, CooldownMax
-    SMART_EVENT_WAYPOINT_START           = 39,      // PointId(0any), pathID(0any)
+    SMART_EVENT_WAYPOINT_START           = 39,      // UNUSED, DO NOT REUSE
     SMART_EVENT_WAYPOINT_REACHED         = 40,      // PointId(0any), pathID(0any)
     SMART_EVENT_TRANSPORT_ADDPLAYER      = 41,      // NONE
     SMART_EVENT_TRANSPORT_ADDCREATURE    = 42,      // Entry (0 any)
@@ -165,8 +165,8 @@ enum SMART_EVENT
     SMART_EVENT_JUST_CREATED             = 63,      // none
     SMART_EVENT_GOSSIP_HELLO             = 64,      // noReportUse (for GOs)
     SMART_EVENT_FOLLOW_COMPLETED         = 65,      // none
-    SMART_EVENT_EVENT_PHASE_CHANGE       = 66,      // event phase mask (<= SMART_EVENT_PHASE_ALL)
-    SMART_EVENT_IS_BEHIND_TARGET         = 67,      // UNUSED, do not reuse
+    SMART_EVENT_EVENT_PHASE_CHANGE       = 66,      // UNUSED, DO NOT REUSE
+    SMART_EVENT_IS_BEHIND_TARGET         = 67,      // UNUSED, DO NOT REUSE
     SMART_EVENT_GAME_EVENT_START         = 68,      // game_event.Entry
     SMART_EVENT_GAME_EVENT_END           = 69,      // game_event.Entry
     SMART_EVENT_GO_LOOT_STATE_CHANGED    = 70,      // go LootState
@@ -365,11 +365,6 @@ struct SmartEvent
 
         struct
         {
-            uint32 phasemask;
-        } eventPhaseChange;
-
-        struct
-        {
             uint32 gameEventId;
         } gameEvent;
 
@@ -460,8 +455,8 @@ enum SMART_ACTION
     SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
     SMART_ACTION_RESERVED_16                        = 16,     // used on 4.3.4 and higher scripts
     SMART_ACTION_SET_EMOTE_STATE                    = 17,     // emoteID
-    SMART_ACTION_SET_UNIT_FLAG                      = 18,     // UNUSED, do not reuse
-    SMART_ACTION_REMOVE_UNIT_FLAG                   = 19,     // UNUSED, do not reuse
+    SMART_ACTION_SET_UNIT_FLAG                      = 18,     // UNUSED, DO NOT REUSE
+    SMART_ACTION_REMOVE_UNIT_FLAG                   = 19,     // UNUSED, DO NOT REUSE
     SMART_ACTION_AUTO_ATTACK                        = 20,     // AllowAttackState (0 = stop attack, anything else means continue attacking)
     SMART_ACTION_ALLOW_COMBAT_MOVEMENT              = 21,     // AllowCombatMovement (0 = stop combat based movement, anything else continue attacking)
     SMART_ACTION_SET_EVENT_PHASE                    = 22,     // Phase
@@ -500,10 +495,10 @@ enum SMART_ACTION
     SMART_ACTION_WP_STOP                            = 55,     // despawnTime, quest, fail?
     SMART_ACTION_ADD_ITEM                           = 56,     // itemID, count
     SMART_ACTION_REMOVE_ITEM                        = 57,     // itemID, count
-    SMART_ACTION_INSTALL_AI_TEMPLATE                = 58,     // UNUSED, do not reuse
+    SMART_ACTION_INSTALL_AI_TEMPLATE                = 58,     // UNUSED, DO NOT REUSE
     SMART_ACTION_SET_RUN                            = 59,     // 0/1
     SMART_ACTION_SET_DISABLE_GRAVITY                = 60,     // 0/1
-    SMART_ACTION_SET_SWIM                           = 61,     // 0/1
+    SMART_ACTION_SET_SWIM                           = 61,     // UNUSED, DO NOT REUSE
     SMART_ACTION_TELEPORT                           = 62,     // mapID,
     SMART_ACTION_SET_COUNTER                        = 63,     // id, value, reset (0/1)
     SMART_ACTION_STORE_TARGET_LIST                  = 64,     // varID,
@@ -518,8 +513,8 @@ enum SMART_ACTION
     SMART_ACTION_TRIGGER_TIMED_EVENT                = 73,     // id(>1)
     SMART_ACTION_REMOVE_TIMED_EVENT                 = 74,     // id(>1)
     SMART_ACTION_ADD_AURA                           = 75,     // spellid,  targets
-    SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT        = 76,     // WARNING: CAN CRASH CORE, do not use if you dont know what you are doing
-    SMART_ACTION_RESET_SCRIPT_BASE_OBJECT           = 77,     // none
+    SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT        = 76,     // UNUSED, DO NOT REUSE
+    SMART_ACTION_RESET_SCRIPT_BASE_OBJECT           = 77,     // UNUSED, DO NOT REUSE
     SMART_ACTION_CALL_SCRIPT_RESET                  = 78,     // none
     SMART_ACTION_SET_RANGED_MOVEMENT                = 79,     // Distance, angle
     SMART_ACTION_CALL_TIMED_ACTIONLIST              = 80,     // ID (overwrites already running actionlist), stop after combat?(0/1), timer update type(0-OOC, 1-IC, 2-ALWAYS)
@@ -536,9 +531,9 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
     SMART_ACTION_INTERRUPT_SPELL                    = 92,
     SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
-    SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // UNUSED, do not reuse
-    SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // UNUSED, do not reuse
-    SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // UNUSED, do not reuse
+    SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // UNUSED, DO NOT REUSE
+    SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // UNUSED, DO NOT REUSE
+    SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // UNUSED, DO NOT REUSE
     SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
     SMART_ACTION_GO_SET_LOOT_STATE                  = 99,     // state
@@ -561,14 +556,14 @@ enum SMART_ACTION
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
     SMART_ACTION_GO_SET_GO_STATE                    = 118,    // state
-    SMART_ACTION_SET_CAN_FLY                        = 119,    // 0/1
-    SMART_ACTION_REMOVE_AURAS_BY_TYPE               = 120,    // type
-    SMART_ACTION_SET_SIGHT_DIST                     = 121,    // sightDistance
-    SMART_ACTION_FLEE                               = 122,    // fleeTime
+    SMART_ACTION_SET_CAN_FLY                        = 119,    // UNUSED, DO NOT REUSE
+    SMART_ACTION_REMOVE_AURAS_BY_TYPE               = 120,    // UNUSED, DO NOT REUSE
+    SMART_ACTION_SET_SIGHT_DIST                     = 121,    // UNUSED, DO NOT REUSE
+    SMART_ACTION_FLEE                               = 122,    // UNUSED, DO NOT REUSE
     SMART_ACTION_ADD_THREAT                         = 123,    // +threat, -threat
     SMART_ACTION_LOAD_EQUIPMENT                     = 124,    // id
     SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT         = 125,    // id min range, id max range
-    SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
+    SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,    // UNUSED, DO NOT REUSE
     SMART_ACTION_PAUSE_MOVEMENT                     = 127,    // MovementSlot (default = 0, active = 1, controlled = 2), PauseTime (ms), Force
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // don't use on 3.3.5a
     SMART_ACTION_SCENE_PLAY                         = 129,    // don't use on 3.3.5a
@@ -886,16 +881,6 @@ struct SmartAction
 
         struct
         {
-            SAIBool fly;
-        } setFly;
-
-        struct
-        {
-            SAIBool swim;
-        } setSwim;
-
-        struct
-        {
             uint32 mapID;
         } teleport;
 
@@ -992,11 +977,6 @@ struct SmartAction
         {
             SAIBool withEmote;
         } fleeAssist;
-
-        struct
-        {
-            uint32 fleeTime;
-        } flee;
 
         struct
         {
@@ -1105,16 +1085,6 @@ struct SmartAction
             uint32 maxDelay;
             uint32 spawnflags;
         } groupSpawn;
-
-        struct
-        {
-            uint32 type;
-        } auraType;
-
-        struct
-        {
-            uint32 dist;
-        } sightDistance;
 
         struct
         {
