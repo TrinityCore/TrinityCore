@@ -112,9 +112,9 @@ enum class SpellAuraInterruptFlags2 : uint32
 {
     None                        = 0,
     Falling                     = 0x00000001, // NYI
-    Swimming                    = 0x00000002, // NYI
+    Swimming                    = 0x00000002,
     NotMoving                   = 0x00000004, // NYI
-    Ground                      = 0x00000008, // NYI
+    Ground                      = 0x00000008,
     Transform                   = 0x00000010, // NYI
     Jump                        = 0x00000020,
     ChangeSpec                  = 0x00000040, // NYI
