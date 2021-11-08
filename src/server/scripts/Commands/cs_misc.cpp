@@ -61,6 +61,11 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+enum Spells
+{
+    FreezeAura = 9454;
+};
+
 using namespace Trinity::ChatCommands;
 
 class misc_commandscript : public CommandScript
@@ -2530,7 +2535,6 @@ public:
                 // Add the freeze aura and set the proper duration
                 // Player combat status and flags are now handled
                 // in Freeze Spell AuraScript (OnApply)
-                constexpr int FreezeAura = 9454;
                 Aura* freeze = player->AddAura(FreezeAura, player);
                 if (freeze)
                 {
@@ -2571,7 +2575,6 @@ public:
             // Remove Freeze spell (allowing movement and spells)
             // Player Flags + Neutral faction removal is now
             // handled on the Freeze Spell AuraScript (OnRemove)
-            constexpr int FreezeAura = 9454;
             player->RemoveAurasDueToSpell(FreezeAura);
         }
         else
