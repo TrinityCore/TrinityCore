@@ -56,6 +56,17 @@ MovementChangeType MovementPacketSender::GetChangeTypeByMoveType(UnitMoveType mo
     }
 }
 
+MovementChangeType MovementPacketSender::GetChangeTypeByMovementFlag(MovementFlags mFlag)
+{
+    switch (mFlag)
+    {
+        case MOVEMENTFLAG_CAN_FLY:          return MovementChangeType::SET_CAN_FLY;
+        case MOVEMENTFLAG_DISABLE_GRAVITY:  return MovementChangeType::GRAVITY_DISABLE;
+        default:
+            ASSERT(false, "MovementPacketSender::SendSpeedChangeToMover Unsupported MovementFlags");
+    }
+}
+
 void MovementPacketSender::SendSpeedChangeToMover(Unit* unit, UnitMoveType mtype, float newSpeedFlat)
 {
     GameClient* controller = unit->GetGameClientMovingMe();
@@ -112,3 +123,41 @@ void MovementPacketSender::SendSpeedChangeToAll(Unit* unit, UnitMoveType mtype, 
     unit->SendMessageToSet(&data, true);
 }
 
+void MovementPacketSender::SendMovementFlagChangeToMover(Unit* unit, MovementFlags mFlag, bool apply)
+{
+    GameClient* controller = unit->GetGameClientMovingMe();
+
+    ASSERT(controller);
+
+    uint32 mCounter = unit->GetMovementCounterAndInc();
+    PlayerMovementPendingChange pendingChange;
+    pendingChange.movementCounter = mCounter;
+    pendingChange.apply = apply;
+    pendingChange.movementChangeType = MovementPacketSender::GetChangeTypeByMovementFlag(mFlag);
+    unit->PushPendingMovementChange(pendingChange);
+
+    OpcodeServer opcode;
+    switch (mFlag)
+    {
+        case MOVEMENTFLAG_CAN_FLY:          opcode = apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY; break;
+        case MOVEMENTFLAG_DISABLE_GRAVITY:  opcode = apply ? SMSG_MOVE_GRAVITY_DISABLE : SMSG_MOVE_GRAVITY_ENABLE; break;
+        default:
+            ASSERT(false, "MovementPacketSender::SendMovementFlagChangeToMover Unsupported MovementFlags");
+            break;
+    }
+
+    WorldPacket data(opcode);
+    unit->WriteMovementInfo(data, nullptr, &mCounter);
+    controller->SendDirectMessage(&data);
+}
+
+void MovementPacketSender::SendMovementFlagChangeToObservers(Unit* unit)
+{
+    GameClient* controller = unit->GetGameClientMovingMe();
+
+    ASSERT(controller);
+
+    WorldPacket data(SMSG_MOVE_UPDATE);
+    unit->WriteMovementInfo(data);
+    unit->SendMessageToSet(&data, controller->GetBasePlayer());
+}

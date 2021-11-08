@@ -252,7 +252,7 @@ namespace WorldPackets
         class MoveSetActiveMover final : public ServerPacket
         {
         public:
-            MoveSetActiveMover(ObjectGuid moverGuid) : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 4 + 8), MoverGUID(moverGuid) { }
+            MoveSetActiveMover(ObjectGuid moverGuid) : ServerPacket(SMSG_MOVE_SET_ACTIVE_MOVER, 8), MoverGUID(moverGuid) { }
 
             WorldPacket const* Write() override;
 

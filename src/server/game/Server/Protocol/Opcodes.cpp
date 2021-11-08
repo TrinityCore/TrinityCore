@@ -463,7 +463,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK,                  STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
     DEFINE_HANDLER(CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK,                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       );
     DEFINE_HANDLER(CMSG_MOVE_GRAVITY_DISABLE_ACK,                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveGravityDisableAck     );
-    DEFINE_HANDLER(CMSG_MOVE_GRAVITY_ENABLE_ACK,                          STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveGravityEnableAck      );
+    DEFINE_HANDLER(CMSG_MOVE_GRAVITY_ENABLE_ACK,                          STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveGravityDisableAck     );
     DEFINE_HANDLER(CMSG_MOVE_HOVER_ACK,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMoveHoverAck              );
     DEFINE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveKnockBackAck          );
     DEFINE_HANDLER(CMSG_MOVE_NOT_ACTIVE_MOVER,                            STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );

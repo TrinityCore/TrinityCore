@@ -15065,7 +15065,4 @@ void Unit::ProcessItemCast(PendingSpellCastRequest const& castRequest, SpellCast
 void Unit::SetGameClientMovingMe(GameClient* gameClientMovingMe)
 {
     _gameClientMovingMe = gameClientMovingMe;
-
-    Player* mover = _gameClientMovingMe->GetBasePlayer();
-    mover->SendDirectMessage(WorldPackets::Movement::MoveSetActiveMover(mover->GetGUID()).Write());
 }

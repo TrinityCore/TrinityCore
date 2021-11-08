@@ -76,6 +76,7 @@
 #include "MotionMaster.h"
 #include "MovementStructures.h"
 #include "MovementPackets.h"
+#include "MovementPacketSender.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -24788,6 +24789,9 @@ void Player::SetClientControl(Unit* target, bool allowMove)
     }
 
     GetGameClient()->SetMovedUnit(target, allowMove);
+
+    if (allowMove)
+        SendDirectMessage(WorldPackets::Movement::MoveSetActiveMover(target->GetGUID()).Write());
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
@@ -25867,6 +25871,26 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             TC_LOG_DEBUG("entities.player", "FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d", movementInfo.pos.GetPositionZ(), height, GetPositionZ(), movementInfo.jump.fallTime, height, damage, safe_fall);
         }
     }
+}
+
+bool Player::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /*updateAnimationTier = true*/)
+{
+    if (disable == IsGravityDisabled())
+        return false;
+
+    MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_DISABLE_GRAVITY, disable);
+
+    return true;
+}
+
+bool Player::SetCanFly(bool enable, bool /*packetOnly = false*/)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+        return false;
+
+    MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_CAN_FLY, enable);
+
+    return true;
 }
 
 void Player::ResetAchievements()

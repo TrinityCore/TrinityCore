@@ -18,6 +18,7 @@
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Log.h"
 #include "Corpse.h"
@@ -581,10 +582,9 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
     MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+    _player->ReadMovementInfo(recvData, &movementInfo);
 
     GameClient* client = GetGameClient();
-
     if (client->GetActivelyMovedUnit() == nullptr || client->GetActivelyMovedUnit()->GetGUID() != movementInfo.guid)
     {
         TC_LOG_DEBUG("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), movementInfo.guid.ToString().c_str());
@@ -698,16 +698,61 @@ void WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& r
 
 void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_MOVE_GRAVITY_DISABLE_ACK");
+    TC_LOG_DEBUG("network", GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvData.GetOpcode())).c_str());
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
-}
 
-void WorldSession::HandleMoveGravityEnableAck(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "CMSG_MOVE_GRAVITY_ENABLE_ACK");
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+    GameClient* client = GetGameClient();
+    if (!client->IsAllowedToMove(movementInfo.guid))
+        return;
+
+    Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
+
+    // verify that indeed the client is replying with the changes that were send to him
+    if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementInfo.movementCounter)
+    {
+        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
+        return;
+    }
+
+    bool disable = recvData.GetOpcode() == CMSG_MOVE_GRAVITY_DISABLE_ACK;
+    PlayerMovementPendingChange pendingChange = mover->PopPendingMovementChange();
+    if (pendingChange.movementChangeType != MovementChangeType::GRAVITY_DISABLE || pendingChange.apply != disable)
+    {
+        TC_LOG_INFO("cheat", "WorldSession::HandleMoveSetCanFlyAckOpcode: Player %s from account id %u kicked for incorrect data returned in an ack",
+            _player->GetName().c_str(), _player->GetSession()->GetAccountId());
+        _player->GetSession()->KickPlayer();
+        return;
+    }
+
+    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        movementInfo.time = GameTime::GetGameTimeMS();
+    }
+    else
+    {
+        movementInfo.time = (uint32)movementTime;
+    }
+
+    mover->m_movementInfo = movementInfo;
+    mover->UpdatePosition(movementInfo.pos);
+
+    if (disable)
+    {
+        mover->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+        mover->SetFall(false);
+    }
+    else
+    {
+        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        if (!mover->HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+            mover->SetFall(true);
+    }
+
+    MovementPacketSender::SendMovementFlagChangeToObservers(mover);
 }
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvData)
@@ -723,6 +768,57 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "CMSG_MOVE_SET_CAN_FLY_ACK");
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+
+    GameClient* client = GetGameClient();
+    if (!client->IsAllowedToMove(movementInfo.guid))
+        return;
+
+    Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
+
+    // verify that indeed the client is replying with the changes that were send to him
+    if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementInfo.movementCounter)
+    {
+        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
+        return;
+    }
+
+    PlayerMovementPendingChange pendingChange = mover->PopPendingMovementChange();
+    if (pendingChange.movementChangeType != MovementChangeType::SET_CAN_FLY)
+    {
+        TC_LOG_INFO("cheat", "WorldSession::HandleMoveSetCanFlyAckOpcode: Player %s from account id %u kicked for incorrect data returned in an ack",
+            _player->GetName().c_str(), _player->GetSession()->GetAccountId());
+        _player->GetSession()->KickPlayer();
+        return;
+    }
+
+    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        movementInfo.time = GameTime::GetGameTimeMS();
+    }
+    else
+    {
+        movementInfo.time = (uint32)movementTime;
+    }
+
+    mover->m_movementInfo = movementInfo;
+    mover->UpdatePosition(movementInfo.pos);
+
+    if (pendingChange.apply)
+    {
+        mover->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+        mover->SetFall(false);
+    }
+    else
+    {
+        if (mover->IsFlying() && !mover->IsGravityDisabled())
+            mover->SetFall(true);
+        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+    }
+
+    MovementPacketSender::SendMovementFlagChangeToObservers(mover);
 }
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
 {

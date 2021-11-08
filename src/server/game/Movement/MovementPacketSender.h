@@ -115,15 +115,13 @@ class MovementPacketSender
         //static void SendKnockBackToObservers(Unit* unit, float vcos, float vsin, float speedXY, float speedZ);
 
         ///* movement flag change */
-        //static void SendMovementFlagChangeToMover(Unit* unit, MovementFlags mFlag, bool apply);
+        static void SendMovementFlagChangeToMover(Unit* unit, MovementFlags mFlag, bool apply);
         //static void SendMovementFlagChangeToMover(Unit* unit, MovementFlags2 mFlag, bool apply);
-        //static void SendMovementFlagChangeToObservers(Unit* unit, MovementFlags mFlag, bool apply);
-        //static void SendMovementFlagChangeToObservers(Unit* unit, MovementFlags2 mFlag);
-
-        //static void SendMovementFlagChangeToAll(Unit* unit, MovementFlags mFlag, bool apply);
+        static void SendMovementFlagChangeToObservers(Unit* unit);
 
         // utility method
         static MovementChangeType GetChangeTypeByMoveType(UnitMoveType moveType);
+        static MovementChangeType GetChangeTypeByMovementFlag(MovementFlags mFlag);
 
     private:
         static OpcodeServer const moveTypeToOpcode[MAX_MOVE_TYPE][3];
