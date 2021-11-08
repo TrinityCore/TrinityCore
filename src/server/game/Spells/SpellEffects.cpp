@@ -2147,10 +2147,17 @@ void Spell::EffectLearnSpell()
             if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
                 continue;
 
-            player->LearnSpell(itemEffect->SpellID, false);
+            bool dependent = false;
 
             if (BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(uint32(itemEffect->SpellID)))
+            {
                 player->GetSession()->GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
+                // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
+                // marking as dependent prevents saving the spell to database (intended)
+                dependent = true;
+            }
+
+            player->LearnSpell(itemEffect->SpellID, dependent);
         }
     }
 
@@ -5697,8 +5704,8 @@ void Spell::EffectUncageBattlePet()
     if (!speciesEntry)
         return;
 
-    Player* plr = m_caster->ToPlayer();
-    BattlePetMgr* battlePetMgr = plr->GetSession()->GetBattlePetMgr();
+    Player* player = m_caster->ToPlayer();
+    BattlePetMgr* battlePetMgr = player->GetSession()->GetBattlePetMgr();
     if (!battlePetMgr)
         return;
 
@@ -5718,13 +5725,9 @@ void Spell::EffectUncageBattlePet()
 
     battlePetMgr->AddPet(speciesId, displayId, breed, BattlePetBreedQuality(quality), level);
 
-    if (speciesEntry->SummonSpellID)
-        if (!plr->HasSpell(speciesEntry->SummonSpellID))
-            plr->LearnSpell(speciesEntry->SummonSpellID, false);
+    player->SendPlaySpellVisual(player, SPELL_VISUAL_UNCAGE_PET, 0, 0, 0.f, false);
 
-    plr->SendPlaySpellVisual(plr, SPELL_VISUAL_UNCAGE_PET, 0, 0, 0.f, false);
-
-    plr->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+    player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
     m_CastItem = nullptr;
 }
 
