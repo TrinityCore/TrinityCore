@@ -2384,9 +2384,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DeleteFromPlayerPetDataStore(uint32 petNumber);
         void AddToPlayerPetDataStore(PlayerPetData* playerPetData);
 
-        // Mount Capabilites
-        void UpdateMountCapabilities();
-
         uint32 GetTransportSpawnID() const { return _transportSpawnID; }
         void SetTransportSpawnID(uint32 spawnId) { _transportSpawnID = spawnId; }
 
@@ -2395,7 +2392,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         GuidList WhisperList;
         uint32 m_foodEmoteTimerCount;
         uint32 m_contestedPvPTimer;
-        ZLiquidStatus m_previousLiquidStatus;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/

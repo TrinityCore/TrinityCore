@@ -145,7 +145,6 @@ void WorldSession::HandleMoveWorldportAck()
         }
     }
 
-    GetPlayer()->UpdateMountCapabilities();
     GetPlayer()->SendInitialPacketsAfterAddToMap();
 
     // flight fast teleport case
@@ -698,7 +697,7 @@ void WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& r
 
 void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvData.GetOpcode())).c_str());
+    TC_LOG_DEBUG("network", "received %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvData.GetOpcode())).c_str());
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 

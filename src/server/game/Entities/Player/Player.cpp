@@ -172,7 +172,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_comboPoints = 0;
 
     m_foodEmoteTimerCount = 0;
-    m_previousLiquidStatus = GetLiquidStatus();
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
@@ -5450,7 +5449,11 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             LearnSkillRewardedSpells(id, newVal);
             // if skill value is going up, update enchantments after setting the new value
             if (newVal > currVal)
+            {
                 UpdateSkillEnchantments(id, currVal, newVal);
+                if (id == SKILL_RIDING)
+                    UpdateMountCapability();
+            }
 
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
@@ -5861,14 +5864,6 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     }
 
     CheckAreaExploreAndOutdoor();
-
-    // Update mount capabilities
-    if (m_previousLiquidStatus != GetLiquidStatus())
-    {
-        UpdateMountCapabilities();
-        m_previousLiquidStatus = GetLiquidStatus();
-    }
-
     return true;
 }
 
@@ -6996,6 +6991,8 @@ void Player::UpdateArea(uint32 newArea)
         SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
+
+    UpdateMountCapability();
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -18469,33 +18466,6 @@ void Player::AddToPlayerPetDataStore(PlayerPetData* playerPetData)
     PlayerPetDataStore.push_back(playerPetData);
 }
 
-void Player::UpdateMountCapabilities()
-{
-    if (HasAuraType(SPELL_AURA_MOUNTED))
-    {
-        for (AuraEffect* aurEff : GetAuraEffectsByType(SPELL_AURA_MOUNTED))
-        {
-            MountCapabilityEntry const* capability = GetMountCapability(uint32(aurEff->GetMiscValueB()));
-            if (!capability)
-            {
-                // No mount capabilitiy found, remove aura
-                if (Aura* aura = aurEff->GetBase())
-                    aura->Remove();
-                continue;
-            }
-
-            if (capability->ID != uint32(aurEff->GetAmount()))
-            {
-                if (MountCapabilityEntry const* oldMountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
-                    RemoveAurasDueToSpell(oldMountCapability->ModSpellAuraID, aurEff->GetCasterGUID());
-
-                CastSpell(this, capability->ModSpellAuraID, true);
-                aurEff->SetAmount(capability->ID);
-            }
-        }
-    }
-}
-
 void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
     uint16 slot = 0;
@@ -25878,7 +25848,10 @@ bool Player::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /
     if (disable == IsGravityDisabled())
         return false;
 
-    MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_DISABLE_GRAVITY, disable);
+    if (IsMovedByClient() && IsInWorld())
+        MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_DISABLE_GRAVITY, disable);
+    else if (IsMovedByClient() && !IsInWorld()) // (1)
+        Unit::SetDisableGravity(disable, false, false);
 
     return true;
 }
@@ -25888,7 +25861,10 @@ bool Player::SetCanFly(bool enable, bool /*packetOnly = false*/)
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
         return false;
 
-    MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_CAN_FLY, enable);
+    if (IsMovedByClient() && IsInWorld())
+        MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_CAN_FLY, enable);
+    else if (IsMovedByClient() && !IsInWorld()) // (1)
+        Unit::SetCanFly(enable);
 
     return true;
 }
