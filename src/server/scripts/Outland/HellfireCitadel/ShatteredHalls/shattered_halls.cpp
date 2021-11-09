@@ -30,7 +30,7 @@ class at_nethekurse_exit : public AreaTriggerScript
     public:
         at_nethekurse_exit() : AreaTriggerScript("at_nethekurse_exit") { };
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const*, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const*) override
         {
             if (InstanceScript* is = player->GetInstanceScript())
             {

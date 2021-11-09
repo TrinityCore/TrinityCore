@@ -445,7 +445,10 @@ class TC_GAME_API AreaTriggerScript : public ScriptObject
     public:
 
         // Called when the area trigger is activated by a player.
-        virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) { return false; }
+        virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
+
+        // Called when the area trigger is left by a player.
+        virtual bool OnExit(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
 };
 
 class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
@@ -453,10 +456,10 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
     using AreaTriggerScript::AreaTriggerScript;
 
     public:
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) final override;
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) final;
 
     protected:
-        virtual bool _OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered) = 0;
+        virtual bool _OnTrigger(Player* player, AreaTriggerEntry const* trigger) = 0;
         void ResetAreaTriggerDone(InstanceScript* instance, uint32 triggerId);
         void ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger);
 };

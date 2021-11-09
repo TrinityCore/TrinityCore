@@ -318,11 +318,8 @@ class at_aq_battleguard_sartura : public AreaTriggerScript
 public:
     at_aq_battleguard_sartura() : AreaTriggerScript("at_aq_battleguard_sartura") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        if (!entered)
-            return false;
-
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* sartura = instance->GetCreature(DATA_SARTURA))
                 sartura->AI()->AttackStart(player);
