@@ -78,7 +78,7 @@ inline bool ValidateMessage(Player const* player, std::string& msg)
     {
         TC_LOG_ERROR("network", "Player %s (%s) sent a message containing an invalid UTF8 sequence - blocked", player->GetName().c_str(),
             player->GetGUID().ToString().c_str());
-        return;
+        return false;
     }
 
     // collapse multiple spaces into one
