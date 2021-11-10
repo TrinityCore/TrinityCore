@@ -1303,8 +1303,8 @@ void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet
     FIRE_MAP(
           GetWorldPacketEvent(packet.GetOpcode())
         , WorldPacketOnReceive
-        , TSPlayer(session->GetPlayer())
         , TSWorldPacket(const_cast<WorldPacket*>(&packet))
+        , TSPlayer(session->GetPlayer())
     );
     // @tswow-end
     FOREACH_SCRIPT(ServerScript)->OnPacketReceive(session, copy);
@@ -1323,8 +1323,8 @@ void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
     FIRE_MAP(
           GetWorldPacketEvent(packet.GetOpcode())
         , WorldPacketOnSend
-        , TSPlayer(session->GetPlayer())
         , TSWorldPacket(const_cast<WorldPacket*>(&packet))
+        , TSPlayer(session->GetPlayer())
     );
     // @tswow-end
 }
