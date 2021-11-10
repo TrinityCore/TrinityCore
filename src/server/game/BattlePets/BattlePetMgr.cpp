@@ -25,6 +25,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "World.h"
 #include "WorldSession.h"
 
 void BattlePetMgr::BattlePet::CalculateStats()
@@ -648,4 +649,9 @@ void BattlePetMgr::SendJournalLockStatus()
         WorldPackets::BattlePet::BattlePetJournalLockDenied BattlePetJournalLockDenied;
         _owner->SendPacket(BattlePetJournalLockDenied.Write());
     }
+}
+
+bool BattlePetMgr::IsJournalLockAcquired() const
+{
+    return sWorld->IsBattlePetJournalLockAcquired(_owner->GetBattlenetAccountGUID());
 }

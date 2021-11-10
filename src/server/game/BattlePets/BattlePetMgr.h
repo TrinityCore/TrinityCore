@@ -21,7 +21,6 @@
 #include "BattlePetPackets.h"
 #include "DatabaseEnvFwd.h"
 #include "EnumFlag.h"
-#include "World.h"
 #include <unordered_map>
 
 struct BattlePetSpeciesEntry;
@@ -165,7 +164,7 @@ public:
     void SendError(BattlePetError error, uint32 creatureId);
 
     void SendJournalLockStatus();
-    bool IsJournalLockAcquired() const { return sWorld->IsBattlePetJournalLockAcquired(_owner->GetBattlenetAccountGUID()); }
+    bool IsJournalLockAcquired() const;
     bool HasJournalLock() const { return _hasJournalLock; }
     void ToggleJournalLock(bool lock) { _hasJournalLock = lock; }
 
