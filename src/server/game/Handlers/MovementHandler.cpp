@@ -755,7 +755,6 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     // verify that we have a pending change for the change type and that the counter equals our expected change in case we are about to receive multiple ack messages for the same type
     PlayerMovementPendingChange const* pendingChange = mover->GetPendingMovementChange(MovementChangeType::SET_CAN_FLY);
-    bool disable = recvData.GetOpcode() == CMSG_MOVE_GRAVITY_DISABLE_ACK;
     if (!pendingChange || pendingChange->movementCounter != movementInfo.movementCounter)
         return;
 
