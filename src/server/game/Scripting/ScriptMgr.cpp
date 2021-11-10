@@ -48,6 +48,8 @@
 #include "TSEvents.h"
 #include "TSItemTemplate.h"
 #include "TSSpellInfo.h"
+#include "TSWorldPacket.h"
+#include "TSPlayer.h"
 // @tswow-end
 
 // Trait which indicates whether this script type
@@ -1297,6 +1299,14 @@ void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet
         return;
 
     WorldPacket copy(packet);
+    // @tswow-begin
+    FIRE_MAP(
+          GetWorldPacketEvent(packet.GetOpcode())
+        , WorldPacketOnReceive
+        , TSPlayer(session->GetPlayer())
+        , TSWorldPacket(const_cast<WorldPacket*>(&packet))
+    );
+    // @tswow-end
     FOREACH_SCRIPT(ServerScript)->OnPacketReceive(session, copy);
 }
 
@@ -1309,6 +1319,14 @@ void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
 
     WorldPacket copy(packet);
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
+    // @tswow-begin
+    FIRE_MAP(
+          GetWorldPacketEvent(packet.GetOpcode())
+        , WorldPacketOnSend
+        , TSPlayer(session->GetPlayer())
+        , TSWorldPacket(const_cast<WorldPacket*>(&packet))
+    );
+    // @tswow-end
 }
 
 void ScriptMgr::OnOpenStateChange(bool open)
