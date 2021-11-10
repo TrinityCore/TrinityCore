@@ -13848,7 +13848,7 @@ void Unit::CheckPendingMovementAcks()
     if (!HasPendingMovementChange())
         return;
 
-    for (std::pair<MovementChangeType, PlayerMovementPendingChange> const& pendingChange : m_pendingMovementChanges)
+    for (std::pair<MovementChangeType, PlayerMovementPendingChange> const pendingChange : m_pendingMovementChanges)
     {
         if (GameTime::GetGameTimeMS() > pendingChange.second.time + sWorld->getIntConfig(CONFIG_PENDING_MOVE_CHANGES_TIMEOUT))
         {
@@ -13876,7 +13876,7 @@ void Unit::CheckPendingMovementAcks()
 
 void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */)
 {
-    for (std::pair<MovementChangeType, PlayerMovementPendingChange> const& pendingChange : m_pendingMovementChanges)
+    for (std::pair<MovementChangeType, PlayerMovementPendingChange> const pendingChange : m_pendingMovementChanges)
     {
         float speedFlat = pendingChange.second.newValue;
         MovementChangeType changeType = pendingChange.second.movementChangeType;
