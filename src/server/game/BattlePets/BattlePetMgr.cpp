@@ -599,7 +599,7 @@ void BattlePetMgr::DismissPet()
 
 void BattlePetMgr::SendJournal()
 {
-    if (!_hasJournalLock)
+    if (!HasJournalLock())
         SendJournalLockStatus();
 
     WorldPackets::BattlePet::BattlePetJournal battlePetJournal;
