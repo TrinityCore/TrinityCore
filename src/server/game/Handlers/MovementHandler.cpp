@@ -498,38 +498,17 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
             return;
     }
 
-    float  speedReceived = extras.Data.floatData;
+    MovementChangeType changeType = MovementPacketSender::GetChangeTypeByMoveType(move_type);
 
-    // verify that indeed the client is replying with the changes that were send to him
-    if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementInfo.movementCounter)
-    {
-        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
+    // verify that we have a pending change for the change type and that the counter equals our expected change in case we are about to receive multiple ack messages for the same type
+    PlayerMovementPendingChange const* pendingChange = mover->GetPendingMovementChange(changeType);
+    if (!pendingChange || pendingChange->movementCounter != movementInfo.movementCounter)
         return;
-    }
 
-    PlayerMovementPendingChange pendingChange = mover->PopPendingMovementChange();
-    float speedSent = pendingChange.newValue;
-    MovementChangeType changeType = pendingChange.movementChangeType;
-    UnitMoveType moveTypeSent;
-    switch (changeType)
-    {
-        case MovementChangeType::SPEED_CHANGE_WALK:                 moveTypeSent = MOVE_WALK; break;
-        case MovementChangeType::SPEED_CHANGE_RUN:                  moveTypeSent = MOVE_RUN; break;
-        case MovementChangeType::SPEED_CHANGE_RUN_BACK:             moveTypeSent = MOVE_RUN_BACK; break;
-        case MovementChangeType::SPEED_CHANGE_SWIM:                 moveTypeSent = MOVE_SWIM; break;
-        case MovementChangeType::SPEED_CHANGE_SWIM_BACK:            moveTypeSent = MOVE_SWIM_BACK; break;
-        case MovementChangeType::RATE_CHANGE_TURN:                  moveTypeSent = MOVE_TURN_RATE; break;
-        case MovementChangeType::SPEED_CHANGE_FLIGHT_SPEED:         moveTypeSent = MOVE_FLIGHT; break;
-        case MovementChangeType::SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveTypeSent = MOVE_FLIGHT_BACK; break;
-        case MovementChangeType::RATE_CHANGE_PITCH:                 moveTypeSent = MOVE_PITCH_RATE; break;
-        default:
-            TC_LOG_INFO("cheat", "WorldSession::HandleForceSpeedChangeAck: Player %s from account id %u kicked for incorrect data returned in an ack",
-                _player->GetName().c_str(), _player->GetSession()->GetAccountId());
-            _player->GetSession()->KickPlayer();
-            return;
-    }
-
-    if (pendingChange.movementCounter != movementInfo.movementCounter || std::fabs(speedSent - speedReceived) > 0.01f || moveTypeSent!= move_type)
+    // Player tried to apply a speed that has not been request. Possible cheating or malformed packet. Kick the player
+    float speedReceived = extras.Data.floatData;
+    float speedSent = pendingChange->newValue;
+    if (std::fabs(speedSent - speedReceived) > 0.01f)
     {
         TC_LOG_INFO("cheat", "WorldSession::HandleForceSpeedChangeAck: Player %s from account id %u kicked for incorrect data returned in an ack",
             _player->GetName().c_str(), _player->GetSession()->GetAccountId());
@@ -555,6 +534,8 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     float newSpeedRate = speedSent / (mover->IsControlledByPlayer() ? playerBaseMoveSpeed[move_type] : baseMoveSpeed[move_type]);
     mover->SetSpeedRateReal(move_type, newSpeedRate);
     MovementPacketSender::SendSpeedChangeToObservers(mover, move_type, speedSent);
+
+    mover->ClearPendingMovementChangeForType(changeType);
 }
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
@@ -707,18 +688,15 @@ void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
 
     Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
 
-    // verify that indeed the client is replying with the changes that were send to him
-    if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementInfo.movementCounter)
-    {
-        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
-        return;
-    }
-
+    // verify that we have a pending change for the change type and that the counter equals our expected change in case we are about to receive multiple ack messages for the same type
+    PlayerMovementPendingChange const* pendingChange = mover->GetPendingMovementChange(MovementChangeType::GRAVITY_DISABLE);
     bool disable = recvData.GetOpcode() == CMSG_MOVE_GRAVITY_DISABLE_ACK;
-    PlayerMovementPendingChange pendingChange = mover->PopPendingMovementChange();
-    if (pendingChange.movementChangeType != MovementChangeType::GRAVITY_DISABLE || pendingChange.apply != disable)
+    if (!pendingChange || pendingChange->movementCounter != movementInfo.movementCounter)
+        return;
+
+    if (pendingChange->apply != disable)
     {
-        TC_LOG_INFO("cheat", "WorldSession::HandleMoveSetCanFlyAckOpcode: Player %s from account id %u kicked for incorrect data returned in an ack",
+        TC_LOG_INFO("cheat", "WorldSession::HandleMoveGravityDisableAck: Player %s from account id %u kicked for incorrect data returned in an ack",
             _player->GetName().c_str(), _player->GetSession()->GetAccountId());
         _player->GetSession()->KickPlayer();
         return;
@@ -752,6 +730,7 @@ void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
     }
 
     MovementPacketSender::SendMovementFlagChangeToObservers(mover);
+    mover->ClearPendingMovementChangeForType(MovementChangeType::GRAVITY_DISABLE);
 }
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvData)
@@ -774,21 +753,11 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
 
-    // verify that indeed the client is replying with the changes that were send to him
-    if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementInfo.movementCounter)
-    {
-        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
+    // verify that we have a pending change for the change type and that the counter equals our expected change in case we are about to receive multiple ack messages for the same type
+    PlayerMovementPendingChange const* pendingChange = mover->GetPendingMovementChange(MovementChangeType::SET_CAN_FLY);
+    bool disable = recvData.GetOpcode() == CMSG_MOVE_GRAVITY_DISABLE_ACK;
+    if (!pendingChange || pendingChange->movementCounter != movementInfo.movementCounter)
         return;
-    }
-
-    PlayerMovementPendingChange pendingChange = mover->PopPendingMovementChange();
-    if (pendingChange.movementChangeType != MovementChangeType::SET_CAN_FLY)
-    {
-        TC_LOG_INFO("cheat", "WorldSession::HandleMoveSetCanFlyAckOpcode: Player %s from account id %u kicked for incorrect data returned in an ack",
-            _player->GetName().c_str(), _player->GetSession()->GetAccountId());
-        _player->GetSession()->KickPlayer();
-        return;
-    }
 
     int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
     if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
@@ -804,7 +773,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
     mover->m_movementInfo = movementInfo;
     mover->UpdatePosition(movementInfo.pos);
 
-    if (pendingChange.apply)
+    if (pendingChange->apply)
     {
         mover->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
         mover->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
@@ -818,6 +787,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
     }
 
     MovementPacketSender::SendMovementFlagChangeToObservers(mover);
+    mover->ClearPendingMovementChangeForType(MovementChangeType::SET_CAN_FLY);
 }
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
 {

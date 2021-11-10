@@ -78,7 +78,7 @@ void MovementPacketSender::SendSpeedChangeToMover(Unit* unit, UnitMoveType mtype
     pendingChange.movementCounter = mCounter;
     pendingChange.newValue = newSpeedFlat;
     pendingChange.movementChangeType = MovementPacketSender::GetChangeTypeByMoveType(mtype);
-    unit->PushPendingMovementChange(pendingChange);
+    unit->AssignPendingMovementChange(pendingChange.movementChangeType, std::move(pendingChange));
 
     WorldPacket data;
     data.Initialize(moveTypeToOpcode[mtype][1]);
@@ -134,7 +134,7 @@ void MovementPacketSender::SendMovementFlagChangeToMover(Unit* unit, MovementFla
     pendingChange.movementCounter = mCounter;
     pendingChange.apply = apply;
     pendingChange.movementChangeType = MovementPacketSender::GetChangeTypeByMovementFlag(mFlag);
-    unit->PushPendingMovementChange(pendingChange);
+    unit->AssignPendingMovementChange(pendingChange.movementChangeType, std::move(pendingChange));
 
     OpcodeServer opcode;
     switch (mFlag)

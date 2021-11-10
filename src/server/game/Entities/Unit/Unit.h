@@ -1773,11 +1773,10 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 GetMovementCounterAndInc() { return m_movementCounter++; }
         uint32 GetMovementCounter() { return m_movementCounter; }
-        PlayerMovementPendingChange& PeakFirstPendingMovementChange();
-        PlayerMovementPendingChange PopPendingMovementChange();
-        void PushPendingMovementChange(PlayerMovementPendingChange newChange);
+        void ClearPendingMovementChangeForType(MovementChangeType changeType);
+        void AssignPendingMovementChange(MovementChangeType changeType, PlayerMovementPendingChange&& newChange);
         bool HasPendingMovementChange() const { return !m_pendingMovementChanges.empty(); }
-        bool HasPendingMovementChange(MovementChangeType changeType) const;
+        PlayerMovementPendingChange const* GetPendingMovementChange(MovementChangeType changeType) const;
         void PurgeAndApplyPendingMovementChanges(bool informObservers = true);
 
         void RewardRage(uint32 baseRage, bool attacker);
@@ -1993,7 +1992,7 @@ class TC_GAME_API Unit : public WorldObject
 
         // when a player controls this unit, and when change is made to this unit which requires an ack from the client to be acted (change of speed for example), this movementCounter is incremented
         uint32 m_movementCounter;
-        std::deque<PlayerMovementPendingChange> m_pendingMovementChanges;
+        std::unordered_map<MovementChangeType, PlayerMovementPendingChange> m_pendingMovementChanges;
 
         /* Player Movement fields END*/
 };

@@ -9068,7 +9068,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 
     // Update speed only on change
     MovementChangeType changeType = MovementPacketSender::GetChangeTypeByMoveType(mtype);
-    if (m_speed_rate[mtype] == rate && !HasPendingMovementChange(changeType)) //todo: is the "!HasPendingMovementChange" part necessary here?
+    if (m_speed_rate[mtype] == rate)
         return;
 
     float newSpeedFlat = rate * (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
@@ -13832,30 +13832,19 @@ void Unit::UpdateHeight(float newZ)
         GetVehicleKit()->RelocatePassengers();
 }
 
-PlayerMovementPendingChange& Unit::PeakFirstPendingMovementChange()
+void Unit::ClearPendingMovementChangeForType(MovementChangeType changeType)
 {
-    return m_pendingMovementChanges.front();
+    m_pendingMovementChanges.erase(changeType);
 }
 
-PlayerMovementPendingChange Unit::PopPendingMovementChange()
+void Unit::AssignPendingMovementChange(MovementChangeType changeType, PlayerMovementPendingChange&& newChange)
 {
-    PlayerMovementPendingChange result = m_pendingMovementChanges.front();
-    m_pendingMovementChanges.pop_front();
-    return result;
+    m_pendingMovementChanges[changeType] = newChange;
 }
 
-void Unit::PushPendingMovementChange(PlayerMovementPendingChange newChange)
+PlayerMovementPendingChange const* Unit::GetPendingMovementChange(MovementChangeType changeType) const
 {
-    m_pendingMovementChanges.emplace_back(std::move(newChange));
-}
-
-bool Unit::HasPendingMovementChange(MovementChangeType changeType) const
-{
-    return std::find_if(m_pendingMovementChanges.begin(), m_pendingMovementChanges.end(),
-        [changeType](PlayerMovementPendingChange const& pendingChange)
-    {
-        return pendingChange.movementChangeType == changeType;
-    }) != m_pendingMovementChanges.end();
+    return Trinity::Containers::MapGetValuePtr(m_pendingMovementChanges, changeType);
 }
 
 void Unit::CheckPendingMovementAcks()
@@ -13866,35 +13855,38 @@ void Unit::CheckPendingMovementAcks()
     if (!HasPendingMovementChange())
         return;
 
-    PlayerMovementPendingChange const& oldestChangeToAck = m_pendingMovementChanges.front();
-    if (GameTime::GetGameTimeMS() > oldestChangeToAck.time + sWorld->getIntConfig(CONFIG_PENDING_MOVE_CHANGES_TIMEOUT))
+    for (std::pair<MovementChangeType, PlayerMovementPendingChange> const& pendingChange : m_pendingMovementChanges)
     {
-        /*
-        when players are teleported from one corner of a map to an other (example: from Dragonblight to the entrance of Naxxramas, both in the same map: Northend),
-        is it done through what is called a 'near' teleport. A near teleport always involve teleporting a player from one point to an other in the same map, even if
-        the distance is huge. When that distance is big enough, a loading screen appears on the client side. During that time, the client loads the surrounding zone
-        of the new location (and everything it contains). The problem is that, as long as the client hasn't finished loading the new zone, it will NOT ack the near
-        teleport. So if the server sends a near teleport order at a certain time and the client takes 20s to load the new zone (let's imagine a very slow computer),
-        even with zero latency, the server will receive an ack from the client only after 20s.
+        if (GameTime::GetGameTimeMS() > pendingChange.second.time + sWorld->getIntConfig(CONFIG_PENDING_MOVE_CHANGES_TIMEOUT))
+        {
+            /*
+            when players are teleported from one corner of a map to an other (example: from Dragonblight to the entrance of Naxxramas, both in the same map: Northend),
+            is it done through what is called a 'near' teleport. A near teleport always involve teleporting a player from one point to an other in the same map, even if
+            the distance is huge. When that distance is big enough, a loading screen appears on the client side. During that time, the client loads the surrounding zone
+            of the new location (and everything it contains). The problem is that, as long as the client hasn't finished loading the new zone, it will NOT ack the near
+            teleport. So if the server sends a near teleport order at a certain time and the client takes 20s to load the new zone (let's imagine a very slow computer),
+            even with zero latency, the server will receive an ack from the client only after 20s.
 
-        For this reason and because the current implementation is simple (you dear reader, feel free to improve it if you can), we will just ignore checking for
-        near teleport acks (for now. @todo).
-        */
-        if (oldestChangeToAck.movementChangeType == MovementChangeType::TELEPORT)
-            return;
+            For this reason and because the current implementation is simple (you dear reader, feel free to improve it if you can), we will just ignore checking for
+            near teleport acks (for now. @todo).
+            */
+            if (pendingChange.second.movementChangeType == MovementChangeType::TELEPORT)
+                return;
 
-        GameClient* controller = GetGameClientMovingMe();
-        controller->GetWorldSession()->KickPlayer();
-        TC_LOG_INFO("cheat", "Unit::CheckPendingMovementAcks: Player GUID: %s took too long to acknowledge a movement change. He was therefore kicked.", controller->GetBasePlayer()->GetGUID().ToString().c_str());
+            GameClient* controller = GetGameClientMovingMe();
+            controller->GetWorldSession()->KickPlayer();
+            TC_LOG_INFO("cheat", "Unit::CheckPendingMovementAcks: Player GUID: %s took too long to acknowledge a movement change. He was therefore kicked.", controller->GetBasePlayer()->GetGUID().ToString().c_str());
+            break;
+        }
     }
 }
 
 void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */)
 {
-    for (auto pendingChange = m_pendingMovementChanges.cbegin(); pendingChange != m_pendingMovementChanges.cend(); ++pendingChange)
+    for (std::pair<MovementChangeType, PlayerMovementPendingChange> const& pendingChange : m_pendingMovementChanges)
     {
-        float speedFlat = pendingChange->newValue;
-        MovementChangeType changeType = pendingChange->movementChangeType;
+        float speedFlat = pendingChange.second.newValue;
+        MovementChangeType changeType = pendingChange.second.movementChangeType;
         UnitMoveType moveType;
         switch (changeType)
         {
