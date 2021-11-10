@@ -1112,6 +1112,10 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool
             SetAnimationTier(AnimationTier::Ground);
     }
 
+    WorldPacket data(disable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE);
+    WriteMovementInfo(data);
+    SendMessageToSet(&data, false);
+
     return true;
 }
 
@@ -1131,6 +1135,16 @@ bool Creature::SetHover(bool enable, bool packetOnly /*= false*/, bool updateAni
     }
 
     return true;
+}
+
+bool Creature::SetCanFly(bool enable, bool packetOnly /*= false*/)
+{
+    if (!Unit::SetCanFly(enable, packetOnly))
+        return false;
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_FLYING : SMSG_SPLINE_MOVE_UNSET_FLYING);
+    WriteMovementInfo(data);
+    SendMessageToSet(&data, false);
 }
 
 void Creature::InitializeReactState()

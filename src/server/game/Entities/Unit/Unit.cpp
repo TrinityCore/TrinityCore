@@ -13892,8 +13892,12 @@ void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */
             case MovementChangeType::SPEED_CHANGE_FLIGHT_SPEED:         moveType = MOVE_FLIGHT; break;
             case MovementChangeType::SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveType = MOVE_FLIGHT_BACK; break;
             case MovementChangeType::RATE_CHANGE_PITCH:                 moveType = MOVE_PITCH_RATE; break;
-            case MovementChangeType::GRAVITY_DISABLE: break;
-            case MovementChangeType::SET_CAN_FLY: break;
+            case MovementChangeType::GRAVITY_DISABLE:
+                Unit::SetDisableGravity(pendingChange.second.apply);
+                break;
+            case MovementChangeType::SET_CAN_FLY:
+                Unit::SetCanFly(pendingChange.second.apply);
+                break;
             default:
                 ASSERT(false);
                 return;
@@ -13906,6 +13910,18 @@ void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */
 
             if (informObservers)
                 MovementPacketSender::SendSpeedChangeToObservers(this, *moveType, speedFlat);
+        }
+        else if (informObservers)
+        {
+            switch (changeType)
+            {
+                case MovementChangeType::GRAVITY_DISABLE:
+                case MovementChangeType::SET_CAN_FLY:
+                    MovementPacketSender::SendMovementFlagChangeToObservers(this);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -14199,14 +14215,6 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool /*u
         }
     }
 
-    WorldPacket data;
-    if (disable)
-        data.Initialize(IsMovedByClient() ? SMSG_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_DISABLE);
-    else
-        data.Initialize(IsMovedByClient() ? SMSG_MOVE_GRAVITY_ENABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE);
-
-    WriteMovementInfo(data);
-
     return true;
 }
 
@@ -14269,16 +14277,6 @@ bool Unit::SetCanFly(bool enable, bool packetOnly)
             if (GetTypeId() == TYPEID_PLAYER)
                 RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
         }
-
-        if (Player* player = ToPlayer())
-            player->SendMovementSetCanTransitionBetweenSwimAndFly(enable);
-    }
-
-    if (IsCreature())
-    {
-        WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_FLYING : SMSG_SPLINE_MOVE_UNSET_FLYING);
-        WriteMovementInfo(data);
-        SendMessageToSet(&data, false);
     }
 
     return true;
