@@ -13881,7 +13881,7 @@ void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */
     {
         float speedFlat = pendingChange.second.newValue;
         MovementChangeType changeType = pendingChange.second.movementChangeType;
-        UnitMoveType moveType;
+        Optional<UnitMoveType> moveType;
         switch (changeType)
         {
             case MovementChangeType::SPEED_CHANGE_WALK:                 moveType = MOVE_WALK; break;
@@ -13893,16 +13893,21 @@ void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */
             case MovementChangeType::SPEED_CHANGE_FLIGHT_SPEED:         moveType = MOVE_FLIGHT; break;
             case MovementChangeType::SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveType = MOVE_FLIGHT_BACK; break;
             case MovementChangeType::RATE_CHANGE_PITCH:                 moveType = MOVE_PITCH_RATE; break;
+            case MovementChangeType::GRAVITY_DISABLE: break;
+            case MovementChangeType::SET_CAN_FLY: break;
             default:
                 ASSERT(false);
                 return;
         }
 
-        float newSpeedRate = speedFlat / (IsControlledByPlayer() ? playerBaseMoveSpeed[moveType] : baseMoveSpeed[moveType]);
-        SetSpeedRateReal(moveType, newSpeedRate);
+        if (moveType.has_value())
+        {
+            float newSpeedRate = speedFlat / (IsControlledByPlayer() ? playerBaseMoveSpeed[*moveType] : baseMoveSpeed[*moveType]);
+            SetSpeedRateReal(*moveType, newSpeedRate);
 
-        if (informObservers)
-            MovementPacketSender::SendSpeedChangeToObservers(this, moveType, speedFlat);
+            if (informObservers)
+                MovementPacketSender::SendSpeedChangeToObservers(this, *moveType, speedFlat);
+        }
     }
 
     m_pendingMovementChanges.clear();
