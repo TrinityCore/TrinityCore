@@ -3213,8 +3213,13 @@ bool Unit::IsUnderWater() const
 
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
+    ZLiquidStatus oldLiquidStats = m_liquidStatus;
+
     WorldObject::ProcessPositionDataChanged(data);
     ProcessTerrainStatusUpdate(data.liquidStatus, data.liquidInfo);
+
+    if (oldLiquidStats != m_liquidStatus)
+        UpdateMountCapability();
 }
 
 void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
@@ -3243,9 +3248,6 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
 
         if (curLiquid && curLiquid->SpellID && (!player || !player->IsGameMaster()))
             CastSpell(this, curLiquid->SpellID, true);
-
-        // mount capability depends on liquid state change
-        UpdateMountCapability();
     }
 }
 void Unit::DeMorph()
@@ -8293,7 +8295,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     uint32 areaId = GetAreaId();
     uint32 ridingSkill = 5000;
     uint32 mountFlags = 0;
-    bool isSubmerged = false;
+    bool isUnderwater = false;
     bool isInWater = false;
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -8308,7 +8310,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         mountFlags = areaTable->MountFlags;
 
     ZLiquidStatus liquidStatus = GetLiquidStatus();
-    isSubmerged = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0 || HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    isUnderwater = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0;
     isInWater = (liquidStatus & LIQUID_MAP_IN_WATER) != 0;
 
     for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
@@ -8332,24 +8334,16 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
                 continue;
         }
 
+        // Do not allow underwater restricted capabilities when not underwater
+        if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER) && isUnderwater)
+            continue;
 
-        if (!isSubmerged)
-        {
-            if (!isInWater)
-            {
-                // player is completely out of water
-                if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND))
-                    continue;
-            }
-            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
-                continue;
-        }
-        else if (isInWater)
-        {
-            if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
-                continue;
-        }
-        else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT))
+        // Do not allow water surface restricted capabilities when not on water surface
+        if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT) && isInWater)
+            continue;
+
+        // Do not allow liquid restricted mounts on ground or in air
+        if (!(mountCapability->Flags & (MOUNT_CAPABILITY_FLAG_GROUND | MOUNT_CAPABILITY_FLAG_FLYING)) && !isUnderwater && !isInWater)
             continue;
 
         if (mountCapability->ReqMapID != -1 &&

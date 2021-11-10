@@ -1132,6 +1132,21 @@ bool Aura::HasEffectType(AuraType type) const
     return false;
 }
 
+bool Aura::EffectTypeNeedsSendingAmount(AuraType type)
+{
+    switch (type)
+    {
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED:
+        case SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 void Aura::RecalculateAmountOfEffects()
 {
     ASSERT (!IsRemoved());

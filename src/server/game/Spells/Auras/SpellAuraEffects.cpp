@@ -484,7 +484,7 @@ void AuraEffect::SetAmount(int32 amount)
     m_amount = amount;
     m_canBeRecalculated = false;
 
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT))
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) || Aura::EffectTypeNeedsSendingAmount(GetAuraType()))
         GetBase()->SetNeedClientUpdateForTargets();
 }
 
@@ -564,10 +564,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             break;
         case SPELL_AURA_MOUNTED:
             if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(uint32(GetMiscValueB())))
-            {
                 amount = mountCapability->ID;
-                m_canBeRecalculated = true;
-            }
             break;
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
         {
@@ -743,6 +740,9 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
         aurApp->GetTarget()->_RegisterAuraEffect(this, true);
         HandleEffect(aurApp, handleMask, true);
     }
+
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) || Aura::EffectTypeNeedsSendingAmount(GetAuraType()))
+        GetBase()->SetNeedClientUpdateForTargets();
 }
 
 void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
