@@ -98,6 +98,14 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class BattlePetRequestJournalLock final : public ClientPacket
+        {
+        public:
+            BattlePetRequestJournalLock(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class BattlePetUpdates final : public ServerPacket
         {
         public:

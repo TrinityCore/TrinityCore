@@ -3643,6 +3643,16 @@ void World::UpdateAreaDependentAuras()
         }
 }
 
+bool World::IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid)
+{
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (itr->second->GetBattlenetAccountGUID() == battlenetAccountGuid)
+            if (itr->second->GetBattlePetMgr()->HasJournalLock())
+                return true;
+
+    return false;
+}
+
 void World::LoadWorldStates()
 {
     uint32 oldMSTime = getMSTime();

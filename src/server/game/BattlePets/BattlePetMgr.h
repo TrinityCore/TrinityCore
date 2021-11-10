@@ -21,6 +21,7 @@
 #include "BattlePetPackets.h"
 #include "DatabaseEnvFwd.h"
 #include "EnumFlag.h"
+#include "World.h"
 #include <unordered_map>
 
 struct BattlePetSpeciesEntry;
@@ -164,12 +165,13 @@ public:
     void SendError(BattlePetError error, uint32 creatureId);
 
     void SendJournalLockStatus();
-    bool HasJournalLock() const;
-    void ToggleJournalLock(bool lock);
+    bool IsJournalLockAcquired() const { return sWorld->IsBattlePetJournalLockAcquired(_owner->GetBattlenetAccountGUID()); }
+    bool HasJournalLock() const { return _hasJournalLock; }
+    void ToggleJournalLock(bool lock) { _hasJournalLock = lock; }
 
 private:
     WorldSession* _owner;
-    ObjectGuid _journalLockPlayerGuid;
+    bool _hasJournalLock = false;
     uint16 _trapLevel = 0;
     std::unordered_map<uint64 /*battlePetGuid*/, BattlePet> _pets;
     std::vector<WorldPackets::BattlePet::BattlePetSlot> _slots;

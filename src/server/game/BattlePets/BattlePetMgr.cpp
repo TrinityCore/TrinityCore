@@ -599,12 +599,12 @@ void BattlePetMgr::DismissPet()
 
 void BattlePetMgr::SendJournal()
 {
-    if (!HasJournalLock())
+    if (!_hasJournalLock)
         SendJournalLockStatus();
 
     WorldPackets::BattlePet::BattlePetJournal battlePetJournal;
     battlePetJournal.Trap = _trapLevel;
-    battlePetJournal.HasJournalLock = HasJournalLock();
+    battlePetJournal.HasJournalLock = _hasJournalLock;
 
     for (auto& pet : _pets)
         if (pet.second.SaveInfo != BATTLE_PET_REMOVED)
@@ -635,7 +635,7 @@ void BattlePetMgr::SendError(BattlePetError error, uint32 creatureId)
 
 void BattlePetMgr::SendJournalLockStatus()
 {
-    if (_journalLockPlayerGuid.IsEmpty())
+    if (!IsJournalLockAcquired())
         ToggleJournalLock(true);
 
     if (HasJournalLock())
@@ -648,24 +648,4 @@ void BattlePetMgr::SendJournalLockStatus()
         WorldPackets::BattlePet::BattlePetJournalLockDenied BattlePetJournalLockDenied;
         _owner->SendPacket(BattlePetJournalLockDenied.Write());
     }
-}
-
-bool BattlePetMgr::HasJournalLock() const
-{
-    Player* player = _owner->GetPlayer();
-    if (!player)
-        return false;
-
-    return player->GetGUID() == _journalLockPlayerGuid;
-}
-
-void BattlePetMgr::ToggleJournalLock(bool lock)
-{
-    if (lock)
-    {
-        if (Player* player = _owner->GetPlayer())
-            _journalLockPlayerGuid = player->GetGUID();
-    }
-    else
-        _journalLockPlayerGuid.Clear();
 }
