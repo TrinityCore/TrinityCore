@@ -9061,7 +9061,6 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
         rate = 0.0f;
 
     // Update speed only on change
-    MovementChangeType changeType = MovementPacketSender::GetChangeTypeByMoveType(mtype);
     if (m_speed_rate[mtype] == rate)
         return;
 
