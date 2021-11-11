@@ -38,19 +38,22 @@ enum Yells
 
 enum Spells
 {
-    SPELL_FROST_AURA                = 28531,
-    SPELL_CLEAVE                    = 19983,
-    SPELL_TAIL_SWEEP                = 55697,
-    SPELL_SUMMON_BLIZZARD           = 28560,
-    SPELL_LIFE_DRAIN                = 28542,
-    SPELL_ICEBOLT                   = 28522,
-    SPELL_FROST_BREATH_ANTICHEAT    = 29318, // damage effect ignoring LoS on the entrance platform to prevent cheese
-    SPELL_FROST_BREATH              = 28524, // damage effect below sapphiron
-    SPELL_FROST_MISSILE             = 30101, // visual only
-    SPELL_BERSERK                   = 26662,
-    SPELL_DIES                      = 29357,
-    SPELL_CHECK_RESISTS             = 60539,
-    SPELL_SAPPHIRON_WING_BUFFET     = 29328
+    SPELL_FROST_AURA                    = 28531,
+    SPELL_CLEAVE                        = 19983,
+    SPELL_TAIL_SWEEP                    = 55697,
+    SPELL_SUMMON_BLIZZARD               = 28560,
+    SPELL_LIFE_DRAIN                    = 28542,
+    SPELL_ICEBOLT                       = 28522,
+    SPELL_FROST_BREATH_ANTICHEAT        = 29318, // damage effect ignoring LoS on the entrance platform to prevent cheese
+    SPELL_FROST_BREATH                  = 28524, // damage effect below sapphiron
+    SPELL_FROST_MISSILE                 = 30101, // visual only
+    SPELL_BERSERK                       = 26662,
+    SPELL_DIES                          = 29357,
+    SPELL_CHECK_RESISTS                 = 60539,
+    SPELL_SUMMON_WING_BUFFET            = 29329,
+    SPELL_WING_BUFFET_PERIODIC          = 29327,
+    SPELL_WING_BUFFET_DESPAWN_PERIODIC  = 29330,
+    SPELL_DESPAWN_BUFFET                = 29336
 };
 
 enum Phases
@@ -81,7 +84,6 @@ enum Events
 enum Misc
 {
     NPC_BLIZZARD            = 16474,
-    NPC_WING_BUFFET         = 17025,
     GO_ICEBLOCK             = 181247,
 
     // The Hundred Club
@@ -335,8 +337,7 @@ struct boss_sapphiron : public BossAI
                     case EVENT_LIFTOFF:
                     {
                         Talk(EMOTE_AIR_PHASE);
-                        if (Creature* buffet = DoSummon(NPC_WING_BUFFET, me, 0.0f, 0s, TEMPSUMMON_MANUAL_DESPAWN))
-                            _buffet = buffet->GetGUID();
+                        DoCastSelf(SPELL_SUMMON_WING_BUFFET);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                         me->SetHover(true);
                         events.ScheduleEvent(EVENT_ICEBOLT, Seconds(7), 0, PHASE_FLIGHT);
@@ -382,13 +383,9 @@ struct boss_sapphiron : public BossAI
                         events.ScheduleEvent(EVENT_LAND, Seconds(3) + Milliseconds(500), 0, PHASE_FLIGHT);
                         return;
                     case EVENT_LAND:
+                        DoCastSelf(SPELL_DESPAWN_BUFFET); /// @todo: at this point it should already despawn, probably that spell is used in another place
                         if (_delayedDrain)
                             CastDrain();
-                        if (Creature* cBuffet = ObjectAccessor::GetCreature(*me, _buffet))
-                        {
-                            cBuffet->DespawnOrUnsummon(1s);
-                            _buffet.Clear();
-                        }
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         Talk(EMOTE_GROUND_PHASE);
                         me->SetHover(false);
@@ -410,7 +407,6 @@ struct boss_sapphiron : public BossAI
 
 private:
     GuidVector _iceboltTargets;
-    ObjectGuid _buffet;
     bool _delayedDrain;
     bool _canTheHundredClub;
 };
@@ -448,6 +444,22 @@ struct npc_sapphiron_blizzard : public ScriptedAI
 private:
     TaskScheduler _scheduler;
     ObjectGuid _targetGuid;
+};
+
+struct npc_sapphiron_wing_buffet : public ScriptedAI
+{
+    npc_sapphiron_wing_buffet(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_WING_BUFFET_PERIODIC);
+        DoCastSelf(SPELL_WING_BUFFET_DESPAWN_PERIODIC);
+    }
 };
 
 struct go_sapphiron_birth : public GameObjectAI
@@ -581,6 +593,41 @@ class spell_sapphiron_summon_blizzard : public SpellScript
     }
 };
 
+// 29330 - Sapphiron's Wing Buffet Despawn
+class spell_sapphiron_wing_buffet_despawn_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_sapphiron_wing_buffet_despawn_periodic);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        if (Creature* creature = target->ToCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sapphiron_wing_buffet_despawn_periodic::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 29336 - Despawn Buffet
+class spell_sapphiron_despawn_buffet : public SpellScript
+{
+    PrepareSpellScript(spell_sapphiron_despawn_buffet);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        if (Creature* target = GetHitCreature())
+            target->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sapphiron_despawn_buffet::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 class achievement_the_hundred_club : public AchievementCriteriaScript
 {
     public:
@@ -596,9 +643,12 @@ void AddSC_boss_sapphiron()
 {
     RegisterNaxxramasCreatureAI(boss_sapphiron);
     RegisterNaxxramasCreatureAI(npc_sapphiron_blizzard);
+    RegisterNaxxramasCreatureAI(npc_sapphiron_wing_buffet);
     RegisterNaxxramasGameObjectAI(go_sapphiron_birth);
     RegisterSpellScript(spell_sapphiron_change_blizzard_target);
     RegisterSpellScript(spell_sapphiron_icebolt);
     RegisterSpellScript(spell_sapphiron_summon_blizzard);
+    RegisterSpellScript(spell_sapphiron_wing_buffet_despawn_periodic);
+    RegisterSpellScript(spell_sapphiron_despawn_buffet);
     new achievement_the_hundred_club();
 }

@@ -2694,6 +2694,37 @@ public:
     }
 };
 
+enum VoidZone
+{
+    SPELL_CONSUMPTION     = 28874
+};
+
+struct npc_gen_void_zone : public ScriptedAI
+{
+    npc_gen_void_zone(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        {
+            DoCastSelf(SPELL_CONSUMPTION);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2720,4 +2751,5 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
+    RegisterCreatureAI(npc_gen_void_zone);
 }
