@@ -7257,7 +7257,7 @@ inline void CheckGOLinkedTrapId(GameObjectTemplate const* goInfo, uint32 dataN, 
     {
         if (trapInfo->type != GAMEOBJECT_TYPE_TRAP)
             TC_LOG_ERROR("sql.sql", "Gameobject (Entry: %u GoType: %u) have data%d=%u but GO (Entry %u) have not GAMEOBJECT_TYPE_TRAP (%u) type.",
-            goInfo->entry, goInfo->type, N, dataN, dataN, GAMEOBJECT_TYPE_TRAP);
+            goInfo->entry, goInfo->type, N, dataN, dataN, uint32(GAMEOBJECT_TYPE_TRAP));
     }
 }
 
