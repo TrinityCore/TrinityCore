@@ -59,7 +59,7 @@ namespace Movement
             Parabolic           = 0x04000000,           // Affects elevation computation, can't be combined with Falling flag
             FadeObject          = 0x08000000,
             Steering            = 0x10000000,
-            Unknown_0x20000000  = 0x20000000,           // NOT VERIFIED
+            UnlimitedSpeed      = 0x20000000,
             Unknown_0x40000000  = 0x40000000,           // NOT VERIFIED
             Unknown_0x80000000  = 0x80000000,           // NOT VERIFIED
 
@@ -68,7 +68,7 @@ namespace Movement
             Mask_No_Monster_Move = Done,
             // Unused, not suported flags
             Mask_Unused         = No_Spline | Enter_Cycle | Frozen | Unknown_0x8 | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
-                                | Unknown_0x800000 | Unknown_0x1000000 | FadeObject | Steering | Unknown_0x20000000 | Unknown_0x40000000 | Unknown_0x80000000
+                                | Unknown_0x800000 | Unknown_0x1000000 | FadeObject | Steering | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -130,7 +130,7 @@ namespace Movement
         bool parabolic           : 1;
         bool fadeObject          : 1;
         bool steering            : 1;
-        bool unknown0x20000000   : 1;
+        bool unlimitedSpeed      : 1;
         bool unknown0x40000000   : 1;
         bool unknown0x80000000   : 1;
     };

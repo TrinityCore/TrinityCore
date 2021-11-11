@@ -112,7 +112,7 @@ namespace Movement
         // limit the speed in the same way the client does
         float speedLimit = [&]()
         {
-            if (args.flags.unknown0x20000000)
+            if (args.flags.unlimitedSpeed)
                 return std::numeric_limits<float>::max();
 
             if (args.flags.falling || args.flags.catmullrom || args.flags.flying || args.flags.parabolic)
