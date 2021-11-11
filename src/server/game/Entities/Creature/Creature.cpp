@@ -1145,6 +1145,8 @@ bool Creature::SetCanFly(bool enable, bool packetOnly /*= false*/)
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_FLYING : SMSG_SPLINE_MOVE_UNSET_FLYING);
     WriteMovementInfo(data);
     SendMessageToSet(&data, false);
+
+    return true;
 }
 
 void Creature::InitializeReactState()
