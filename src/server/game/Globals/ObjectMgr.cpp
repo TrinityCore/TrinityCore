@@ -6045,21 +6045,23 @@ void ObjectMgr::LoadNPCText()
             npcText.Data[i].BroadcastTextID  = fields[9 + i].GetUInt32();
         }
 
+        std::bitset<MAX_NPC_TEXT_OPTIONS> erasedBroadcastTexts;
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
             if (npcText.Data[i].BroadcastTextID)
             {
                 if (!sBroadcastTextStore.LookupEntry(npcText.Data[i].BroadcastTextID))
                 {
-                    TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a non-existing or incompatible BroadcastText (ID: %u, Index: %u)", textID, npcText.Data[i].BroadcastTextID, i);
+                    TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a non-existing BroadcastText (ID: %u, Index: %u)", textID, npcText.Data[i].BroadcastTextID, i);
                     npcText.Data[i].BroadcastTextID = 0;
+                    erasedBroadcastTexts[i] = true;
                 }
             }
         }
 
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
-            if (npcText.Data[i].Probability > 0 && npcText.Data[i].BroadcastTextID == 0)
+            if (npcText.Data[i].Probability > 0 && npcText.Data[i].BroadcastTextID == 0 && !erasedBroadcastTexts[i])
             {
                 TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability (Index: %u) set, but no BroadcastTextID to go with it", textID, i);
                 npcText.Data[i].Probability = 0;
