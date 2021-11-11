@@ -2734,7 +2734,7 @@ enum GameobjectTypes : uint8
 };
 
 #define MAX_GAMEOBJECT_TYPE                  61             // sending to client this or greater value can crash client.
-#define MAX_GAMEOBJECT_DATA                  34             // Max number of uint32 vars in gameobject_template data field
+#define MAX_GAMEOBJECT_DATA                  35             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
 {

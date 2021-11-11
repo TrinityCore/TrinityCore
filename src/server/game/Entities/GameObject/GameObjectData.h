@@ -126,6 +126,7 @@ struct GameObjectTemplate
             uint32 turnpersonallootsecurityoff;             // 31 turn personal loot security off, enum { false, true, }; Default: false
             uint32 ChestProperties;                         // 32 Chest Properties, References: ChestProperties, NoValue = 0
             uint32 chestPushLoot;                           // 33 chest Push Loot, References: Treasure, NoValue = 0
+            uint32 ForceSingleLooter;                       // 34 Force Single Looter, enum { false, true, }; Default: false
         } chest;
         // 4 GAMEOBJECT_TYPE_BINDER
         struct
