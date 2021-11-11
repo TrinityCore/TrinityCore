@@ -144,7 +144,7 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 
     if (playerConditionId && !sPlayerConditionStore.LookupEntry(playerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition (%u) set for quest %u. Set to 0.", spellId, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition (%u) set for quest %u and spell %u. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
         playerConditionId = 0;
     }
 
