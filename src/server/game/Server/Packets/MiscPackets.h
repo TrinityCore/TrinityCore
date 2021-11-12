@@ -934,6 +934,24 @@ namespace WorldPackets
             ObjectGuid ConversationGUID;
             uint32 LineID = 0;
         };
+
+        class RequestLatestSplashScreen final : public ClientPacket
+        {
+        public:
+            RequestLatestSplashScreen(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_LATEST_SPLASH_SCREEN, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SplashScreenShowLatest final : public ServerPacket
+        {
+        public:
+            SplashScreenShowLatest() : ServerPacket(SMSG_SPLASH_SCREEN_SHOW_LATEST, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 UISplashScreenID = 0;
+        };
     }
 }
 

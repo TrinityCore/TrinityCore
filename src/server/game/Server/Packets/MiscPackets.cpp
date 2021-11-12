@@ -729,3 +729,10 @@ void WorldPackets::Misc::ConversationLineStarted::Read()
     _worldPacket >> ConversationGUID;
     _worldPacket >> LineID;
 }
+
+WorldPacket const* WorldPackets::Misc::SplashScreenShowLatest::Write()
+{
+    _worldPacket << int32(UISplashScreenID);
+
+    return &_worldPacket;
+}

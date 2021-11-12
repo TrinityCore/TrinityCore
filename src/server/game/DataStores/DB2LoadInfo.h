@@ -6280,6 +6280,34 @@ struct UiMapXMapArtLoadInfo
     }
 };
 
+struct UiSplashScreenLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Header" },
+            { false, FT_STRING, "TopLeftFeatureTitle" },
+            { false, FT_STRING, "TopLeftFeatureDesc" },
+            { false, FT_STRING, "BottomLeftFeatureTitle" },
+            { false, FT_STRING, "BottomLeftFeatureDesc" },
+            { false, FT_STRING, "RightFeatureTitle" },
+            { false, FT_STRING, "RightFeatureDesc" },
+            { true, FT_INT, "AllianceQuestID" },
+            { true, FT_INT, "HordeQuestID" },
+            { true, FT_BYTE, "ScreenType" },
+            { true, FT_INT, "TextureKitID" },
+            { true, FT_INT, "SoundKitID" },
+            { true, FT_INT, "PlayerConditionID" },
+            { true, FT_INT, "CharLevelConditionID" },
+            { true, FT_INT, "RequiredTimeEventPassed" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, UISplashScreenMeta::Instance(), HOTFIX_SEL_UI_SPLASH_SCREEN);
+        return &loadInfo;
+    }
+};
+
 struct UnitPowerBarLoadInfo
 {
     static DB2LoadInfo const* Instance()
