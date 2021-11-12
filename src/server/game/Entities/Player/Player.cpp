@@ -23422,9 +23422,6 @@ void Player::SendInitialPacketsAfterAddToMap()
             auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
     }
 
-    if (CanFly())
-        SendMovementSetCanTransitionBetweenSwimAndFly(true);
-
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetRooted(true);
 
@@ -25869,6 +25866,19 @@ bool Player::SetCanFly(bool enable, bool /*packetOnly = false*/)
     return true;
 }
 
+bool Player::SetCanTransitionBetweenSwimAndFly(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS))
+        return false;
+
+    if (IsMovedByClient() && IsInWorld())
+        MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS, enable);
+    else if (IsMovedByClient() && !IsInWorld()) // (1)
+        Unit::SetCanTransitionBetweenSwimAndFly(enable);
+
+    return true;
+}
+
 void Player::ResetAchievements()
 {
     m_achievementMgr->Reset();
@@ -27631,14 +27641,6 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
     }
 
     return nullptr;
-}
-
-void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
-{
-    if (apply)
-        Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
-    else
-        Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
 }
 
 void Player::SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason)

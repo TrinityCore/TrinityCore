@@ -13898,6 +13898,8 @@ void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */
             case MovementChangeType::SET_CAN_FLY:
                 Unit::SetCanFly(pendingChange.second.apply);
                 break;
+            case MovementChangeType::SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
+                Unit::SetCanTransitionBetweenSwimAndFly(pendingChange.second.apply);
             default:
                 ASSERT(false);
                 return;
@@ -13917,6 +13919,7 @@ void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */
             {
                 case MovementChangeType::GRAVITY_DISABLE:
                 case MovementChangeType::SET_CAN_FLY:
+                case MovementChangeType::SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
                     MovementPacketSender::SendMovementFlagChangeToObservers(this);
                     break;
                 default:
@@ -14263,9 +14266,6 @@ bool Unit::SetCanFly(bool enable, bool packetOnly)
         {
             AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
             RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
-            if (GetTypeId() == TYPEID_PLAYER)
-                AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
-
             SetFall(false);
         }
         else
@@ -14273,11 +14273,21 @@ bool Unit::SetCanFly(bool enable, bool packetOnly)
             if (IsFlying() && !IsGravityDisabled())
                 SetFall(true);
             RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
-
-            if (GetTypeId() == TYPEID_PLAYER)
-                RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
         }
     }
+
+    return true;
+}
+
+bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
+{
+    if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS))
+        return false;
+
+    if (enable)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
 
     return true;
 }

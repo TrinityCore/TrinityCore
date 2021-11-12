@@ -63,7 +63,17 @@ MovementChangeType MovementPacketSender::GetChangeTypeByMovementFlag(MovementFla
         case MOVEMENTFLAG_CAN_FLY:          return MovementChangeType::SET_CAN_FLY;
         case MOVEMENTFLAG_DISABLE_GRAVITY:  return MovementChangeType::GRAVITY_DISABLE;
         default:
-            ASSERT(false, "MovementPacketSender::SendSpeedChangeToMover Unsupported MovementFlags");
+            ASSERT(false, "MovementPacketSender::GetChangeTypeByMovementFlag Unsupported MovementFlags");
+    }
+}
+
+MovementChangeType MovementPacketSender::GetChangeTypeByMovementFlag(MovementFlags2 mFlag)
+{
+    switch (mFlag)
+    {
+        case MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS: return MovementChangeType::SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
+        default:
+            ASSERT(false, "MovementPacketSender::GetChangeTypeByMovementFlag Unsupported MovementFlags");
     }
 }
 
@@ -141,6 +151,33 @@ void MovementPacketSender::SendMovementFlagChangeToMover(Unit* unit, MovementFla
     {
         case MOVEMENTFLAG_CAN_FLY:          opcode = apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY; break;
         case MOVEMENTFLAG_DISABLE_GRAVITY:  opcode = apply ? SMSG_MOVE_GRAVITY_DISABLE : SMSG_MOVE_GRAVITY_ENABLE; break;
+        default:
+            ASSERT(false, "MovementPacketSender::SendMovementFlagChangeToMover Unsupported MovementFlags");
+            break;
+    }
+
+    WorldPacket data(opcode);
+    unit->WriteMovementInfo(data, nullptr, &mCounter);
+    controller->SendDirectMessage(&data);
+}
+
+void MovementPacketSender::SendMovementFlagChangeToMover(Unit* unit, MovementFlags2 mFlag, bool apply)
+{
+    GameClient* controller = unit->GetGameClientMovingMe();
+
+    ASSERT(controller);
+
+    uint32 mCounter = unit->GetMovementCounterAndInc();
+    PlayerMovementPendingChange pendingChange;
+    pendingChange.movementCounter = mCounter;
+    pendingChange.apply = apply;
+    pendingChange.movementChangeType = MovementPacketSender::GetChangeTypeByMovementFlag(mFlag);
+    unit->AssignPendingMovementChange(pendingChange.movementChangeType, std::move(pendingChange));
+
+    OpcodeServer opcode;
+    switch (mFlag)
+    {
+        case MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS: opcode = apply ? SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY; break;
         default:
             ASSERT(false, "MovementPacketSender::SendMovementFlagChangeToMover Unsupported MovementFlags");
             break;

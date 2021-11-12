@@ -674,6 +674,39 @@ void WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& r
     TC_LOG_DEBUG("network", "CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK");
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+
+    GameClient* client = GetGameClient();
+    if (!client->IsAllowedToMove(movementInfo.guid))
+        return;
+
+    Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
+
+    // verify that we have a pending change for the change type and that the counter equals our expected change in case we are about to receive multiple ack messages for the same type
+    PlayerMovementPendingChange const* pendingChange = mover->GetPendingMovementChange(MovementChangeType::SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY);
+    if (!pendingChange || pendingChange->movementCounter != movementInfo.movementCounter)
+        return;
+
+    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        movementInfo.time = GameTime::GetGameTimeMS();
+    }
+    else
+    {
+        movementInfo.time = (uint32)movementTime;
+    }
+
+    mover->m_movementInfo = movementInfo;
+    mover->UpdatePosition(movementInfo.pos);
+
+    if (pendingChange->apply)
+        mover->AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+    else
+        mover->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+
+    MovementPacketSender::SendMovementFlagChangeToObservers(mover);
+    mover->ClearPendingMovementChangeForType(MovementChangeType::SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY);
 }
 
 void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
