@@ -1789,9 +1789,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return nullptr;
     }
 
-    if (summoner)
-        if (summoner->IsPlayer() || !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
-            PhasingHandler::InheritPhaseShift(summon, summoner);
+    if (summoner && !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
+        PhasingHandler::InheritPhaseShift(summon, summoner);
 
     summon->SetCreatedBySpell(spellId);
 
