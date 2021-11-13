@@ -171,7 +171,6 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner && IsTrigger() && m_spells[0])
     {
-        SetFaction(owner->GetFaction());
         SetLevel(owner->getLevel());
         if (owner->GetTypeId() == TYPEID_PLAYER)
             m_ControlledByPlayer = true;
@@ -195,10 +194,13 @@ void TempSummon::InitStats(uint32 duration)
         }
     }
 
-    if (m_Properties->Faction)
-        SetFaction(m_Properties->Faction);
-    else if (IsVehicle() && owner) // properties should be vehicle
-        SetFaction(owner->GetFaction());
+     uint32 faction = m_Properties->Faction;
+     if (m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
+        if (owner)
+            faction = owner->GetFaction();
+
+     if (faction)
+        SetFaction(faction);
 }
 
 void TempSummon::InitSummon()
@@ -291,7 +293,7 @@ void Minion::InitStats(uint32 duration)
     SetReactState(REACT_PASSIVE);
 
     SetCreatorGUID(GetOwner()->GetGUID());
-    SetFaction(GetOwner()->GetFaction());
+    SetFaction(GetOwner()->GetFaction()); // TODO: Is this correct? Overwrite the use of SummonPropertiesFlags::UseSummonerFaction
 
     GetOwner()->SetMinion(this, true);
 }
