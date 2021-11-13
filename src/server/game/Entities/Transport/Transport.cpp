@@ -472,10 +472,10 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         return nullptr;
     }
 
-    WorldObject* phaseShiftOwner = static_cast<WorldObject*>(this);
+    WorldObject* phaseShiftOwner = this;
     if (summoner)
         if (summoner->IsPlayer() || !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
-            phaseShiftOwner = static_cast<WorldObject*>(summoner);
+            phaseShiftOwner = summoner;
 
     PhasingHandler::InheritPhaseShift(summon, phaseShiftOwner);
 
