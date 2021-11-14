@@ -216,7 +216,7 @@ class DatabaseWorkerPool
 #endif
         }
         // @tswow-begin
-        PreparedQueryResult QueryCustomStatement(uint32 id, PreparedStatementBase * values);
+        PreparedQueryResult QueryCustomStatement(uint32 id, PreparedStatementBase * values, T* connection = nullptr);
         uint32 PrepareCustomStatement(std::string const& sql);
         // @tswow-end
 
@@ -231,7 +231,11 @@ class DatabaseWorkerPool
 
         //! Gets a free connection in the synchronous connection pool.
         //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
+        // @tswow-begin
+    public:
         T* GetFreeConnection();
+    private:
+        // @tswow-end
 
         char const* GetDatabaseName() const;
 

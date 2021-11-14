@@ -525,9 +525,14 @@ uint32 DatabaseWorkerPool<T>::PrepareCustomStatement(std::string const& sql)
 }
 
 template <class T>
-PreparedQueryResult DatabaseWorkerPool<T>::QueryCustomStatement(uint32 id, PreparedStatementBase* values)
+PreparedQueryResult DatabaseWorkerPool<T>::QueryCustomStatement(uint32 id, PreparedStatementBase* values, T* connection)
 {
-    auto connection = GetFreeConnection();
+    bool shouldFree = false;
+    if (!connection)
+    {
+        shouldFree = true;
+        connection = GetFreeConnection();
+    }
     if (!connection->HasCustomStatement(id))
     {
         // make reverse lookup if this is somehow too slow
@@ -541,7 +546,11 @@ PreparedQueryResult DatabaseWorkerPool<T>::QueryCustomStatement(uint32 id, Prepa
     }
 
     PreparedResultSet* ret = connection->QueryCustomStatement(id, values);
-    connection->Unlock();
+
+    if (shouldFree)
+    {
+        connection->Unlock();
+    }
     if (!ret || !ret->GetRowCount())
     {
         delete ret;
