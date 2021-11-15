@@ -241,7 +241,7 @@ struct npc_frenzied_bloodseeker_bat : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!UpdateVictim())
             return;
