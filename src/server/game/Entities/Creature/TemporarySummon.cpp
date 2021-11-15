@@ -194,13 +194,13 @@ void TempSummon::InitStats(uint32 duration)
         }
     }
 
-     uint32 faction = m_Properties->Faction;
-     if (m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
-        if (owner)
-            faction = owner->GetFaction();
+    uint32 faction = m_Properties->Faction;
+    if (m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
+       if (owner)
+           faction = owner->GetFaction();
 
-     if (faction)
-        SetFaction(faction);
+    if (faction)
+       SetFaction(faction);
 }
 
 void TempSummon::InitSummon()
