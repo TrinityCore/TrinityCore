@@ -2059,7 +2059,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.activateGameObject.gameObjectAction >= uint32(GameObjectActions::Max))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has gameObjectAction parameter out of range (max allowed %u, current value %u), skipped.",
-                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), uint32(GameObjectActions::Max), e.action.activateGameObject.gameObjectAction);
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), uint32(GameObjectActions::Max) - 1, e.action.activateGameObject.gameObjectAction);
                 return false;
             }
             break;
