@@ -24,6 +24,7 @@ class Player;
 class Unit;
 struct MovementInfo;
 enum class MovementChangeType : uint8;
+enum UpdateCollisionHeightReason : uint8;
 
 //!
 //!   movement flag changes for player controlled units:
@@ -98,8 +99,8 @@ class MovementPacketSender
 {
     public:
         ///* height change */
-        //static void SendHeightChangeToMover(Unit* unit, float newRate);
-        //static void SendHeightChangeToObservers(Unit* unit, float newRate);
+        static void SendHeightChangeToMover(Unit* unit, float newHeight, UpdateCollisionHeightReason reason);
+        static void SendHeightChangeToObservers(Unit* unit, float newHeight);
 
         ///* teleport */
         //static void SendTeleportAckPacket(Unit* unit, MovementInfo const& movementInfo); // rename to SendTeleportToMover?

@@ -769,9 +769,37 @@ void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
 void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvData)
 {
     MovementInfo movementInfo;
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extras(&heightElement);
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
+    static MovementStatusElements const extraElements[] =
+    {
+        MSEExtraFloat,
+        MSEExtraTwoBits
+    };
+
+    Movement::ExtraMovementStatusElement extra(extraElements);
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extra);
+
+    GameClient* client = GetGameClient();
+    if (!client->IsAllowedToMove(movementInfo.guid))
+        return;
+
+    Unit* mover = ObjectAccessor::GetUnit(*_player, movementInfo.guid);
+
+    PlayerMovementPendingChange const* pendingChange = mover->GetPendingMovementChange(MovementChangeType::SET_COLLISION_HGT);
+    if (!pendingChange || pendingChange->movementCounter != movementInfo.movementCounter)
+        return;
+
+    if (std::fabs(pendingChange->newValue - extra.Data.floatData) > 0.01f)
+    {
+        TC_LOG_INFO("cheat", "WorldSession::HandleSetCollisionHeightAck: Player %s from account id %u kicked for incorrect data returned in an ack",
+            _player->GetName().c_str(), _player->GetSession()->GetAccountId());
+        _player->GetSession()->KickPlayer();
+        return;
+    }
+
+    mover->m_movementInfo = movementInfo;
+    mover->UpdatePosition(movementInfo.pos);
+
+    MovementPacketSender::SendHeightChangeToObservers(mover, pendingChange->newValue);
 }
 
 void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)

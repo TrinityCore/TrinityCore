@@ -2147,6 +2147,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimationTier = true) override;
         bool SetCanFly(bool enable, bool packetOnly = false) override;
         bool SetCanTransitionBetweenSwimAndFly(bool enable) override;
+        void SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason);
 
         void SetClientControl(Unit* target, bool allowMove);
 
@@ -2352,8 +2353,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         */
 
         void ValidateMovementInfo(MovementInfo* mi);
-
-        void SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason);
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
         bool CanEnterWater() const override { return true; }

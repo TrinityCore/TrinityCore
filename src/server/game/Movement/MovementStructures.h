@@ -106,6 +106,7 @@ enum MovementStatusElements
                         // Allowed internal elements are: GUID markers (not transport), MSEExtraFloat, MSEExtraInt8
     MSEExtraFloat,
     MSEExtraInt8,
+    MSEExtraTwoBits,
 };
 
 namespace Movement

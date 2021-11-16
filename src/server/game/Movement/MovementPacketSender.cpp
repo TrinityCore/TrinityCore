@@ -19,6 +19,7 @@
 #include "MovementPacketSender.h"
 #include "MovementStructures.h"
 #include "Player.h"
+#include "SharedDefines.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
@@ -75,6 +76,48 @@ MovementChangeType MovementPacketSender::GetChangeTypeByMovementFlag(MovementFla
         default:
             ASSERT(false, "MovementPacketSender::GetChangeTypeByMovementFlag Unsupported MovementFlags");
     }
+}
+
+void MovementPacketSender::SendHeightChangeToMover(Unit* unit, float newHeight, UpdateCollisionHeightReason reason)
+{
+    GameClient* controller = unit->GetGameClientMovingMe();
+
+    ASSERT(controller);
+
+    uint32 mCounter = unit->GetMovementCounterAndInc();
+    PlayerMovementPendingChange pendingChange;
+    pendingChange.movementCounter = mCounter;
+    pendingChange.newValue = newHeight;
+    pendingChange.movementChangeType = MovementChangeType::SET_COLLISION_HGT;
+    unit->AssignPendingMovementChange(pendingChange.movementChangeType, std::move(pendingChange));
+    static MovementStatusElements const extraElements[] =
+    {
+        MSEExtraTwoBits,
+        MSEExtraFloat
+    };
+
+    Movement::ExtraMovementStatusElement extra(extraElements);
+    extra.Data.floatData = newHeight;
+    extra.Data.byteData = reason;
+
+    WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, 8 + 1 + 4);
+    unit->WriteMovementInfo(data, &extra, &mCounter);
+    controller->SendDirectMessage(&data);
+}
+
+void MovementPacketSender::SendHeightChangeToObservers(Unit* unit, float newHeight)
+{
+    GameClient* controller = unit->GetGameClientMovingMe();
+
+    ASSERT(controller);
+
+    WorldPacket data(SMSG_MOVE_UPDATE_COLLISION_HEIGHT);
+    static MovementStatusElements const speedVal = MSEExtraFloat;
+    Movement::ExtraMovementStatusElement extra(&speedVal);
+    extra.Data.floatData = newHeight;
+
+    unit->WriteMovementInfo(data, &extra);
+    unit->SendMessageToSet(&data, controller->GetBasePlayer());
 }
 
 void MovementPacketSender::SendSpeedChangeToMover(Unit* unit, UnitMoveType mtype, float newSpeedFlat)

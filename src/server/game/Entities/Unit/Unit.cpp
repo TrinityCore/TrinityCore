@@ -13900,6 +13900,9 @@ void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */
                 break;
             case MovementChangeType::SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
                 Unit::SetCanTransitionBetweenSwimAndFly(pendingChange.second.apply);
+                break;
+            case MovementChangeType::SET_COLLISION_HGT:
+                break;
             default:
                 ASSERT(false);
                 return;

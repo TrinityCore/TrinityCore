@@ -25879,6 +25879,11 @@ bool Player::SetCanTransitionBetweenSwimAndFly(bool enable)
     return true;
 }
 
+void Player::SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason)
+{
+    MovementPacketSender::SendHeightChangeToMover(this, height, reason);
+}
+
 void Player::ResetAchievements()
 {
     m_achievementMgr->Reset();
@@ -27641,16 +27646,6 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
     }
 
     return nullptr;
-}
-
-void Player::SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason)
-{
-    WorldPackets::Movement::MoveSetCollisionHeight packet;
-    packet.Height = height;
-    packet.MoverGUID = GetGUID();
-    //packet.SequenceIndex = m_movementCounter++;
-    packet.Reason = reason;
-    SendDirectMessage(packet.Write());
 }
 
 std::string Player::GetMapAreaAndZoneString() const
