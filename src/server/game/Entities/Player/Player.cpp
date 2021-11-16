@@ -2362,6 +2362,7 @@ void Player::GiveLevel(uint8 level)
     packet.PowerDelta[3] = 0;
     packet.PowerDelta[4] = 0;
     packet.PowerDelta[5] = 0;
+    packet.PowerDelta[6] = 0;
 
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
