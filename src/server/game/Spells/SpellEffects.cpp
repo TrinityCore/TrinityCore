@@ -1922,13 +1922,13 @@ void Spell::EffectSummonType()
 
     ObjectGuid privateObjectOwner = [&]()
     {
-        if (!(properties->Flags & (SUMMON_PROP_FLAG_PERSONAL_SPAWN | SUMMON_PROP_FLAG_PERSONAL_GROUP_SPAWN)))
+        if (!(properties->GetFlags().HasFlag(SummonPropertiesFlags::OnlyVisibleToSummoner | SummonPropertiesFlags::OnlyVisibleToSummonerGroup)))
             return ObjectGuid::Empty;
 
         if (caster->IsPrivateObject())
             return caster->GetPrivateObjectOwner();
 
-        if (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_GROUP_SPAWN)
+        if (properties->GetFlags().HasFlag(SummonPropertiesFlags::OnlyVisibleToSummonerGroup))
             if (caster->IsPlayer() && m_originalCaster->ToPlayer()->GetGroup())
                 return caster->ToPlayer()->GetGroup()->GetGUID();
 
@@ -1976,7 +1976,7 @@ void Spell::EffectSummonType()
         case SUMMON_CATEGORY_ALLY:
         case SUMMON_CATEGORY_UNK:
         {
-            if (properties->Flags & 512)
+            if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup))
             {
                 SummonGuardian(effectInfo, entry, properties, numSummons, privateObjectOwner);
                 break;
@@ -2054,10 +2054,15 @@ void Spell::EffectSummonType()
                             continue;
 
                         if (properties->Control == SUMMON_CATEGORY_ALLY)
-                        {
                             summon->SetOwnerGUID(caster->GetGUID());
-                            summon->SetFaction(caster->GetFaction());
-                        }
+
+                        uint32 faction = properties->Faction;
+                        if (properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
+                            if (Unit* summoner = summon->GetSummoner())
+                                faction = summoner->GetFaction();
+
+                        if (faction)
+                            summon->SetFaction(faction);
 
                         ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
                     }
@@ -2106,12 +2111,6 @@ void Spell::EffectSummonType()
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
 
             unitCaster->CastSpell(summon, spellId, args);
-
-            uint32 faction = properties->Faction;
-            if (!faction)
-                faction = unitCaster->GetFaction();
-
-            summon->SetFaction(faction);
             break;
         }
     }
@@ -5133,9 +5132,6 @@ void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPr
 
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
-
-        if (properties && properties->Control == SUMMON_CATEGORY_ALLY)
-            summon->SetFaction(unitCaster->GetFaction());
 
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
             ((Minion*)summon)->SetFollowAngle(unitCaster->GetAbsoluteAngle(summon));

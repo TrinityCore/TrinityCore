@@ -431,7 +431,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
                         mask = UNIT_MASK_MINION;
                         break;
                     default:
-                        if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
+                        if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup)) // Mirror Image, Summon Gargoyle
                             mask = UNIT_MASK_GUARDIAN;
                         break;
                 }
@@ -472,7 +472,11 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         return nullptr;
     }
 
-    PhasingHandler::InheritPhaseShift(summon, summoner ? static_cast<WorldObject*>(summoner) : static_cast<WorldObject*>(this));
+    WorldObject* phaseShiftOwner = this;
+    if (summoner && !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
+        phaseShiftOwner = summoner;
+
+    PhasingHandler::InheritPhaseShift(summon, phaseShiftOwner);
 
     summon->SetCreatedBySpell(spellId);
 
