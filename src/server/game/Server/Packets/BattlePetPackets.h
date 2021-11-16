@@ -196,7 +196,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Result = 0;
-            uint32 CreatureID = 0;
+            int32 CreatureID = 0;
         };
 
         class BattlePetSummon final : public ClientPacket

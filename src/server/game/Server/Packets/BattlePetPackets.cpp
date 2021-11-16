@@ -160,8 +160,8 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetDeleted::Write()
 
 WorldPacket const* WorldPackets::BattlePet::BattlePetError::Write()
 {
-    _worldPacket.WriteBits(Result, 3);
-    _worldPacket << uint32(CreatureID);
+    _worldPacket.WriteBits(Result, 4);
+    _worldPacket << int32(CreatureID);
 
     return &_worldPacket;
 }
