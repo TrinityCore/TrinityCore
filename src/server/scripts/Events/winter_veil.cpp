@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAIImpl.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
