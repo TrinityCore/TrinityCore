@@ -97,21 +97,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     Transform                   = 0x00000010, // NYI
     Jump                        = 0x00000020,
     ChangeSpec                  = 0x00000040,
-    AbandonVehicle              = 0x00000080, // NYI
-    StartOfEncounter            = 0x00000100, // NYI
-    EndOfEncounter              = 0x00000200, // NYI
-    Disconnect                  = 0x00000400, // NYI
-    EnteringInstance            = 0x00000800, // NYI
-    DuelEnd                     = 0x00001000, // NYI
-    LeaveArenaOrBattleground    = 0x00002000, // NYI
-    ChangeTalent                = 0x00004000, // NYI
-    ChangeGlyph                 = 0x00008000, // NYI
-    SeamlessTransfer            = 0x00010000, // NYI
-    WarModeLeave                = 0x00020000, // NYI
-    TouchingGround              = 0x00040000, // NYI
-    ChromieTime                 = 0x00080000, // NYI
-    SplineFlightOrFreeFlight    = 0x00100000, // NYI
-    ProcOrPeriodicAttacking     = 0x00200000  // NYI
+    AbandonVehicle              = 0x00000080
 };
 
 DEFINE_ENUM_FLAG(SpellAuraInterruptFlags2);
