@@ -420,36 +420,6 @@ void BattlePetMgr::RemovePet(ObjectGuid guid)
             _owner->GetPlayer()->RemoveSpell(speciesEntry->SummonSpellID);*/
 }
 
-void BattlePetMgr::RestorePet(BattlePet* pet)
-{
-    if (!pet)
-        return;
-
-    pet->PacketInfo.Flags &= ~AsUnderlyingType(BattlePetDbFlags::Revoked);
-
-    if (pet->SaveInfo != BATTLE_PET_NEW)
-        pet->SaveInfo = BATTLE_PET_CHANGED;
-
-    WorldPackets::BattlePet::BattlePetRestored restoredPet;
-    restoredPet.PetGuid = pet->PacketInfo.Guid;
-    _owner->SendPacket(restoredPet.Write());
-}
-
-void BattlePetMgr::RevokePet(BattlePet* pet)
-{
-    if (!pet)
-        return;
-
-    pet->PacketInfo.Flags |= AsUnderlyingType(BattlePetDbFlags::Revoked);
-
-    if (pet->SaveInfo != BATTLE_PET_NEW)
-        pet->SaveInfo = BATTLE_PET_CHANGED;
-
-    WorldPackets::BattlePet::BattlePetRevoked revokedPet;
-    revokedPet.PetGuid = pet->PacketInfo.Guid;
-    _owner->SendPacket(revokedPet.Write());
-}
-
 void BattlePetMgr::ClearFanfare(ObjectGuid guid)
 {
     BattlePet* pet = GetPet(guid);
@@ -466,9 +436,6 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
 {
     BattlePet* pet = GetPet(guid);
     if (!pet)
-        return;
-
-    if (IsPetLocked(pet))
         return;
 
     pet->PacketInfo.Name = name;
@@ -488,14 +455,6 @@ bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
             return true;
 
     return false;
-}
-
-bool BattlePetMgr::IsPetLocked(BattlePet* pet)
-{
-    if (!pet)
-        return false;
-
-    return pet->PacketInfo.Flags & AsUnderlyingType(BattlePetDbFlags::Revoked | BattlePetDbFlags::LockedForConvert);
 }
 
 uint8 BattlePetMgr::GetPetCount(uint32 species) const
@@ -560,9 +519,6 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     if (IsPetInSlot(guid))
         return;
 
-    if (IsPetLocked(pet))
-        return;
-
     if (pet->PacketInfo.Health < pet->PacketInfo.MaxHealth)
         return;
 
@@ -613,9 +569,6 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
 {
     BattlePet* pet = GetPet(guid);
     if (!pet)
-        return;
-
-    if (IsPetLocked(pet))
         return;
 
     BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species);

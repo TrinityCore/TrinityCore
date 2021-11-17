@@ -188,26 +188,6 @@ namespace WorldPackets
             ObjectGuid PetGuid;
         };
 
-        class BattlePetRestored final : public ServerPacket
-        {
-        public:
-            BattlePetRestored() : ServerPacket(SMSG_BATTLE_PET_RESTORED, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid PetGuid;
-        };
-
-        class BattlePetRevoked final : public ServerPacket
-        {
-        public:
-            BattlePetRevoked() : ServerPacket(SMSG_BATTLE_PET_REVOKED, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid PetGuid;
-        };
-
         class BattlePetError final : public ServerPacket
         {
         public:

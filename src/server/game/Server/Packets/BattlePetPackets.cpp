@@ -158,20 +158,6 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetDeleted::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::BattlePet::BattlePetRestored::Write()
-{
-    _worldPacket << PetGuid;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::BattlePet::BattlePetRevoked::Write()
-{
-    _worldPacket << PetGuid;
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::BattlePet::BattlePetError::Write()
 {
     _worldPacket.WriteBits(Result, 4);
