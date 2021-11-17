@@ -315,9 +315,6 @@ class TC_GAME_API UnitAI
         void DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(nullptr, spellId, args); }
 
         float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
-
-        virtual bool ShouldSparWith(Unit const* /*target*/) const { return false; }
-
         void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spell);
 
