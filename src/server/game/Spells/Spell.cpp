@@ -1622,7 +1622,7 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
             if (Vehicle const* vehicle = m_caster->GetVehicleKit())
                 for (uint8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
                     if (Unit* passenger = vehicle->GetPassenger(i))
-                        AddUnitTarget(target->ToUnit(), 1 << effIndex, false);
+                        AddUnitTarget(passenger, 1 << effIndex, false);
             break;
         default:
             break;
