@@ -5683,14 +5683,14 @@ void Spell::EffectUncageBattlePet()
 
     if (battlePetMgr->GetMaxPetLevel() < level)
     {
-        battlePetMgr->SendError(BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE, speciesEntry->CreatureID);
+        battlePetMgr->SendError(BattlePetError::TooHighLevelToUncage, speciesEntry->CreatureID);
         SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
         return;
     }
 
     if (battlePetMgr->HasMaxPetCount(speciesEntry))
     {
-        battlePetMgr->SendError(BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE, speciesEntry->CreatureID);
+        battlePetMgr->SendError(BattlePetError::CantHaveMorePetsOfType, speciesEntry->CreatureID);
         SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
         return;
     }
