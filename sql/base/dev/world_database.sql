@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.35, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.36, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.7.35
+-- Server version	5.7.36
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -138,7 +138,7 @@ CREATE TABLE `areatrigger_create_properties` (
   `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `AnimId` int(11) NOT NULL DEFAULT '0',
+  `AnimId` int(11) NOT NULL DEFAULT '-1',
   `AnimKitId` int(11) NOT NULL DEFAULT '0',
   `DecalPropertiesId` int(10) unsigned NOT NULL DEFAULT '0',
   `TimeToTarget` int(10) unsigned NOT NULL DEFAULT '0',
@@ -510,7 +510,6 @@ DROP TABLE IF EXISTS `conversation_line_template`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `conversation_line_template` (
   `Id` int(10) unsigned NOT NULL,
-  `StartTime` int(10) unsigned NOT NULL DEFAULT '0',
   `UiCameraID` int(10) unsigned NOT NULL DEFAULT '0',
   `ActorIdx` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `Flags` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -529,7 +528,6 @@ DROP TABLE IF EXISTS `conversation_template`;
 CREATE TABLE `conversation_template` (
   `Id` int(10) unsigned NOT NULL,
   `FirstLineId` int(10) unsigned NOT NULL,
-  `LastLineEndTime` int(10) unsigned NOT NULL,
   `TextureKitId` int(10) unsigned NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) NOT NULL DEFAULT '',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1011,6 +1009,7 @@ CREATE TABLE `creature_text` (
   `Emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Duration` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Sound` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `SoundPlayType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `BroadcastTextId` mediumint(6) NOT NULL DEFAULT '0',
   `TextRange` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` varchar(255) DEFAULT '',
@@ -1637,6 +1636,7 @@ CREATE TABLE `gameobject_template` (
   `Data31` int(10) NOT NULL DEFAULT '0',
   `Data32` int(10) NOT NULL DEFAULT '0',
   `Data33` int(11) NOT NULL DEFAULT '0',
+  `Data34` int(11) NOT NULL DEFAULT '0',
   `ContentTuningId` int(11) NOT NULL DEFAULT '0',
   `AIName` char(64) NOT NULL DEFAULT '',
   `ScriptName` varchar(64) NOT NULL DEFAULT '',
@@ -1899,7 +1899,6 @@ CREATE TABLE `instance_template` (
   `map` smallint(5) unsigned NOT NULL,
   `parent` smallint(5) unsigned NOT NULL,
   `script` varchar(128) NOT NULL DEFAULT '',
-  `allowMount` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`map`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3846,6 +3845,7 @@ CREATE TABLE `smart_scripts` (
   `target_param1` int(10) unsigned NOT NULL DEFAULT '0',
   `target_param2` int(10) unsigned NOT NULL DEFAULT '0',
   `target_param3` int(10) unsigned NOT NULL DEFAULT '0',
+  `target_param4` int(10) unsigned NOT NULL DEFAULT '0',
   `target_x` float NOT NULL DEFAULT '0',
   `target_y` float NOT NULL DEFAULT '0',
   `target_z` float NOT NULL DEFAULT '0',
@@ -4505,4 +4505,4 @@ CREATE TABLE `world_safe_locs` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-15 10:11:49
+-- Dump completed on 2021-11-17 13:23:19
