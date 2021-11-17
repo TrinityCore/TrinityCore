@@ -96,7 +96,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     Ground                      = 0x00000008,
     Transform                   = 0x00000010, // NYI
     Jump                        = 0x00000020,
-    ChangeSpec                  = 0x00000040, // NYI
+    ChangeSpec                  = 0x00000040,
     AbandonVehicle              = 0x00000080, // NYI
     StartOfEncounter            = 0x00000100, // NYI
     EndOfEncounter              = 0x00000200, // NYI

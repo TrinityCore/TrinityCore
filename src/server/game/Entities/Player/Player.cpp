@@ -3533,6 +3533,9 @@ bool Player::ResetTalents(bool no_cost)
     SetPrimaryTalentTree(GetActiveSpec(), 0);
     SetFreeTalentPoints(talentPointsForLevel);
 
+    // We consider resetting talents as changing a specialization as well as we now can pick an entirely new primary talent tree which equals changing specs
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeSpec);
+
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveTalents(trans);
     _SaveSpells(trans);
@@ -28218,6 +28221,13 @@ void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
     raidGroupOnly.Reason = reason;
 
     SendDirectMessage(raidGroupOnly.Write());
+}
+
+void Player::SetActiveSpec(uint8 spec)
+{
+    _talentMgr->ActiveSpec = spec;
+    UpdateArmorSpecialization();
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeSpec);
 }
 
 void Player::SetRestFlag(RestFlag restFlag, uint32 triggerId /*= 0*/)
