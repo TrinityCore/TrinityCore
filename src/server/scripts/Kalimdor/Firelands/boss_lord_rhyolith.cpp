@@ -142,6 +142,9 @@ enum Actions
     // Lord Rhyolith
     ACTION_DROP_MOLTEN_ARMOR_CHARGE = 1,
 
+    // Feet
+    ACTION_RECALCULATE_DAMAGE_REDUCTION_MOD = 1,
+
     // Movement Controller - Lord Rhyolith
     ACTION_ENCOUNTER_STARTED        = 1,
     ACTION_STOP_MOVEMENT_CONTROL    = 2,
@@ -217,16 +220,19 @@ struct boss_lord_rhyolith : public BossAI
     {
         DoCastSelf(SPELL_OBSIDIAN_ARMOR, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 80));
 
+        uint8 seatId = 1;
         for (uint16 entry : { NPC_LEFT_FOOT, NPC_RIGHT_FOOT })
         {
             if (Creature* foot = DoSummon(entry, me->GetPosition(), 0, TEMPSUMMON_MANUAL_DESPAWN))
             {
                 foot->SetDisplayId(foot->GetCreatureTemplate()->Modelid2);
-                foot->CastSpell(me, SPELL_RIDE_VEHICLE);
+                foot->CastSpell(me, SPELL_RIDE_VEHICLE, CastSpellExtraArgs().AddSpellBP0(seatId));
                 foot->CastSpell(foot, SPELL_START_FIGHT);
                 foot->CastSpell(foot, SPELL_FOOT_DAMAGE_TRACKER);
                 foot->CastSpell(foot, SPELL_OBSIDIAN_ARMOR, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 80));
             }
+
+            ++seatId;
         }
 
         DoSummon(NPC_MOVEMENT_CONTROLLER_LORD_RHYOLITH, MovementControllerSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
@@ -243,7 +249,12 @@ struct boss_lord_rhyolith : public BossAI
         for (uint32 type : { DATA_LEFT_FOOT, DATA_RIGHT_FOOT })
         {
             if (Creature* foot = instance->GetCreature(type))
+            {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, foot, frameIndex);
+
+                if (CreatureAI* ai = foot->AI())
+                    ai->DoAction(ACTION_RECALCULATE_DAMAGE_REDUCTION_MOD);
+            }
 
             ++frameIndex;
         }
@@ -616,9 +627,16 @@ struct boss_lord_rhyolith : public BossAI
                                             armorAura->ModStackAmount(-16);
 
                                         for (uint32 type : { DATA_LEFT_FOOT, DATA_RIGHT_FOOT })
+                                        {
                                             if (Creature* foot = instance->GetCreature(type))
+                                            {
                                                 if (Aura* armorAura = foot->GetAura(SPELL_OBSIDIAN_ARMOR))
                                                     armorAura->ModStackAmount(-16);
+
+                                                if (CreatureAI* ai = foot->AI())
+                                                    ai->DoAction(ACTION_RECALCULATE_DAMAGE_REDUCTION_MOD);
+                                            }
+                                        }
 
                                         if (IsHeroic())
                                             for (uint8 i = 0; i < 5; ++i)
@@ -817,14 +835,14 @@ private:
 
 struct npc_rhyolith_foot : public NullCreatureAI
 {
-    npc_rhyolith_foot(Creature* creature) : NullCreatureAI(creature), _damageCleanupTimer(500)
+    npc_rhyolith_foot(Creature* creature) : NullCreatureAI(creature), _damageCleanupTimer(500), _damageReductionModifier(0.f)
     {
         _damagePerHalfSecond = { };
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        _damagePerHalfSecond[0] += damage;
+        _damagePerHalfSecond[0] += CalculatePct(damage, 100.f + _damageReductionModifier);
 
         if (damage >= me->GetHealth())
             damage = me->GetHealth() - 1;
@@ -843,6 +861,21 @@ struct npc_rhyolith_foot : public NullCreatureAI
         return 0;
     }
 
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_RECALCULATE_DAMAGE_REDUCTION_MOD:
+                _damageReductionModifier = 100.f * (1.f - me->GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, [&](AuraEffect const* aurEff)
+                {
+                    return aurEff->GetSpellInfo()->Id == SPELL_OBSIDIAN_ARMOR;
+                }));
+                break;
+            default:
+                break;
+        }
+    }
+
     void UpdateAI(uint32 diff) override
     {
         // We store the damage of the past second in two array slots so each stores the last 500 milliseconds for a more smooth result
@@ -857,6 +890,7 @@ struct npc_rhyolith_foot : public NullCreatureAI
 
 private:
     int32 _damageCleanupTimer;
+    float _damageReductionModifier;
     std::array<uint32, 2> _damagePerHalfSecond;
 };
 
