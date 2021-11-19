@@ -613,6 +613,7 @@ WorldPacket const* WorldPackets::Spells::ModifyCooldown::Write()
     _worldPacket << int32(SpellID);
     _worldPacket << int32(DeltaTime);
     _worldPacket.WriteBit(IsPet);
+    _worldPacket.WriteBit(WithoutCategoryCooldown);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

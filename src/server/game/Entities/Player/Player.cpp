@@ -12301,7 +12301,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
                 {
                     m_weaponChangeTimer = spellProto->StartRecoveryTime;
 
-                    GetSpellHistory()->AddGlobalCooldown(spellProto, m_weaponChangeTimer);
+                    GetSpellHistory()->AddGlobalCooldown(spellProto, Milliseconds(m_weaponChangeTimer));
 
                     WorldPackets::Spells::SpellCooldown spellCooldown;
                     spellCooldown.Caster = GetGUID();
@@ -24536,7 +24536,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
             continue;
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        if (GetSpellHistory()->GetRemainingCooldown(effectSpellInfo) > 30 * IN_MILLISECONDS)
+        if (GetSpellHistory()->GetRemainingCooldown(effectSpellInfo) > 30s)
             continue;
 
         GetSpellHistory()->AddCooldown(effectData->SpellID, pItem->GetEntry(), std::chrono::seconds(30));
