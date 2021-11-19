@@ -19,6 +19,7 @@
 #define BattlePetPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "UnitDefines.h"
