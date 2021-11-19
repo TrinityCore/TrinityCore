@@ -62,28 +62,18 @@ enum class BattlePetDbFlags : uint16
 
 DEFINE_ENUM_FLAG(BattlePetDbFlags);
 
+enum class BattlePetError : uint8
+{
+    CantHaveMorePetsOfType = 3, // You can't have any more pets of that type.
+    CantHaveMorePets       = 4, // You can't have any more pets.
+    TooHighLevelToUncage   = 7  // This pet is too high level for you to uncage.
+};
+
 // 6.2.4
 enum FlagsControlType
 {
     FLAGS_CONTROL_TYPE_APPLY        = 1,
     FLAGS_CONTROL_TYPE_REMOVE       = 2
-};
-
-// 6.2.4
-enum BattlePetError
-{
-    BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE = 3,
-    BATTLEPETRESULT_CANT_HAVE_MORE_PETS              = 4,
-    BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE         = 7,
-
-    // TODO: find correct values if possible and needed (also wrong order)
-    BATTLEPETRESULT_DUPLICATE_CONVERTED_PET,
-    BATTLEPETRESULT_NEED_TO_UNLOCK,
-    BATTLEPETRESULT_BAD_PARAM,
-    BATTLEPETRESULT_LOCKED_PET_ALREADY_EXISTS,
-    BATTLEPETRESULT_OK,
-    BATTLEPETRESULT_UNCAPTURABLE,
-    BATTLEPETRESULT_CANT_INVALID_CHARACTER_GUID
 };
 
 // taken from BattlePetState.db2 - it seems to store some initial values for battle pets

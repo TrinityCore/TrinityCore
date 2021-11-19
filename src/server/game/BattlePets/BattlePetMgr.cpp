@@ -426,7 +426,7 @@ void BattlePetMgr::ClearFanfare(ObjectGuid guid)
     if (!pet)
         return;
 
-    pet->PacketInfo.Flags &= ~uint16(BattlePetDbFlags::FanfareNeeded);
+    pet->PacketInfo.Flags &= ~AsUnderlyingType(BattlePetDbFlags::FanfareNeeded);
 
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
@@ -620,7 +620,7 @@ void BattlePetMgr::SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pe
 void BattlePetMgr::SendError(BattlePetError error, uint32 creatureId)
 {
     WorldPackets::BattlePet::BattlePetError battlePetError;
-    battlePetError.Result = error;
+    battlePetError.Result = AsUnderlyingType(error);
     battlePetError.CreatureID = creatureId;
     _owner->SendPacket(battlePetError.Write());
 }
