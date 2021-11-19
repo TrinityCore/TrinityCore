@@ -350,11 +350,13 @@ void World::AddSession_(WorldSession* s)
             if (RemoveQueuedPlayer(old->second))
                 decrease_session = false;
             // not remove replaced session form queue if listed
+            Trinity::Containers::MultimapErasePair(m_sessionsByBnetGuid, old->second->GetBattlenetAccountGUID(), old->second);
             delete old->second;
         }
     }
 
     m_sessions[s->GetAccountId()] = s;
+    m_sessionsByBnetGuid.emplace(s->GetBattlenetAccountGUID(), s);
 
     uint32 Sessions = GetActiveAndQueuedSessionCount();
     uint32 pLimit = GetPlayerAmountLimit();
@@ -3242,8 +3244,8 @@ void World::UpdateSessions(uint32 diff)
                 m_disconnects[itr->second->GetAccountId()] = GameTime::GetGameTime();
             RemoveQueuedPlayer(pSession);
             m_sessions.erase(itr);
+            Trinity::Containers::MultimapErasePair(m_sessionsByBnetGuid, pSession->GetBattlenetAccountGUID(), pSession);
             delete pSession;
-
         }
     }
 }
@@ -3645,10 +3647,9 @@ void World::UpdateAreaDependentAuras()
 
 bool World::IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid)
 {
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (itr->second->GetBattlenetAccountGUID() == battlenetAccountGuid)
-            if (itr->second->GetBattlePetMgr()->HasJournalLock())
-                return true;
+    for (auto&& sessionForBnet : Trinity::Containers::MapEqualRange(m_sessionsByBnetGuid, battlenetAccountGuid))
+        if (sessionForBnet.second->GetBattlePetMgr()->HasJournalLock())
+            return true;
 
     return false;
 }
