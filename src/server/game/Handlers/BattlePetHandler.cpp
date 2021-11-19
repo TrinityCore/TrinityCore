@@ -25,6 +25,14 @@ void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::Battle
     GetBattlePetMgr()->SendJournal();
 }
 
+void WorldSession::HandleBattlePetRequestJournalLock(WorldPackets::BattlePet::BattlePetRequestJournalLock& /*battlePetRequestJournalLock*/)
+{
+    GetBattlePetMgr()->SendJournalLockStatus();
+
+    if (GetBattlePetMgr()->HasJournalLock())
+        GetBattlePetMgr()->SendJournal();
+}
+
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
 {
     if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
@@ -44,6 +52,9 @@ void WorldSession::HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDe
 
 void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags)
 {
+    if (!GetBattlePetMgr()->HasJournalLock())
+        return;
+
     if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
     {
         if (battlePetSetFlags.ControlType == FLAGS_CONTROL_TYPE_APPLY)

@@ -789,6 +789,8 @@ class TC_GAME_API World
 
         void UpdateAreaDependentAuras();
 
+        bool IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid);
+
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
         void   ResetEventSeasonalQuests(uint16 event_id);
@@ -838,6 +840,7 @@ class TC_GAME_API World
         time_t blackmarket_timer;
 
         SessionMap m_sessions;
+        std::unordered_multimap<ObjectGuid, WorldSession*> m_sessionsByBnetGuid;
         typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;

@@ -69,7 +69,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint16 Trap = 0;
-            bool HasJournalLock = true;
+            bool HasJournalLock = false;
             std::vector<std::reference_wrapper<BattlePetSlot>> Slots;
             std::vector<std::reference_wrapper<BattlePet>> Pets;
         };
@@ -82,10 +82,26 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
+        class BattlePetJournalLockDenied final : public ServerPacket
+        {
+        public:
+            BattlePetJournalLockDenied() : ServerPacket(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class BattlePetRequestJournal final : public ClientPacket
         {
         public:
             BattlePetRequestJournal(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class BattlePetRequestJournalLock final : public ClientPacket
+        {
+        public:
+            BattlePetRequestJournalLock(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK, std::move(packet)) { }
 
             void Read() override { }
         };
