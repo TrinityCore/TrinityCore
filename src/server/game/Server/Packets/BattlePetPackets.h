@@ -152,6 +152,34 @@ namespace WorldPackets
             Optional<::DeclinedName> DeclinedName;
         };
 
+        class QueryBattlePetName final : public ClientPacket
+        {
+        public:
+            QueryBattlePetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_BATTLE_PET_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGuid;
+            ObjectGuid UnitGUID;
+        };
+
+        class QueryBattlePetNameResponse final : public ServerPacket
+        {
+        public:
+            QueryBattlePetNameResponse() : ServerPacket(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PetGuid;
+            uint32 CreatureID;
+            WorldPackets::Timestamp<> Timestamp;
+            bool Allow = false;
+
+            bool HasDeclined = false;
+            DeclinedName DeclinedName;
+            std::string Name;
+        };
+
         class BattlePetDeletePet final : public ClientPacket
         {
         public:

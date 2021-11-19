@@ -129,6 +129,39 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
     Name = _worldPacket.ReadString(nameLength);
 }
 
+void WorldPackets::BattlePet::QueryBattlePetName::Read()
+{
+    _worldPacket >> PetGuid;
+    _worldPacket >> UnitGUID;
+}
+
+WorldPacket const* WorldPackets::BattlePet::QueryBattlePetNameResponse::Write()
+{
+    _worldPacket << PetGuid;
+    _worldPacket << uint32(CreatureID);
+    _worldPacket << Timestamp;
+
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket.WriteBits(Name.length(), 8);
+        _worldPacket.WriteBit(HasDeclined);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(DeclinedName.name[i].length(), 7);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(DeclinedName.name[i]);
+
+        _worldPacket.WriteString(Name);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 void WorldPackets::BattlePet::BattlePetDeletePet::Read()
 {
     _worldPacket >> PetGuid;

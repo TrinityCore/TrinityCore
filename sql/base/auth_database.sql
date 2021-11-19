@@ -271,6 +271,7 @@ CREATE TABLE `battle_pets` (
   `quality` tinyint(3) NOT NULL DEFAULT '0',
   `flags` smallint(5) NOT NULL DEFAULT '0',
   `name` varchar(12) NOT NULL,
+  `nameTimestamp` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -20,6 +20,7 @@
 #include "Containers.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -235,13 +236,14 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 pet.PacketInfo.Quality = fields[7].GetUInt8();
                 pet.PacketInfo.Flags = fields[8].GetUInt16();
                 pet.PacketInfo.Name = fields[9].GetString();
+                pet.NameTimestamp = fields[10].GetUInt32();
                 pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
 
-                if (!fields[10].IsNull())
+                if (!fields[11].IsNull())
                 {
-                    pet.DeclinedName.reset(new DeclinedName);
+                    pet.DeclinedName = std::make_unique<DeclinedName>();
                     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                        pet.DeclinedName->name[i] = fields[10 + i].GetString();
+                        pet.DeclinedName->name[i] = fields[11 + i].GetString();
                 }
 
                 pet.SaveInfo = BATTLE_PET_UNCHANGED;
@@ -289,6 +291,7 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt8(8, itr->second.PacketInfo.Quality);
                 stmt->setUInt16(9, itr->second.PacketInfo.Flags);
                 stmt->setString(10, itr->second.PacketInfo.Name);
+                stmt->setUInt32(11, itr->second.NameTimestamp);
                 trans->Append(stmt);
 
                 if (itr->second.DeclinedName)
@@ -313,8 +316,9 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt8(3, itr->second.PacketInfo.Quality);
                 stmt->setUInt16(4, itr->second.PacketInfo.Flags);
                 stmt->setString(5, itr->second.PacketInfo.Name);
-                stmt->setUInt32(6, _owner->GetBattlenetAccountId());
-                stmt->setUInt64(7, itr->first);
+                stmt->setUInt32(6, itr->second.NameTimestamp);
+                stmt->setUInt32(7, _owner->GetBattlenetAccountId());
+                stmt->setUInt64(8, itr->first);
                 trans->Append(stmt);
 
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BATTLE_PET_DECLINED_NAME);
@@ -395,6 +399,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     pet.PacketInfo.Name = "";
     pet.CalculateStats();
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
+    pet.NameTimestamp = 0;
     pet.SaveInfo = BATTLE_PET_NEW;
 
     _pets[pet.PacketInfo.Guid.GetCounter()] = std::move(pet);
@@ -441,6 +446,7 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
         return;
 
     pet->PacketInfo.Name = name;
+    pet->NameTimestamp = uint32(GameTime::GetGameTime());
 
     pet->DeclinedName.reset();
     if (declinedName)
@@ -448,6 +454,45 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
 
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
+
+    // Update the timestamp if the battle pet is summoned
+    Player* player = _owner->GetPlayer();
+    Creature* summonedBattlePet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, player->GetCritterGUID());
+    if (summonedBattlePet)
+        if (player->GetSummonedBattlePetGUID() == summonedBattlePet->GetBattlePetCompanionGUID())
+            if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
+                summonedBattlePet->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
+}
+
+void BattlePetMgr::SendQueryBattlePetNameResponse(ObjectGuid guid, ObjectGuid unitGuid)
+{
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    Player* player = _owner->GetPlayer();
+    Creature* summonedBattlePet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, unitGuid);
+    if (!summonedBattlePet)
+        return;
+
+    WorldPackets::BattlePet::QueryBattlePetNameResponse response;
+    response.PetGuid = guid;
+    response.CreatureID = pet->PacketInfo.CreatureID;
+    response.Timestamp = pet->NameTimestamp;
+    response.Allow = !pet->PacketInfo.Name.empty();
+
+    if (response.Allow)
+    {
+        if (DeclinedName const* declinedName = pet->DeclinedName.get())
+        {
+            response.HasDeclined = true;
+            response.DeclinedName = *declinedName;
+        }
+
+        response.Name = pet->PacketInfo.Name;
+    }
+
+    _owner->SendPacket(response.Write());
 }
 
 bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
@@ -581,20 +626,21 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
         return;
 
     // TODO: set proper CreatureID for spell DEFAULT_SUMMON_BATTLE_PET_SPELL (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
-    _owner->GetPlayer()->SetSummonedBattlePetGUID(guid);
-    _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(pet->PacketInfo.Quality);
-    _owner->GetPlayer()->CastSpell(_owner->GetPlayer(), speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
+    Player* player = _owner->GetPlayer();
+    player->SetSummonedBattlePetGUID(guid);
+    player->SetCurrentBattlePetBreedQuality(pet->PacketInfo.Quality);
+    player->CastSpell(player, speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
 }
 
 void BattlePetMgr::DismissPet()
 {
-    Player* ownerPlayer = _owner->GetPlayer();
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*ownerPlayer, ownerPlayer->GetCritterGUID());
-    if (pet && *ownerPlayer->m_activePlayerData->SummonedBattlePetGUID == pet->GetBattlePetCompanionGUID())
+    Player* player = _owner->GetPlayer();
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, player->GetCritterGUID());
+    if (pet && player->GetSummonedBattlePetGUID() == pet->GetBattlePetCompanionGUID())
     {
         pet->DespawnOrUnsummon();
-        ownerPlayer->SetSummonedBattlePetGUID(ObjectGuid::Empty);
-        ownerPlayer->SetCurrentBattlePetBreedQuality(AsUnderlyingType(BattlePetBreedQuality::Poor));
+        player->SetSummonedBattlePetGUID(ObjectGuid::Empty);
+        player->SetCurrentBattlePetBreedQuality(AsUnderlyingType(BattlePetBreedQuality::Poor));
     }
 }
 

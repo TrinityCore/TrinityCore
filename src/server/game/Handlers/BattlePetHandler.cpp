@@ -45,6 +45,11 @@ void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetM
     GetBattlePetMgr()->ModifyName(battlePetModifyName.PetGuid, battlePetModifyName.Name, battlePetModifyName.DeclinedName.get_ptr());
 }
 
+void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattlePetName& queryBattlePetName)
+{
+    GetBattlePetMgr()->SendQueryBattlePetNameResponse(queryBattlePetName.PetGuid, queryBattlePetName.UnitGUID);
+}
+
 void WorldSession::HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDeletePet& battlePetDeletePet)
 {
     GetBattlePetMgr()->RemovePet(battlePetDeletePet.PetGuid);
