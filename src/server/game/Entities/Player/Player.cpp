@@ -26658,6 +26658,8 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             float height = movementInfo.pos.m_positionZ;
             UpdateGroundPositionZ(movementInfo.pos.m_positionX, movementInfo.pos.m_positionY, height);
 
+            damage *= GetTotalAuraMultiplier(SPELL_AURA_MODIFY_FALL_DAMAGE_PCT);
+
             if (damage > 0)
             {
                 //Prevent fall damage from being more than the player maximum health
