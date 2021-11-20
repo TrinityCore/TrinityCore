@@ -22,6 +22,7 @@
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "GameTime.h"
+#include "Optional.h"
 #include <deque>
 #include <vector>
 #include <unordered_map>
