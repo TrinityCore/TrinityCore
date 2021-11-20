@@ -1119,6 +1119,32 @@ private:
     int32 _damagePct;
 };
 
+// 28865 - Consumption
+// 64208 - Consumption
+class spell_gen_consumption : public SpellScript
+{
+    PrepareSpellScript(spell_gen_consumption);
+
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || caster->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        uint32 damage = 0;
+        if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(caster->GetUInt32Value(UNIT_CREATED_BY_SPELL)))
+            damage = createdBySpell->GetEffect(EFFECT_1).CalcValue();
+
+        if (damage)
+            SetEffectValue(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_gen_consumption::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 63845 - Create Lance
 enum CreateLanceSpells
 {
@@ -4556,6 +4582,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_clone);
     RegisterSpellScript(spell_gen_clone_weapon);
     RegisterSpellScript(spell_gen_clone_weapon_aura);
+    RegisterSpellScript(spell_gen_consumption);
     RegisterSpellScriptWithArgs(spell_gen_count_pct_from_max_hp, "spell_gen_default_count_pct_from_max_hp");
     RegisterSpellScriptWithArgs(spell_gen_count_pct_from_max_hp, "spell_gen_50pct_count_pct_from_max_hp", 50);
     RegisterSpellScript(spell_gen_create_lance);

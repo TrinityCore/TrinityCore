@@ -60,7 +60,7 @@ enum Spells
     SPELL_HEART_LIGHTNING_TETHER            = 64799,
 
     // Void Zone
-    SPELL_CONSUMPTION                       = 64208,
+    SPELL_CONSUMPTION                       = 64209,
 
     // Life Spark
     SPELL_ARCANE_POWER_STATE                = 49411,
@@ -658,19 +658,11 @@ struct npc_xt_void_zone : public PassiveAI
 {
     npc_xt_void_zone(Creature* creature) : PassiveAI(creature) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
-        int32 bp = 0;
-        if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(me->GetUInt32Value(UNIT_CREATED_BY_SPELL)))
-            bp = createdBySpell->GetEffect(EFFECT_1).CalcValue();
-
-        _scheduler.Schedule(1s, [this, bp](TaskContext consumption)
+        _scheduler.Schedule(2500ms, [this](TaskContext /*task*/)
         {
-            CastSpellExtraArgs args(false);
-            if (bp)
-                args.AddSpellBP0(bp);
-            DoCastSelf(SPELL_CONSUMPTION, args);
-            consumption.Repeat();
+            DoCastSelf(SPELL_CONSUMPTION);
         });
     }
 
