@@ -236,7 +236,7 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 pet.PacketInfo.Quality = fields[7].GetUInt8();
                 pet.PacketInfo.Flags = fields[8].GetUInt16();
                 pet.PacketInfo.Name = fields[9].GetString();
-                pet.NameTimestamp = fields[10].GetUInt32();
+                pet.NameTimestamp = fields[10].GetInt64();
                 pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
 
                 if (!fields[11].IsNull())
@@ -291,7 +291,7 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt8(8, itr->second.PacketInfo.Quality);
                 stmt->setUInt16(9, itr->second.PacketInfo.Flags);
                 stmt->setString(10, itr->second.PacketInfo.Name);
-                stmt->setUInt32(11, itr->second.NameTimestamp);
+                stmt->setInt64(11, itr->second.NameTimestamp);
                 trans->Append(stmt);
 
                 if (itr->second.DeclinedName)
@@ -316,7 +316,7 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt8(3, itr->second.PacketInfo.Quality);
                 stmt->setUInt16(4, itr->second.PacketInfo.Flags);
                 stmt->setString(5, itr->second.PacketInfo.Name);
-                stmt->setUInt32(6, itr->second.NameTimestamp);
+                stmt->setInt64(6, itr->second.NameTimestamp);
                 stmt->setUInt32(7, _owner->GetBattlenetAccountId());
                 stmt->setUInt64(8, itr->first);
                 trans->Append(stmt);
@@ -446,7 +446,7 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
         return;
 
     pet->PacketInfo.Name = name;
-    pet->NameTimestamp = uint32(GameTime::GetGameTime());
+    pet->NameTimestamp = !pet->PacketInfo.Name.empty() ? GameTime::GetGameTime() : time_t(0);
 
     pet->DeclinedName.reset();
     if (declinedName)
@@ -462,37 +462,6 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
         if (player->GetSummonedBattlePetGUID() == summonedBattlePet->GetBattlePetCompanionGUID())
             if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
                 summonedBattlePet->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
-}
-
-void BattlePetMgr::SendQueryBattlePetNameResponse(ObjectGuid guid, ObjectGuid unitGuid)
-{
-    BattlePet* pet = GetPet(guid);
-    if (!pet)
-        return;
-
-    Player* player = _owner->GetPlayer();
-    Creature* summonedBattlePet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, unitGuid);
-    if (!summonedBattlePet)
-        return;
-
-    WorldPackets::BattlePet::QueryBattlePetNameResponse response;
-    response.PetGuid = guid;
-    response.CreatureID = pet->PacketInfo.CreatureID;
-    response.Timestamp = pet->NameTimestamp;
-    response.Allow = !pet->PacketInfo.Name.empty();
-
-    if (response.Allow)
-    {
-        if (DeclinedName const* declinedName = pet->DeclinedName.get())
-        {
-            response.HasDeclined = true;
-            response.DeclinedName = *declinedName;
-        }
-
-        response.Name = pet->PacketInfo.Name;
-    }
-
-    _owner->SendPacket(response.Write());
 }
 
 bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)

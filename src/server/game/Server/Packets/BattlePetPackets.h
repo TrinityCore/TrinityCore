@@ -150,7 +150,7 @@ namespace WorldPackets
 
             ObjectGuid PetGuid;
             std::string Name;
-            Optional<::DeclinedName> DeclinedName;
+            Optional<DeclinedName> DeclinedNames;
         };
 
         class QueryBattlePetName final : public ClientPacket
@@ -160,7 +160,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid PetGuid;
+            ObjectGuid BattlePetID;
             ObjectGuid UnitGUID;
         };
 
@@ -171,13 +171,13 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ObjectGuid PetGuid;
-            uint32 CreatureID;
+            ObjectGuid BattlePetID;
+            int32 CreatureID = 0;
             WorldPackets::Timestamp<> Timestamp;
             bool Allow = false;
 
             bool HasDeclined = false;
-            DeclinedName DeclinedName;
+            DeclinedName DeclinedNames;
             std::string Name;
         };
 
