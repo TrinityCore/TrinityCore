@@ -405,8 +405,17 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     // Set max allowed packet to 1 GB
     args.push_back("--max-allowed-packet=1GB");
 
+#if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
+
+    if (ssl == "ssl")
+        args.emplace_back("--ssl-mode=REQUIRED");
+
+#else
+
     if (ssl == "ssl")
         args.push_back("--ssl");
+
+#endif
 
     // Database
     if (!database.empty())
