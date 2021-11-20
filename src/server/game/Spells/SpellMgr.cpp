@@ -3351,7 +3351,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         53096, // Quetz'lun's Judgment
         70743, // AoD Special
         70614, // AoD Special - Vegard
-        4020, // Safirdrang's Chill
+        4020,  // Safirdrang's Chill
         52438, // Summon Skittering Swarmer (Force Cast)
         52449, // Summon Skittering Infector (Force Cast)
         53609, // Summon Anub'ar Assassin (Force Cast)
@@ -3366,7 +3366,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         38762, // Force of Neltharaku
         51122, // Fierce Lightning Stike
         71848, // Toxic Wasteling Find Target
-        36146  //Chains of Naberius
+        36146  // Chains of Naberius
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
