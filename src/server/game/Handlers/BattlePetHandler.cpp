@@ -76,13 +76,14 @@ void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattle
         return;
     }
 
-    response.Allow = true;
     response.Name = battlePet->PacketInfo.Name;
     if (battlePet->DeclinedName)
     {
         response.HasDeclined = true;
         response.DeclinedNames = *battlePet->DeclinedName;
     }
+
+    response.Allow = !response.Name.empty();
 
     SendPacket(response.Write());
 }

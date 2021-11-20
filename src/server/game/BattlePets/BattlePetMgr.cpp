@@ -446,7 +446,7 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
         return;
 
     pet->PacketInfo.Name = name;
-    pet->NameTimestamp = !pet->PacketInfo.Name.empty() ? GameTime::GetGameTime() : time_t(0);
+    pet->NameTimestamp = GameTime::GetGameTime();
 
     pet->DeclinedName.reset();
     if (declinedName)
