@@ -1774,57 +1774,6 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScript
     }
 };
 
-enum BasicOrdersEmote
-{
-    SPELL_TEST_SALUTE        = 73835,
-    SPELL_TEST_ROAR          = 73836,
-    SPELL_TEST_CHEER         = 73725,
-    SPELL_TEST_DANCE         = 73837,
-    SPELL_TEST_STOP_DANCE    = 73886
-};
-
-/* 73725 - [DND] Test Cheer
-   73835 - [DND] Test Salute
-   73836 - [DND] Test Roar
-   73837 - [DND] Test Dance
-   73886 - [DND] Test Stop Dance */
-class spell_q25199_emote : public AuraScript
-{
-    PrepareAuraScript(spell_q25199_emote);
-
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
-    {
-        Unit* target = GetTarget();
-
-        switch (GetSpellInfo()->Id)
-        {
-            case SPELL_TEST_SALUTE:
-                target->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                break;
-            case SPELL_TEST_ROAR:
-                target->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                break;
-            case SPELL_TEST_CHEER:
-                target->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
-                break;
-            case SPELL_TEST_DANCE:
-                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
-                break;
-            case SPELL_TEST_STOP_DANCE:
-                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                break;
-            default:
-                return;
-        }
-        Remove();
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q25199_emote::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 enum DeathComesFromOnHigh
 {
     SPELL_FORGE_CREDIT                  = 51974,
@@ -2269,6 +2218,116 @@ class spell_q11896_weakness_to_lightning_46444 : public SpellScript
     }
 };
 
+enum TamingTheBeast
+{
+    SPELL_TAME_ICE_CLAW_BEAR           = 19548,
+    SPELL_TAME_LARGE_CRAG_BOAR         = 19674,
+    SPELL_TAME_SNOW_LEOPARD            = 19687,
+    SPELL_TAME_ADULT_PLAINSTRIDER      = 19688,
+    SPELL_TAME_PRAIRIE_STALKER         = 19689,
+    SPELL_TAME_SWOOP                   = 19692,
+    SPELL_TAME_WEBWOOD_LURKER          = 19693,
+    SPELL_TAME_DIRE_MOTTLED_BOAR       = 19694,
+    SPELL_TAME_SURF_CRAWLER            = 19696,
+    SPELL_TAME_ARMORED_SCORPID         = 19697,
+    SPELL_TAME_NIGHTSABER_STALKER      = 19699,
+    SPELL_TAME_STRIGID_SCREECHER       = 19700,
+    SPELL_TAME_BARBED_CRAWLER          = 30646,
+    SPELL_TAME_GREATER_TIMBERSTRIDER   = 30653,
+    SPELL_TAME_NIGHTSTALKER            = 30654,
+    SPELL_TAME_CRAZED_DRAGONHAWK       = 30099,
+    SPELL_TAME_ELDER_SPRINGPAW         = 30102,
+    SPELL_TAME_MISTBAT                 = 30105,
+    SPELL_TAME_ICE_CLAW_BEAR_1         = 19597,
+    SPELL_TAME_LARGE_CRAG_BOAR_1       = 19677,
+    SPELL_TAME_SNOW_LEOPARD_1          = 19676,
+    SPELL_TAME_ADULT_PLAINSTRIDER_1    = 19678,
+    SPELL_TAME_PRAIRIE_STALKER_1       = 19679,
+    SPELL_TAME_SWOOP_1                 = 19680,
+    SPELL_TAME_WEBWOOD_LURKER_1        = 19684,
+    SPELL_TAME_DIRE_MOTTLED_BOAR_1     = 19681,
+    SPELL_TAME_SURF_CRAWLER_1          = 19682,
+    SPELL_TAME_ARMORED_SCORPID_1       = 19683,
+    SPELL_TAME_NIGHTSABER_STALKER_1    = 19685,
+    SPELL_TAME_STRIGID_SCREECHER_1     = 19686,
+    SPELL_TAME_BARBED_CRAWLER_1        = 30647,
+    SPELL_TAME_GREATER_TIMBERSTRIDER_1 = 30648,
+    SPELL_TAME_NIGHTSTALKER_1          = 30652,
+    SPELL_TAME_CRAZED_DRAGONHAWK_1     = 30100,
+    SPELL_TAME_ELDER_SPRINGPAW_1       = 30103,
+    SPELL_TAME_MISTBAT_1               = 30104
+};
+
+class spell_quest_taming_the_beast : public AuraScript
+{
+    PrepareAuraScript(spell_quest_taming_the_beast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_TAME_ICE_CLAW_BEAR_1,
+            SPELL_TAME_LARGE_CRAG_BOAR_1,
+            SPELL_TAME_SNOW_LEOPARD_1,
+            SPELL_TAME_ADULT_PLAINSTRIDER_1,
+            SPELL_TAME_PRAIRIE_STALKER_1,
+            SPELL_TAME_SWOOP_1,
+            SPELL_TAME_WEBWOOD_LURKER_1,
+            SPELL_TAME_DIRE_MOTTLED_BOAR_1,
+            SPELL_TAME_SURF_CRAWLER_1,
+            SPELL_TAME_ARMORED_SCORPID_1,
+            SPELL_TAME_NIGHTSABER_STALKER_1,
+            SPELL_TAME_STRIGID_SCREECHER_1,
+            SPELL_TAME_BARBED_CRAWLER_1,
+            SPELL_TAME_GREATER_TIMBERSTRIDER_1,
+            SPELL_TAME_NIGHTSTALKER_1,
+            SPELL_TAME_CRAZED_DRAGONHAWK_1,
+            SPELL_TAME_ELDER_SPRINGPAW_1,
+            SPELL_TAME_MISTBAT_1
+        });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (!GetCaster() || !GetCaster()->IsAlive() || !GetTarget()->IsAlive())
+            return;
+
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        uint32 finalSpellId = 0;
+        switch (GetId())
+        {
+            case SPELL_TAME_ICE_CLAW_BEAR:         finalSpellId = SPELL_TAME_ICE_CLAW_BEAR_1; break;
+            case SPELL_TAME_LARGE_CRAG_BOAR:       finalSpellId = SPELL_TAME_LARGE_CRAG_BOAR_1; break;
+            case SPELL_TAME_SNOW_LEOPARD:          finalSpellId = SPELL_TAME_SNOW_LEOPARD_1; break;
+            case SPELL_TAME_ADULT_PLAINSTRIDER:    finalSpellId = SPELL_TAME_ADULT_PLAINSTRIDER_1; break;
+            case SPELL_TAME_PRAIRIE_STALKER:       finalSpellId = SPELL_TAME_PRAIRIE_STALKER_1; break;
+            case SPELL_TAME_SWOOP:                 finalSpellId = SPELL_TAME_SWOOP_1; break;
+            case SPELL_TAME_WEBWOOD_LURKER:        finalSpellId = SPELL_TAME_WEBWOOD_LURKER_1; break;
+            case SPELL_TAME_DIRE_MOTTLED_BOAR:     finalSpellId = SPELL_TAME_DIRE_MOTTLED_BOAR_1; break;
+            case SPELL_TAME_SURF_CRAWLER:          finalSpellId = SPELL_TAME_SURF_CRAWLER_1; break;
+            case SPELL_TAME_ARMORED_SCORPID:       finalSpellId = SPELL_TAME_ARMORED_SCORPID_1; break;
+            case SPELL_TAME_NIGHTSABER_STALKER:    finalSpellId = SPELL_TAME_NIGHTSABER_STALKER_1; break;
+            case SPELL_TAME_STRIGID_SCREECHER:     finalSpellId = SPELL_TAME_STRIGID_SCREECHER_1; break;
+            case SPELL_TAME_BARBED_CRAWLER:        finalSpellId = SPELL_TAME_BARBED_CRAWLER_1; break;
+            case SPELL_TAME_GREATER_TIMBERSTRIDER: finalSpellId = SPELL_TAME_GREATER_TIMBERSTRIDER_1; break;
+            case SPELL_TAME_NIGHTSTALKER:          finalSpellId = SPELL_TAME_NIGHTSTALKER_1; break;
+            case SPELL_TAME_CRAZED_DRAGONHAWK:     finalSpellId = SPELL_TAME_CRAZED_DRAGONHAWK_1; break;
+            case SPELL_TAME_ELDER_SPRINGPAW:       finalSpellId = SPELL_TAME_ELDER_SPRINGPAW_1; break;
+            case SPELL_TAME_MISTBAT:               finalSpellId = SPELL_TAME_MISTBAT_1; break;
+        }
+
+        if (finalSpellId)
+            GetCaster()->CastSpell(GetTarget(), finalSpellId, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_quest_taming_the_beast::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2326,7 +2385,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11896_weakness_to_lightning_46444);
     RegisterSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen);
     RegisterSpellScript(spell_q12308_escape_from_silverbrook);
-    RegisterSpellScript(spell_q25199_emote);
     RegisterSpellScript(spell_q12641_death_comes_from_on_high);
     RegisterSpellScript(spell_q12641_recall_eye_of_acherus);
     RegisterSpellScript(spell_q12619_emblazon_runeblade);
@@ -2343,4 +2401,5 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11306_mixing_vrykul_blood);
     RegisterSpellScript(spell_q11306_failed_mix_43376);
     RegisterSpellScript(spell_q11306_failed_mix_43378);
+    RegisterSpellScript(spell_quest_taming_the_beast);
 }

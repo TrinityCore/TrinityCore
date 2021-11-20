@@ -153,6 +153,16 @@ enum UnitFlags : uint32
     UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT = 0x20000000,   // Prevent automatically playing emotes from parsing chat text, for example "lol" in /say, ending message with ? or !, or using /yell
     UNIT_FLAG_SHEATHE               = 0x40000000,
     UNIT_FLAG_IMMUNE                = 0x80000000,           // Immune to damage
+
+    UNIT_FLAG_DISALLOWED            = (UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL |
+                                       UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_RENAME | UNIT_FLAG_PREPARATION | /* UNIT_FLAG_UNK_6 | */
+                                       UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_LOOTING | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP_ENABLING |
+                                       UNIT_FLAG_SILENCED | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
+                                       UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
+                                       UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
+                                       UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE),
+
+    UNIT_FLAG_ALLOWED               = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED)
 };
 
 // Value masks for UNIT_FIELD_FLAGS_2
@@ -167,6 +177,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_FORCE_MOVEMENT               = 0x00000040,
     UNIT_FLAG2_DISARM_OFFHAND               = 0x00000080,
     UNIT_FLAG2_DISABLE_PRED_STATS           = 0x00000100,   // Player has disabled predicted stats (Used by raid frames)
+    UNIT_FLAG2_UNK_1                        = 0x00000200,
     UNIT_FLAG2_DISARM_RANGED                = 0x00000400,   // this does not disable ranged weapon display (maybe additional flag needed?)
     UNIT_FLAG2_REGENERATE_POWER             = 0x00000800,
     UNIT_FLAG2_RESTRICT_PARTY_INTERACTION   = 0x00001000,   // Restrict interaction to party or raid
@@ -175,7 +186,32 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_CANNOT_TURN                  = 0x00008000,
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
-    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000    // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_UNUSED_1                     = 0x00080000,
+    UNIT_FLAG2_UNUSED_2                     = 0x00100000,
+    UNIT_FLAG2_UNUSED_3                     = 0x00200000,
+    UNIT_FLAG2_UNUSED_4                     = 0x00400000,
+    UNIT_FLAG2_UNUSED_5                     = 0x00800000,
+    UNIT_FLAG2_UNUSED_6                     = 0x01000000,
+    UNIT_FLAG2_UNUSED_7                     = 0x02000000,
+    UNIT_FLAG2_UNUSED_8                     = 0x04000000,
+    UNIT_FLAG2_UNUSED_9                     = 0x08000000,
+    UNIT_FLAG2_UNUSED_10                    = 0x10000000,
+    UNIT_FLAG2_UNUSED_11                    = 0x20000000,
+    UNIT_FLAG2_UNUSED_12                    = 0x40000000,
+    UNIT_FLAG2_UNUSED_13                    = 0x80000000,
+
+    UNIT_FLAG2_DISALLOWED                   = (UNIT_FLAG2_FEIGN_DEATH | UNIT_FLAG2_IGNORE_REPUTATION | UNIT_FLAG2_COMPREHEND_LANG |
+                                               UNIT_FLAG2_MIRROR_IMAGE | UNIT_FLAG2_FORCE_MOVEMENT | UNIT_FLAG2_DISARM_OFFHAND |
+                                               UNIT_FLAG2_DISABLE_PRED_STATS | UNIT_FLAG2_UNK_1 | UNIT_FLAG2_DISARM_RANGED |
+                                            /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION |
+                                               UNIT_FLAG2_PREVENT_SPELL_CLICK | UNIT_FLAG2_ALLOW_ENEMY_INTERACT | /* UNIT_FLAG2_UNK2 | */
+                                            /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_UNUSED_1 |
+                                               UNIT_FLAG2_UNUSED_2 | UNIT_FLAG2_UNUSED_3 | UNIT_FLAG2_UNUSED_4 | UNIT_FLAG2_UNUSED_5 |
+                                               UNIT_FLAG2_UNUSED_6 | UNIT_FLAG2_UNUSED_7 | UNIT_FLAG2_UNUSED_8 | UNIT_FLAG2_UNUSED_9 |
+                                               UNIT_FLAG2_UNUSED_10 | UNIT_FLAG2_UNUSED_11 | UNIT_FLAG2_UNUSED_12 | UNIT_FLAG2_UNUSED_13),
+
+    UNIT_FLAG2_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG2_DISALLOWED)
 };
 
 /// Non Player Character flags

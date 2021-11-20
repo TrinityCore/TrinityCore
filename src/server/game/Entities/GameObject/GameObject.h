@@ -226,6 +226,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = nullptr);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
+        void ActivateObject(GameObjectActions action, WorldObject* spellCaster = nullptr, uint32 spellId = 0, int32 effectIndex = -1);
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 

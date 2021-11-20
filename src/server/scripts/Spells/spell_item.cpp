@@ -38,6 +38,14 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
+enum GenericData
+{
+    SPELL_ARCANITE_DRAGONLING           = 19804,
+    SPELL_BATTLE_CHICKEN                = 13166,
+    SPELL_MECHANICAL_DRAGONLING         = 4073,
+    SPELL_MITHRIL_MECHANICAL_DRAGONLING = 12749,
+};
+
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
 {
@@ -1364,43 +1372,52 @@ class spell_item_mercurial_shield : public SpellScript
     }
 };
 
+enum MingoFortune
+{
+    SPELL_CREATE_FORTUNE_1       = 40804,
+    SPELL_CREATE_FORTUNE_2       = 40805,
+    SPELL_CREATE_FORTUNE_3       = 40806,
+    SPELL_CREATE_FORTUNE_4       = 40807,
+    SPELL_CREATE_FORTUNE_5       = 40808,
+    SPELL_CREATE_FORTUNE_6       = 40809,
+    SPELL_CREATE_FORTUNE_7       = 40908,
+    SPELL_CREATE_FORTUNE_8       = 40910,
+    SPELL_CREATE_FORTUNE_9       = 40911,
+    SPELL_CREATE_FORTUNE_10      = 40912,
+    SPELL_CREATE_FORTUNE_11      = 40913,
+    SPELL_CREATE_FORTUNE_12      = 40914,
+    SPELL_CREATE_FORTUNE_13      = 40915,
+    SPELL_CREATE_FORTUNE_14      = 40916,
+    SPELL_CREATE_FORTUNE_15      = 40918,
+    SPELL_CREATE_FORTUNE_16      = 40919,
+    SPELL_CREATE_FORTUNE_17      = 40920,
+    SPELL_CREATE_FORTUNE_18      = 40921,
+    SPELL_CREATE_FORTUNE_19      = 40922,
+    SPELL_CREATE_FORTUNE_20      = 40923
+};
+
+std::array<uint32, 20> const CreateFortuneSpells =
+{
+    SPELL_CREATE_FORTUNE_1, SPELL_CREATE_FORTUNE_2, SPELL_CREATE_FORTUNE_3, SPELL_CREATE_FORTUNE_4, SPELL_CREATE_FORTUNE_5,
+    SPELL_CREATE_FORTUNE_6, SPELL_CREATE_FORTUNE_7, SPELL_CREATE_FORTUNE_8, SPELL_CREATE_FORTUNE_9, SPELL_CREATE_FORTUNE_10,
+    SPELL_CREATE_FORTUNE_11, SPELL_CREATE_FORTUNE_12, SPELL_CREATE_FORTUNE_13, SPELL_CREATE_FORTUNE_14, SPELL_CREATE_FORTUNE_15,
+    SPELL_CREATE_FORTUNE_16, SPELL_CREATE_FORTUNE_17, SPELL_CREATE_FORTUNE_18, SPELL_CREATE_FORTUNE_19, SPELL_CREATE_FORTUNE_20
+};
+
 // http://www.wowhead.com/item=32686 Mingo's Fortune Giblets
 // 40802 Mingo's Fortune Generator
 class spell_item_mingos_fortune_generator : public SpellScript
 {
     PrepareSpellScript(spell_item_mingos_fortune_generator);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CreateFortuneSpells);
+    }
+
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        // Selecting one from Bloodstained Fortune item
-        uint32 newitemid;
-        switch (urand(1, 20))
-        {
-            case 1:  newitemid = 32688; break;
-            case 2:  newitemid = 32689; break;
-            case 3:  newitemid = 32690; break;
-            case 4:  newitemid = 32691; break;
-            case 5:  newitemid = 32692; break;
-            case 6:  newitemid = 32693; break;
-            case 7:  newitemid = 32700; break;
-            case 8:  newitemid = 32701; break;
-            case 9:  newitemid = 32702; break;
-            case 10: newitemid = 32703; break;
-            case 11: newitemid = 32704; break;
-            case 12: newitemid = 32705; break;
-            case 13: newitemid = 32706; break;
-            case 14: newitemid = 32707; break;
-            case 15: newitemid = 32708; break;
-            case 16: newitemid = 32709; break;
-            case 17: newitemid = 32710; break;
-            case 18: newitemid = 32711; break;
-            case 19: newitemid = 32712; break;
-            case 20: newitemid = 32713; break;
-            default:
-                return;
-        }
-
-        CreateItem(newitemid);
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CreateFortuneSpells), true);
     }
 
     void Register() override
@@ -2421,38 +2438,39 @@ class spell_item_red_rider_air_rifle : public SpellScript
     }
 };
 
-enum GenericData
-{
-    SPELL_ARCANITE_DRAGONLING           = 19804,
-    SPELL_BATTLE_CHICKEN                = 13166,
-    SPELL_MECHANICAL_DRAGONLING         = 4073,
-    SPELL_MITHRIL_MECHANICAL_DRAGONLING = 12749,
-};
-
 enum CreateHeartCandy
 {
-    ITEM_HEART_CANDY_1 = 21818,
-    ITEM_HEART_CANDY_2 = 21817,
-    ITEM_HEART_CANDY_3 = 21821,
-    ITEM_HEART_CANDY_4 = 21819,
-    ITEM_HEART_CANDY_5 = 21816,
-    ITEM_HEART_CANDY_6 = 21823,
-    ITEM_HEART_CANDY_7 = 21822,
-    ITEM_HEART_CANDY_8 = 21820,
+    SPELL_CREATE_HEART_CANDY_1     = 26668,
+    SPELL_CREATE_HEART_CANDY_2     = 26670,
+    SPELL_CREATE_HEART_CANDY_3     = 26671,
+    SPELL_CREATE_HEART_CANDY_4     = 26672,
+    SPELL_CREATE_HEART_CANDY_5     = 26673,
+    SPELL_CREATE_HEART_CANDY_6     = 26674,
+    SPELL_CREATE_HEART_CANDY_7     = 26675,
+    SPELL_CREATE_HEART_CANDY_8     = 26676
 };
 
+std::array<uint32, 8> const CreateHeartCandySpells =
+{
+    SPELL_CREATE_HEART_CANDY_1, SPELL_CREATE_HEART_CANDY_2, SPELL_CREATE_HEART_CANDY_3, SPELL_CREATE_HEART_CANDY_4,
+    SPELL_CREATE_HEART_CANDY_5, SPELL_CREATE_HEART_CANDY_6, SPELL_CREATE_HEART_CANDY_7, SPELL_CREATE_HEART_CANDY_8
+};
+
+// 26678 - Create Heart Candy
 class spell_item_create_heart_candy : public SpellScript
 {
     PrepareSpellScript(spell_item_create_heart_candy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CreateHeartCandySpells);
+    }
 
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
         if (Player* target = GetHitPlayer())
-        {
-            static const uint32 items[] = {ITEM_HEART_CANDY_1, ITEM_HEART_CANDY_2, ITEM_HEART_CANDY_3, ITEM_HEART_CANDY_4, ITEM_HEART_CANDY_5, ITEM_HEART_CANDY_6, ITEM_HEART_CANDY_7, ITEM_HEART_CANDY_8};
-            target->AddItem(items[urand(0, 7)], 1);
-        }
+            target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(CreateHeartCandySpells), true);
     }
 
     void Register() override

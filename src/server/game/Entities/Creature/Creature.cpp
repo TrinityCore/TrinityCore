@@ -549,7 +549,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     SetFaction(cInfo->faction);
 
     uint32 npcflag, unit_flags, dynamicflags;
-    ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, dynamicflags, data);
+    ObjectMgr::ChooseCreatureFlags(cInfo, &npcflag, &unit_flags, &dynamicflags, data);
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
         SetUInt32Value(UNIT_NPC_FLAGS, npcflag | sGameEventMgr->GetNPCFlag(this));
@@ -2026,7 +2026,7 @@ void Creature::setDeathState(DeathState s)
             CreatureTemplate const* cinfo = GetCreatureTemplate();
 
             uint32 npcflag, unit_flags, dynamicflags;
-            ObjectMgr::ChooseCreatureFlags(cinfo, npcflag, unit_flags, dynamicflags, creatureData);
+            ObjectMgr::ChooseCreatureFlags(cinfo, &npcflag, &unit_flags, &dynamicflags, creatureData);
 
             SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
             SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);

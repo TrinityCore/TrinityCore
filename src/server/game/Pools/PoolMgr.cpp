@@ -665,7 +665,7 @@ void PoolMgr::LoadFromDB()
 
             // Now check for circular reference
             // All pool_ids are in pool_template
-            for (auto const it : mPoolTemplate)
+            for (auto const& it : mPoolTemplate)
             {
                 std::set<uint32> checkedPools;
                 for (SearchMap::iterator poolItr = mPoolSearchMap.find(it.first); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
