@@ -116,17 +116,50 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
 
     if (hasDeclinedNames)
     {
-        DeclinedName.emplace();
+        DeclinedNames.emplace();
         uint8 declinedNameLengths[MAX_DECLINED_NAME_CASES];
 
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             declinedNameLengths[i] = _worldPacket.ReadBits(7);
 
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            DeclinedName->name[i] = _worldPacket.ReadString(declinedNameLengths[i]);
+            DeclinedNames->name[i] = _worldPacket.ReadString(declinedNameLengths[i]);
     }
 
     Name = _worldPacket.ReadString(nameLength);
+}
+
+void WorldPackets::BattlePet::QueryBattlePetName::Read()
+{
+    _worldPacket >> BattlePetID;
+    _worldPacket >> UnitGUID;
+}
+
+WorldPacket const* WorldPackets::BattlePet::QueryBattlePetNameResponse::Write()
+{
+    _worldPacket << BattlePetID;
+    _worldPacket << int32(CreatureID);
+    _worldPacket << Timestamp;
+
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket.WriteBits(Name.length(), 8);
+        _worldPacket.WriteBit(HasDeclined);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(DeclinedNames.name[i].length(), 7);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(DeclinedNames.name[i]);
+
+        _worldPacket.WriteString(Name);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }
 
 void WorldPackets::BattlePet::BattlePetDeletePet::Read()

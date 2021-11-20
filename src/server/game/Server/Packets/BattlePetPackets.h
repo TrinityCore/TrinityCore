@@ -19,6 +19,7 @@
 #define BattlePetPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "UnitDefines.h"
@@ -149,7 +150,35 @@ namespace WorldPackets
 
             ObjectGuid PetGuid;
             std::string Name;
-            Optional<::DeclinedName> DeclinedName;
+            Optional<DeclinedName> DeclinedNames;
+        };
+
+        class QueryBattlePetName final : public ClientPacket
+        {
+        public:
+            QueryBattlePetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_BATTLE_PET_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid BattlePetID;
+            ObjectGuid UnitGUID;
+        };
+
+        class QueryBattlePetNameResponse final : public ServerPacket
+        {
+        public:
+            QueryBattlePetNameResponse() : ServerPacket(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BattlePetID;
+            int32 CreatureID = 0;
+            WorldPackets::Timestamp<> Timestamp;
+            bool Allow = false;
+
+            bool HasDeclined = false;
+            DeclinedName DeclinedNames;
+            std::string Name;
         };
 
         class BattlePetDeletePet final : public ClientPacket

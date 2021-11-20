@@ -118,6 +118,7 @@ public:
         void CalculateStats();
 
         WorldPackets::BattlePet::BattlePet PacketInfo;
+        time_t NameTimestamp = time_t(0);
         std::unique_ptr<::DeclinedName> DeclinedName;
         BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
     };
