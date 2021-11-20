@@ -26658,7 +26658,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             float height = movementInfo.pos.m_positionZ;
             UpdateGroundPositionZ(movementInfo.pos.m_positionX, movementInfo.pos.m_positionY, height);
 
-            AddPct(damage, GetMaxNegativeAuraModifier(SPELL_AURA_MODIFY_FALL_DAMAGE_PCT));
+            damage *= GetTotalAuraMultiplier(SPELL_AURA_MODIFY_FALL_DAMAGE_PCT);
 
             if (damage > 0)
             {
