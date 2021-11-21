@@ -3801,6 +3801,9 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             charDeleteMethod = CHAR_DELETE_REMOVE;
     }
 
+    LoginDatabaseTransaction loginTransaction = LoginDatabase.BeginTransaction();
+    LoginDatabasePreparedStatement* loginStmt = nullptr;
+
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (ObjectGuid::LowType guildId = sCharacterCache->GetCharacterGuildIdByGuid(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
@@ -4195,6 +4198,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BATTLE_PETS_BY_OWNER);
+            loginStmt->setUInt64(0, guid);
+            loginTransaction->Append(loginStmt);
+
             Corpse::DeleteFromDB(playerguid, trans);
 
             Garrison::DeleteFromDB(guid, trans);
@@ -4220,6 +4227,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             return;
     }
 
+    LoginDatabase.CommitTransaction(loginTransaction);
     CharacterDatabase.CommitTransaction(trans);
 
     if (updateRealmChars)
