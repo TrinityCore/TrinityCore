@@ -78,7 +78,8 @@ public:
                 AddGossipItemFor(player, GOSSIP_MENU_ID_CORASTRASZA, GOSSIP_MENU_ITEM_ID_I_AM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, NPC_TEXT_EAGERLY_AWAITING_YOUR_RETURN, me->GetGUID());
             }
-            SendGossipMenuFor(player, NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO, me->GetGUID());
+            else
+                SendGossipMenuFor(player, NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO, me->GetGUID());
 
             return true;
         }
