@@ -85,12 +85,16 @@ struct boss_jeklik : public BossAI
     void Reset() override
     {
         _Reset();
+        events.Reset();
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
         Talk(SAY_DEATH);
+        
+        if (instance)
+            instance->SetData(DATA_JEKLIK, DONE);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -104,8 +108,27 @@ struct boss_jeklik : public BossAI
         events.ScheduleEvent(EVENT_SCREECH, 13s, 0, PHASE_ONE);
         events.ScheduleEvent(EVENT_SPAWN_BATS, 60s, 0, PHASE_ONE);
 
-        me->SetCanFly(true);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
         DoCast(me, SPELL_BAT_FORM);
+    }
+    
+    void JustReachedHome() override
+    {
+        me->Respawn();
+
+        if (instance)
+            instance->SetData(DATA_JEKLIK, FAIL);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        // Override MMaps, and teleport to original position
+        float fX, fY, fZ, fO;
+        me->GetRespawnPosition(fX, fY, fZ, &fO);
+        me->NearTeleportTo(fX, fY, fZ, fO);
+
+        BossAI::EnterEvadeMode();
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -113,7 +136,11 @@ struct boss_jeklik : public BossAI
         if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(50))
         {
             me->RemoveAurasDueToSpell(SPELL_BAT_FORM);
-            me->SetCanFly(false);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+            float floorZ = me->GetPositionZ();
+            me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), floorZ);
             ResetThreatList();
             events.SetPhase(PHASE_TWO);
             events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 6s, 0, PHASE_TWO);
@@ -181,9 +208,14 @@ struct boss_jeklik : public BossAI
                     events.ScheduleEvent(EVENT_GREATER_HEAL, 25s, 35s, 0, PHASE_TWO);
                     break;
                 case EVENT_SPAWN_FLYING_BATS:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
-                        if (TempSummon* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
-                            flyingBat->AI()->AttackStart(target);
+                    if (uiSummon_counter < 3)
+                    {
+                        Talk(SAY_RAIN_FIRE);
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
+                            if (TempSummon* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
+                                flyingBat->AI()->AttackStart(target);
+                        ++uiSummon_counter;
+                    }
                     events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, 10s, 15s, 0, PHASE_TWO);
                     break;
                 default:
@@ -196,6 +228,8 @@ struct boss_jeklik : public BossAI
 
         DoMeleeAttackIfReady();
     }
+private:
+    uint32 uiSummon_counter;
 };
 
 // Flying Bat
