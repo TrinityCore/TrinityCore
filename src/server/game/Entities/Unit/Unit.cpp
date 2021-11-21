@@ -5987,7 +5987,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         ASSERT(charm->GetCharmerGUID().IsEmpty(),
             "Unit %u is being charmed, but it already has a charmer %s", charm->GetEntry(), charm->GetCharmerGUID().ToString().c_str());
-        charm->SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), GetGUID());
+        charm->SetUpdateFieldValue(charm->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), GetGUID());
         charm->m_charmer = this;
 
         _isWalkingBeforeCharm = charm->IsWalking();
@@ -6010,7 +6010,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         ASSERT(charm->GetCharmerGUID() == GetGUID(),
             "Unit %u is being uncharmed, but it has another charmer %s", charm->GetEntry(), charm->GetCharmerGUID().ToString().c_str());
-        charm->SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), ObjectGuid::Empty);
+        charm->SetUpdateFieldValue(charm->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CharmedBy), ObjectGuid::Empty);
         charm->m_charmer = nullptr;
 
         if (charm->GetTypeId() == TYPEID_PLAYER)
