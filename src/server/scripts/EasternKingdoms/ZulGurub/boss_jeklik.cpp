@@ -39,7 +39,8 @@ enum Spells
     SPELL_BAT_FORM          = 23966,
 
     // Batriders Spell
-    SPELL_BOMB              = 40332 // Wrong ID but Magmadars bomb is not working...
+    SPELL_BOMB              = 23970,
+    SPELL_BOMB_FIRE         = 23971
 };
 
 enum BatIds
@@ -217,6 +218,12 @@ struct npc_batrider : public ScriptedAI
     }
 
     void JustEngagedWith(Unit* /*who*/) override { }
+    
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_BOMB)
+            target->CastSpell(target, SPELL_BOMB_FIRE, true);
+    }
 
     void UpdateAI(uint32 diff) override
     {
