@@ -37,10 +37,10 @@ inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
     if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
     {
-        if (phase->Flags & PHASE_FLAG_COSMETIC)
+        if (phase->GetFlags().HasFlag(PhaseEntryFlags::Cosmetic))
             return PhaseFlags::Cosmetic;
 
-        if (phase->Flags & PHASE_FLAG_PERSONAL)
+        if (phase->GetFlags().HasFlag(PhaseEntryFlags::Personal))
             return PhaseFlags::Personal;
     }
 

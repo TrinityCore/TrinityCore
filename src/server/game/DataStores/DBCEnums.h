@@ -469,12 +469,16 @@ enum MountCapabilityFlags
     MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS   = 0x20,
 };
 
-enum PhaseEntryFlags : uint16
+enum class PhaseEntryFlags : uint16
 {
-    PHASE_FLAG_NORMAL   = 0x08,
-    PHASE_FLAG_COSMETIC = 0x10,
-    PHASE_FLAG_PERSONAL = 0x20
+    ReadOnly                = 0x001,
+    InternalPhase           = 0x002,
+    Normal                  = 0x008,
+    Cosmetic                = 0x010, // unused in 4.x but used for cherry pick compatability
+    Personal                = 0x020  // unused in 4.x but used for cherry pick compatability
 };
+
+DEFINE_ENUM_FLAG(PhaseEntryFlags);
 
 // PhaseUseFlags fields in different DBCs
 enum PhaseUseFlagsValues : uint8
