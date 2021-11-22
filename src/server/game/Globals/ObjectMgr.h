@@ -1650,7 +1650,8 @@ class TC_GAME_API ObjectMgr
         }
 
         CharacterConversionMap FactionChangeAchievements;
-        CharacterConversionMap FactionChangeItems;
+        CharacterConversionMap FactionChangeItemsAllianceToHorde;
+        CharacterConversionMap FactionChangeItemsHordeToAlliance;
         CharacterConversionMap FactionChangeQuests;
         CharacterConversionMap FactionChangeReputation;
         CharacterConversionMap FactionChangeSpells;

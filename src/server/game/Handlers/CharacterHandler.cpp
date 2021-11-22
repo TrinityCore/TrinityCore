@@ -2337,14 +2337,17 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             }
 
             // Item conversion
-            for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChangeItems.begin(); it != sObjectMgr->FactionChangeItems.end(); ++it)
+            ObjectMgr::CharacterConversionMap const& itemConversionMap = newTeamId == TEAM_ALLIANCE
+                ? sObjectMgr->FactionChangeItemsHordeToAlliance
+                : sObjectMgr->FactionChangeItemsAllianceToHorde;
+            for (std::map<uint32, uint32>::const_iterator it = itemConversionMap.begin(); it != itemConversionMap.end(); ++it)
             {
-                uint32 item_alliance = it->first;
-                uint32 item_horde = it->second;
+                uint32 oldItemId = it->first;
+                uint32 newItemId = it->second;
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
-                stmt->setUInt32(0, (newTeamId == TEAM_ALLIANCE ? item_alliance : item_horde));
-                stmt->setUInt32(1, (newTeamId == TEAM_ALLIANCE ? item_horde : item_alliance));
+                stmt->setUInt32(0, newItemId);
+                stmt->setUInt32(1, oldItemId);
                 stmt->setUInt64(2, lowGuid);
                 trans->Append(stmt);
             }

@@ -9714,34 +9714,21 @@ void ObjectMgr::LoadFactionChangeAchievements()
 void ObjectMgr::LoadFactionChangeItems()
 {
     uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_items");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 faction change item pairs. DB table `player_factionchange_items` is empty.");
-        return;
-    }
-
     uint32 count = 0;
 
-    do
+    for (std::pair<uint32 const, ItemTemplate> const& itemPair : _itemTemplateStore)
     {
-        Field* fields = result->Fetch();
+        if (!itemPair.second.GetOtherFactionItemId())
+            continue;
 
-        uint32 alliance = fields[0].GetUInt32();
-        uint32 horde = fields[1].GetUInt32();
+        if (itemPair.second.GetFlags2() & ITEM_FLAG2_FACTION_HORDE)
+            FactionChangeItemsHordeToAlliance[itemPair.first] = itemPair.second.GetOtherFactionItemId();
 
-        if (!GetItemTemplate(alliance))
-            TC_LOG_ERROR("sql.sql", "Item %u (alliance_id) referenced in `player_factionchange_items` does not exist, pair skipped!", alliance);
-        else if (!GetItemTemplate(horde))
-            TC_LOG_ERROR("sql.sql", "Item %u (horde_id) referenced in `player_factionchange_items` does not exist, pair skipped!", horde);
-        else
-            FactionChangeItems[alliance] = horde;
+        if (itemPair.second.GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE)
+            FactionChangeItemsAllianceToHorde[itemPair.first] = itemPair.second.GetOtherFactionItemId();
 
         ++count;
     }
-    while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u faction change item pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
