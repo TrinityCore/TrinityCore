@@ -180,7 +180,7 @@ typedef void (*AddScriptsType)();
 typedef char const* (*GetScriptModuleType)();
 typedef char const* (*GetBuildDirectiveType)();
 // @tswow-begin
-typedef void (*AddTSScriptsType)(TSEventHandlers*);
+typedef void (*AddTSScriptsType)(TSEvents*);
 // @tswow-end
 
 class ScriptModule
