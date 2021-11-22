@@ -28,7 +28,7 @@ enum Spells
 {
     SPELL_ALLERGIC_REACTION    = 34697,
     SPELL_TELEPORT_SELF        = 34673,
-    SPELL_THRASH               = 3391,
+    SPELL_THRASH               = 3391,     // No aura here
 
     SPELL_SUMMON_LASHER_1      = 34681,
     SPELL_SUMMON_FLAYER_1      = 34682,
