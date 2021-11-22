@@ -27,6 +27,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellInfo.h"
