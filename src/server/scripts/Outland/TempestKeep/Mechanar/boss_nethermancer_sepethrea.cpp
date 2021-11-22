@@ -84,7 +84,7 @@ struct boss_nethermancer_sepethrea : public BossAI
     void EnterEvadeMode(EvadeReason why) override
     {
         // Fails because target is in evade mode (yes, she kills them on evade too)
-        // DoCastSelf(SPELL_QUELL_RAGING_FLAMES, true);
+        DoCastSelf(SPELL_QUELL_RAGING_FLAMES, true);
         summons.DespawnAll();
         ScriptedAI::EnterEvadeMode(why);
     }
