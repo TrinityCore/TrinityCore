@@ -2531,6 +2531,11 @@ public:
                 handler->PSendSysMessage(LANG_COMMAND_FREEZE, target->GetName().c_str());
                 target->AddAura(FreezeAura, target);
             }
+			else if (target->isDead())
+            {
+                handler->SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
+                return true;
+            }
             else // Apply the effect
             {
                 // Add the freeze aura and set the proper duration
@@ -2585,6 +2590,11 @@ public:
             target->RemoveAurasDueToSpell(FreezeAura);
             return true;
         }
+		if (!target->HasAura(FreezeAura))
+		{
+			handler->SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
+            return true;
+		}
         else
         {
             if (targetNameArg)
