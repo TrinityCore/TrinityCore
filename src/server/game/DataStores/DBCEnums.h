@@ -1365,12 +1365,21 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
-enum PhaseEntryFlags : uint16
+enum class PhaseEntryFlags : uint16
 {
-    PHASE_FLAG_NORMAL   = 0x08,
-    PHASE_FLAG_COSMETIC = 0x10,
-    PHASE_FLAG_PERSONAL = 0x20
+    ReadOnly                = 0x001,
+    InternalPhase           = 0x002,
+    Normal                  = 0x008,
+    Cosmetic                = 0x010,
+    Personal                = 0x020,
+    Expensive               = 0x040,
+    EventsAreObservable     = 0x080,
+    UsesPreloadConditions   = 0x100,
+    UnshareablePersonal     = 0x200,
+    ObjectsAreVisible       = 0x400,
 };
+
+DEFINE_ENUM_FLAG(PhaseEntryFlags);
 
 // PhaseUseFlags fields in different db2s
 enum PhaseUseFlagsValues : uint8

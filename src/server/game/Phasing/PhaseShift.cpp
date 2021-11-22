@@ -124,8 +124,8 @@ bool PhaseShift::CanSee(PhaseShift const& other) const
 
     auto checkInversePhaseShift = [excludePhasesWithFlag](PhaseShift const& phaseShift, PhaseShift const& excludedPhaseShift)
     {
-        if (phaseShift.Flags.HasFlag(PhaseShiftFlags::Unphased) && !excludedPhaseShift.Flags.HasFlag(PhaseShiftFlags::InverseUnphased))
-            return true;
+        if (phaseShift.Flags.HasFlag(PhaseShiftFlags::Unphased) && excludedPhaseShift.Flags.HasFlag(PhaseShiftFlags::InverseUnphased))
+            return false;
 
         for (PhaseRef const& phase : phaseShift.Phases)
         {
@@ -133,11 +133,10 @@ bool PhaseShift::CanSee(PhaseShift const& other) const
                 continue;
 
             auto itr2 = std::find(excludedPhaseShift.Phases.begin(), excludedPhaseShift.Phases.end(), phase);
-            if (itr2 == excludedPhaseShift.Phases.end() || itr2->Flags.HasFlag(excludePhasesWithFlag))
-                return true;
+            if (itr2 != excludedPhaseShift.Phases.end() && !itr2->Flags.HasFlag(excludePhasesWithFlag))
+                return false;
         }
-
-        return false;
+        return true;
     };
 
     if (other.Flags.HasFlag(PhaseShiftFlags::Inverse))
