@@ -492,63 +492,71 @@ void LoadAPFormulas()
         rangedAPFormulas[i] = i;
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT * from class_stat_formulas;");
-    if(!result) return;
-    do
     {
-        Field* field = result->Fetch();
-        uint32 cls = field[0].GetUInt32();
-        ClassStatFormulaTypes stat = ClassStatFormulaTypes(field[1].GetUInt32());
-        uint32 clsOut = field[2].GetUInt32();
-
-        if (cls >= MAX_CLASSES) {
-            continue;
-        }
-
-        switch (stat) {
-            case ClassStatFormulaTypes::MELEE:
-                meleeAPFormulas[cls] = clsOut;
-                break;
-            case ClassStatFormulaTypes::RANGED:
-                rangedAPFormulas[cls] = clsOut;
-                break;
-        }
-    } while(result->NextRow());
-
-    QueryResult valResult = WorldDatabase.Query("SELECT * from class_stat_values");
-    if (!result) return;
-    do {
-        Field* field = result->Fetch();
-        uint32 cls = field[0].GetUInt32();
-        ClassStatValueTypes stat = ClassStatValueTypes(field[1].GetUInt32());
-        float value = field[2].GetFloat();
-
-        if (cls >= MAX_CLASSES) {
-            continue;
-        }
-
-        switch (stat)
+        QueryResult result = WorldDatabase.Query("SELECT * from class_stat_formulas;");
+        if (result)
         {
-        case ClassStatValueTypes::DIMINISHING_K:
-            m_diminishing_k[cls] = value;
-            break;
-        case ClassStatValueTypes::DODGE_CAP:
-            dodge_cap[cls] = value;
-            break;
-        case ClassStatValueTypes::MISS_CAP:
-            miss_cap[cls] = value;
-            break;
-        case ClassStatValueTypes::PARRY_CAP:
-            parry_cap[cls] = value;
-            break;
-        case ClassStatValueTypes::DODGE_BASE:
-            dodge_base[cls] = value;
-            break;
-        case ClassStatValueTypes::CRIT_TO_DODGE:
-            crit_to_dodge[cls] = value;
-            break;
+            do
+            {
+                Field* field = result->Fetch();
+                uint32 cls = field[0].GetUInt32();
+                ClassStatFormulaTypes stat = ClassStatFormulaTypes(field[1].GetUInt32());
+                uint32 clsOut = field[2].GetUInt32();
+
+                if (cls >= MAX_CLASSES) {
+                    continue;
+                }
+
+                switch (stat) {
+                    case ClassStatFormulaTypes::MELEE:
+                        meleeAPFormulas[cls] = clsOut;
+                        break;
+                    case ClassStatFormulaTypes::RANGED:
+                        rangedAPFormulas[cls] = clsOut;
+                        break;
+                }
+            } while(result->NextRow());
         }
-    } while (result->NextRow());
+    }
+
+    {
+        QueryResult result = WorldDatabase.Query("SELECT * from class_stat_values");
+        if (result)
+        {
+            do {
+                Field* field = result->Fetch();
+                uint32 cls = field[0].GetUInt32()-1;
+                ClassStatValueTypes stat = ClassStatValueTypes(field[1].GetUInt32());
+                float value = field[2].GetFloat();
+
+                if (cls >= MAX_CLASSES) {
+                    continue;
+                }
+
+                switch (stat)
+                {
+                case ClassStatValueTypes::DIMINISHING_K:
+                    m_diminishing_k[cls] = value;
+                    break;
+                case ClassStatValueTypes::DODGE_CAP:
+                    dodge_cap[cls] = value;
+                    break;
+                case ClassStatValueTypes::MISS_CAP:
+                    miss_cap[cls] = value;
+                    break;
+                case ClassStatValueTypes::PARRY_CAP:
+                    parry_cap[cls] = value;
+                    break;
+                case ClassStatValueTypes::DODGE_BASE:
+                    dodge_base[cls] = value;
+                    break;
+                case ClassStatValueTypes::CRIT_TO_DODGE:
+                    crit_to_dodge[cls] = value;
+                    break;
+                }
+            } while (result->NextRow());
+        }
+    }
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
