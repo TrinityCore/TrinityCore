@@ -105,7 +105,49 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
     }
 };
 
+enum CreateHeartCandy
+{
+    SPELL_CREATE_HEART_CANDY_1     = 26668,
+    SPELL_CREATE_HEART_CANDY_2     = 26670,
+    SPELL_CREATE_HEART_CANDY_3     = 26671,
+    SPELL_CREATE_HEART_CANDY_4     = 26672,
+    SPELL_CREATE_HEART_CANDY_5     = 26673,
+    SPELL_CREATE_HEART_CANDY_6     = 26674,
+    SPELL_CREATE_HEART_CANDY_7     = 26675,
+    SPELL_CREATE_HEART_CANDY_8     = 26676
+};
+
+std::array<uint32, 8> const CreateHeartCandySpells =
+{
+    SPELL_CREATE_HEART_CANDY_1, SPELL_CREATE_HEART_CANDY_2, SPELL_CREATE_HEART_CANDY_3, SPELL_CREATE_HEART_CANDY_4,
+    SPELL_CREATE_HEART_CANDY_5, SPELL_CREATE_HEART_CANDY_6, SPELL_CREATE_HEART_CANDY_7, SPELL_CREATE_HEART_CANDY_8
+};
+
+// 26678 - Create Heart Candy
+class spell_item_create_heart_candy : public SpellScript
+{
+    PrepareSpellScript(spell_item_create_heart_candy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CreateHeartCandySpells);
+    }
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        if (Player* target = GetHitPlayer())
+            target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(CreateHeartCandySpells), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_create_heart_candy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_event_love_is_in_the_air()
 {
     RegisterSpellScript(spell_love_is_in_the_air_romantic_picnic);
+    RegisterSpellScript(spell_item_create_heart_candy);
 }

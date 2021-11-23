@@ -106,8 +106,69 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScript
     }
 };
 
+enum ReindeerTransformation
+{
+    SPELL_FLYING_REINDEER_310                   = 44827,
+    SPELL_FLYING_REINDEER_280                   = 44825,
+    SPELL_FLYING_REINDEER_60                    = 44824,
+    SPELL_REINDEER_100                          = 25859,
+    SPELL_REINDEER_60                           = 25858,
+};
+
+class spell_item_reindeer_transformation : public SpellScript
+{
+    PrepareSpellScript(spell_item_reindeer_transformation);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_FLYING_REINDEER_310,
+            SPELL_FLYING_REINDEER_280,
+            SPELL_FLYING_REINDEER_60,
+            SPELL_REINDEER_100,
+            SPELL_REINDEER_60
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /* effIndex */)
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAuraType(SPELL_AURA_MOUNTED))
+        {
+            float flyspeed = caster->GetSpeedRate(MOVE_FLIGHT);
+            float speed = caster->GetSpeedRate(MOVE_RUN);
+
+            caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            //5 different spells used depending on mounted speed and if mount can fly or not
+
+            if (flyspeed >= 4.1f)
+                // Flying Reindeer
+                caster->CastSpell(caster, SPELL_FLYING_REINDEER_310, true); //310% flying Reindeer
+            else if (flyspeed >= 3.8f)
+                // Flying Reindeer
+                caster->CastSpell(caster, SPELL_FLYING_REINDEER_280, true); //280% flying Reindeer
+            else if (flyspeed >= 1.6f)
+                // Flying Reindeer
+                caster->CastSpell(caster, SPELL_FLYING_REINDEER_60, true); //60% flying Reindeer
+            else if (speed >= 2.0f)
+                // Reindeer
+                caster->CastSpell(caster, SPELL_REINDEER_100, true); //100% ground Reindeer
+            else
+                // Reindeer
+                caster->CastSpell(caster, SPELL_REINDEER_60, true); //60% ground Reindeer
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_reindeer_transformation::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_event_winter_veil()
 {
     RegisterSpellScript(spell_winter_veil_mistletoe);
     RegisterSpellScript(spell_winter_veil_px_238_winter_wondervolt);
+    RegisterSpellScript(spell_item_reindeer_transformation);
 }
