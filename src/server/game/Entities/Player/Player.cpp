@@ -5385,38 +5385,40 @@ float Player::GetMeleeCritFromAgility() const
     return crit*100.0f;
 }
 
+// @tswow-begin move dodge_base/crit_to_doge values to global scope and remove const
+// Table for base dodge values
+float dodge_base[MAX_CLASSES] =
+{
+     0.036640f, // Warrior
+     0.034943f, // Paladin
+    -0.040873f, // Hunter
+     0.020957f, // Rogue
+     0.034178f, // Priest
+     0.036640f, // DK
+     0.021080f, // Shaman
+     0.036587f, // Mage
+     0.024211f, // Warlock
+     0.0f,      // ??
+     0.056097f  // Druid
+};
+// Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
+float crit_to_dodge[MAX_CLASSES] =
+{
+     0.85f/1.15f,    // Warrior
+     1.00f/1.15f,    // Paladin
+     1.11f/1.15f,    // Hunter
+     2.00f/1.15f,    // Rogue
+     1.00f/1.15f,    // Priest
+     0.85f/1.15f,    // DK
+     1.60f/1.15f,    // Shaman
+     1.00f/1.15f,    // Mage
+     0.97f/1.15f,    // Warlock (?)
+     0.0f,           // ??
+     2.00f/1.15f     // Druid
+};
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) const
 {
-    // Table for base dodge values
-    const float dodge_base[MAX_CLASSES] =
-    {
-         0.036640f, // Warrior
-         0.034943f, // Paladin
-        -0.040873f, // Hunter
-         0.020957f, // Rogue
-         0.034178f, // Priest
-         0.036640f, // DK
-         0.021080f, // Shaman
-         0.036587f, // Mage
-         0.024211f, // Warlock
-         0.0f,      // ??
-         0.056097f  // Druid
-    };
-    // Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
-    const float crit_to_dodge[MAX_CLASSES] =
-    {
-         0.85f/1.15f,    // Warrior
-         1.00f/1.15f,    // Paladin
-         1.11f/1.15f,    // Hunter
-         2.00f/1.15f,    // Rogue
-         1.00f/1.15f,    // Priest
-         0.85f/1.15f,    // DK
-         1.60f/1.15f,    // Shaman
-         1.00f/1.15f,    // Mage
-         0.97f/1.15f,    // Warlock (?)
-         0.0f,           // ??
-         2.00f/1.15f     // Druid
-    };
+// @tswow-end
 
     uint8 level = GetLevel();
     uint32 pclass = GetClass();

@@ -2779,7 +2779,13 @@ float Unit::GetUnitMissChance() const
 
     if (Player const* player = ToPlayer())
         miss_chance += player->GetMissPercentageFromDefense();
-
+    // @tswow-begin
+    FIRE(
+          UnitOnMissChance
+        , TSUnit(const_cast<Unit*>(this))
+        , TSMutable<float>(&miss_chance)
+    );
+    // @tswow-end
     return miss_chance;
 }
 

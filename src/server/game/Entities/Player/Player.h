@@ -777,6 +777,11 @@ enum PlayerDelayedOperations
 // Maximum money amount : 2^31 - 1
 TC_GAME_API extern uint32 const MAX_MONEY_AMOUNT;
 
+// @tswow-begin
+TC_GAME_API extern float dodge_base[MAX_CLASSES];
+TC_GAME_API extern float crit_to_dodge[MAX_CLASSES];
+// @tswow-end
+
 enum BindExtensionState
 {
     EXTEND_STATE_EXPIRED  =   0,
