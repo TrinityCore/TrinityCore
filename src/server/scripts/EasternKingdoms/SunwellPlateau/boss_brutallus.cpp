@@ -25,6 +25,8 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "sunwell_plateau.h"
 
 enum Quotes
@@ -343,7 +345,25 @@ public:
     }
 };
 
+// 46394 - Burn
+class spell_brutallus_burn : public AuraScript
+{
+    PrepareAuraScript(spell_brutallus_burn);
+
+    void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
+    {
+        if (aurEff->GetTickNumber() % 11 == 0)
+            aurEff->SetAmount(aurEff->GetAmount() * 2);
+    }
+
+    void Register() override
+    {
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_brutallus_burn::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 void AddSC_boss_brutallus()
 {
     new boss_brutallus();
+    RegisterSpellScript(spell_brutallus_burn);
 }
