@@ -19,6 +19,7 @@
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "sunwell_plateau.h"
