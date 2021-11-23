@@ -5399,7 +5399,12 @@ float dodge_base[MAX_CLASSES] =
      0.036587f, // Mage
      0.024211f, // Warlock
      0.0f,      // ??
-     0.056097f  // Druid
+     0.056097f,  // Druid
+
+     // default values for custom classes
+    .035f,.035f,.035f,.035f,.035f,.035f,.035f,
+    .035f,.035f,.035f,.035f,.035f,.035f,.035f,
+    .035f,.035f,.035f,.035f,.035f,.035f,.035f,
 };
 // Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
 float crit_to_dodge[MAX_CLASSES] =
@@ -5414,7 +5419,12 @@ float crit_to_dodge[MAX_CLASSES] =
      1.00f/1.15f,    // Mage
      0.97f/1.15f,    // Warlock (?)
      0.0f,           // ??
-     2.00f/1.15f     // Druid
+     2.00f/1.15f,     // Druid
+
+     // default values for custom classes
+     .87f,.87f,.87f,.87f,.87f,.87f,.87f,
+     .87f,.87f,.87f,.87f,.87f,.87f,.87f,
+     .87f,.87f,.87f,.87f,.87f,.87f,.87f,
 };
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) const
 {

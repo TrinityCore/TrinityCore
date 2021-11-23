@@ -44,7 +44,12 @@ float dodge_cap[MAX_CLASSES] =
     150.375940f,    // Mage
     150.375940f,    // Warlock
     0.0f,           // ??
-    116.890707f     // Druid
+    116.890707f,     // Druid
+
+    // default values for custom classes
+    100,100,100,100,100,100,100,
+    100,100,100,100,100,100,100,
+    100,100,100,100,100,100,100,
 };
 // @tswow-begin move
 
@@ -62,7 +67,12 @@ float miss_cap[MAX_CLASSES] =
     16.00f,     // Mage    //?
     16.00f,     // Warlock //?
     0.0f,       // ??
-    16.00f      // Druid   //?
+    16.00f,      // Druid   //?
+
+    // default values for custom classes
+    16,16,16,16,16,16,16,
+    16,16,16,16,16,16,16,
+    16,16,16,16,16,16,16,
 };
 
 // @tswow-begin move m_diminishing_k to top of file and remove const
@@ -79,7 +89,11 @@ float m_diminishing_k[MAX_CLASSES] =
     0.9830f,  // Mage
     0.9830f,  // Warlock
     0.0f,     // ??
-    0.9720f   // Druid
+    0.9720f,   // Druid
+    // default values for custom classes
+    0.98,0.98,0.98,0.98,0.98,0.98,0.98,
+    0.98,0.98,0.98,0.98,0.98,0.98,0.98,
+    0.98,0.98,0.98,0.98,0.98,0.98,0.98,
 };
 
 // @tswow-begin move parry_cap to top of file and remove const
@@ -96,7 +110,11 @@ float parry_cap[MAX_CLASSES] =
     0.0f,           // Mage
     0.0f,           // Warlock
     0.0f,           // ??
-    0.0f            // Druid
+    0.0f,           // Druid
+
+    // default values for custom classes
+    0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,
 };
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
