@@ -51,11 +51,10 @@ float dodge_cap[MAX_CLASSES] =
     100,100,100,100,100,100,100,
     100,100,100,100,100,100,100,
 };
-// @tswow-begin move
+// @tswow-end
 
 // @tswow-begin move miss_cap to top of file and remove const
 float miss_cap[MAX_CLASSES] =
-// @tswow-end
 {
     16.00f,     // Warrior //correct
     16.00f,     // Paladin //correct
@@ -74,10 +73,10 @@ float miss_cap[MAX_CLASSES] =
     16,16,16,16,16,16,16,
     16,16,16,16,16,16,16,
 };
+// @tswow-end
 
 // @tswow-begin move m_diminishing_k to top of file and remove const
 float m_diminishing_k[MAX_CLASSES] =
-// @tswow-end
 {
     0.9560f,  // Warrior
     0.9560f,  // Paladin
@@ -95,10 +94,10 @@ float m_diminishing_k[MAX_CLASSES] =
     0.98,0.98,0.98,0.98,0.98,0.98,0.98,
     0.98,0.98,0.98,0.98,0.98,0.98,0.98,
 };
+// @tswow-end
 
 // @tswow-begin move parry_cap to top of file and remove const
 float parry_cap[MAX_CLASSES] =
-// @tswow-end
 {
     47.003525f,     // Warrior
     47.003525f,     // Paladin
@@ -116,6 +115,7 @@ float parry_cap[MAX_CLASSES] =
     0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,
 };
+// @tswow-end
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
