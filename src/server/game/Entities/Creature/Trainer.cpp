@@ -16,6 +16,7 @@
  */
 
 #include "Trainer.h"
+#include "BattlePetMgr.h"
 #include "Creature.h"
 #include "NPCPackets.h"
 #include "Player.h"
@@ -72,6 +73,19 @@ namespace Trainer
             return;
         }
 
+        bool sendSpellVisual = true;
+        BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(trainerSpell->SpellId);
+        if (speciesEntry)
+        {
+            if (player->GetSession()->GetBattlePetMgr()->HasMaxPetCount(speciesEntry))
+            {
+                // Don't send any error to client (intended)
+                return;
+            }
+
+            sendSpellVisual = false;
+        }
+
         float reputationDiscount = player->GetReputationPriceDiscount(npc);
         int64 moneyCost = int64(trainerSpell->MoneyCost * reputationDiscount);
         if (!player->HasEnoughMoney(moneyCost))
@@ -82,14 +96,31 @@ namespace Trainer
 
         player->ModifyMoney(-moneyCost);
 
-        npc->SendPlaySpellVisualKit(179, 0, 0);     // 53 SpellCastDirected
-        player->SendPlaySpellVisualKit(362, 1, 0);  // 113 EmoteSalute
+        if (sendSpellVisual)
+        {
+            npc->SendPlaySpellVisualKit(179, 0, 0);     // 53 SpellCastDirected
+            player->SendPlaySpellVisualKit(362, 1, 0);  // 113 EmoteSalute
+        }
 
         // learn explicitly or cast explicitly
         if (trainerSpell->IsCastable())
+        {
             player->CastSpell(player, trainerSpell->SpellId, true);
+        }
         else
-            player->LearnSpell(trainerSpell->SpellId, false);
+        {
+            bool dependent = false;
+
+            if (speciesEntry)
+            {
+                player->GetSession()->GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
+                // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
+                // marking as dependent prevents saving the spell to database (intended)
+                dependent = true;
+            }
+
+            player->LearnSpell(trainerSpell->SpellId, dependent);
+        }
     }
 
     Spell const* Trainer::GetSpell(uint32 spellId) const
