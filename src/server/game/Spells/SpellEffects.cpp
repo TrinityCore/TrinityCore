@@ -15,6 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSPlayer.h"
+#include "TSQuest.h"
+#include "TSEvents.h"
+#include "TSSpell.h"
+// @tswow-end
 #include "Spell.h"
 #include "AccountMgr.h"
 #include "Battleground.h"
@@ -4321,6 +4327,16 @@ void Spell::EffectQuestComplete()
         if (!quest)
             return;
 
+        // @tswow-begin
+        FIRE_MAP(
+              quest->events
+            , QuestOnSpellFinish
+            , TSQuest(quest)
+            , TSPlayer(player)
+            , TSSpell(this)
+        );
+        // @tswow-end
+
         uint16 logSlot = player->FindQuestSlot(questId);
         if (logSlot < MAX_QUEST_LOG_SIZE)
             player->AreaExploredOrEventHappens(questId);
@@ -4586,6 +4602,14 @@ void Spell::EffectQuestClear()
     player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
 
+    // @tswow-begin
+    FIRE_MAP(
+          quest->events
+        , QuestOnStatusChanged
+        , TSQuest(quest)
+        , TSPlayer(player)
+    );
+    // @tswow-end
     sScriptMgr->OnQuestStatusChange(player, quest_id);
 }
 

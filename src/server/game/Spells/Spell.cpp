@@ -7695,7 +7695,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
     // @tswow-begin
     FIRE_MAP(
         this->m_spellInfo->events
-        , SpellOnCritFormula
+        , SpellOnCalcCrit
         , TSSpell(this)
         , TSMutable<float>(&critChance)
     );

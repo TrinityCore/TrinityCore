@@ -5154,7 +5154,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     float crit_chance = GetCritChanceFor(caster,target);
     FIRE_MAP(
           m_spellInfo->events
-        , SpellOnAuraCritFormula
+        , SpellOnCalcAuraCrit
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<float>(&crit_chance)
     );
@@ -5256,7 +5256,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     float crit_chance = GetCritChanceFor(caster,target);
     FIRE_MAP(
         m_spellInfo->events
-        , SpellOnAuraCritFormula
+        , SpellOnCalcAuraCrit
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<float>(&crit_chance)
     );
@@ -5404,7 +5404,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     float crit_chance = GetCritChanceFor(caster,target);
     FIRE_MAP(
         m_spellInfo->events
-        , SpellOnAuraCritFormula
+        , SpellOnCalcAuraCrit
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<float>(&crit_chance)
     );

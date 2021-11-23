@@ -1541,11 +1541,11 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnMaxHealth
+        , CreatureOnUpdateLvlDepMaxHealth
         , TSCreature(this)
+        , TSMutable<uint32>(&health)
         , healthmod
         , basehp
-        , TSMutable<uint32>(&health)
         );
     // @tswow-end
 
@@ -1559,10 +1559,10 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnMaxMana
+        , CreatureOnUpdateLvlDepMaxMana
         , TSCreature(this)
-        , stats->BaseMana
         , TSMutable<uint32>(&mana)
+        , stats->BaseMana
     );
     // @tswow-end
     SetCreateMana(mana);
@@ -1589,11 +1589,11 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnBaseDamage
+        , CreatureOnUpdateLvlDepBaseDamage
         , TSCreature(this)
-        , basedamage
         , TSMutable<float>(&weaponBaseMinDamage)
         , TSMutable<float>(&weaponBaseMaxDamage)
+        , basedamage
     );
     // @tswow-end
 
@@ -1610,8 +1610,8 @@ void Creature::UpdateLevelDependantStats()
     uint32 attackPower = stats->AttackPower;
     uint32 rangedAttackPower = stats->RangedAttackPower;
     FIRE_MAP(
-        this->GetCreatureTemplate()->events
-        , CreatureOnAttackPower
+          this->GetCreatureTemplate()->events
+        , CreatureOnUpdateLvlDepAttackPower
         , TSCreature(this)
         , TSMutable<uint32>(&attackPower)
         , TSMutable<uint32>(&rangedAttackPower)
@@ -1624,10 +1624,10 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnArmor
+        , CreatureOnUpdateLvlDepArmor
         , TSCreature(this)
-        , stats->BaseArmor
         , TSMutable<float>(&armor)
+        , stats->BaseArmor
     );
     // @tswow-end
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
@@ -2043,15 +2043,19 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         return false;
 
     // No aggro from gray creatures
-    if (CheckNoGrayAggroConfig(who->GetLevelForTarget(this), GetLevelForTarget(who)))
+    // @tswow-begin player argument
+    if (CheckNoGrayAggroConfig(const_cast<Unit*>(who)->ToPlayer(),who->GetLevelForTarget(this), GetLevelForTarget(who)))
+    // @tswow-end
         return false;
 
     return IsWithinLOSInMap(who);
 }
 
-bool Creature::CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const
+// @tswow-begin player argument
+bool Creature::CheckNoGrayAggroConfig(Player* player, uint32 playerLevel, uint32 creatureLevel) const
+// @tswow-end
 {
-    if (Trinity::XP::GetColorCode(playerLevel, creatureLevel) != XP_GRAY)
+    if (Trinity::XP::GetColorCode(player, const_cast<Creature*>(this), playerLevel, creatureLevel) != XP_GRAY)
         return false;
 
     uint32 notAbove = sWorld->getIntConfig(CONFIG_NO_GRAY_AGGRO_ABOVE);

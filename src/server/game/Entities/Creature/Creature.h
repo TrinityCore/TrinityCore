@@ -444,7 +444,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds forceRespawnTimer = 0s);
-        bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
+        bool CheckNoGrayAggroConfig(Player* player, uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
         // Waypoint path
         uint32 _waypointPathId;

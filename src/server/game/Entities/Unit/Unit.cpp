@@ -1017,11 +1017,12 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     FIRE_MAP(
           spellInfo->events
         , SpellOnDamageEarly
-        , TSSpellDamageInfo(damageInfo)
         , TSSpell(spell)
+        , TSMutable<int32>(&damage)
+        , TSSpellDamageInfo(damageInfo)
         , attackType
         , crit
-        , TSMutable<int32>(&damage));
+    );
     // @tswow-end
 
     // Spells with SPELL_ATTR4_FIXED_DAMAGE ignore resilience because their damage is based off another spell's damage.
@@ -1140,11 +1141,11 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     FIRE_MAP(
           spellInfo->events
         , SpellOnDamageLate
-        , TSSpellDamageInfo(damageInfo)
         , TSSpell(spell)
+        , TSMutable<uint32>(&damageInfo->damage)
+        , TSSpellDamageInfo(damageInfo)
         , attackType
         , crit
-        , TSMutable<uint32>(&damageInfo->damage)
     );
     // @tswow-end
 }
@@ -1255,11 +1256,12 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
         // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
         sScriptMgr->ModifyMeleeDamage(damageInfo->Target, damageInfo->Attacker, damage);
         // @tswow-begin
-        FIRE(FormulaOnMeleeDamageEarly
+        FIRE(UnitOnMeleeDamageEarly
             , TSMeleeDamageInfo(damageInfo)
+            , TSMutable<uint32>(&damage)
             , attackType
             , i
-            , TSMutable<uint32>(&damage));
+        );
         // @tswow-end
 
         // Calculate armor reduction
@@ -1462,11 +1464,12 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             damageInfo->Damages[i].Damage = 0;
 
         // @tswow-begin
-        FIRE(FormulaOnMeleeDamageLate
+        FIRE(UnitOnMeleeDamageLate
             , TSMeleeDamageInfo(damageInfo)
+            , TSMutable<uint32>(&damageInfo->Damages[i].Damage)
             , attackType
             , i
-            , TSMutable<uint32>(&damageInfo->Damages[i].Damage));
+        );
         // @tswow-end
     }
 
@@ -2229,15 +2232,15 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     float block_chance_f = GetUnitBlockChance(attType, victim);
     float parry_chance_f = GetUnitParryChance(attType, victim);
 
-    FIRE(FormulaOnMeleeOutcome
+    FIRE(UnitOnCalcMeleeOutcome
         , TSUnit(const_cast<Unit*>(this))
         , TSUnit(const_cast<Unit*>(victim))
-        , attType
         , TSMutable<float>(&miss_chance_f)
         , TSMutable<float>(&crit_chance_f)
         , TSMutable<float>(&dodge_chance_f)
         , TSMutable<float>(&block_chance_f)
         , TSMutable<float>(&parry_chance_f)
+        , attType
         );
 
     int32 miss_chance = int32(miss_chance_f*100.0f);
@@ -2416,10 +2419,10 @@ float Unit::CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInf
         result = std::max(0.0f, std::min(1.0f, (22.0f + spellInfo->MaxLevel - GetLevel()) / 20.0f));
     FIRE_MAP(
           spellInfo->events
-        , SpellOnSpellPowerLevelPenalty
+        , SpellOnCalcSpellPowerLevelPenalty
         , TSSpellInfo(spellInfo)
-        , TSUnit(const_cast<Unit*>(this))
         , TSMutable<float>(&result)
+        , TSUnit(const_cast<Unit*>(this))
     );
     return result;
     // @tswow-end
@@ -2781,7 +2784,7 @@ float Unit::GetUnitMissChance() const
         miss_chance += player->GetMissPercentageFromDefense();
     // @tswow-begin
     FIRE(
-          UnitOnMissChance
+          UnitOnCalcMissChance
         , TSUnit(const_cast<Unit*>(this))
         , TSMutable<float>(&miss_chance)
     );
@@ -2896,11 +2899,12 @@ float Unit::GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType at
 
     chance += skillBonus;
     // @tswow-begin
-    FIRE(FormulaOnMeleeCrit
+    FIRE(UnitOnCalcMeleeCrit
         , TSUnit(const_cast<Unit*>(attacker))
         , TSUnit(const_cast<Unit*>(this))
+        , TSMutable<float>(&chance)
         , attackType
-        , TSMutable<float>(&chance));
+    );
     // @tswow-end
     return std::max(chance, 0.f);
 }

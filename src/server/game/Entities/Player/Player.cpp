@@ -5729,7 +5729,15 @@ inline int SkillGainChance(Player* player, uint32 skillId, uint32 SkillValue, ui
     else
         chance = sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10;
 
-    FIRE(FormulaOnSkillGainChance,TSPlayer(player), skillId, SkillValue, GrayLevel, GreenLevel, YellowLevel, TSMutable<int>(&chance));
+    FIRE(PlayerOnCalcSkillGainChance
+        , TSPlayer(player)
+        , TSMutable<int>(&chance)
+        , skillId
+        , SkillValue
+        , GrayLevel
+        , GreenLevel
+        , YellowLevel
+    );
     return chance;
 }
 // @tswow-end
@@ -5943,7 +5951,9 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
 void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defense)
 {
     uint8 plevel = GetLevel();                              // if defense than victim == attacker
-    uint8 greylevel = Trinity::XP::GetGrayLevel(plevel);
+    // @tswow-begin
+    uint8 greylevel = Trinity::XP::GetGrayLevel(this,plevel);
+    // @tswow-end
     uint8 moblevel = victim->GetLevelForTarget(this);
 
     if (moblevel > plevel + 5)
@@ -6633,7 +6643,9 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
             break;
     }
 
-    if (rate != 1.0f && creatureOrQuestLevel <= Trinity::XP::GetGrayLevel(GetLevel()))
+    // @tswow-begin player argument
+    if (rate != 1.0f && creatureOrQuestLevel <= Trinity::XP::GetGrayLevel(this,GetLevel()))
+    // @tswow-end
         percent *= rate;
 
     if (percent <= 0.0f)
@@ -6860,7 +6872,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
                 return false;
 
             uint8 k_level = GetLevel();
-            uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
+            // @tswow-begin
+            uint8 k_grey = Trinity::XP::GetGrayLevel(this, k_level);
+            // @tswow-end
             uint8 v_level = victim->GetLevel();
 
             if (v_level <= k_grey)
@@ -15120,6 +15134,13 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             PlayerTalkClass->ClearMenus();
             // @tswow-begin
             FIRE_MAP(questGiver->ToCreature()->GetCreatureTemplate()->events,CreatureOnQuestAccept,TSCreature(questGiver->ToCreature()),TSPlayer(this),TSQuest(quest));
+            FIRE_MAP(
+                  quest->events
+                , QuestOnAccept
+                , TSQuest(quest)
+                , TSPlayer(this)
+                , TSObject(questGiver)
+            );
             // @tswow-end
             questGiver->ToCreature()->AI()->OnQuestAccept(this, quest);
             break;
@@ -15129,6 +15150,13 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             Item* item = static_cast<Item*>(questGiver);
             // @tswow-begin
             FIRE_MAP(item->GetTemplate()->events,ItemOnQuestAccept,TSItem(item),TSPlayer(this),TSQuest(quest));
+            FIRE_MAP(
+                quest->events
+                , QuestOnAccept
+                , TSQuest(quest)
+                , TSPlayer(this)
+                , TSObject(item)
+            );
             // @tswow-end
             sScriptMgr->OnQuestAccept(this, item, quest);
 
@@ -15158,6 +15186,13 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             PlayerTalkClass->ClearMenus();
             // @tswow-begin
             FIRE_MAP(questGiver->ToGameObject()->GetGOInfo()->events,GameObjectOnQuestAccept,TSGameObject(questGiver->ToGameObject()),TSPlayer(this),TSQuest(quest));
+            FIRE_MAP(
+                  quest->events
+                , QuestOnAccept
+                , TSQuest(quest)
+                , TSPlayer(this)
+                , TSObject(questGiver)
+            );
             // @tswow-end
             questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
             break;
@@ -15290,6 +15325,14 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         CharacterDatabase.Execute(stmt);
     }
 
+    // @tswow-begin
+    FIRE_MAP(
+          quest->events
+        , QuestOnStatusChanged
+        , TSQuest(quest)
+        , TSPlayer(this)
+    );
+    // @tswow-end
     sScriptMgr->OnQuestStatusChange(this, quest_id);
 }
 
@@ -15406,7 +15449,13 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     XP *= GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_QUEST_PCT);
     // @tswow-begin
-    FIRE(FormulaOnQuestXP,TSPlayer(this),TSQuest(quest),TSMutable<uint32>(&XP));
+    FIRE_MAP(
+          quest->events
+        , QuestOnRewardXP
+        , TSQuest(quest)
+        , TSPlayer(this)
+        , TSMutable<uint32>(&XP)
+    );
     // @tswow-end
 
     if (!IsMaxLevel())
@@ -15523,6 +15572,14 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
+    // @tswow-begin
+    FIRE_MAP(
+        quest->events
+        , QuestOnStatusChanged
+        , TSQuest(quest)
+        , TSPlayer(this)
+    );
+    // @tswow-end
     sScriptMgr->OnQuestStatusChange(this, quest_id);
 }
 
@@ -16177,11 +16234,19 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
 
         if (!quest->IsAutoComplete())
             m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
+
+        // @tswow-begin
+        FIRE_MAP(
+            quest->events
+            , QuestOnStatusChanged
+            , TSQuest(quest)
+            , TSPlayer(this)
+        );
+        // @tswow-end
     }
 
     if (update)
         SendQuestUpdate(questId);
-
     sScriptMgr->OnQuestStatusChange(this, questId);
 }
 
@@ -24087,7 +24152,9 @@ uint32 Player::GetResurrectionSpellId()
 bool Player::isHonorOrXPTarget(Unit* victim) const
 {
     uint8 v_level = victim->GetLevel();
-    uint8 k_grey  = Trinity::XP::GetGrayLevel(GetLevel());
+    // @tswow-begin player argument
+    uint8 k_grey  = Trinity::XP::GetGrayLevel(const_cast<Player*>(this), GetLevel());
+    // @tswow-end
 
     // Victim level less gray level
     if (v_level <= k_grey && !sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO))

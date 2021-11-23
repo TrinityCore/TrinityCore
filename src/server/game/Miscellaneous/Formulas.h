@@ -18,6 +18,13 @@
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
 
+// @tswow-begin
+#include "TSPlayer.h"
+#include "TSMutable.h"
+#include "TSEvents.h"
+#include "TSCreature.h"
+#include "CreatureData.h"
+// @tswow-end
 #include "DBCStores.h"
 #include "Creature.h"
 #include "Log.h"
@@ -35,6 +42,7 @@ namespace Trinity
         {
             float honor = multiplier * level * 1.55f;
             sScriptMgr->OnHonorCalculation(honor, level, multiplier);
+            FIRE(WorldOnCalcHonor, TSMutable<float>(&honor), level, multiplier);
             return honor;
         }
 
@@ -46,7 +54,9 @@ namespace Trinity
 
     namespace XP
     {
-        inline uint8 GetGrayLevel(uint8 pl_level)
+        // @tswow-begin add player argument
+        inline uint8 GetGrayLevel(Player* player, uint8 pl_level)
+        // @tswow-end
         {
             uint8 level;
 
@@ -60,10 +70,19 @@ namespace Trinity
                 level = pl_level - 9;
 
             sScriptMgr->OnGrayLevelCalculation(level, pl_level);
+            // @tswow-begin
+            FIRE(
+                  PlayerOnCalcGreyLevel
+                , TSPlayer(player)
+                , TSMutable<uint8>(&level)
+                );
+            // @tswow-end
             return level;
         }
 
-        inline XPColorChar GetColorCode(uint8 pl_level, uint8 mob_level)
+        // @tswow-begin player/creature arguments
+        inline XPColorChar GetColorCode(Player* player, Creature* creature, uint8 pl_level, uint8 mob_level)
+        // @tswow-end
         {
             XPColorChar color;
 
@@ -73,16 +92,31 @@ namespace Trinity
                 color = XP_ORANGE;
             else if (mob_level >= pl_level - 2)
                 color = XP_YELLOW;
-            else if (mob_level > GetGrayLevel(pl_level))
+            // @tswow-begin player argument
+            else if (mob_level > GetGrayLevel(player, pl_level))
+            // @tswow-end
                 color = XP_GREEN;
             else
                 color = XP_GRAY;
 
             sScriptMgr->OnColorCodeCalculation(color, pl_level, mob_level);
+            // @tswow-begin
+            FIRE_MAP(
+                  creature->GetCreatureTemplate()->events
+                , CreatureOnCalcColorCode
+                , TSCreature(creature)
+                , TSMutable<uint8>((uint8*)(&color))
+                , TSPlayer(player)
+                , pl_level
+                , mob_level
+            )
+            // @tswow-end
             return color;
         }
 
-        inline uint8 GetZeroDifference(uint8 pl_level)
+        // @tswow-begin
+        inline uint8 GetZeroDifference(Player* player, uint8 pl_level)
+        // @tswow-end
         {
             uint8 diff;
 
@@ -112,10 +146,16 @@ namespace Trinity
                 diff = 17;
 
             sScriptMgr->OnZeroDifferenceCalculation(diff, pl_level);
+            FIRE(PlayerOnCalcZeroDiff
+                , TSPlayer(player)
+                , TSMutable<uint8>(&diff)
+            );
             return diff;
         }
 
-        inline uint32 BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content)
+        // @tswow-begin player/creature arguments
+        inline uint32 BaseGain(Player* player, Creature* creature, uint8 pl_level, uint8 mob_level, ContentLevels content)
+        // @tswow-end
         {
             uint32 baseGain;
             uint32 nBaseExp;
@@ -147,10 +187,14 @@ namespace Trinity
             }
             else
             {
-                uint8 gray_level = GetGrayLevel(pl_level);
+                // @tswow-begin player argument
+                uint8 gray_level = GetGrayLevel(player, pl_level);
+                // @tswow-end
                 if (mob_level > gray_level)
                 {
-                    uint8 ZD = GetZeroDifference(pl_level);
+                    // @tswow-begin player argument
+                    uint8 ZD = GetZeroDifference(player,pl_level);
+                    // @tswow-end
                     baseGain = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
                 }
                 else
@@ -164,6 +208,15 @@ namespace Trinity
                 baseGain = std::max(baseGainMin, baseGain);
             }
 
+            // @tswow-begin
+            FIRE_MAP(
+                  creature->GetCreatureTemplate()->events
+                , CreatureOnCalcBaseGain
+                , TSCreature(creature)
+                , TSMutable<uint32>(&baseGain)
+                , TSPlayer(player)
+            );
+            // @tswow-end
             sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content);
             return baseGain;
         }
@@ -177,7 +230,9 @@ namespace Trinity
             {
                 float xpMod = 1.0f;
 
-                gain = BaseGain(player->GetLevel(), u->GetLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                // @tswow-begin player/creature arguments
+                gain = BaseGain(player, creature, player->GetLevel(), u->GetLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                // @tswow-end
 
                 if (gain && creature)
                 {
@@ -201,10 +256,21 @@ namespace Trinity
             }
 
             sScriptMgr->OnGainCalculation(gain, player, u);
+            // @tswow-begin
+            FIRE_MAP(
+                creature->GetCreatureTemplate()->events
+                , CreatureOnCalcGain
+                , TSCreature(creature)
+                , TSMutable<uint32>(&gain)
+                , TSPlayer(player)
+            );
+            // @tswow-end
             return gain;
         }
 
-        inline float xp_in_group_rate(uint32 count, bool isRaid)
+        // @tswow-begin player argument
+        inline float xp_in_group_rate(Player* player, uint32 count, bool isRaid)
+        // @tswow-end
         {
             float rate;
 
@@ -235,6 +301,14 @@ namespace Trinity
             }
 
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
+            // @tswow-begin
+            FIRE(
+                  PlayerOnCalcGroupGain
+                , TSPlayer(player)
+                , TSMutable<float>(&rate)
+                , count
+                , isRaid
+            );
             return rate;
         }
     } // namespace Trinity::XP

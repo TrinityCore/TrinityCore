@@ -152,10 +152,10 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
               c->GetCreatureTemplate()->events
             , CreatureOnUpdateDamagePhysical
             , TSCreature(c)
-            , false
-            , uint8(attType)
             , TSMutable<float>(&totalMin)
             , TSMutable<float>(&totalMax)
+            , false
+            , uint8(attType)
         );
         // @tswow-end
     }
@@ -341,8 +341,8 @@ void Player::UpdateResistances(uint32 school)
         FIRE(
               PlayerOnUpdateResistance
             , TSPlayer(this)
-            , school
             , TSMutable<float>(&value)
+            , school
         );
         // @tswow-end
 
@@ -394,7 +394,12 @@ float Player::GetHealthBonusFromStamina()
     float moreStam = stamina - baseStam;
     // @tswow-begin
     float health = baseStam + (moreStam*10.0f);
-    FIRE(FormulaOnStaminaHealthBonus,TSPlayer(this),baseStam,moreStam,TSMutable<float>(&health));
+    FIRE(PlayerOnCalcStaminaHealthBonus
+        , TSPlayer(this)
+        , TSMutable<float>(&health)
+        , baseStam
+        , moreStam
+    );
     return health;
     // @tswow-end
 }
@@ -408,7 +413,12 @@ float Player::GetManaBonusFromIntellect()
 
     // @tswow-begin
     float mana = baseInt + (moreInt * 15.0f);
-    FIRE(FormulaOnIntellectManaBonus,TSPlayer(this),baseInt,moreInt,TSMutable<float>(&mana));
+    FIRE(PlayerOnCalcIntellectManaBonus
+        ,TSPlayer(this)
+        ,TSMutable<float>(&mana)
+        ,baseInt
+        ,moreInt
+    );
     // @tswow-end
     return mana;
 }
@@ -422,7 +432,10 @@ void Player::UpdateMaxHealth()
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
     // @tswow-begin
-    FIRE(FormulaOnMaxHealth,TSPlayer(this),TSMutable<float>(&value));
+    FIRE(PlayerOnUpdateMaxHealth
+        ,TSPlayer(this)
+        ,TSMutable<float>(&value)
+    );
     // @tswow-end
     SetMaxHealth((uint32)value);
 }
@@ -438,7 +451,12 @@ void Player::UpdateMaxPower(Powers power)
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) +  bonusPower;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
     // @tswow-begin
-    FIRE(FormulaOnMaxPower,TSPlayer(this),static_cast<uint32>(power),bonusPower,TSMutable<float>(&value));
+    FIRE(PlayerOnUpdateMaxPower
+        , TSPlayer(this)
+        , TSMutable<float>(&value)
+        , static_cast<int8>(power)
+        , bonusPower
+    );
     // @tswow-end
     SetMaxPower(power, uint32(std::lroundf(value)));
 }
@@ -576,7 +594,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 break;
             default: val2 = GetStat(STAT_AGILITY) - 10.0f; break;
         }
-        FIRE(FormulaOnRangedAttackPower, TSPlayer(this), TSMutable<float>(&val2));
+        FIRE(PlayerOnUpdateRangedAttackPower
+            , TSPlayer(this)
+            , TSMutable<float>(&val2)
+        );
     }
     else
     {
@@ -653,7 +674,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 val2 = GetStat(STAT_STRENGTH) - 10.0f;
                 break;
         }
-        FIRE(FormulaOnAttackPower, TSPlayer(this), TSMutable<float>(&val2));
+        FIRE(PlayerOnUpdateAttackPower
+            , TSPlayer(this)
+            , TSMutable<float>(&val2)
+        );
     }
 
     SetStatFlatModifier(unitMod, BASE_VALUE, val2);
@@ -879,8 +903,8 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     FIRE(
         PlayerOnUpdateCrit
         , TSPlayer(this)
-        , uint32(attType)
         , TSMutable<float>(&value)
+        , uint32(attType)
     );
     // @tswow-end
     SetStatFloatValue(index, value);
@@ -1033,8 +1057,8 @@ void Player::UpdateSpellCritChance(uint32 school)
     FIRE(
           PlayerOnUpdateSpellCrit
         , TSPlayer(this)
-        , school
         , TSMutable<float>(&crit)
+        , school
     );
     // @tswow-end
     // Store crit value
@@ -1117,9 +1141,9 @@ void Player::UpdateExpertise(WeaponAttackType attack)
     FIRE(
           PlayerOnUpdateExpertise
         , TSPlayer(this)
+        , TSMutable<int32>(&expertise)
         , uint32(attack)
         , TSItem(const_cast<Item*>(weapon))
-        , TSMutable<int32>(&expertise)
     );
     // @tswow-end
 
@@ -1168,11 +1192,12 @@ void Player::UpdateManaRegen()
     if (modManaRegenInterrupt > 100)
         modManaRegenInterrupt = 100;
     // @tswow-begin
-    FIRE(FormulaOnManaRegen
+    FIRE(PlayerOnUpdateManaRegen
         , TSPlayer(this)
         , TSMutable<float>(&power_regen)
         , TSMutable<float>(&power_regen_mp5)
-        , TSMutable<int32>(&modManaRegenInterrupt));
+        , TSMutable<int32>(&modManaRegenInterrupt)
+    );
     // @tswow-end
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
 
@@ -1201,8 +1226,8 @@ void Player::UpdateRuneRegen(RuneType rune)
     FIRE(
           PlayerOnUpdateRuneRegen
         , TSPlayer(this)
-        , uint32(rune)
         , TSMutable<float>(&regen)
+        , uint32(rune)
     );
     // @tswow-end
     SetFloatValue(PLAYER_RUNE_REGEN_1 + uint8(rune), regen);
@@ -1268,9 +1293,9 @@ void Creature::UpdateResistances(uint32 school)
               GetCreatureTemplate()->events
             , CreatureOnUpdateResistance
             , TSCreature(this)
+            , TSMutable<float>(&value)
             , false
             , school
-            , TSMutable<float>(&value)
         );
         // @tswow-end
     }
@@ -1286,8 +1311,8 @@ void Creature::UpdateArmor()
         GetCreatureTemplate()->events
         , CreatureOnUpdateArmor
         , TSCreature(this)
-        , false
         , TSMutable<float>(&value)
+        , false
     );
     // @tswow-end
     SetArmor(int32(value));
@@ -1301,8 +1326,8 @@ void Creature::UpdateMaxHealth()
           GetCreatureTemplate()->events
         , CreatureOnUpdateMaxHealth
         , TSCreature(this)
-        , false
         , TSMutable<float>(&value)
+        , false
     );
     // @tswow-end
     SetMaxHealth(uint32(value));
@@ -1321,9 +1346,9 @@ void Creature::UpdateMaxPower(Powers power)
         GetCreatureTemplate()->events
         , CreatureOnUpdateMaxPower
         , TSCreature(this)
+        , TSMutable<float>(&value)
         , false
         , uint8(power)
-        , TSMutable<float>(&value)
     );
     // @tswow-end
     SetMaxPower(power, uint32(std::lroundf(value)));
@@ -1353,11 +1378,11 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
         GetCreatureTemplate()->events
         , CreatureOnUpdateAttackPowerDamage
         , TSCreature(this)
-        , false
-        , ranged
         , TSMutable<float>(&baseAttackPower)
         , TSMutable<float>(&attackPowerMod)
         , TSMutable<float>(&attackPowerMultiplier)
+        , false
+        , ranged
     );
     // @tswow-end
 
@@ -1574,9 +1599,9 @@ void Guardian::UpdateResistances(uint32 school)
             GetCreatureTemplate()->events
             , CreatureOnUpdateResistance
             , TSCreature(this)
+            , TSMutable<float>(&value)
             , true
             , school
-            , TSMutable<float>(&value)
         );
         // @tswow-end
 
@@ -1607,8 +1632,8 @@ void Guardian::UpdateArmor()
         GetCreatureTemplate()->events
         , CreatureOnUpdateArmor
         , TSCreature(this)
-        , true
         , TSMutable<float>(&value)
+        , true
     );
     // @tswow-end
 
@@ -1642,8 +1667,8 @@ void Guardian::UpdateMaxHealth()
         GetCreatureTemplate()->events
         , CreatureOnUpdateMaxHealth
         , TSCreature(this)
-        , true
         , TSMutable<float>(&value)
+        , true
     );
     // @tswow-end
 
@@ -1677,9 +1702,9 @@ void Guardian::UpdateMaxPower(Powers power)
           GetCreatureTemplate()->events
         , CreatureOnUpdateMaxPower
         , TSCreature(this)
+        , TSMutable<float>(&value)
         , true
         , int8(power)
-        , TSMutable<float>(&value)
     );
     // @tswow-end
 
@@ -1773,11 +1798,11 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         GetCreatureTemplate()->events
         , CreatureOnUpdateAttackPowerDamage
         , TSCreature(this)
-        , true
-        , ranged
         , TSMutable<float>(&base_attPower)
         , TSMutable<float>(&attPowerMod)
         , TSMutable<float>(&attPowerMultiplier)
+        , true
+        , ranged
     );
     // @tswow-end
 
@@ -1873,10 +1898,10 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
           GetCreatureTemplate()->events
         , CreatureOnUpdateDamagePhysical
         , TSCreature(this)
-        , true
-        , uint8(attType)
         , TSMutable<float>(&mindamage)
         , TSMutable<float>(&maxdamage)
+        , true
+        , uint8(attType)
     );
     // @tswow-end
 

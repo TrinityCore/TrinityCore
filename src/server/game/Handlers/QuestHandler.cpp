@@ -340,6 +340,14 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         _player->PlayerTalkClass->ClearMenus();
                         // @tswow-begin
                         FIRE_MAP(questgiver->GetCreatureTemplate()->events,CreatureOnQuestReward,TSCreature(questgiver),TSPlayer(_player),TSQuest(quest),reward);
+                        FIRE_MAP(
+                              quest->events
+                            , QuestOnReward
+                            , TSQuest(quest)
+                            , TSPlayer(_player)
+                            , TSObject(questgiver)
+                            , reward
+                        );
                         // @tswow-end
                         questgiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
@@ -363,6 +371,14 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         _player->PlayerTalkClass->ClearMenus();
                         // @tswow-begin
                         FIRE_MAP(questGiver->GetGOInfo()->events,GameObjectOnQuestReward,TSGameObject(questGiver),TSPlayer(_player),TSQuest(quest),reward);
+                        FIRE_MAP(
+                            quest->events
+                            , QuestOnReward
+                            , TSQuest(quest)
+                            , TSPlayer(_player)
+                            , TSObject(questGiver)
+                            , reward
+                        );
                         // @tswow-end
                         questGiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
@@ -447,6 +463,15 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
                     _player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
                     _player->UpdatePvPState();
                 }
+
+                // @tswow-begin
+                FIRE_MAP(
+                      quest->events
+                    , QuestOnStatusChanged
+                    , TSQuest(quest)
+                    , TSPlayer(_player)
+                );
+                // @tswow-end
             }
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player

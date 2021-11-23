@@ -2519,11 +2519,11 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     // @tswow-begin
     FIRE_MAP(
           spellInfo->events
-        , SpellOnHitFormula
-        , TSWorldObject(const_cast<WorldObject*>(this))
-        , TSUnit(victim)
+        , SpellOnCalcHit
         , TSSpellInfo(spellInfo)
         , TSMutable<int32>(&HitChance)
+        , TSWorldObject(const_cast<WorldObject*>(this))
+        , TSUnit(victim)
     );
     // @tswow-end
 
@@ -2562,11 +2562,11 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     // @tswow-begin
     FIRE_MAP(
         spellInfo->events
-        , SpellOnResistFormula
-        , TSWorldObject(const_cast<WorldObject*>(this))
-        , TSUnit(victim)
+        , SpellOnCalcResist
         , TSSpellInfo(spellInfo)
         , TSMutable<int32>(&resist_chance)
+        , TSWorldObject(const_cast<WorldObject*>(this))
+        , TSUnit(victim)
     );
     // @tswow-end
 
@@ -2581,11 +2581,11 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
         // @tswow-begin
         FIRE_MAP(
               spellInfo->events
-            , SpellOnResistFormula
-            , TSWorldObject(const_cast<WorldObject*>(this))
-            , TSUnit(victim)
+            , SpellOnCalcResist
             , TSSpellInfo(spellInfo)
             , TSMutable<int32>(&resist_chance)
+            , TSWorldObject(const_cast<WorldObject*>(this))
+            , TSUnit(victim)
         );
         // @tswow-end
         if (deflect_chance > 0 && rand < (tmp += deflect_chance))
@@ -2634,11 +2634,11 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
         // @tswow-begin
         FIRE_MAP(
             spellInfo->events
-            , SpellOnReflectFormula
-            , TSWorldObject(const_cast<WorldObject*>(this))
-            , TSUnit(victim)
+            , SpellOnCalcReflect
             , TSSpellInfo(spellInfo)
             , TSMutable<int32>(&reflectchance)
+            , TSWorldObject(const_cast<WorldObject*>(this))
+            , TSUnit(victim)
         );
         // @tswow-end
         if (reflectchance > 0 && roll_chance_i(reflectchance))
