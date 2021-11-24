@@ -22,6 +22,7 @@
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Texts
 {
