@@ -745,6 +745,24 @@ class spell_reliquary_of_souls_aura_of_desire : public AuraScript
     }
 };
 
+// 41337 - Aura of Anger
+class spell_reliquary_of_souls_aura_of_anger : public AuraScript
+{
+    PrepareAuraScript(spell_reliquary_of_souls_aura_of_anger);
+
+    void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
+    {
+        if (AuraEffect* aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
+            aurEff1->ChangeAmount(aurEff1->GetAmount() + 5);
+        aurEff->SetAmount(100 * aurEff->GetTickNumber());
+    }
+
+    void Register() override
+    {
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_reliquary_of_souls_aura_of_anger::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 // 28819 - Submerge Visual
 class spell_reliquary_of_souls_submerge : public AuraScript
 {
@@ -815,6 +833,7 @@ void AddSC_boss_reliquary_of_souls()
     RegisterBlackTempleCreatureAI(npc_enslaved_soul);
     RegisterBlackTempleCreatureAI(npc_reliquary_combat_trigger);
     RegisterSpellScript(spell_reliquary_of_souls_aura_of_desire);
+    RegisterSpellScript(spell_reliquary_of_souls_aura_of_anger);
     RegisterSpellScript(spell_reliquary_of_souls_submerge);
     RegisterSpellScript(spell_reliquary_of_souls_spite);
     RegisterSpellScript(spell_reliquary_of_souls_frenzy);
