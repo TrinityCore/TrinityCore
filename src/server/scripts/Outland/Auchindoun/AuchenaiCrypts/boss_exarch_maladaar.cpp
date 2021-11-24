@@ -235,7 +235,7 @@ struct npc_stolen_soul : public ScriptedAI
         me->SetCorpseDelay(3, true);
         DoCastSelf(SPELL_STOLEN_SOUL_VISUAL);
 
-        AttackStart(summoner);
+        DoZoneInCombat();
     }
 
     void Reset() override
@@ -349,8 +349,30 @@ private:
     uint8 _summonerClass;
 };
 
+// 33326 - Stolen Soul Dispel
+class spell_exarch_maladaar_stolen_soul_dispel : public AuraScript
+{
+    PrepareAuraScript(spell_exarch_maladaar_stolen_soul_dispel);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STOLEN_SOUL });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_STOLEN_SOUL);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_exarch_maladaar_stolen_soul_dispel::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_boss_exarch_maladaar()
 {
     RegisterAuchenaiCryptsCreatureAI(boss_exarch_maladaar);
     RegisterAuchenaiCryptsCreatureAI(npc_stolen_soul);
+    RegisterSpellScript(spell_exarch_maladaar_stolen_soul_dispel);
 }

@@ -13,6 +13,6 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (18373,4,1,"Now you'll stay... for eternity.",14,0,100,0,0,10517,17651,0,"maladaar SAY_SLAY_2"),
 (18373,5,0,"This is... where I belong.",14,0,100,0,0,10518,17646,0,"maladaar SAY_DEATH");
 
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 33326;
-INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
-(33326,-32346,1,"'Stolen Soul Dispel' - On Aura Apply - Target - Remove Aura 'Stolen Soul'");
+DELETE FROM `spell_script_names` WHERE `spell_id` = 33326 AND `ScriptName` = 'spell_exarch_maladaar_stolen_soul_dispel';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(33326,'spell_exarch_maladaar_stolen_soul_dispel');
