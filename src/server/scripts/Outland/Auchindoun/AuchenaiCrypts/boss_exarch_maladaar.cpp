@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "auchenai_crypts.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellInfo.h"
