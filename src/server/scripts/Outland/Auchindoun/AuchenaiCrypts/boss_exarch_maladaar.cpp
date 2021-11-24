@@ -252,6 +252,7 @@ struct npc_stolen_soul : public ScriptedAI
                     DoCastVictim(SPELL_MORTAL_STRIKE);
                     task.Repeat(5s, 10s);
                 });
+                break;
             case CLASS_PALADIN:            // video & sniff
                 _scheduler.Schedule(2s, 7s, [this](TaskContext task)
                 {
