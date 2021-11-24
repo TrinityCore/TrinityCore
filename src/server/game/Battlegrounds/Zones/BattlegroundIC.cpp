@@ -287,19 +287,19 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 void BattlegroundIC::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(uint32(BG_IC_ALLIANCE_RENFORT_SET), 1);
-    packet.Worldstates.emplace_back(uint32(BG_IC_HORDE_RENFORT_SET), 1);
-    packet.Worldstates.emplace_back(uint32(BG_IC_ALLIANCE_RENFORT), int32(factionReinforcements[TEAM_ALLIANCE]));
-    packet.Worldstates.emplace_back(uint32(BG_IC_HORDE_RENFORT), int32(factionReinforcements[TEAM_HORDE]));
+    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT_SET, 1);
+    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT_SET, 1);
+    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT, factionReinforcements[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT, factionReinforcements[TEAM_HORDE]);
 
-    for (uint8 i = 0; i < MAX_FORTRESS_GATES_SPAWNS; ++i)
+    for (uint8 itr = 0; itr < MAX_FORTRESS_GATES_SPAWNS; ++itr)
     {
-        uint32 uws = GetWorldStateFromGateEntry(BG_IC_ObjSpawnlocs[i].entry, (GateStatus[GetGateIDFromEntry(BG_IC_ObjSpawnlocs[i].entry)] == BG_IC_GATE_DESTROYED ? true : false));
-        packet.Worldstates.emplace_back(uint32(uws), 1);
+        int32 worldState = GetWorldStateFromGateEntry(BG_IC_ObjSpawnlocs[itr].entry, (GateStatus[GetGateIDFromEntry(BG_IC_ObjSpawnlocs[itr].entry)] == BG_IC_GATE_DESTROYED ? true : false));
+        packet.Worldstates.emplace_back(worldState, 1);
     }
 
-    for (uint8 i = 0; i < MAX_NODE_TYPES; ++i)
-        packet.Worldstates.emplace_back(uint32(nodePoint[i].worldStates[nodePoint[i].nodeState]), 1);
+    for (uint8 itr = 0; itr < MAX_NODE_TYPES; ++itr)
+        packet.Worldstates.emplace_back(nodePoint[itr].worldStates[nodePoint[itr].nodeState], 1);
 }
 
 bool BattlegroundIC::SetupBattleground()

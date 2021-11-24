@@ -168,11 +168,11 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_SHOW_TIMER), int32(BloodQuickeningState == IN_PROGRESS));
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_EXECUTION_TIME), int32(BloodQuickeningMinutes));
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_SHOW_ATTEMPTS), int32(instance->IsHeroic()));
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_ATTEMPTS_REMAINING), int32(HeroicAttempts));
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_ATTEMPTS_MAX), int32(MaxHeroicAttempts));
+                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_TIMER, BloodQuickeningState == IN_PROGRESS ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
+                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_ATTEMPTS, instance->IsHeroic() ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_MAX, MaxHeroicAttempts);
             }
 
             void OnPlayerEnter(Player* player) override

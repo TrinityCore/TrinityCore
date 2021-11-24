@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "ruby_sanctum.h"
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "ruby_sanctum.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "WorldStatePackets.h"
 
@@ -199,9 +199,9 @@ class instance_ruby_sanctum : public InstanceMapScript
 
             void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_MATERIAL), 50);
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TWILIGHT), 50);
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TOGGLE), 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
+                packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
+                packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
             }
 
         protected:

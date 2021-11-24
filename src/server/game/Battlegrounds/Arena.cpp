@@ -24,8 +24,8 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldStatePackets.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
@@ -74,8 +74,8 @@ void Arena::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*
 
 void Arena::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(uint32(ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN), int32(GetAlivePlayersCountByTeam(HORDE)));
-    packet.Worldstates.emplace_back(uint32(ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD), int32(GetAlivePlayersCountByTeam(ALLIANCE)));
+    packet.Worldstates.emplace_back(ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN, GetAlivePlayersCountByTeam(HORDE));
+    packet.Worldstates.emplace_back(ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD, GetAlivePlayersCountByTeam(ALLIANCE));
 }
 
 void Arena::UpdateArenaWorldState()

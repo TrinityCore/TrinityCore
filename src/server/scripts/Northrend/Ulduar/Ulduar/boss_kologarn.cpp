@@ -615,11 +615,17 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
         {
             PrepareSpellScript(spell_kologarn_stone_shout_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if([](WorldObject* target)
+                targets.remove_if([](WorldObject* object) -> bool
                 {
-                    return target->GetTypeId() != TYPEID_PLAYER && (target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsPet());
+                    if (object->GetTypeId() == TYPEID_PLAYER)
+                        return false;
+
+                    if (Creature* creature = object->ToCreature())
+                        return !creature->IsPet();
+
+                    return true;
                 });
             }
 

@@ -19,6 +19,7 @@
 #define DEF_ULDUAR_H
 
 #include "CreatureAIImpl.h"
+#include "EventProcessor.h"
 
 struct Position;
 
@@ -508,17 +509,14 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-class KeeperDespawnEvent : public BasicEvent
-{
-public:
-    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
+class Creature;
 
-    bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
-    {
-        _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
-        _owner->DespawnOrUnsummon(1000 + _despawnTimer);
-        return true;
-    }
+class UlduarKeeperDespawnEvent : public BasicEvent
+{
+    public:
+        UlduarKeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500);
+
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override;
 
 private:
     Creature* _owner;

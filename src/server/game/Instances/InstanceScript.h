@@ -257,6 +257,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+
+        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
+
         // Sets the entrance location (WorldSafeLoc) id
         void SetEntranceLocation(uint32 worldSafeLocationId);
 
@@ -277,12 +281,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         void SendBossKillCredit(uint32 encounterId);
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
-
         // ReCheck PhaseTemplate related conditions
         void UpdatePhasing();
-
-        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
 
         void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
         void AddCombatResurrectionCharge();

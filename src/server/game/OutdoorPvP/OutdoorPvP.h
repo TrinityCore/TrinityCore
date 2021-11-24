@@ -198,7 +198,7 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         typedef std::map<ObjectGuid::LowType/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates & /*packet*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/, bool /*entered*/) { return false; }

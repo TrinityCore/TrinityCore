@@ -220,9 +220,15 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if([](WorldObject* target)
+                targets.remove_if([](WorldObject* object) -> bool
                 {
-                    return target->GetTypeId() != TYPEID_PLAYER && (target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsPet());
+                    if (object->GetTypeId() == TYPEID_PLAYER)
+                        return false;
+
+                    if (Creature* creature = object->ToCreature())
+                        return !creature->IsPet();
+
+                    return true;
                 });
             }
 

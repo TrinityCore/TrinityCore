@@ -305,32 +305,32 @@ void BattlegroundAB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
     // Node icons
     for (uint8 node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
-        packet.Worldstates.emplace_back(uint32(BG_AB_OP_NODEICONS[node]), int32((m_Nodes[node] == 0) ? 1 : 0));
+        packet.Worldstates.emplace_back(BG_AB_OP_NODEICONS[node], (m_Nodes[node] == 0) ? 1 : 0);
 
     // Node occupied states
     for (uint8 node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
-        for (uint8 i = 1; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-            packet.Worldstates.emplace_back(uint32(BG_AB_OP_NODESTATES[node] + plusArray[i]), int32((m_Nodes[node] == i) ? 1 : 0));
+        for (uint8 itr = 1; itr < BG_AB_DYNAMIC_NODES_COUNT; ++itr)
+            packet.Worldstates.emplace_back(BG_AB_OP_NODESTATES[node] + plusArray[itr], (m_Nodes[node] == itr) ? 1 : 0);
 
     // How many bases each team owns
-    uint8 ally = 0, horde = 0;
+    int32 ally = 0, horde = 0;
     for (uint8 node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
         if (m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_OCCUPIED)
             ++ally;
         else if (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
             ++horde;
 
-    packet.Worldstates.emplace_back(uint32(BG_AB_OP_OCCUPIED_BASES_ALLY), int32(ally));
-    packet.Worldstates.emplace_back(uint32(BG_AB_OP_OCCUPIED_BASES_HORDE), int32(horde));
+    packet.Worldstates.emplace_back(BG_AB_OP_OCCUPIED_BASES_ALLY, ally);
+    packet.Worldstates.emplace_back(BG_AB_OP_OCCUPIED_BASES_HORDE, horde);
 
     // Team scores
-    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_MAX), int32(BG_AB_MAX_TEAM_SCORE));
-    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_WARNING), int32(BG_AB_WARNING_NEAR_VICTORY_SCORE));
-    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_ALLY), int32(m_TeamScores[TEAM_ALLIANCE]));
-    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_HORDE), int32(m_TeamScores[TEAM_HORDE]));
+    packet.Worldstates.emplace_back(BG_AB_OP_RESOURCES_MAX, BG_AB_MAX_TEAM_SCORE);
+    packet.Worldstates.emplace_back(BG_AB_OP_RESOURCES_WARNING, BG_AB_WARNING_NEAR_VICTORY_SCORE);
+    packet.Worldstates.emplace_back(BG_AB_OP_RESOURCES_ALLY, m_TeamScores[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(BG_AB_OP_RESOURCES_HORDE, m_TeamScores[TEAM_HORDE]);
 
-    // other unknown
-    packet.Worldstates.emplace_back(uint32(0x745), 0x2);
+    // other unknown BG_AB_UNK_01
+    packet.Worldstates.emplace_back(1861, 2);
 }
 
 void BattlegroundAB::_SendNodeUpdate(uint8 node)
