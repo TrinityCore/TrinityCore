@@ -34,7 +34,7 @@ namespace Trainer
         _greeting[DEFAULT_LOCALE] = std::move(greeting);
     }
 
-    void Trainer::SendSpells(Creature const* npc, Player const* player, LocaleConstant locale) const
+    void Trainer::SendSpells(Creature const* npc, Player* player, LocaleConstant locale) const
     {
         float reputationDiscount = player->GetReputationPriceDiscount(npc);
 
@@ -48,6 +48,12 @@ namespace Trainer
         {
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
+
+            if (!sConditionMgr->IsObjectMeetingTrainerSpellConditions(_id, trainerSpell.SpellId, player))
+            {
+                TC_LOG_DEBUG("condition", "SendSpells: conditions not met for trainer id %u spell %u", _id, trainerSpell.SpellId);
+                continue;
+            }
 
             trainerList.Spells.emplace_back();
             WorldPackets::NPC::TrainerListSpell& trainerListSpell = trainerList.Spells.back();
