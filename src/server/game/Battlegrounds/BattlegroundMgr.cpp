@@ -420,7 +420,14 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
             // @tswow-begin
             if (_battlegroundTemplates.find(bgTypeId) != _battlegroundTemplates.end())
             {
-                bg = new BattlegroundCustom(*(BattlegroundCustom*)bg_template);
+                if (bg_template->isArena())
+                {
+                    bg = new ArenaCustom(*(ArenaCustom*)bg_template);
+                }
+                else
+                {
+                    bg = new BattlegroundCustom(*(BattlegroundCustom*)bg_template);
+                }
                 break;
             }
             // @tswow-end
@@ -516,7 +523,14 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
                 // @tswow-begin
                 if (bgTemplate != nullptr)
                 {
-                    bg = new BattlegroundCustom();
+                    if (bgTemplate->IsArena())
+                    {
+                        bg = new ArenaCustom();
+                    }
+                    else
+                    {
+                        bg = new BattlegroundCustom();
+                    }
                     break;
                 }
                 // @tswow-end

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Battleground.h"
+#include "Arena.h"
 #include "BattlegroundScore.h"
 
 struct CustomScore final : public BattlegroundScore
@@ -39,4 +40,10 @@ public:
     BattlegroundCustom();
     ~BattlegroundCustom();
     void AddPlayer(Player* player) override;
+};
+
+class ArenaCustom : public Arena
+{
+public:
+    ArenaCustom() : Arena() {};
 };

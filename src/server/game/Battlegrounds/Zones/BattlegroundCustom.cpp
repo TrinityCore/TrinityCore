@@ -32,4 +32,3 @@ void BattlegroundCustom::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     PlayerScores[player->GetGUID().GetCounter()] = new CustomScore(player->GetGUID());
 }
-
