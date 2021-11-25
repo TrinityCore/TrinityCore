@@ -1067,6 +1067,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         }
         uint32 selected = *Trinity::Containers::SelectRandomWeightedContainerElement(bgids, weights);
         bgTypeId = (BattlegroundTypeId) selected;
+        itr = battlegroundSets.find(bgTypeId);
     }
 
     FIRE_MAP(
