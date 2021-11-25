@@ -50,6 +50,13 @@
 #include "World.h"
 #include "WorldPacket.h"
 
+// @tswow-begin battleground sets
+struct BattlegroundSetEntry {
+    uint32 battleground;
+    float weight;
+};
+std::map<uint32, std::vector<BattlegroundSetEntry>> battlegroundSets;
+
 bool BattlegroundTemplate::IsArena() const
 {
     return BattlemasterEntry->InstanceType == MAP_ARENA;
@@ -633,6 +640,28 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
     }
     while (result->NextRow());
 
+    // @tswow-begin
+    {
+        //                                                0               1      2
+        QueryResult result = WorldDatabase.Query("SELECT `set`, `battleground`, `weight` FROM `battleground_sets`");
+        do {
+            Field* fields = result->Fetch();
+            uint32 set = fields[0].GetUInt32();
+            uint32 battleground = fields[1].GetUInt32();
+            float weight        = fields[2].GetFloat();
+            auto itr = battlegroundSets.find(battleground);
+            if (itr != battlegroundSets.end())
+            {
+                itr->second.push_back({battleground,weight});
+            }
+            else
+            {
+                battlegroundSets[set] = { {battleground,weight} };
+            }
+        } while (result->NextRow());
+    }
+    // @tswow-end
+
     TC_LOG_INFO("server.loading", ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -1015,28 +1044,38 @@ bool BattlegroundMgr::IsBGWeekend(BattlegroundTypeId bgTypeId)
 
 BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
-    if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
+    // @tswow-begin use custom bg map selection
+    auto itr = battlegroundSets.find(bgTypeId);
+    while (itr != battlegroundSets.end())
     {
-        std::vector<BattlegroundTypeId> ids;
-        ids.reserve(16);
+        std::vector<uint32> bgids;
+        bgids.reserve(itr->second.size());
         std::vector<double> weights;
-        weights.reserve(16);
-        for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
+        weights.reserve(itr->second.size());
+        for (BattlegroundSetEntry const& entry : itr->second)
         {
-            if (mapId == -1)
-                break;
-
-            if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
-            {
-                ids.push_back(bg->Id);
-                weights.push_back(bg->Weight);
-            }
+            bgids.push_back(entry.battleground);
+            float weight = entry.weight;
+            FIRE_MAP(
+                GetBattlegroundEvent(entry.battleground)
+                    , BattlegroundOnWeight
+                    , entry.battleground
+                    , TSMutable<float>(&weight)
+                    , bgTypeId
+                );
+            weights.push_back(entry.weight);
         }
-
-        return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, weights);
+        uint32 selected = *Trinity::Containers::SelectRandomWeightedContainerElement(bgids, weights);
+        bgTypeId = (BattlegroundTypeId) selected;
     }
 
-    return BATTLEGROUND_TYPE_NONE;
+    FIRE_MAP(
+        GetBattlegroundEvent(bgTypeId)
+            , BattlegroundOnSelect
+            , TSMutable<uint32>(reinterpret_cast<uint32*>(&bgTypeId))
+    );
+    return BattlegroundTypeId(bgTypeId);
+    // @tswow-end
 }
 
 BGFreeSlotQueueContainer& BattlegroundMgr::GetBGFreeSlotQueueStore(BattlegroundTypeId bgTypeId)
