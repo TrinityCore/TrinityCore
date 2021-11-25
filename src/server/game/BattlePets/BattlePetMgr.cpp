@@ -26,6 +26,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Realm.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -144,8 +145,8 @@ void BattlePetMgr::LoadDefaultPetQualities()
         uint32 speciesId = fields[0].GetUInt32();
         uint8 quality = fields[1].GetUInt8();
 
-        BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(speciesId);
-        if (!speciesEntry)
+        BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(speciesId);
+        if (!battlePetSpecies)
         {
             TC_LOG_ERROR("sql.sql", "Non-existing BattlePetSpecies.db2 entry %u was referenced in `battle_pet_quality` by row (%u, %u).", speciesId, speciesId, quality);
             continue;
@@ -157,7 +158,7 @@ void BattlePetMgr::LoadDefaultPetQualities()
             continue;
         }
 
-        if (speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown) && quality > AsUnderlyingType(BattlePetBreedQuality::Rare))
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown) && quality > AsUnderlyingType(BattlePetBreedQuality::Rare))
         {
             TC_LOG_ERROR("sql.sql", "Learnable BattlePetSpecies.db2 entry %u was referenced in `battle_pet_quality` with invalid quality %u. Maximum allowed quality is BattlePetBreedQuality::Rare.", speciesId, quality);
             continue;
@@ -216,7 +217,7 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
         {
             Field* fields = pets->Fetch();
             uint32 species = fields[1].GetUInt32();
-            ObjectGuid ownerGuid = fields[11].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[11].GetUInt64()) : ObjectGuid::Empty;
+            ObjectGuid ownerGuid = !fields[11].IsNull() ? ObjectGuid::Create<HighGuid::Player>(fields[11].GetInt64()) : ObjectGuid::Empty;
 
             if (BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(species))
             {
@@ -321,7 +322,16 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
                 stmt->setUInt16(9, itr->second.PacketInfo.Flags);
                 stmt->setString(10, itr->second.PacketInfo.Name);
                 stmt->setInt64(11, itr->second.NameTimestamp);
-                stmt->setUInt64(12, itr->second.PacketInfo.OwnerInfo ? itr->second.PacketInfo.OwnerInfo->Guid.GetCounter() : 0);
+                if (itr->second.PacketInfo.OwnerInfo)
+                {
+                    stmt->setInt64(12, itr->second.PacketInfo.OwnerInfo->Guid.GetCounter());
+                    stmt->setInt32(13, realm.Id.Realm);
+                }
+                else
+                {
+                    stmt->setNull(12);
+                    stmt->setNull(13);
+                }
 
                 trans->Append(stmt);
 
@@ -410,17 +420,17 @@ BattlePetMgr::BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
 
 void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePetBreedQuality quality, uint16 level /*= 1*/)
 {
-    BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(species);
-    if (!speciesEntry) // should never happen
+    BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(species);
+    if (!battlePetSpecies) // should never happen
         return;
 
-    if (!speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown)) // Not learnable
+    if (!battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown)) // Not learnable
         return;
 
     BattlePet pet;
     pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
     pet.PacketInfo.Species = species;
-    pet.PacketInfo.CreatureID = speciesEntry->CreatureID;
+    pet.PacketInfo.CreatureID = battlePetSpecies->CreatureID;
     pet.PacketInfo.DisplayID = display;
     pet.PacketInfo.Level = level;
     pet.PacketInfo.Exp = 0;
@@ -432,7 +442,7 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
 
     Player* player = _owner->GetPlayer();
-    if (speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::NotAccountWide))
+    if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::NotAccountWide))
     {
         pet.PacketInfo.OwnerInfo.emplace();
         pet.PacketInfo.OwnerInfo->Guid = player->GetGUID();
@@ -512,17 +522,17 @@ bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
     return false;
 }
 
-uint8 BattlePetMgr::GetPetCount(BattlePetSpeciesEntry const* speciesEntry, ObjectGuid ownerGuid) const
+uint8 BattlePetMgr::GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const
 {
-    return uint8(std::count_if(_pets.begin(), _pets.end(), [speciesEntry, ownerGuid](std::pair<uint64 const, BattlePet> const& pet)
+    return uint8(std::count_if(_pets.begin(), _pets.end(), [battlePetSpecies, ownerGuid](std::pair<uint64 const, BattlePet> const& pet)
     {
-        if (pet.second.PacketInfo.Species != speciesEntry->ID)
+        if (pet.second.PacketInfo.Species != battlePetSpecies->ID)
             return false;
 
         if (pet.second.SaveInfo == BATTLE_PET_REMOVED)
             return false;
 
-        if (speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::NotAccountWide))
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::NotAccountWide))
             if (!ownerGuid.IsEmpty() && pet.second.PacketInfo.OwnerInfo)
                 if (pet.second.PacketInfo.OwnerInfo->Guid != ownerGuid)
                     return false;
@@ -531,11 +541,11 @@ uint8 BattlePetMgr::GetPetCount(BattlePetSpeciesEntry const* speciesEntry, Objec
     }));
 }
 
-bool BattlePetMgr::HasMaxPetCount(BattlePetSpeciesEntry const* speciesEntry, ObjectGuid ownerGuid) const
+bool BattlePetMgr::HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const
 {
-    uint8 maxPetsPerSpecies = speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::LegacyAccountUnique) ? 1 : DEFAULT_MAX_BATTLE_PETS_PER_SPECIES;
+    uint8 maxPetsPerSpecies = battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::LegacyAccountUnique) ? 1 : DEFAULT_MAX_BATTLE_PETS_PER_SPECIES;
 
-    return GetPetCount(speciesEntry, ownerGuid) >= maxPetsPerSpecies;
+    return GetPetCount(battlePetSpecies, ownerGuid) >= maxPetsPerSpecies;
 }
 
 uint32 BattlePetMgr::GetPetUniqueSpeciesCount() const
@@ -581,8 +591,8 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     if (!pet)
         return;
 
-    if (BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
-        if (speciesEntry->GetFlags().HasFlag(BattlePetSpeciesFlags::NotTradable))
+    if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::NotTradable))
             return;
 
     if (IsPetInSlot(guid))
@@ -674,7 +684,7 @@ void BattlePetMgr::SendJournal()
 
     for (auto& pet : _pets)
         if (pet.second.SaveInfo != BATTLE_PET_REMOVED)
-            if (!pet.second.PacketInfo.OwnerInfo || (pet.second.PacketInfo.OwnerInfo && pet.second.PacketInfo.OwnerInfo->Guid == _owner->GetPlayer()->GetGUID()))
+            if (!pet.second.PacketInfo.OwnerInfo || pet.second.PacketInfo.OwnerInfo->Guid == _owner->GetPlayer()->GetGUID())
                 battlePetJournal.Pets.push_back(std::ref(pet.second.PacketInfo));
 
     battlePetJournal.Slots.reserve(_slots.size());

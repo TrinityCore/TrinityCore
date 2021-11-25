@@ -141,8 +141,8 @@ public:
     void ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName);
     bool IsPetInSlot(ObjectGuid guid);
 
-    uint8 GetPetCount(BattlePetSpeciesEntry const* speciesEntry, ObjectGuid ownerGuid) const;
-    bool HasMaxPetCount(BattlePetSpeciesEntry const* speciesEntry, ObjectGuid ownerGuid) const;
+    uint8 GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
+    bool HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
     uint32 GetPetUniqueSpeciesCount() const;
 
     WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return slot < _slots.size() ? &_slots[slot] : nullptr; }
