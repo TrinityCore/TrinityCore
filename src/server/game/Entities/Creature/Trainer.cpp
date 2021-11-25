@@ -78,7 +78,7 @@ namespace Trainer
         BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(trainerSpell->SpellId);
         if (speciesEntry)
         {
-            if (player->GetSession()->GetBattlePetMgr()->HasMaxPetCount(speciesEntry))
+            if (player->GetSession()->GetBattlePetMgr()->HasMaxPetCount(speciesEntry, player->GetGUID()))
             {
                 // Don't send any error to client (intended)
                 return;
