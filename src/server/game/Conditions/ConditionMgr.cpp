@@ -82,7 +82,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "AreaTrigger",
     "ConversationLine",
     "AreaTrigger Client Triggered",
-    "Trainer"
+    "Trainer Spell"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -954,7 +954,7 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
             sourceType == CONDITION_SOURCE_TYPE_PHASE ||
             sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER ||
-            sourceType == CONDITION_SOURCE_TYPE_TRAINER);
+            sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1063,7 +1063,7 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
         ConditionsByEntryMap::const_iterator i = (*itr).second.find(itemId);
         if (i != (*itr).second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForNpcVendorEvent: found conditions for creature entry %u item %u", creatureId, itemId);
+            TC_LOG_DEBUG("condition", "GetConditionsForNpcVendor: found conditions for creature entry %u item %u", creatureId, itemId);
             ConditionSourceInfo sourceInfo(player, vendor);
             return IsObjectMeetToConditions(sourceInfo, i->second);
         }
@@ -1078,13 +1078,13 @@ ConditionContainer const* ConditionMgr::GetConditionsForAreaTrigger(uint32 areaT
 
 bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const
 {
-    ConditionEntriesByCreatureIdMap::const_iterator itr = TrainerConditionContainerStore.find(trainerId);
-    if (itr != TrainerConditionContainerStore.end())
+    ConditionEntriesByCreatureIdMap::const_iterator itr = TrainerSpellConditionContainerStore.find(trainerId);
+    if (itr != TrainerSpellConditionContainerStore.end())
     {
         ConditionsByEntryMap::const_iterator i = (*itr).second.find(spellId);
         if (i != (*itr).second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForTrainerEvent: found conditions for trainer id %u spell %u", trainerId, spellId);
+            TC_LOG_DEBUG("condition", "GetConditionsForTrainerSpell: found conditions for trainer id %u spell %u", trainerId, spellId);
             return IsObjectMeetToConditions(player, i->second);
         }
     }
@@ -1334,9 +1334,9 @@ void ConditionMgr::LoadConditions(bool isReload)
                     ++count;
                     continue;
                 }
-                case CONDITION_SOURCE_TYPE_TRAINER:
+                case CONDITION_SOURCE_TYPE_TRAINER_SPELL:
                 {
-                    TrainerConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    TrainerSpellConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -1969,7 +1969,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                 return false;
             }
             break;
-        case CONDITION_SOURCE_TYPE_TRAINER:
+        case CONDITION_SOURCE_TYPE_TRAINER_SPELL:
         {
             if (!sObjectMgr->GetTrainer(cond->SourceGroup))
             {
@@ -2562,12 +2562,12 @@ void ConditionMgr::Clean()
 
     AreaTriggerConditionContainerStore.clear();
 
-    for (ConditionEntriesByCreatureIdMap::iterator itr = TrainerConditionContainerStore.begin(); itr != TrainerConditionContainerStore.end(); ++itr)
+    for (ConditionEntriesByCreatureIdMap::iterator itr = TrainerSpellConditionContainerStore.begin(); itr != TrainerSpellConditionContainerStore.end(); ++itr)
         for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
             for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
                 delete *i;
 
-    TrainerConditionContainerStore.clear();
+    TrainerSpellConditionContainerStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::vector<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)

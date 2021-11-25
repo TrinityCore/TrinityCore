@@ -172,7 +172,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28,
     CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29,
     CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30,
-    CONDITION_SOURCE_TYPE_TRAINER                        = 31,
+    CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31,
     CONDITION_SOURCE_TYPE_MAX                            = 32  // MAX
 };
 
@@ -330,7 +330,7 @@ class TC_GAME_API ConditionMgr
         ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
         SmartEventConditionContainer    SmartEventConditionStore;
         ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
-        ConditionEntriesByCreatureIdMap TrainerConditionContainerStore;
+        ConditionEntriesByCreatureIdMap TrainerSpellConditionContainerStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()
