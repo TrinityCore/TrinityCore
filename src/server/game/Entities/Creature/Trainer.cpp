@@ -17,6 +17,7 @@
 
 #include "Trainer.h"
 #include "Creature.h"
+#include "Log.h"
 #include "NPCPackets.h"
 #include "Player.h"
 #include "SpellInfo.h"
