@@ -11574,7 +11574,13 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     // charm is set by aura, and aura effect remove handler was called during apply handler execution
     // prevent undefined behaviour
     if (aurApp && aurApp->GetRemoveMode())
+    {
+        // properly clean up charm changes up to this point to avoid leaving the unit in partially charmed state
+        SetFaction(_oldFactionId);
+        GetMotionMaster()->InitializeDefault();
+        charmer->SetCharm(this, false);
         return false;
+    }
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if (type != CHARM_TYPE_VEHICLE && !GetCharmInfo())
