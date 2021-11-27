@@ -813,6 +813,37 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     Add(movement);
 }
 
+void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
+    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+{
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJumpWithGravity: '%s', jumps to point Id: %u (%s)", _owner->GetGUID().ToString().c_str(), id, pos.ToString().c_str());
+    if (speedXY < 0.01f)
+        return;
+
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+    init.SetParabolicVerticalAcceleration(gravity, 0);
+    init.SetUncompressed();
+    init.SetVelocity(speedXY);
+    if (hasOrientation)
+        init.SetFacing(pos.GetOrientation());
+    if (spellEffectExtraData)
+        init.SetSpellEffectExtraData(*spellEffectExtraData);
+
+    uint32 arrivalSpellId = 0;
+    ObjectGuid arrivalSpellTargetGuid;
+    if (arrivalCast)
+    {
+        arrivalSpellId = arrivalCast->SpellId;
+        arrivalSpellTargetGuid = arrivalCast->Target;
+    }
+
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalSpellId, arrivalSpellTargetGuid);
+    movement->Priority = MOTION_PRIORITY_HIGHEST;
+    movement->BaseUnitState = UNIT_STATE_JUMPING;
+    Add(movement);
+}
+
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
 {
     float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);

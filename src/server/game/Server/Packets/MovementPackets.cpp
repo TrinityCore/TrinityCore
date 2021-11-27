@@ -348,7 +348,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBit(false);                                                   // HasSplineFilter
         data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
-        data.WriteBit(moveSpline.splineflags.parabolic);                        // HasJumpExtraData
+        bool hasJumpExtraData = data.WriteBit(moveSpline.splineflags.parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time));
         data.WriteBit(moveSpline.anim_tier.is_initialized());                   // HasAnimationTierTransition
         data.WriteBit(false);                                                   // HasUnknown901
         data.FlushBits();
@@ -400,7 +400,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             data << float(moveSpline.vertical_acceleration);
         }
 
-        if (moveSpline.splineflags.parabolic)
+        if (hasJumpExtraData)
         {
             data << float(moveSpline.vertical_acceleration);
             data << uint32(moveSpline.effect_start_time);
@@ -499,7 +499,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     movementSpline.MoveTime = moveSpline.Duration();
 
-    if (splineFlags.parabolic)
+    if (splineFlags.parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time))
     {
         movementSpline.JumpExtraData.emplace();
         movementSpline.JumpExtraData->JumpGravity = moveSpline.vertical_acceleration;
