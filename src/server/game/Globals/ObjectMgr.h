@@ -26,6 +26,7 @@
 #include "GameObjectData.h"
 #include "ItemTemplate.h"
 #include "IteratorPair.h"
+#include "MovementDefines.h"
 #include "NPCHandler.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
@@ -1365,6 +1366,8 @@ class TC_GAME_API ObjectMgr
         void LoadPlayerChoices();
         void LoadPlayerChoicesLocale();
 
+        void LoadJumpChargeParams();
+
         void InitializeQueriesData(QueryDataGroup mask);
 
         std::string GeneratePetName(uint32 entry);
@@ -1696,6 +1699,8 @@ class TC_GAME_API ObjectMgr
 
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
+        JumpChargeParams const* GetJumpChargeParams(int32 id) const;
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1871,6 +1876,8 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
+
+        std::unordered_map<int32, JumpChargeParams> _jumpChargeParams;
 
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
 };

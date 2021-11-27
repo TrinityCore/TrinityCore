@@ -43,6 +43,7 @@
 #include "Mail.h"
 #include "MapManager.h"
 #include "MotionMaster.h"
+#include "MovementTypedefs.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "PhasingHandler.h"
@@ -10432,6 +10433,11 @@ PlayerChoice const* ObjectMgr::GetPlayerChoice(int32 choiceId) const
     return Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
 }
 
+JumpChargeParams const* ObjectMgr::GetJumpChargeParams(int32 id) const
+{
+    return Trinity::Containers::MapGetValuePtr(_jumpChargeParams, id);
+}
+
 void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();
@@ -11047,4 +11053,84 @@ void ObjectMgr::LoadPlayerChoicesLocale()
 
         TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Player Choice Response locale strings in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
+}
+
+void ObjectMgr::LoadJumpChargeParams()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // need for reload case
+    _jumpChargeParams.clear();
+
+    //                                               0   1      2                            3            4              5                6
+    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
+    if (!result)
+    {
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        int32 id = fields[0].GetInt32();
+        float speed = fields[1].GetFloat();
+        bool treatSpeedAsMoveTimeSeconds = fields[2].GetBool();
+        float jumpGravity = fields[3].GetFloat();
+        Optional<int32> spellVisualId;
+        Optional<int32> progressCurveId;
+        Optional<int32> parabolicCurveId;
+
+        if (speed <= 0.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid speed %f for id %d, set to default charge speed %f.",
+                speed, id, SPEED_CHARGE);
+            speed = SPEED_CHARGE;
+        }
+
+        if (jumpGravity <= 0.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid jump gravity %f for id %d, set to default %f.",
+                jumpGravity, id, Movement::gravity);
+            jumpGravity = Movement::gravity;
+        }
+
+        if (!fields[4].IsNull())
+        {
+            if (sSpellVisualStore.LookupEntry(fields[4].GetInt32()))
+                spellVisualId = fields[4].GetInt32();
+            else
+                TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing SpellVisual: %d for id %d, ignored.",
+                    fields[4].GetInt32(), id);
+        }
+
+        if (!fields[5].IsNull())
+        {
+            if (sCurveStore.LookupEntry(fields[5].GetInt32()))
+                progressCurveId = fields[5].GetInt32();
+            else
+                TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing progress Curve: %d for id, ignored.",
+                    fields[4].GetInt32(), id);
+        }
+
+        if (!fields[6].IsNull())
+        {
+            if (sCurveStore.LookupEntry(fields[6].GetInt32()))
+                parabolicCurveId = fields[6].GetInt32();
+            else
+                TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing parabolic Curve: %d for id, ignored.",
+                    fields[6].GetInt32(), id);
+        }
+
+        JumpChargeParams& params = _jumpChargeParams[id];
+        params.Speed = speed;
+        params.TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds;
+        params.JumpGravity = jumpGravity;
+        params.SpellVisualId = spellVisualId;
+        params.ProgressCurveId = progressCurveId;
+        params.ParabolicCurveId = parabolicCurveId;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Player Choice locale strings in %u ms", _jumpChargeParams.size(), GetMSTimeDiffToNow(oldMSTime));
 }

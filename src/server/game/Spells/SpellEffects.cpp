@@ -335,7 +335,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
     &Spell::EffectTeleportUnits,                            //252 SPELL_EFFECT_TELEPORT_UNITS
     &Spell::EffectGiveHonor,                                //253 SPELL_EFFECT_GIVE_HONOR
-    &Spell::EffectNULL,                                     //254 SPELL_EFFECT_JUMP_CHARGE
+    &Spell::EffectJumpCharge,                               //254 SPELL_EFFECT_JUMP_CHARGE
     &Spell::EffectLearnTransmogSet,                         //255 SPELL_EFFECT_LEARN_TRANSMOG_SET
     &Spell::EffectUnused,                                   //256 SPELL_EFFECT_256
     &Spell::EffectUnused,                                   //257 SPELL_EFFECT_257
@@ -5854,6 +5854,49 @@ void Spell::EffectGiveHonor()
     Player* playerTarget = unitTarget->ToPlayer();
     playerTarget->AddHonorXP(damage);
     playerTarget->SendDirectMessage(packet.Write());
+}
+
+void Spell::EffectJumpCharge()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    if (!unitCaster)
+        return;
+
+    if (unitCaster->IsInFlight())
+        return;
+
+    JumpChargeParams const* params = sObjectMgr->GetJumpChargeParams(effectInfo->MiscValue);
+    if (!params)
+        return;
+
+    float speed = params->Speed;
+    if (params->TreatSpeedAsMoveTimeSeconds)
+        speed = unitCaster->GetExactDist2d(destTarget) / params->MoveTimeInSec;
+
+    Optional<JumpArrivalCastArgs> arrivalCast;
+    if (effectInfo->TriggerSpell)
+    {
+        arrivalCast.emplace();
+        arrivalCast->SpellId = effectInfo->TriggerSpell;
+    }
+
+    Optional<Movement::SpellEffectExtraData> effectExtra;
+    if (params->SpellVisualId || params->ProgressCurveId || params->ParabolicCurveId)
+    {
+        effectExtra.emplace();
+        if (params->SpellVisualId)
+            effectExtra->SpellVisualId = *params->SpellVisualId;
+
+        if (params->ProgressCurveId)
+            effectExtra->ProgressCurveId = *params->ProgressCurveId;
+
+        if (params->ParabolicCurveId)
+            effectExtra->ParabolicCurveId = *params->ParabolicCurveId;
+    }
+
+    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, false, arrivalCast.get_ptr(), effectExtra.get_ptr());
 }
 
 void Spell::EffectLearnTransmogSet()
