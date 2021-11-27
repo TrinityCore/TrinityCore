@@ -31,7 +31,7 @@ enum PilgrimsBountyBuffFood
     SPELL_WELL_FED_HIT_TRIGGER      = 65416,
     SPELL_WELL_FED_HASTE_TRIGGER    = 65410,
     SPELL_WELL_FED_SPIRIT_TRIGGER   = 65415,
-    SPELL_BOUNTIFUL_FEAST_FOOD_TRIGGER = 66477,    
+    SPELL_BOUNTIFUL_FEAST_FOOD_TRIGGER = 66478,    
 };
 
 class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
@@ -73,8 +73,8 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
             void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_REGEN);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_REGEN);
             }
 
             bool _handled;
