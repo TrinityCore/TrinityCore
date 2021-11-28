@@ -374,13 +374,13 @@ Unit::Unit(bool isWorldObject) :
 
     for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
-        m_auraModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][BASE_PCT] = 1.0f;
-        m_auraModifiersGroup[i][TOTAL_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][TOTAL_PCT] = 1.0f;
+        m_auraFlatModifiersGroup[i][BASE_VALUE] = 0.0f;
+        m_auraFlatModifiersGroup[i][TOTAL_VALUE] = 0.0f;
+        m_auraPctModifiersGroup[i][BASE_PCT] = 1.0f;
+        m_auraPctModifiersGroup[i][TOTAL_PCT] = 1.0f;
     }
                                                             // implement 50% base damage from offhand
-    m_auraModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
+    m_auraPctModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
 
     for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
@@ -2253,7 +2253,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     return MELEE_HIT_NORMAL;
 }
 
-uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct)
+uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct) const
 {
     float minDamage = 0.0f;
     float maxDamage = 0.0f;
@@ -4912,24 +4912,33 @@ int32 Unit::GetMaxNegativeAuraModifierByAffectMask(AuraType auraType, SpellInfo 
     });
 }
 
-float Unit::GetResistanceBuffMods(SpellSchools school, bool positive) const
+void Unit::UpdateResistanceBuffModsMod(SpellSchools school)
 {
-    return GetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school);
-}
+    float modPos = 0.0f;
+    float modNeg = 0.0f;
 
-void Unit::SetResistanceBuffMods(SpellSchools school, bool positive, float val)
-{
-    SetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val);
-}
+    // these auras are always positive
+    modPos = GetMaxPositiveAuraModifierByMiscMask(SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, 1 << school);
+    modPos += GetTotalAuraModifier(SPELL_AURA_MOD_RESISTANCE, [school](AuraEffect const* aurEff) -> bool
+    {
+        if ((aurEff->GetMiscValue() & (1 << school)) && aurEff->GetAmount() > 0)
+            return true;
+        return false;
+    });
 
-void Unit::ApplyResistanceBuffModsMod(SpellSchools school, bool positive, float val, bool apply)
-{
-    ApplyModSignedFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
-}
+    modNeg = GetTotalAuraModifier(SPELL_AURA_MOD_RESISTANCE, [school](AuraEffect const* aurEff) -> bool
+    {
+        if ((aurEff->GetMiscValue() & (1 << school)) && aurEff->GetAmount() < 0)
+            return true;
+        return false;
+    });
 
-void Unit::ApplyResistanceBuffModsPercentMod(SpellSchools school, bool positive, float val, bool apply)
-{
-    ApplyPercentModFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
+    float factor = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_RESISTANCE_PCT, 1 << school);
+    modPos *= factor;
+    modNeg *= factor;
+
+    SetFloatValue(UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + school, modPos);
+    SetFloatValue(UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + school, modNeg);
 }
 
 void Unit::InitStatBuffMods()
@@ -4940,15 +4949,63 @@ void Unit::InitStatBuffMods()
         SetFloatValue(UNIT_FIELD_NEGSTAT0+i, 0);
 }
 
-void Unit::ApplyStatBuffMod(Stats stat, float val, bool apply)
+void Unit::UpdateStatBuffMod(Stats stat)
 {
-    ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT0+stat : UNIT_FIELD_NEGSTAT0+stat), val, apply);
-}
+    float modPos = 0.0f;
+    float modNeg = 0.0f;
+    float factor = 0.0f;
 
-void Unit::ApplyStatPercentBuffMod(Stats stat, float val, bool apply)
-{
-    ApplyPercentModFloatValue(UNIT_FIELD_POSSTAT0+stat, val, apply);
-    ApplyPercentModFloatValue(UNIT_FIELD_NEGSTAT0+stat, val, apply);
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + stat);
+
+    // includes value from items and enchantments
+    float modValue = GetFlatModifierValue(unitMod, BASE_VALUE);
+    if (modValue > 0.f)
+        modPos += modValue;
+    else
+        modNeg += modValue;
+
+    if (IsGuardian())
+    {
+        modValue = static_cast<Guardian*>(this)->GetBonusStatFromOwner(stat);
+        if (modValue > 0.f)
+            modPos += modValue;
+        else
+            modNeg += modValue;
+    }
+
+    modPos += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
+    {
+        if ((aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat) && aurEff->GetAmount() > 0)
+            return true;
+        return false;
+    });
+
+    modNeg += GetTotalAuraModifier(SPELL_AURA_MOD_STAT, [stat](AuraEffect const* aurEff) -> bool
+    {
+        if ((aurEff->GetMiscValue() < 0 || aurEff->GetMiscValue() == stat) && aurEff->GetAmount() < 0)
+            return true;
+        return false;
+    });
+
+    factor = GetTotalAuraMultiplier(SPELL_AURA_MOD_PERCENT_STAT, [stat](AuraEffect const* aurEff) -> bool
+    {
+        if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
+            return true;
+        return false;
+    });
+
+    factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, [stat](AuraEffect const* aurEff) -> bool
+    {
+        if (aurEff->GetMiscValue() == -1 || aurEff->GetMiscValue() == stat)
+            return true;
+        return false;
+    });
+
+    modPos *= factor;
+    modNeg *= factor;
+
+    SetFloatValue(UNIT_FIELD_POSSTAT0 + stat, modPos);
+    SetFloatValue(UNIT_FIELD_NEGSTAT0 + stat, modNeg);
 }
 
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
@@ -8755,15 +8812,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool withPowerUpdate /*= true*
     return gain;
 }
 
-// returns negative amount on power reduction
-int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
-{
-    float amount = (float)GetMaxPower(power);
-    ApplyPercentModFloatVar(amount, pct, apply);
-
-    return ModifyPower(power, (int32)amount - GetMaxPower(power));
-}
-
 inline float GetBasePowerRegen(uint32 powerBarId, Powers powerType, bool isInCombat)
 {
     if (powerType != POWER_ALTERNATE_POWER)
@@ -9613,33 +9661,98 @@ bool Unit::IsInDisallowedMountForm() const
 ########                         ########
 #######################################*/
 
-bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply)
+void Unit::HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply)
 {
-    if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_END)
+    if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_FLAT_END)
     {
-        TC_LOG_ERROR("entities.unit", "ERROR in HandleStatModifier(): non-existing UnitMods or wrong UnitModifierType!");
-        return false;
+        TC_LOG_ERROR("entities.unit", "ERROR in HandleStatFlatModifier(): non-existing UnitMods or wrong UnitModifierType!");
+        return;
     }
+
+    if (!amount)
+        return;
 
     switch (modifierType)
     {
         case BASE_VALUE:
         case TOTAL_VALUE:
-            m_auraModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
-            break;
-        case BASE_PCT:
-        case TOTAL_PCT:
-            ApplyPercentModFloatVar(m_auraModifiersGroup[unitMod][modifierType], amount, apply);
+            m_auraFlatModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
         default:
             break;
     }
 
-    if (IsPet())
-        return false;
+    UpdateUnitMod(unitMod);
+}
 
+void Unit::ApplyStatPctModifier(UnitMods unitMod, UnitModifierPctType modifierType, float pct)
+{
+    if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_PCT_END)
+    {
+        TC_LOG_ERROR("entities.unit", "ERROR in ApplyStatPctModifier(): non-existing UnitMods or wrong UnitModifierType!");
+        return;
+    }
+
+    if (!pct)
+        return;
+
+    switch (modifierType)
+    {
+        case BASE_PCT:
+        case TOTAL_PCT:
+            AddPct(m_auraPctModifiersGroup[unitMod][modifierType], pct);
+            break;
+        default:
+            break;
+    }
+
+    UpdateUnitMod(unitMod);
+}
+
+void Unit::SetStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float val)
+{
+    if (m_auraFlatModifiersGroup[unitMod][modifierType] == val)
+        return;
+
+    m_auraFlatModifiersGroup[unitMod][modifierType] = val;
+    UpdateUnitMod(unitMod);
+}
+
+void Unit::SetStatPctModifier(UnitMods unitMod, UnitModifierPctType modifierType, float val)
+{
+    if (m_auraPctModifiersGroup[unitMod][modifierType] == val)
+        return;
+
+    m_auraPctModifiersGroup[unitMod][modifierType] = val;
+    UpdateUnitMod(unitMod);
+}
+
+float Unit::GetFlatModifierValue(UnitMods unitMod, UnitModifierFlatType modifierType) const
+{
+    if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_FLAT_END)
+    {
+        TC_LOG_ERROR("entities.unit", "attempt to access non-existing modifier value from UnitMods!");
+        return 0.0f;
+    }
+
+    return m_auraFlatModifiersGroup[unitMod][modifierType];
+}
+
+float Unit::GetPctModifierValue(UnitMods unitMod, UnitModifierPctType modifierType) const
+{
+    if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_PCT_END)
+    {
+        TC_LOG_ERROR("entities.unit", "attempt to access non-existing modifier value from UnitMods!");
+        return 0.0f;
+    }
+
+    return m_auraPctModifiersGroup[unitMod][modifierType];
+}
+
+void Unit::UpdateUnitMod(UnitMods unitMod)
+{
     if (!CanModifyStats())
-        return false;
+        return;
 
     switch (unitMod)
     {
@@ -9690,36 +9803,108 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         default:
             break;
     }
+}
+
+bool Unit::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const
+{
+    // only players have item requirements
+    if (GetTypeId() != TYPEID_PLAYER)
+        return true;
+
+    SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+    if (spellInfo->EquippedItemClass == -1)
+        return true;
+
+    Item* item = ToPlayer()->GetWeaponForAttack(attackType, true);
+    if (!item || !item->IsFitToSpellRequirements(spellInfo))
+        return false;
 
     return true;
 }
 
-float Unit::GetModifierValue(UnitMods unitMod, UnitModifierType modifierType) const
+void Unit::UpdateDamageDoneMods(WeaponAttackType attackType)
 {
-    if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_END)
+    UnitMods unitMod;
+    switch (attackType)
     {
-        TC_LOG_ERROR("entities.unit", "attempt to access non-existing modifier value from UnitMods!");
-        return 0.0f;
+        case BASE_ATTACK:
+            unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            break;
+        case OFF_ATTACK:
+            unitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            break;
+        case RANGED_ATTACK:
+            unitMod = UNIT_MOD_DAMAGE_RANGED;
+            break;
+        default:
+            ABORT();
+            break;
     }
 
-    if (modifierType == TOTAL_PCT && m_auraModifiersGroup[unitMod][modifierType] <= 0.0f)
-        return 0.0f;
+    float amount = GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_DONE, std::bind(&Unit::CheckAttackFitToAuraRequirement, this, attackType, std::placeholders::_1));
 
-    return m_auraModifiersGroup[unitMod][modifierType];
+    SetStatFlatModifier(unitMod, TOTAL_VALUE, amount);
+}
+
+void Unit::UpdateAllDamageDoneMods()
+{
+    for (uint8 i = BASE_ATTACK; i < MAX_ATTACK; ++i)
+        UpdateDamageDoneMods(WeaponAttackType(i));
+}
+
+void Unit::UpdateDamagePctDoneMods(WeaponAttackType attackType)
+{
+    float factor;
+    UnitMods unitMod;
+    switch (attackType)
+    {
+        case BASE_ATTACK:
+            factor = 1.0f;
+            unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            break;
+        case OFF_ATTACK:
+            // off hand has 50% penalty
+            factor = 0.5f;
+            unitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            break;
+        case RANGED_ATTACK:
+            factor = 1.0f;
+            unitMod = UNIT_MOD_DAMAGE_RANGED;
+            break;
+        default:
+            ABORT();
+            break;
+    }
+
+    factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, [attackType, this](AuraEffect const* aurEff) -> bool
+        {
+            if (!(aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
+                return false;
+
+            return CheckAttackFitToAuraRequirement(attackType, aurEff);
+        });
+
+    if (attackType == OFF_ATTACK)
+        factor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT, std::bind(&Unit::CheckAttackFitToAuraRequirement, this, attackType, std::placeholders::_1));
+
+    SetStatPctModifier(unitMod, TOTAL_PCT, factor);
+}
+
+void Unit::UpdateAllDamagePctDoneMods()
+{
+    for (uint8 i = BASE_ATTACK; i < MAX_ATTACK; ++i)
+        UpdateDamagePctDoneMods(WeaponAttackType(i));
 }
 
 float Unit::GetTotalStatValue(Stats stat) const
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + stat);
 
-    if (m_auraModifiersGroup[unitMod][TOTAL_PCT] <= 0.0f)
-        return 0.0f;
-
     // value = ((base_value * base_pct) + total_value) * total_pct
-    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE] + GetCreateStat(stat);
-    value *= m_auraModifiersGroup[unitMod][BASE_PCT];
-    value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
-    value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];
+    float value  = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateStat(stat);
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
     return value;
 }
@@ -9732,13 +9917,10 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
         return 0.0f;
     }
 
-    if (m_auraModifiersGroup[unitMod][TOTAL_PCT] <= 0.0f)
-        return 0.0f;
-
-    float value = m_auraModifiersGroup[unitMod][BASE_VALUE];
-    value *= m_auraModifiersGroup[unitMod][BASE_PCT];
-    value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
-    value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE);
+    value *= GetPctModifierValue(unitMod, BASE_PCT);
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
     return value;
 }
@@ -11148,34 +11330,51 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
     return Trinity::Containers::SelectRandomContainerElement(targets);
 }
 
+void ApplyPercentModFloatVar(float& var, float val, bool apply)
+{
+    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
+}
+
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
+    float amount = GetFloatValue(UNIT_FIELD_BASEATTACKTIME + att);
+    float hasteAmount = GetFloatValue(PLAYER_FIELD_MOD_HASTE);
+    float rangedHasteAmount = GetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE);
+
     float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
-    if (val > 0)
+    if (val > 0.f)
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME + att, val, !apply);
+        ApplyPercentModFloatVar(amount, val, !apply);
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
             if (att == BASE_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE, val, !apply);
+                ApplyPercentModFloatVar(hasteAmount, val, !apply);
             else if (att == RANGED_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, val, !apply);
+                ApplyPercentModFloatVar(rangedHasteAmount, val, !apply);
         }
     }
     else
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME + att, -val, apply);
+        ApplyPercentModFloatVar(amount, -val, apply);
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
             if (att == BASE_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE, -val, apply);
+                ApplyPercentModFloatVar(hasteAmount, -val, apply);
             else if (att == RANGED_ATTACK)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, -val, apply);
+                ApplyPercentModFloatVar(rangedHasteAmount, -val, apply);
         }
+    }
+
+    SetFloatValue(UNIT_FIELD_BASEATTACKTIME + att, amount);
+
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        SetFloatValue(PLAYER_FIELD_MOD_HASTE, hasteAmount);
+        SetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, rangedHasteAmount);
     }
 
     m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
@@ -11186,20 +11385,24 @@ void Unit::ApplyHasteRegenMod(WeaponAttackType att, float val, bool apply)
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (val > 0)
+    float amount = GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN);
+
+    if (val > 0.f)
     {
         if (att == BASE_ATTACK && getClass() != CLASS_HUNTER)
-            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
+            ApplyPercentModFloatVar(amount, val, !apply);
         else if (att == RANGED_ATTACK && getClass() == CLASS_HUNTER)
-            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
+            ApplyPercentModFloatVar(amount, val, !apply);
     }
     else
     {
         if (att == BASE_ATTACK && getClass() != CLASS_HUNTER)
-            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
+            ApplyPercentModFloatVar(amount, -val, apply);
         else if (att == RANGED_ATTACK && getClass() == CLASS_HUNTER)
-            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
+            ApplyPercentModFloatVar(amount, -val, apply);
     }
+
+    SetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, amount);
 
     if (getClass() == CLASS_DEATH_KNIGHT)
         ToPlayer()->UpdatePowerRegeneration(POWER_RUNE);
@@ -11207,20 +11410,26 @@ void Unit::ApplyHasteRegenMod(WeaponAttackType att, float val, bool apply)
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply, bool withCastHaste /*= true*/, bool withCastSpeed /*= true*/)
 {
-    if (val > 0)
+    float speedAmount = GetFloatValue(UNIT_MOD_CAST_SPEED);
+    float hasteAmount = GetFloatValue(UNIT_MOD_CAST_HASTE);
+
+    if (val > 0.f)
     {
         if (withCastSpeed)
-            ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, val, !apply);
+            ApplyPercentModFloatVar(speedAmount, val, !apply);
         if (withCastHaste)
-            ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, val, !apply);
+            ApplyPercentModFloatVar(hasteAmount, val, !apply);
     }
     else
     {
         if (withCastSpeed)
-            ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, -val, apply);
+            ApplyPercentModFloatVar(speedAmount, -val, apply);
         if (withCastHaste)
-            ApplyPercentModFloatValue(UNIT_MOD_CAST_HASTE, -val, apply);
+            ApplyPercentModFloatVar(hasteAmount, -val, apply);
     }
+
+    SetFloatValue(UNIT_MOD_CAST_SPEED, speedAmount);
+    SetFloatValue(UNIT_MOD_CAST_HASTE, hasteAmount);
 }
 
 uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const
@@ -11376,7 +11585,7 @@ float Unit::CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffect
     return (CastingTime / 3500.0f) * DotFactor;
 }
 
-float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
+float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
 {
     if (GetTypeId() != TYPEID_PLAYER || (IsInFeralForm() && !normalized))
         return GetAttackTime(attType) / 1000.0f;

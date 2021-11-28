@@ -801,7 +801,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     // Hunters pets should not inherit resistances from creature_template, they have separate auras for that
     if (!IsHunterPet())
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-            SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
+            SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
     // Health, mana, armor and resistance
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
@@ -811,7 +811,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetCreateMana(pInfo->mana);
 
         if (pInfo->armor > 0)
-            SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
+            SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
 
         for (uint8 stat = 0; stat < MAX_STATS; ++stat)
             SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
@@ -945,8 +945,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier / 14);
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier / 14);
 
-                    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(GetOwner()->GetArmor()) * 0.35f);  // Bonus Armor (35% of player armor)
-                    SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(GetOwner()->GetStat(STAT_STAMINA)) * 0.3f);  // Bonus Stamina (30% of player stamina)
+                    SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(GetOwner()->GetArmor()) * 0.35f);  // Bonus Armor (35% of player armor)
+                    SetStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(GetOwner()->GetStat(STAT_STAMINA)) * 0.3f);  // Bonus Stamina (30% of player stamina)
                     if (!HasAura(58877))        // Spirit Hunt
                         AddAura(58877, this);
                     if (!HasAura(61783))        // Feral Pet Scaling
@@ -1003,7 +1003,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     float attackPower = ((minDamage + maxDamage) /4) * 7;
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, minDamage);
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDamage);
-                    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, attackPower);
+                    SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, attackPower);
                     SetCreateHealth(m_owner->CountPctFromMaxHealth(40));
                     break;
                 }
