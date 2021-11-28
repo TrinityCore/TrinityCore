@@ -3737,10 +3737,6 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
 void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() == TYPEID_PLAYER)
-        target->ApplyHasteRegenMod(target->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK, GetAmount(), apply);
-
     HandleModPowerRegen(aurApp, mode, apply);
 }
 

@@ -791,8 +791,17 @@ void Player::UpdatePowerRegeneration(Powers powerType)
             // Set regen rate in cast state apply only on spirit based regen
             int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
 
-            SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
-            SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, spirit_regen + base_regen);
+            SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
+            SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, spirit_regen + base_regen);
+            break;
+        }
+        case POWER_FOCUS:
+        case POWER_ENERGY:
+        {
+            // Energy and Focus regeneration is always consistent in and out of combat
+            float baseRegen = Unit::GetBasePowerRegen(0, powerType, false);
+            SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, baseRegen * powerRegenModPct - baseRegen + powerRegenMod);
+            SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, baseRegen * powerRegenModPct - baseRegen + powerRegenMod);
             break;
         }
         case POWER_RUNIC_POWER:
