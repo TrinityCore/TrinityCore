@@ -1183,7 +1183,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     CreatureAI* ai = cTarget->AI();
                     if (IsSmart(cTarget))
-                        ENSURE_AI(SmartAI, ai)->SetData(e.action.setData.field, e.action.setData.data, me);
+                        ENSURE_AI(SmartAI, ai)->SetData(e.action.setData.field, e.action.setData.data, unit);
                     else
                         ai->SetData(e.action.setData.field, e.action.setData.data);
                 }
@@ -1191,7 +1191,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     GameObjectAI* ai = oTarget->AI();
                     if (IsSmart(oTarget))
-                        ENSURE_AI(SmartGameObjectAI, ai)->SetData(e.action.setData.field, e.action.setData.data, me);
+                        ENSURE_AI(SmartGameObjectAI, ai)->SetData(e.action.setData.field, e.action.setData.data, unit);
                     else
                         ai->SetData(e.action.setData.field, e.action.setData.data);
                 }
@@ -2865,20 +2865,34 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_CLOSEST_CREATURE:
         {
-            if (Creature* target = baseObject->FindNearestCreature(e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100), !e.target.closest.dead))
-                targets.push_back(target);
+            WorldObject* searchObject = GetBaseObject();
+            if (!searchObject)
+                searchObject = scriptTrigger;
+
+            if (searchObject)
+                if (Creature* target = searchObject->FindNearestCreature(e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100), !e.target.closest.dead))
+                    targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         {
-            if (GameObject* target = baseObject->FindNearestGameObject(e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100)))
-                targets.push_back(target);
+            WorldObject* searchObject = GetBaseObject();
+            if (!searchObject)
+                searchObject = scriptTrigger;
+
+            if (searchObject)
+                if (GameObject* target = searchObject->FindNearestGameObject(e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100)))
+                    targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_PLAYER:
         {
-            if (WorldObject* obj = GetBaseObject())
-                if (Player* target = obj->SelectNearestPlayer(float(e.target.playerDistance.dist)))
+            WorldObject* searchObject = GetBaseObject();
+            if (!searchObject)
+                searchObject = scriptTrigger;
+
+            if (searchObject)
+                if (Player* target = searchObject->SelectNearestPlayer(float(e.target.playerDistance.dist)))
                     targets.push_back(target);
             break;
         }
