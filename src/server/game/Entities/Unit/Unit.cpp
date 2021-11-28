@@ -12282,7 +12282,13 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     // charm is set by aura, and aura effect remove handler was called during apply handler execution
     // prevent undefined behaviour
     if (aurApp && aurApp->GetRemoveMode().HasAnyFlag())
+    {
+        // properly clean up charm changes up to this point to avoid leaving the unit in partially charmed state
+        SetFaction(_oldFactionId);
+        GetMotionMaster()->InitDefault();
+        charmer->SetCharm(this, false);
         return false;
+    }
 
     _oldFactionId = GetFaction();
     SetFaction(charmer->GetFaction());
