@@ -113,9 +113,9 @@ struct boss_exarch_maladaar : public BossAI
         events.ScheduleEvent(EVENT_STOLEN_SOUL, RAND(10s, 15s, 20s, 25s));
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_avatarSummoned && !HealthAbovePct(25))
+        if (!_avatarSummoned && me->HealthBelowPctDamaged(25, damage))
         {
             _avatarSummoned = true;
             events.ScheduleEvent(EVENT_SUMMON_AVATAR, 0s);
