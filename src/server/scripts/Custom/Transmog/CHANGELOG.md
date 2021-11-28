@@ -1,17 +1,17 @@
 #### 7.0
 - Updated to legion style transmog system with all items the player has seen to his account-wide collection
 - Items do need to match specific settings still to be eligible for collection (quality, equippable by player, ...)
-- All items from quest rewards are also added to collection upon rewarding
-- Added an SQL script to insert previously completed quest's rewards to players (run manually)
+- All items from quest rewards are also added to collection upon rewarding, not just the one chosen by player
+- Added an SQL script to insert previously completed quest's rewards to players' collections (run manually)
 - Players need to still move around their existing items in their inventory to add them to collection at this time. As deleted items (item history) is not available its not possible to add those.
-- Added enchants as transmog option. All enchants visuals (even not from actual enchants) are always available. Pontentially could be restricted in future (similar to retail) - there is already a system in place for adding them to collection.
+- Added enchants as transmog option. All enchants visuals (even not from actual enchants) are always available. Potentially could be restricted in future (similar to retail) - there is already a system in place for adding them to collection.
 - Added hide items and enchants as transmog option (not available for weapons, though there is no technical limitation for that)
 - The menus were updated so that there is now pagination to allow a full collection to be shown properly
 - Menus also now allow you to apply transmogs to view how they look and pay later. A timed message warns player if he leaves without paying. Going too far from transmogrifier removes the transmogs from the player unless they were saved.
 - Some new settings for faction requirement and profiency requirement ignoring
 - Removed token cost for now
 - Partially removed locatization support - which has not been fully supported in a long time (no more trinity_string)
-- Now having more error messages about why items cant be used in certain situaitons
+- Now having more error messages about why items cant be used in certain situations
 
 #### 6.1
 - Update to newest TC
