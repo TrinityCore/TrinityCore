@@ -3736,7 +3736,6 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
 
 void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    Unit* target = aurApp->GetTarget();
     HandleModPowerRegen(aurApp, mode, apply);
 }
 
