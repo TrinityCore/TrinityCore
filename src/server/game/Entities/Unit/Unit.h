@@ -975,6 +975,7 @@ class TC_GAME_API Unit : public WorldObject
 
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val, bool withPowerUpdate = true);
+        static float GetBasePowerRegen(uint32 powerBarId, Powers powerType, bool isInCombat);
         float GetPowerRegen(Powers powerType, bool isInCombat) const;
 
         virtual void RegenerateHealth() { }

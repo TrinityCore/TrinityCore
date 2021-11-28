@@ -8812,7 +8812,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool withPowerUpdate /*= true*
     return gain;
 }
 
-inline float GetBasePowerRegen(uint32 powerBarId, Powers powerType, bool isInCombat)
+/*static */ float Unit::GetBasePowerRegen(uint32 powerBarId, Powers powerType, bool isInCombat)
 {
     if (powerType != POWER_ALTERNATE_POWER)
     {
@@ -11338,8 +11338,8 @@ void ApplyPercentModFloatVar(float& var, float val, bool apply)
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
     float amount = GetFloatValue(UNIT_FIELD_BASEATTACKTIME + att);
-    float hasteAmount = GetFloatValue(PLAYER_FIELD_MOD_HASTE);
-    float rangedHasteAmount = GetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE);
+    float hasteAmount = GetTypeId() == TYPEID_PLAYER ? GetFloatValue(PLAYER_FIELD_MOD_HASTE) : 0.f;
+    float rangedHasteAmount = GetTypeId() == TYPEID_PLAYER ? GetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE) : 0.f;
 
     float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
     if (val > 0.f)
