@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Transmogrification.h"
 #include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -92,7 +93,6 @@
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
-#include "Transmogrification.h"
 #include "Transport.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
@@ -4255,9 +4255,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
-#ifdef PRESETS
-            trans->PAppend("DELETE FROM `custom_transmogrification_sets` WHERE `Owner` = %u", guid);
-#endif
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_TRANSMOG_SETS);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ACCOUNT_DATA);
             stmt->setUInt32(0, guid);
@@ -11980,6 +11981,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             stmt->setString(1, ss.str());
             CharacterDatabase.Execute(stmt);
         }
+        Transmogrification::instance().AddToCollection(this, pItem);
     }
     return pItem;
 }
@@ -12119,6 +12121,7 @@ Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
     if (Item* pItem = Item::CreateItem(item, 1, this))
     {
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
+        Transmogrification::instance().AddToCollection(this, pItem);
         Item* equippedItem = EquipItem(pos, pItem, update);
         ItemAddedQuestCheck(item, 1);
         return equippedItem;
@@ -12265,11 +12268,26 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        if (uint32 entry = pItem->transmog)
+        if (uint32 entry = pItem->GetTransmog())
+        {
+            if (entry == InvisibleEntry)
+                entry = 0;
+            if (entry == NormalEntry)
+                entry = pItem->GetEntry();
             SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), entry);
+        }
         else
             SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
-        SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        if (uint32 entry = pItem->GetEnchant())
+        {
+            if (entry == InvisibleEntry)
+                entry = 0;
+            if (entry == NormalEntry)
+                entry = pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
+            SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, entry);
+        }
+        else
+            SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
     else
@@ -12398,8 +12416,9 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
 {
     if (Item* it = GetItemByPos(bag, slot))
     {
+        it->SetTransmog(0);
+        it->SetEnchant(0);
         RemoveItem(bag, slot, update);
-        it->transmog = 0;
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         it->SetNotRefundable(this, false);
         RemoveItemFromUpdateQueueOf(it, this);
@@ -12438,6 +12457,7 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
     // update quest counters
     ItemAddedQuestCheck(itemId, count);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, itemId, count);
+    Transmogrification::instance().AddToCollection(this, pLastItem);
 }
 
 void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
@@ -14060,7 +14080,19 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, apply ? item->GetEnchantmentId(slot) : 0);
+    {
+        uint32 entry = item->GetEnchant();
+        if (apply && entry)
+        {
+            if (entry == InvisibleEntry)
+                entry = 0;
+            if (entry == NormalEntry)
+                entry = item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
+            SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, entry);
+        }
+        else
+            SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, apply ? item->GetEnchantmentId(slot) : 0);
+    }
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 1, apply ? item->GetEnchantmentId(slot) : 0);
@@ -15176,6 +15208,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 }
                 else if (quest->IsDFQuest())
                     SendItemRetrievalMail(itemId, quest->RewardItemIdCount[i]);
+                if (quest->RewardItemIdCount[i]) {
+                    Transmogrification::instance().AddToCollection(this, sObjectMgr->GetItemTemplate(quest->RewardItemId[i]));
+                }
             }
         }
     }
@@ -15189,6 +15224,11 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             {
                 Item* item = StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId));
                 SendNewItem(item, quest->RewardChoiceItemCount[reward], true, false, false, false);
+            }
+        }
+        for (uint32 reward = 0; reward < quest->GetRewChoiceItemsCount(); ++reward) {
+            if (quest->RewardChoiceItemCount[reward]) {
+                Transmogrification::instance().AddToCollection(this, sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[reward]));
             }
         }
     }
@@ -19575,6 +19615,24 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
 
     trans->Append(stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_TRANSMOG_SETS);
+    stmt->setUInt32(0, GetGUID().GetCounter());
+    trans->Append(stmt);
+    for (auto&& it : presetMap)
+    {
+        if (it.second.data.empty())
+            continue;
+        std::ostringstream ss;
+        for (auto const & v : it.second.data)
+            ss << static_cast<uint32>(std::get<uint8>(v)) << ' ' << std::get<uint32>(v) << ' ' << static_cast<uint32>(std::get<AppearanceType>(v)) << ' ';
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_TRANSMOG_SETS);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt8(1, it.first);
+        stmt->setString(2, it.second.name);
+        stmt->setString(3, ss.str());
+        trans->Append(stmt);
+    }
+
     if (m_fishingSteps != 0)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_FISHINGSTEPS);
@@ -23692,9 +23750,11 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     }
     else
     {
-        uint32 transmog = offItem->transmog;
+        uint32 transmog = offItem->GetTransmog();
+        uint32 enchant = offItem->GetEnchant();
         MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
-        offItem->transmog = transmog;
+        offItem->SetTransmog(transmog);
+        offItem->SetEnchant(enchant);
 
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory

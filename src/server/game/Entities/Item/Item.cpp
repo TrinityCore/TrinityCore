@@ -38,6 +38,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Transmogrification.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -363,6 +364,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
             stmt->setUInt32(++index, transmog);
+            stmt->setUInt32(++index, enchant);
             stmt->setUInt32(++index, guid);
 
             trans->Append(stmt);
@@ -500,7 +502,11 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         CharacterDatabase.Execute(stmt);
     }
 
-    transmog = fields[15].GetUInt32();
+    transmog = fields[16].GetUInt32();
+    bool hasTemplate = transmog != NormalEntry && transmog != InvisibleEntry;
+    if (transmog && hasTemplate && Transmogrification::instance().CannotTransmogrifyItemWithItem(GetOwner(), proto, sObjectMgr->GetItemTemplate(transmog)))
+        transmog = 0; // Player swapped factions? Or settings changed.
+    enchant = fields[17].GetUInt32();
 
     return true;
 }
@@ -543,6 +549,13 @@ ItemTemplate const* Item::GetTemplate() const
 Player* Item::GetOwner()const
 {
     return ObjectAccessor::FindPlayer(GetOwnerGUID());
+}
+
+void Item::SetBinding(bool val)
+{
+    ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val);
+    if (val)
+        Transmogrification::instance().AddToCollection(GetOwner(), this);
 }
 
 // Just a "legacy shortcut" for proto->GetSkill()

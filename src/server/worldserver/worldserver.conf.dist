@@ -4108,25 +4108,6 @@ Transmogrification.ScaledCostModifier = 1.0
 Transmogrification.CopperCost = 0
 
 #
-#    TOKEN COST
-#
-#    Transmogrification.RequireToken
-#        Description: Adds/disables token cost
-#        Default:    0
-#
-#    Transmogrification.TokenEntry
-#        Description: Entry of the token item
-#        Default:    49426
-#
-#    Transmogrification.TokenAmount
-#        Description: Amount of tokens required
-#        Default:    1
-
-Transmogrification.RequireToken = 0
-Transmogrification.TokenEntry = 49426
-Transmogrification.TokenAmount = 1
-
-#
 #    REQUIREMENTS
 #
 #    Transmogrification.AllowPoor
@@ -4186,7 +4167,7 @@ Transmogrification.TokenAmount = 1
 #        Default:    0
 #
 #    Transmogrification.IgnoreReqSkill
-#        Description: Ignore required skill for source items
+#        Description: Ignore required skill for source items, for example engineering
 #        Default:    0
 #
 #    Transmogrification.IgnoreReqSpell
@@ -4203,6 +4184,14 @@ Transmogrification.TokenAmount = 1
 #
 #    Transmogrification.IgnoreReqStats
 #        Description: Ignore stat count > 0 requirement for source items
+#        Default:    0
+#
+#    Transmogrification.IgnorePlayerMissingProfiency
+#        Description: Ignore requirement for knowing profiency (skill required to equip item)
+#        Default:    0
+#
+#    Transmogrification.IgnoreReqFaction
+#        Description: Ignore alliance only or horde only requirement on items
 #        Default:    0
 
 Transmogrification.AllowPoor = 0
@@ -4226,6 +4215,8 @@ Transmogrification.IgnoreReqSpell = 0
 Transmogrification.IgnoreReqLevel = 0
 Transmogrification.IgnoreReqEvent = 0
 Transmogrification.IgnoreReqStats = 0
+Transmogrification.IgnorePlayerMissingProfiency = 0
+Transmogrification.IgnoreReqFaction = 0
 
 #
 #    SET FEATURE

@@ -122,6 +122,10 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     stmt->setUInt32(0, accountId);
     CharacterDatabase.Execute(stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_TRANSMOG);
+    stmt->setUInt32(0, accountId);
+    CharacterDatabase.Execute(stmt);
+
     LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
     loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT);

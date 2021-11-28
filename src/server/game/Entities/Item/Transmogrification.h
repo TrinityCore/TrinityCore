@@ -2,76 +2,44 @@
 #define DEF_TRANSMOGRIFICATION_H
 
 #include <vector>
+#include <unordered_map>
 #include "Define.h"
 #include "ObjectGuid.h"
-
-#define PRESETS // comment this line to disable preset feature totally
-#define MAX_OPTIONS 25 // do not alter
+#include "TransmogrificationDefines.h"
+#include <limits>
 
 class Item;
 class Player;
 class WorldSession;
+class SpellInfo;
 struct ItemTemplate;
-
-enum TransmogTrinityStrings // Language.h might have same entries, appears when executing SQL, change if needed
-{
-    LANG_ERR_TRANSMOG_OK = 11100, // change this
-    LANG_ERR_TRANSMOG_INVALID_SLOT,
-    LANG_ERR_TRANSMOG_INVALID_SRC_ENTRY,
-    LANG_ERR_TRANSMOG_MISSING_SRC_ITEM,
-    LANG_ERR_TRANSMOG_MISSING_DEST_ITEM,
-    LANG_ERR_TRANSMOG_INVALID_ITEMS,
-    LANG_ERR_TRANSMOG_NOT_ENOUGH_MONEY,
-    LANG_ERR_TRANSMOG_NOT_ENOUGH_TOKENS,
-
-    LANG_ERR_UNTRANSMOG_OK,
-    LANG_ERR_UNTRANSMOG_NO_TRANSMOGS,
-
-#ifdef PRESETS
-    LANG_PRESET_ERR_INVALID_NAME,
-#endif
-};
 
 class TC_GAME_API Transmogrification
 {
 private:
-    Transmogrification() { };
-    ~Transmogrification() { };
-    Transmogrification(const Transmogrification&);
-    Transmogrification& operator=(const Transmogrification&);
-
+    Transmogrification() = default;
 public:
-    static Transmogrification* instance();
+    Transmogrification(Transmogrification const &) = delete;
+    void operator=(Transmogrification const &x) = delete;
 
-#ifdef PRESETS
+    static Transmogrification& instance();
 
     bool EnableSetInfo;
     uint32 SetNpcText;
 
     bool EnableSets;
     uint8 MaxSets;
-    float SetCostModifier;
-    int32 SetCopperCost;
-
-    void LoadPlayerSets(Player* player);
-
-    void PresetTransmog(Player* player, Item* itemTransmogrified, uint32 fakeEntry, uint8 slot);
-#endif
 
     bool EnableTransmogInfo;
     uint32 TransmogNpcText;
 
     // Use IsAllowed() and IsNotAllowed()
-    // these are thread unsafe, but assumed to be static data so it should be safe
+    // these are thread unsafe, but assumed to be data so it should be safe
     std::set<uint32> Allowed;
     std::set<uint32> NotAllowed;
 
     float ScaledCostModifier;
     int32 CopperCost;
-
-    bool RequireToken;
-    uint32 TokenEntry;
-    uint32 TokenAmount;
 
     bool AllowPoor;
     bool AllowCommon;
@@ -94,29 +62,79 @@ public:
     bool IgnoreReqLevel;
     bool IgnoreReqEvent;
     bool IgnoreReqStats;
+    bool IgnorePlayerMissingProfiency;
+    bool IgnoreReqFaction;
 
-    bool IsAllowed(uint32 entry) const;
-    bool IsNotAllowed(uint32 entry) const;
-    bool IsAllowedQuality(uint32 quality) const;
-    bool IsRangedWeapon(uint32 Class, uint32 SubClass) const;
+    bool AddRegardlessOfPlayerLimits;
+    bool IgnoreReqBound;
+
+    static const std::unordered_map<uint32, std::string> enchant_visual_to_name; // contains all enchant visuals (not enchants) that should be viewable in menus
+
+    bool IsAllowed(uint32 entry);
+    bool IsNotAllowed(uint32 entry);
+    bool IsAllowedQuality(uint32 quality);
+    bool IsBowOrGunOrCrossbow(ItemTemplate const* itemTemplate);
+    bool IsMeleeWeapon(ItemTemplate const* itemTemplate);
+
+    std::unordered_map<uint32, std::vector<SpellInfo const*>> enchant_to_spells; // contains all enchants. Some spell lists can be empty
+    std::unordered_map<uint32, std::vector<uint32>> spell_to_enchants; // does not contain all enchants as all of them dont come from spells
 
     void LoadConfig(bool reload); // thread unsafe
+    void LoadEnchants(); // thread unsafe
 
-    std::string GetItemIcon(uint32 entry, uint32 width, uint32 height, int x, int y) const;
-    std::string GetSlotIcon(uint8 slot, uint32 width, uint32 height, int x, int y) const;
-    const char * GetSlotName(uint8 slot, WorldSession* session) const;
-    std::string GetItemLink(Item* item, WorldSession* session) const;
-    std::string GetItemLink(uint32 entry, WorldSession* session) const;
-    void UpdateItem(Player* player, Item* item) const;
+    std::string GetItemIcon(uint32 entry, uint32 width, uint32 height, int x, int y);
+    std::string GetSlotIcon(uint8 slot, uint32 width, uint32 height, int x, int y);
+    const char * GetSlotName(uint8 slot, WorldSession* session);
+    std::string GetItemName(ItemTemplate const* itemTemplate, WorldSession* session);
+    std::string GetItemName(Item const* itemTemplate, WorldSession* session);
+    std::string GetItemLink(Item* item, WorldSession* session);
+    std::string GetItemLink(uint32 entry, WorldSession* session);
+    Item* GetEquippedItem(Player* player, uint8 slot);
+    void UpdateItem(Player* player, Item* item);
 
-    TransmogTrinityStrings Transmogrify(Player* player, ObjectGuid itemGUID, uint8 slot, bool no_cost = false);
-    bool CanTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source) const;
-    bool SuitableForTransmogrification(Player* player, ItemTemplate const* proto) const;
-    // bool CanBeTransmogrified(Item const* item);
-    // bool CanTransmogrify(Item const* item);
-    uint32 GetSpecialPrice(ItemTemplate const* proto) const;
-    std::vector<ObjectGuid> GetItemList(const Player* player) const;
+    TransmogResult CannotTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source);
+    TransmogResult CannotTransmogrifyItemWithEnchant(Player* player, ItemTemplate const* destination, uint32 enchant);
+    TransmogResult CannotTransmogrifyItem(Player* player, ItemTemplate const* proto);
+    TransmogResult CannotEquip(Player* player, ItemTemplate const* proto);
+    TransmogResult CannotTransmogrify(ItemTemplate const* proto);
+    bool HasPendingTransmog(Player* player, uint8 slot, Item** retItem = nullptr, uint32* retPending = nullptr, uint32* retCurrent = nullptr);
+    bool HasPendingEnchant(Player* player, uint8 slot, Item** retItem = nullptr, uint32* retPending = nullptr, uint32* retCurrent = nullptr);
+
+    // Call these from core to add visuals to player's collection
+    void AddToCollection(Player* player, Item* item);
+    void AddToCollection(Player* player, const ItemTemplate* itemtemplate);
+    void AddToCollectionEnchant(Player* player, uint32 enchant_id);
+
+    uint32 AddItemVisualToCollection(Player* player, Item* item);
+    uint32 AddItemVisualToCollection(Player* player, const ItemTemplate* itemtemplate);
+    uint32 AddEnchantVisualToCollection(Player* player, uint32 enchant_id);
+    bool CanAddToCollection(Player* player, Item* item);
+    bool CanAddToCollection(Player* player, ItemTemplate const* itemTemplate);
+    bool CanAddEnchantToCollection(Player* player, Item* item);
+    uint32 Save(Player* player, AppearanceType transmogtype, uint32 visual);
+    void SaveToDB(Player* player, AppearanceType transmogtype, uint32 visual);
+
+    bool HasVisual(Player* player, AppearanceType transmogtype, uint32 visual);
+
+    std::vector<ObjectGuid> GetItemList(const Player* player);
+    std::vector<Item*> GetEquippedItems(Player* player);
+    PendingTransmogs GetPendingTransmogs(Player* player);
+    uint32 GetCurrentVisual(Item* item);
+    uint32 GetCurrentVisualEnchant(Item* item);
+
+    uint32 GetSpecialPrice(ItemTemplate const* proto);
+    int32 CalculateTransmogCost(uint32 entry);
+    int32 CalculateTransmogCost(PendingTransmogs& items);
+
+    TransmogResult TrySetPendingTransmog(Player* player, uint32 slot, uint32 entry);
+    TransmogResult TrySetPendingEnchant(Player* player, uint32 slot, uint32 entry);
+    TransmogResult TransmogrifyPending(Player* player, int32 expectedCost = -1);
+    void Transmogrify(Player* player, Item* transmogrified, AppearanceType type, uint32 entry);
+
+    void RemoveAllTransmogrifications(Player* player);
+    void RevertAllTransmogrifications(Player* player);
+    bool RevertTransmogrification(Player* player, uint8 slot);
+    bool RevertEnchant(Player* player, uint8 slot);
 };
-#define sTransmogrification Transmogrification::instance()
 
 #endif
