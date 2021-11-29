@@ -16545,7 +16545,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
         case TYPEID_UNIT:
         {
             if (CreatureAI* ai = questgiver->ToCreature()->AI())
-                if (Optional<QuestGiverStatus> questStatus = questgiver->ToCreature()->AI()->GetDialogStatus(this))
+                if (Optional<QuestGiverStatus> questStatus = ai->GetDialogStatus(this))
                     return *questStatus;
             qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
             qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
