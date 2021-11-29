@@ -304,6 +304,8 @@ TransmogResult Transmogrification::CannotTransmogrifyItemWithItem(Player* player
 // Item::IsFitToSpellRequirements copy paste
 static bool IsFitToSpellRequirements(SpellInfo const* spellInfo, ItemTemplate const* proto)
 {
+    (void)spellInfo;
+    (void)proto;
     //bool const isEnchantSpell = spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC);
     //if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     //{
