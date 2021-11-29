@@ -809,6 +809,8 @@ bool Transmogrification::CanAddToCollection(Player* player, Item* item)
 
 bool Transmogrification::CanAddEnchantToCollection(Player* player, Item* item)
 {
+    (void)player;
+    (void)item;
     //if (!IgnoreReqBound && !IsBound(item))
     //    return false;
     //if (!AddRegardlessOfPlayerLimits && CannotEquip(player, item->GetTemplate()))
@@ -905,7 +907,7 @@ void Transmogrification::AddToCollection(Player* player, const ItemTemplate* ite
     if (!itemtemplate)
         return;
     if (uint32 transmog = AddItemVisualToCollection(player, itemtemplate)) {
-        ChatHandler(player->GetSession()).PSendSysMessage(AddToCollectionMessageFmt, GetItemLink(itemtemplate->ItemId, player->GetSession()).c_str());
+        ChatHandler(player->GetSession()).PSendSysMessage(AddToCollectionMessageFmt, GetItemLink(transmog, player->GetSession()).c_str());
     }
 }
 
@@ -1105,6 +1107,8 @@ int32 Transmogrification::CalculateTransmogCost(PendingTransmogs& items)
                 if (entry == NormalEntry)
                     break;
                 cost += 1 * GOLD;
+                break;
+            case TRANSMOG_TYPE_COUNT:
                 break;
         }
     }

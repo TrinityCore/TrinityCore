@@ -193,6 +193,7 @@ public:
 
         static void AddItemTransmog(Player* player, Creature* creature, uint32 base, uint32 page, uint32 action, std::string const & name)
         {
+            (void)creature;
             uint32 itementry = action;
             if (itementry == RemovePending)
                 AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Enchant_Disenchant:30:30:-18:0|tRemove pending transmogrification", SENDER_REVERT_TRANSMOG, base + page);
@@ -206,6 +207,7 @@ public:
 
         static void AddItemEnchant(Player* player, Creature* creature, uint32 base, uint32 page, uint32 action, std::string const & name)
         {
+            (void)creature;
             uint32 enchantentry = action;
             if (enchantentry == RemovePending)
                 AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Enchant_Disenchant:30:30:-18:0|tRemove pending enchant", SENDER_REVERT_ENCHANT, base + page);
@@ -381,14 +383,16 @@ public:
                                 case TRANSMOG_TYPE_ITEM:
                                     if (TransmogResult res = Transmogrification::instance().TrySetPendingTransmog(player, std::get<uint8>(v), std::get<uint32>(v)))
                                     {
-                                        session->SendNotification(CanTransmogrifyResultMessage(res));
+                                        session->SendNotification("%s", CanTransmogrifyResultMessage(res));
                                     }
                                     break;
                                 case TRANSMOG_TYPE_ENCHANT:
                                     if (TransmogResult res = Transmogrification::instance().TrySetPendingEnchant(player, std::get<uint8>(v), std::get<uint32>(v)))
                                     {
-                                        session->SendNotification(CanTransmogrifyResultMessage(res));
+                                        session->SendNotification("%s", CanTransmogrifyResultMessage(res));
                                     }
+                                    break;
+                                case TRANSMOG_TYPE_COUNT:
                                     break;
                             }
                         }
@@ -430,6 +434,8 @@ public:
                                 }
                                 break;
                             }
+                            case TRANSMOG_TYPE_COUNT:
+                                break;
                         }
                     }
 
@@ -466,9 +472,9 @@ public:
                 {
                     TransmogResult res = Transmogrification::instance().TransmogrifyPending(player, boxMoney);
                     if (res == TransmogResult_Ok)
-                        session->SendAreaTriggerMessage(CanTransmogrifyResultMessage(res));
+                        session->SendAreaTriggerMessage("%s", CanTransmogrifyResultMessage(res));
                     else
-                        session->SendNotification(CanTransmogrifyResultMessage(res));
+                        session->SendNotification("%s", CanTransmogrifyResultMessage(res));
                     OnGossipHello(player, creature);
                 } break;
                 default: // from 0 to EQUIPMENT_SLOT_END-1 TrySetPendingTransmog
@@ -522,7 +528,7 @@ public:
                     // length check
                     if (name.length() < 1 || name.length() > 255)
                     {
-                        player->GetSession()->SendNotification(CanTransmogrifyResultMessage(TransmogResult_TooLongSetName));
+                        player->GetSession()->SendNotification("%s", CanTransmogrifyResultMessage(TransmogResult_TooLongSetName));
                         OnGossipSelect(player, creature, SENDER_PRESET_LIST, 0);
                         return true;
                     }
@@ -541,7 +547,7 @@ public:
                     if (items.empty())
                     {
                         // no displays to save
-                        player->GetSession()->SendNotification(CanTransmogrifyResultMessage(TransmogResult_NoTransmogrifications));
+                        player->GetSession()->SendNotification("%s", CanTransmogrifyResultMessage(TransmogResult_NoTransmogrifications));
                         OnGossipSelect(player, creature, SENDER_PRESET_LIST, 0);
                         return true;
                     }
@@ -562,7 +568,7 @@ public:
                     if (presetID >= Transmogrification::instance().MaxSets)
                     {
                         // already saved max amount of sets, cheating?
-                        player->GetSession()->SendNotification(CanTransmogrifyResultMessage(TransmogResult_AtMaxSets));
+                        player->GetSession()->SendNotification("%s", CanTransmogrifyResultMessage(TransmogResult_AtMaxSets));
                         OnGossipSelect(player, creature, SENDER_PRESET_LIST, 0);
                         return true;
                     }
@@ -588,7 +594,7 @@ public:
                     // length check
                     if (name.length() < 1 || name.length() > 255)
                     {
-                        player->GetSession()->SendNotification(CanTransmogrifyResultMessage(TransmogResult_TooLongSetName));
+                        player->GetSession()->SendNotification("%s", CanTransmogrifyResultMessage(TransmogResult_TooLongSetName));
                         OnGossipSelect(player, creature, SENDER_PRESET_LIST, 0);
                         return true;
                     }
@@ -597,7 +603,7 @@ public:
                     if (player->presetMap.find(presetID) == player->presetMap.end())
                     {
                         // nonexistant setid, cheating?
-                        player->GetSession()->SendNotification(CanTransmogrifyResultMessage(TransmogResult_NonexistantSet));
+                        player->GetSession()->SendNotification("%s", CanTransmogrifyResultMessage(TransmogResult_NonexistantSet));
                         OnGossipSelect(player, creature, SENDER_PRESET_LIST, 0);
                         return true;
                     }
@@ -644,6 +650,8 @@ public:
                     case TRANSMOG_TYPE_ENCHANT:
                         AddItemEnchant(player, creature, base, page, action, name);
                         break;
+                    case TRANSMOG_TYPE_COUNT:
+                        break;
                 }
             }
             SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
@@ -663,13 +671,13 @@ public:
             const ItemTemplate* target = item->GetTemplate();
             if (TransmogResult res = Transmogrification::instance().CannotTransmogrify(target))
             {
-                player->GetSession()->SendNotification(CanTransmogrifyResultMessage(res));
+                player->GetSession()->SendNotification("%s", CanTransmogrifyResultMessage(res));
                 OnGossipHello(player, creature);
                 return;
             }
             if (TransmogResult res = Transmogrification::instance().CannotEquip(player, target))
             {
-                player->GetSession()->SendNotification(CanTransmogrifyResultMessage(res));
+                player->GetSession()->SendNotification("%s", CanTransmogrifyResultMessage(res));
                 OnGossipHello(player, creature);
                 return;
             }
@@ -709,6 +717,9 @@ public:
                     try_add_enchant(added_enchant_visuals, actions, player, target, appearance);
             }
             break;
+            case TRANSMOG_TYPE_COUNT:
+                OnGossipHello(player, creature);
+                return;
             }
             // Sort by name
             std::sort(actions.begin(), actions.end(),
@@ -738,7 +749,7 @@ public:
                 session->SendAreaTriggerMessage(TransmogResult_Ok_PendingMessage);
                 return true;
             }
-            session->SendNotification(CanTransmogrifyResultMessage(res));
+            session->SendNotification("%s", CanTransmogrifyResultMessage(res));
             return false;
         }
 
@@ -751,7 +762,7 @@ public:
                 session->SendAreaTriggerMessage(TransmogResult_Ok_PendingMessage);
                 return true;
             }
-            session->SendNotification(CanTransmogrifyResultMessage(res));
+            session->SendNotification("%s", CanTransmogrifyResultMessage(res));
             return false;
         }
     };
