@@ -37,6 +37,7 @@ Cant transmogrify rediculus items // Foereaper: would be fun to stab people with
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
+#include "ObjectAccessor.h"
 #include "ObjectGuid.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
