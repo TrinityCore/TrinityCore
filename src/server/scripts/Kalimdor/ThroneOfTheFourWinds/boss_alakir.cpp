@@ -54,6 +54,7 @@ enum Spells
     SPELL_STATIC_SHOCK                                      = 87873,
     SPELL_LIGHTNING                                         = 89644,
     SPELL_SUMMON_CHEST                                      = 95386,
+    SPELL_TOO_CLOSE_KNOCKBACK                               = 90658,
 
     // Squall Line Vehicle
     SPELL_SQUALL_LINE_FORCE_CAST                            = 88779,
@@ -296,16 +297,14 @@ Position const LightningCloudsExtraVisualsPositions[] =
 
 struct boss_alakir : public BossAI
 {
-    boss_alakir(Creature* creature) : BossAI(creature, DATA_ALAKIR)
-    {
-        Initialize();
-    }
-
-    void Initialize()
+    boss_alakir(Creature* creature) : BossAI(creature, DATA_ALAKIR), _useLeftSquallLineSpell(true), _useTempoaryCloudSpawns(false)
     {
         me->SetReactState(REACT_PASSIVE);
-        _useLeftSquallLineSpell = true;
-        _useTempoaryCloudSpawns = false;
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_TOO_CLOSE_KNOCKBACK);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -406,6 +405,7 @@ struct boss_alakir : public BossAI
             me->SetFacingTo(3.141593f);
             me->InterruptNonMeleeSpells(true);
             me->RemoveAurasDueToSpell(SPELL_ACID_RAIN);
+            me->RemoveAurasDueToSpell(SPELL_TOO_CLOSE_KNOCKBACK);
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ACID_RAIN_DAMAGE);
             instance->SetData(DATA_ACID_RAIN_WEATHER, NOT_STARTED);
             DoCastAOE(SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TRIGGER);
