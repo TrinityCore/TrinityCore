@@ -175,31 +175,33 @@ std::string Transmogrification::GetItemName(Item const* item, WorldSession* sess
 {
     if (!item)
         return std::string();
-    LocaleConstant loc_idx = session->GetSessionDbLocaleIndex();
+    LocaleConstant localeConstant = session->GetSessionDbLocaleIndex();
+    int loc_idx = session->GetSessionDbcLocale();
     const ItemTemplate* temp = item->GetTemplate();
     std::string name = temp->Name1;
-    if (ItemLocale const* il = sObjectMgr->GetItemLocale(temp->ItemId))
-        ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+    if (localeConstant != LOCALE_enUS)
+        if (ItemLocale const* il = sObjectMgr->GetItemLocale(temp->ItemId))
+            ObjectMgr::GetLocaleString(il->Name, localeConstant, name);
 
     if (int32 itemRandPropId = item->GetItemRandomPropertyId())
     {
         std::array<char const*, 16> const* suffix = nullptr;
         if (itemRandPropId < 0)
         {
-            const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
+            const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-itemRandPropId);
             if (itemRandEntry)
                 suffix = &itemRandEntry->Name;
         }
         else
         {
-            const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
+            const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(itemRandPropId);
             if (itemRandEntry)
                 suffix = &itemRandEntry->Name;
         }
         if (suffix)
         {
             name += ' ';
-            name += (*suffix)[loc_idx >= 0 ? loc_idx : DEFAULT_LOCALE];
+            name += (*suffix)[loc_idx >= 0 ? loc_idx : LOCALE_enUS];
         }
     }
     return name;
