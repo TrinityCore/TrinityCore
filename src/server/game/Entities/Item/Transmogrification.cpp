@@ -340,6 +340,7 @@ static bool IsFitToSpellRequirements(SpellInfo const* spellInfo, ItemTemplate co
 
 TransmogResult Transmogrification::CannotTransmogrifyItemWithEnchant(Player * player, ItemTemplate const * destination, uint32 enchant)
 {
+    (void)player;
     auto it = enchant_to_spells.find(enchant);
     if (it != enchant_to_spells.end()) {
         for (auto* spellInfo : it->second)
