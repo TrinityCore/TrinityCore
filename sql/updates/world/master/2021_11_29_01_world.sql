@@ -13,7 +13,7 @@ INSERT INTO `phase_area`(`AreaId`, `PhaseId`, `Comment`) VALUES
 (10639, 14349, 'Cosmetic: NPE - Captain Garrick before Quest 56775 is rewarded');
 
 -- Condition
-DELETE FROM `Conditions` WHERE `SourceEntry` = 10639 AND `SourceTypeOrReferenceId` = 26 AND `SourceGroup` = 14349;
+DELETE FROM `conditions` WHERE `SourceEntry` = 10639 AND `SourceTypeOrReferenceId` = 26 AND `SourceGroup` = 14349;
 INSERT INTO `conditions`(`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26, 14349, 10639, 0, 0, 8, 0, 56775, 0, 0, 1, 0, 0, '', 'Allow Phase 14349 if Quest 56775 IS NOT rewarded');
 
