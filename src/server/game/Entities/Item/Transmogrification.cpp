@@ -677,6 +677,8 @@ void Transmogrification::Transmogrify(Player* player, Item* itemTransmogrified, 
         case TRANSMOG_TYPE_ENCHANT:
             itemTransmogrified->SetEnchant(entry);
             break;
+        case TRANSMOG_TYPE_COUNT:
+            return;
     }
     itemTransmogrified->UpdatePlayedTime(player);
     itemTransmogrified->SetOwnerGUID(player->GetGUID());
