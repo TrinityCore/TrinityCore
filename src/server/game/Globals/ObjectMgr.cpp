@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "AreaBoundary.h"
+// @tswow-end
 #include "ObjectMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
@@ -4599,6 +4602,77 @@ void ObjectMgr::LoadPlayerInfo()
 }
 
 // @tswow-begin
+
+std::vector<InstanceDoorData> const* ObjectMgr::GetInstanceDoors(uint32 mapid) const
+{
+    auto itr = _instanceDoors.find(mapid);
+    return (itr == _instanceDoors.end() ? nullptr : &itr->second);
+}
+
+void ObjectMgr::LoadInstanceDoors()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _instanceDoors.clear();
+    //                                                0       1       2       3
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `map`, `boss`, `type` FROM `instance_door_object`");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 entry = fields[0].GetUInt32();
+            uint32 map = fields[1].GetUInt32();
+            uint32 boss = fields[2].GetUInt32();
+            uint32 type = fields[3].GetUInt32();
+            if (type >= MAX_DOOR_TYPES)
+            {
+                TC_LOG_ERROR(
+                      "sql.sql"
+                    , "Invalid door type %u for door %u on map %u, ignoring"
+                    , type
+                    , entry
+                    , map
+                    );
+            }
+            else
+            {
+                auto itr = _instanceDoors.find(map);
+                std::vector<InstanceDoorData>* doors;
+                if (itr == _instanceDoors.end())
+                {
+                    doors = &(_instanceDoors[map] = std::vector<InstanceDoorData>());
+                }
+                else
+                {
+                    doors = &_instanceDoors[map];
+                }
+                doors->push_back({ entry,boss,type });
+            }
+            ++count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Instance doors %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+}
+
+void ObjectMgr::GetBossCount(uint32 mapid, uint32& count) const
+{
+    auto itr = _instanceAddons.find(mapid);
+    if (itr != _instanceAddons.end())
+    {
+        if (itr->second < count)
+        {
+            TC_LOG_ERROR(
+                "sql.sql"
+                , "Instance (mapid=%u) boss count %u in database is lower than %u from script"
+            );
+            return;
+        }
+        count = itr->second;
+    }
+}
+
 void ObjectMgr::LoadSpellAutolearn()
 {
     uint32 oldMSTime = getMSTime();
@@ -4625,6 +4699,241 @@ void ObjectMgr::LoadSpellAutolearn()
     }
     TC_LOG_INFO("server.loading", ">> Loaded %u Autolearn spells %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void ObjectMgr::LoadInstanceBossCreatures()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _creatureBoss.clear();
+    _instanceBossCreatures.clear();
+    //                                                0        1      2
+    QueryResult result = WorldDatabase.Query("SELECT `guid`,  `map`, `boss` FROM `instance_boss_creature`");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 guid = fields[0].GetUInt32();
+            uint32 map = fields[1].GetUInt32();
+            uint32 boss = fields[2].GetUInt32();
+            _creatureBoss[guid] = boss;
+
+            if (map >= _instanceBossCreatures.size())
+            {
+                _instanceBossCreatures.resize(map + 1);
+            }
+            InstanceBossCreatures &instanceData = _instanceBossCreatures[map];
+            if (boss >= instanceData.size())
+            {
+                instanceData.resize(boss + 1);
+            }
+            instanceData[boss].push_back(guid);
+            ++count;
+        } while (result->NextRow());
+    }
+    for (auto& k : _creatureBoss)
+    {
+        TC_LOG_INFO("server.loading", ">> %u is boss %u", k.first, k.second);
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Instance Boss Creatures %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+enum class InstanceBossBoundaryType {
+    RECTANGLE      = 0,
+    CIRCLE         = 1,
+    ELLIPSE        = 2,
+    TRIANGLE       = 3,
+    PARALLELOGRAM  = 4,
+    ZRANGE         = 5,
+};
+
+void ObjectMgr::LoadInstanceAddon()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _instanceAddons.clear();
+    QueryResult result = WorldDatabase.Query(
+        "SELECT `map`, `boss_count`"
+        " FROM `instance_addon`;"
+    );
+
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* field = result->Fetch();
+            uint32 map = field[0].GetUInt32();
+            uint32 boss_count = field[1].GetUInt32();
+            _instanceAddons[map] = boss_count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u instance addons %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadBossBoundaries()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    // we don't support destroying boundaries (no reload),
+    // because instances could hold onto them
+    //_bossBoundaries.clear();
+    QueryResult result = WorldDatabase.Query(
+        //       0      1       2       3            4      5
+        "SELECT `map`, `boss`, `index`,`unionGroup`,`type`,`inverted`,"
+        // 6...
+        " `data0`,"
+        " `data1`,"
+        " `data2`,"
+        " `data3`,"
+        " `data4`,"
+        " `data5`"
+        " FROM `instance_boss_boundary`;"
+    );
+    struct BoundaryHolder {
+        AreaBoundary * boundary;
+        uint32 unionGroup;
+    };
+
+    std::map<
+          std::pair<uint32,uint32>
+        , std::vector<std::vector<AreaBoundary*>>
+    > boundaryGroups;
+
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 map = fields[0].GetUInt32();
+            uint32 boss = fields[1].GetUInt32();
+            uint32 index = fields[2].GetUInt32();
+            uint32 unionGroup = fields[3].GetUInt32();
+            InstanceBossBoundaryType type
+                = InstanceBossBoundaryType(fields[4].GetUInt32());
+            bool inverted = fields[5].GetUInt8();
+
+            std::pair<uint32, uint32> ibPair = std::make_pair(map, boss);
+            auto itr = boundaryGroups.find(ibPair);
+            std::vector<std::vector<AreaBoundary*>>* vec;
+            if (itr == boundaryGroups.end())
+            {
+                vec = &(boundaryGroups[ibPair] = std::vector<std::vector<AreaBoundary*>>());
+            }
+            else
+            {
+                vec = &itr->second;
+            }
+
+            std::vector<AreaBoundary*>* group;
+            if (vec->size() <= unionGroup)
+            {
+                vec->resize(unionGroup + 1);
+            }
+            group = &(*vec)[unionGroup];
+
+            constexpr uint32 DATA_START = 6;
+            switch (type) {
+            case InstanceBossBoundaryType::RECTANGLE: {
+                float minX = fields[DATA_START + 0].GetFloat();
+                float minY = fields[DATA_START + 1].GetFloat();
+                float maxX = fields[DATA_START + 2].GetFloat();
+                float maxY = fields[DATA_START + 3].GetFloat();
+                group->push_back(new RectangleBoundary(minX, maxX, minY, maxY, inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::CIRCLE: {
+                float centerX = fields[DATA_START + 0].GetFloat();
+                float centerY = fields[DATA_START + 1].GetFloat();
+                float radius  = fields[DATA_START + 2].GetFloat();
+                group->push_back(new CircleBoundary(
+                    Position(centerX, centerY), radius, inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::ELLIPSE: {
+                float cx = fields[DATA_START + 0].GetFloat();
+                float cy = fields[DATA_START + 1].GetFloat();
+                float r1 = fields[DATA_START + 2].GetFloat();
+                float r2 = fields[DATA_START + 3].GetFloat();
+                group->push_back(new EllipseBoundary(
+                    Position(cx,cy), r1,r2, inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::PARALLELOGRAM: {
+                float p1x = fields[DATA_START + 0].GetFloat();
+                float p1y = fields[DATA_START + 1].GetFloat();
+
+                float p2x = fields[DATA_START + 2].GetFloat();
+                float p2y = fields[DATA_START + 3].GetFloat();
+
+                float p3x = fields[DATA_START + 4].GetFloat();
+                float p3y = fields[DATA_START + 5].GetFloat();
+                group->push_back(new ParallelogramBoundary(
+                    Position(p1x, p1y),
+                    Position(p2x, p2y),
+                    Position(p3x, p3y),
+                    inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::TRIANGLE: {
+                float p1x = fields[DATA_START + 0].GetFloat();
+                float p1y = fields[DATA_START + 1].GetFloat();
+
+                float p2x = fields[DATA_START + 2].GetFloat();
+                float p2y = fields[DATA_START + 3].GetFloat();
+
+                float p3x = fields[DATA_START + 4].GetFloat();
+                float p3y = fields[DATA_START + 5].GetFloat();
+
+                group->push_back(new TriangleBoundary(
+                    Position(p1x,p1y),
+                    Position(p2x,p2y),
+                    Position(p3x,p3y),
+                    inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::ZRANGE: {
+                float zMin = fields[DATA_START + 0].GetFloat();
+                float zMax = fields[DATA_START + 1].GetFloat();
+                group->push_back(new ZRangeBoundary(
+                    zMin,zMax,
+                    inverted));
+                break;
+            }
+            }
+            ++count;
+        } while (result->NextRow());
+    }
+
+    for (auto& pair : boundaryGroups)
+    {
+        uint32 instance = pair.first.first;
+        uint32 boss = pair.first.second;
+
+        std::vector<std::vector<AreaBoundary*>> *mapVec;
+        auto mapItr = _bossBoundaries.find(instance);
+        if (mapItr == _bossBoundaries.end())
+        {
+            mapVec = &(_bossBoundaries[instance] = std::vector<std::vector<AreaBoundary*>>());
+        }
+        else
+        {
+            mapVec = &mapItr->second;
+        }
+        if (mapVec->size() <= boss) mapVec->resize(boss + 1);
+        std::vector<AreaBoundary*>& areas = (*mapVec)[boss];
+        for (std::vector<AreaBoundary*>& unionGroup : pair.second)
+        {
+            AreaBoundary* acc = unionGroup[0];
+            for (size_t i = 1; i < unionGroup.size(); ++i)
+            {
+                acc = new BoundaryUnionBoundary(acc,unionGroup[i]);
+            }
+            areas.push_back(acc);
+        }
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u instance boss boundaries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 // @tswow-end
 
 void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassLevelInfo* info) const
@@ -6276,6 +6585,8 @@ void ObjectMgr::LoadInstanceEncounters()
                     TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->Name[0]);
                     continue;
                 }
+                break;
+            case ENCOUNTER_CREDIT_COMPLETE_ENCOUNTER:
                 break;
             default:
                 TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->Name[0]);

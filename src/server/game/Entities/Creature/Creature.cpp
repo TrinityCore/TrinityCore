@@ -59,6 +59,7 @@
 #include "TSMacros.h"
 #include "TSEventLoader.h"
 #include "TSMap.h"
+#include "TSBossAI.h"
 // @tswow-end
 
 CreatureMovementData::CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run),
@@ -3564,6 +3565,9 @@ void Creature::AtEngage(Unit* target)
 
     if (CreatureAI* ai = AI())
         ai->JustEngagedWith(target);
+    // @tswow-begin custom boss check
+    sTSBossAI->OnJustEngage(this,target);
+    // @tswow-end
     if (CreatureGroup* formation = GetFormation())
         formation->MemberEngagingTarget(this, target);
 }

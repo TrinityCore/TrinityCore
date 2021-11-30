@@ -54,6 +54,9 @@ BossBoundaryData::~BossBoundaryData()
 
 InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetSpawnGroupsForInstance(map->GetId()))
 {
+    // @tswow-begin
+    _bossCreatures = sObjectMgr->GetInstanceBossCreatures(map->GetId());
+    // @tswow-end
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
     auto const scriptname = sObjectMgr->GetScriptName(scriptId);
@@ -155,6 +158,34 @@ void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
     for (BossBoundaryEntry const& entry : data)
         if (entry.BossId < bosses.size())
             bosses[entry.BossId].boundary.push_back(entry.Boundary);
+    // @tswow-begin
+    uint32 id = instance->GetEntry()->ID;
+    auto boundaries = sObjectMgr->GetBoundaries(id);
+    if (boundaries)
+    {
+        for (uint32_t i = 0; i < boundaries->size(); ++i)
+        {
+            if ((*boundaries)[i].size() > 0 && i >= bosses.size())
+            {
+                TC_LOG_ERROR(
+                      "sql.sql"
+                    , "invalid boss id %u in boundary for instance %u"
+                    , i
+                    , id
+                    );
+                continue;
+            }
+            for (AreaBoundary* boundary : (*boundaries)[i]) {
+                bosses[i].boundary.push_back(boundary);
+            }
+        }
+    }
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnLoadBossBoundaries
+        , TSInstance(this)
+    );
+    // @tswow-end
 }
 
 void InstanceScript::LoadMinionData(MinionData const* data)
@@ -166,18 +197,60 @@ void InstanceScript::LoadMinionData(MinionData const* data)
 
         ++data;
     }
+    // @tswow-begin
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnLoadMinionData
+        , TSInstance(this)
+    );
+    // @tswow-end
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
 }
 
 void InstanceScript::LoadDoorData(DoorData const* data)
 {
-    while (data->entry)
+    // @tswow-begin can be null now
+    if(data!= nullptr) while (data->entry)
+    // @tswow-end
     {
         if (data->bossId < bosses.size())
             doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type)));
 
         ++data;
     }
+    // @tswow-begin
+    auto dbDoors = sObjectMgr->GetInstanceDoors(instance->GetId());
+    if (dbDoors != nullptr)
+    {
+        for (auto& door : *dbDoors)
+        {
+            if (door.boss >= bosses.size())
+            {
+                TC_LOG_ERROR(
+                      "sql.sql"
+                    , "Door %u in instance %u has invalid boss id: %u"
+                    , door.entry
+                    , instance->GetId()
+                    , door.boss
+                );
+            }
+            doors.insert(std::make_pair(door.entry, DoorInfo(&bosses[door.boss], DoorType(door.type))));
+            for (auto& val : this->instance->GetGameObjectBySpawnIdStore())
+            {
+                if (val.second->GetEntry() == door.entry)
+                {
+                    bosses[door.boss].door[door.type].insert(val.second->GetGUID());
+                    UpdateDoorState(val.second);
+                }
+            }
+        }
+    }
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnLoadDoorData
+        , TSInstance(this)
+    );
+    // @tswow-end
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
 }
 
@@ -189,6 +262,13 @@ void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData c
     if (gameObjectData)
         LoadObjectData(gameObjectData, _gameObjectInfo);
 
+    // @tswow-begin
+    FIRE_MAP(
+          GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnLoadObjectData
+        , TSInstance(this)
+    );
+    // @tswow-end
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadObjectData: " SZFMTD " objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
 }
 
@@ -397,6 +477,21 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
         UpdateSpawnGroups();
         // @tswow-begin
+        if (state == DONE) {
+            this->UpdateEncounterState(
+                  EncounterCreditType::ENCOUNTER_CREDIT_COMPLETE_ENCOUNTER
+                , id
+                , nullptr
+                );
+            for (auto& player : instance->GetPlayers()) // todo: decide what players can receive this
+            {
+                player.GetSource()->UpdateAchievementCriteria(
+                    AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ENCOUNTER
+                    , instance->GetEntry()->ID
+                    , id
+                );
+            }
+        }
         FIRE_MAP(
             GetInstanceEvent(instance->GetEntry()->ID)
             , InstanceOnBossStateChange
@@ -915,5 +1010,35 @@ void InstanceScript::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     );
 }
 
+void InstanceScript::SetBossNumber(uint32 number)
+{
+    sObjectMgr->GetBossCount(instance->GetEntry()->ID,number);
 
+    uint32 tmp = number;
+    FIRE_MAP(
+        GetInstanceEvent(instance->GetEntry()->ID)
+        , InstanceOnSetBossNumber
+        , TSInstance(this)
+        , TSMutable<uint32>(&tmp)
+    );
+    if (tmp < number)
+    {
+        TC_LOG_ERROR(
+              "map"
+            , "InstanceScript: livescript tried to set boss number to %u, lower than previous %u. This is never valid, refusing"
+            , tmp
+            , number
+        );
+    }
+    else
+    {
+        number = tmp;
+    }
+    bosses.resize(number);
+}
+
+InstanceScript::~InstanceScript()
+{
+    for (AreaBoundary* boundary : _customBoundaries) delete boundary;
+}
 // @tswow-end

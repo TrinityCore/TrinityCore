@@ -24,6 +24,7 @@
 #include "TSMutable.h"
 #include "TSInstance.h"
 #include "TSWorldPacket.h"
+#include "ObjectMgr.h"
 // @tswow-end
 #include "ZoneScript.h"
 #include "Common.h"
@@ -164,7 +165,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
     public:
         explicit InstanceScript(InstanceMap* map);
 
-        virtual ~InstanceScript() { }
+        // @tswow-begin move impl to cpp
+        virtual ~InstanceScript();
+        // @tswow-end
 
         InstanceMap* instance;
 
@@ -283,10 +286,18 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }
         void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
         bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
-
+        // @tswow-begin new function
+        std::vector<uint32> const& BossSpawnGUIDs(uint32 bossId) const
+        {
+            return (*_bossCreatures)[bossId];
+        }
+        // @tswow-end
     protected:
         void SetHeaders(std::string const& dataHeaders);
-        void SetBossNumber(uint32 number) { bosses.resize(number); }
+
+        // @tswow-begin move implementation to cpp
+        void SetBossNumber(uint32 number); // { bosses.resize(number); }
+        // @tswow-end
         void LoadBossBoundaries(BossBoundaryData const& data);
         void LoadDoorData(DoorData const* data);
         void LoadMinionData(MinionData const* data);
@@ -317,7 +328,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual void WriteSaveDataMore(std::ostringstream& /*data*/) { }
 
         bool _SkipCheckRequiredBosses(Player const* player = nullptr) const;
-
     private:
         static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
@@ -332,6 +342,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
         std::unordered_set<uint32> _activatedAreaTriggers;
+        // @tswow-begin
+        std::vector<AreaBoundary*> _customBoundaries;
+        InstanceBossCreatures const* _bossCreatures;
+
+        // @tswow-end
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
@@ -339,6 +354,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
     #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 
         friend class debug_commandscript;
+        // @tswow-begin
+        friend class TSBossAI;
+        friend class TSInstance;
+        // @tswow-end
 };
 
 #endif // TRINITY_INSTANCE_DATA_H

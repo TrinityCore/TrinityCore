@@ -1548,7 +1548,12 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
 // @tswow-begin
 class TC_GAME_API CustomInstance : public InstanceScript{
 public:
-    CustomInstance(InstanceMap * map): InstanceScript(map) {}
+    CustomInstance(InstanceMap * map): InstanceScript(map) {
+        // Real loading in respective function
+        SetBossNumber(0);
+        LoadBossBoundaries({});
+        LoadDoorData(nullptr);
+    }
 };
 // @tswow-end
 

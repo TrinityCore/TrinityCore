@@ -86,6 +86,7 @@
 #include "TSSpellInfo.h"
 #include "TSSpell.h"
 #include "TSMacros.h"
+#include "TSBossAI.h"
 // @tswow-end
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -11266,6 +11267,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
             ai->JustDied(attacker);
 
         // @tswow-begin
+        sTSBossAI->OnJustDied(creature,attacker);
         FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnDeath,TSCreature(creature),TSUnit(attacker));
         // @tswow-end
 

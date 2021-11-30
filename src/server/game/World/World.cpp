@@ -1911,6 +1911,20 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Dungeon boss data...");
     sObjectMgr->LoadInstanceEncounters();
 
+    // @tswow-begin
+    TC_LOG_INFO("server.loading", "Loading Instance addon data...");
+    sObjectMgr->LoadInstanceAddon();
+
+    TC_LOG_INFO("server.loading", "Loading Boss creatures...");
+    sObjectMgr->LoadInstanceBossCreatures();
+
+    TC_LOG_INFO("server.loading", "Loading Boss boundaries...");
+    sObjectMgr->LoadBossBoundaries();
+
+    TC_LOG_INFO("server.loading", "Loading Instance doors...");
+    sObjectMgr->LoadInstanceDoors();
+    // @tswow-end
+
     TC_LOG_INFO("server.loading", "Loading LFG rewards...");
     sLFGMgr->LoadRewards();
 
@@ -1978,6 +1992,9 @@ void World::SetInitialWorldSettings()
     sAchievementMgr->LoadAchievementCriteriaList();
     TC_LOG_INFO("server.loading", "Loading Achievement Criteria Data...");
     sAchievementMgr->LoadAchievementCriteriaData();
+    // @tswow-begin
+    sAchievementMgr->LoadEncounterCriteria();
+    // @tswow-end
     TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
     TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");

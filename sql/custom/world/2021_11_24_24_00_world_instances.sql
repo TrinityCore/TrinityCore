@@ -1,0 +1,43 @@
+CREATE TABLE `instance_addon` (
+	`map` MEDIUMINT(8) UNSIGNED NOT NULL,
+	`boss_count` MEDIUMINT(8) UNSIGNED NOT NULL,
+	PRIMARY KEY (`map`)
+);
+
+CREATE TABLE `instance_boss_boundary` (
+	`map` MEDIUMINT(8) UNSIGNED NOT NULL,
+	`boss` MEDIUMINT(8) UNSIGNED NOT NULL,
+	`index` MEDIUMINT(8) UNSIGNED NOT NULL,
+	`unionGroup` TINYINT UNSIGNED NOT NULL,
+	`type` TINYINT UNSIGNED NOT NULL,
+	`inverted` TINYINT UNSIGNED NOT NULL,
+	`data0` FLOAT NOT NULL,
+	`data1` FLOAT NOT NULL,
+	`data2` FLOAT NOT NULL,
+	`data3` FLOAT NOT NULL,
+	`data4` FLOAT NOT NULL,
+	`data5` FLOAT NOT NULL,
+	PRIMARY KEY(`map`,`boss`,`index`)
+);
+
+CREATE TABLE `instance_boss_creature` (
+	`guid` MEDIUMINT(8) UNSIGNED NOT NULL,
+	`map` MEDIUMINT(8) UNSIGNED NOT NULL,
+	`boss` MEDIUMINT(8) UNSIGNED NOT NULL,
+	PRIMARY KEY(`guid`)
+);
+
+CREATE TABLE `instance_encounter_achievement` (
+	`entry` MEDIUMINT(10) UNSIGNED NOT NULL,
+	`map` MEDIUMINT(10) UNSIGNED NOT NULL,
+	`boss` MEDIUMINT(10) UNSIGNED NOT NULL,
+	PRIMARY KEY(`entry`)
+);
+
+CREATE TABLE `instance_door_object` (
+	`entry` MEDIUMINT(10) UNSIGNED NOT NULL,
+	`map` MEDIUMINT(10) UNSIGNED NOT NULL,
+	`boss` MEDIUMINT(10) UNSIGNED NOT NULL,
+	`type` TINYINT UNSIGNED NOT NULL,
+	PRIMARY KEY(`entry`,`map`)
+);

@@ -693,9 +693,15 @@ struct SpellAutoLearn
     uint32 classmask;
 };
 typedef std::vector<std::vector<SpellAutoLearn>> SpellAutoLearns;
-// @tswow-end
-
+typedef std::vector<std::vector<uint32>> InstanceBossCreatures;
 typedef std::vector<PlayerCreateInfoSkill> PlayerCreateInfoSkills;
+typedef std::map<uint32,uint32> InstanceAddons;
+struct InstanceDoorData {
+    uint32 entry;
+    uint32 boss;
+    uint32 type;
+};
+class AreaBoundary;
 
 // existence checked by displayId != 0
 struct PlayerInfo
@@ -912,8 +918,11 @@ LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 enum EncounterCreditType : uint8
 {
-    ENCOUNTER_CREDIT_KILL_CREATURE  = 0,
-    ENCOUNTER_CREDIT_CAST_SPELL     = 1
+    ENCOUNTER_CREDIT_KILL_CREATURE      = 0,
+    ENCOUNTER_CREDIT_CAST_SPELL         = 1,
+    // @tswow-begin
+    ENCOUNTER_CREDIT_COMPLETE_ENCOUNTER = 2,
+    // @tswow-end
 };
 
 struct DungeonEncounter
@@ -1029,7 +1038,29 @@ class TC_GAME_API ObjectMgr
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const;
 
         // @tswow-begin
+        void GetBossCount(uint32 mapid, uint32& count) const;
+        std::vector<InstanceDoorData> const* GetInstanceDoors(uint32 mapid) const;
         SpellAutoLearns const& GetSpellAutolearns() { return _spellAutoLearns;  }
+        InstanceBossCreatures const* GetInstanceBossCreatures(uint32 instance) {
+            if (instance >= _instanceBossCreatures.size()) return nullptr;
+            InstanceBossCreatures* val = &_instanceBossCreatures[instance];
+            if (val->size() == 0)
+            {
+                return nullptr;
+            }
+            return val;
+        }
+        uint32 GetCreatureBoss(uint32 guid)
+        {
+            auto itr = _creatureBoss.find(guid);
+            if (itr == _creatureBoss.end()) return UINT32_MAX;
+            return itr->second;
+        }
+        std::vector<std::vector<AreaBoundary*>>* GetBoundaries(uint32 instance)
+        {
+            auto itr = _bossBoundaries.find(instance);
+            return itr != _bossBoundaries.end() ? (&itr->second) : nullptr;
+        }
         // @tswow-end
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
@@ -1231,6 +1262,10 @@ class TC_GAME_API ObjectMgr
         void LoadPlayerInfo();
         // @tswow-begin
         void LoadSpellAutolearn();
+        void LoadInstanceAddon();
+        void LoadInstanceBossCreatures();
+        void LoadBossBoundaries();
+        void LoadInstanceDoors();
         // @tswow-end
         void LoadPetLevelInfo();
         void LoadExplorationBaseXP();
@@ -1701,6 +1736,12 @@ class TC_GAME_API ObjectMgr
 
         // @tswow-begin
         SpellAutoLearns _spellAutoLearns;
+        InstanceAddons _instanceAddons;
+        std::vector<InstanceBossCreatures> _instanceBossCreatures;
+        std::map<uint32, uint32> _creatureBoss;
+        std::map<uint32, std::vector<std::vector<AreaBoundary*>>> _bossBoundaries;
+        std::map<uint32, std::vector<InstanceDoorData>> _instanceDoors;
+
         // @tswow-end
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]

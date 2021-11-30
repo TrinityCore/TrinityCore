@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "InstanceScript.h"
+// @tswow-end
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
 #include "Creature.h"
@@ -39,6 +42,14 @@ AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
 CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _isEngaged(false), _moveInLOSLocked(false)
 {
+    // @tswow-begin load custom boss boundaries
+    auto imap = creature->GetMap()->ToInstanceMap();
+    if (!imap) return;
+    uint32 bossId = sObjectMgr->GetCreatureBoss(creature->GetSpawnId());
+    if (bossId == UINT32_MAX) return;
+    imap->GetInstanceScript()->GetBossBoundary(bossId);
+    SetBoundary(imap->GetInstanceScript()->GetBossBoundary(bossId));
+    // @tswow-end
 }
 
 CreatureAI::~CreatureAI()
