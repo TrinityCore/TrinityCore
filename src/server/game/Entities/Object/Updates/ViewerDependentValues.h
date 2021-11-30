@@ -76,13 +76,13 @@ public:
                 case GAMEOBJECT_TYPE_CHEST:
                 case GAMEOBJECT_TYPE_GOOBER:
                     if (gameObject->ActivateToQuest(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     else if (receiver->IsGameMaster())
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
                 case GAMEOBJECT_TYPE_GENERIC:
                     if (gameObject->ActivateToQuest(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_SPARKLE;
+                        dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
