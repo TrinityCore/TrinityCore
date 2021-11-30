@@ -1872,8 +1872,10 @@ uint8 LFGMgr::FilterClassRoles(Player* player, uint8 roles)
 {
     // check classes for permitted roles
     roles &= PLAYER_ROLE_ANY;
-    if (!(LfgRoleClasses::TANK & player->GetClassMask())) roles &= ~PLAYER_ROLE_TANK;
-    if (!(LfgRoleClasses::HEALER & player->GetClassMask())) roles &= ~PLAYER_ROLE_HEALER;
+    if (!(LfgRoleClasses::TANK & player->GetClassMask()))
+        roles &= ~PLAYER_ROLE_TANK;
+    if (!(LfgRoleClasses::HEALER & player->GetClassMask()))
+        roles &= ~PLAYER_ROLE_HEALER;
     return roles;
 }
 
