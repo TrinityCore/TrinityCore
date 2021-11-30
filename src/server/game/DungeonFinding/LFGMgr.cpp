@@ -399,12 +399,15 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
     if (!player || !player->GetSession() || dungeons.empty())
         return;
 
+    // Sanitize input roles
+    roles &= PLAYER_ROLE_ANY;
+
+    // check classes for permitted roles
+    roles = FilterClassRoles(player, roles);
+
     // At least 1 role must be selected
     if (!(roles & (PLAYER_ROLE_TANK | PLAYER_ROLE_HEALER | PLAYER_ROLE_DAMAGE)))
         return;
-
-    // Sanitize input roles
-    roles &= PLAYER_ROLE_ANY;
 
     Group* grp = player->GetGroup();
     ObjectGuid guid = player->GetGUID();
@@ -709,6 +712,12 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
 
     // Sanitize input roles
     roles &= PLAYER_ROLE_ANY;
+
+    if (guid) {
+        Player* player = ObjectAccessor::FindPlayer(guid);
+        if (!player) return;
+        roles = FilterClassRoles(player, roles);
+    }
 
     LfgRoleCheck& roleCheck = itRoleCheck->second;
     bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && guid;
@@ -1857,6 +1866,15 @@ uint8 LFGMgr::GetTeam(ObjectGuid guid)
     uint8 team = PlayersStore[guid].GetTeam();
     TC_LOG_TRACE("lfg.data.player.team.get", "Player: %s, Team: %u", guid.ToString().c_str(), team);
     return team;
+}
+
+uint8 LFGMgr::FilterClassRoles(Player* player, uint8 roles)
+{
+    // check classes for permitted roles
+    roles &= PLAYER_ROLE_ANY;
+    if (!(LfgRoleClasses::TANK & player->GetClassMask())) roles &= ~PLAYER_ROLE_TANK;
+    if (!(LfgRoleClasses::HEALER & player->GetClassMask())) roles &= ~PLAYER_ROLE_HEALER;
+    return roles;
 }
 
 uint8 LFGMgr::RemovePlayerFromGroup(ObjectGuid gguid, ObjectGuid guid)

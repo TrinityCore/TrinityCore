@@ -128,6 +128,11 @@ enum LfgRoleCheckState
     LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
 
+enum LfgRoleClasses {
+    TANK   = 0b10000100011, // warrior, paladin, dk, druid
+    HEALER = 0b10001010010, // paladin, priest, shaman, druid
+};
+
 // Forward declaration (just to have all typedef together)
 struct LFGDungeonData;
 struct LfgReward;
@@ -415,6 +420,7 @@ class TC_GAME_API LFGMgr
 
     private:
         uint8 GetTeam(ObjectGuid guid);
+        uint8 FilterClassRoles(Player* player, uint8 roles);
         void RestoreState(ObjectGuid guid, char const* debugMsg);
         void ClearState(ObjectGuid guid, char const* debugMsg);
         void SetDungeon(ObjectGuid guid, uint32 dungeon);
