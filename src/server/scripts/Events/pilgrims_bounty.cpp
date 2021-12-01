@@ -31,7 +31,7 @@ enum PilgrimsBountyBuffFood
     SPELL_WELL_FED_HIT_TRIGGER      = 65416,
     SPELL_WELL_FED_HASTE_TRIGGER    = 65410,
     SPELL_WELL_FED_SPIRIT_TRIGGER   = 65415,
-    SPELL_BOUNTIFUL_FEAST_FOOD_TRIGGER = 66478,    
+    SPELL_BOUNTIFUL_FEAST_FOOD_TRIGGER = 66478,
 };
 
 class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
@@ -63,18 +63,20 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
                 GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
             }
             
-            void FoodBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
             {
-                amount = CalculatePct(GetCaster()->GetMaxPower(POWER_MANA), 20);
-                amount = CalculatePct(GetCaster()->GetMaxHealth(), 15);
+                if (GetCaster())
+                {
+                    amount = CalculatePct(GetCaster()->GetMaxHealth(), 15);
+                }
                 canBeRecalculated = true;
             }
 
             void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_REGEN);
+                if(m_scriptSpellId != SPELL_BOUNTIFUL_FEAST_FOOD_TRIGGER)
+                    DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_REGEN);
             }
 
             bool _handled;
@@ -84,6 +86,36 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         {
             return new spell_pilgrims_bounty_buff_food_AuraScript(_triggeredSpellId);
         }
+};
+
+class spell_pilgrims_bounty_food : public SpellScriptLoader
+{
+public:
+    spell_pilgrims_bounty_food() : SpellScriptLoader("spell_pilgrims_bounty_food") { }
+
+    class spell_pilgrims_bounty_food_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pilgrims_bounty_food_AuraScript);
+
+        void FoodBonus(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
+        {
+            if (GetCaster())
+            {
+                amount = CalculatePct(GetCaster()->GetMaxPower(POWER_MANA), 20);
+            }
+            canBeRecalculated = true;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN);
+        } 
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pilgrims_bounty_food_AuraScript();
+    }
 };
 
 enum FeastOnSpells
@@ -544,7 +576,8 @@ void AddSC_event_pilgrims_bounty()
     new spell_pilgrims_bounty_buff_food("spell_gen_spice_bread_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
-    new spell_pilgrims_bounty_buff_food("spell_gen_bountiful_feast", SPELL_BOUNTIFUL_FEAST_FOOD_TRIGGER);
+    new spell_pilgrims_bounty_buff_food("spell_pilgrims_bounty_feast", SPELL_WELL_FED_HASTE_TRIGGER);
+    new spell_pilgrims_bounty_food();
     new spell_pilgrims_bounty_feast_on();
     new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_turkey", SPELL_WELL_FED_AP_TRIGGER);
     new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_cranberry", SPELL_WELL_FED_ZM_TRIGGER);
