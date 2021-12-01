@@ -162,8 +162,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     if (Unit const* unit = ToUnit())
+    {
         if (unit->GetVictim())
             flags.CombatVictim = true;
+
+        if (!unit->HasUnitMovementFlag(MOVEMENTFLAG_ROOT) && (unit->IsHovering() || unit->IsFlying()))
+            flags.PlayHoverAnim = true;
+    }
 
     ByteBuffer buf(0x400, ByteBuffer::Reserve{});
     buf << uint8(updateType);
