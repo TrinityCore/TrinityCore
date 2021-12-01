@@ -577,7 +577,7 @@ void AddSC_event_pilgrims_bounty()
     new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_pilgrims_bounty_feast", SPELL_WELL_FED_HASTE_TRIGGER);
-    new spell_pilgrims_bounty_food();
+    new spell_pilgrims_bounty_dink();
     new spell_pilgrims_bounty_feast_on();
     new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_turkey", SPELL_WELL_FED_AP_TRIGGER);
     new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_cranberry", SPELL_WELL_FED_ZM_TRIGGER);
