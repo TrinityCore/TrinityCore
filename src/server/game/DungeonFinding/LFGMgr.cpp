@@ -399,12 +399,13 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
     if (!player || !player->GetSession() || dungeons.empty())
         return;
 
+    // Sanitize input roles
+    roles &= PLAYER_ROLE_ANY;
+    roles &= sObjectMgr->GetPlayerClassRoleMask(player->GetClass());
+
     // At least 1 role must be selected
     if (!(roles & (PLAYER_ROLE_TANK | PLAYER_ROLE_HEALER | PLAYER_ROLE_DAMAGE)))
         return;
-
-    // Sanitize input roles
-    roles &= PLAYER_ROLE_ANY;
 
     Group* grp = player->GetGroup();
     ObjectGuid guid = player->GetGUID();
@@ -709,6 +710,11 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
 
     // Sanitize input roles
     roles &= PLAYER_ROLE_ANY;
+    if (guid) {
+        Player* player = ObjectAccessor::FindPlayer(guid);
+        if (!player) return;
+        roles &= sObjectMgr->GetPlayerClassRoleMask(player->GetClass());
+    }
 
     LfgRoleCheck& roleCheck = itRoleCheck->second;
     bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && guid;

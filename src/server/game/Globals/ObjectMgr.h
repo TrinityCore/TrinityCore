@@ -18,6 +18,9 @@
 #ifndef _OBJECTMGR_H
 #define _OBJECTMGR_H
 
+// @tswow-begin
+#include "LFG.h"
+// @tswow-end
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureData.h"
@@ -692,6 +695,8 @@ struct SpellAutoLearn
     uint32 racemask;
     uint32 classmask;
 };
+
+typedef std::vector<uint32> PlayerClassRoles;
 typedef std::vector<std::vector<SpellAutoLearn>> SpellAutoLearns;
 typedef std::vector<std::vector<uint32>> InstanceBossCreatures;
 typedef std::vector<PlayerCreateInfoSkill> PlayerCreateInfoSkills;
@@ -1038,6 +1043,7 @@ class TC_GAME_API ObjectMgr
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const;
 
         // @tswow-begin
+        uint8 GetPlayerClassRoleMask(uint32 cls);
         void GetBossCount(uint32 mapid, uint32& count) const;
         std::vector<InstanceDoorData> const* GetInstanceDoors(uint32 mapid) const;
         SpellAutoLearns const& GetSpellAutolearns() { return _spellAutoLearns;  }
@@ -1261,6 +1267,7 @@ class TC_GAME_API ObjectMgr
 
         void LoadPlayerInfo();
         // @tswow-begin
+        void LoadPlayerClassRoles();
         void LoadSpellAutolearn();
         void LoadInstanceAddon();
         void LoadInstanceBossCreatures();
@@ -1741,6 +1748,7 @@ class TC_GAME_API ObjectMgr
         std::map<uint32, uint32> _creatureBoss;
         std::map<uint32, std::vector<std::vector<AreaBoundary*>>> _bossBoundaries;
         std::map<uint32, std::vector<InstanceDoorData>> _instanceDoors;
+        PlayerClassRoles _playerClassRoles;
 
         // @tswow-end
 

@@ -4603,6 +4603,53 @@ void ObjectMgr::LoadPlayerInfo()
 
 // @tswow-begin
 
+uint8 ObjectMgr::GetPlayerClassRoleMask(uint32 cls)
+{
+    return cls <= _playerClassRoles.size()
+        ? _playerClassRoles[cls - 1]
+        : 0;
+}
+
+void ObjectMgr::LoadPlayerClassRoles()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _playerClassRoles.clear();
+    QueryResult result = WorldDatabase.Query(
+    //           0        1       2         3         4
+        "SELECT `class`, `tank`, `healer`, `damage`, `leader`"
+        " FROM `player_class_roles`;"
+    );
+    if(result && result->GetRowCount() > 0)
+    {
+        do {
+            Field* field = result->Fetch();
+            uint32 clazz = field[0].GetUInt32();
+            bool tank = field[1].GetBool();
+            bool healer = field[2].GetBool();
+            bool damage = field[3].GetBool();
+            bool leader = field[4].GetBool();
+            uint32 mask = 0;
+            if (leader)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_LEADER;
+            if (tank)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_TANK;
+            if (healer)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_HEALER;
+            if (damage)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_DAMAGE;
+
+            if (clazz > _playerClassRoles.size())
+            {
+                _playerClassRoles.resize(clazz);
+            }
+            _playerClassRoles[clazz - 1] = mask;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Instance doors %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+}
+
 std::vector<InstanceDoorData> const* ObjectMgr::GetInstanceDoors(uint32 mapid) const
 {
     auto itr = _instanceDoors.find(mapid);

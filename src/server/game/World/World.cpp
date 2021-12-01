@@ -1950,6 +1950,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Class Stat formula overrides...");
     LoadAPFormulas();
 
+    TC_LOG_INFO("server.loading", "Loading Class Roles...");
+    sObjectMgr->LoadPlayerClassRoles();
+
     TC_LOG_INFO("server.loading", "Loading Spell Autolearn Data...");
     sObjectMgr->LoadSpellAutolearn();
     // @tswow-end
