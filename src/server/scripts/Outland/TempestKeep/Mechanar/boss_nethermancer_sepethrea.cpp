@@ -15,23 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Nethermancer_Sepethrea
-SD%Complete: 90
-SDComment: Need adjustments to initial summons
-SDCategory: Tempest Keep, The Mechanar
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "mechanar.h"
-#include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
-enum Says
+enum Texts
 {
     SAY_AGGRO                      = 0,
-    SAY_SUMMON                     = 1,
+    SAY_SUMMON                     = 1,     // Was never used or used under unknown conditions
     SAY_DRAGONS_BREATH             = 2,
     SAY_SLAY                       = 3,
     SAY_DEATH                      = 4
@@ -39,53 +34,73 @@ enum Says
 
 enum Spells
 {
-    SPELL_SUMMON_RAGIN_FLAMES      = 35275, // Not scripted
-    SPELL_FROST_ATTACK             = 35263,
+    SPELL_FROST_ATTACK             = 45196, // This is definitely spell added in TBC but did it replaced both 35264 and 39086 or only normal version?
+    SPELL_SUMMON_RAGING_FLAMES     = 35275,
+    SPELL_QUELL_RAGING_FLAMES      = 35277,
     SPELL_ARCANE_BLAST             = 35314,
     SPELL_DRAGONS_BREATH           = 35250,
-    SPELL_KNOCKBACK                = 37317,
-    SPELL_SOLARBURN                = 35267,
-    H_SPELL_SUMMON_RAGIN_FLAMES    = 39084, // Not scripted
-    SPELL_INFERNO                  = 35268, // Not scripted
-    H_SPELL_INFERNO                = 39346, // Not scripted
-    SPELL_FIRE_TAIL                = 35278  // Not scripted
+
+    // Raging Flames
+    SPELL_RAGING_FLAMES_DUMMY      = 35274, // NYI, no clue what it can do
+    SPELL_RAGING_FLAMES_AREA_AURA  = 35281,
+    SPELL_INVIS_STEALTH_DETECTION  = 18950, // For some reason every time it's used by summoned creatures, it's applied after random delay. Ignored
+    SPELL_INFERNO                  = 35268,
+    SPELL_INFERNO_DAMAGE           = 35283
 };
 
 enum Events
 {
-    EVENT_FROST_ATTACK             = 1,
-    EVENT_ARCANE_BLAST             = 2,
-    EVENT_DRAGONS_BREATH           = 3,
-    EVENT_KNOCKBACK                = 4,
-    EVENT_SOLARBURN                = 5
+    EVENT_ARCANE_BLAST             = 1,
+    EVENT_DRAGONS_BREATH
 };
 
 struct boss_nethermancer_sepethrea : public BossAI
 {
     boss_nethermancer_sepethrea(Creature* creature) : BossAI(creature, DATA_NETHERMANCER_SEPRETHREA) { }
 
+    void Reset() override
+    {
+        DoCastSelf(SPELL_FROST_ATTACK);
+        me->SetCombatPulseDelay(0);
+        events.Reset();
+        instance->SetBossState(DATA_NETHERMANCER_SEPRETHREA, NOT_STARTED);
+    }
+
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_FROST_ATTACK, 7s, 10s);
-        events.ScheduleEvent(EVENT_ARCANE_BLAST, 12s, 18s);
-        events.ScheduleEvent(EVENT_DRAGONS_BREATH, 18s, 22s);
-        events.ScheduleEvent(EVENT_KNOCKBACK, 22s, 28s);
-        events.ScheduleEvent(EVENT_SOLARBURN, 30s);
+        events.ScheduleEvent(EVENT_ARCANE_BLAST, 15s, 25s);
+        events.ScheduleEvent(EVENT_DRAGONS_BREATH, 20s, 30s);
         Talk(SAY_AGGRO);
-        DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
-        Talk(SAY_SUMMON);
+        DoCastSelf(SPELL_SUMMON_RAGING_FLAMES);
     }
 
-    void KilledUnit(Unit* /*victim*/) override
+    void KilledUnit(Unit* victim) override
     {
-        Talk(SAY_SLAY);
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        // Fails because target is in evade mode (yes, she kills them on evade too)
+        DoCastSelf(SPELL_QUELL_RAGING_FLAMES, true);
+        summons.DespawnAll();
+        ScriptedAI::EnterEvadeMode(why);
+    }
+
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
+        DoCastSelf(SPELL_FROST_ATTACK);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        _JustDied();
+        events.Reset();
+        instance->SetBossState(DATA_NETHERMANCER_SEPRETHREA, DONE);
         Talk(SAY_DEATH);
+        DoCastSelf(SPELL_QUELL_RAGING_FLAMES, true);
     }
 
     void UpdateAI(uint32 diff) override
@@ -102,27 +117,17 @@ struct boss_nethermancer_sepethrea : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_FROST_ATTACK:
-                    DoCastVictim(SPELL_FROST_ATTACK, true);
-                    events.ScheduleEvent(EVENT_FROST_ATTACK, 7s, 10s);
-                    break;
                 case EVENT_ARCANE_BLAST:
-                    DoCastVictim(SPELL_ARCANE_BLAST, true);
-                    events.ScheduleEvent(EVENT_ARCANE_BLAST, 15s);
+                    DoCastVictim(SPELL_ARCANE_BLAST);
+                    if (GetThreat(me->GetVictim()))
+                        ModifyThreatByPercent(me->GetVictim(), -50);
+                    events.Repeat(15s, 25s);
                     break;
                 case EVENT_DRAGONS_BREATH:
-                    DoCastVictim(SPELL_DRAGONS_BREATH, true);
-                    events.ScheduleEvent(EVENT_DRAGONS_BREATH, 12s, 22s);
+                    DoCastSelf(SPELL_DRAGONS_BREATH);
+                    events.Repeat(25s, 35s);
                     if (roll_chance_i(50))
                         Talk(SAY_DRAGONS_BREATH);
-                    break;
-                case EVENT_KNOCKBACK:
-                    DoCastVictim(SPELL_KNOCKBACK, true);
-                    events.ScheduleEvent(EVENT_KNOCKBACK, 15s, 25s);
-                    break;
-                case EVENT_SOLARBURN:
-                    DoCastVictim(SPELL_SOLARBURN, true);
-                    events.ScheduleEvent(EVENT_SOLARBURN, 30s);
                     break;
                 default:
                     break;
@@ -136,81 +141,94 @@ struct boss_nethermancer_sepethrea : public BossAI
     }
 };
 
-struct npc_ragin_flames : public ScriptedAI
+struct npc_raging_flames : public ScriptedAI
 {
-    npc_ragin_flames(Creature* creature) : ScriptedAI(creature)
+    npc_raging_flames(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
     {
-        Initialize();
-        instance = creature->GetInstanceScript();
+        me->SetCorpseDelay(20, true);
     }
 
-    void Initialize()
+    void IsSummonedBy(WorldObject* summoner) override
     {
-        inferno_Timer = 10000;
-        flame_timer = 500;
-        Check_Timer = 2000;
-        onlyonce = false;
+        _summonerGUID = summoner->GetGUID();
     }
 
-    InstanceScript* instance;
+    // It's more tricky actually
+    void FixateRandomTarget()
+    {
+        ResetThreatList();
 
-    uint32 inferno_Timer;
-    uint32 flame_timer;
-    uint32 Check_Timer;
+        if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
+            if (_summoner->IsAIEnabled())
+                if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, false))
+                    AddThreat(target, 1000000.0f);
+    }
 
-    bool onlyonce;
+    void JustAppeared() override
+    {
+        DoZoneInCombat();
+        DoCastSelf(SPELL_RAGING_FLAMES_AREA_AURA);
+        DoCastSelf(SPELL_INVIS_STEALTH_DETECTION);
+
+        FixateRandomTarget();
+
+        _scheduler.Schedule(15s, 25s, [this](TaskContext task)
+        {
+            DoCastSelf(SPELL_INFERNO);
+            FixateRandomTarget();
+
+            task.Repeat(20s, 30s);
+        });
+    }
 
     void Reset() override
     {
-        Initialize();
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
+        _scheduler.CancelAll();
     }
 
     void UpdateAI(uint32 diff) override
     {
-        //Check_Timer
-        if (Check_Timer <= diff)
-        {
-            if (instance->GetBossState(DATA_NETHERMANCER_SEPRETHREA) != IN_PROGRESS)
-            {
-                //remove
-                me->DespawnOrUnsummon();
-                return;
-            }
-            Check_Timer = 1000;
-        } else Check_Timer -= diff;
-
         if (!UpdateVictim())
             return;
 
-        if (!onlyonce)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                me->GetMotionMaster()->MoveChase(target);
-            onlyonce = true;
-        }
-
-        if (inferno_Timer <= diff)
-        {
-            DoCastVictim(SPELL_INFERNO);
-            inferno_Timer = 10000;
-        } else inferno_Timer -= diff;
-
-        if (flame_timer <= diff)
-        {
-            DoCast(me, SPELL_FIRE_TAIL);
-            flame_timer = 500;
-        } else flame_timer -=diff;
+        _scheduler.Update(diff);
 
         DoMeleeAttackIfReady();
+    }
+
+private:
+    TaskScheduler _scheduler;
+    ObjectGuid _summonerGUID;
+};
+
+// 35268, 39346 - Inferno
+class spell_nethermancer_sepethrea_inferno : public AuraScript
+{
+    PrepareAuraScript(spell_nethermancer_sepethrea_inferno);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_INFERNO_DAMAGE });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(aurEff->GetAmount());
+        GetTarget()->CastSpell(GetTarget(), SPELL_INFERNO_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nethermancer_sepethrea_inferno::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 void AddSC_boss_nethermancer_sepethrea()
 {
     RegisterMechanarCreatureAI(boss_nethermancer_sepethrea);
-    RegisterMechanarCreatureAI(npc_ragin_flames);
+    RegisterMechanarCreatureAI(npc_raging_flames);
+    RegisterSpellScript(spell_nethermancer_sepethrea_inferno);
 }
