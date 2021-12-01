@@ -837,12 +837,12 @@ struct npc_rhyolith_foot : public NullCreatureAI
 {
     npc_rhyolith_foot(Creature* creature) : NullCreatureAI(creature), _damageCleanupTimer(500), _damageReductionModifier(0.f)
     {
-        _damagePerHalfSecond = { };
+        _damagePerSecond = { };
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        _damagePerHalfSecond[0] += CalculatePct(damage, 100.f + _damageReductionModifier);
+        _damagePerSecond[0] += CalculatePct(damage, 100.f + _damageReductionModifier);
 
         if (damage >= me->GetHealth())
             damage = me->GetHealth() - 1;
@@ -853,7 +853,7 @@ struct npc_rhyolith_foot : public NullCreatureAI
         switch (type)
         {
             case DATA_DAMAGE_PER_SECOND:
-                return _damagePerHalfSecond[0] + _damagePerHalfSecond[1];
+                return _damagePerSecond[0] + _damagePerSecond[1];
             default:
                 return 0;
         }
@@ -878,12 +878,12 @@ struct npc_rhyolith_foot : public NullCreatureAI
 
     void UpdateAI(uint32 diff) override
     {
-        // We store the damage of the past second in two array slots so each stores the last 500 milliseconds for a more smooth result
+        // We store the damage of the past second in two array slots so each stores the last second for a more smooth result
         _damageCleanupTimer -= diff;
         if (_damageCleanupTimer <= 0)
         {
-            _damagePerHalfSecond[1] = _damagePerHalfSecond[0];
-            _damagePerHalfSecond[0] = 0;
+            _damagePerSecond[1] = _damagePerSecond[0];
+            _damagePerSecond[0] = 0;
             _damageCleanupTimer += 1 * IN_MILLISECONDS;
         }
     }
@@ -891,7 +891,7 @@ struct npc_rhyolith_foot : public NullCreatureAI
 private:
     int32 _damageCleanupTimer;
     float _damageReductionModifier;
-    std::array<uint32, 2> _damagePerHalfSecond;
+    std::array<uint32, 2> _damagePerSecond;
 };
 
 struct npc_rhyolith_volcano : public NullCreatureAI
