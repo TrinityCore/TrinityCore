@@ -884,7 +884,7 @@ struct npc_rhyolith_foot : public NullCreatureAI
         {
             _damagePerHalfSecond[1] = _damagePerHalfSecond[0];
             _damagePerHalfSecond[0] = 0;
-            _damageCleanupTimer += 500;
+            _damageCleanupTimer += 1 * IN_MILLISECONDS;
         }
     }
 
