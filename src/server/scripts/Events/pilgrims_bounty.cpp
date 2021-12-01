@@ -63,7 +63,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
                 GetTarget()->CastSpell(GetTarget(), _triggeredSpellId, true);
             }
             
-            void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
+            void FoodBonus(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
             {
                 if (GetCaster())
                 {
@@ -76,7 +76,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
                 if(m_scriptSpellId != SPELL_BOUNTIFUL_FEAST_FOOD_TRIGGER)
-                    DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_REGEN);
+                    DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_buff_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_REGEN);
             }
 
             bool _handled;
@@ -88,16 +88,16 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         }
 };
 
-class spell_pilgrims_bounty_food : public SpellScriptLoader
+class spell_pilgrims_bounty_dink : public SpellScriptLoader
 {
 public:
-    spell_pilgrims_bounty_food() : SpellScriptLoader("spell_pilgrims_bounty_food") { }
+    spell_pilgrims_bounty_dink() : SpellScriptLoader("spell_pilgrims_bounty_dink") { }
 
-    class spell_pilgrims_bounty_food_AuraScript : public AuraScript
+    class spell_pilgrims_bounty_dink_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_pilgrims_bounty_food_AuraScript);
+        PrepareAuraScript(spell_pilgrims_bounty_dink_AuraScript);
 
-        void FoodBonus(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
+        void DinkBonus(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
         {
             if (GetCaster())
             {
@@ -108,13 +108,13 @@ public:
 
         void Register()
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_food_AuraScript::FoodBonus, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pilgrims_bounty_dink_AuraScript::DinkBonus, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN);
         } 
     };
 
     AuraScript* GetAuraScript() const
     {
-        return new spell_pilgrims_bounty_food_AuraScript();
+        return new spell_pilgrims_bounty_dink_AuraScript();
     }
 };
 
