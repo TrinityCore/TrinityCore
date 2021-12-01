@@ -26,6 +26,7 @@
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -2078,24 +2079,6 @@ class spell_q13665_q13790_bested_trigger : public SpellScript
     }
 };
 
-// herald of war and life without regret portal spells
-// 59064 - Portal to Orgrimmar
-// 59439 - Portal to Undercity
-class spell_59064_59439_portals : public SpellScript
-{
-    PrepareSpellScript(spell_59064_59439_portals);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_59064_59439_portals::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum ApplyHeatAndStir
 {
     SPELL_SPURTS_AND_SMOKE    = 38594,
@@ -2328,6 +2311,37 @@ class spell_quest_taming_the_beast : public AuraScript
     }
 };
 
+// 53099, 57896, 58418, 58420, 59064, 59065, 59439, 60900, 60940
+class spell_quest_portal_with_condition : public SpellScript
+{
+    PrepareSpellScript(spell_quest_portal_with_condition);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) }) &&
+            sObjectMgr->GetQuestTemplate(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Player* target = GetHitPlayer();
+        if (!target)
+            return;
+
+        uint32 spellId = GetEffectInfo().CalcValue();
+        uint32 questId = GetEffectInfo(EFFECT_1).CalcValue();
+
+        // This probably should be a way to throw error in SpellCastResult
+        if (target->IsActiveQuest(questId))
+            target->CastSpell(target, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_quest_portal_with_condition::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2396,10 +2410,10 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q10929_fumping);
     RegisterSpellScript(spell_q12414_hand_over_reins);
     RegisterSpellScript(spell_q13665_q13790_bested_trigger);
-    RegisterSpellScript(spell_59064_59439_portals);
     RegisterSpellScript(spell_q11306_mixing_blood);
     RegisterSpellScript(spell_q11306_mixing_vrykul_blood);
     RegisterSpellScript(spell_q11306_failed_mix_43376);
     RegisterSpellScript(spell_q11306_failed_mix_43378);
     RegisterSpellScript(spell_quest_taming_the_beast);
+    RegisterSpellScript(spell_quest_portal_with_condition);
 }

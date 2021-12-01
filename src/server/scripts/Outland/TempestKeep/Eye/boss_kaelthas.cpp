@@ -27,6 +27,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellInfo.h"
@@ -86,9 +87,7 @@ enum Spells
     // Phase 4 spells
     SPELL_FIREBALL                              = 36805,
     SPELL_PYROBLAST                             = 36819,
-    SPELL_FLAME_STRIKE                          = 36735,
-    SPELL_FLAME_STRIKE_VIS                      = 36730,
-    SPELL_FLAME_STRIKE_DMG                      = 36731,
+    SPELL_SUMMON_FLAME_STRIKE                   = 36735,
     SPELL_ARCANE_DISRUPTION                     = 36834,
     SPELL_SHOCK_BARRIER                         = 36815,
     SPELL_PHOENIX_ANIMATION                     = 36723,
@@ -145,6 +144,16 @@ enum Spells
     SPELL_GRAVITY_LAPSE_TELE_CASTER_RIGHT2      = 35989,
     SPELL_GRAVITY_LAPSE_TELE_CASTER_BACK_RIGHT3 = 35990,
 
+    // Generic spells
+    SPELL_REMOVE_WEAPONS                        = 39497,
+    SPELL_REMOVE_WEAPONA                        = 39498,
+    SPELL_REMOVE_WEAPONB                        = 39499,
+    SPELL_REMOVE_WEAPONC                        = 39500,
+    SPELL_REMOVE_WEAPOND                        = 39501,
+    SPELL_REMOVE_WEAPONE                        = 39502,
+    SPELL_REMOVE_WEAPONF                        = 39503,
+    SPELL_REMOVE_WEAPONG                        = 39504,
+
     // Thaladred the Darkener spells
     SPELL_PSYCHIC_BLOW                          = 10689,
     SPELL_SILENCE                               = 30225,
@@ -164,7 +173,11 @@ enum Spells
     //Phoenix spell
     SPELL_BURN                                  = 36720,
     SPELL_EMBER_BLAST                           = 34341,
-    SPELL_REBIRTH                               = 41587
+    SPELL_REBIRTH                               = 41587,
+
+    // Flame Strike
+    SPELL_FLAME_STRIKE_DUMMY                    = 36730,
+    SPELL_FLAME_STRIKE_DAMAGE                   = 36731
 };
 
 enum Creatures
@@ -262,10 +275,16 @@ enum MovementPoints
     POINT_END_TRANSITION                 = 6
 };
 
-uint32 m_auiSpellSummonWeapon[]=
+uint32 const SummonWeaponsSpells[] =
 {
     SPELL_SUMMON_WEAPONA, SPELL_SUMMON_WEAPONB, SPELL_SUMMON_WEAPONC, SPELL_SUMMON_WEAPOND,
     SPELL_SUMMON_WEAPONE, SPELL_SUMMON_WEAPONF, SPELL_SUMMON_WEAPONG
+};
+
+uint32 const RemoveWeaponsSpells[] =
+{
+    SPELL_REMOVE_WEAPONA, SPELL_REMOVE_WEAPONB, SPELL_REMOVE_WEAPONC, SPELL_REMOVE_WEAPOND,
+    SPELL_REMOVE_WEAPONE, SPELL_REMOVE_WEAPONF, SPELL_REMOVE_WEAPONG
 };
 
 uint32 GravityLapseSpells[] =
@@ -345,6 +364,7 @@ struct boss_kaelthas : public BossAI
     void JustReachedHome() override
     {
         BossAI::JustReachedHome();
+        DoCastSelf(SPELL_REMOVE_WEAPONS);
 
         // Rebuild the surrounding environment.
         if (GameObject* statue = instance->GetGameObject(DATA_KAEL_STATUE_LEFT))
@@ -569,17 +589,9 @@ struct boss_kaelthas : public BossAI
                     ++_advisorCounter;
                     break;
                 case EVENT_SUMMON_WEAPONS:
-                {
-                    DoCast(me, SPELL_SUMMON_WEAPONS, false);
-
-                    uint8 uiMaxWeapon = sizeof(m_auiSpellSummonWeapon) / sizeof(uint32);
-
-                    for (uint32 i = 0; i < uiMaxWeapon; ++i)
-                        DoCast(me, m_auiSpellSummonWeapon[i], true);
-
+                    DoCastSelf(SPELL_SUMMON_WEAPONS);
                     events.ScheduleEvent(EVENT_REVIVE_ADVISORS, 120s);
                     break;
-                }
                 case EVENT_REVIVE_ADVISORS:
                     _phase = PHASE_REVIVED_ADVISORS;
                     Talk(SAY_PHASE3_ADVANCE);
@@ -609,7 +621,7 @@ struct boss_kaelthas : public BossAI
                     break;
                 case EVENT_FLAMESTRIKE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_FLAME_STRIKE);
+                        DoCast(target, SPELL_SUMMON_FLAME_STRIKE);
 
                     events.ScheduleEvent(EVENT_FLAMESTRIKE, 30s, EVENT_GROUP_COMBAT, PHASE_COMBAT);
                     break;
@@ -1193,56 +1205,17 @@ struct boss_master_engineer_telonicus : public advisorbase_ai
 
 struct npc_kael_flamestrike : public ScriptedAI
 {
-    npc_kael_flamestrike(Creature* creature) : ScriptedAI(creature)
+    npc_kael_flamestrike(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
     {
-        Initialize();
-        SetCombatMovement(false);
+        me->SetReactState(REACT_PASSIVE);
     }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        Timer = 5000;
-        Casting = false;
-        KillSelf = false;
-    }
-
-    uint32 Timer;
-    bool Casting;
-    bool KillSelf;
-
-    void Reset() override
-    {
-        Initialize();
-    }
-
-    void MoveInLineOfSight(Unit* /*who*/) override { }
-
-    void JustEngagedWith(Unit* /*who*/) override { }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!Casting)
-        {
-            DoCast(me, SPELL_FLAME_STRIKE_VIS);
-            Casting = true;
-        }
-
-        //Timer
-        if (Timer <= diff)
-        {
-            if (!KillSelf)
-            {
-                me->InterruptNonMeleeSpells(false);
-                DoCast(me, SPELL_FLAME_STRIKE_DMG);
-            }
-            else
-                me->KillSelf();
-
-            KillSelf = true;
-            Timer = 1000;
-        }
-        else
-            Timer -= diff;
+        DoCastSelf(SPELL_FLAME_STRIKE_DUMMY);
+        me->DespawnOrUnsummon(15s);
     }
 };
 
@@ -1380,6 +1353,74 @@ private:
     uint8 _targetCount;
 };
 
+// 36730 - Flame Strike
+class spell_kaelthas_flame_strike : public AuraScript
+{
+    PrepareAuraScript(spell_kaelthas_flame_strike);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLAME_STRIKE_DAMAGE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* target = GetTarget())
+            target->CastSpell(target, SPELL_FLAME_STRIKE_DAMAGE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_kaelthas_flame_strike::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 36976 - Summon Weapons
+class spell_kaelthas_summon_weapons : public SpellScript
+{
+    PrepareSpellScript(spell_kaelthas_summon_weapons);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(SummonWeaponsSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            for (uint32 spells : SummonWeaponsSpells)
+                caster->CastSpell(caster, spells, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_kaelthas_summon_weapons::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 39497 - Remove Enchanted Weapons
+class spell_kaelthas_remove_weapons : public SpellScript
+{
+    PrepareSpellScript(spell_kaelthas_remove_weapons);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(RemoveWeaponsSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetHitPlayer())
+            for (uint32 spells : RemoveWeaponsSpells)
+                player->CastSpell(player, spells, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_kaelthas_remove_weapons::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_kaelthas()
 {
     RegisterTheEyeCreatureAI(boss_kaelthas);
@@ -1391,4 +1432,7 @@ void AddSC_boss_kaelthas()
     RegisterTheEyeCreatureAI(npc_phoenix_tk);
     RegisterTheEyeCreatureAI(npc_phoenix_egg_tk);
     RegisterSpellScript(spell_kael_gravity_lapse);
+    RegisterSpellScript(spell_kaelthas_flame_strike);
+    RegisterSpellScript(spell_kaelthas_summon_weapons);
+    RegisterSpellScript(spell_kaelthas_remove_weapons);
 }
