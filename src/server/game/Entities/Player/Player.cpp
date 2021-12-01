@@ -25234,7 +25234,7 @@ void Player::UpdateForQuestWorldObjects()
                     case GAMEOBJECT_TYPE_CHEST:
                     case GAMEOBJECT_TYPE_GOOBER:
                     case GAMEOBJECT_TYPE_GENERIC:
-                        if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()))
+                        if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()) || obj->ActivateToQuest(this))
                         {
                             UF::ObjectData::Base objMask;
                             UF::GameObjectData::Base goMask;
