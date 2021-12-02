@@ -5391,6 +5391,29 @@ class spell_gen_rocket_barrage : public SpellScript
     }
 };
 
+enum AuraProcRemoveSpells
+{
+    SPELL_FACE_RAGE = 99947
+};
+
+class spell_gen_face_rage : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FACE_RAGE });
+    }
+
+    void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[EFFECT_2].TriggerSpell);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove.Register(&spell_gen_face_rage::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5525,4 +5548,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_zero_energy_zero_regen);
     RegisterSpellScript(spell_gen_wounded);
     RegisterSpellScript(spell_gen_rocket_barrage);
+    RegisterSpellScript(spell_gen_face_rage);
 }

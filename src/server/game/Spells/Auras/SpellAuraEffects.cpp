@@ -1196,28 +1196,6 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
     GetBase()->CallScriptAfterEffectProcHandlers(this, aurApp, eventInfo);
 }
 
-void AuraEffect::CleanupTriggeredSpells(Unit* target)
-{
-    uint32 tSpellId = m_spellInfo->Effects[GetEffIndex()].TriggerSpell;
-    if (!tSpellId)
-        return;
-
-    SpellInfo const* tProto = sSpellMgr->GetSpellInfo(tSpellId);
-    if (!tProto)
-        return;
-
-    if (tProto->GetDuration() != -1)
-        return;
-
-    // needed for spell 43680, maybe others
-    /// @todo is there a spell flag, which can solve this in a more sophisticated way?
-    if (m_spellInfo->Effects[GetEffIndex()].ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL &&
-            uint32(m_spellInfo->GetDuration()) == m_spellInfo->Effects[GetEffIndex()].AuraPeriod)
-        return;
-
-    target->RemoveAurasDueToSpell(tSpellId, GetCasterGUID());
-}
-
 void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 {
     uint32 spellId = 0;
