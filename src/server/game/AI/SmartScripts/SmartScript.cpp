@@ -1179,11 +1179,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
             {
+                Unit* invoker = me ? me : unit;
                 if (Creature* cTarget = target->ToCreature())
                 {
                     CreatureAI* ai = cTarget->AI();
                     if (IsSmart(cTarget))
-                        ENSURE_AI(SmartAI, ai)->SetData(e.action.setData.field, e.action.setData.data, unit);
+                        ENSURE_AI(SmartAI, ai)->SetData(e.action.setData.field, e.action.setData.data, invoker);
                     else
                         ai->SetData(e.action.setData.field, e.action.setData.data);
                 }
@@ -1191,7 +1192,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     GameObjectAI* ai = oTarget->AI();
                     if (IsSmart(oTarget))
-                        ENSURE_AI(SmartGameObjectAI, ai)->SetData(e.action.setData.field, e.action.setData.data, unit);
+                        ENSURE_AI(SmartGameObjectAI, ai)->SetData(e.action.setData.field, e.action.setData.data, invoker);
                     else
                         ai->SetData(e.action.setData.field, e.action.setData.data);
                 }
