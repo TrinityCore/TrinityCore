@@ -18296,6 +18296,14 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
         item = NewItemOrBag(proto);
         if (item->LoadFromDB(itemGuid, GetGUID(), fields, itemEntry))
         {
+            auto const transmog = item->GetTransmog();
+            bool hasTemplate = transmog != NormalEntry && transmog != InvisibleEntry;
+            if (transmog && hasTemplate) {
+                auto source = sObjectMgr->GetItemTemplate(transmog);
+                if (!source || Transmogrification::instance().CannotTransmogrifyItemWithItem(this, proto, source))
+                    item->SetTransmog(0); // Player swapped factions? Or settings changed.
+            }
+
             CharacterDatabasePreparedStatement* stmt;
 
             // Do not allow to have item limited to another map/zone in alive state

@@ -649,7 +649,7 @@ TransmogResult Transmogrification::TrySetPendingEnchant(Player* player, uint32 s
     if (hasTemplate)
     {
         if (TransmogResult res = CannotTransmogrifyItemWithEnchant(player, itemTransmogrified->GetTemplate(), entry)) {
-            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) failed CannotTransmogrifyItemWithItem (%u with %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemTransmogrified->GetEntry(), entry);
+            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) failed CannotTransmogrifyItemWithEnchant (%u with %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemTransmogrified->GetEntry(), entry);
             return res;
         }
     }

@@ -503,9 +503,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     }
 
     transmog = fields[16].GetUInt32();
-    bool hasTemplate = transmog != NormalEntry && transmog != InvisibleEntry;
-    if (transmog && hasTemplate && Transmogrification::instance().CannotTransmogrifyItemWithItem(GetOwner(), proto, sObjectMgr->GetItemTemplate(transmog)))
-        transmog = 0; // Player swapped factions? Or settings changed.
     enchant = fields[17].GetUInt32();
 
     return true;
