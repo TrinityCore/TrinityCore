@@ -5741,7 +5741,7 @@ void Spell::EffectJumpCharge()
 
     float speed = params->Speed;
     if (params->TreatSpeedAsMoveTimeSeconds)
-        speed = unitCaster->GetExactDist2d(destTarget) / params->MoveTimeInSec;
+        speed = unitCaster->GetExactDist(destTarget) / params->MoveTimeInSec;
 
     Optional<JumpArrivalCastArgs> arrivalCast;
     if (effectInfo->TriggerSpell)
