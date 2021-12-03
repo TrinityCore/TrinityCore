@@ -1,0 +1,6 @@
+CREATE TABLE `battleground_door_object` (
+	`entry` MEDIUMINT(10) UNSIGNED NOT NULL,
+	`map` MEDIUMINT(10) UNSIGNED NOT NULL,
+	`type` TINYINT UNSIGNED NOT NULL,
+	PRIMARY KEY(`entry`,`map`)
+);

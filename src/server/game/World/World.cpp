@@ -2030,6 +2030,11 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading BattleMasters...");
     sBattlegroundMgr->LoadBattleMastersEntry();                 // must be after load CreatureTemplate
 
+    // @tswow-begin
+    TC_LOG_INFO("server.loading", "Loading Battleground doors...");
+    sObjectMgr->LoadBattlegroundDoors();
+    // @tswow-end
+
     TC_LOG_INFO("server.loading", "Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
 

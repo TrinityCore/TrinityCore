@@ -2036,6 +2036,27 @@ bool Battleground::SetupBattleground()
 
 void Battleground::StartingEventCloseDoors()
 {
+    if (std::vector<BattlegroundDoorData> const* doors = sObjectMgr->GetBattlegroundDoors(m_MapId))
+    {
+        for (BattlegroundDoorData const& door : *doors)
+        {
+            for (auto& val : this->m_Map->GetGameObjectBySpawnIdStore())
+            {
+                if (val.second->GetEntry() == door.entry)
+                {
+                    switch (door.type)
+                    {
+                    case BG_DOOR_OPENS_ON_START:
+                        val.second->SetGoState(GO_STATE_READY);
+                        break;
+                    case BG_DOOR_CLOSES_ON_START:
+                        val.second->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    }
+                }
+            }
+        }
+    }
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnCloseDoors
@@ -2045,6 +2066,27 @@ void Battleground::StartingEventCloseDoors()
 
 void Battleground::StartingEventOpenDoors()
 {
+    if (std::vector<BattlegroundDoorData> const* doors = sObjectMgr->GetBattlegroundDoors(m_MapId))
+    {
+        for (BattlegroundDoorData const& door : *doors)
+        {
+            for (auto& val : this->m_Map->GetGameObjectBySpawnIdStore())
+            {
+                if (val.second->GetEntry() == door.entry)
+                {
+                    switch (door.type)
+                    {
+                    case BG_DOOR_OPENS_ON_START:
+                        val.second->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case BG_DOOR_CLOSES_ON_START:
+                        val.second->SetGoState(GO_STATE_READY);
+                        break;
+                    }
+                }
+            }
+        }
+    }
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnOpenDoors

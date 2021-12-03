@@ -706,6 +706,16 @@ struct InstanceDoorData {
     uint32 boss;
     uint32 type;
 };
+
+enum BattlegroundDoorType: uint8 {
+    BG_DOOR_OPENS_ON_START  = 0,
+    BG_DOOR_CLOSES_ON_START = 1,
+    MAX_BG_DOOR_TYPES
+};
+struct BattlegroundDoorData {
+    uint32 entry;
+    BattlegroundDoorType type;
+};
 class AreaBoundary;
 
 // existence checked by displayId != 0
@@ -1046,6 +1056,7 @@ class TC_GAME_API ObjectMgr
         uint8 GetPlayerClassRoleMask(uint32 cls);
         void GetBossCount(uint32 mapid, uint32& count) const;
         std::vector<InstanceDoorData> const* GetInstanceDoors(uint32 mapid) const;
+        std::vector<BattlegroundDoorData> const* GetBattlegroundDoors(uint32 mapid) const;
         SpellAutoLearns const& GetSpellAutolearns() { return _spellAutoLearns;  }
         InstanceBossCreatures const* GetInstanceBossCreatures(uint32 instance) {
             if (instance >= _instanceBossCreatures.size()) return nullptr;
@@ -1273,6 +1284,7 @@ class TC_GAME_API ObjectMgr
         void LoadInstanceBossCreatures();
         void LoadBossBoundaries();
         void LoadInstanceDoors();
+        void LoadBattlegroundDoors();
         // @tswow-end
         void LoadPetLevelInfo();
         void LoadExplorationBaseXP();
@@ -1748,6 +1760,7 @@ class TC_GAME_API ObjectMgr
         std::map<uint32, uint32> _creatureBoss;
         std::map<uint32, std::vector<std::vector<AreaBoundary*>>> _bossBoundaries;
         std::map<uint32, std::vector<InstanceDoorData>> _instanceDoors;
+        std::map<uint32, std::vector<BattlegroundDoorData>> _battlegroundDoors;
         PlayerClassRoles _playerClassRoles;
 
         // @tswow-end

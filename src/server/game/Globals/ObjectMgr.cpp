@@ -4700,7 +4700,57 @@ void ObjectMgr::LoadInstanceDoors()
         } while (result->NextRow());
     }
     TC_LOG_INFO("server.loading", ">> Loaded %u Instance doors %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
 
+std::vector<BattlegroundDoorData> const* ObjectMgr::GetBattlegroundDoors(uint32 mapid) const
+{
+    auto itr = _battlegroundDoors.find(mapid);
+    return (itr == _battlegroundDoors.end() ? nullptr : &itr->second);
+}
+
+void ObjectMgr::LoadBattlegroundDoors()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _battlegroundDoors.clear();
+    //                                                0       1       2       3
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `map`, `type` FROM `battleground_door_object`");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 entry = fields[0].GetUInt32();
+            uint32 map = fields[1].GetUInt32();
+            uint32 type = fields[2].GetUInt32();
+            if (type >= MAX_BG_DOOR_TYPES)
+            {
+                TC_LOG_ERROR(
+                    "sql.sql"
+                    , "Invalid door type %u for door %u on map %u, ignoring"
+                    , type
+                    , entry
+                    , map
+                );
+            }
+            else
+            {
+                auto itr = _battlegroundDoors.find(map);
+                std::vector<BattlegroundDoorData>* doors;
+                if (itr == _battlegroundDoors.end())
+                {
+                    doors = &(_battlegroundDoors[map] = std::vector<BattlegroundDoorData>());
+                }
+                else
+                {
+                    doors = &itr->second;
+                }
+                doors->push_back({ entry,BattlegroundDoorType(type) });
+            }
+            ++count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Battleground doors %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::GetBossCount(uint32 mapid, uint32& count) const
