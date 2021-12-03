@@ -19,7 +19,8 @@
 #define TRINITYCORE_CONVERSATION_H
 
 #include "Object.h"
-#include "Hash.h"
+#include "ConversationDataStore.h"
+#include <cstring>
 
 class Unit;
 class SpellInfo;
@@ -42,14 +43,17 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        bool IsNeverVisibleFor(WorldObject const* seer) const override;
+
         void Update(uint32 diff) override;
         void Remove();
-        Milliseconds GetDuration() const { return _duration; }
+        int32 GetDuration() const { return _duration; }
         uint32 GetTextureKitId() const { return _textureKitId; }
 
-        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
-        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
+        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr, Optional<GuidVector> dynamicActors = boost::none);
+        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr, Optional<GuidVector> dynamicActors = boost::none);
         void AddActor(ObjectGuid const& actorGuid, uint16 actorIdx);
+        void AddParticipant(ObjectGuid const& participantGuid);
 
         ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
         ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
@@ -60,9 +64,6 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
-
-        Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
-        Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
 
         uint32 GetScriptId() const;
 
@@ -77,11 +78,9 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
     private:
         Position _stationaryPosition;
         ObjectGuid _creatorGuid;
-        Milliseconds _duration;
+        uint32 _duration;
         uint32 _textureKitId;
-
-        std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
-        std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
+        GuidUnorderedSet _participants;
 };
 
 #endif // TRINITYCORE_CONVERSATION_H
