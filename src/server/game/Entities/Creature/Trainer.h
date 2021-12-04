@@ -67,7 +67,7 @@ namespace Trainer
     public:
         Trainer(uint32 id, Type type, std::string greeting, std::vector<Spell> spells);
 
-        void SendSpells(Creature const* npc, Player const* player, LocaleConstant locale) const;
+        void SendSpells(Creature const* npc, Player* player, LocaleConstant locale) const;
         void TeachSpell(Creature const* npc, Player* player, uint32 spellId) const;
 
     private:
