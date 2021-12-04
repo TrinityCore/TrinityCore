@@ -85,7 +85,7 @@ void InstanceScript::SaveToDB()
     FIRE_MAP(
           GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnSave
-        , TSInstance(this)
+        , TSInstance(instance,this)
     );
     // @tswow-end
 }
@@ -183,7 +183,7 @@ void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnLoadBossBoundaries
-        , TSInstance(this)
+        , TSInstance(instance,this)
     );
     // @tswow-end
 }
@@ -201,7 +201,7 @@ void InstanceScript::LoadMinionData(MinionData const* data)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnLoadMinionData
-        , TSInstance(this)
+        , TSInstance(instance,this)
     );
     // @tswow-end
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
@@ -248,7 +248,7 @@ void InstanceScript::LoadDoorData(DoorData const* data)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnLoadDoorData
-        , TSInstance(this)
+        , TSInstance(instance, this)
     );
     // @tswow-end
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
@@ -266,7 +266,7 @@ void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData c
     FIRE_MAP(
           GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnLoadObjectData
-        , TSInstance(this)
+        , TSInstance(instance, this)
     );
     // @tswow-end
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadObjectData: " SZFMTD " objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
@@ -495,7 +495,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         FIRE_MAP(
             GetInstanceEvent(instance->GetEntry()->ID)
             , InstanceOnBossStateChange
-            , TSInstance(this)
+            , TSInstance(instance,this)
             , id
             , state
         );
@@ -519,12 +519,12 @@ void InstanceScript::Create()
     FIRE_MAP(
           GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnCreate
-        , TSInstance(this)
+        , TSInstance(instance, this)
     );
     FIRE_MAP(
           GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnReload
-        , TSInstance(this)
+        , TSInstance(instance, this)
     );
     // @tswow-end
 }
@@ -553,7 +553,7 @@ void InstanceScript::Load(char const* data)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnLoad
-        , TSInstance(this)
+        , TSInstance(instance, this)
     );
     // @tswow-end
 
@@ -962,7 +962,7 @@ void InstanceScript::Update(uint32 diff)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnUpdate
-        , TSInstance(this)
+        , TSInstance(instance, this)
         , diff
     );
 }
@@ -972,7 +972,7 @@ void InstanceScript::OnPlayerEnter(Player* player)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnPlayerEnter
-        , TSInstance(this)
+        , TSInstance(instance, this)
         , TSPlayer(player)
     );
 }
@@ -982,7 +982,7 @@ void InstanceScript::OnPlayerLeave(Player* player)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnPlayerLeave
-        , TSInstance(this)
+        , TSInstance(instance, this)
         , TSPlayer(player)
     );
 }
@@ -992,7 +992,7 @@ bool InstanceScript::_CheckRequiredBosses(uint32 bossId, Player const* player, b
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnCanKillBoss
-        , TSInstance(const_cast<InstanceScript*>(this))
+        , TSInstance(instance, const_cast<InstanceScript*>(this))
         , bossId
         , TSPlayer(const_cast<Player*>(player))
         , TSMutable<bool>(&in)
@@ -1005,7 +1005,7 @@ void InstanceScript::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     FIRE_MAP(
           GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnFillInitialWorldStates
-        , TSInstance(this)
+        , TSInstance(instance, this)
         , TSWorldStatePacket(&packet)
     );
 }
@@ -1018,7 +1018,7 @@ void InstanceScript::SetBossNumber(uint32 number)
     FIRE_MAP(
         GetInstanceEvent(instance->GetEntry()->ID)
         , InstanceOnSetBossNumber
-        , TSInstance(this)
+        , TSInstance(instance, this)
         , TSMutable<uint32>(&tmp)
     );
     if (tmp < number)

@@ -625,7 +625,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 FIRE_MAP(
                     GetInstanceEvent(instance->GetEntry()->ID)
                     , InstanceOnLoad
-                    , TSInstance(this)
+                    , TSInstance(instance,this)
                 );
                 // @tswow-end
                 OUT_LOAD_INST_DATA_COMPLETE;

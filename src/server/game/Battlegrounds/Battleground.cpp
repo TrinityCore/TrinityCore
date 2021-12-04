@@ -176,10 +176,10 @@ void Battleground::Update(uint32 diff)
     FIRE_MAP(
           GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnUpdateEarly
-        , TSBattleground(this)
+        , TSBattleground(m_Map,this)
         , diff
     );
-    m_tsWorldEntity.tick(TSBattleground(this));
+    m_tsWorldEntity.tick(TSBattleground(m_Map,this));
     // @tswow-end
 
     if (!PreUpdateImpl(diff))
@@ -247,7 +247,7 @@ void Battleground::Update(uint32 diff)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnUpdateLate
-        , TSBattleground(this)
+        , TSBattleground(m_Map,this)
         , diff
     );
     // @tswow-end
@@ -701,7 +701,7 @@ void Battleground::EndBattleground(uint32 winner)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnEndEarly
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSMutable<uint32>(&winner)
     );
     // @tswow-end
@@ -845,7 +845,7 @@ void Battleground::EndBattleground(uint32 winner)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnEndLate
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , winner
     );
     // @tswow-end
@@ -1015,7 +1015,7 @@ void Battleground::Reset()
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnReset
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
     );
     // @tswow-end
 }
@@ -1036,7 +1036,7 @@ void Battleground::StartBattleground()
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnStart
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
     );
     // @tswow-end
 
@@ -1098,7 +1098,7 @@ void Battleground::AddPlayer(Player* player)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnAddPlayer
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
     // @tswow-end
@@ -1156,7 +1156,7 @@ void Battleground::EventPlayerLoggedIn(Player* player)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnPlayerLogin
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
     // @tswow-end
@@ -1187,7 +1187,7 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnPlayerLogout
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
     // @tswow-end
@@ -1325,7 +1325,7 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnUpdateScore
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , type
         , doAddHonor
@@ -1399,7 +1399,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     FIRE_MAP(
           GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnAddGameObject
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , type
         , TSMutable<uint32>(&entry)
         , TSMutable<uint8>((uint8*)&goState)
@@ -1572,7 +1572,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
     FIRE_MAP(
           GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnAddCreature
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , type
         , TSMutable<uint32>(&entry)
         , TSMutable<float>(&x)
@@ -1701,7 +1701,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnAddSpiritGuide
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , type
         , TSMutable<uint32>(&entry)
         , TSMutable<uint8>(&_teamId)
@@ -1852,7 +1852,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnKillPlayer
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(victim)
         , TSPlayer(killer)
     );
@@ -1979,7 +1979,7 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnAreaTrigger
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , trigger
         , TSMutable<bool>(&handled)
@@ -1997,7 +1997,7 @@ bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnAchievementCriteria
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , criteriaId
         , TSPlayer(const_cast<Player*>(source))
         , TSUnit(const_cast<Unit*>(target))
@@ -2023,12 +2023,12 @@ bool Battleground::SetupBattleground()
     FIRE_MAP(
           GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnReload
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
     );
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnSetup
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSMutable<bool>(&result)
     );
     return result;
@@ -2060,7 +2060,7 @@ void Battleground::StartingEventCloseDoors()
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnCloseDoors
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
     );
 }
 
@@ -2090,7 +2090,7 @@ void Battleground::StartingEventOpenDoors()
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnOpenDoors
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
     );
 }
 
@@ -2099,7 +2099,7 @@ void Battleground::DestroyGate(Player* player, GameObject* go)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnDestroyGate
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , TSGameObject(go)
     );
@@ -2110,7 +2110,7 @@ void Battleground::EventPlayerDroppedFlag(Player* player)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnDropFlag
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
 }
@@ -2120,7 +2120,7 @@ void Battleground::EventPlayerClickedOnFlag(Player* player, GameObject* target)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnClickFlag
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , TSGameObject(target)
     );
@@ -2131,7 +2131,7 @@ void Battleground::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* i
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnGenericEvent
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSWorldObject(obj)
         , eventId
         , TSWorldObject(invoker)
@@ -2144,7 +2144,7 @@ bool Battleground::HandlePlayerUnderMap(Player* player)
     FIRE_MAP(
           GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnPlayerUnderMap
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , TSMutable<bool>(&handled)
     );
@@ -2156,7 +2156,7 @@ void Battleground::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnRemovePlayer
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , guid.GetRawValue()
         , TSPlayer(player)
         , team
@@ -2168,7 +2168,7 @@ void Battleground::HandleKillUnit(Creature* creature, Player* killer)
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
         , BattlegroundOnKillCreature
-        , TSBattleground(this)
+        , TSBattleground(m_Map, this)
         , TSCreature(creature)
         , TSPlayer(killer)
     );
