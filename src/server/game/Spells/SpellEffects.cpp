@@ -5939,7 +5939,7 @@ void Spell::EffectJumpCharge()
     if (hasMovementStarted)
         return;
 
-    // In case the motion master didn't start, handle the actions immediatley
+    // In case the motion master didn't start, handle the actions immediately
     if (arrivalActions)
     {
         for (auto action : arrivalActions->Actions)
