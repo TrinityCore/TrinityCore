@@ -18,6 +18,7 @@
 #ifndef TRINITY_GENERICMOVEMENTGENERATOR_H
 #define TRINITY_GENERICMOVEMENTGENERATOR_H
 
+#include "MovementDefines.h"
 #include "MovementGenerator.h"
 #include "MoveSplineInit.h"
 #include "Timer.h"
