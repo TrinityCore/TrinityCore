@@ -162,8 +162,12 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     if (Unit const* unit = ToUnit())
+    {
+        flags.PlayHoverAnim = unit->IsPlayingHoverAnim();
+
         if (unit->GetVictim())
             flags.CombatVictim = true;
+    }
 
     ByteBuffer buf(0x400, ByteBuffer::Reserve{});
     buf << uint8(updateType);
