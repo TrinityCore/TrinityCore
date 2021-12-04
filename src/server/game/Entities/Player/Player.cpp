@@ -25209,6 +25209,12 @@ void Player::UpdateForQuestWorldObjects()
         {
             if (GameObject* obj = ObjectAccessor::GetGameObject(*this, *itr))
             {
+                UF::ObjectData::Base objMask;
+                UF::GameObjectData::Base goMask;
+
+                if (m_questObjectiveStatus.find({ QUEST_OBJECTIVE_GAMEOBJECT, int32(obj->GetEntry()) }) != m_questObjectiveStatus.end())
+                    objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+
                 switch (obj->GetGoType())
                 {
                     case GAMEOBJECT_TYPE_QUESTGIVER:
@@ -25216,16 +25222,14 @@ void Player::UpdateForQuestWorldObjects()
                     case GAMEOBJECT_TYPE_GOOBER:
                     case GAMEOBJECT_TYPE_GENERIC:
                         if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()))
-                        {
-                            UF::ObjectData::Base objMask;
-                            UF::GameObjectData::Base goMask;
                             objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-                            obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
-                        }
                         break;
                     default:
                         break;
                 }
+
+                if (objMask.GetChangesMask().IsAnySet() || goMask.GetChangesMask().IsAnySet())
+                    obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
             }
         }
         else if (itr->IsCreatureOrVehicle())
