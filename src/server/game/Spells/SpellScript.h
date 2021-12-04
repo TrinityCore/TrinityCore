@@ -142,6 +142,9 @@ class TC_GAME_API _SpellScript
         // Function called when script is destroyed
         // use for: deallocating memory allocated by script
         virtual void Unload() { }
+        // Function called when spell effects with JumpArrivalAction are executed
+        // use for: create your own lambda actions which are called upon finalizing the movement
+        virtual std::function<void(Unit* /*caster*/, bool /*hasMovementStarted*/)> GetJumpArrivalAction() { return { }; }
         // Helpers
         static bool ValidateSpellInfo(std::initializer_list<uint32> spellIds)
         {

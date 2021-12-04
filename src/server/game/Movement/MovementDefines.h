@@ -99,10 +99,9 @@ struct TC_GAME_API ChaseAngle
     bool IsAngleOkay(float relativeAngle) const;
 };
 
-struct JumpArrivalCastArgs
+struct JumpArrivalActionArgs
 {
-    uint32 SpellId = 0;
-    ObjectGuid Target;
+    HookList<std::function<void(Unit*, bool)>> Actions;
 };
 
 struct JumpChargeParams

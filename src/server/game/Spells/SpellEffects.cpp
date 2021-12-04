@@ -794,10 +794,27 @@ void Spell::EffectJump()
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effectInfo, unitCaster->GetExactDist2d(unitTarget), speedXY, speedZ);
-    JumpArrivalCastArgs arrivalCast;
-    arrivalCast.SpellId = effectInfo->TriggerSpell;
-    arrivalCast.Target = unitTarget->GetGUID();
-    unitCaster->GetMotionMaster()->MoveJump(*unitTarget, speedXY, speedZ, EVENT_JUMP, false, &arrivalCast);
+
+    Optional<JumpArrivalActionArgs> arrivalActions;
+    if (effectInfo->TriggerSpell)
+    {
+        arrivalActions.emplace();
+
+        uint32 triggerSpell = effectInfo->TriggerSpell;
+        ObjectGuid targetGuid = unitTarget->GetGUID();
+
+        arrivalActions->Actions += [triggerSpell, targetGuid](Unit* owner, bool /*hasMovementStarted*/)
+        {
+            owner->CastSpell(ObjectAccessor::GetUnit(*owner, targetGuid), triggerSpell, true);
+        };
+    }
+
+    if (arrivalActions)
+    {
+        SetJumpArrivalActionsFromScripts(arrivalActions->Actions);
+    }
+
+    unitCaster->GetMotionMaster()->MoveJump(*unitTarget, speedXY, speedZ, EVENT_JUMP, false, arrivalActions);
 }
 
 void Spell::EffectJumpDest()
@@ -816,9 +833,21 @@ void Spell::EffectJumpDest()
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effectInfo, unitCaster->GetExactDist2d(destTarget), speedXY, speedZ);
-    JumpArrivalCastArgs arrivalCast;
-    arrivalCast.SpellId = effectInfo->TriggerSpell;
-    unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty(), &arrivalCast);
+
+    Optional<JumpArrivalActionArgs> arrivalActions;
+    if (effectInfo->TriggerSpell)
+    {
+        arrivalActions.emplace();
+
+        uint32 triggerSpell = effectInfo->TriggerSpell;
+
+        arrivalActions->Actions += [triggerSpell](Unit* owner, bool /*hasMovementStarted*/)
+        {
+            owner->CastSpell(nullptr, triggerSpell, true);
+        };
+    }
+
+    unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty(), arrivalActions);
 }
 
 void Spell::EffectTeleportUnits()
@@ -5875,11 +5904,20 @@ void Spell::EffectJumpCharge()
     if (params->TreatSpeedAsMoveTimeSeconds)
         speed = unitCaster->GetExactDist2d(destTarget) / params->MoveTimeInSec;
 
-    Optional<JumpArrivalCastArgs> arrivalCast;
+    Optional<JumpArrivalActionArgs> arrivalActions;
     if (effectInfo->TriggerSpell)
     {
-        arrivalCast.emplace();
-        arrivalCast->SpellId = effectInfo->TriggerSpell;
+        arrivalActions.emplace();
+        uint32 triggerSpell = effectInfo->TriggerSpell;
+        arrivalActions->Actions += [triggerSpell](Unit* owner, bool /*hasMovementStarted*/)
+        {
+            owner->CastSpell(nullptr, triggerSpell, true);
+        };
+    }
+
+    if (arrivalActions)
+    {
+        SetJumpArrivalActionsFromScripts(arrivalActions->Actions);
     }
 
     Optional<Movement::SpellEffectExtraData> effectExtra;
@@ -5896,7 +5934,16 @@ void Spell::EffectJumpCharge()
             effectExtra->ParabolicCurveId = *params->ParabolicCurveId;
     }
 
-    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, false, arrivalCast.get_ptr(), effectExtra.get_ptr());
+    bool hasMovementStarted = unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, false, arrivalActions, effectExtra.get_ptr());
+    if (hasMovementStarted)
+        return;
+
+    // In case the motion master didn't start, handle the actions immediatley
+    if (arrivalActions)
+    {
+        for (auto action : arrivalActions->Actions)
+            action(unitCaster, hasMovementStarted);
+    }
 }
 
 void Spell::EffectLearnTransmogSet()

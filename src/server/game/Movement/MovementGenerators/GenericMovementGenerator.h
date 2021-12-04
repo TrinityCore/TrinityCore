@@ -30,7 +30,7 @@ class GenericMovementGenerator : public MovementGenerator
 {
     public:
         explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id,
-            uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty);
+            Optional<JumpArrivalActionArgs> arrivalActions = {});
 
         void Initialize(Unit*) override;
         void Reset(Unit*) override;
@@ -47,8 +47,7 @@ class GenericMovementGenerator : public MovementGenerator
         uint32 _pointId;
         TimeTrackerSmall _duration;
 
-        uint32 _arrivalSpellId;
-        ObjectGuid _arrivalSpellTargetGuid;
+        Optional<JumpArrivalActionArgs> const _arrivalActions;
 };
 
 #endif

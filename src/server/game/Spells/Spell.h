@@ -810,6 +810,7 @@ class TC_GAME_API Spell
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
+        void SetJumpArrivalActionsFromScripts(HookList<std::function<void(Unit* /*caster*/, bool /*hasMovementStarted*/)>>& jumpArrivalActions);
         std::vector<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell

@@ -8088,6 +8088,18 @@ bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToC
     return true;
 }
 
+void Spell::SetJumpArrivalActionsFromScripts(HookList<std::function<void(Unit* /*caster*/, bool /*hasMovementStarted*/)>>& jumpArrivalActions)
+{
+    // Skip if there are not any script
+    if (m_loadedScripts.empty())
+        return;
+
+    for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
+    {
+        jumpArrivalActions += std::move((*itr)->GetJumpArrivalAction());
+    }
+}
+
 bool Spell::CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura /*= nullptr*/) const
 {
     bool only_on_caster = (triggeredByAura && (triggeredByAura->HasAttribute(SPELL_ATTR4_PROC_ONLY_ON_CASTER)));

@@ -24,9 +24,8 @@
 #include "Unit.h"
 
 GenericMovementGenerator::GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id,
-    uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/)
-    : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0),
-    _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid)
+    Optional<JumpArrivalActionArgs> arrivalActions)
+    : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0), _arrivalActions(arrivalActions)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -83,8 +82,11 @@ void GenericMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool movem
 
 void GenericMovementGenerator::MovementInform(Unit* owner)
 {
-    if (_arrivalSpellId)
-        owner->CastSpell(ObjectAccessor::GetUnit(*owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+    if (_arrivalActions)
+    {
+        for (auto action : _arrivalActions->Actions)
+            action(owner, true);
+    }
 
     if (Creature* creature = owner->ToCreature())
     {
