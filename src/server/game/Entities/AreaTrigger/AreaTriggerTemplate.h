@@ -193,7 +193,6 @@ public:
 
     AreaTriggerId Id;
     uint32 Flags;
-    uint32 ScriptId;
     std::vector<AreaTriggerAction> Actions;
 };
 
@@ -231,6 +230,8 @@ public:
 
     std::vector<Position> SplinePoints;
     Optional<AreaTriggerOrbitInfo> OrbitInfo;
+
+    uint32 ScriptId;
 };
 
 struct AreaTriggerSpawn
@@ -243,6 +244,8 @@ struct AreaTriggerSpawn
     uint8 PhaseUseFlags = 0;
 
     AreaTriggerShapeInfo Shape;
+
+    uint32 ScriptId = 0;
 };
 
 #endif
