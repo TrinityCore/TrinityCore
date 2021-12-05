@@ -297,7 +297,7 @@ Position const LightningCloudsExtraVisualsPositions[] =
 
 struct boss_alakir : public BossAI
 {
-    boss_alakir(Creature* creature) : BossAI(creature, DATA_ALAKIR), _useLeftSquallLineSpell(true), _useTempoaryCloudSpawns(false)
+    boss_alakir(Creature* creature) : BossAI(creature, DATA_ALAKIR), _useLeftSquallLineSpell(true)
     {
         me->SetReactState(REACT_PASSIVE);
     }
@@ -611,7 +611,6 @@ struct boss_alakir : public BossAI
 private:
     ObjectGuid _primaryLightningStrikeTarget;
     bool _useLeftSquallLineSpell;
-    bool _useTempoaryCloudSpawns;
 };
 
 struct npc_alakir_ice_storm : public ScriptedAI
