@@ -929,6 +929,10 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
     if (std::fabs(_owner->GetPositionZ() - tz) < 0.1f)
         return;
 
+    // rooted units don't move (also setting falling+root flag causes client freezes)
+    if (_owner->HasUnitState(UNIT_STATE_ROOT))
+        return;
+
     _owner->SetFall(true);
 
     // Don't run spline movement for players

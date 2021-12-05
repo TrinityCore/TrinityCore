@@ -35,6 +35,7 @@
 #include "SpellInfo.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
+#include "MoveSpline.h"
 #include "Transport.h"
 #include "Vehicle.h"
 #include "SpellMgr.h"
@@ -323,6 +324,9 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
         TC_LOG_ERROR("network", "HandleMovementOpcodes: Invalid Position");
         return;
     }
+
+    if (!mover->movespline->Finalized())
+        return;
 
     // stop some emotes at player move
     if (plrMover && (plrMover->GetEmoteState() != 0))
