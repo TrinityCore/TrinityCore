@@ -905,16 +905,16 @@ struct CorruptionEffectsEntry
     int32 Flags;
 };
 
-//struct CreatureDifficultyEntry
-//{
-//    uint32 ID;
-//    int32 LevelDeltaMin;
-//    int32 LevelDeltaMax;
-//    uint16 FactionID;
-//    int32 ContentTuningID;
-//    int32 Flags[8];
-//    uint32 CreatureID;
-//};
+struct CreatureDifficultyEntry
+{
+    uint32 ID;
+    int32 LevelDeltaMin;
+    int32 LevelDeltaMax;
+    uint16 FactionID;
+    int32 ContentTuningID;
+    int32 Flags[8];
+    uint32 CreatureID;
+};
 
 struct CreatureDisplayInfoEntry
 {
