@@ -5498,12 +5498,16 @@ void Spell::EffectEnableBattlePets()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget || !unitTarget->IsPlayer())
         return;
 
-    Player* plr = unitTarget->ToPlayer();
-    plr->AddPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
-    plr->GetSession()->GetBattlePetMgr()->UnlockSlot(0);
+    Player* player = unitTarget->ToPlayer();
+    player->LearnSpell(SPELL_BATTLE_PET_TRAINING_PASSIVE, false);
+    player->LearnSpell(SPELL_TRACK_PETS, false);
+    player->LearnSpell(SPELL_REVIVE_BATTLE_PETS, false);
+    player->LearnSpell(SPELL_BATTLE_PET_TRAINING, false);
+    player->AddPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+    player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePetSlot::Slot0);
 }
 
 void Spell::EffectLaunchQuestChoice()

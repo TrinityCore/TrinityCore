@@ -38,7 +38,7 @@ void WorldSession::HandleBattlePetRequestJournalLock(WorldPackets::BattlePet::Ba
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
 {
     if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
-        if (WorldPackets::BattlePet::BattlePetSlot* slot = GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot))
+        if (WorldPackets::BattlePet::BattlePetSlot* slot = GetBattlePetMgr()->GetSlot(BattlePetSlot(battlePetSetBattleSlot.Slot)))
             slot->Pet = pet->PacketInfo;
 }
 

@@ -18616,6 +18616,17 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         _restMgr->AddRestBonus(REST_TYPE_XP, time_diff * _restMgr->CalcExtraPerSec(REST_TYPE_XP, bubble));
     }
 
+    // Unlock battle pet system if it's enabled in bnet account
+    if (GetSession()->GetBattlePetMgr()->IsBattlePetSystemEnabled())
+    {
+        LearnSpell(SPELL_BATTLE_PET_TRAINING_PASSIVE, false);
+        LearnSpell(SPELL_TRACK_PETS, false);
+        LearnSpell(SPELL_REVIVE_BATTLE_PETS, false);
+        LearnSpell(SPELL_BATTLE_PET_TRAINING, false);
+
+        AddPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+    }
+
     m_achievementMgr->CheckAllAchievementCriteria(this);
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
 
