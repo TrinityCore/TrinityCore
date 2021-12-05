@@ -2908,7 +2908,7 @@ void AuraEffect::HandleModDetaunt(AuraApplication const* aurApp, uint8 mode, boo
     caster->GetThreatManager().TauntUpdate();
 }
 
-void AuraEffect::HandleAuraFixate(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleAuraFixate(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
@@ -2921,7 +2921,13 @@ void AuraEffect::HandleAuraFixate(AuraApplication const* aurApp, uint8 mode, boo
     if (!caster || caster->GetTypeId() != TYPEID_UNIT || !caster->IsAlive())
         return;
 
-    caster->GetThreatManager().TauntUpdate();
+    if (apply)
+    {
+        caster->EngageWithTarget(target);
+        caster->GetThreatManager().FixateTarget(target);
+    }
+    else
+        caster->GetThreatManager().ClearFixate();
 }
 
 /*****************************/
