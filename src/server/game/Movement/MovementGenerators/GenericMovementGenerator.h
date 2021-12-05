@@ -22,6 +22,7 @@
 #include "MovementGenerator.h"
 #include "MoveSplineInit.h"
 #include "Timer.h"
+#include "Spell.h"
 
 class Unit;
 
@@ -31,7 +32,7 @@ class GenericMovementGenerator : public MovementGenerator
 {
     public:
         explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id,
-            Optional<JumpArrivalActionArgs> arrivalActions = {});
+            Optional<JumpArrivalActionArgs> arrivalActions = {}, Spell* spell = nullptr);
 
         void Initialize(Unit*) override;
         void Reset(Unit*) override;
@@ -49,6 +50,8 @@ class GenericMovementGenerator : public MovementGenerator
         TimeTrackerSmall _duration;
 
         Optional<JumpArrivalActionArgs> const _arrivalActions;
+
+        Spell* _spell;
 };
 
 #endif

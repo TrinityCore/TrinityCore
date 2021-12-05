@@ -775,13 +775,13 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 }
 
 void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/, Spell* spell /*= nullptr*/)
 {
-    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalActions, spellEffectExtraData);
+    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalActions, spellEffectExtraData, spell);
 }
 
 void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/,
-    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/, Spell* spell /*= nullptr*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '%s', jumps to point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, x, y, z);
     if (speedXY < 0.01f)
@@ -799,14 +799,14 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     if (spellEffectExtraData)
         init.SetSpellEffectExtraData(*spellEffectExtraData);
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalActions);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalActions, spell);
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
     Add(movement);
 }
 
 bool MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/, Spell* spell /*= nullptr*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJumpWithGravity: '%s', jumps to point Id: %u (%s)", _owner->GetGUID().ToString().c_str(), id, pos.ToString().c_str());
     if (speedXY < 0.01f)
@@ -822,7 +822,7 @@ bool MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float
     if (spellEffectExtraData)
         init.SetSpellEffectExtraData(*spellEffectExtraData);
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalActions);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalActions, spell);
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
     Add(movement);
