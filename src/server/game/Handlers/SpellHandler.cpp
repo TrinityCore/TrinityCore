@@ -299,9 +299,35 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         caster = _player;
     }
 
+    TriggerCastFlags triggerFlag = TRIGGERED_NONE;
+
+    // client provided targets
+    SpellCastTargets targets(caster, cast.Cast);
+
     // check known spell or raid marker spell (which not requires player to know it)
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER) && !spellInfo->HasEffect(SPELL_EFFECT_OPEN_LOCK))
-        return;
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER))
+    {
+        bool allow = false;
+
+
+        // allow casting of unknown spells for special lock cases
+        if (GameObject* go = targets.GetGOTarget())
+            if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
+                allow = true;
+
+        // TODO: Preparation for #23204
+        // allow casting of spells triggered by clientside periodic trigger auras
+        /*
+         if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
+        {
+            allow = true;
+            triggerFlag = TRIGGERED_FULL_MASK;
+        }
+        */
+
+        if (!allow)
+            return;
+    }
 
     // Check possible spell cast overrides
     spellInfo = caster->GetCastSpellInfo(spellInfo);
@@ -309,9 +335,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     // can't use our own spells when we're in possession of another unit,
     if (_player->isPossessing())
         return;
-
-    // client provided targets
-    SpellCastTargets targets(caster, cast.Cast);
 
     // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
     // Skip it to prevent "interrupt" message
@@ -334,7 +357,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     if (cast.Cast.MoveUpdate)
         HandleMovementOpcode(CMSG_MOVE_STOP, *cast.Cast.MoveUpdate);
 
-    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
+    Spell* spell = new Spell(caster, spellInfo, triggerFlag);
 
     WorldPackets::Spells::SpellPrepare spellPrepare;
     spellPrepare.ClientCastID = cast.Cast.CastID;
@@ -416,7 +439,7 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura
         return;
     }
 
-    if (pet != GetPlayer()->GetGuardianPet() && pet != GetPlayer()->GetCharm())
+    if (pet != GetPlayer()->GetGuardianPet() && pet != GetPlayer()->GetCharmed())
     {
         TC_LOG_ERROR("network", "HandlePetCancelAura: %s is not a pet of player '%s'", packet.PetGUID.ToString().c_str(), GetPlayer()->GetName().c_str());
         return;
@@ -613,7 +636,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
 {
     Unit* caster = ObjectAccessor::GetUnit(*_player, packet.Guid);
     Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : nullptr;
-    if (!spell || spell->m_spellInfo->Id != uint32(packet.SpellID) || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
+    if (!spell || spell->m_spellInfo->Id != uint32(packet.SpellID) || spell->m_castId != packet.CastID || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
         return;
 
     spell->m_targets.ModSrc(packet.FirePos);

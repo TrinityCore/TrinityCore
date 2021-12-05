@@ -222,7 +222,7 @@ void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::
 {
     BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, bg, player, ticketId, joinTime, bg->GetQueueId(), arenaType);
     battlefieldStatus->ShutdownTimer = bg->GetRemainingTime();
-    battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+    battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
     battlefieldStatus->LeftEarly = false;
     battlefieldStatus->StartTimer = bg->GetElapsedTime();
     battlefieldStatus->Mapid = bg->GetMapId();
@@ -342,7 +342,6 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
             bg = new BattlegroundWS(*(BattlegroundWS*)bg_template);
             break;
         case BATTLEGROUND_AB:
-        case BATTLEGROUND_DOM_AB:
             bg = new BattlegroundAB(*(BattlegroundAB*)bg_template);
             break;
         case BATTLEGROUND_NA:
@@ -414,7 +413,6 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
                 bg = new BattlegroundWS(bgTemplate);
                 break;
             case BATTLEGROUND_AB:
-            case BATTLEGROUND_DOM_AB:
                 bg = new BattlegroundAB(bgTemplate);
                 break;
             case BATTLEGROUND_NA:
