@@ -39,7 +39,7 @@
 #include "Unit.h"
 #include "UpdateData.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr), _maxSearchRadius(0.0f),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _spawnId(0), _aurEff(nullptr), _maxSearchRadius(0.0f),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
     _areaTriggerCreateProperties(nullptr), _areaTriggerTemplate(nullptr)
