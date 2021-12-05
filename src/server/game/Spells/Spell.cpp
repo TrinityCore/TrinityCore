@@ -594,6 +594,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_channeledDuration = 0;                                // will be setup in Spell::handle_immediate
     m_launchHandled = false;
     m_immediateHandled = false;
+    _delayedByMotionMaster = false;
 
     m_channelTargetEffectMask = 0;
 
@@ -3479,7 +3480,7 @@ void Spell::_cast(bool skipCheck)
             creatureCaster->ReleaseFocus(this);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4))
+    if ((m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4) || IsDelayedByMotionMaster())
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -7585,7 +7586,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                     // finish update event will be re-added automatically at the end of routine)
                 }
             }
-            else
+            else if (!m_Spell->IsDelayedByMotionMaster()) // Wait until the movement generator frees it
             {
                 // delaying had just started, record the moment
                 m_Spell->SetDelayStart(e_time);

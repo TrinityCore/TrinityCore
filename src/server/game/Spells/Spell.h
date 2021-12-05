@@ -594,6 +594,8 @@ class TC_GAME_API Spell
         uint64 GetDelayMoment() const { return m_delayMoment; }
         uint64 CalculateDelayMomentForDst(float launchDelay) const;
         void RecalculateDelayMomentForDst();
+        bool IsDelayedByMotionMaster() const { return _delayedByMotionMaster; }
+        void SetIsDelayedByMotionMaster(bool delayed) { _delayedByMotionMaster = delayed; }
 
         bool IsNeedSendToClient() const;
 
@@ -667,6 +669,7 @@ class TC_GAME_API Spell
         uint64 m_delayMoment;                               // moment of next delay call, used internally
         bool m_launchHandled;                               // were launch actions handled
         bool m_immediateHandled;                            // were immediate actions handled? (used by delayed spells only)
+        bool _delayedByMotionMaster;                        // delayed until motion master finishes
 
         // These vars are used in both delayed spell system and modified immediate spell system
         bool m_referencedFromCurrentSpell;                  // mark as references to prevent deleted and access by dead pointers
