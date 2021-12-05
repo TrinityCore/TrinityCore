@@ -5853,9 +5853,6 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
         if (newVal)
         {
-            UpdateCriteria(CriteriaType::SkillRaised, id);
-            UpdateCriteria(CriteriaType::AchieveSkillStep, id);
-
             // temporary bonuses
             for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL))
                 if (effect->GetMiscValue() == int32(id))
@@ -5872,6 +5869,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
             // Learn all spells for skill
             LearnSkillRewardedSpells(id, newVal);
+            UpdateCriteria(CriteriaType::SkillRaised, id);
+            UpdateCriteria(CriteriaType::AchieveSkillStep, id);
         }
     }
 }
@@ -12050,7 +12049,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
     {
         ItemAddedQuestCheck(itemId, count);
         UpdateCriteria(CriteriaType::ObtainAnyItem, itemId, count);
-        UpdateCriteria(CriteriaType::AcquireItem, itemId, 1);
+        UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
 
         item->AddItemFlag(ITEM_FIELD_FLAG_NEW_ITEM);
 
@@ -15219,8 +15218,11 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             Item* item = static_cast<Item*>(questGiver);
             sScriptMgr->OnQuestAccept(this, item, quest);
 
-            // destroy not required for quest finish quest starting item
+            // There are two cases where the source item is not destroyed when the quest is accepted:
+            // - It is required to finish the quest, and is an unique item
+            // - It is the same item present in the source item field (item that would be given on quest accept)
             bool destroyItem = true;
+
             for (QuestObjective const& obj : quest->GetObjectives())
             {
                 if (obj.Type == QUEST_OBJECTIVE_ITEM && uint32(obj.ObjectID) == item->GetEntry() && item->GetTemplate()->GetMaxCount() > 0)
@@ -15229,6 +15231,9 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
                     break;
                 }
             }
+
+            if (quest->GetSrcItemId() == item->GetEntry())
+                destroyItem = false;
 
             if (destroyItem)
                 DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
@@ -16317,6 +16322,11 @@ bool Player::GiveQuestSourceItem(Quest const* quest)
     uint32 srcitem = quest->GetSrcItemId();
     if (srcitem > 0)
     {
+        // Don't give source item if it is the same item used to start the quest
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(srcitem);
+        if (quest->GetQuestId() == itemTemplate->GetStartQuest())
+            return true;
+
         uint32 count = quest->GetSrcItemCount();
         if (count <= 0)
             count = 1;
@@ -16354,10 +16364,9 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
             if (count <= 0)
                 count = 1;
 
-            // exist two cases when destroy source quest item not possible:
-            // a) non un-equippable item (equipped non-empty bag, for example)
-            // b) when quest is started from an item and item also is needed in
-            // the end as RequiredItemId
+            // There are two cases where the source item is not destroyed:
+            // - Item cannot be unequipped (example: non-empty bags)
+            // - The source item is the item that started the quest, so the player is supposed to keep it (otherwise it was already destroyed in AddQuestAndCheckCompletion())
             InventoryResult res = CanUnequipItems(srcItemId, count);
             if (res != EQUIP_ERR_OK)
             {
@@ -16367,13 +16376,7 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
             }
 
             ASSERT(item);
-            bool destroyItem = true;
-            if (item->GetStartQuest() == questId)
-                for (QuestObjective const& obj : quest->GetObjectives())
-                    if (obj.Type == QUEST_OBJECTIVE_ITEM && srcItemId == uint32(obj.ObjectID))
-                        destroyItem = false;
-
-            if (destroyItem)
+            if (item->GetStartQuest() != questId)
                 DestroyItemCount(srcItemId, count, true, true);
         }
     }
@@ -25178,40 +25181,22 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
 
 bool Player::HasQuestForGO(int32 GOId) const
 {
-    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    for (QuestObjectiveStatusMap::value_type const& objectiveItr : Trinity::Containers::MapEqualRange(m_questObjectiveStatus, { QUEST_OBJECTIVE_GAMEOBJECT, GOId }))
     {
-        uint32 questid = GetQuestSlotQuestId(i);
-        if (questid == 0)
+        Quest const* qInfo = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(objectiveItr.second.QuestStatusItr->first));
+        QuestObjective const& objective = *objectiveItr.second.Objective;
+        if (!IsQuestObjectiveCompletable(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, objective))
             continue;
 
-        QuestStatusMap::const_iterator qs_itr = m_QuestStatus.find(questid);
-        if (qs_itr == m_QuestStatus.end())
-            continue;
-
-        QuestStatusData const& qs = qs_itr->second;
-
-        if (qs.Status == QUEST_STATUS_INCOMPLETE)
-        {
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
-            if (!qInfo)
+        // hide quest if player is in raid-group and quest is no raid quest
+        if (GetGroup() && GetGroup()->isRaidGroup() && !qInfo->IsAllowedInRaid(GetMap()->GetDifficultyID()))
+            if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
                 continue;
 
-            if (GetGroup() && GetGroup()->isRaidGroup() && !qInfo->IsAllowedInRaid(GetMap()->GetDifficultyID()))
-                continue;
-
-            for (QuestObjective const& obj : qInfo->GetObjectives())
-            {
-                if (obj.Type != QUEST_OBJECTIVE_GAMEOBJECT) //skip non GO case
-                    continue;
-
-                if (!IsQuestObjectiveCompletable(i, qInfo, obj))
-                    continue;
-
-                if (GOId == obj.ObjectID && GetQuestSlotObjectiveData(i, obj) < obj.Amount)
-                    return true;
-            }
-        }
+        if (!IsQuestObjectiveComplete(objectiveItr.second.QuestStatusItr->second.Slot, qInfo, objective))
+            return true;
     }
+
     return false;
 }
 
@@ -25228,6 +25213,12 @@ void Player::UpdateForQuestWorldObjects()
         {
             if (GameObject* obj = ObjectAccessor::GetGameObject(*this, *itr))
             {
+                UF::ObjectData::Base objMask;
+                UF::GameObjectData::Base goMask;
+
+                if (m_questObjectiveStatus.find({ QUEST_OBJECTIVE_GAMEOBJECT, int32(obj->GetEntry()) }) != m_questObjectiveStatus.end())
+                    objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+
                 switch (obj->GetGoType())
                 {
                     case GAMEOBJECT_TYPE_QUESTGIVER:
@@ -25235,16 +25226,14 @@ void Player::UpdateForQuestWorldObjects()
                     case GAMEOBJECT_TYPE_GOOBER:
                     case GAMEOBJECT_TYPE_GENERIC:
                         if (sObjectMgr->IsGameObjectForQuests(obj->GetEntry()))
-                        {
-                            UF::ObjectData::Base objMask;
-                            UF::GameObjectData::Base goMask;
                             objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-                            obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
-                        }
                         break;
                     default:
                         break;
                 }
+
+                if (objMask.GetChangesMask().IsAnySet() || goMask.GetChangesMask().IsAnySet())
+                    obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), this);
             }
         }
         else if (itr->IsCreatureOrVehicle())
@@ -26006,9 +25995,6 @@ int32 Player::NextGroupUpdateSequenceNumber(GroupCategory category)
 
 void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
 {
-    if (IsFlying())
-        return;
-
     // process liquid auras using generic unit code
     Unit::ProcessTerrainStatusUpdate(status, liquidData);
 

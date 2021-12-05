@@ -598,7 +598,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsNeutralToAll() const;
 
         // CastSpell's third arg can be a variety of things - check out CastSpellExtraArgs' constructors!
-        void CastSpell(CastSpellTargetArg const& targets, uint32 spellId, CastSpellExtraArgs const& args = { });
+        SpellCastResult CastSpell(CastSpellTargetArg const& targets, uint32 spellId, CastSpellExtraArgs const& args = { });
 
         bool IsValidAttackTarget(WorldObject const* target, SpellInfo const* bySpell = nullptr) const;
         bool IsValidAssistTarget(WorldObject const* target, SpellInfo const* bySpell = nullptr) const;

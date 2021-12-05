@@ -1031,7 +1031,6 @@ class TC_GAME_API Unit : public WorldObject
 
         void HandleEmoteCommand(uint32 anim_id, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {});
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
-        void FakeAttackerStateUpdate(Unit* victim, WeaponAttackType attType = BASE_ATTACK);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
         void DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss);
@@ -1198,7 +1197,8 @@ class TC_GAME_API Unit : public WorldObject
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
 
-        void SendSetPlayHoverAnim(bool enable);
+        bool IsPlayingHoverAnim() const { return _playHoverAnim; }
+        void SetPlayHoverAnim(bool enable);
         void SetHoverHeight(float hoverHeight) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::HoverHeight), hoverHeight); }
 
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
@@ -1992,6 +1992,8 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 _oldFactionId;           ///< faction before charm
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
+
+        bool _playHoverAnim;
 
         uint16 _aiAnimKitId;
         uint16 _movementAnimKitId;

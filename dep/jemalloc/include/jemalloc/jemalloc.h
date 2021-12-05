@@ -66,6 +66,7 @@ extern "C" {
 #  define je_malloc_stats_print malloc_stats_print
 #  define je_malloc_usable_size malloc_usable_size
 #  define je_mallocx mallocx
+#  define je_smallocx_b0b3e49a54ec29e32636f4577d9d5a896d67fd20 smallocx_b0b3e49a54ec29e32636f4577d9d5a896d67fd20
 #  define je_nallocx nallocx
 #  define je_posix_memalign posix_memalign
 #  define je_rallocx rallocx
@@ -83,12 +84,13 @@ extern "C" {
 #include <limits.h>
 #include <strings.h>
 
-#define JEMALLOC_VERSION "5.1.0-0-g61efbda7098de6fe64c362d309824864308c36d4"
+#define JEMALLOC_VERSION "5.2.0-0-gb0b3e49a54ec29e32636f4577d9d5a896d67fd20"
 #define JEMALLOC_VERSION_MAJOR 5
-#define JEMALLOC_VERSION_MINOR 1
+#define JEMALLOC_VERSION_MINOR 2
 #define JEMALLOC_VERSION_BUGFIX 0
 #define JEMALLOC_VERSION_NREV 0
-#define JEMALLOC_VERSION_GID "61efbda7098de6fe64c362d309824864308c36d4"
+#define JEMALLOC_VERSION_GID "b0b3e49a54ec29e32636f4577d9d5a896d67fd20"
+#define JEMALLOC_VERSION_GID_IDENT b0b3e49a54ec29e32636f4577d9d5a896d67fd20
 
 #define MALLOCX_LG_ALIGN(la)	((int)(la))
 #if LG_SIZEOF_PTR == 2
@@ -369,6 +371,7 @@ struct extent_hooks_s {
 #  define malloc_stats_print je_malloc_stats_print
 #  define malloc_usable_size je_malloc_usable_size
 #  define mallocx je_mallocx
+#  define smallocx_b0b3e49a54ec29e32636f4577d9d5a896d67fd20 je_smallocx_b0b3e49a54ec29e32636f4577d9d5a896d67fd20
 #  define nallocx je_nallocx
 #  define posix_memalign je_posix_memalign
 #  define rallocx je_rallocx
@@ -401,6 +404,7 @@ struct extent_hooks_s {
 #  undef je_malloc_stats_print
 #  undef je_malloc_usable_size
 #  undef je_mallocx
+#  undef je_smallocx_b0b3e49a54ec29e32636f4577d9d5a896d67fd20
 #  undef je_nallocx
 #  undef je_posix_memalign
 #  undef je_rallocx

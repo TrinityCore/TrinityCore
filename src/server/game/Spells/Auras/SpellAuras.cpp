@@ -2362,7 +2362,7 @@ std::string Aura::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << std::boolalpha
-        << "Id: " << GetId() << " Caster: " << GetCasterGUID().ToString()
+        << "Id: " << GetId() << " Name: '" << (*GetSpellInfo()->SpellName)[sWorld->GetDefaultDbcLocale()] << "' Caster: " << GetCasterGUID().ToString()
         << "\nOwner: " << (GetOwner() ? GetOwner()->GetDebugInfo() : "NULL");
     return sstr.str();
 }

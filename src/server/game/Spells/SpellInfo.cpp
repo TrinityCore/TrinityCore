@@ -1086,6 +1086,10 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         Trinity::Containers::EnsureWritableVectorIndex(_effects, spellEffect->EffectIndex, SpellEffectInfo(this)) = SpellEffectInfo(this, *spellEffect);
     }
 
+    // Correct EffectIndex for blank effects
+    for (size_t i = 0; i < _effects.size(); ++i)
+        _effects[i].EffectIndex = SpellEffIndex(i);
+
     _effects.shrink_to_fit();
 
     SpellName = &spellName->Name;
@@ -1268,6 +1272,10 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, s
     _effects.reserve(32);
     for (SpellEffectEntry const& spellEffect : effects)
          Trinity::Containers::EnsureWritableVectorIndex(_effects, spellEffect.EffectIndex, SpellEffectInfo(this)) = SpellEffectInfo(this, spellEffect);
+
+    // Correct EffectIndex for blank effects
+    for (size_t i = 0; i < _effects.size(); ++i)
+        _effects[i].EffectIndex = SpellEffIndex(i);
 
     _effects.shrink_to_fit();
 }
@@ -4633,7 +4641,8 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:
-                // have positive and negative spells, check target
+            case SPELL_AURA_DUMMY:
+                // check target for positive and negative spells
                 if (!_isPositiveTarget(effect))
                     return false;
                 break;

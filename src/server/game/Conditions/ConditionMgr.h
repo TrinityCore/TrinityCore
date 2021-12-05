@@ -172,7 +172,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28,
     CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29,
     CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30,
-    CONDITION_SOURCE_TYPE_MAX                            = 31  // MAX
+    CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31,
+    CONDITION_SOURCE_TYPE_MAX                            = 32  // MAX
 };
 
 enum RelationType
@@ -292,6 +293,7 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
+        bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
@@ -328,6 +330,7 @@ class TC_GAME_API ConditionMgr
         ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
         SmartEventConditionContainer    SmartEventConditionStore;
         ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
+        ConditionEntriesByCreatureIdMap TrainerSpellConditionContainerStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()
