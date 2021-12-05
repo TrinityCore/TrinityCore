@@ -3018,11 +3018,11 @@ void GameObject::UpdateCapturePoint()
             break;
         case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde:
             customAnim = 1;
-            spellVisualId =  GetGOInfo()->capturePoint.SpellVisual2;
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual2;
             break;
         case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance:
             customAnim = 2;
-            spellVisualId =  GetGOInfo()->capturePoint.SpellVisual3;
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual3;
             break;
         case WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured:
             customAnim = 3;
@@ -3030,7 +3030,7 @@ void GameObject::UpdateCapturePoint()
             break;
         case WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured:
             customAnim = 4;
-            spellVisualId =  GetGOInfo()->capturePoint.SpellVisual5;
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual5;
             break;
         default:
             break;
@@ -3040,7 +3040,7 @@ void GameObject::UpdateCapturePoint()
         SendCustomAnim(customAnim);
 
     SetSpellVisualId(spellVisualId);
-    AddDynamicFlag(GO_DYNFLAG_LO_NO_INTERACT_2);
+    AddDynamicFlag(GO_DYNFLAG_LO_NO_INTERACT);
 
     if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
     {
