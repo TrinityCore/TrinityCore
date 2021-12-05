@@ -102,6 +102,12 @@ void GenericMovementGenerator::MovementInform(Unit* owner)
             action(owner, true);
     }
 
+    if (_spell && _spell->IsDelayedByMotionMaster())
+    {
+        _spell->handle_delayed(1);
+        _spell = nullptr;
+    }
+
     if (Creature* creature = owner->ToCreature())
     {
         if (creature->AI())

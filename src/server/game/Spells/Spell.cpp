@@ -8095,9 +8095,9 @@ void Spell::SetJumpArrivalActionsFromScripts(HookList<std::function<void(Unit* /
     if (m_loadedScripts.empty())
         return;
 
-    for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
+    for (const auto& script : m_loadedScripts)
     {
-        jumpArrivalActions += std::move((*itr)->GetJumpArrivalAction());
+        jumpArrivalActions += script->GetJumpArrivalAction();
     }
 }
 

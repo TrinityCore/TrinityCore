@@ -52,6 +52,7 @@
 #include "Map.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
