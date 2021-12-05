@@ -766,13 +766,13 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 }
 
 void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/, Spell* spell /*= nullptr*/)
 {
-    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
+    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalActions, spellEffectExtraData, spell);
 }
 
 void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/, Spell* spell /*= nullptr*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '%s', jumps to point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, x, y, z);
     if (speedXY < 0.01f)
@@ -790,26 +790,18 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     if (spellEffectExtraData)
         init.SetSpellEffectExtraData(*spellEffectExtraData);
 
-    uint32 arrivalSpellId = 0;
-    ObjectGuid arrivalSpellTargetGuid;
-    if (arrivalCast)
-    {
-        arrivalSpellId = arrivalCast->SpellId;
-        arrivalSpellTargetGuid = arrivalCast->Target;
-    }
-
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalSpellId, arrivalSpellTargetGuid);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalActions, spell);
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
     Add(movement);
 }
 
-void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+bool MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
+    Optional<JumpArrivalActionArgs> arrivalActions /*= {}*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/, Spell* spell /*= nullptr*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJumpWithGravity: '%s', jumps to point Id: %u (%s)", _owner->GetGUID().ToString().c_str(), id, pos.ToString().c_str());
     if (speedXY < 0.01f)
-        return;
+        return false;
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
@@ -821,18 +813,11 @@ void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float
     if (spellEffectExtraData)
         init.SetSpellEffectExtraData(*spellEffectExtraData);
 
-    uint32 arrivalSpellId = 0;
-    ObjectGuid arrivalSpellTargetGuid;
-    if (arrivalCast)
-    {
-        arrivalSpellId = arrivalCast->SpellId;
-        arrivalSpellTargetGuid = arrivalCast->Target;
-    }
-
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalSpellId, arrivalSpellTargetGuid);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id, arrivalActions, spell);
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
     Add(movement);
+    return true;
 }
 
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)

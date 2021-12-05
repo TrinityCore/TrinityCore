@@ -24,14 +24,16 @@
 #include "Unit.h"
 
 GenericMovementGenerator::GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id,
-    uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/)
-    : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0),
-    _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid)
+    Optional<JumpArrivalActionArgs> arrivalActions, Spell* spell)
+    : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0), _arrivalActions(arrivalActions), _spell(spell)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
+
+    if (_spell)
+        _spell->SetIsDelayedByMotionMaster(true);
 }
 
 void GenericMovementGenerator::Initialize(Unit* /*owner*/)
@@ -83,8 +85,17 @@ void GenericMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool movem
 
 void GenericMovementGenerator::MovementInform(Unit* owner)
 {
-    if (_arrivalSpellId)
-        owner->CastSpell(ObjectAccessor::GetUnit(*owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+    if (_arrivalActions)
+    {
+        for (auto action : _arrivalActions->Actions)
+            action(owner, true);
+    }
+
+    if (_spell && _spell->IsDelayedByMotionMaster())
+    {
+        _spell->handle_delayed(1);
+        _spell = nullptr;
+    }
 
     if (Creature* creature = owner->ToCreature())
     {
