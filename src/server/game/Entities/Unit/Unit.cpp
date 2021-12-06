@@ -10471,6 +10471,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     else                                                // creature died
     {
         TC_LOG_DEBUG("entities.unit", "DealDamageNotPlayer");
+        ASSERT_NODEBUGINFO(creature);
 
         if (!creature->IsPet())
         {

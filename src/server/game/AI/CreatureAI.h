@@ -18,12 +18,12 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "UnitAI.h"
 #include "Common.h"
 #include "LootItemType.h"
 #include "ObjectDefines.h"
 #include "Optional.h"
 #include "QuestDef.h"
+#include "UnitAI.h"
 
 class AreaBoundary;
 class AreaTrigger;
@@ -39,6 +39,16 @@ typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
+
+enum Permitions : int32
+{
+    PERMIT_BASE_NO               = -1,
+    PERMIT_BASE_IDLE             = 1,
+    PERMIT_BASE_REACTIVE         = 100,
+    PERMIT_BASE_PROACTIVE        = 200,
+    PERMIT_BASE_FACTION_SPECIFIC = 400,
+    PERMIT_BASE_SPECIAL          = 800
+};
 
 enum SCEquip
 {
@@ -148,10 +158,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
 
         // Called when owner takes damage
-        virtual void OwnerAttackedBy(Unit* attacker) { _OnOwnerCombatInteraction(attacker); }
+        virtual void OwnerAttackedBy(Unit* attacker) { OnOwnerCombatInteraction(attacker); }
 
         // Called when owner attacks something
-        virtual void OwnerAttacked(Unit* target) { _OnOwnerCombatInteraction(target); }
+        virtual void OwnerAttacked(Unit* target) { OnOwnerCombatInteraction(target); }
 
         /// == Triggered Actions Requested ==================
 
@@ -233,20 +243,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool _negateBoundary;
 
     private:
+        void OnOwnerCombatInteraction(Unit* target);
+
         uint32 const _scriptId;
-
-        bool m_MoveInLineOfSight_locked;
-        void _OnOwnerCombatInteraction(Unit* target);
-};
-
-enum Permitions : int32
-{
-    PERMIT_BASE_NO                 = -1,
-    PERMIT_BASE_IDLE               = 1,
-    PERMIT_BASE_REACTIVE           = 100,
-    PERMIT_BASE_PROACTIVE          = 200,
-    PERMIT_BASE_FACTION_SPECIFIC   = 400,
-    PERMIT_BASE_SPECIAL            = 800
+        bool _moveInLOSLocked;
 };
 
 #endif

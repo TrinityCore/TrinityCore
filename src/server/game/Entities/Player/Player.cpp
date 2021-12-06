@@ -16323,7 +16323,7 @@ bool Player::GiveQuestSourceItem(Quest const* quest)
     if (srcitem > 0)
     {
         // Don't give source item if it is the same item used to start the quest
-        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(srcitem);
+        ItemTemplate const* itemTemplate = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(srcitem));
         if (quest->GetQuestId() == itemTemplate->GetStartQuest())
             return true;
 

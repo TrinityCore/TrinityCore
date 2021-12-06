@@ -41,7 +41,7 @@ class TC_GAME_API GameObjectAI
         GameObject* const me;
 
     public:
-        explicit GameObjectAI(GameObject* g, uint32 scriptId = {});
+        explicit GameObjectAI(GameObject* go, uint32 scriptId = {});
         virtual ~GameObjectAI() { }
 
         // Gets the id of the AI (script id)

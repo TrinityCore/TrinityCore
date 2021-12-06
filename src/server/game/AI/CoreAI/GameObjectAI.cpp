@@ -21,14 +21,14 @@
 #include "QuestDef.h"
 #include "Errors.h"
 
-GameObjectAI::GameObjectAI(GameObject* g, uint32 scriptId) : _scriptId(scriptId ? scriptId : g->GetScriptId()), me(g)
-{
-    ASSERT(_scriptId, "A GameObjectAI was initialized with an invalid scriptId!");
-}
-
 int32 GameObjectAI::Permissible(GameObject const* /*go*/)
 {
     return PERMIT_BASE_NO;
+}
+
+GameObjectAI::GameObjectAI(GameObject* go, uint32 scriptId) : _scriptId(scriptId ? scriptId : go->GetScriptId()), me(go)
+{
+    ASSERT(_scriptId, "A GameObjectAI was initialized with an invalid scriptId!");
 }
 
 Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player* /*player*/)

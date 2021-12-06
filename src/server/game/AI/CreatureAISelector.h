@@ -38,4 +38,5 @@ namespace FactorySelector
     TC_GAME_API uint32 GetSelectedAIId(GameObject const* go);
     TC_GAME_API uint32 GetSelectedAIId(AreaTrigger const* at);
 }
+
 #endif

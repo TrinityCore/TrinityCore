@@ -34,19 +34,6 @@
 #include "Vehicle.h"
 #include "World.h"
 
-//Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool isNew)
-{
-    if (isNew && !me->IsCharmed() && !me->LastCharmerGUID.IsEmpty())
-    {
-        if (!me->HasReactState(REACT_PASSIVE))
-            if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
-                me->EngageWithTarget(lastCharmer);
-        me->LastCharmerGUID.Clear();
-    }
-    UnitAI::OnCharmed(isNew);
-}
-
 std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
 {
@@ -55,7 +42,7 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
 
 CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
     : UnitAI(creature), me(creature), _boundary(nullptr),
-      _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), m_MoveInLineOfSight_locked(false)
+      _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), _moveInLOSLocked(false)
 {
     ASSERT(_scriptId, "A CreatureAI was initialized with an invalid scriptId!");
 }
@@ -69,15 +56,32 @@ void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
 }
 
+// Disable CreatureAI when charmed
+void CreatureAI::OnCharmed(bool isNew)
+{
+    if (isNew && !me->IsCharmed() && !me->LastCharmerGUID.IsEmpty())
+    {
+        if (!me->HasReactState(REACT_PASSIVE))
+        {
+            if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
+                me->EngageWithTarget(lastCharmer);
+        }
+
+        me->LastCharmerGUID.Clear();
+    }
+
+    UnitAI::OnCharmed(isNew);
+}
+
 void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
 {
     if (!creature)
         creature = me;
 
     Map* map = creature->GetMap();
-    if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
+    if (!map->IsDungeon()) // use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::DoZoneInCombat: call for map that isn't an instance (%s)", creature->GetGUID().ToString().c_str());
         return;
     }
 
@@ -86,28 +90,32 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
         return;
 
     for (auto const& ref : playerList)
+    {
         if (Player* player = ref.GetSource())
         {
             if (!player->IsAlive() || !CombatManager::CanBeginCombat(creature, player))
                 continue;
 
             creature->EngageWithTarget(player);
+
             for (Unit* pet : player->m_Controlled)
                 creature->EngageWithTarget(pet);
+
             if (Unit* vehicle = player->GetVehicleBase())
                 creature->EngageWithTarget(vehicle);
         }
+    }
 }
 
 // scripts does not take care about MoveInLineOfSight loops
 // MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
 void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
 {
-    if (m_MoveInLineOfSight_locked == true)
+    if (_moveInLOSLocked == true)
         return;
-    m_MoveInLineOfSight_locked = true;
+    _moveInLOSLocked = true;
     MoveInLineOfSight(who);
-    m_MoveInLineOfSight_locked = false;
+    _moveInLOSLocked = false;
 }
 
 void CreatureAI::MoveInLineOfSight(Unit* who)
@@ -119,7 +127,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
         me->EngageWithTarget(who);
 }
 
-void CreatureAI::_OnOwnerCombatInteraction(Unit* target)
+void CreatureAI::OnOwnerCombatInteraction(Unit* target)
 {
     if (!target || !me->IsAlive())
         return;
@@ -155,7 +163,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     if (!_EnterEvadeMode(why))
         return;
 
-    TC_LOG_DEBUG("entities.unit", "Creature %u enters evade mode.", me->GetEntry());
+    TC_LOG_DEBUG("scripts.ai", "CreatureAI::EnterEvadeMode: entering evade mode (why: %u) (%s)", why, me->GetGUID().ToString().c_str());
 
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
@@ -247,11 +255,11 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     std::unordered_set<coordinate> outOfBounds;
 
     Position startPosition = owner->GetPosition();
-    if (!IsInBoundary(&startPosition))
-    { // fall back to creature position
+    if (!IsInBoundary(&startPosition)) // fall back to creature position
+    {
         startPosition = me->GetPosition();
-        if (!IsInBoundary(&startPosition))
-        { // fall back to creature home position
+        if (!IsInBoundary(&startPosition)) // fall back to creature home position
+        {
             startPosition = me->GetHomePosition();
             if (!IsInBoundary(&startPosition))
                 return LANG_CREATURE_NO_INTERIOR_POINT_FOUND;
@@ -265,7 +273,7 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     {
         coordinate front = Q.front();
         bool hasOutOfBoundsNeighbor = false;
-        for (coordinate off : std::initializer_list<coordinate>{{1,0}, {0,1}, {-1,0}, {0,-1}})
+        for (coordinate const& off : std::list<coordinate>{ {1, 0}, {0, 1}, {-1, 0}, {0, -1} })
         {
             coordinate next(front.first + off.first, front.second + off.second);
             if (next.first > BOUNDARY_VISUALIZE_FAILSAFE_LIMIT || next.first < -BOUNDARY_VISUALIZE_FAILSAFE_LIMIT || next.second > BOUNDARY_VISUALIZE_FAILSAFE_LIMIT || next.second < -BOUNDARY_VISUALIZE_FAILSAFE_LIMIT)
@@ -285,12 +293,12 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
                 }
                 alreadyChecked.insert(next);
             }
-            else
-                if (outOfBounds.find(next) != outOfBounds.end())
-                    hasOutOfBoundsNeighbor = true;
+            else if (outOfBounds.find(next) != outOfBounds.end())
+                hasOutOfBoundsNeighbor = true;
         }
         if (fill || hasOutOfBoundsNeighbor)
-            if (TempSummon* point = owner->SummonCreature(BOUNDARY_VISUALIZE_CREATURE, Position(startPosition.GetPositionX() + front.first*BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionY() + front.second*BOUNDARY_VISUALIZE_STEP_SIZE, spawnZ), TEMPSUMMON_TIMED_DESPAWN, duration * IN_MILLISECONDS))
+        {
+            if (TempSummon* point = owner->SummonCreature(BOUNDARY_VISUALIZE_CREATURE, Position(startPosition.GetPositionX() + front.first * BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionY() + front.second * BOUNDARY_VISUALIZE_STEP_SIZE, spawnZ), TEMPSUMMON_TIMED_DESPAWN, duration * IN_MILLISECONDS))
             {
                 point->SetObjectScale(BOUNDARY_VISUALIZE_CREATURE_SCALE);
                 point->AddUnitFlag(UNIT_FLAG_STUNNED);
@@ -298,6 +306,8 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
                 if (!hasOutOfBoundsNeighbor)
                     point->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             }
+        }
+
         Q.pop();
     }
     return boundsWarning ? LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED : 0;
@@ -311,7 +321,7 @@ bool CreatureAI::IsInBoundary(Position const* who) const
     if (!who)
         who = me;
 
-    return (CreatureAI::IsInBounds(*_boundary, who) != _negateBoundary);
+    return CreatureAI::IsInBounds(*_boundary, who) != _negateBoundary;
 }
 
 bool CreatureAI::IsInBounds(CreatureBoundary const& boundary, Position const* pos)
