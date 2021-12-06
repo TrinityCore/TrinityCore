@@ -587,7 +587,7 @@ namespace WorldPackets
             float ModRate = 1.0f;
         };
 
-        class SpellCooldown : public ServerPacket
+        class TC_GAME_API SpellCooldown : public ServerPacket
         {
         public:
             SpellCooldown() : ServerPacket(SMSG_SPELL_COOLDOWN, 4 + 16 + 1) { }
