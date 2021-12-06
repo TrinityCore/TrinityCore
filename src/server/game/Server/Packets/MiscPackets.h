@@ -954,6 +954,35 @@ namespace WorldPackets
 
             int32 UISplashScreenID = 0;
         };
+
+        class ChromieTimeSelectExpansion final : public ClientPacket
+             {
+        public:
+            ChromieTimeSelectExpansion(WorldPacket && packet) : ClientPacket(CMSG_CHROMIE_TIME_SELECT_EXPANSION, std::move(packet)) { }
+            
+                void Read() override;
+            
+                ObjectGuid ObjGUID;
+                uint32 Expansion = 0;
+            };
+        
+            class ChromieTimeOpenNpc  final : public ServerPacket
+            {
+            public:
+                ChromieTimeOpenNpc() : ServerPacket(SMSG_CHROMIE_TIME_OPEN_NPC, 11) { }
+                
+                    WorldPacket const* Write() override;
+                
+                    ObjectGuid ObjGUID;
+            };
+        
+            class ChromieTimeSelectExpansionSuccess  final : public ServerPacket
+             {
+            public:
+                ChromieTimeSelectExpansionSuccess() : ServerPacket(SMSG_CHROMIE_TIME_SELECT_EXPANSION_SUCCESS) { }
+                
+                WorldPacket const* Write() override;
+             };
     }
 }
 

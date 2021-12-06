@@ -736,3 +736,21 @@ WorldPacket const* WorldPackets::Misc::SplashScreenShowLatest::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::ChromieTimeOpenNpc::Write()
+{
+    _worldPacket << ObjGUID;
+    
+        return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ChromieTimeSelectExpansionSuccess::Write()
+{
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ChromieTimeSelectExpansion::Read()
+{
+    _worldPacket >> ObjGUID;
+    _worldPacket >> Expansion;
+}
