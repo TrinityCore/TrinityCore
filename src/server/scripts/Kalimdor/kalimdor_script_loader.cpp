@@ -126,10 +126,12 @@ void AddSC_throne_of_the_four_winds();
 void AddSC_boss_conclave_of_wind();
 void AddSC_boss_alakir();
 void AddSC_instance_firelands();             //Firelands
+void AddSC_firelands();
 void AddSC_boss_alysrazor();
 void AddSC_boss_baleroc();
 void AddSC_boss_lord_rhyolith();
 void AddSC_boss_majordomo_staghelm();
+void AddSC_boss_ragnaros_firelands();
 
 void AddSC_ashenvale();
 void AddSC_azuremyst_isle();
@@ -262,10 +264,12 @@ void AddKalimdorScripts()
     AddSC_boss_conclave_of_wind();
     AddSC_boss_alakir();
     AddSC_instance_firelands();             //Firelands
+    AddSC_firelands();
     AddSC_boss_alysrazor();
     AddSC_boss_baleroc();
     AddSC_boss_lord_rhyolith();
     AddSC_boss_majordomo_staghelm();
+    AddSC_boss_ragnaros_firelands();
 
     AddSC_ashenvale();
     AddSC_azuremyst_isle();

@@ -4980,6 +4980,74 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
     });
 
+    // World in Flames
+    // There is no channel update packet in sniffs so we can assume that this is a leftover from a redesign
+    ApplySpellFix({
+        100171,
+        100190
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED;
+    });
+
+    // Fixate
+    ApplySpellFix({ 99849 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL;
+    });
+
+    // Lava Bolt (25 player)
+    ApplySpellFix({
+        100289,
+        100291
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 10;
+    });
+
+    // Lava Bolt (10 player)
+    ApplySpellFix({
+        98981,
+        100290
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 4;
+    });
+
+    // Sulfuras Smash
+    // Sniffs cast packets show immunities so we can assume that Sulfuras Smash does have interrupt flags internally.
+    // We are going with SpellInterruptFlags::Stun so SMSG_SPELL_START sends the correct immunities
+    ApplySpellFix({
+        98710,
+        100890,
+        100891,
+        100892
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->InterruptFlags |= SpellInterruptFlags::Stun;
+    });
+
+    // Sulfuras Smash
+    ApplySpellFix({
+        98708,
+        100256,
+        100257,
+        100258
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx7 |= SPELL_ATTR7_CANT_MISS;
+    });
+
+    // Entrapping Roots
+    ApplySpellFix({
+        100653,
+        101237,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+    });
+
     // ENDOF FIRELANDS SPELLS
 
     //

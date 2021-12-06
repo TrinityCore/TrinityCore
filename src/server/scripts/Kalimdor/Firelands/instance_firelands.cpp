@@ -36,18 +36,34 @@ ObjectData const creatureData[] =
     { NPC_MOVEMENT_CONTROLLER_LORD_RHYOLITH,    DATA_LORD_RHYOLITH_MOVEMENT_CONTROLLER  },
     { NPC_LEFT_FOOT,                            DATA_LEFT_FOOT                          },
     { NPC_RIGHT_FOOT,                           DATA_RIGHT_FOOT                         },
+    { NPC_SULFURAS_SMASH_2,                     DATA_SULFURAS_SMASH                     },
+    { NPC_SULFURAS_HAND_OF_RAGNAROS,            DATA_SULFURAS_HAND_OF_RAGNAROS          },
+    { NPC_ARCHDRUID_HAMUUL_RUNETOTEM,           DATA_ARCHDRUID_HAMUUL_RUNETOTEM         },
+    { NPC_DREADFLAME,                           DATA_DREADFLAME_CONTROLLER              },
+    { NPC_CENARIUS,                             DATA_CENARIUS                           },
     { 0,                                        0,                                      } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_RAGNAROS_PLATFORM,     DATA_RAGNAROS_PLATFORM },
+    { 0,                        0                       } // END
 };
 
 DoorData const doorData[] =
 {
-    {GO_LORD_RHYOLITH_BRIDGE,    DATA_LORD_RHYOLITH,      DOOR_TYPE_ROOM                },
-    {GO_BETH_TILAC_DOOR,         DATA_BETHTILAC,          DOOR_TYPE_ROOM                },
-    //{GO_BALEROC_FIREWALL,        DATA_BALEROC,            DOOR_TYPE_ROOM                },
-    {GO_MAJORDOMO_FIREWALL,      DATA_MAJORDOMO_STAGHELM, DOOR_TYPE_PASSAGE             },
-    {GO_RAGNAROS_DOOR,           DATA_RAGNAROS,           DOOR_TYPE_ROOM                },
-    {0,                          0,                       DOOR_TYPE_ROOM                }, //END
-}; //Baleroc door is special, it depends on the health status of the other bosses in the instance
+    { GO_LORD_RHYOLITH_BRIDGE,  DATA_LORD_RHYOLITH,         DOOR_TYPE_ROOM      },
+    { GO_BETH_TILAC_DOOR,       DATA_BETHTILAC,             DOOR_TYPE_ROOM      },
+    //{GO_BALEROC_FIREWALL,      DATA_BALEROC,               DOOR_TYPE_ROOM      },
+    { GO_MAJORDOMO_FIREWALL,    DATA_MAJORDOMO_STAGHELM,    DOOR_TYPE_PASSAGE   },
+    { GO_RAGNAROS_DOOR,         DATA_RAGNAROS,              DOOR_TYPE_ROOM      },
+    { 0,                        0,                          DOOR_TYPE_ROOM      }, //END
+};
+
+enum Spells
+{
+    SPELL_MAGMA = 108773
+};
 
 BossBoundaryData const boundaries =
 {
@@ -90,11 +106,11 @@ class instance_firelands : public InstanceMapScript
 
         struct instance_firelands_InstanceScript : public InstanceScript
         {
-            instance_firelands_InstanceScript(InstanceMap* map) : InstanceScript(map)
+            instance_firelands_InstanceScript(InstanceMap* map) : InstanceScript(map), _firstRagnarosSpawn(true)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
                 LoadBossBoundaries(boundaries);
             }
@@ -121,6 +137,24 @@ class instance_firelands : public InstanceMapScript
                     case NPC_SMOULDERING_HATCHLING:
                         // Cannot directly start attacking here as the creature is not yet on map
                         creature->m_Events.AddEvent(new DelayedAttackStartEvent(creature), creature->m_Events.CalculateTime(500));
+                        break;
+                    case NPC_SULFURAS_SMASH_1:
+                    case NPC_LAVA_WAVE:
+                    case NPC_SULFURAS_HAND_OF_RAGNAROS:
+                    case NPC_MOLTEN_ELEMENTAL:
+                    case NPC_BLAZING_HEAT:
+                    case NPC_ENTRAPPING_ROOTS:
+                    case NPC_CLOUDBURST:
+                    case NPC_BREADTH_OF_FROST:
+                        if (Creature* ragnaros = GetCreature(DATA_RAGNAROS))
+                            if (CreatureAI* ai = ragnaros->AI())
+                                ai->JustSummoned(creature);
+                        break;
+                    case NPC_SPLITTING_BLOW:
+                        _splittingBlowGUIDs.push_back(creature->GetGUID());
+                        break;
+                    case NPC_MAGMA:
+                        _magmaGUIDs.push_back(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -161,6 +195,13 @@ class instance_firelands : public InstanceMapScript
                         if (state == FAIL)
                             _events.ScheduleEvent(EVENT_RESPAWN_MAJORDOMO_STAGHELM, 30s);
                         break;
+                    case DATA_RAGNAROS:
+                        if (state == FAIL)
+                        {
+                            _splittingBlowGUIDs.clear();
+                            _magmaGUIDs.clear();
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -185,8 +226,56 @@ class instance_firelands : public InstanceMapScript
                 }
             }
 
+            uint32 GetData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_FIRST_RAGNAROS_SPAWN:
+                        return uint8(_firstRagnarosSpawn);
+                }
+
+                return 0;
+            }
+
+            void SetData(uint32 type, uint32 value) override
+            {
+                switch (type)
+                {
+                    case DATA_FIRST_RAGNAROS_SPAWN:
+                        _firstRagnarosSpawn = value != 0;
+                        break;
+                    case DATA_MAGMA_KNOCKBACK:
+                        for (ObjectGuid const& guid : _magmaGUIDs)
+                        {
+                            if (Creature* magma = instance->GetCreature(guid))
+                            {
+                                magma->CastSpell(magma, SPELL_MAGMA);
+                                magma->DespawnOrUnsummon(100ms);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            ObjectGuid GetGuidData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_RANDOM_SPLITTING_BLOW_GUID:
+                        return Trinity::Containers::SelectRandomContainerElement(_splittingBlowGUIDs);
+                    default:
+                        return InstanceScript::GetGuidData(type);
+                }
+            }
+
         private:
+            bool _firstRagnarosSpawn;
             EventMap _events;
+            GuidVector _splittingBlowGUIDs;
+            GuidVector _magmaGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
