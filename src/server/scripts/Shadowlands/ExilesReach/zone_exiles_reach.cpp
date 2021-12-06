@@ -29,7 +29,6 @@ struct npc_combat_dummy : public ScriptedAI
         if (Player* player = killer->ToPlayer())
             player->KilledMonsterCredit(174954);
 
-        me->ForcedDespawn(1000, 5s);
     }
 };
 
