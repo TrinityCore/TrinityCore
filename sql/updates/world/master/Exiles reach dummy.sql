@@ -1,0 +1,1 @@
+UPDATE creature_template SET ScriptName='npc_combat_dummy' WHERE  entry=160737;
