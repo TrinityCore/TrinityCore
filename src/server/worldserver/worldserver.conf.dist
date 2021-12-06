@@ -39,6 +39,7 @@
 #    CURRENCIES SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#    SOLO LFG
 #
 ###################################################################################################
 
@@ -4247,3 +4248,373 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+# SOLO LFG
+#
+#    SoloLFG.Enable
+#        Description: Enable the module.
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
+
+SoloLFG.Enable = 1
+
+#    SoloLFG.Announce
+#        Description: Announce the module.
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
+
+SoloLFG.Announce = 1
+
+#
+###################################################################################################
+=======
+#  SOLOCRAFT  #
+###############
+# Enable the module? (1: true | 0: false)
+Solocraft.Enable = 1
+# Announce the module when the player logs in?
+Solocraft.Announce = 1
+###################################################################################################
+#  Balancing - Groups (Overloading), Spellpower, and Stats
+###################################################################################################
+# Enable Debuff of new party members who enter the dungeon to avoid overloading the dungeon?
+# Overloading is when a group member already in the dungeon has the full offset/buff of the
+# dungeon applied then they invite new group members who enter the dungeon and also receive an
+# offset which creates a huge imbalance.
+# The debuff will make the new members weak until all members leave the instance/dungeon
+# instance/dungeon and re-enter which will then split the offset among all the group members.
+# Default:  1 (on)
+#           0 (off)
+SoloCraft.Debuff.Enable = 1
+# Spellpower Bonus Multiplier
+# Spellcasters spellpower bonus multiplier to offset no spellpower received from stats
+# Formula: (player->level * multiplier) * difficulty
+# Example Level 24 Mage with default modifier and  a dungeon difficulty of 5 will receive a base
+# Spellpower increase of 300.
+# Default:  2.5
+#           0.0 (Disable)
+SoloCraft.Spellpower.Mult = 2.5
+# Stats Percentage Bonus Multiplier
+# Forumla: player->Stats * (difficulty * multiplier)
+# Default:  100.0
+#           0.0 (Disable)
+SoloCraft.Stats.Mult = 100.0
+#
+################################################################################################
+#Catch all Bucket - Difficulty Offset Defaults
+################################################################################################
+# Difficulty Multipliers
+# Defaults: 5, 10, 25, 40
+Solocraft.Dungeon = 5.0
+Solocraft.Heroic = 10.0
+Solocraft.Raid25 = 25.0
+Solocraft.Raid40 = 40.0
+################################################################################################
+#Classic Instances - Difficulty
+################################################################################################
+Solocraft.ShadowfangKeep = 5.0
+Solocraft.Stockades = 5.0
+Solocraft.Deadmines = 5.0
+Solocraft.WailingCaverns = 5.0
+Solocraft.RazorfenKraulInstance = 5.0
+Solocraft.Blackfathom = 5.0
+Solocraft.Uldaman = 5.0
+Solocraft.GnomeragonInstance = 5.0
+Solocraft.SunkenTemple = 5.0
+Solocraft.RazorfenDowns = 5.0
+# Scarlet Monastery
+Solocraft.MonasteryInstances = 5.0
+# Zul'Farrak
+Solocraft.TanarisInstance = 5.0
+Solocraft.BlackRockSpire = 10.0
+Solocraft.BlackrockDepths = 5.0
+Solocraft.OnyxiaLairInstance = 40.0
+#Scholomance
+Solocraft.SchoolofNecromancy = 5.0
+Solocraft.Zul'gurub = 20.0
+Solocraft.Stratholme = 5.0
+Solocraft.Mauradon = 5.0
+# Ragefire Chasm
+Solocraft.OrgrimmarInstance = 5.0
+Solocraft.MoltenCore = 40.0
+Solocraft.DireMaul = 5.0
+Solocraft.BlackwingLair = 40.0
+# Ruins of Ahn'Qiraj
+Solocraft.AhnQiraj = 20.0
+Solocraft.AhnQirajTemple = 40.0
+################################################################################################
+#BC Instances - Difficulty
+################################################################################################
+# The Black Morass
+Solocraft.CavernsOfTime = 5.0
+Solocraft.CavernsOfTimeH = 5.0
+Solocraft.Karazahn = 10.0
+# The Battle for Mount Hyjal - Hyjal Summit
+Solocraft.HyjalPast = 25.0
+# The Shattered Halls
+Solocraft.HellfireMilitary = 5.0
+Solocraft.HellfireMilitaryH = 5.0
+# The Blood Furnace
+Solocraft.HellfireDemon = 5.0
+Solocraft.HellfireDemonH = 5.0
+Solocraft.HellfireRampart = 5.0
+Solocraft.HellfireRampartH = 5.0
+# Magtheridon's Lair
+Solocraft.HellfireRaid = 25.0
+# The Steamvault
+Solocraft.CoilfangPumping = 5.0
+Solocraft.CoilfangPumpingH = 5.0
+# The Underbog
+Solocraft.CoilfangMarsh = 5.0
+Solocraft.CoilfangMarshH = 5.0
+# The Slavepens
+Solocraft.CoilfangDraenei = 5.0
+Solocraft.CoilfangDraeneiH = 5.0
+# Serpentshrine Cavern
+Solocraft.CoilfangRaid = 25.0
+# The Eye
+Solocraft.TempestKeepRaid = 25.0
+# The Arcatraz
+Solocraft.TempestKeepArcane = 5.0
+Solocraft.TempestKeepArcaneH = 5.0
+# The Botanica
+Solocraft.TempestKeepAtrium = 5.0
+Solocraft.TempestKeepAtriumH = 5.0
+# The Mechanar
+Solocraft.TempestKeepFactory = 5.0
+Solocraft.TempestKeepFactoryH = 5.0
+# Shadow Labyrinth
+Solocraft.AuchindounShadow = 5.0
+Solocraft.AuchindounShadowH = 5.0
+# Sethekk Halls
+Solocraft.AuchindounDemon = 5.0
+Solocraft.AuchindounDemonH = 5.0
+# Mana-Tombs
+Solocraft.AuchindounEthereal = 5.0
+Solocraft.AuchindounEtherealH = 5.0
+# Auchenai Crypts
+Solocraft.AuchindounDraenei = 5.0
+Solocraft.AuchindounDraeneiH = 5.0
+# Old Hillsbrad Foothills
+Solocraft.HillsbradPast = 5.0
+Solocraft.HillsbradPastH = 5.0
+Solocraft.BlackTemple = 25.0
+Solocraft.GruulsLair = 25.0
+Solocraft.ZulAman = 5.0
+Solocraft.ZulAmanH = 5.0
+Solocraft.SunwellPlateau = 25.0
+# Magister's Terrace
+Solocraft.Sunwell5ManFix = 5.0
+Solocraft.Sunwell5ManFixH = 5.0
+################################################################################################
+#WOTLK Instances - Difficulty
+################################################################################################
+# Naxxramas
+Solocraft.StratholmeRaid = 10.0
+Solocraft.StratholmeRaidH = 25.0
+# Utgarde Keep
+Solocraft.Valgarde70 = 5.0
+Solocraft.Valgarde70H = 5.0
+Solocraft.UtgardePinnacle = 5.0
+Solocraft.UtgardePinnacleH = 5.0
+# The Nexus
+Solocraft.Nexus70 = 5.0
+Solocraft.Nexus70H = 5.0
+# The Occulus
+Solocraft.Nexus80 = 5.0
+Solocraft.Nexus80H = 5.0
+# The Culling of Stratholme
+Solocraft.StratholmeCOT = 5.0
+Solocraft.StratholmeCOTH = 5.0
+# Halls of Stone
+Solocraft.Ulduar70 = 5.0
+Solocraft.Ulduar70H = 5.0
+# Drak'Tharon Keep
+Solocraft.DrakTheronKeep = 5.0
+Solocraft.DrakTheronKeepH = 5.0
+# Azjol-Nerub
+Solocraft.Azjol_Uppercity = 5.0
+Solocraft.Azjol_UppercityH = 5.0
+# Halls of Lighting
+Solocraft.Ulduar80 = 5.0
+Solocraft.Ulduar80H = 5.0
+# Ulduar
+Solocraft.UlduarRaid = 10.0
+Solocraft.UlduarRaidH = 25.0
+Solocraft.GunDrak = 5.0
+Solocraft.GunDrakH = 5.0
+# Violet Hold
+Solocraft.DalaranPrison = 5.0
+Solocraft.DalaranPrisonH = 5.0
+# The Obsidian Sanctum
+Solocraft.ChamberOfAspectsBlack = 10.0
+Solocraft.ChamberOfAspectsBlackH = 25.0
+# The Eye of Eternity
+Solocraft.NexusRaid = 10.0
+Solocraft.NexusRaidH = 25.0
+# Ahn'kahet: The Old Kingdom
+Solocraft.Azjol_LowerCity = 5.0
+Solocraft.Azjol_LowerCityH = 5.0
+Solocraft.IcecrownCitadel = 10.0
+Solocraft.IcecrownCitadelH = 25.0
+# The Forge of Souls
+Solocraft.IcecrownCitadel5Man = 5.0
+Solocraft.IcecrownCitadel5ManH = 5.0
+# Trial of the Crusader
+Solocraft.ArgentTournamentRaid = 10.0
+Solocraft.ArgentTournamentRaidH = 25.0
+# Grand Trial of the Crusader Heroic
+Solocraft.ArgentTournamentRaidH10 = 10.0
+Solocraft.ArgentTournamentRaidH25 = 25.0
+# Trial of the Champion
+Solocraft.ArgentTournamentDungeon = 5.0
+Solocraft.ArgentTournamentDungeonH = 5.0
+# Pit of Saron
+Solocraft.QuarryOfTears = 5.0
+Solocraft.QuarryOfTearsH = 5.0
+# Halls of Reflection
+Solocraft.HallsOfReflection = 5.0
+Solocraft.HallsOfReflectionH = 5.0
+# The Ruby Sanctum
+Solocraft.ChamberOfAspectsRed = 5.0
+Solocraft.ChamberOfAspectsRedH = 5.0
+################################################################################################
+#Player Level Thresholds
+################################################################################################
+#Max player level difference over the Dungeon's Level for Solocraft to apply the
+# difficulty offset buff.
+# Default: 10
+# Disable: 80
+Solocraft.Max.Level.Diff = 10
+################################################################################################
+#Dungeon Base Levels
+################################################################################################
+#Catch All - Default 80
+Solocraft.Dungeon.Level = 80
+################################################################################################
+#Classic Instances - Base Level
+################################################################################################
+Solocraft.ShadowfangKeep.Level = 15
+Solocraft.Stockades.Level = 22
+Solocraft.Deadmines.Level = 18
+Solocraft.WailingCaverns.Level = 17
+Solocraft.RazorfenKraulInstance.Level = 30
+Solocraft.Blackfathom.Level = 20
+Solocraft.Uldaman.Level = 40
+Solocraft.GnomeragonInstance.Level = 24
+Solocraft.SunkenTemple.Level = 50
+Solocraft.RazorfenDowns.Level = 40
+# Scarlet Monastery
+Solocraft.MonasteryInstances.Level = 35
+# Zul'Farrak
+Solocraft.TanarisInstance.Level = 44
+Solocraft.BlackRockSpire.Level = 55
+Solocraft.BlackrockDepths.Level = 50
+Solocraft.OnyxiaLairInstance.Level = 60
+#Scholomance
+Solocraft.SchoolofNecromancy.Level = 55
+Solocraft.Zul'gurub.Level = 60
+Solocraft.Stratholme.Level = 55
+Solocraft.Mauradon.Level = 48
+# Ragefire Chasm
+Solocraft.OrgrimmarInstance.Level = 15
+Solocraft.MoltenCore.Level = 60
+Solocraft.DireMaul.Level = 48
+Solocraft.BlackwingLair.Level = 40
+# Ruins of Ahn'Qiraj
+Solocraft.AhnQiraj.Level = 60
+Solocraft.AhnQirajTemple.Level = 60
+################################################################################################
+#BC Instances - Base Level
+################################################################################################
+# The Black Morass
+Solocraft.CavernsOfTime.Level = 68
+Solocraft.Karazahn.Level = 68
+# The Battle for Mount Hyjal - Hyjal Summit
+Solocraft.HyjalPast.Level = 70
+# The Shattered Halls
+Solocraft.HellfireMilitary.Level = 68
+# The Blood Furnace
+Solocraft.HellfireDemon.Level = 68
+Solocraft.HellfireRampart.Level = 68
+# Magtheridon's Lair
+Solocraft.HellfireRaid.Level = 68
+# The Steamvault
+Solocraft.CoilfangPumping.Level = 68
+# The Underbog
+Solocraft.CoilfangMarsh.Level = 68
+# The Slavepens
+Solocraft.CoilfangDraenei.Level = 68
+# Serpentshrine Cavern
+Solocraft.CoilfangRaid.Level = 70
+# The Eye
+Solocraft.TempestKeepRaid.Level = 70
+# The Arcatraz
+Solocraft.TempestKeepArcane.Level = 68
+# The Botanica
+Solocraft.TempestKeepAtrium.Level = 68
+# The Mechanar
+Solocraft.TempestKeepFactory.Level = 68
+# Shadow Labyrinth
+Solocraft.AuchindounShadow.Level = 68
+# Sethekk Halls
+Solocraft.AuchindounDemon.Level = 68
+# Mana-Tombs
+Solocraft.AuchindounEthereal.Level = 68
+# Auchenai Crypts
+Solocraft.AuchindounDraenei.Level = 68
+# Old Hillsbrad Foothills
+Solocraft.HillsbradPast.Level = 68
+Solocraft.BlackTemple.Level = 70
+Solocraft.GruulsLair.Level = 70
+Solocraft.ZulAman.Level = 68
+Solocraft.SunwellPlateau.Level = 70
+# Magister's Terrace
+Solocraft.Sunwell5ManFix.Level = 68
+################################################################################################
+#WOTLK Instances - Base Level
+################################################################################################
+# Naxxramas
+Solocraft.StratholmeRaid.Level = 78
+# Utgarde Keep
+Solocraft.Valgarde70.Level = 78
+Solocraft.UtgardePinnacle.Level = 78
+# The Nexus
+Solocraft.Nexus70.Level = 78
+# The Occulus
+Solocraft.Nexus80.Level = 78
+# The Culling of Stratholme
+Solocraft.StratholmeCOT.Level = 78
+# Halls of Stone
+Solocraft.Ulduar70.Level = 78
+# Drak'Tharon Keep
+Solocraft.DrakTheronKeep.Level = 78
+# Azjol-Nerub
+Solocraft.Azjol_Uppercity.Level = 78
+# Halls of Lighting
+Solocraft.Ulduar80.Level = 78
+# Ulduar
+Solocraft.UlduarRaid.Level = 80
+Solocraft.GunDrak.Level = 78
+# Violet Hold
+Solocraft.DalaranPrison.Level = 78
+# The Obsidian Sanctum
+Solocraft.ChamberOfAspectsBlack.Level = 80
+# The Eye of Eternity
+Solocraft.NexusRaid.Level = 80
+# Ahn'kahet: The Old Kingdom
+Solocraft.Azjol_LowerCity.Level = 78
+#Icecrown Citadel
+Solocraft.IcecrownCitadel.Level = 80
+# The Forge of Souls
+Solocraft.IcecrownCitadel5Man.Level = 78
+# Trial of the Champion
+Solocraft.ArgentTournamentDungeon.Level = 80
+# Trial of the Crusader
+Solocraft.ArgentTournamentRaid.Level = 80
+# Pit of Saron
+Solocraft.QuarryOfTears.Level = 78
+# Halls of Reflection
+Solocraft.HallsOfReflection.Level = 78
+# The Ruby Sanctum
+Solocraft.ChamberOfAspectsRed.Level = 80
+#

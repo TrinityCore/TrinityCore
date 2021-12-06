@@ -414,6 +414,10 @@ class TC_GAME_API LFGMgr
         void JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons);
         /// Leaves lfg
         void LeaveLfg(ObjectGuid guid, bool disconnected = false);
+        /// Toggle LFG in debug mode
+        void ToggleSoloLFG();
+        /// Check if debug mode
+        bool IsSoloLFG() const { return m_isSoloLFG; }
         /// Gets unique join queue data
         WorldPackets::LFG::RideTicket const* GetTicket(ObjectGuid guid) const;
 
@@ -477,6 +481,8 @@ class TC_GAME_API LFGMgr
         uint32 m_QueueTimer;                               /// used to check interval of update
         uint32 m_lfgProposalId;                            /// used as internal counter for proposals
         uint32 m_options;                                  /// Stores config options
+        
+        bool m_isSoloLFG;                                  /// solo lfg
 
         LfgQueueContainer QueuesStore;                     /// Queues
         LfgCachedDungeonContainer CachedDungeonMapStore;   /// Stores all dungeons by groupType
