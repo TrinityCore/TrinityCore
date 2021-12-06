@@ -2847,6 +2847,64 @@ public:
     }
 };
 
+enum chromie167032Gossips
+{
+    GOSSIP_MENU_SELECT_CHROMIE_TIME = 25426,
+};
+class npc_chromie_167032 : public CreatureScript
+{
+public:
+    npc_chromie_167032() : CreatureScript("npc_chromie_167032") { }
+
+    struct npc_chromie_167032AI : public ScriptedAI
+    {
+        npc_chromie_167032AI(Creature* creature) : ScriptedAI(creature) { }
+
+        bool GossipHello(Player* player) override
+        {
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            AddGossipItemFor(player, GOSSIP_MENU_SELECT_CHROMIE_TIME, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_MENU_SELECT_CHROMIE_TIME, GOSSIP_MENU_OPTION_ID_ANSWER_1 + 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            AddGossipItemFor(player, GOSSIP_MENU_SELECT_CHROMIE_TIME, GOSSIP_MENU_OPTION_ID_ANSWER_1 + 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            SendGossipMenuFor(player, GOSSIP_MENU_SELECT_CHROMIE_TIME, me->GetGUID());
+
+            return true;
+        }
+
+        void SendChromieTimeMenu(Player* player)
+        {
+            WorldPackets::Misc::ChromieTimeOpenNpc worldpark;
+            worldpark.ObjGUID = me->GetGUID();
+            player->GetSession()->SendPacket(worldpark.Write());
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+
+            switch (action)
+            {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                SendChromieTimeMenu(player);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                break;
+            }
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_chromie_167032AI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2872,4 +2930,5 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
+    new npc_chromie_167032();
 }
