@@ -31,7 +31,52 @@ struct npc_combat_dummy : public ScriptedAI
     }
 };
 
+enum ExileReach
+{
+    QUEST_STAND_YOUR_GROUND = 59927,
+};
+
+struct quest_stand_your_ground : public ScriptedAI
+{
+    quest_stand_your_ground(Creature* creature) : ScriptedAI(creature)
+    {
+        SetCombatMovement(false);
+    }
+
+    void Reset() override
+    {
+        ScriptedAI::Reset();
+    }
+
+    void QuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_STAND_YOUR_GROUND)
+        {
+            Talk(1);
+            me->SetFaction(14);
+            me->SetReactState(REACT_AGGRESSIVE);
+        }
+    }
+
+    void DamageTaken(Unit* attacker, uint32& /*damage*/) override
+    {
+        if (Player* player = attacker->ToPlayer())
+            if (me->GetHealth() < me->CountPctFromMaxHealth(20))
+                if (player->GetQuestStatus(QUEST_STAND_YOUR_GROUND))
+                {
+                    player->KilledMonsterCredit(155607);
+                }
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (Player* player = killer->ToPlayer())
+                player->KilledMonsterCredit(155607);
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     RegisterCreatureAI(npc_combat_dummy);
+    RegisterCreatureAI(quest_stand_your_ground);
 }
