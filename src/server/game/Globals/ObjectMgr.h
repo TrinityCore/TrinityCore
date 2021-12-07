@@ -802,6 +802,8 @@ struct SceneTemplate
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
+typedef std::unordered_map<uint32, std::string> PhaseNameContainer;
+
 struct PlayerChoiceResponseRewardItem
 {
     PlayerChoiceResponseRewardItem() : Id(0), Quantity(0) { }
@@ -1367,6 +1369,7 @@ class TC_GAME_API ObjectMgr
         void LoadPlayerChoicesLocale();
 
         void LoadJumpChargeParams();
+        void LoadPhaseNames();
 
         void InitializeQueriesData(QueryDataGroup mask);
 
@@ -1676,6 +1679,8 @@ class TC_GAME_API ObjectMgr
         std::string GetNormalizedRealmName(uint32 realm) const;
         bool GetRealmName(uint32 realmId, std::string& name, std::string& normalizedName) const;
 
+        std::string GetPhaseName(uint32 phaseId) const;
+
         std::unordered_map<uint8, RaceUnlockRequirement> const& GetRaceUnlockRequirements() const { return _raceUnlockRequirementStore; }
         RaceUnlockRequirement const* GetRaceUnlockRequirement(uint8 race) const
         {
@@ -1878,6 +1883,8 @@ class TC_GAME_API ObjectMgr
         SceneTemplateContainer _sceneTemplateStore;
 
         std::unordered_map<int32, JumpChargeParams> _jumpChargeParams;
+
+        PhaseNameContainer _phaseNameStore;
 
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
 };
