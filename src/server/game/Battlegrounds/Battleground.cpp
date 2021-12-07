@@ -1035,7 +1035,7 @@ void Battleground::StartBattleground()
     // tswow-begin
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
-        , BattlegroundOnStart
+        , BattlegroundOnCreate
         , TSBattleground(m_Map, this)
     );
     // @tswow-end
@@ -2027,7 +2027,7 @@ bool Battleground::SetupBattleground()
     );
     FIRE_MAP(
         GetBattlegroundEvent(m_TypeID)
-        , BattlegroundOnSetup
+        , BattlegroundOnCanCreate
         , TSBattleground(m_Map, this)
         , TSMutable<bool>(&result)
     );
