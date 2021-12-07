@@ -93,7 +93,7 @@ class boss_nazan : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() == NPC_VAZRUDEN_HERALD)
                     VazrudenGUID = summoner->GetGUID();

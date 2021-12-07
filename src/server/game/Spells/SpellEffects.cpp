@@ -1304,6 +1304,12 @@ void Spell::EffectHealthLeech()
     float healMultiplier = effectInfo->CalcValueMultiplier(unitCaster, this);
 
     m_damage += damage;
+
+    DamageInfo damageInfo(unitCaster, unitTarget, damage, m_spellInfo, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
+    Unit::CalcAbsorbResist(damageInfo);
+    uint32 const absorb = damageInfo.GetAbsorb();
+    damage -= absorb;
+
     // get max possible damage, don't count overkill for heal
     uint32 healthGain = uint32(-unitTarget->GetHealthGain(-damage) * healMultiplier);
 
@@ -2068,7 +2074,7 @@ void Spell::EffectSummonType()
 
                         uint32 faction = properties->Faction;
                         if (properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
-                            if (Unit* summoner = summon->GetSummoner())
+                            if (WorldObject const* summoner = summon->GetSummoner())
                                 faction = summoner->GetFaction();
 
                         if (faction)

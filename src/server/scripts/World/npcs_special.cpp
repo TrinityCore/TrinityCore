@@ -2415,7 +2415,7 @@ public:
             summonerGUID.Clear();
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->GetTypeId() == TYPEID_PLAYER)
             {

@@ -225,7 +225,7 @@ struct npc_firelands_magmakin : public ScriptedAI
 {
     npc_firelands_magmakin(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         //Not actually sniffed behavior
         Unit* target = me->SelectNearestTarget(50.0f, true);

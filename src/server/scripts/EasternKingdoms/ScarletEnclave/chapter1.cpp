@@ -1178,7 +1178,7 @@ class npc_scarlet_miner : public CreatureScript
                 Initialize();
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 carGUID = summoner->GetGUID();
             }
