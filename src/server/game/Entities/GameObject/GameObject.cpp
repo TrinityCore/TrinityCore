@@ -1720,12 +1720,18 @@ void GameObject::Use(Unit* user)
             // cast this spell later if provided
             spellId = info->goober.spellId;
             // @tswow-begin
-            if (!info->goober.userCast)
+
+            if ((info->goober.spellFlags & SpellFlags::TRIGGERED))
+            {
+                triggered = true;
+            }
+
+            if (!(info->goober.spellFlags & SpellFlags::USER_CAST))
             {
                 spellCaster = nullptr;
             }
             // @tswow-end
-            if (info->goober.targetGobj)
+            if ((info->goober.spellFlags & SpellFlags::TARGET_GOBJ))
             {
                 target = this;
             }

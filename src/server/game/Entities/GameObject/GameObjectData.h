@@ -32,6 +32,14 @@
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
+// @tswow-begin
+enum SpellFlags: uint32 {
+    USER_CAST   = 0x1,
+    TARGET_GOBJ = 0x2,
+    TRIGGERED   = 0x3,
+};
+// @tswow-end
+
 // from `gameobject_template`
 struct GameObjectTemplate
 {
@@ -198,8 +206,7 @@ struct GameObjectTemplate
             uint32 floatOnWater;                            //21
             uint32 conditionID1;                            //22
             // @tswow-begin
-            uint32 userCast;                                //23, custom
-            uint32 targetGobj;                              //24, custom
+            SpellFlags spellFlags;                       //23
             // @tswow-end
         } goober;
         //11 GAMEOBJECT_TYPE_TRANSPORT
