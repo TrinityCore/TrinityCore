@@ -1505,6 +1505,7 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
 void GameObject::Use(Unit* user)
 {
     // @tswow-begin
+    WorldObject* target = user;
     bool shouldCancel = false;
     FIRE_MAP(GetGOInfo()->events,GameObjectOnUse,TSGameObject(this),TSUnit(user),TSMutable<bool>(&shouldCancel));
     if(shouldCancel)
@@ -1718,8 +1719,16 @@ void GameObject::Use(Unit* user)
 
             // cast this spell later if provided
             spellId = info->goober.spellId;
-            spellCaster = nullptr;
-
+            // @tswow-begin
+            if (!info->goober.userCast)
+            {
+                spellCaster = nullptr;
+            }
+            // @tswow-end
+            if (info->goober.targetGobj)
+            {
+                target = this;
+            }
             break;
         }
         case GAMEOBJECT_TYPE_CAMERA:                        //13
@@ -2116,10 +2125,12 @@ void GameObject::Use(Unit* user)
     if (Player* player = user->ToPlayer())
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
+    // @tswow-begin add target
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, triggered);
+        spellCaster->CastSpell(target, spellId, triggered);
     else
-        CastSpell(user, spellId);
+        CastSpell(target, spellId);
+    // @tswow-end
 }
 
 void GameObject::SendCustomAnim(uint32 anim)

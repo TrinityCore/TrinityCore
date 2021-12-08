@@ -197,6 +197,10 @@ struct GameObjectTemplate
             uint32 WorldStateSetsState;                     //20
             uint32 floatOnWater;                            //21
             uint32 conditionID1;                            //22
+            // @tswow-begin
+            uint32 userCast;                                //23, custom
+            uint32 targetGobj;                              //24, custom
+            // @tswow-end
         } goober;
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
