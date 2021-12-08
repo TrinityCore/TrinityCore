@@ -1070,9 +1070,8 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         {
             bgids.push_back(entry.battleground);
             float weight = entry.weight;
-            FIRE_MAP(
-                GetBattlegroundEvent(entry.battleground)
-                    , BattlegroundOnWeight
+            FIRE(
+                      BattlegroundOnWeight
                     , entry.battleground
                     , TSMutable<float>(&weight)
                     , bgTypeId
@@ -1084,9 +1083,8 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         itr = battlegroundSets.find(bgTypeId);
     }
 
-    FIRE_MAP(
-        GetBattlegroundEvent(bgTypeId)
-            , BattlegroundOnSelect
+    FIRE(
+              BattlegroundOnSelect
             , TSMutable<uint32>(reinterpret_cast<uint32*>(&bgTypeId))
     );
     return BattlegroundTypeId(bgTypeId);
