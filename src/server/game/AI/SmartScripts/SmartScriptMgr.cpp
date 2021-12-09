@@ -2137,6 +2137,17 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             return false;
     }
 
+    // Additional check for deprecated
+    switch (e.GetActionType())
+    {
+        // Deprecated
+        case SMART_ACTION_SEND_GO_CUSTOM_ANIM:
+            TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated action_type(%u), Entry %d SourceType %u Event %u, it might be removed in the future, loaded for now.", e.GetActionType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
+            break;
+        default:
+            break;
+    }
+
     if (!CheckUnusedActionParams(e))
         return false;
 
