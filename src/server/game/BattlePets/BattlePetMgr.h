@@ -30,9 +30,16 @@ enum BattlePetMisc
     MAX_PET_BATTLE_SLOTS                = 3,
     DEFAULT_MAX_BATTLE_PETS_PER_SPECIES = 3,
     BATTLE_PET_CAGE_ITEM_ID             = 82800,
-    DEFAULT_SUMMON_BATTLE_PET_SPELL     = 118301,
-    SPELL_VISUAL_UNCAGE_PET             = 222
+    SPELL_VISUAL_UNCAGE_PET             = 222,
+
+    SPELL_BATTLE_PET_TRAINING_PASSIVE   = 119467,
+    SPELL_BATTLE_PET_TRAINING           = 125610,
+    SPELL_REVIVE_BATTLE_PETS            = 125439,
+    SPELL_SUMMON_BATTLE_PET             = 118301,
+    SPELL_TRACK_PETS                    = 122026
 };
+
+static constexpr Seconds REVIVE_BATTLE_PETS_COOLDOWN = 180s;
 
 enum class BattlePetBreedQuality : uint8
 {

@@ -654,11 +654,11 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
     if (!speciesEntry)
         return;
 
-    // TODO: set proper CreatureID for spell DEFAULT_SUMMON_BATTLE_PET_SPELL (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
+    // TODO: set proper CreatureID for spell SPELL_SUMMON_BATTLE_PET (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
     Player* player = _owner->GetPlayer();
     player->SetSummonedBattlePetGUID(guid);
     player->SetCurrentBattlePetBreedQuality(pet->PacketInfo.Quality);
-    player->CastSpell(player, speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
+    player->CastSpell(player, speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(SPELL_SUMMON_BATTLE_PET));
 }
 
 void BattlePetMgr::DismissPet()
