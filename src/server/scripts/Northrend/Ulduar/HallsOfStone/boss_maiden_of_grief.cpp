@@ -19,8 +19,11 @@
 #include "halls_of_stone.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO                           = 0,
     SAY_SLAY                            = 1,
@@ -57,12 +60,6 @@ struct boss_maiden_of_grief : public BossAI
     {
         _Reset();
 
-        if (IsHeroic())
-            events.ScheduleEvent(EVENT_PARTING_SORROW, 25s, 30s);
-        events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 10s);
-        events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 20s, 25s);
-        events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 15s);
-
         instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
     }
 
@@ -71,13 +68,24 @@ struct boss_maiden_of_grief : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
 
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_PARTING_SORROW, 25s, 30s);
+        events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 5s, 10s);
+        events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 15s, 25s);
+        events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 15s);
+
         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
     }
 
-    void KilledUnit(Unit* who) override
+    void KilledUnit(Unit* /*who*/) override
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_SLAY);
+        Talk(SAY_SLAY);
+    }
+
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    {
+        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHOCK_OF_SORROW, me))
+            Talk(SAY_STUN);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -103,24 +111,22 @@ struct boss_maiden_of_grief : public BossAI
                 case EVENT_PARTING_SORROW:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_PARTING_SORROW);
-                    events.ScheduleEvent(EVENT_PARTING_SORROW, 30s, 40s);
+                    events.Repeat(30s, 40s);
                     break;
                 case EVENT_STORM_OF_GRIEF:
-                    DoCastVictim(SPELL_STORM_OF_GRIEF, true);
-                    events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 15s, 20s);
+                    DoCastVictim(SPELL_STORM_OF_GRIEF);
+                    events.Repeat(15s, 20s);
                     break;
                 case EVENT_SHOCK_OF_SORROW:
-                    ResetThreatList();
-                    Talk(SAY_STUN);
                     DoCastAOE(SPELL_SHOCK_OF_SORROW);
-                    events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 20s, 30s);
+                    events.Repeat(20s, 35s);
                     break;
                 case EVENT_PILLAR_OF_WOE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                         DoCast(target, SPELL_PILLAR_OF_WOE);
                     else
                         DoCastVictim(SPELL_PILLAR_OF_WOE);
-                    events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 25s);
+                    events.Repeat(5s, 25s);
                     break;
                 default:
                     break;
