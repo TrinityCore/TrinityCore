@@ -698,23 +698,6 @@ class spell_four_horsemen_mark : public AuraScript
     }
 };
 
-// 28865 - Consumption
-class spell_four_horsemen_consumption : public SpellScript
-{
-    PrepareSpellScript(spell_four_horsemen_consumption);
-
-    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-    {
-        uint32 damage = GetCaster()->GetMap()->IsHeroic() ? 4250 : 2750;
-        SetEffectValue(damage);
-    }
-
-    void Register() override
-    {
-        OnEffectLaunchTarget += SpellEffectFn(spell_four_horsemen_consumption::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 void AddSC_boss_four_horsemen()
 {
     RegisterNaxxramasCreatureAI(boss_four_horsemen_baron);
@@ -722,5 +705,4 @@ void AddSC_boss_four_horsemen()
     RegisterNaxxramasCreatureAI(boss_four_horsemen_lady);
     RegisterNaxxramasCreatureAI(boss_four_horsemen_sir);
     RegisterSpellScript(spell_four_horsemen_mark);
-    RegisterSpellScript(spell_four_horsemen_consumption);
 }

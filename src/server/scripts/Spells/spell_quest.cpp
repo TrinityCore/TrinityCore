@@ -26,6 +26,7 @@
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -1774,57 +1775,6 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScript
     }
 };
 
-enum BasicOrdersEmote
-{
-    SPELL_TEST_SALUTE        = 73835,
-    SPELL_TEST_ROAR          = 73836,
-    SPELL_TEST_CHEER         = 73725,
-    SPELL_TEST_DANCE         = 73837,
-    SPELL_TEST_STOP_DANCE    = 73886
-};
-
-/* 73725 - [DND] Test Cheer
-   73835 - [DND] Test Salute
-   73836 - [DND] Test Roar
-   73837 - [DND] Test Dance
-   73886 - [DND] Test Stop Dance */
-class spell_q25199_emote : public AuraScript
-{
-    PrepareAuraScript(spell_q25199_emote);
-
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
-    {
-        Unit* target = GetTarget();
-
-        switch (GetSpellInfo()->Id)
-        {
-            case SPELL_TEST_SALUTE:
-                target->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                break;
-            case SPELL_TEST_ROAR:
-                target->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                break;
-            case SPELL_TEST_CHEER:
-                target->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
-                break;
-            case SPELL_TEST_DANCE:
-                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
-                break;
-            case SPELL_TEST_STOP_DANCE:
-                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                break;
-            default:
-                return;
-        }
-        Remove();
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q25199_emote::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 enum DeathComesFromOnHigh
 {
     SPELL_FORGE_CREDIT                  = 51974,
@@ -2129,24 +2079,6 @@ class spell_q13665_q13790_bested_trigger : public SpellScript
     }
 };
 
-// herald of war and life without regret portal spells
-// 59064 - Portal to Orgrimmar
-// 59439 - Portal to Undercity
-class spell_59064_59439_portals : public SpellScript
-{
-    PrepareSpellScript(spell_59064_59439_portals);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_59064_59439_portals::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum ApplyHeatAndStir
 {
     SPELL_SPURTS_AND_SMOKE    = 38594,
@@ -2379,6 +2311,37 @@ class spell_quest_taming_the_beast : public AuraScript
     }
 };
 
+// 53099, 57896, 58418, 58420, 59064, 59065, 59439, 60900, 60940
+class spell_quest_portal_with_condition : public SpellScript
+{
+    PrepareSpellScript(spell_quest_portal_with_condition);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) }) &&
+            sObjectMgr->GetQuestTemplate(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Player* target = GetHitPlayer();
+        if (!target)
+            return;
+
+        uint32 spellId = GetEffectInfo().CalcValue();
+        uint32 questId = GetEffectInfo(EFFECT_1).CalcValue();
+
+        // This probably should be a way to throw error in SpellCastResult
+        if (target->IsActiveQuest(questId))
+            target->CastSpell(target, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_quest_portal_with_condition::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2436,7 +2399,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11896_weakness_to_lightning_46444);
     RegisterSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen);
     RegisterSpellScript(spell_q12308_escape_from_silverbrook);
-    RegisterSpellScript(spell_q25199_emote);
     RegisterSpellScript(spell_q12641_death_comes_from_on_high);
     RegisterSpellScript(spell_q12641_recall_eye_of_acherus);
     RegisterSpellScript(spell_q12619_emblazon_runeblade);
@@ -2448,10 +2410,10 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q10929_fumping);
     RegisterSpellScript(spell_q12414_hand_over_reins);
     RegisterSpellScript(spell_q13665_q13790_bested_trigger);
-    RegisterSpellScript(spell_59064_59439_portals);
     RegisterSpellScript(spell_q11306_mixing_blood);
     RegisterSpellScript(spell_q11306_mixing_vrykul_blood);
     RegisterSpellScript(spell_q11306_failed_mix_43376);
     RegisterSpellScript(spell_q11306_failed_mix_43378);
     RegisterSpellScript(spell_quest_taming_the_beast);
+    RegisterSpellScript(spell_quest_portal_with_condition);
 }

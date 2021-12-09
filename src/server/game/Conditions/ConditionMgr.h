@@ -148,8 +148,9 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25, // only master
     CONDITION_SOURCE_TYPE_PHASE                          = 26, // only master
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27, // only master
-    CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28, // only master
-    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
+    CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28, // only master (this refers to dynamically spawned areatriggers, not the ones from AreaTrigger.dbc/db2)
+    CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29, // only master
+    CONDITION_SOURCE_TYPE_MAX                            = 30  // MAX
 };
 
 enum RelationType

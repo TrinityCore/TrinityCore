@@ -195,12 +195,13 @@ enum Spells
 
 enum MiscData
 {
-    ITEM_GOBLIN_ROCKET_PACK = 49278,
+    ITEM_GOBLIN_ROCKET_PACK    = 49278,
+    SPELL_CREATE_ROCKET_PACK   = 70055,
 
-    PHASE_COMBAT            = 0,
-    PHASE_INTRO             = 1,
+    PHASE_COMBAT               = 0,
+    PHASE_INTRO                = 1,
 
-    MUSIC_ENCOUNTER         = 17289
+    MUSIC_ENCOUNTER            = 17289
 };
 
 enum EncounterActions
@@ -1361,7 +1362,7 @@ struct npc_zafod_boombox : public gunship_npc_AI
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
-        player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
+        me->CastSpell(player, SPELL_CREATE_ROCKET_PACK);
         player->PlayerTalkClass->SendCloseGossip();
         return false;
     }

@@ -437,8 +437,8 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
     stmt->setUInt32(0, auction->bidder);
     stmt->setUInt32(1, auction->bid);
-    stmt->setUInt32(2, auction->Id);
-    stmt->setUInt8(3, auction->Flags);
+    stmt->setUInt8(2, auction->Flags);
+    stmt->setUInt32(3, auction->Id);
     trans->Append(stmt);
 
     // Run SQLs

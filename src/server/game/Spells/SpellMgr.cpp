@@ -2673,6 +2673,23 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     break;
             }
 
+            switch (spellEffectInfo.ApplyAuraName)
+            {
+                case SPELL_AURA_CONVERT_RUNE:   // Can't be saved - aura handler relies on calculated amount and changes it
+                case SPELL_AURA_OPEN_STABLE:    // No point in saving this, since the stable dialog can't be open on aura load anyway.
+                // Auras that require both caster & target to be in world cannot be saved
+                case SPELL_AURA_CONTROL_VEHICLE:
+                case SPELL_AURA_BIND_SIGHT:
+                case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_MOD_POSSESS_PET:
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_AOE_CHARM:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
+                    break;
+                default:
+                    break;
+            }
+
             switch (spellEffectInfo.Effect)
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
@@ -2949,7 +2966,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     {
         if (uint32 spellId = liquid->SpellID)
             if (SpellInfo* spellInfo = _GetSpellInfo(spellId))
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_LIQUID_AURA;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -3351,7 +3368,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         53096, // Quetz'lun's Judgment
         70743, // AoD Special
         70614, // AoD Special - Vegard
-        4020, // Safirdrang's Chill
+        4020,  // Safirdrang's Chill
         52438, // Summon Skittering Swarmer (Force Cast)
         52449, // Summon Skittering Infector (Force Cast)
         53609, // Summon Anub'ar Assassin (Force Cast)
@@ -3365,7 +3382,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         21855, // Challenge Flag
         38762, // Force of Neltharaku
         51122, // Fierce Lightning Stike
-        71848  // Toxic Wasteling Find Target
+        71848, // Toxic Wasteling Find Target
+        36146  // Chains of Naberius
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;

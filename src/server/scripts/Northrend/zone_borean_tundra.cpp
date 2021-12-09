@@ -78,7 +78,8 @@ public:
                 AddGossipItemFor(player, GOSSIP_MENU_ID_CORASTRASZA, GOSSIP_MENU_ITEM_ID_I_AM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, NPC_TEXT_EAGERLY_AWAITING_YOUR_RETURN, me->GetGUID());
             }
-            SendGossipMenuFor(player, NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO, me->GetGUID());
+            else
+                SendGossipMenuFor(player, NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO, me->GetGUID());
 
             return true;
         }
@@ -1740,46 +1741,6 @@ public:
     }
 };
 
-enum OrabusTheHelmsman
-{
-    NPC_ORABUS            = 32576,
-    NPC_KVALDIR_CREWMAN_1 = 32577,
-    NPC_KVALDIR_CREWMAN_2 = 32578,
-    NPC_KVALDIR_CREWMAN_3 = 32579,
-    NPC_KVALDIR_CREWMAN_4 = 32580
-};
-
-class npc_orabus_the_helmsman_ship_exit_pos : public UnitScript
-{
-public:
-    npc_orabus_the_helmsman_ship_exit_pos() : UnitScript("npc_orabus_the_helmsman_ship_exit_pos") { }
-
-    void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* /*vehicle*/, Position& pos)
-    {
-        if (passenger->GetTypeId() == TYPEID_UNIT)
-        {
-            switch (passenger->GetEntry())
-            {
-                case NPC_ORABUS:
-                    pos.Relocate(2807.858f, 7038.571f, 7.075813f, 4.73481f);
-                    break;
-                case NPC_KVALDIR_CREWMAN_1:
-                    pos.Relocate(2801.168f, 7046.468f, 5.362013f, 4.73481f);
-                    break;
-                case NPC_KVALDIR_CREWMAN_2:
-                    pos.Relocate(2803.729f, 7046.516f, 5.362013f, 4.73481f);
-                    break;
-                case NPC_KVALDIR_CREWMAN_3:
-                    pos.Relocate(2801.48f, 7051.379f, 5.362913f, 4.73481f);
-                    break;
-                case NPC_KVALDIR_CREWMAN_4:
-                    pos.Relocate(2803.319f, 7051.411f, 5.362913f, 4.73481f);
-                    break;
-            }
-        }
-    }
-};
-
 enum ShorteningBlaster
 {
     SPELL_SHORTENING_BLASTER_BIGGER1    = 45674,
@@ -1954,7 +1915,6 @@ void AddSC_borean_tundra()
     new spell_windsoul_totem_aura();
     new spell_q11719_bloodspore_ruination_45997();
     new npc_bloodmage_laurith();
-    new npc_orabus_the_helmsman_ship_exit_pos();
     RegisterSpellScript(spell_q11653_shortening_blaster);
     RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest);
     RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest_dummy);

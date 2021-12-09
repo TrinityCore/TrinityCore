@@ -2266,7 +2266,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     bool canDodge = victim->GetTypeId() != TYPEID_PLAYER || canParryOrBlock;
 
     // if victim is casting or cc'd it can't avoid attacks
-    if (victim->IsNonMeleeSpellCast(false) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
+    if (victim->IsNonMeleeSpellCast(false, false, true) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
     {
         canDodge = false;
         canParryOrBlock = false;
@@ -2554,7 +2554,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     bool canBlock = spellInfo->HasAttribute(SPELL_ATTR3_BLOCKABLE_SPELL);
 
     // if victim is casting or cc'd it can't avoid attacks
-    if (victim->IsNonMeleeSpellCast(false) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
+    if (victim->IsNonMeleeSpellCast(false, false, true) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
     {
         canDodge = false;
         canParry = false;
@@ -11685,7 +11685,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     }
 
     CastStop();
-    CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
+    AttackStop();
 
     Player* playerCharmer = charmer->ToPlayer();
 
@@ -11746,7 +11746,13 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     // charm is set by aura, and aura effect remove handler was called during apply handler execution
     // prevent undefined behaviour
     if (aurApp && aurApp->GetRemoveMode())
+    {
+        // properly clean up charm changes up to this point to avoid leaving the unit in partially charmed state
+        SetFaction(_oldFactionId);
+        GetMotionMaster()->InitializeDefault();
+        charmer->SetCharm(this, false);
         return false;
+    }
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if (type != CHARM_TYPE_VEHICLE && !GetCharmInfo())
@@ -11843,7 +11849,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         type = CHARM_TYPE_CHARM;
 
     CastStop();
-    CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
+    AttackStop();
 
     if (_oldFactionId)
     {
@@ -11864,6 +11870,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     ASSERT(type != CHARM_TYPE_VEHICLE || (GetTypeId() == TYPEID_UNIT && IsVehicle()));
 
     charmer->SetCharm(this, false);
+    m_combatManager.RevalidateCombat();
 
     Player* playerCharmer = charmer->ToPlayer();
     if (playerCharmer)
@@ -12897,9 +12904,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         // Set exit position to vehicle position and use the current orientation
         pos = vehicle->GetBase()->GetPosition();
         pos.SetOrientation(GetOrientation());
-
-        // To-do: snap this hook out of existance
-        sScriptMgr->ModifyVehiclePassengerExitPos(this, vehicle, pos);
 
         // Change exit position based on seat entry addon data
         if (seatAddon)
