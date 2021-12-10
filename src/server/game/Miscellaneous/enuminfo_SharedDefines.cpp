@@ -254,7 +254,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr1>::ToString(SpellAttr1 value)
         case SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR: return { "SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR", "Hide in aura bar (client only)", "" };
         case SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME: return { "SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME", "Show spell name during channel (client only)", "" };
         case SPELL_ATTR1_ENABLE_AT_DODGE: return { "SPELL_ATTR1_ENABLE_AT_DODGE", "Enable at dodge", "" };
-        case SPELL_ATTR1_UNK31: return { "SPELL_ATTR1_UNK31", "Unknown attribute 31@Attr1", "" };
+        case SPELL_ATTR1_CAST_WHEN_LEARNED: return { "SPELL_ATTR1_CAST_WHEN_LEARNED", "Cast When Learned", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -298,7 +298,7 @@ TC_API_EXPORT SpellAttr1 EnumUtils<SpellAttr1>::FromIndex(size_t index)
         case 28: return SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR;
         case 29: return SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME;
         case 30: return SPELL_ATTR1_ENABLE_AT_DODGE;
-        case 31: return SPELL_ATTR1_UNK31;
+        case 31: return SPELL_ATTR1_CAST_WHEN_LEARNED;
         default: throw std::out_of_range("index");
     }
 }

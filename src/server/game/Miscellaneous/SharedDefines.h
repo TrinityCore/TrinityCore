@@ -465,7 +465,7 @@ enum SpellAttr1 : uint32
     SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR         = 0x10000000, // TITLE Hide in aura bar (client only)
     SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME       = 0x20000000, // TITLE Show spell name during channel (client only)
     SPELL_ATTR1_ENABLE_AT_DODGE                  = 0x40000000, // TITLE Enable at dodge
-    SPELL_ATTR1_UNK31                            = 0x80000000  // TITLE Unknown attribute 31@Attr1
+    SPELL_ATTR1_CAST_WHEN_LEARNED                = 0x80000000  // TITLE Cast When Learned
 };
 
 // EnumUtils: DESCRIBE THIS
