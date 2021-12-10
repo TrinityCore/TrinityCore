@@ -21,7 +21,6 @@
 #include "BattlePetPackets.h"
 #include "DatabaseEnvFwd.h"
 #include "EnumFlag.h"
-#include "Util.h"
 #include <unordered_map>
 
 struct BattlePetSpeciesEntry;
@@ -157,7 +156,7 @@ public:
     bool HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
     uint32 GetPetUniqueSpeciesCount() const;
 
-    WorldPackets::BattlePet::BattlePetSlot* GetSlot(BattlePetSlot slot) { return slot < BattlePetSlot::Count ? &_slots[AsUnderlyingType(slot)] : nullptr; }
+    WorldPackets::BattlePet::BattlePetSlot* GetSlot(BattlePetSlot slot) { return slot < BattlePetSlot::Count ? &_slots[size_t(slot)] : nullptr; }
     void UnlockSlot(BattlePetSlot slot);
 
     WorldSession* GetOwner() const { return _owner; }
