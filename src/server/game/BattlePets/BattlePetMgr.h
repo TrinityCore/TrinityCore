@@ -34,7 +34,7 @@ enum BattlePetMisc
 
     SPELL_BATTLE_PET_TRAINING           = 125610,
     SPELL_REVIVE_BATTLE_PETS            = 125439,
-    SPELL_SUMMON_BATTLE_PET             = 118301,
+    SPELL_SUMMON_BATTLE_PET             = 118301
 };
 
 enum class BattlePetBreedQuality : uint8
