@@ -29,8 +29,7 @@ namespace Trainer
 {
     bool Spell::IsCastable() const
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SpellId, DIFFICULTY_NONE);
-        return spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) || spellInfo->HasEffect(SPELL_EFFECT_ENABLE_BATTLE_PETS);
+        return sSpellMgr->AssertSpellInfo(SpellId, DIFFICULTY_NONE)->HasEffect(SPELL_EFFECT_LEARN_SPELL);
     }
 
     Trainer::Trainer(uint32 id, Type type, std::string greeting, std::vector<Spell> spells) : _id(id), _type(type), _spells(std::move(spells))

@@ -5502,10 +5502,6 @@ void Spell::EffectEnableBattlePets()
         return;
 
     Player* player = unitTarget->ToPlayer();
-    player->LearnSpell(SPELL_BATTLE_PET_TRAINING_PASSIVE, false);
-    player->LearnSpell(SPELL_TRACK_PETS, false);
-    player->LearnSpell(SPELL_REVIVE_BATTLE_PETS, false);
-    player->LearnSpell(SPELL_BATTLE_PET_TRAINING, false);
     player->AddPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
     player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePetSlot::Slot0);
 }
