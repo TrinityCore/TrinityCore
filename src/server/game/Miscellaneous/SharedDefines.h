@@ -420,7 +420,7 @@ enum SpellAttr1
     SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR         = 0x10000000, // 28 client doesn't display these spells in aura bar
     SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME       = 0x20000000, // 29 spell name is displayed in cast bar instead of 'channeling' text
     SPELL_ATTR1_ENABLE_AT_DODGE                  = 0x40000000, // 30 Overpower
-    SPELL_ATTR1_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR1_CAST_WHEN_LEARNED                = 0x80000000  // 31 Cast When Learned
 };
 
 enum SpellAttr2
