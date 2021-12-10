@@ -27,11 +27,13 @@ struct BattlePetSpeciesEntry;
 
 enum BattlePetMisc
 {
-    MAX_PET_BATTLE_SLOTS                = 3,
     DEFAULT_MAX_BATTLE_PETS_PER_SPECIES = 3,
     BATTLE_PET_CAGE_ITEM_ID             = 82800,
-    DEFAULT_SUMMON_BATTLE_PET_SPELL     = 118301,
-    SPELL_VISUAL_UNCAGE_PET             = 222
+    SPELL_VISUAL_UNCAGE_PET             = 222,
+
+    SPELL_BATTLE_PET_TRAINING           = 125610,
+    SPELL_REVIVE_BATTLE_PETS            = 125439,
+    SPELL_SUMMON_BATTLE_PET             = 118301
 };
 
 enum class BattlePetBreedQuality : uint8
@@ -67,6 +69,15 @@ enum class BattlePetError : uint8
     CantHaveMorePetsOfType = 3, // You can't have any more pets of that type.
     CantHaveMorePets       = 4, // You can't have any more pets.
     TooHighLevelToUncage   = 7  // This pet is too high level for you to uncage.
+};
+
+enum class BattlePetSlot : uint8
+{
+    Slot0 = 0,
+    Slot1 = 1,
+    Slot2 = 2,
+
+    Count
 };
 
 // 6.2.4
@@ -145,8 +156,8 @@ public:
     bool HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
     uint32 GetPetUniqueSpeciesCount() const;
 
-    WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return slot < _slots.size() ? &_slots[slot] : nullptr; }
-    void UnlockSlot(uint8 slot);
+    WorldPackets::BattlePet::BattlePetSlot* GetSlot(BattlePetSlot slot) { return slot < BattlePetSlot::Count ? &_slots[size_t(slot)] : nullptr; }
+    void UnlockSlot(BattlePetSlot slot);
 
     WorldSession* GetOwner() const { return _owner; }
 
@@ -168,6 +179,8 @@ public:
     bool IsJournalLockAcquired() const;
     bool HasJournalLock() const { return _hasJournalLock; }
     void ToggleJournalLock(bool lock) { _hasJournalLock = lock; }
+
+    bool IsBattlePetSystemEnabled() { return GetSlot(BattlePetSlot::Slot0)->Locked != true; }
 
 private:
     WorldSession* _owner;

@@ -27,6 +27,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Realm.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -201,7 +202,7 @@ uint32 BattlePetMgr::SelectPetDisplay(BattlePetSpeciesEntry const* speciesEntry)
 BattlePetMgr::BattlePetMgr(WorldSession* owner)
 {
     _owner = owner;
-    for (uint8 i = 0; i < MAX_PET_BATTLE_SLOTS; ++i)
+    for (uint8 i = 0; i < AsUnderlyingType(BattlePetSlot::Count); ++i)
     {
         WorldPackets::BattlePet::BattlePetSlot slot;
         slot.Index = i;
@@ -558,15 +559,19 @@ uint32 BattlePetMgr::GetPetUniqueSpeciesCount() const
     return speciesIds.size();
 }
 
-void BattlePetMgr::UnlockSlot(uint8 slot)
+void BattlePetMgr::UnlockSlot(BattlePetSlot slot)
 {
-    if (!_slots[slot].Locked)
+    if (slot >= BattlePetSlot::Count)
         return;
 
-    _slots[slot].Locked = false;
+    uint8 slotIndex = AsUnderlyingType(slot);
+    if (!_slots[slotIndex].Locked)
+        return;
+
+    _slots[slotIndex].Locked = false;
 
     WorldPackets::BattlePet::PetBattleSlotUpdates updates;
-    updates.Slots.push_back(_slots[slot]);
+    updates.Slots.push_back(_slots[slotIndex]);
     updates.AutoSlotted = false; // what's this?
     updates.NewSlot = true; // causes the "new slot unlocked" bubble to appear
     _owner->SendPacket(updates.Write());
@@ -654,11 +659,11 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
     if (!speciesEntry)
         return;
 
-    // TODO: set proper CreatureID for spell DEFAULT_SUMMON_BATTLE_PET_SPELL (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
+    // TODO: set proper CreatureID for spell SPELL_SUMMON_BATTLE_PET (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
     Player* player = _owner->GetPlayer();
     player->SetSummonedBattlePetGUID(guid);
     player->SetCurrentBattlePetBreedQuality(pet->PacketInfo.Quality);
-    player->CastSpell(player, speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
+    player->CastSpell(player, speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(SPELL_SUMMON_BATTLE_PET));
 }
 
 void BattlePetMgr::DismissPet()
