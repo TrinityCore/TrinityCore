@@ -32,11 +32,9 @@ enum BattlePetMisc
     BATTLE_PET_CAGE_ITEM_ID             = 82800,
     SPELL_VISUAL_UNCAGE_PET             = 222,
 
-    SPELL_BATTLE_PET_TRAINING_PASSIVE   = 119467,
     SPELL_BATTLE_PET_TRAINING           = 125610,
     SPELL_REVIVE_BATTLE_PETS            = 125439,
-    SPELL_SUMMON_BATTLE_PET             = 118301,
-    SPELL_TRACK_PETS                    = 122026
+    SPELL_SUMMON_BATTLE_PET             = 118301
 };
 
 static constexpr Seconds REVIVE_BATTLE_PETS_COOLDOWN = 180s;
