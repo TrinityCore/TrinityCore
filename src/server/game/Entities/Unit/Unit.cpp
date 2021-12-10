@@ -8864,6 +8864,10 @@ void Unit::setDeathState(DeathState s)
         // players in instance don't have ZoneScript, but they have InstanceScript
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
             zoneScript->OnUnitDeath(this);
+
+        // @tswow-begin
+        m_tsWorldEntity.m_timers.remove_on_death();
+        // @tswow-end
     }
     else if (s == JUST_RESPAWNED)
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
