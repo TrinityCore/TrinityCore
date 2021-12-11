@@ -518,6 +518,14 @@ namespace WorldPackets
 
             BattlegroundCapturePointInfo CapturePointInfo;
         };
+
+        class BattlemasterJoinArenaSkirmish final : public ClientPacket
+        {
+        public:
+            BattlemasterJoinArenaSkirmish(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_SKIRMISH, std::move(packet)) { }
+
+            void Read() override;
+        };
     }
 }
 

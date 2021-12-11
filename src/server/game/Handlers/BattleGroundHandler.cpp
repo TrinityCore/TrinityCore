@@ -601,6 +601,140 @@ void WorldSession::HandleRequestRatedPvpInfo(WorldPackets::Battleground::Request
     SendPacket(ratedPvpInfo.Write());
 }
 
+void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPackets::Battleground::BattlemasterJoinArenaSkirmish& /*packet*/)
+{
+    bool isPremade = false;
+    Group* grp = nullptr;
+    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
+    if (!bg)
+    {
+        TC_LOG_ERROR("network", "Battleground: template bg (all arenas) not found");
+        return;
+    }
+
+    if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_AA, nullptr))
+    {
+        ChatHandler(this).PSendSysMessage(LANG_BG_DISABLED);
+        return;
+    }
+
+    uint32 arenaType = ARENA_TYPE_2v2;
+    if (grp && grp->GetMembersCount() >= 5)
+        arenaType = ARENA_TYPE_5v5;
+    else if (grp && grp->GetMembersCount() >= 3)
+        arenaType = ARENA_TYPE_3v3;
+
+    BattlegroundTypeId bgTypeId = BattlegroundTypeId(BATTLEGROUND_AA);
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, BattlegroundQueueIdType::Arena, true, arenaType);
+
+    // ignore if player is already in BG
+    if (_player->InBattleground())
+        return;
+
+    // expected bracket entry
+    PVPDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
+    if (!bracketEntry)
+        return;
+
+    GroupJoinBattlegroundResult err = ERR_BATTLEGROUND_NONE;
+    grp = _player->GetGroup();
+
+
+    // check queue conditions
+    if (!grp)
+    {
+        if (GetPlayer()->isUsingLfg())
+        {
+            WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;
+            sBattlegroundMgr->BuildBattlegroundStatusFailed(&battlefieldStatus, bgQueueTypeId, _player, 0, ERR_LFG_CANT_USE_BATTLEGROUND);
+            SendPacket(battlefieldStatus.Write());
+            return;
+        }
+
+        // check Deserter debuff
+        if (!_player->CanJoinToBattleground(bg))
+        {
+            WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;
+            sBattlegroundMgr->BuildBattlegroundStatusFailed(&battlefieldStatus, bgQueueTypeId, _player, 0, ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS);
+            SendPacket(battlefieldStatus.Write());
+            return;
+        }
+
+        // check if already in queue
+        if (_player->GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+            // player is already in this queue
+            return;
+
+        // check if has free queue slots
+        if (!_player->HasFreeBattlegroundQueueId())
+        {
+            WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;
+            sBattlegroundMgr->BuildBattlegroundStatusFailed(&battlefieldStatus, bgQueueTypeId, _player, 0, ERR_BATTLEGROUND_TOO_MANY_QUEUES);
+            SendPacket(battlefieldStatus.Write());
+            return;
+        }
+
+        // check Freeze debuff
+        if (_player->HasAura(9454))
+            return;
+
+        BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+        GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, nullptr, bracketEntry, arenaType, false, isPremade, 0);
+
+        uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
+        uint32 queueSlot = _player->AddBattlegroundQueueId(bgQueueTypeId);
+
+        WorldPackets::Battleground::BattlefieldStatusQueued battlefieldStatus;
+        sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, bg, _player, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, arenaType, true);
+        SendPacket(battlefieldStatus.Write());
+    }
+    else
+    {
+        if (grp->GetLeaderGUID() != _player->GetGUID())
+            return;
+
+        ObjectGuid errorGuid;
+        err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, arenaType, bg->GetMaxPlayersPerTeam(), false, 0, errorGuid);
+        isPremade = (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
+
+        BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+        GroupQueueInfo* ginfo = nullptr;
+        uint32 avgTime = 0;
+
+        if (!err)
+        {
+            TC_LOG_DEBUG("bg.battleground", "Battleground: the following players are joining as group:");
+            ginfo = bgQueue.AddGroup(_player, grp, bracketEntry, arenaType, false, isPremade, 0);
+            avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
+        }
+
+        for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+        {
+            Player* member = itr->GetSource();
+            if (!member)
+                continue;   // this should never happen
+
+            if (err)
+            {
+                WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;
+                sBattlegroundMgr->BuildBattlegroundStatusFailed(&battlefieldStatus, bgQueueTypeId, _player, 0, err, &errorGuid);
+                member->SendDirectMessage(battlefieldStatus.Write());
+                continue;
+            }
+
+            // add to queue
+            uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
+
+            WorldPackets::Battleground::BattlefieldStatusQueued battlefieldStatus;
+            sBattlegroundMgr->BuildBattlegroundStatusQueued(&battlefieldStatus, bg, member, queueSlot, ginfo->JoinTime, bgQueueTypeId, avgTime, arenaType, true);
+            member->SendDirectMessage(battlefieldStatus.Write());
+        }
+        TC_LOG_DEBUG("bg.battleground", "Battleground: group end");
+    }
+
+    sBattlegroundMgr->ScheduleQueueUpdate(0, bgQueueTypeId, bracketEntry->GetBracketId());
+}
+
 void WorldSession::HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& /*getPvPOptionsEnabled*/)
 {
     // This packet is completely irrelevant, it triggers PVP_TYPES_ENABLED lua event but that is not handled in interface code as of 6.1.2
@@ -608,7 +742,7 @@ void WorldSession::HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVP
     pvpOptionsEnabled.WargameArenas = false;
     pvpOptionsEnabled.RatedArenas = false;
     pvpOptionsEnabled.WargameBattlegrounds = false;
-    pvpOptionsEnabled.ArenaSkirmish = false;
+    pvpOptionsEnabled.ArenaSkirmish = true;
     pvpOptionsEnabled.PugBattlegrounds = true;
     pvpOptionsEnabled.RatedBattlegrounds = false;
     SendPacket(pvpOptionsEnabled.Write());
