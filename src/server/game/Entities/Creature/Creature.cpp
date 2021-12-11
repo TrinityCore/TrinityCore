@@ -306,7 +306,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
     m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), _lastDamagedTime(0),
-    _regenerateHealth(true), _regenerateHealthLock(false)
+    _regenerateHealth(true), _regenerateHealthLock(false), _sparringHealthPct(0)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
 
@@ -674,6 +674,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     InitializeMovementFlags();
 
     LoadCreaturesAddon();
+    LoadCreaturesSparringHealth();
     LoadTemplateImmunities();
 
     GetThreatManager().EvaluateSuppressed();
@@ -1117,6 +1118,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
     }
 
     LoadCreaturesAddon();
+    LoadCreaturesSparringHealth();
 
     //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
     m_positionZ += GetHoverOffset();
@@ -1653,6 +1655,27 @@ float Creature::GetSpellDamageMod(int32 Rank) const
     }
 }
 
+uint32 Creature::CalculateDamageForSparring(Unit* attacker, uint32 damage)
+{
+    if (GetSparringHealthPct() == 0)
+        return damage;
+
+    if (!attacker->IsCreature() || attacker->IsCharmedOwnedByPlayerOrPlayer())
+        return damage;
+
+    if (GetHealthPct() <= GetSparringHealthPct())
+        return 0;
+
+    uint32 sparringHealth = GetMaxHealth() * GetSparringHealthPct() / 100;
+    if (GetHealth() - damage <= sparringHealth)
+        return GetHealth() - sparringHealth;
+
+    if (damage >= GetHealth())
+        return GetHealth() - 1;
+
+    return damage;
+}
+
 bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     SetZoneScript();
@@ -2159,6 +2182,7 @@ void Creature::setDeathState(DeathState s)
         Motion_Initialize();
         Unit::setDeathState(ALIVE);
         LoadCreaturesAddon();
+        LoadCreaturesSparringHealth();
     }
 }
 
@@ -2701,6 +2725,14 @@ bool Creature::LoadCreaturesAddon()
     }
 
     return true;
+}
+
+void Creature::LoadCreaturesSparringHealth()
+{
+    if (!_overridingSparringHealthPctValues.empty())
+        _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(_overridingSparringHealthPctValues);
+    else if (std::vector<float> const* templateValues = sObjectMgr->GetCreatureTemplateSparringValues(GetCreatureTemplate()->Entry))
+        _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(*templateValues);
 }
 
 /// Send a message to LocalDefense channel for players opposition team in the zone

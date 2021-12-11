@@ -110,6 +110,7 @@ DB2Storage<ContentTuningEntry>                  sContentTuningStore("ContentTuni
 DB2Storage<ContentTuningXExpectedEntry>         sContentTuningXExpectedStore("ContentTuningXExpected.db2", ContentTuningXExpectedLoadInfo::Instance());
 DB2Storage<ConversationLineEntry>               sConversationLineStore("ConversationLine.db2", ConversationLineLoadInfo::Instance());
 DB2Storage<CorruptionEffectsEntry>              sCorruptionEffectsStore("CorruptionEffects.db2", CorruptionEffectsLoadInfo::Instance());
+DB2Storage<CreatureDifficultyEntry>             sCreatureDifficultyStore("CreatureDifficulty.db2", CreatureDifficultyLoadInfo::Instance());
 DB2Storage<CreatureDisplayInfoEntry>            sCreatureDisplayInfoStore("CreatureDisplayInfo.db2", CreatureDisplayInfoLoadInfo::Instance());
 DB2Storage<CreatureDisplayInfoExtraEntry>       sCreatureDisplayInfoExtraStore("CreatureDisplayInfoExtra.db2", CreatureDisplayInfoExtraLoadInfo::Instance());
 DB2Storage<CreatureFamilyEntry>                 sCreatureFamilyStore("CreatureFamily.db2", CreatureFamilyLoadInfo::Instance());
@@ -424,6 +425,7 @@ namespace
     std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
     std::unordered_map<std::pair<uint32 /*itemId*/, ItemContext>, AzeriteUnlockMappingEntry const*> _azeriteUnlockMappings;
     std::unordered_map<std::pair<int32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
+    std::unordered_map<uint32 /*creatureId*/, CreatureDifficultyEntry const*> _creatureDifficulties;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
@@ -682,6 +684,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sContentTuningXExpectedStore);
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCorruptionEffectsStore);
+    LOAD_DB2(sCreatureDifficultyStore);
     LOAD_DB2(sCreatureDisplayInfoStore);
     LOAD_DB2(sCreatureDisplayInfoExtraStore);
     LOAD_DB2(sCreatureFamilyStore);
@@ -1006,6 +1009,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (BroadcastTextDurationEntry const* broadcastTextDuration : sBroadcastTextDurationStore)
         _broadcastTextDurations[{ broadcastTextDuration->BroadcastTextID, CascLocaleBit(broadcastTextDuration->Locale) }] = broadcastTextDuration->Duration;
+
+    for (CreatureDifficultyEntry const* creatureDifficulty : sCreatureDifficultyStore)
+        _creatureDifficulties[creatureDifficulty->CreatureID] = creatureDifficulty;
 
     for (ChrClassUIDisplayEntry const* uiDisplay : sChrClassUIDisplayStore)
     {
@@ -1910,6 +1916,11 @@ ChrClassUIDisplayEntry const* DB2Manager::GetUiDisplayForClass(Classes unitClass
 {
     ASSERT(unitClass < MAX_CLASSES);
     return _uiDisplayByClass[unitClass];
+}
+
+CreatureDifficultyEntry const* DB2Manager::GetCreatureDifficulty(uint32 creatureId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_creatureDifficulties, creatureId);
 }
 
 char const* DB2Manager::GetClassName(uint8 class_, LocaleConstant locale /*= DEFAULT_LOCALE*/)

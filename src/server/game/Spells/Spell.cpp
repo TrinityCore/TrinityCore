@@ -2550,6 +2550,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit);
             Unit::DealDamageMods(damageInfo.attacker, damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
+            // sparring
+            if (Creature* victimCreature = damageInfo.target->ToCreature())
+                damageInfo.damage = victimCreature->CalculateDamageForSparring(damageInfo.attacker, damageInfo.damage);
+
             hitMask |= createProcHitMask(&damageInfo, MissCondition);
             procVictim |= PROC_FLAG_TAKEN_DAMAGE;
 
