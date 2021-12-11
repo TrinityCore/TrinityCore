@@ -490,6 +490,34 @@ namespace WorldPackets
             WorldPackets::Duration<Seconds> Duration;
             Optional<PVPMatchStatistics> LogData;
         };
+
+        enum class BattlegroundCapturePointState : uint8
+        {
+            Neutral = 1,
+            ContestedHorde = 2,
+            ContestedAlliance = 3,
+            HordeCaptured = 4,
+            AllianceCaptured = 5
+        };
+
+        struct BattlegroundCapturePointInfo
+        {
+            ObjectGuid Guid;
+            TaggedPosition<Position::XY> Pos;
+            BattlegroundCapturePointState State = BattlegroundCapturePointState::Neutral;
+            Timestamp<> CaptureTime;
+            Duration<Milliseconds, uint32> CaptureTotalDuration;
+        };
+
+        class UpdateCapturePoint final : public ServerPacket
+        {
+        public:
+            UpdateCapturePoint() : ServerPacket(SMSG_UPDATE_CAPTURE_POINT) { }
+
+            WorldPacket const* Write() override;
+
+            BattlegroundCapturePointInfo CapturePointInfo;
+        };
     }
 }
 
