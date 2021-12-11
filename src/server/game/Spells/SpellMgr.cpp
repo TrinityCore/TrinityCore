@@ -3345,6 +3345,22 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // Some spells have no amplitude set
     {
+        ApplySpellFix({23334}, [](SpellInfo* spellInfo) // New Drop Flag Horde (Silverwing && Warsong Flags)
+        {
+            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+            {
+                spellEffectInfo->MiscValue = 227744; // Fallen Combatant
+            });
+        });
+	    
+        ApplySpellFix({23336}, [](SpellInfo* spellInfo) // New Drop Flag Alliance (Silverwing && Warsong Flags)
+        {
+            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+            {
+                spellEffectInfo->MiscValue = 227745; // Fallen Combatant
+            });
+        });
+
         ApplySpellFix({
             6727,  // Poison Mushroom
             7331,  // Healing Aura (TEST) (Rank 1)

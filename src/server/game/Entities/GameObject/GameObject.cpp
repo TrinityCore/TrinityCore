@@ -2212,6 +2212,44 @@ void GameObject::Use(Unit* user)
             spellId = info->newflag.pickupSpell;
             break;
         }
+        case GAMEOBJECT_TYPE_NEW_FLAG_DROP:              /// 37
+        {
+            if (user->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player* player = user->ToPlayer();
+
+            if (player->CanUseBattlegroundObject(this))
+            {
+                // in battleground check
+                Battleground* bg = player->GetBattleground();
+                if (!bg)
+                    return;
+
+                if (player->GetVehicle())
+                    return;
+
+                player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+
+                GameObjectTemplate const* info = GetGOInfo();
+                if (info)
+                {
+                    switch (info->entry)
+                    {
+                        case 227745:                        // Silverwing Flag
+                        case 227744:                        // Warsong Flag
+                            if (bg->GetTypeID(true) == BATTLEGROUND_WS)
+                                bg->EventPlayerClickedOnFlag(player, this);
+                            break;
+                    }
+                }
+                //this cause to call return, all flags must be deleted here!!
+                spellId = 0;
+                Delete();
+            }
+            break;
+        }
         case GAMEOBJECT_TYPE_ITEM_FORGE:
         {
             GameObjectTemplate const* info = GetGOInfo();

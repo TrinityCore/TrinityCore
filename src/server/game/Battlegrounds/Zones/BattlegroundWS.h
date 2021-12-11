@@ -60,10 +60,10 @@ enum BG_WS_Sound
 
 enum BG_WS_SpellId
 {
-    BG_WS_SPELL_WARSONG_FLAG            = 23333,
+    BG_WS_SPELL_WARSONG_FLAG            = 156618,   // horde flag
     BG_WS_SPELL_WARSONG_FLAG_DROPPED    = 23334,
     BG_WS_SPELL_WARSONG_FLAG_PICKED     = 61266,    // fake spell, does not exist but used as timer start event
-    BG_WS_SPELL_SILVERWING_FLAG         = 23335,
+    BG_WS_SPELL_SILVERWING_FLAG         = 156621,   // alliance flag
     BG_WS_SPELL_SILVERWING_FLAG_DROPPED = 23336,
     BG_WS_SPELL_SILVERWING_FLAG_PICKED  = 61265,    // fake spell, does not exist but used as timer start event
     BG_WS_SPELL_FOCUSED_ASSAULT         = 46392,
@@ -119,10 +119,10 @@ enum BG_WS_ObjectEntry
     BG_OBJECT_DOOR_H_2_WS_ENTRY          = 179917,
     BG_OBJECT_DOOR_H_3_WS_ENTRY          = 180322,
     BG_OBJECT_DOOR_H_4_WS_ENTRY          = 180322,
-    BG_OBJECT_A_FLAG_WS_ENTRY            = 179830,
-    BG_OBJECT_H_FLAG_WS_ENTRY            = 179831,
-    BG_OBJECT_A_FLAG_GROUND_WS_ENTRY     = 179785,
-    BG_OBJECT_H_FLAG_GROUND_WS_ENTRY     = 179786
+    BG_OBJECT_A_FLAG_WS_ENTRY            = 227741,
+    BG_OBJECT_H_FLAG_WS_ENTRY            = 227740,
+    BG_OBJECT_A_FLAG_GROUND_WS_ENTRY     = 227745,
+    BG_OBJECT_H_FLAG_GROUND_WS_ENTRY     = 227744
 };
 
 enum BG_WS_FlagState

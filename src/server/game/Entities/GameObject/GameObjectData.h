@@ -882,12 +882,12 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune != 0;
-            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune != 0;
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune != 0;
-            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune != 0;
-            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagStand.noDamageImmune != 0;
-            case GAMEOBJECT_TYPE_FLAGDROP:   return flagDrop.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_DOOR:          return door.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_BUTTON:        return button.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_GOOBER:        return goober.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:     return flagStand.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:      return flagDrop.noDamageImmune != 0;
             default: return true;
         }
     }

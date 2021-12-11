@@ -6017,7 +6017,7 @@ enum BattlegroundTypeId : uint32
 {
     BATTLEGROUND_TYPE_NONE      = 0,        // None
     BATTLEGROUND_AV             = 1,        // Alterac Valley
-    BATTLEGROUND_WS             = 2,        // Warsong Gulch
+    BATTLEGROUND_WS_CLASSIC     = 2,        // Warsong Gulch
     BATTLEGROUND_AB             = 3,        // Arathi Basin
     BATTLEGROUND_NA             = 4,        // Nagrand Arena
     BATTLEGROUND_BE             = 5,        // Blade's Edge Arena
@@ -6095,7 +6095,7 @@ enum BattlegroundTypeId : uint32
     BATTLEGROUND_RL3            = 911,      // Ruins of Lordaeron
     BATTLEGROUND_TVA3           = 912,      // Tol'Viron Arena
     BATTLEGROUND_BRHA3          = 913,      // Black Rook Hold Arena
-    BATTLEGROUND_WG_CTF         = 1014,     // Warsong Gulch Capture the Flag
+    BATTLEGROUND_WS             = 1014,     // Warsong Gulch Capture the Flag
     BATTLEGROUND_EB_BW          = 1017,     // Epic Battleground - Battle for Wintergrasp
     BATTLEGROUND_DOM_AB         = 1018,     // Domination - Arathi Basin
     BATTLEGROUND_AB_CS          = 1019,     // Arathi Basin Comp Stomp
