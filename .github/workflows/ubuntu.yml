@@ -2,13 +2,17 @@ name: Ubuntu build
 
 on: [push]
 
+concurrency:
+  group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
+  cancel-in-progress: true
+
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   REPO_DIR : ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/bin/builddir
-  BOOST_PLATFORM_VERSION: "18.04"
-  BOOST_VERSION: "1.73.0"
+  BOOST_PLATFORM_VERSION: "20.04"
+  BOOST_VERSION: "1.71.0"
   BOOST_INSTALL_DIR: "${{github.workspace}}/bin"
 
 jobs:
@@ -29,6 +33,7 @@ jobs:
 
       - name: Create Build Environment
         run: |
+          sudo apt-get install openssl
           echo "BOOST_ROOT=${{env.BOOST_INSTALL_DIR}}/boost/boost-${{env.BOOST_VERSION}}-linux-${{env.BOOST_PLATFORM_VERSION}}-gcc-x64" >> $GITHUB_ENV
           echo "GITHUB_SHORT_REV=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "ARCHIVE_FILENAME=${{ github.event.repository.name }}-$(git rev-parse --short HEAD).zip" >> $GITHUB_ENV
@@ -46,7 +51,7 @@ jobs:
 
       - if: steps.cache-boost.outputs.cache-hit != 'true'
         name: Install boost
-        uses: MarkusJx/install-boost@v1.0.1
+        uses: MarkusJx/install-boost@v2.0.0
         id: install-boost
         with:
           # REQUIRED: Specify the required boost version
