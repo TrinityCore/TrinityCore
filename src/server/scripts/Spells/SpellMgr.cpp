@@ -4556,22 +4556,15 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Summon Ravenous Worgen
     // Serverside dummy target so we have to change to spell_target_position
     ApplySpellFix({ 66925, 66836 }, [](SpellInfo* spellInfo)
-        {
-            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-                {
-
-                    spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-                });
-        });
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+    });
 
     // Pull-to
     ApplySpellFix({ 67357 }, [](SpellInfo* spellInfo)
-        {
-            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-                {
-                    spellEffectInfo->MiscValue = 150;
-                });
-        });
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MiscValue = 150;
+    });
     /// Gilneas END ///
 
     //
