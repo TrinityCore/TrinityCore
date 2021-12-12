@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
+#include "DB2Structure.h"
 #include "Errors.h"
 #include "Language.h"
 #include "Log.h"
@@ -158,6 +159,28 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
+void CreatureAI::JustAppeared()
+{
+    // Filter which type of summons apply the following follow handling
+    if (!me->IsSummon())
+        return;
+
+    // Summons without SummonProperties are generally scripted summons that don't belong to any owner
+    TempSummon* summon = me->ToTempSummon();
+    if (!summon->m_Properties || (summon->m_Properties->Control != SUMMON_CATEGORY_UNK && summon->m_Properties->Control != SUMMON_CATEGORY_PET))
+        return;
+
+    // Not applied to vehicles
+    if (summon->GetVehicle())
+        return;
+
+    if (Unit* owner = summon->GetCharmerOrOwner())
+    {
+        summon->GetMotionMaster()->Clear();
+        summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+    }
+}
+
 void CreatureAI::EnterEvadeMode(EvadeReason why)
 {
     if (!_EnterEvadeMode(why))
@@ -215,19 +238,15 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 
     me->RemoveAurasOnEvade();
 
-    // sometimes bosses stuck in combat?
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
+    me->GetThreatManager().NotifyDisengaged();
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
     me->DoNotReacquireTarget();
 
-    if (me->IsInEvadeMode())
-        return false;
-
-    return true;
+    return !me->IsInEvadeMode();
 }
 
 Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player* /*player*/)

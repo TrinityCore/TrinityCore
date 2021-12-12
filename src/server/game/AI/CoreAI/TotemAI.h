@@ -31,6 +31,7 @@ class TC_GAME_API TotemAI : public CreatureAI
 
         void MoveInLineOfSight(Unit* who) override;
         void AttackStart(Unit* victim) override;
+        void JustAppeared() override { }
         void EnterEvadeMode(EvadeReason /*why*/) override;
 
         void UpdateAI(uint32 diff) override;

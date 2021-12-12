@@ -43,11 +43,6 @@ class SpellInfo;
  *  - Both owner and victim are valid units, which are currently in the world. Neither can be nullptr.                                                  *
  *  - There is an active combat reference between owner and victim.                                                                                     *
  *                                                                                                                                                      *
- * ThreatManager also keeps track of whether its owner is engaged (a boolean flag).                                                                     *
- *  - If a (non-offline) threat list entry is added to a not-yet-engaged ThreatManager, it calls JustEngagedWith on its owner's AI.                     *
- *  - The engaged state is cleared in ClearAllThreat (which is invoked on evade).                                                                       *
- *  - This flag can be accessed through the IsEngaged method. For creatures that can have a threat list, this is equal to Unit::IsEngaged.              *
- *                                                                                                                                                      *
  * Note that (threat => combat) is a strong guarantee provided in conjunction with CombatManager. Thus:                                                 *
  *  - Adding threat will also create a combat reference between the units if one doesn't exist yet (even if the owner can't have a threat list!)        *
  *  - Ending combat between two units will also delete any threat references that may exist between them.                                               *
@@ -112,7 +107,6 @@ class TC_GAME_API ThreatManager
         // returns an arbitrary non-offline victim from owner's threat list if one exists, nullptr otherwise
         Unit* GetAnyTarget() const;
 
-        bool IsEngaged() const { return _ownerEngaged; }
         // are there any entries in owner's threat list?
         bool IsThreatListEmpty(bool includeOffline = false) const;
         // is there a threat list entry on owner's threat list with victim == who?
@@ -160,6 +154,9 @@ class TC_GAME_API ThreatManager
         void ClearThreat(ThreatReference* ref);
         // Removes all targets from the threat list (will cause evade in UpdateVictim if called)
         void ClearAllThreat();
+        // THIS SHOULD ONLY BE CALLED FROM A CREATURE'S AI (typically in EnterEvadeMode)
+        // notify the unit that the AI has disengaged
+        void NotifyDisengaged();
 
         // Fixate on the passed target; this target will always be selected until the fixate is cleared
         // (if the target is not in the threat list, does nothing)
@@ -188,7 +185,6 @@ class TC_GAME_API ThreatManager
     private:
         Unit* const _owner;
         bool _ownerCanHaveThreatList;
-        bool _ownerEngaged;
 
         static const CompareThreatLessThan CompareThreat;
         static bool CompareReferencesLT(ThreatReference const* a, ThreatReference const* b, float aWeight);

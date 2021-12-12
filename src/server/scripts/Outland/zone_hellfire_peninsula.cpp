@@ -99,8 +99,8 @@ public:
                 me->SetFaction(FACTION_FRIENDLY);
                 me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->RemoveAllAuras();
-                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
+                me->GetThreatManager().NotifyDisengaged();
                 Talk(SAY_FREE);
                 return;
             }
@@ -972,8 +972,8 @@ public:
                 _events.Reset();
                 me->RestoreFaction();
                 me->RemoveAllAuras();
-                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
+                me->GetThreatManager().NotifyDisengaged();
                 me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetImmuneToPC(true);
                 Talk(SAY_DEFEATED);

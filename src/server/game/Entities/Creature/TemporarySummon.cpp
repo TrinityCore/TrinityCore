@@ -458,12 +458,3 @@ void Puppet::Update(uint32 time)
         }
     }
 }
-
-void Puppet::RemoveFromWorld()
-{
-    if (!IsInWorld())
-        return;
-
-    RemoveCharmedBy(nullptr);
-    Minion::RemoveFromWorld();
-}

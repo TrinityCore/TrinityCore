@@ -270,7 +270,6 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
         if (iter->GetSource()->IsInCombat())
         {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->GetThreatManager().ClearAllThreat();
             iter->GetSource()->AI()->EnterEvadeMode();
         }
     }

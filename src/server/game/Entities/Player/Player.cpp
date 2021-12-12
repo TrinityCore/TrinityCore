@@ -1369,8 +1369,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     SetUnitMovementFlags(GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
     m_movementInfo.ResetJump();
     DisableSpline();
-    if (!IsInFlight())
-        GetMotionMaster()->Clear();
+    GetMotionMaster()->Remove(EFFECT_MOTION_TYPE);
 
     if (Transport* transport = GetTransport())
     {
@@ -24009,7 +24008,7 @@ bool Player::IsNeverVisibleFor(WorldObject const* seer) const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (m_unitMovedByMe == obj)
+    if (GetUnitBeingMoved() == obj)
         return true;
 
     ObjectGuid guid = m_activePlayerData->FarsightObject;
@@ -24450,7 +24449,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
     SendDirectMessage(initialSetup.Write());
 
-    SetMover(this);
+    SetMovedUnit(this);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -25756,7 +25755,11 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 {
     // still affected by some aura that shouldn't allow control, only allow on last such aura to be removed
     if (allowMove && target->HasUnitState(UNIT_STATE_CANT_CLIENT_CONTROL))
+    {
+        // this should never happen, otherwise m_unitBeingMoved might be left dangling!
+        ASSERT(GetUnitBeingMoved() == target);
         return;
+    }
 
     WorldPackets::Movement::ControlUpdate data;
     data.Guid = target->GetGUID();
@@ -25767,19 +25770,7 @@ void Player::SetClientControl(Unit* target, bool allowMove)
         SetViewpoint(target, allowMove);
 
     if (allowMove)
-        SetMover(target);
-}
-
-void Player::SetMover(Unit* target)
-{
-    m_unitMovedByMe->m_playerMovingMe = nullptr;
-
-    m_unitMovedByMe = target;
-    m_unitMovedByMe->m_playerMovingMe = this;
-
-    WorldPackets::Movement::MoveSetActiveMover packet;
-    packet.MoverGUID = target->GetGUID();
-    SendDirectMessage(packet.Write());
+        SetMovedUnit(target);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
