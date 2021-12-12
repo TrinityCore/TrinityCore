@@ -33,7 +33,7 @@ jobs:
 
       - name: Create Build Environment
         run: |
-          sudo apt-get install openssl
+          sudo apt-get install libicu-dev
           echo "BOOST_ROOT=${{env.BOOST_INSTALL_DIR}}/boost/boost-${{env.BOOST_VERSION}}-linux-${{env.BOOST_PLATFORM_VERSION}}-gcc-x64" >> $GITHUB_ENV
           echo "GITHUB_SHORT_REV=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "ARCHIVE_FILENAME=${{ github.event.repository.name }}-$(git rev-parse --short HEAD).zip" >> $GITHUB_ENV
