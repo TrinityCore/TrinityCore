@@ -3026,7 +3026,7 @@ public:
         void HandleEffect(SpellEffIndex /*effIndex*/)
         {
             if (SpellInfo const* spellInfo = GetSpellInfo())
-                GetCaster()->CastSpell(GetCaster(), spellInfo->GetEffect(RAND(0, 1) == 0 ? EFFECT_1 : EFFECT_2)->BasePoints, true);
+                GetCaster()->CastSpell(GetCaster(), spellInfo->GetEffect(RAND(0, 1) == 0 ? EFFECT_1 : EFFECT_2).BasePoints, true);
         }
 
         void Register() override
