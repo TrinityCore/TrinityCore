@@ -1,5 +1,5 @@
 /*
-* This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+* Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -693,67 +693,6 @@ class npc_crowleys_horse : public CreatureScript
         }
 };
 
-enum GileanCrow
-{
-    SPELL_GILNEAN_CROW      = 93275,
-    EVENT_APPLY_HOVER_BYTES = 1,
-    EVENT_FLY_AWAY_1        = 2,
-    EVENT_FLY_AWAY_2        = 3,
-
-    POINT_NONE              = 0,
-    POINT_CROW_FLIGHT       = 1
-};
-
-struct npc_gilnean_crow : public PassiveAI
-{
-    npc_gilnean_crow(Creature* creature) : PassiveAI(creature) { }
-
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_GILNEAN_CROW)
-            _events.ScheduleEvent(EVENT_APPLY_HOVER_BYTES, 500ms);
-    }
-
-    void MovementInform(uint32 type, uint32 pointId) override
-    {
-        if (type == POINT_MOTION_TYPE && pointId == POINT_CROW_FLIGHT)
-        {
-            Position pos = me->GetRandomNearPosition(8.0f);
-            pos.m_positionZ = me->GetPositionZ() + 10.0f;
-            me->GetMotionMaster()->MovePoint(POINT_NONE, pos);
-            me->DespawnOrUnsummon(14s);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_APPLY_HOVER_BYTES:
-                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_BYTE1_FLAG_ALWAYS_STAND);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_UNK_3);
-                    _events.ScheduleEvent(EVENT_FLY_AWAY_1, 1s);
-                    break;
-                case EVENT_FLY_AWAY_1:
-                {
-                    Position pos = me->GetRandomNearPosition(7.0f);
-                    pos.m_positionZ = me->GetPositionZ() + 8.0f;
-                    me->GetMotionMaster()->MovePoint(POINT_CROW_FLIGHT, pos);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-    }
-private:
-    EventMap _events;
-};
-
 const uint32 WorgenOrCitizen[] =
 {
     34981, 35660, 35836
@@ -771,9 +710,13 @@ public:
 
         if (go->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
         {
-            player->SummonCreature(WorgenOrCitizen[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player), TEMPSUMMON_TIMED_DESPAWN, 30000);
+            if (go->GetGoState() == GO_STATE_READY)
+            {
+                go->SetGoState(GO_STATE_ACTIVE);
+                player->SummonCreature(WorgenOrCitizen[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player), TEMPSUMMON_TIMED_DESPAWN, 30000);
+            }
         }
-
+		
         return true;
     }
 };
@@ -785,6 +728,5 @@ void AddSC_gilneas_c1()
     new npc_josiah_avery();
     new npc_greymanes_horse();
     new npc_crowleys_horse();
-    RegisterCreatureAI(npc_gilnean_crow);
     new go_merchant_square_door();
 }
