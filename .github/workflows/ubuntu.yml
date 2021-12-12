@@ -1,6 +1,10 @@
 name: Ubuntu build
 
-on: [push]
+on: 
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - 'sql/**'
 
 concurrency:
   group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
