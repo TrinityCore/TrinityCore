@@ -4257,28 +4257,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->RequiredAreasID = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
     });
-    
-    /// Gilneas ///
-    // Summon Ravenous Worgen
-    // Serverside dummy target so we have to change to spell_target_position
-    ApplySpellFix({ 66925, 66836 }, [](SpellInfo* spellInfo)
-        {
-            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-                {
-
-                    spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-                });
-        });
-
-    // Pull-to
-    ApplySpellFix({ 67357 }, [](SpellInfo* spellInfo)
-        {
-            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-                {
-                    spellEffectInfo->MiscValue = 150;
-                });
-        });
-    /// Gilneas END ///
 
     // Corruption
     ApplySpellFix({ 70602 }, [](SpellInfo* spellInfo)
@@ -4573,6 +4551,21 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
         });
     });
+
+    /// Gilneas ///
+    // Summon Ravenous Worgen
+    // Serverside dummy target so we have to change to spell_target_position
+    ApplySpellFix({ 66925, 66836 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+    });
+
+    // Pull-to
+    ApplySpellFix({ 67357 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MiscValue = 150;
+    });
+    /// Gilneas END ///
 
     //
     // ISLE OF CONQUEST SPELLS
