@@ -12,7 +12,7 @@ env:
   REPO_DIR : ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/bin/builddir
   BOOST_PLATFORM_VERSION: "18.04"
-  BOOST_VERSION: "1.69.0"
+  BOOST_VERSION: "1.73.0"
   BOOST_INSTALL_DIR: "${{github.workspace}}/bin"
 
 jobs:
