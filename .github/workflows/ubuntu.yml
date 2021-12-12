@@ -11,8 +11,8 @@ env:
   BUILD_TYPE: Release
   REPO_DIR : ${{github.workspace}}
   BUILD_DIR: ${{github.workspace}}/bin/builddir
-  BOOST_PLATFORM_VERSION: "20.04"
-  BOOST_VERSION: "1.73.0"
+  BOOST_PLATFORM_VERSION: "18.04"
+  BOOST_VERSION: "1.69.0"
   BOOST_INSTALL_DIR: "${{github.workspace}}/bin"
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
        include:
-          - os: ubuntu-20.04
+          - os: ubuntu-18.04
             COMPILER_CC: gcc
             COMPILER_PP: g++
     
