@@ -430,7 +430,7 @@ class npc_eye_of_acherus : public CreatureScript
             npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayFromModel(0);
-                if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+                if (me->GetCharmInfo())
                     me->GetCharmInfo()->InitPossessCreateSpells();
 
                 DoCastSelf(SPELL_EYE_VISUAL);
