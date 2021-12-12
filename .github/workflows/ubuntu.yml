@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
        include:
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             COMPILER_CC: gcc
             COMPILER_PP: g++
     
@@ -51,7 +51,7 @@ jobs:
 
       - if: steps.cache-boost.outputs.cache-hit != 'true'
         name: Install boost
-        uses: MarkusJx/install-boost@v2.0.0
+        uses: MarkusJx/install-boost@v1.0.1
         id: install-boost
         with:
           # REQUIRED: Specify the required boost version
