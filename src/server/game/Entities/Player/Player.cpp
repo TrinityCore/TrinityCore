@@ -23655,7 +23655,7 @@ void Player::UpdateReviveBattlePetCooldown()
         }
         else
         {
-            GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, Milliseconds(REVIVE_BATTLE_PETS_COOLDOWN));
+            GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, REVIVE_BATTLE_PETS_COOLDOWN);
         }
     }
 }
