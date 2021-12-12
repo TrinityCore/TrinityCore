@@ -3090,7 +3090,7 @@ void GameObject::UpdateCapturePoint()
         SendCustomAnim(customAnim);
 
     SetSpellVisualId(spellVisualId);
-    AddDynamicFlag(GO_DYNFLAG_LO_NO_INTERACT);
+    UpdateDynamicFlagsForNearbyPlayers();
 
     if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
     {
@@ -3145,6 +3145,32 @@ public:
 private:
     GameObject* _owner;
 };
+
+void GameObject::UpdateDynamicFlagsForNearbyPlayers() const
+{
+    std::list<Player*> players;
+    Trinity::AnyPlayerInObjectRangeCheck checker(this, GetVisibilityRange());
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, players, checker);
+    Cell::VisitWorldObjects(this, searcher, GetVisibilityRange());
+
+    UF::ObjectData::Base objMask;
+    UF::GameObjectData::Base const goMask;
+    objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+
+    for (Player const* player : players)
+    {
+        if (!player->HaveAtClient(this))
+            continue;
+
+        UpdateData udata(GetMapId());
+        WorldPacket packet;
+
+        BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), player);
+
+        udata.BuildPacket(&packet);
+        player->SendDirectMessage(&packet);
+    }
+}
 
 void GameObject::CreateModel()
 {
