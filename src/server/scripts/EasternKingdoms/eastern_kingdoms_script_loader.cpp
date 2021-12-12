@@ -21,7 +21,6 @@ void AddSC_boss_balinda();
 void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
-void AddSC_gilneas_c1();
 void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_occuthar();
 void AddSC_boss_pit_lord_argaloth();
@@ -213,7 +212,6 @@ void AddEasternKingdomsScripts()
     AddSC_boss_drekthar();
     AddSC_boss_galvangar();
     AddSC_boss_vanndar();
-    AddSC_gilneas_c1();
     AddSC_boss_alizabal();                  //Baradin Hold
     AddSC_boss_occuthar();
     AddSC_boss_pit_lord_argaloth();
