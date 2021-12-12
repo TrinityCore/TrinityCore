@@ -1,1 +1,0 @@
-2020_12_28_02_world_fix_all_Professions_Trainer_boralus_and_Dazaralor.sql
