@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSEvents.h"
+// @tswow-end
 #include "GameEventMgr.h"
 #include "BattlegroundMgr.h"
 #include "CreatureAI.h"
@@ -144,6 +147,13 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 
         // When event is started, set its worldstate to current time
         sWorld->setWorldState(event_id, GameTime::GetGameTime());
+        // @tswow-begin
+        FIRE_MAP(
+            GetGameEventsEvent(event_id)
+            , GameEventOnStart
+            , event_id
+        );
+        // @tswow-end
         return false;
     }
     else
@@ -166,6 +176,14 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         // or to scedule another update where the next event will be started
         if (overwrite && conditions_met)
             sWorld->ForceGameEventUpdate();
+
+        // @tswow-begin
+        FIRE_MAP(
+            GetGameEventsEvent(event_id)
+            , GameEventOnStart
+            , event_id
+        );
+        // @tswow-end
 
         return conditions_met;
     }
@@ -212,6 +230,14 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
             CharacterDatabase.CommitTransaction(trans);
         }
     }
+
+    // @tswow-begin
+    FIRE_MAP(
+          GetGameEventsEvent(event_id)
+        , GameEventOnEnd
+        , event_id
+    );
+    // @tswow-end
 }
 
 void GameEventMgr::LoadFromDB()
@@ -649,8 +675,10 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                  0          1            2             3                      4
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
+        // @tswow-begin custom field
+        //                                               0           1             2        3                      4                       5
+        QueryResult result = WorldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field, auto_broadcast FROM game_event_condition");
+        // @tswow-end
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
@@ -674,6 +702,9 @@ void GameEventMgr::LoadFromDB()
                 mGameEvent[event_id].conditions[condition].done = 0;
                 mGameEvent[event_id].conditions[condition].max_world_state = fields[3].GetUInt16();
                 mGameEvent[event_id].conditions[condition].done_world_state = fields[4].GetUInt16();
+                // @tswow-begin
+                mGameEvent[event_id].conditions[condition].auto_broadcast= fields[5].GetUInt16();
+                // @tswow-end
 
                 ++count;
             }
@@ -1243,7 +1274,9 @@ void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
     for (NPCVendorList::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
     {
         if (activate)
-            sObjectMgr->AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, false);
+            // @tswow-begin
+            sObjectMgr->AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, itr->raceMask, itr->classMask, false);
+            // @tswow-end
         else
             sObjectMgr->RemoveVendorItem(itr->entry, itr->item, false);
     }
@@ -1640,6 +1673,28 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
                 stmt->setFloat(2, citr->second.done);
                 trans->Append(stmt);
                 CharacterDatabase.CommitTransaction(trans);
+
+                // @tswow-begin
+                if (citr->second.auto_broadcast)
+                {
+                    if (citr->second.done_world_state > 0)
+                    {
+                        WorldPackets::WorldState::UpdateWorldState donePacket;
+                        donePacket.VariableID = citr->second.done_world_state;
+                        donePacket.Value = citr->second.done;
+                        sWorld->SendGlobalMessage(donePacket.GetRawPacket());
+                    }
+
+                    if (citr->second.max_world_state > 0)
+                    {
+                        WorldPackets::WorldState::UpdateWorldState maxPacket;
+                        maxPacket.VariableID = citr->second.max_world_state;
+                        maxPacket.Value = citr->second.reqNum;
+                        sWorld->SendGlobalMessage(maxPacket.GetRawPacket());
+                    }
+                }
+                // @tswow-end
+
                 // check if all conditions are met, if so, update the event state
                 if (CheckOneGameEventConditions(event_id))
                 {
@@ -1667,6 +1722,14 @@ bool GameEventMgr::CheckOneGameEventConditions(uint16 event_id)
         time_t currenttime = GameTime::GetGameTime();
         mGameEvent[event_id].nextstart = currenttime + mGameEvent[event_id].length * 60;
     }
+    // @tswow-begin
+    FIRE_MAP(
+        GetGameEventsEvent(event_id)
+        , GameEventOnUpdateState
+        , event_id
+    );
+    // @tswow-end
+
     return true;
 }
 
@@ -1739,8 +1802,10 @@ void GameEventMgr::RunSmartAIScripts(uint16 event_id, bool activate)
 
 void GameEventMgr::SetHolidayEventTime(GameEventData& event)
 {
-    if (!event.holidayStage) // Ignore holiday
+    // @tswow-begin: ignore custom holiday ids
+    if (!event.holidayStage || event.holiday_id >= 500) // Ignore holiday
         return;
+    // @tswow-end
 
     HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions

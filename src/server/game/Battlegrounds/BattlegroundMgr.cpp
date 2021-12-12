@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "BattlegroundCustom.h"
+// @tswow-end
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundAV.h"
@@ -47,6 +50,13 @@
 #include "World.h"
 #include "WorldPacket.h"
 
+// @tswow-begin battleground sets
+struct BattlegroundSetEntry {
+    uint32 battleground;
+    float weight;
+};
+std::map<uint32, std::vector<BattlegroundSetEntry>> battlegroundSets;
+
 bool BattlegroundTemplate::IsArena() const
 {
     return BattlemasterEntry->InstanceType == MAP_ARENA;
@@ -60,7 +70,11 @@ BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
     m_NextAutoDistributionTime(0),
     m_AutoDistributionTimeChecker(0), m_UpdateTimer(0), m_ArenaTesting(false), m_Testing(false)
-{ }
+{
+    // @tswow-begin
+    m_BattlegroundQueues.resize(MAX_BATTLEGROUND_QUEUE_TYPES, BattlegroundQueue());
+    // @tswow-end
+}
 
 BattlegroundMgr::~BattlegroundMgr()
 {
@@ -124,7 +138,9 @@ void BattlegroundMgr::Update(uint32 diff)
     }
 
     // update events timer
-    for (int qtype = BATTLEGROUND_QUEUE_NONE; qtype < MAX_BATTLEGROUND_QUEUE_TYPES; ++qtype)
+    // @tswow-begin
+    for (int qtype = BATTLEGROUND_QUEUE_NONE; qtype < m_BattlegroundQueues.size(); ++qtype)
+    // @tswow-end
         m_BattlegroundQueues[qtype].UpdateEvents(diff);
 
     // update scheduled queues
@@ -401,11 +417,24 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_RB:
         case BATTLEGROUND_AA:
         default:
+            // @tswow-begin
+            if (_battlegroundTemplates.find(bgTypeId) != _battlegroundTemplates.end())
+            {
+                if (bg_template->isArena())
+                {
+                    bg = new ArenaCustom(*(ArenaCustom*)bg_template);
+                }
+                else
+                {
+                    bg = new BattlegroundCustom(*(BattlegroundCustom*)bg_template);
+                }
+                break;
+            }
+            // @tswow-end
             return nullptr;
     }
 
     bool isRandom = bgTypeId != originalBgTypeId && !bg->isArena();
-
     bg->SetBracket(bracketEntry);
     bg->SetInstanceID(sMapMgr->GenerateInstanceId());
     bg->SetClientInstanceID(CreateClientVisibleInstanceId(originalBgTypeId, bracketEntry->GetBracketId()));
@@ -491,6 +520,20 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
                 bg->SetRandom(true);
                 break;
             default:
+                // @tswow-begin
+                if (bgTemplate != nullptr)
+                {
+                    if (bgTemplate->IsArena())
+                    {
+                        bg = new ArenaCustom();
+                    }
+                    else
+                    {
+                        bg = new BattlegroundCustom();
+                    }
+                    break;
+                }
+                // @tswow-end
                 return false;
         }
 
@@ -498,7 +541,6 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
         bg->SetInstanceID(0);
         AddBattleground(bg);
     }
-
     bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
     bg->SetName(bgTemplate->BattlemasterEntry->Name[sWorld->GetDefaultDbcLocale()]);
     bg->SetArenaorBGType(bgTemplate->IsArena());
@@ -600,10 +642,10 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             }
         }
 
-        if (!CreateBattleground(&bgTemplate))
+        // @tswow-begin
+        if (!CreateBattleground(&(_battlegroundTemplates[bgTypeId] = bgTemplate)))
             continue;
-
-        _battlegroundTemplates[bgTypeId] = bgTemplate;
+        // @tswow-end
 
         if (bgTemplate.BattlemasterEntry->MapID[1] == -1) // in this case we have only one mapId
             _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->MapID[0]] = &_battlegroundTemplates[bgTypeId];
@@ -611,6 +653,28 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         ++count;
     }
     while (result->NextRow());
+
+    // @tswow-begin
+    {
+        //                                                0               1      2
+        QueryResult result = WorldDatabase.Query("SELECT `set`, `battleground`, `weight` FROM `battleground_sets`");
+        do {
+            Field* fields = result->Fetch();
+            uint32 set = fields[0].GetUInt32();
+            uint32 battleground = fields[1].GetUInt32();
+            float weight        = fields[2].GetFloat();
+            auto itr = battlegroundSets.find(battleground);
+            if (itr != battlegroundSets.end())
+            {
+                itr->second.push_back({battleground,weight});
+            }
+            else
+            {
+                battlegroundSets[set] = { {battleground,weight} };
+            }
+        } while (result->NextRow());
+    }
+    // @tswow-end
 
     TC_LOG_INFO("server.loading", ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -770,6 +834,26 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
                     return BATTLEGROUND_QUEUE_NONE;
             }
         default:
+            // @tswow-begin
+            if (sBattlegroundMgr->_battlegroundTemplates.find(bgTypeId) != sBattlegroundMgr->_battlegroundTemplates.end())
+            {
+                switch (arenaType)
+                {
+                case ARENA_TYPE_2v2:
+                    return BATTLEGROUND_QUEUE_2v2;
+                case ARENA_TYPE_3v3:
+                    return BATTLEGROUND_QUEUE_3v3;
+                case ARENA_TYPE_5v5:
+                    return BATTLEGROUND_QUEUE_5v5;
+                default:
+                    if (sBattlegroundMgr->m_BattlegroundQueues.size() <= bgTypeId)
+                    {
+                        sBattlegroundMgr->m_BattlegroundQueues.resize(bgTypeId + 1,BattlegroundQueue());
+                    }
+                    return BattlegroundQueueTypeId(bgTypeId);
+                    }
+            }
+            // @tswow-end
             return BATTLEGROUND_QUEUE_NONE;
     }
 }
@@ -797,6 +881,13 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
         case BATTLEGROUND_QUEUE_5v5:
             return BATTLEGROUND_AA;
         default:
+            // @tswow-begin
+            if (sBattlegroundMgr->_battlegroundTemplates
+                .find(BattlegroundTypeId(bgQueueTypeId)) != sBattlegroundMgr->_battlegroundTemplates.end())
+            {
+                return BattlegroundTypeId(bgQueueTypeId);
+            }
+            // @tswow-end
             return BattlegroundTypeId(0);                   // used for unknown template (it exists and does nothing)
     }
 }
@@ -967,28 +1058,37 @@ bool BattlegroundMgr::IsBGWeekend(BattlegroundTypeId bgTypeId)
 
 BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
-    if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
+    // @tswow-begin use custom bg map selection
+    auto itr = battlegroundSets.find(bgTypeId);
+    while (itr != battlegroundSets.end())
     {
-        std::vector<BattlegroundTypeId> ids;
-        ids.reserve(16);
+        std::vector<uint32> bgids;
+        bgids.reserve(itr->second.size());
         std::vector<double> weights;
-        weights.reserve(16);
-        for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
+        weights.reserve(itr->second.size());
+        for (BattlegroundSetEntry const& entry : itr->second)
         {
-            if (mapId == -1)
-                break;
-
-            if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
-            {
-                ids.push_back(bg->Id);
-                weights.push_back(bg->Weight);
-            }
+            bgids.push_back(entry.battleground);
+            float weight = entry.weight;
+            FIRE(
+                      BattlegroundOnWeight
+                    , entry.battleground
+                    , TSMutable<float>(&weight)
+                    , bgTypeId
+                );
+            weights.push_back(entry.weight);
         }
-
-        return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, weights);
+        uint32 selected = *Trinity::Containers::SelectRandomWeightedContainerElement(bgids, weights);
+        bgTypeId = (BattlegroundTypeId) selected;
+        itr = battlegroundSets.find(bgTypeId);
     }
 
-    return BATTLEGROUND_TYPE_NONE;
+    FIRE(
+              BattlegroundOnSelect
+            , TSMutable<uint32>(reinterpret_cast<uint32*>(&bgTypeId))
+    );
+    return BattlegroundTypeId(bgTypeId);
+    // @tswow-end
 }
 
 BGFreeSlotQueueContainer& BattlegroundMgr::GetBGFreeSlotQueueStore(BattlegroundTypeId bgTypeId)

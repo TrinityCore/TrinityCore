@@ -147,7 +147,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         void LoadTemplateImmunities();
         bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster) const override;
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const override;
         bool isElite() const;
         bool isWorldBoss() const;
 
@@ -179,7 +179,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool HasSpell(uint32 spellID) const override;
 
         bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
-        void SetPhaseMask(uint32 newPhaseMask, bool update) override;// overwrite Unit::SetPhaseMask
+        // @tswow-begin
+        void SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId = 0) override;// overwrite Unit::SetPhaseMask
+        // @tswow-end
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
@@ -374,11 +376,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
-        bool HasSwimmingFlagOutOfCombat() const
+        bool HasCanSwimFlagOutOfCombat() const
         {
-            return !_isMissingSwimmingFlagOutOfCombat;
+            return !_isMissingCanSwimFlagOutOfCombat;
         }
-        void RefreshSwimmingFlag(bool recheck = false);
+        void RefreshCanSwimFlag(bool recheck = false);
 
         std::string GetDebugInfo() const override;
 
@@ -442,7 +444,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds forceRespawnTimer = 0s);
-        bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
+        bool CheckNoGrayAggroConfig(Player* player, uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
         // Waypoint path
         uint32 _waypointPathId;
@@ -472,7 +474,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool _regenerateHealth; // Set on creation
         bool _regenerateHealthLock; // Dynamically set
 
-        bool _isMissingSwimmingFlagOutOfCombat;
+        bool _isMissingCanSwimFlagOutOfCombat;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

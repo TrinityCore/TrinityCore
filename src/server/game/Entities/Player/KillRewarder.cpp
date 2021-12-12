@@ -102,7 +102,9 @@ inline void KillRewarder::_InitGroupData()
                         _maxLevel = lvl;
                     // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
                     //      for whom victim is not gray;
-                    uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
+                    // @tswow-begin player argument
+                    uint32 grayLevel = Trinity::XP::GetGrayLevel(member,lvl);
+                    // @tswow-end
                     if (_victim->GetLevel() > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->GetLevel() < lvl))
                         _maxNotGrayMember = member;
                 }
@@ -227,7 +229,9 @@ void KillRewarder::_RewardGroup()
             {
                 // 3.1.2. Alter group rate if group is in raid (not for battlegrounds).
                 bool const isRaid = !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsRaid() && _group->isRaidGroup();
-                _groupRate = Trinity::XP::xp_in_group_rate(_count, isRaid);
+                // @tswow-begin player argument
+                _groupRate = Trinity::XP::xp_in_group_rate(_killer, _count, isRaid);
+                // @tswow-end
             }
 
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.

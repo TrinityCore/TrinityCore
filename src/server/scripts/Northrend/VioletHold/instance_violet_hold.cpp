@@ -295,6 +295,9 @@ class instance_violet_hold : public InstanceMapScript
                 packet.Worldstates.emplace_back(WORLD_STATE_VH_SHOW, EventState == IN_PROGRESS ? 1 : 0);
                 packet.Worldstates.emplace_back(WORLD_STATE_VH_PRISON_STATE, DoorIntegrity);
                 packet.Worldstates.emplace_back(WORLD_STATE_VH_WAVE_COUNT, WaveCount);
+                // @tswow-begin call super
+                InstanceScript::FillInitialWorldStates(packet);
+                // @tswow-end
             }
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
@@ -312,17 +315,23 @@ class instance_violet_hold : public InstanceMapScript
                     case DATA_ZURAMAT:
                         /// old code used cell door state to check this
                         if (!(WaveCount == 6 && FirstBossId == bossId) && !(WaveCount == 12 && SecondBossId == bossId))
-                            return false;
+                            // @tswow-begin call super
+                            return InstanceScript::_CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     case DATA_CYANIGOSA:
                         if (WaveCount < 18)
-                            return false;
+                            // @tswow-begin call super
+                            return InstanceScript::_CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     default:
                         break;
                 }
 
-                return true;
+                // @tswow-begin call super
+                return InstanceScript::_CheckRequiredBosses(bossId, player, true);
+                // @tswow-end
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -877,6 +886,9 @@ class instance_violet_hold : public InstanceMapScript
                     if (!GetData(DATA_DOOR_INTEGRITY))
                         EventState = FAIL;
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void CheckEventState()

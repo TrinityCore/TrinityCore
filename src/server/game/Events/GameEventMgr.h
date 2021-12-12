@@ -46,6 +46,9 @@ struct GameEventFinishCondition
     float done;    // done number
     uint32 max_world_state;  // max resource count world state update id
     uint32 done_world_state; // done resource count world state update id
+    // @tswow-begin custom field
+    bool auto_broadcast;
+    // @tswow-end
 };
 
 struct GameEventQuestToEventConditionNum
@@ -92,6 +95,10 @@ struct NPCVendorEntry
     int32  maxcount;                                        // 0 for infinite
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    // @tswow-begin masks
+    uint32 raceMask = 0;
+    uint32 classMask = 0;
+    // @tswow-end
 };
 
 class Player;
@@ -127,7 +134,11 @@ class TC_GAME_API GameEventMgr
         uint32 GetNPCFlag(Creature* cr);
 
     private:
+        // @tswow-begin
+    public:
         void SendWorldStateUpdate(Player* player, uint16 event_id);
+    private:
+        // @tswow-end
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
         void RemoveActiveEvent(uint16 event_id) { m_ActiveEvents.erase(event_id); }
         void ApplyNewEvent(uint16 event_id);

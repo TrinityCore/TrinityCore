@@ -186,6 +186,9 @@ DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid
 
 Unit* ObjectAccessor::GetUnit(WorldObject const& u, ObjectGuid const& guid)
 {
+    if (guid.IsEmpty())
+        return nullptr;
+
     if (guid.IsPlayer())
         return GetPlayer(u, guid);
 

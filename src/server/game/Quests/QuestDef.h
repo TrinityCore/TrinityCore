@@ -18,6 +18,9 @@
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
 
+// @tswow-begin
+#include "TSEvents.h"
+// @tswow-end
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
@@ -335,6 +338,8 @@ class TC_GAME_API Quest
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
+
+        TSQuestEvents* events = nullptr;
 
         // cached data
     private:

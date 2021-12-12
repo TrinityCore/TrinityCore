@@ -299,101 +299,79 @@ public:
 
 enum DancingFlames
 {
-    SPELL_BRAZIER           = 45423,
-    SPELL_SEDUCTION         = 47057,
-    SPELL_FIERY_AURA        = 45427
+    SPELL_SUMMON_BRAZIER    = 45423,
+    SPELL_BRAZIER_DANCE     = 45427,
+    SPELL_FIERY_SEDUCTION   = 47057
 };
 
-class npc_dancing_flames : public CreatureScript
+struct npc_dancing_flames : public ScriptedAI
 {
-public:
-    npc_dancing_flames() : CreatureScript("npc_dancing_flames") { }
+    npc_dancing_flames(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_dancing_flamesAI : public ScriptedAI
+    void Reset() override
     {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Active = true;
-            CanIteract = 3500;
-        }
-
-        bool Active;
-        uint32 CanIteract;
-
-        void Reset() override
-        {
-            Initialize();
-            DoCast(me, SPELL_BRAZIER, true);
-            DoCast(me, SPELL_FIERY_AURA, false);
-            float x, y, z;
-            me->GetPosition(x, y, z);
-            me->Relocate(x, y, z + 0.94f);
-            me->SetDisableGravity(true);
-            me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-            WorldPacket data;                       //send update position to client
-            me->BuildHeartBeatMsg(&data);
-            me->SendMessageToSet(&data, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!Active)
-            {
-                if (CanIteract <= diff)
-                {
-                    Active = true;
-                    CanIteract = 3500;
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-                }
-                else
-                    CanIteract -= diff;
-            }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void ReceiveEmote(Player* player, uint32 emote) override
-        {
-            if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
-            {
-                me->SetFacingToObject(player);
-                Active = false;
-
-                WorldPacket data;
-                me->BuildHeartBeatMsg(&data);
-                me->SendMessageToSet(&data, true);
-                switch (emote)
-                {
-                    case TEXT_EMOTE_KISS:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
-                        break;
-                    case TEXT_EMOTE_WAVE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                        break;
-                    case TEXT_EMOTE_BOW:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                        break;
-                    case TEXT_EMOTE_JOKE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        break;
-                    case TEXT_EMOTE_DANCE:
-                        if (!player->HasAura(SPELL_SEDUCTION))
-                            DoCast(player, SPELL_SEDUCTION, true);
-                        break;
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dancing_flamesAI(creature);
+        DoCastSelf(SPELL_SUMMON_BRAZIER, true);
+        DoCastSelf(SPELL_BRAZIER_DANCE, false);
+        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+        float x, y, z;
+        me->GetPosition(x, y, z);
+        me->Relocate(x, y, z + 1.05f);
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    void ReceiveEmote(Player* player, uint32 emote) override
+    {
+        if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
+        {
+            // She responds to emotes not instantly but ~1500ms later
+            // If you first /bow, then /wave before dancing flames bow back, it doesnt bow at all and only does wave
+            // If you're performing emotes too fast, she will not respond to them
+            // Means she just replaces currently scheduled event with new after receiving new emote
+            _scheduler.CancelAll();
+
+            switch (emote)
+            {
+                case TEXT_EMOTE_KISS:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
+                    });
+                    break;
+                case TEXT_EMOTE_WAVE:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                    });
+                    break;
+                case TEXT_EMOTE_BOW:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                    });
+                    break;
+                case TEXT_EMOTE_JOKE:
+                    _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                    });
+                    break;
+                case TEXT_EMOTE_DANCE:
+                    if (!player->HasAura(SPELL_FIERY_SEDUCTION))
+                    {
+                        DoCast(player, SPELL_FIERY_SEDUCTION, true);
+                        me->SetFacingTo(me->GetAbsoluteAngle(player));
+                    }
+                    break;
+            }
+        }
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 /*######
@@ -655,7 +633,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void BeginEvent(Player* player)
@@ -680,7 +658,7 @@ public:
             }
 
             Event = true;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void PatientDied(Position const* point)
@@ -788,7 +766,7 @@ public:
             Initialize();
 
             //no select
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             //no regen health
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -828,8 +806,8 @@ public:
                     if (Creature* doctor = ObjectAccessor::GetCreature(*me, DoctorGUID))
                         ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
-            //make not selectable
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //make uninteractible
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             //regen health
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -866,7 +844,7 @@ public:
             if (me->IsAlive() && me->GetHealth() <= 6)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->setDeathState(JUST_DIED);
                 me->SetFlag(UNIT_DYNAMIC_FLAGS, 32);
 
@@ -1460,15 +1438,129 @@ class npc_brewfest_reveler : public CreatureScript
         }
 };
 
+/*######
+# npc_brewfest_reveler_2
+######*/
+
+Emote const BrewfestRandomEmote[] =
+{
+    EMOTE_ONESHOT_QUESTION,
+    EMOTE_ONESHOT_APPLAUD,
+    EMOTE_ONESHOT_SHOUT,
+    EMOTE_ONESHOT_EAT_NO_SHEATHE,
+    EMOTE_ONESHOT_LAUGH_NO_SHEATHE
+};
+
+struct npc_brewfest_reveler_2 : ScriptedAI
+{
+    enum BrewfestReveler2
+    {
+        NPC_BREWFEST_REVELER    = 24484,
+
+        EVENT_FILL_LIST         = 1,
+        EVENT_FACE_TO           = 2,
+        EVENT_EMOTE             = 3,
+        EVENT_NEXT              = 4
+    };
+
+    npc_brewfest_reveler_2(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_FILL_LIST, 1s, 2s);
+    }
+
+    // Copied from old script. I don't know if this is 100% correct.
+    void ReceiveEmote(Player* player, uint32 emote) override
+    {
+        if (!IsHolidayActive(HOLIDAY_BREWFEST))
+            return;
+
+        if (emote == TEXT_EMOTE_DANCE)
+            me->CastSpell(player, SPELL_BREWFEST_TOAST, false);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FILL_LIST:
+                {
+                    std::list<Creature*> creatureList;
+                    GetCreatureListWithEntryInGrid(creatureList, me, NPC_BREWFEST_REVELER, 5.0f);
+                    for (Creature* creature : creatureList)
+                        if (creature != me)
+                            _revelerGuids.push_back(creature->GetGUID());
+
+                    _events.ScheduleEvent(EVENT_FACE_TO, 1s, 2s);
+                    break;
+                }
+                case EVENT_FACE_TO:
+                {
+                    // Turn to random brewfest reveler within set range
+                    if (!_revelerGuids.empty())
+                        if (Creature* creature = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(_revelerGuids)))
+                            me->SetFacingToObject(creature);
+
+                    _events.ScheduleEvent(EVENT_EMOTE, 2s, 6s);
+                    break;
+                }
+                case EVENT_EMOTE:
+                    // Play random emote or dance
+                    if (roll_chance_i(50))
+                    {
+                        me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
+                        _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
+                    }
+                    else
+                    {
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                        _events.ScheduleEvent(EVENT_NEXT, 8s, 12s);
+                    }
+                    break;
+                case EVENT_NEXT:
+                    // If dancing stop before next random state
+                    if (me->GetUInt32Value(UNIT_NPC_EMOTESTATE) == EMOTE_STATE_DANCE)
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+
+                    // Random EVENT_EMOTE or EVENT_FACETO
+                    if (roll_chance_i(50))
+                        _events.ScheduleEvent(EVENT_FACE_TO, 1s);
+                    else
+                        _events.ScheduleEvent(EVENT_EMOTE, 1s);
+                    break;
+                default:
+                    break;
+                }
+        }
+    }
+
+private:
+    EventMap _events;
+    GuidVector _revelerGuids;
+};
+
 struct npc_training_dummy : NullCreatureAI
 {
     npc_training_dummy(Creature* creature) : NullCreatureAI(creature) { }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void JustEnteredCombat(Unit* who) override
+    {
+        _combatTimer[who->GetGUID()] = 5s;
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType damageType, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         damage = 0;
 
-        if (!attacker)
+        if (!attacker || damageType == DOT)
             return;
 
         _combatTimer[attacker->GetGUID()] = 5s;
@@ -1707,285 +1799,6 @@ public:
     }
 };
 
-enum Fireworks
-{
-    NPC_OMEN                = 15467,
-    NPC_MINION_OF_OMEN      = 15466,
-    NPC_FIREWORK_BLUE       = 15879,
-    NPC_FIREWORK_GREEN      = 15880,
-    NPC_FIREWORK_PURPLE     = 15881,
-    NPC_FIREWORK_RED        = 15882,
-    NPC_FIREWORK_YELLOW     = 15883,
-    NPC_FIREWORK_WHITE      = 15884,
-    NPC_FIREWORK_BIG_BLUE   = 15885,
-    NPC_FIREWORK_BIG_GREEN  = 15886,
-    NPC_FIREWORK_BIG_PURPLE = 15887,
-    NPC_FIREWORK_BIG_RED    = 15888,
-    NPC_FIREWORK_BIG_YELLOW = 15889,
-    NPC_FIREWORK_BIG_WHITE  = 15890,
-
-    NPC_CLUSTER_BLUE        = 15872,
-    NPC_CLUSTER_RED         = 15873,
-    NPC_CLUSTER_GREEN       = 15874,
-    NPC_CLUSTER_PURPLE      = 15875,
-    NPC_CLUSTER_WHITE       = 15876,
-    NPC_CLUSTER_YELLOW      = 15877,
-    NPC_CLUSTER_BIG_BLUE    = 15911,
-    NPC_CLUSTER_BIG_GREEN   = 15912,
-    NPC_CLUSTER_BIG_PURPLE  = 15913,
-    NPC_CLUSTER_BIG_RED     = 15914,
-    NPC_CLUSTER_BIG_WHITE   = 15915,
-    NPC_CLUSTER_BIG_YELLOW  = 15916,
-    NPC_CLUSTER_ELUNE       = 15918,
-
-    GO_FIREWORK_LAUNCHER_1  = 180771,
-    GO_FIREWORK_LAUNCHER_2  = 180868,
-    GO_FIREWORK_LAUNCHER_3  = 180850,
-    GO_CLUSTER_LAUNCHER_1   = 180772,
-    GO_CLUSTER_LAUNCHER_2   = 180859,
-    GO_CLUSTER_LAUNCHER_3   = 180869,
-    GO_CLUSTER_LAUNCHER_4   = 180874,
-
-    SPELL_ROCKET_BLUE       = 26344,
-    SPELL_ROCKET_GREEN      = 26345,
-    SPELL_ROCKET_PURPLE     = 26346,
-    SPELL_ROCKET_RED        = 26347,
-    SPELL_ROCKET_WHITE      = 26348,
-    SPELL_ROCKET_YELLOW     = 26349,
-    SPELL_ROCKET_BIG_BLUE   = 26351,
-    SPELL_ROCKET_BIG_GREEN  = 26352,
-    SPELL_ROCKET_BIG_PURPLE = 26353,
-    SPELL_ROCKET_BIG_RED    = 26354,
-    SPELL_ROCKET_BIG_WHITE  = 26355,
-    SPELL_ROCKET_BIG_YELLOW = 26356,
-    SPELL_LUNAR_FORTUNE     = 26522,
-
-    ANIM_GO_LAUNCH_FIREWORK = 3,
-    ZONE_MOONGLADE          = 493,
-};
-
-Position omenSummonPos = {7558.993f, -2839.999f, 450.0214f, 4.46f};
-
-class npc_firework : public CreatureScript
-{
-public:
-    npc_firework() : CreatureScript("npc_firework") { }
-
-    struct npc_fireworkAI : public ScriptedAI
-    {
-        npc_fireworkAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool isCluster()
-        {
-            switch (me->GetEntry())
-            {
-                case NPC_FIREWORK_BLUE:
-                case NPC_FIREWORK_GREEN:
-                case NPC_FIREWORK_PURPLE:
-                case NPC_FIREWORK_RED:
-                case NPC_FIREWORK_YELLOW:
-                case NPC_FIREWORK_WHITE:
-                case NPC_FIREWORK_BIG_BLUE:
-                case NPC_FIREWORK_BIG_GREEN:
-                case NPC_FIREWORK_BIG_PURPLE:
-                case NPC_FIREWORK_BIG_RED:
-                case NPC_FIREWORK_BIG_YELLOW:
-                case NPC_FIREWORK_BIG_WHITE:
-                    return false;
-                case NPC_CLUSTER_BLUE:
-                case NPC_CLUSTER_GREEN:
-                case NPC_CLUSTER_PURPLE:
-                case NPC_CLUSTER_RED:
-                case NPC_CLUSTER_YELLOW:
-                case NPC_CLUSTER_WHITE:
-                case NPC_CLUSTER_BIG_BLUE:
-                case NPC_CLUSTER_BIG_GREEN:
-                case NPC_CLUSTER_BIG_PURPLE:
-                case NPC_CLUSTER_BIG_RED:
-                case NPC_CLUSTER_BIG_YELLOW:
-                case NPC_CLUSTER_BIG_WHITE:
-                case NPC_CLUSTER_ELUNE:
-                default:
-                    return true;
-            }
-        }
-
-        GameObject* FindNearestLauncher()
-        {
-            GameObject* launcher = nullptr;
-
-            if (isCluster())
-            {
-                GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_1, 0.5f);
-                GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_2, 0.5f);
-                GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_3, 0.5f);
-                GameObject* launcher4 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_4, 0.5f);
-
-                if (launcher1)
-                    launcher = launcher1;
-                else if (launcher2)
-                    launcher = launcher2;
-                else if (launcher3)
-                    launcher = launcher3;
-                else if (launcher4)
-                    launcher = launcher4;
-            }
-            else
-            {
-                GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_1, 0.5f);
-                GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_2, 0.5f);
-                GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_3, 0.5f);
-
-                if (launcher1)
-                    launcher = launcher1;
-                else if (launcher2)
-                    launcher = launcher2;
-                else if (launcher3)
-                    launcher = launcher3;
-            }
-
-            return launcher;
-        }
-
-        uint32 GetFireworkSpell(uint32 entry)
-        {
-            switch (entry)
-            {
-                case NPC_FIREWORK_BLUE:
-                    return SPELL_ROCKET_BLUE;
-                case NPC_FIREWORK_GREEN:
-                    return SPELL_ROCKET_GREEN;
-                case NPC_FIREWORK_PURPLE:
-                    return SPELL_ROCKET_PURPLE;
-                case NPC_FIREWORK_RED:
-                    return SPELL_ROCKET_RED;
-                case NPC_FIREWORK_YELLOW:
-                    return SPELL_ROCKET_YELLOW;
-                case NPC_FIREWORK_WHITE:
-                    return SPELL_ROCKET_WHITE;
-                case NPC_FIREWORK_BIG_BLUE:
-                    return SPELL_ROCKET_BIG_BLUE;
-                case NPC_FIREWORK_BIG_GREEN:
-                    return SPELL_ROCKET_BIG_GREEN;
-                case NPC_FIREWORK_BIG_PURPLE:
-                    return SPELL_ROCKET_BIG_PURPLE;
-                case NPC_FIREWORK_BIG_RED:
-                    return SPELL_ROCKET_BIG_RED;
-                case NPC_FIREWORK_BIG_YELLOW:
-                    return SPELL_ROCKET_BIG_YELLOW;
-                case NPC_FIREWORK_BIG_WHITE:
-                    return SPELL_ROCKET_BIG_WHITE;
-                default:
-                    return 0;
-            }
-        }
-
-        uint32 GetFireworkGameObjectId()
-        {
-            uint32 spellId = 0;
-
-            switch (me->GetEntry())
-            {
-                case NPC_CLUSTER_BLUE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BLUE);
-                    break;
-                case NPC_CLUSTER_GREEN:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_GREEN);
-                    break;
-                case NPC_CLUSTER_PURPLE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_PURPLE);
-                    break;
-                case NPC_CLUSTER_RED:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_RED);
-                    break;
-                case NPC_CLUSTER_YELLOW:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_YELLOW);
-                    break;
-                case NPC_CLUSTER_WHITE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_WHITE);
-                    break;
-                case NPC_CLUSTER_BIG_BLUE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_BLUE);
-                    break;
-                case NPC_CLUSTER_BIG_GREEN:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_GREEN);
-                    break;
-                case NPC_CLUSTER_BIG_PURPLE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_PURPLE);
-                    break;
-                case NPC_CLUSTER_BIG_RED:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_RED);
-                    break;
-                case NPC_CLUSTER_BIG_YELLOW:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_YELLOW);
-                    break;
-                case NPC_CLUSTER_BIG_WHITE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_WHITE);
-                    break;
-                case NPC_CLUSTER_ELUNE:
-                    spellId = GetFireworkSpell(urand(NPC_FIREWORK_BLUE, NPC_FIREWORK_WHITE));
-                    break;
-            }
-
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-
-            if (spellInfo && spellInfo->Effects[0].Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                return spellInfo->Effects[0].MiscValue;
-
-            return 0;
-        }
-
-        void Reset() override
-        {
-            if (GameObject* launcher = FindNearestLauncher())
-            {
-                launcher->SendCustomAnim(ANIM_GO_LAUNCH_FIREWORK);
-                me->SetOrientation(launcher->GetOrientation() + float(M_PI) / 2);
-            }
-            else
-                return;
-
-            if (isCluster())
-            {
-                // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
-                if (me->GetZoneId() == ZONE_MOONGLADE)
-                {
-                    if (!me->FindNearestCreature(NPC_OMEN, 100.0f) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
-                    {
-                        switch (urand(0, 9))
-                        {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
-                                    minion->AI()->AttackStart(me->SelectNearestPlayer(20.0f));
-                                break;
-                            case 9:
-                                me->SummonCreature(NPC_OMEN, omenSummonPos);
-                                break;
-                        }
-                    }
-                }
-                if (me->GetEntry() == NPC_CLUSTER_ELUNE)
-                    DoCast(SPELL_LUNAR_FORTUNE);
-
-                float displacement = 0.7f;
-                for (uint8 i = 0; i < 4; i++)
-                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData(), 1s);
-            }
-            else
-                //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
-                me->CastSpell(me->GetPosition(), GetFireworkSpell(me->GetEntry()), true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_fireworkAI(creature);
-    }
-};
-
 /*#####
 # npc_spring_rabbit
 #####*/
@@ -2213,7 +2026,6 @@ enum TrainWrecker
     GO_TOY_TRAIN          = 193963,
     SPELL_TOY_TRAIN_PULSE =  61551,
     SPELL_WRECK_TRAIN     =  62943,
-    ACTION_WRECKED        =      1,
     EVENT_DO_JUMP         =      1,
     EVENT_DO_FACING       =      2,
     EVENT_DO_WRECK        =      3,
@@ -2287,7 +2099,6 @@ class npc_train_wrecker : public CreatureScript
                             if (GameObject* target = VerifyTarget())
                             {
                                 me->CastSpell(target, SPELL_WRECK_TRAIN, false);
-                                target->AI()->DoAction(ACTION_WRECKED);
                                 _timer = 2 * IN_MILLISECONDS;
                                 _nextAction = EVENT_DO_DANCE;
                             }
@@ -2604,11 +2415,42 @@ public:
     }
 };
 
+enum VoidZone
+{
+    SPELL_CONSUMPTION     = 28874
+};
+
+struct npc_gen_void_zone : public ScriptedAI
+{
+    npc_gen_void_zone(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        {
+            DoCastSelf(SPELL_CONSUMPTION);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
     new npc_chicken_cluck();
-    new npc_dancing_flames();
+    RegisterCreatureAI(npc_dancing_flames);
     new npc_torch_tossing_target_bunny_controller();
     new npc_midsummer_bunny_pole();
     new npc_doctor();
@@ -2618,15 +2460,16 @@ void AddSC_npcs_special()
     new npc_steam_tonk();
     new npc_tournament_mount();
     new npc_brewfest_reveler();
+    RegisterCreatureAI(npc_brewfest_reveler_2);
     RegisterCreatureAI(npc_training_dummy);
     new npc_wormhole();
     new npc_pet_trainer();
     new npc_experience();
-    new npc_firework();
     new npc_spring_rabbit();
     new npc_imp_in_a_ball();
     new npc_stable_master();
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
+    RegisterCreatureAI(npc_gen_void_zone);
 }

@@ -47,78 +47,67 @@ enum Events
     EVENT_LAVA_BOMB     = 3,
 };
 
-class boss_magmadar : public CreatureScript
+struct boss_magmadar : public BossAI
 {
-    public:
-        boss_magmadar() : CreatureScript("boss_magmadar") { }
+    boss_magmadar(Creature* creature) : BossAI(creature, BOSS_MAGMADAR)
+    {
+    }
 
-        struct boss_magmadarAI : public BossAI
+    void Reset() override
+    {
+        BossAI::Reset();
+        DoCast(me, SPELL_MAGMA_SPIT, true);
+    }
+
+    void JustEngagedWith(Unit* victim) override
+    {
+        BossAI::JustEngagedWith(victim);
+        events.ScheduleEvent(EVENT_FRENZY, 30s);
+        events.ScheduleEvent(EVENT_PANIC, 20s);
+        events.ScheduleEvent(EVENT_LAVA_BOMB, 12s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_magmadarAI(Creature* creature) : BossAI(creature, BOSS_MAGMADAR)
+            switch (eventId)
             {
+                case EVENT_FRENZY:
+                    Talk(EMOTE_FRENZY);
+                    DoCast(me, SPELL_FRENZY);
+                    events.ScheduleEvent(EVENT_FRENZY, 15s);
+                    break;
+                case EVENT_PANIC:
+                    DoCastVictim(SPELL_PANIC);
+                    events.ScheduleEvent(EVENT_PANIC, 35s);
+                    break;
+                case EVENT_LAVA_BOMB:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_LAVA_BOMB))
+                        DoCast(target, SPELL_LAVA_BOMB);
+                    events.ScheduleEvent(EVENT_LAVA_BOMB, 12s);
+                    break;
+                default:
+                    break;
             }
 
-            void Reset() override
-            {
-                BossAI::Reset();
-                DoCast(me, SPELL_MAGMA_SPIT, true);
-            }
-
-            void JustEngagedWith(Unit* victim) override
-            {
-                BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_FRENZY, 30s);
-                events.ScheduleEvent(EVENT_PANIC, 20s);
-                events.ScheduleEvent(EVENT_LAVA_BOMB, 12s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FRENZY:
-                            Talk(EMOTE_FRENZY);
-                            DoCast(me, SPELL_FRENZY);
-                            events.ScheduleEvent(EVENT_FRENZY, 15s);
-                            break;
-                        case EVENT_PANIC:
-                            DoCastVictim(SPELL_PANIC);
-                            events.ScheduleEvent(EVENT_PANIC, 35s);
-                            break;
-                        case EVENT_LAVA_BOMB:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_LAVA_BOMB))
-                                DoCast(target, SPELL_LAVA_BOMB);
-                            events.ScheduleEvent(EVENT_LAVA_BOMB, 12s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetMoltenCoreAI<boss_magmadarAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_magmadar()
 {
-    new boss_magmadar();
+    RegisterMoltenCoreCreatureAI(boss_magmadar);
 }

@@ -38,6 +38,14 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
+enum GenericData
+{
+    SPELL_ARCANITE_DRAGONLING           = 19804,
+    SPELL_BATTLE_CHICKEN                = 13166,
+    SPELL_MECHANICAL_DRAGONLING         = 4073,
+    SPELL_MITHRIL_MECHANICAL_DRAGONLING = 12749,
+};
+
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
 {
@@ -177,10 +185,10 @@ class spell_item_alchemists_stone : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActionTarget();
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
         {
             uint32 spellId;
-            switch (spellInfo->Effects[i].Effect)
+            switch (spellEffectInfo.Effect)
             {
                 case SPELL_EFFECT_HEAL:
                     spellId = SPELL_ALCHEMISTS_STONE_EXTRA_HEAL;
@@ -193,7 +201,7 @@ class spell_item_alchemists_stone : public AuraScript
             }
 
             CastSpellExtraArgs args(aurEff);
-            args.AddSpellBP0(CalculatePct(spellInfo->Effects[i].CalcValue(caster), 40));
+            args.AddSpellBP0(CalculatePct(spellEffectInfo.CalcValue(caster), 40));
             caster->CastSpell(nullptr, spellId, args);
         }
     }
@@ -1242,7 +1250,7 @@ class spell_item_crystal_spire_of_karabor : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        int32 pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+        int32 pct = GetEffectInfo(EFFECT_0).BasePoints;
         if (HealInfo* healInfo = eventInfo.GetHealInfo())
             if (Unit* healTarget = healInfo->GetTarget())
                 if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
@@ -1364,43 +1372,52 @@ class spell_item_mercurial_shield : public SpellScript
     }
 };
 
+enum MingoFortune
+{
+    SPELL_CREATE_FORTUNE_1       = 40804,
+    SPELL_CREATE_FORTUNE_2       = 40805,
+    SPELL_CREATE_FORTUNE_3       = 40806,
+    SPELL_CREATE_FORTUNE_4       = 40807,
+    SPELL_CREATE_FORTUNE_5       = 40808,
+    SPELL_CREATE_FORTUNE_6       = 40809,
+    SPELL_CREATE_FORTUNE_7       = 40908,
+    SPELL_CREATE_FORTUNE_8       = 40910,
+    SPELL_CREATE_FORTUNE_9       = 40911,
+    SPELL_CREATE_FORTUNE_10      = 40912,
+    SPELL_CREATE_FORTUNE_11      = 40913,
+    SPELL_CREATE_FORTUNE_12      = 40914,
+    SPELL_CREATE_FORTUNE_13      = 40915,
+    SPELL_CREATE_FORTUNE_14      = 40916,
+    SPELL_CREATE_FORTUNE_15      = 40918,
+    SPELL_CREATE_FORTUNE_16      = 40919,
+    SPELL_CREATE_FORTUNE_17      = 40920,
+    SPELL_CREATE_FORTUNE_18      = 40921,
+    SPELL_CREATE_FORTUNE_19      = 40922,
+    SPELL_CREATE_FORTUNE_20      = 40923
+};
+
+std::array<uint32, 20> const CreateFortuneSpells =
+{
+    SPELL_CREATE_FORTUNE_1, SPELL_CREATE_FORTUNE_2, SPELL_CREATE_FORTUNE_3, SPELL_CREATE_FORTUNE_4, SPELL_CREATE_FORTUNE_5,
+    SPELL_CREATE_FORTUNE_6, SPELL_CREATE_FORTUNE_7, SPELL_CREATE_FORTUNE_8, SPELL_CREATE_FORTUNE_9, SPELL_CREATE_FORTUNE_10,
+    SPELL_CREATE_FORTUNE_11, SPELL_CREATE_FORTUNE_12, SPELL_CREATE_FORTUNE_13, SPELL_CREATE_FORTUNE_14, SPELL_CREATE_FORTUNE_15,
+    SPELL_CREATE_FORTUNE_16, SPELL_CREATE_FORTUNE_17, SPELL_CREATE_FORTUNE_18, SPELL_CREATE_FORTUNE_19, SPELL_CREATE_FORTUNE_20
+};
+
 // http://www.wowhead.com/item=32686 Mingo's Fortune Giblets
 // 40802 Mingo's Fortune Generator
 class spell_item_mingos_fortune_generator : public SpellScript
 {
     PrepareSpellScript(spell_item_mingos_fortune_generator);
 
-    void HandleDummy(SpellEffIndex effIndex)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        // Selecting one from Bloodstained Fortune item
-        uint32 newitemid;
-        switch (urand(1, 20))
-        {
-            case 1:  newitemid = 32688; break;
-            case 2:  newitemid = 32689; break;
-            case 3:  newitemid = 32690; break;
-            case 4:  newitemid = 32691; break;
-            case 5:  newitemid = 32692; break;
-            case 6:  newitemid = 32693; break;
-            case 7:  newitemid = 32700; break;
-            case 8:  newitemid = 32701; break;
-            case 9:  newitemid = 32702; break;
-            case 10: newitemid = 32703; break;
-            case 11: newitemid = 32704; break;
-            case 12: newitemid = 32705; break;
-            case 13: newitemid = 32706; break;
-            case 14: newitemid = 32707; break;
-            case 15: newitemid = 32708; break;
-            case 16: newitemid = 32709; break;
-            case 17: newitemid = 32710; break;
-            case 18: newitemid = 32711; break;
-            case 19: newitemid = 32712; break;
-            case 20: newitemid = 32713; break;
-            default:
-                return;
-        }
+        return ValidateSpellInfo(CreateFortuneSpells);
+    }
 
-        CreateItem(effIndex, newitemid);
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CreateFortuneSpells), true);
     }
 
     void Register() override
@@ -2421,46 +2438,6 @@ class spell_item_red_rider_air_rifle : public SpellScript
     }
 };
 
-enum GenericData
-{
-    SPELL_ARCANITE_DRAGONLING           = 19804,
-    SPELL_BATTLE_CHICKEN                = 13166,
-    SPELL_MECHANICAL_DRAGONLING         = 4073,
-    SPELL_MITHRIL_MECHANICAL_DRAGONLING = 12749,
-};
-
-enum CreateHeartCandy
-{
-    ITEM_HEART_CANDY_1 = 21818,
-    ITEM_HEART_CANDY_2 = 21817,
-    ITEM_HEART_CANDY_3 = 21821,
-    ITEM_HEART_CANDY_4 = 21819,
-    ITEM_HEART_CANDY_5 = 21816,
-    ITEM_HEART_CANDY_6 = 21823,
-    ITEM_HEART_CANDY_7 = 21822,
-    ITEM_HEART_CANDY_8 = 21820,
-};
-
-class spell_item_create_heart_candy : public SpellScript
-{
-    PrepareSpellScript(spell_item_create_heart_candy);
-
-    void HandleScript(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        if (Player* target = GetHitPlayer())
-        {
-            static const uint32 items[] = {ITEM_HEART_CANDY_1, ITEM_HEART_CANDY_2, ITEM_HEART_CANDY_3, ITEM_HEART_CANDY_4, ITEM_HEART_CANDY_5, ITEM_HEART_CANDY_6, ITEM_HEART_CANDY_7, ITEM_HEART_CANDY_8};
-            target->AddItem(items[urand(0, 7)], 1);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_create_heart_candy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 class spell_item_book_of_glyph_mastery : public SpellScript
 {
     PrepareSpellScript(spell_item_book_of_glyph_mastery);
@@ -2682,22 +2659,6 @@ class spell_magic_eater_food : public AuraScript
     }
 };
 
-class spell_item_shimmering_vessel : public SpellScript
-{
-    PrepareSpellScript(spell_item_shimmering_vessel);
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        if (Creature* target = GetHitCreature())
-            target->setDeathState(JUST_RESPAWNED);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_shimmering_vessel::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum PurifyHelboarMeat
 {
     SPELL_SUMMON_PURIFIED_HELBOAR_MEAT      = 29277,
@@ -2763,66 +2724,6 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_item_crystal_prison_dummy_dnd::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum ReindeerTransformation
-{
-    SPELL_FLYING_REINDEER_310                   = 44827,
-    SPELL_FLYING_REINDEER_280                   = 44825,
-    SPELL_FLYING_REINDEER_60                    = 44824,
-    SPELL_REINDEER_100                          = 25859,
-    SPELL_REINDEER_60                           = 25858,
-};
-
-class spell_item_reindeer_transformation : public SpellScript
-{
-    PrepareSpellScript(spell_item_reindeer_transformation);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_FLYING_REINDEER_310,
-            SPELL_FLYING_REINDEER_280,
-            SPELL_FLYING_REINDEER_60,
-            SPELL_REINDEER_100,
-            SPELL_REINDEER_60
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        Unit* caster = GetCaster();
-        if (caster->HasAuraType(SPELL_AURA_MOUNTED))
-        {
-            float flyspeed = caster->GetSpeedRate(MOVE_FLIGHT);
-            float speed = caster->GetSpeedRate(MOVE_RUN);
-
-            caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
-            //5 different spells used depending on mounted speed and if mount can fly or not
-
-            if (flyspeed >= 4.1f)
-                // Flying Reindeer
-                caster->CastSpell(caster, SPELL_FLYING_REINDEER_310, true); //310% flying Reindeer
-            else if (flyspeed >= 3.8f)
-                // Flying Reindeer
-                caster->CastSpell(caster, SPELL_FLYING_REINDEER_280, true); //280% flying Reindeer
-            else if (flyspeed >= 1.6f)
-                // Flying Reindeer
-                caster->CastSpell(caster, SPELL_FLYING_REINDEER_60, true); //60% flying Reindeer
-            else if (speed >= 2.0f)
-                // Reindeer
-                caster->CastSpell(caster, SPELL_REINDEER_100, true); //100% ground Reindeer
-            else
-                // Reindeer
-                caster->CastSpell(caster, SPELL_REINDEER_60, true); //60% ground Reindeer
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_reindeer_transformation::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3037,66 +2938,6 @@ class spell_item_impale_leviroth : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_item_impale_leviroth::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum BrewfestMountTransformation
-{
-    SPELL_MOUNT_RAM_100                         = 43900,
-    SPELL_MOUNT_RAM_60                          = 43899,
-    SPELL_MOUNT_KODO_100                        = 49379,
-    SPELL_MOUNT_KODO_60                         = 49378,
-    SPELL_BREWFEST_MOUNT_TRANSFORM              = 49357,
-    SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE      = 52845,
-};
-
-class spell_item_brewfest_mount_transformation : public SpellScript
-{
-    PrepareSpellScript(spell_item_brewfest_mount_transformation);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_MOUNT_RAM_100,
-            SPELL_MOUNT_RAM_60,
-            SPELL_MOUNT_KODO_100,
-            SPELL_MOUNT_KODO_60
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (caster->HasAuraType(SPELL_AURA_MOUNTED))
-        {
-            caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
-            uint32 spell_id;
-
-            switch (GetSpellInfo()->Id)
-            {
-                case SPELL_BREWFEST_MOUNT_TRANSFORM:
-                    if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
-                        spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100;
-                    else
-                        spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60;
-                    break;
-                case SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE:
-                    if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
-                        spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100;
-                    else
-                        spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60;
-                    break;
-                default:
-                    return;
-            }
-            caster->CastSpell(caster, spell_id, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_brewfest_mount_transformation::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3901,7 +3742,7 @@ class spell_item_charm_witch_doctor : public AuraScript
 
         if (Unit* target = eventInfo.GetActionTarget())
         {
-            int32 bp = CalculatePct(target->GetCreateHealth(),aurEff->GetSpellInfo()->Effects[1].CalcValue());
+            int32 bp = CalculatePct(target->GetCreateHealth(), aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue());
             CastSpellExtraArgs args(aurEff);
             args.AddSpellBP0(bp);
             eventInfo.GetActor()->CastSpell(target, SPELL_CHARM_WITCH_DOCTOR_PROC, args);
@@ -4404,7 +4245,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_worn_troll_dice);
     RegisterSpellScript(spell_item_red_rider_air_rifle);
 
-    RegisterSpellScript(spell_item_create_heart_candy);
     RegisterSpellScript(spell_item_book_of_glyph_mastery);
     RegisterSpellScript(spell_item_gift_of_the_harvester);
     RegisterSpellScript(spell_item_map_of_the_geyser_fields);
@@ -4412,17 +4252,14 @@ void AddSC_item_spell_scripts()
 
     RegisterSpellScript(spell_item_ashbringer);
     RegisterSpellScript(spell_magic_eater_food);
-    RegisterSpellScript(spell_item_shimmering_vessel);
     RegisterSpellScript(spell_item_purify_helboar_meat);
     RegisterSpellScript(spell_item_crystal_prison_dummy_dnd);
-    RegisterSpellScript(spell_item_reindeer_transformation);
     RegisterSpellScript(spell_item_nigh_invulnerability);
     RegisterSpellScript(spell_item_poultryizer);
     RegisterSpellScript(spell_item_socrethars_stone);
     RegisterSpellScript(spell_item_demon_broiled_surprise);
     RegisterSpellScript(spell_item_complete_raptor_capture);
     RegisterSpellScript(spell_item_impale_leviroth);
-    RegisterSpellScript(spell_item_brewfest_mount_transformation);
     RegisterSpellScript(spell_item_nitro_boosts);
     RegisterSpellScript(spell_item_nitro_boosts_backfire);
     RegisterSpellScript(spell_item_teach_language);

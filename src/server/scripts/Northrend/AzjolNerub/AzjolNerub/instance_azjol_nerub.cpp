@@ -91,12 +91,18 @@ class instance_azjol_nerub : public InstanceMapScript
             bool CheckRequiredBosses(uint32 bossId, Player const* player) const override
             {
                 if (_SkipCheckRequiredBosses(player))
-                    return true;
+                    // @tswow-begin
+                    return _CheckRequiredBosses(bossId, player, false);
+                    // @tswow-end
 
                 if (bossId > DATA_KRIKTHIR && GetBossState(DATA_KRIKTHIR) != DONE)
-                    return false;
+                    // @tswow-begin
+                    return _CheckRequiredBosses(bossId, player, false);
+                    // @tswow-end
 
-                return true;
+                // @tswow-begin
+                return _CheckRequiredBosses(bossId, player, true);
+                // @tswow-end
             }
 
             uint32 GetData(uint32 type) const override

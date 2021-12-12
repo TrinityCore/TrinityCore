@@ -105,7 +105,10 @@ enum Spells
     SPELL_MORTAL_WOUND                      = 28467,
 
     // Guardian of Icecrown
-    SPELL_BLOOD_TAP                         = 28470
+    SPELL_BLOOD_TAP                         = 28470,
+
+    // Shadow Fissure
+    SPELL_VOID_BLAST                        = 27812
 };
 
 static const uint8 nGuardianSpawns = 4;
@@ -221,7 +224,7 @@ struct boss_kelthuzad : public BossAI
                 return;
             _Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
             _skeletonCount = 0;
             _bansheeCount = 0;
@@ -273,7 +276,7 @@ struct boss_kelthuzad : public BossAI
             Talk(SAY_DEATH);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (events.IsInPhase(PHASE_ONE))
                 damage = 0;
@@ -426,7 +429,7 @@ struct boss_kelthuzad : public BossAI
                     case EVENT_PHASE_TWO:
                         me->CastStop();
                         events.SetPhase(PHASE_TWO);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         me->SetImmuneToPC(false);
                         ResetThreatList();
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -825,6 +828,32 @@ struct npc_kelthuzad_guardian : public ScriptedAI
         uint32 _bloodTapTimer;
 };
 
+struct npc_kelthuzad_shadow_fissure : public ScriptedAI
+{
+    npc_kelthuzad_shadow_fissure(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(5s, [this](TaskContext /*task*/)
+        {
+            DoCastSelf(SPELL_VOID_BLAST);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // 28410 - Chains of Kel'Thuzad
 class spell_kelthuzad_chains : public AuraScript
 {
@@ -956,6 +985,7 @@ void AddSC_boss_kelthuzad()
     RegisterNaxxramasCreatureAI(npc_kelthuzad_banshee);
     RegisterNaxxramasCreatureAI(npc_kelthuzad_abomination);
     RegisterNaxxramasCreatureAI(npc_kelthuzad_guardian);
+    RegisterNaxxramasCreatureAI(npc_kelthuzad_shadow_fissure);
     RegisterSpellScript(spell_kelthuzad_chains);
     RegisterSpellScript(spell_kelthuzad_detonate_mana);
     RegisterSpellScript(spell_kelthuzad_frost_blast);

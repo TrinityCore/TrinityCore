@@ -125,6 +125,7 @@ jobs:
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
             export PATH=/usr/lib/ccache:$PATH
+            export CCACHE_DIR=$HOME/.ccache
             ccache -z
             ccache -s
             git config user.email "circleci@build.bot" && git config user.name "Circle CI"

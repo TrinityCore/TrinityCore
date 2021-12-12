@@ -173,7 +173,7 @@ struct boss_eregos : public BossAI
         summon->CastSpell(summon, SPELL_PLANAR_BLAST, true);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!IsHeroic())
             return;

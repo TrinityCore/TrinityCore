@@ -266,7 +266,7 @@ public:
                     break;
             }
 
-             return true;
+            return true;
         }
 
         void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
@@ -411,6 +411,9 @@ public:
                          break;
                 }
             }
+            // @tswow-begin call super
+            InstanceScript::Update(diff);
+            // @tswow-end
         }
 
         void Dragonspireroomstore()

@@ -71,7 +71,7 @@ struct boss_bloodmage_thalnos : public BossAI
             Talk(SAY_KILL);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_hpYell && me->HealthBelowPctDamaged(35, damage))
         {

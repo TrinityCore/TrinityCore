@@ -361,12 +361,12 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     }
 
     // @tswow-begin
-    FIRE(FormulaOnAddThreatEarly
+    FIRE(UnitOnCalcThreatEarly
         , TSUnit(const_cast<Unit*>(_owner))
         , TSUnit(target)
+        , TSMutable<float>(&amount)
         , TSSpellInfo(spell)
         , isRaw
-        , TSMutable<float>(&amount)
     );
     // @tswow-end
     // apply threat modifiers to the amount
@@ -374,12 +374,12 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         amount = CalculateModifiedThreat(amount, target, spell);
 
     // @tswow-begin
-    FIRE(FormulaOnAddThreatLate
+    FIRE(UnitOnCalcThreatLate
         , TSUnit(const_cast<Unit*>(_owner))
         , TSUnit(target)
+        , TSMutable<float>(&amount)
         , TSSpellInfo(spell)
         , isRaw
-        , TSMutable<float>(&amount)
     );
     // @tswow-end
     // if we're increasing threat, send some/all of it to redirection targets instead if applicable
@@ -454,11 +454,11 @@ void ThreatManager::ScaleThreat(Unit* target, float factor, bool isRaw)
 {
     auto it = _myThreatListEntries.find(target->GetGUID());
     // @tswow-begin
-    FIRE(FormulaOnScaleThreat
+    FIRE(UnitOnCalcScaleThreat
         , TSUnit(const_cast<Unit*>(_owner))
         , TSUnit(target)
-        , isRaw
         , TSMutable<float>(&factor)
+        , isRaw
     );
     // @tswow-end
     if (it != _myThreatListEntries.end())

@@ -241,7 +241,13 @@ public:
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
             }
-
+            // @tswow-begin
+            FIRE_MAP(
+                GetInstanceEvent(instance->GetEntry()->ID)
+                , InstanceOnLoad
+                , TSInstance(instance,this)
+            );
+            // @tswow-end
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
@@ -285,6 +291,9 @@ public:
                     }
                 } else uiTimer -= uiDiff;
             }
+            // @tswow-begin call super
+            InstanceScript::Update(uiDiff);
+            // @tswow-end
         }
 
     private:

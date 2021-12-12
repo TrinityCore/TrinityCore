@@ -221,7 +221,15 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         {
             // @tswow-begin
             bool b = false;
-            FIRE_BOOL_MAP(unit->GetCreatureTemplate()->events,CreatureOnGossipSelect,b,TSCreature(unit),TSPlayer(_player),menuId,gossipListId);
+            FIRE_BOOL_MAP(
+                  unit->GetCreatureTemplate()->events
+                , CreatureOnGossipSelect
+                , b
+                , TSCreature(unit)
+                , TSPlayer(_player)
+                , _player->PlayerTalkClass->GetGossipOptionSender(gossipListId)
+                , _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)
+            );
             // @tswow-end
             if (!unit->AI()->OnGossipSelect(_player, menuId, gossipListId))
                 _player->OnGossipSelect(unit, gossipListId, menuId);
@@ -229,15 +237,36 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         else if(go)
         {
             bool b = false;
-            FIRE_BOOL_MAP(go->GetGOInfo()->events,GameObjectOnGossipSelect,b,TSGameObject(go),TSPlayer(_player),menuId,gossipListId);
+            // @tswow-begin
+            FIRE_BOOL_MAP(
+                  go->GetGOInfo()->events
+                , GameObjectOnGossipSelect
+                , b
+                , TSGameObject(go)
+                , TSPlayer(_player)
+                , _player->PlayerTalkClass->GetGossipOptionSender(gossipListId)
+                , _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)
+            );
             if (!b && !go->AI()->OnGossipSelect(_player, menuId, gossipListId))
+            // @tswow-end
                 _player->OnGossipSelect(go, gossipListId, menuId);
-        } 
+        }
         else if(item)
         {
+            // @tswow-begin
             bool b = false;
-            FIRE_BOOL_MAP(item->GetTemplate()->events,ItemOnGossipSelect,b,TSItem(item),TSPlayer(_player),menuId,gossipListId);
-            sScriptMgr->OnGossipSelect(_player, item, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+            FIRE_BOOL_MAP(
+                  item->GetTemplate()->events
+                , ItemOnGossipSelect
+                , b
+                , TSItem(item)
+                , TSPlayer(_player)
+                , _player->PlayerTalkClass->GetGossipOptionSender(gossipListId)
+                , _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)
+            );
+            if(!b)
+                sScriptMgr->OnGossipSelect(_player, item, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+            // @tswow-end
         }
         else
         {

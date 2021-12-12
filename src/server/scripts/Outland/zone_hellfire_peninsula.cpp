@@ -554,7 +554,7 @@ public:
             me->SetImmuneToPC(true);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (damage > me->GetHealth() || me->HealthBelowPctDamaged(20, damage))
             {
@@ -639,6 +639,8 @@ enum WatchCommanderLeonus
     EVENT_CAST  = 2,
     EVENT_END   = 3,
 
+    GAME_EVENT_HELLFIRE = 85,
+
     NPC_INFERNAL_RAIN   = 18729,
     NPC_FEAR_CONTROLLER = 19393,
     SPELL_INFERNAL_RAIN = 33814,
@@ -649,12 +651,13 @@ struct npc_watch_commander_leonus : public ScriptedAI
 {
     npc_watch_commander_leonus(Creature* creature) : ScriptedAI(creature) { }
 
-    void JustAppeared() override
+    void OnGameEvent(bool start, uint16 eventId) override
     {
-        ScriptedAI::JustAppeared();
-
-        _events.Reset();
-        _events.ScheduleEvent(EVENT_START, 2min, 10min);
+        if (eventId == GAME_EVENT_HELLFIRE && start)
+        {
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_START, 1s);
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -681,8 +684,6 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     for (Creature* dummy : dummies)
                         if (dummy->GetCreatureData()->movementType == 0)
                             dummy->AI()->SetData(EVENT_START, 0);
-
-                    _events.Repeat(1h);
                     break;
                 }
             }

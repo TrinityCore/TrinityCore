@@ -54,6 +54,9 @@ void BattlegroundBE::StartingEventCloseDoors()
 
     for (uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundBE::StartingEventOpenDoors()
@@ -64,6 +67,9 @@ void BattlegroundBE::StartingEventOpenDoors()
 
     for (uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
@@ -103,6 +109,7 @@ bool BattlegroundBE::SetupBattleground()
         TC_LOG_ERROR("sql.sql", "BatteGroundBE: Failed to spawn some object!");
         return false;
     }
-
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }

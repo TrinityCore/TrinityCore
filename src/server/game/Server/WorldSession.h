@@ -236,6 +236,8 @@ enum AccountDataType
 #define GLOBAL_CACHE_MASK           0x15
 #define PER_CHARACTER_CACHE_MASK    0xEA
 
+uint32 constexpr MAX_CHARACTERS_PER_REALM = 10; // max supported by client in char enum
+
 struct AccountData
 {
     AccountData() : Time(0), Data("") { }
@@ -411,7 +413,7 @@ class TC_GAME_API WorldSession
         void SendAddonsInfo();
 
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
-        void WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
+        void static WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
 
         void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
@@ -438,6 +440,7 @@ class TC_GAME_API WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
+        std::string const& GetAccountName() const { return _accountName; }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
@@ -1124,6 +1127,10 @@ class TC_GAME_API WorldSession
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
+
+        // @tswow-begin
+        void HandleCustom(WorldPacket& recvPacket);
+        // @tswow-end
 
     public:
         QueryCallbackProcessor& GetQueryProcessor() { return _queryProcessor; }

@@ -233,6 +233,8 @@ enum AchievementCriteriaTypes : uint8
     ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS           = 114,
     ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS       = 115,
     ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS = 119,
+    // @tswow-begin custom achievement criteria
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ENCOUNTER            = 120,
 };
 
 #define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 124
@@ -433,7 +435,9 @@ enum SummonPropFlags
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
 #define MAX_TALENT_TABS 3
 
-static constexpr size_t TaxiMaskSize = 14;
+// @tswow-begin
+static constexpr size_t TaxiMaskSize = 64;
+// @tswow-end
 typedef std::array<uint32, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType

@@ -110,6 +110,9 @@ class instance_halls_of_reflection : public InstanceMapScript
                     if (!JainaOrSylvanasEscapeGUID && GetBossState(DATA_THE_LICH_KING_ESCAPE) != DONE)
                         SpawnEscapeEvent();
                 }
+                // @tswow-begin call super
+                InstanceScript::OnPlayerEnter(player);
+                // @tswow-end
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -294,6 +297,9 @@ class instance_halls_of_reflection : public InstanceMapScript
             {
                 packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVES_ENABLED, (_introState == DONE && GetBossState(DATA_MARWYN) != DONE) ? 1 : 0);
                 packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                // @tswow-begin call super
+                InstanceScript::FillInitialWorldStates(packet);
+                // @tswow-end
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -527,6 +533,9 @@ class instance_halls_of_reflection : public InstanceMapScript
                         instance->SummonCreature(NPC_UTHER, UtherQuelDalarPos);
                         break;
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
@@ -590,7 +599,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 if (Creature* temp = instance->GetCreature(guid))
                                 {
                                     temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, false);
-                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                                     temp->SetImmuneToAll(false);
                                     temp->AI()->DoZoneInCombat(temp);
                                 }

@@ -352,11 +352,6 @@ bool SmartAI::IsEscortInvokerInRange()
     return true;
 }
 
-void SmartAI::WaypointStarted(uint32 nodeId, uint32 pathId)
-{
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, nodeId, pathId);
-}
-
 void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
@@ -624,7 +619,7 @@ void SmartAI::SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target->ToUnit(), 0, 0, false, spellInfo, target->ToGameObject());
 }
 
-void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
+void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
 
@@ -742,16 +737,6 @@ void SmartAI::SetRun(bool run)
 void SmartAI::SetDisableGravity(bool fly)
 {
     me->SetDisableGravity(fly);
-}
-
-void SmartAI::SetCanFly(bool fly)
-{
-    me->SetCanFly(fly);
-}
-
-void SmartAI::SetSwim(bool swim)
-{
-    me->SetSwim(swim);
 }
 
 void SmartAI::SetEvadeDisabled(bool disable)

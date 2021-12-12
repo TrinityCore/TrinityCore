@@ -889,8 +889,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         }
         else
         {
-            TC_LOG_ERROR("entities.pet", "Unknown type pet %u is summoned by player class %u",
-                           GetEntry(), GetOwner()->GetClass());
+            // @tswow-begin disable custom pet errors
+            //TC_LOG_ERROR("entities.pet", "Unknown type pet %u is summoned by player class %u",
+            //               GetEntry(), GetOwner()->GetClass());
+            // @tswow-end
         }
     }
 

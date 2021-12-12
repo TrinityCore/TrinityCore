@@ -337,6 +337,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         TSMapDataExtra* GetExtraData() { return i_mapExtra; }
         TSWorldEntity<TSMap> m_tsWorldEntity;
         TSEntity m_tsEntity;
+        std::vector < std::function<void(TSMap, TSMapManager)>> m_delayCallbacks;
         // @tswow-end
 
         // currently unused for normal maps

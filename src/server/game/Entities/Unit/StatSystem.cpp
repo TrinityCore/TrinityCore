@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSCreature.h"
+// @tswow-end
+
 #include "Unit.h"
 #include "Creature.h"
 #include "Item.h"
@@ -26,7 +30,92 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include <numeric>
-#include "atmsp.h"
+
+// @tswow-begin move dodge_cap to top of file and remove const
+float dodge_cap[MAX_CLASSES] =
+{
+    88.129021f,     // Warrior
+    88.129021f,     // Paladin
+    145.560408f,    // Hunter
+    145.560408f,    // Rogue
+    150.375940f,    // Priest
+    88.129021f,     // DK
+    145.560408f,    // Shaman
+    150.375940f,    // Mage
+    150.375940f,    // Warlock
+    0.0f,           // ??
+    116.890707f,     // Druid
+
+    // default values for custom classes
+    100,100,100,100,100,100,100,
+    100,100,100,100,100,100,100,
+    100,100,100,100,100,100,100,
+};
+// @tswow-end
+
+// @tswow-begin move miss_cap to top of file and remove const
+float miss_cap[MAX_CLASSES] =
+{
+    16.00f,     // Warrior //correct
+    16.00f,     // Paladin //correct
+    16.00f,     // Hunter  //?
+    16.00f,     // Rogue   //?
+    16.00f,     // Priest  //?
+    16.00f,     // DK      //correct
+    16.00f,     // Shaman  //?
+    16.00f,     // Mage    //?
+    16.00f,     // Warlock //?
+    0.0f,       // ??
+    16.00f,      // Druid   //?
+
+    // default values for custom classes
+    16,16,16,16,16,16,16,
+    16,16,16,16,16,16,16,
+    16,16,16,16,16,16,16,
+};
+// @tswow-end
+
+// @tswow-begin move m_diminishing_k to top of file and remove const
+float m_diminishing_k[MAX_CLASSES] =
+{
+    0.9560f,  // Warrior
+    0.9560f,  // Paladin
+    0.9880f,  // Hunter
+    0.9880f,  // Rogue
+    0.9830f,  // Priest
+    0.9560f,  // DK
+    0.9880f,  // Shaman
+    0.9830f,  // Mage
+    0.9830f,  // Warlock
+    0.0f,     // ??
+    0.9720f,   // Druid
+    // default values for custom classes
+    0.98f,0.98f,0.98f,0.98f,0.98f,0.98f,0.98f,
+    0.98f,0.98f,0.98f,0.98f,0.98f,0.98f,0.98f,
+    0.98f,0.98f,0.98f,0.98f,0.98f,0.98f,0.98f,
+};
+// @tswow-end
+
+// @tswow-begin move parry_cap to top of file and remove const
+float parry_cap[MAX_CLASSES] =
+{
+    47.003525f,     // Warrior
+    47.003525f,     // Paladin
+    145.560408f,    // Hunter
+    145.560408f,    // Rogue
+    0.0f,           // Priest
+    47.003525f,     // DK
+    145.560408f,    // Shaman
+    0.0f,           // Mage
+    0.0f,           // Warlock
+    0.0f,           // ??
+    0.0f,           // Druid
+
+    // default values for custom classes
+    0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,
+};
+// @tswow-end
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
@@ -72,6 +161,23 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
         totalMin += tmpMin;
         totalMax += tmpMax;
     }
+
+    // @tswow-begin
+    if (Creature* c = this->ToCreature())
+    {
+        // @tswow-begin
+        FIRE_MAP(
+              c->GetCreatureTemplate()->events
+            , CreatureOnUpdateDamagePhysical
+            , TSCreature(c)
+            , TSMutable<float>(&totalMin)
+            , TSMutable<float>(&totalMax)
+            , false
+            , uint8(attType)
+        );
+        // @tswow-end
+    }
+    // @tswow-end
 
     switch (attType)
     {
@@ -249,6 +355,14 @@ void Player::UpdateResistances(uint32 school)
     {
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
+        // @tswow-begin
+        FIRE(
+              PlayerOnUpdateResistance
+            , TSPlayer(this)
+            , TSMutable<float>(&value)
+            , school
+        );
+        // @tswow-end
 
         Pet* pet = GetPet();
         if (pet)
@@ -277,6 +391,13 @@ void Player::UpdateArmor()
 
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateArmor
+        , TSPlayer(this)
+        , TSMutable<float>(&value)
+    );
+    // @tswow-end
     SetArmor(int32(value));
 
     Pet* pet = GetPet();
@@ -291,7 +412,12 @@ float Player::GetHealthBonusFromStamina()
     float moreStam = stamina - baseStam;
     // @tswow-begin
     float health = baseStam + (moreStam*10.0f);
-    FIRE(FormulaOnStaminaHealthBonus,TSPlayer(this),baseStam,moreStam,TSMutable<float>(&health));
+    FIRE(PlayerOnCalcStaminaHealthBonus
+        , TSPlayer(this)
+        , TSMutable<float>(&health)
+        , baseStam
+        , moreStam
+    );
     return health;
     // @tswow-end
 }
@@ -305,7 +431,12 @@ float Player::GetManaBonusFromIntellect()
 
     // @tswow-begin
     float mana = baseInt + (moreInt * 15.0f);
-    FIRE(FormulaOnIntellectManaBonus,TSPlayer(this),baseInt,moreInt,TSMutable<float>(&mana));
+    FIRE(PlayerOnCalcIntellectManaBonus
+        ,TSPlayer(this)
+        ,TSMutable<float>(&mana)
+        ,baseInt
+        ,moreInt
+    );
     // @tswow-end
     return mana;
 }
@@ -319,7 +450,10 @@ void Player::UpdateMaxHealth()
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
     // @tswow-begin
-    FIRE(FormulaOnMaxHealth,TSPlayer(this),TSMutable<float>(&value));
+    FIRE(PlayerOnUpdateMaxHealth
+        ,TSPlayer(this)
+        ,TSMutable<float>(&value)
+    );
     // @tswow-end
     SetMaxHealth((uint32)value);
 }
@@ -335,7 +469,12 @@ void Player::UpdateMaxPower(Powers power)
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) +  bonusPower;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
     // @tswow-begin
-    FIRE(FormulaOnMaxPower,TSPlayer(this),static_cast<uint32>(power),bonusPower,TSMutable<float>(&value));
+    FIRE(PlayerOnUpdateMaxPower
+        , TSPlayer(this)
+        , TSMutable<float>(&value)
+        , static_cast<int8>(power)
+        , bonusPower
+    );
     // @tswow-end
     SetMaxPower(power, uint32(std::lroundf(value)));
 }
@@ -346,98 +485,100 @@ void Player::ApplyFeralAPBonus(int32 amount, bool apply)
     UpdateAttackPowerAndDamage();
 }
 
-struct Formula {
-    ATMSB<float> byteCode;
-    ATMSP<float> parser;
-    bool loaded = false;
+uint32 meleeAPFormulas[32];
+uint32 rangedAPFormulas[32];
+
+enum class ClassStatFormulaTypes: uint32 {
+    MELEE =  1,
+    RANGED = 2,
 };
-Formula meleeAPFormulas[32];
-Formula rangedAPFormulas[32];
 
-void LoadAPFormulas() 
+enum class ClassStatValueTypes : uint32 {
+    DIMINISHING_K = 1,
+    MISS_CAP      = 2,
+    PARRY_CAP     = 3,
+    DODGE_CAP     = 4,
+    DODGE_BASE    = 5,
+    CRIT_TO_DODGE = 6,
+};
+
+void LoadAPFormulas()
 {
-    for (int i = 0; i < 32; ++i) 
+    for (int i = 0; i < 32; ++i)
     {
-        meleeAPFormulas[i] = Formula();
-        rangedAPFormulas[i] = Formula();
+        meleeAPFormulas[i] = i;
+        rangedAPFormulas[i] = i;
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT * from class_stat_formulas;");
-    if(!result) return;
-    do
     {
-        Field* field = result->Fetch();
-        uint32 stat = field[1].GetUInt32();
-        uint32 cls = field[0].GetUInt32();
-        if (cls > 32) {
-            /*
-            sLog->outError("Error loading formula for class %i: Class ID exceeds 32",
-                cls);
-            */
-            continue;
-        }
-
-        std::string fs = field[2].GetString();
-        Formula* f;
-
-        if(stat == 1)
+        QueryResult result = WorldDatabase.Query("SELECT * from class_stat_formulas;");
+        if (result)
         {
-            f = &meleeAPFormulas[cls-1];
-        } 
-        else if(stat == 2)
-        {
-            f = &rangedAPFormulas[cls-1];
-        } else {
-            continue;
-        }
+            do
+            {
+                Field* field = result->Fetch();
+                uint32 cls = field[0].GetUInt32();
+                ClassStatFormulaTypes stat = ClassStatFormulaTypes(field[1].GetUInt32());
+                uint32 clsOut = field[2].GetUInt32();
 
-        std::string args = "level,agility,strength,stamina,intellect,spirit,form";
-        size_t err = f->parser.parse(f->byteCode, fs.c_str(), args);
-        if (err)
-        {
-            /*
-            sLog->outError("Error loading formula %i for class %i: %s",
-                stat, cls, f->parser.errMessage(err));
-            */
-        }
-        else
-        {
-            f->loaded = true;
-        }
-    } while(result->NextRow());
-}
+                if (cls >= MAX_CLASSES) {
+                    continue;
+                }
 
-// @TS TODO: load at startup
-bool loaded = false;
-float applyFormula(Formula *formulas, Player* player, float level, float origVal)
-{
-    Formula* formula = &formulas[player->GetClass()-1];
-    if(formula->loaded)
-    {
-        formula->byteCode.var[0] = level;
-        formula->byteCode.var[1] = player->GetStat(STAT_AGILITY);
-        formula->byteCode.var[2] = player->GetStat(STAT_STRENGTH);
-        formula->byteCode.var[3] = player->GetStat(STAT_STAMINA);
-        formula->byteCode.var[4] = player->GetStat(STAT_INTELLECT);
-        formula->byteCode.var[5] = player->GetStat(STAT_SPIRIT);
-        formula->byteCode.var[6] = player->GetShapeshiftForm();
-        return formula->byteCode.run();
-    }
-    else
-    {
-        return origVal;
+                switch (stat) {
+                    case ClassStatFormulaTypes::MELEE:
+                        meleeAPFormulas[cls] = clsOut;
+                        break;
+                    case ClassStatFormulaTypes::RANGED:
+                        rangedAPFormulas[cls] = clsOut;
+                        break;
+                }
+            } while(result->NextRow());
+        }
     }
 
+    {
+        QueryResult result = WorldDatabase.Query("SELECT * from class_stat_values");
+        if (result)
+        {
+            do {
+                Field* field = result->Fetch();
+                uint32 cls = field[0].GetUInt32()-1;
+                ClassStatValueTypes stat = ClassStatValueTypes(field[1].GetUInt32());
+                float value = field[2].GetFloat();
+
+                if (cls >= MAX_CLASSES) {
+                    continue;
+                }
+
+                switch (stat)
+                {
+                case ClassStatValueTypes::DIMINISHING_K:
+                    m_diminishing_k[cls] = value;
+                    break;
+                case ClassStatValueTypes::DODGE_CAP:
+                    dodge_cap[cls] = value;
+                    break;
+                case ClassStatValueTypes::MISS_CAP:
+                    miss_cap[cls] = value;
+                    break;
+                case ClassStatValueTypes::PARRY_CAP:
+                    parry_cap[cls] = value;
+                    break;
+                case ClassStatValueTypes::DODGE_BASE:
+                    dodge_base[cls] = value;
+                    break;
+                case ClassStatValueTypes::CRIT_TO_DODGE:
+                    crit_to_dodge[cls] = value;
+                    break;
+                }
+            } while (result->NextRow());
+        }
+    }
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
-    if(!loaded)
-    {
-        LoadAPFormulas();
-        loaded = true;
-    }
-
     float val2 = 0.0f;
     float level = float(GetLevel());
 
@@ -453,7 +594,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         index_mod = UNIT_FIELD_RANGED_ATTACK_POWER_MODS;
         index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
 
-        switch (GetClass())
+        // @tswow-begin
+        switch (rangedAPFormulas[GetClass()])
+        // @tswow-end
         {
             case CLASS_HUNTER:
                 val2 = level * 2.0f + GetStat(STAT_AGILITY) - 10.0f;
@@ -477,11 +620,14 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 break;
             default: val2 = GetStat(STAT_AGILITY) - 10.0f; break;
         }
-        val2 = applyFormula(rangedAPFormulas,this,level, val2);
+        FIRE(PlayerOnUpdateRangedAttackPower
+            , TSPlayer(this)
+            , TSMutable<float>(&val2)
+        );
     }
     else
     {
-        switch (GetClass())
+        switch (meleeAPFormulas[GetClass()])
         {
             case CLASS_WARRIOR:
                 val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
@@ -554,7 +700,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 val2 = GetStat(STAT_STRENGTH) - 10.0f;
                 break;
         }
-        val2 = applyFormula(meleeAPFormulas, this, level, val2);
+        FIRE(PlayerOnUpdateAttackPower
+            , TSPlayer(this)
+            , TSMutable<float>(&val2)
+        );
     }
 
     SetStatFlatModifier(unitMod, BASE_VALUE, val2);
@@ -615,7 +764,15 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
 void Player::UpdateShieldBlockValue()
 {
-    SetUInt32Value(PLAYER_SHIELD_BLOCK, GetShieldBlockValue());
+    // @tswow-begin move block and fire event
+    uint32 block = GetShieldBlockValue();
+    FIRE(
+          PlayerOnUpdateShieldBlock
+        , TSPlayer(this)
+        , TSMutable<uint32>(&block)
+    );
+    SetUInt32Value(PLAYER_SHIELD_BLOCK, block);
+    // @tswow-end
 }
 
 void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage, uint8 damageIndex) const
@@ -722,6 +879,13 @@ void Player::UpdateBlockPercentage()
 
         value = value < 0.0f ? 0.0f : value;
     }
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateBlockPercentage
+        , TSPlayer(this)
+        , TSMutable<float>(&value)
+    );
+    // @tswow-end
     SetStatFloatValue(PLAYER_BLOCK_PERCENTAGE, value);
 }
 
@@ -761,6 +925,14 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
          value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_CRIT) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_CRIT) : value;
 
     value = std::max(0.0f, value);
+    // @tswow-begin
+    FIRE(
+        PlayerOnUpdateCrit
+        , TSPlayer(this)
+        , TSMutable<float>(&value)
+        , uint32(attType)
+    );
+    // @tswow-end
     SetStatFloatValue(index, value);
 }
 
@@ -777,20 +949,8 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(RANGED_ATTACK);
 }
 
-float const m_diminishing_k[MAX_CLASSES] =
-{
-    0.9560f,  // Warrior
-    0.9560f,  // Paladin
-    0.9880f,  // Hunter
-    0.9880f,  // Rogue
-    0.9830f,  // Priest
-    0.9560f,  // DK
-    0.9880f,  // Shaman
-    0.9830f,  // Mage
-    0.9830f,  // Warlock
-    0.0f,     // ??
-    0.9720f   // Druid
-};
+// @tswow-begin move m_diminishing_k to top of file
+// @tswow-end
 
 // helper function
 float CalculateDiminishingReturns(float const (&capArray)[MAX_CLASSES], uint8 playerClass, float nonDiminishValue, float diminishValue)
@@ -815,20 +975,8 @@ float CalculateDiminishingReturns(float const (&capArray)[MAX_CLASSES], uint8 pl
     return result;
 }
 
-float const miss_cap[MAX_CLASSES] =
-{
-    16.00f,     // Warrior //correct
-    16.00f,     // Paladin //correct
-    16.00f,     // Hunter  //?
-    16.00f,     // Rogue   //?
-    16.00f,     // Priest  //?
-    16.00f,     // DK      //correct
-    16.00f,     // Shaman  //?
-    16.00f,     // Mage    //?
-    16.00f,     // Warlock //?
-    0.0f,       // ??
-    16.00f      // Druid   //?
-};
+// @tswow-begin move miss_cap to top of file
+// @tswow-end
 
 float Player::GetMissPercentageFromDefense() const
 {
@@ -841,20 +989,8 @@ float Player::GetMissPercentageFromDefense() const
     return CalculateDiminishingReturns(miss_cap, GetClass(), nondiminishing, diminishing);
 }
 
-float const parry_cap[MAX_CLASSES] =
-{
-    47.003525f,     // Warrior
-    47.003525f,     // Paladin
-    145.560408f,    // Hunter
-    145.560408f,    // Rogue
-    0.0f,           // Priest
-    47.003525f,     // DK
-    145.560408f,    // Shaman
-    0.0f,           // Mage
-    0.0f,           // Warlock
-    0.0f,           // ??
-    0.0f            // Druid
-};
+// @tswow-begin move parry-cap to top of file
+// @tswow-end
 
 void Player::UpdateParryPercentage()
 {
@@ -880,23 +1016,18 @@ void Player::UpdateParryPercentage()
 
         value = value < 0.0f ? 0.0f : value;
     }
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateParryPercentage
+        , TSPlayer(this)
+        , TSMutable<float>(&value)
+    );
+    // @tswow-end
     SetStatFloatValue(PLAYER_PARRY_PERCENTAGE, value);
 }
 
-float const dodge_cap[MAX_CLASSES] =
-{
-    88.129021f,     // Warrior
-    88.129021f,     // Paladin
-    145.560408f,    // Hunter
-    145.560408f,    // Rogue
-    150.375940f,    // Priest
-    88.129021f,     // DK
-    145.560408f,    // Shaman
-    150.375940f,    // Mage
-    150.375940f,    // Warlock
-    0.0f,           // ??
-    116.890707f     // Druid
-};
+// @tswow-begin move dodge_cap to top of file
+// @tswow-end
 
 void Player::UpdateDodgePercentage()
 {
@@ -917,6 +1048,13 @@ void Player::UpdateDodgePercentage()
          value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
 
     value = value < 0.0f ? 0.0f : value;
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateDodgePercentage
+        , TSPlayer(this)
+        , TSMutable<float>(&value)
+    );
+    // @tswow-end
     SetStatFloatValue(PLAYER_DODGE_PERCENTAGE, value);
 }
 
@@ -941,6 +1079,14 @@ void Player::UpdateSpellCritChance(uint32 school)
     // Increase crit from spell crit ratings
     crit += GetRatingBonusValue(CR_CRIT_SPELL);
 
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateSpellCrit
+        , TSPlayer(this)
+        , TSMutable<float>(&crit)
+        , school
+    );
+    // @tswow-end
     // Store crit value
     SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + school, crit);
 }
@@ -948,23 +1094,51 @@ void Player::UpdateSpellCritChance(uint32 school)
 void Player::UpdateArmorPenetration(int32 amount)
 {
     // Store Rating Value
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateArmorPenetration
+        , TSPlayer(this)
+        , TSMutable<int32>(&amount)
+    );
+    // @tswow-end
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_ARMOR_PENETRATION, amount);
 }
 
 void Player::UpdateMeleeHitChances()
 {
     m_modMeleeHitChance = GetRatingBonusValue(CR_HIT_MELEE);
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateMeleeHitChances
+        , TSPlayer(this)
+        , TSMutable<float>(&m_modMeleeHitChance)
+    );
+    // @tswow-end
 }
 
 void Player::UpdateRangedHitChances()
 {
     m_modRangedHitChance = GetRatingBonusValue(CR_HIT_RANGED);
+    // @tswow-begin
+    FIRE(
+        PlayerOnUpdateRangedHitChances
+        , TSPlayer(this)
+        , TSMutable<float>(&m_modRangedHitChance)
+    );
+    // @tswow-end
 }
 
 void Player::UpdateSpellHitChances()
 {
     m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
     m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
+    // @tswow-begin
+    FIRE(
+        PlayerOnUpdateSpellHitChances
+        , TSPlayer(this)
+        , TSMutable<float>(&m_modSpellHitChance)
+    );
+    // @tswow-end
 }
 
 void Player::UpdateAllSpellCritChances()
@@ -988,6 +1162,16 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
     if (expertise < 0)
         expertise = 0;
+
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateExpertise
+        , TSPlayer(this)
+        , TSMutable<int32>(&expertise)
+        , uint32(attack)
+        , TSItem(const_cast<Item*>(weapon))
+    );
+    // @tswow-end
 
     switch (attack)
     {
@@ -1034,11 +1218,12 @@ void Player::UpdateManaRegen()
     if (modManaRegenInterrupt > 100)
         modManaRegenInterrupt = 100;
     // @tswow-begin
-    FIRE(FormulaOnManaRegen
+    FIRE(PlayerOnUpdateManaRegen
         , TSPlayer(this)
         , TSMutable<float>(&power_regen)
         , TSMutable<float>(&power_regen_mp5)
-        , TSMutable<int32>(&modManaRegenInterrupt));
+        , TSMutable<int32>(&modManaRegenInterrupt)
+    );
     // @tswow-end
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
 
@@ -1063,6 +1248,14 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
+    // @tswow-begin
+    FIRE(
+          PlayerOnUpdateRuneRegen
+        , TSPlayer(this)
+        , TSMutable<float>(&regen)
+        , uint32(rune)
+    );
+    // @tswow-end
     SetFloatValue(PLAYER_RUNE_REGEN_1 + uint8(rune), regen);
 }
 
@@ -1121,6 +1314,16 @@ void Creature::UpdateResistances(uint32 school)
     {
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
+        // @tswow-begin
+        FIRE_MAP(
+              GetCreatureTemplate()->events
+            , CreatureOnUpdateResistance
+            , TSCreature(this)
+            , TSMutable<float>(&value)
+            , false
+            , school
+        );
+        // @tswow-end
     }
     else
         UpdateArmor();
@@ -1129,12 +1332,30 @@ void Creature::UpdateResistances(uint32 school)
 void Creature::UpdateArmor()
 {
     float value = GetTotalAuraModValue(UNIT_MOD_ARMOR);
+    // @tswow-begin
+    FIRE_MAP(
+        GetCreatureTemplate()->events
+        , CreatureOnUpdateArmor
+        , TSCreature(this)
+        , TSMutable<float>(&value)
+        , false
+    );
+    // @tswow-end
     SetArmor(int32(value));
 }
 
 void Creature::UpdateMaxHealth()
 {
     float value = GetTotalAuraModValue(UNIT_MOD_HEALTH);
+    // @tswow-begin
+    FIRE_MAP(
+          GetCreatureTemplate()->events
+        , CreatureOnUpdateMaxHealth
+        , TSCreature(this)
+        , TSMutable<float>(&value)
+        , false
+    );
+    // @tswow-end
     SetMaxHealth(uint32(value));
 }
 
@@ -1146,7 +1367,16 @@ void Creature::UpdateMaxPower(Powers power)
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
+    // @tswow-begin
+    FIRE_MAP(
+        GetCreatureTemplate()->events
+        , CreatureOnUpdateMaxPower
+        , TSCreature(this)
+        , TSMutable<float>(&value)
+        , false
+        , uint8(power)
+    );
+    // @tswow-end
     SetMaxPower(power, uint32(std::lroundf(value)));
 }
 
@@ -1168,6 +1398,19 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     float baseAttackPower       = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);
     float attackPowerMod        = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float attackPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    // @tswow-begin
+    FIRE_MAP(
+        GetCreatureTemplate()->events
+        , CreatureOnUpdateAttackPowerDamage
+        , TSCreature(this)
+        , TSMutable<float>(&baseAttackPower)
+        , TSMutable<float>(&attackPowerMod)
+        , TSMutable<float>(&attackPowerMultiplier)
+        , false
+        , ranged
+    );
+    // @tswow-end
 
     SetInt32Value(index, uint32(baseAttackPower));      // UNIT_FIELD_(RANGED)_ATTACK_POWER
     SetInt32Value(indexMod, uint32(attackPowerMod));    // UNIT_FIELD_(RANGED)_ATTACK_POWER_MODS
@@ -1281,8 +1524,8 @@ bool Guardian::UpdateStats(Stats stat)
         AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
         if (aurEff)
         {
-            SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                                 // Then get the SpellProto and add the dummy effect value
-            AddPct(mod, spellInfo->Effects[EFFECT_1].CalcValue());                                              // Ravenous Dead edits the original scale
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                                // Then get the SpellProto and add the dummy effect value
+            AddPct(mod, spellInfo->GetEffect(EFFECT_1).CalcValue());                                            // Ravenous Dead edits the original scale
         }
         // Glyph of the Ghoul
         aurEff = owner->GetAuraEffect(58686, 0);
@@ -1310,7 +1553,7 @@ bool Guardian::UpdateStats(Stats stat)
                 if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
-                    AddPct(mod, spellInfo->Effects[EFFECT_0].CalcValue());
+                    AddPct(mod, spellInfo->GetEffect(EFFECT_0).CalcValue());
                 }
             }
             ownersBonus = float(owner->GetStat(stat)) * mod;
@@ -1377,6 +1620,17 @@ void Guardian::UpdateResistances(uint32 school)
         if (IsPet())
             value += float(CalculatePct(m_owner->GetResistance(SpellSchools(school)), 40));
 
+        // @tswow-begin
+        FIRE_MAP(
+            GetCreatureTemplate()->events
+            , CreatureOnUpdateResistance
+            , TSCreature(this)
+            , TSMutable<float>(&value)
+            , true
+            , school
+        );
+        // @tswow-end
+
         SetResistance(SpellSchools(school), int32(value));
     }
     else
@@ -1398,6 +1652,16 @@ void Guardian::UpdateArmor()
     value += GetStat(STAT_AGILITY) * 2.0f;
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + bonus_armor;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+
+    // @tswow-begin
+    FIRE_MAP(
+        GetCreatureTemplate()->events
+        , CreatureOnUpdateArmor
+        , TSCreature(this)
+        , TSMutable<float>(&value)
+        , true
+    );
+    // @tswow-end
 
     SetArmor(int32(value));
 }
@@ -1424,6 +1688,16 @@ void Guardian::UpdateMaxHealth()
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
+    // @tswow-begin
+    FIRE_MAP(
+        GetCreatureTemplate()->events
+        , CreatureOnUpdateMaxHealth
+        , TSCreature(this)
+        , TSMutable<float>(&value)
+        , true
+    );
+    // @tswow-end
+
     SetMaxHealth((uint32)value);
 }
 
@@ -1448,6 +1722,17 @@ void Guardian::UpdateMaxPower(Powers power)
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + addValue * multiplicator;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+
+    // @tswow-begin
+    FIRE_MAP(
+          GetCreatureTemplate()->events
+        , CreatureOnUpdateMaxPower
+        , TSCreature(this)
+        , TSMutable<float>(&value)
+        , true
+        , int8(power)
+    );
+    // @tswow-end
 
     SetMaxPower(power, uint32(value));
 }
@@ -1481,7 +1766,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
                 if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellInfo const* sProto = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
-                    mod += CalculatePct(1.0f, sProto->Effects[1].CalcValue());
+                    mod += CalculatePct(1.0f, sProto->GetEffect(EFFECT_1).CalcValue());
                 }
             }
 
@@ -1533,6 +1818,19 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     float base_attPower  = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetPctModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    // @tswow-begin
+    FIRE_MAP(
+        GetCreatureTemplate()->events
+        , CreatureOnUpdateAttackPowerDamage
+        , TSCreature(this)
+        , TSMutable<float>(&base_attPower)
+        , TSMutable<float>(&attPowerMod)
+        , TSMutable<float>(&attPowerMultiplier)
+        , true
+        , ranged
+    );
+    // @tswow-end
 
     //UNIT_FIELD_(RANGED)_ATTACK_POWER field
     SetInt32Value(UNIT_FIELD_ATTACK_POWER, (int32)base_attPower);
@@ -1620,6 +1918,18 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
                 break;
         }
     }
+
+    // @tswow-begin
+    FIRE_MAP(
+          GetCreatureTemplate()->events
+        , CreatureOnUpdateDamagePhysical
+        , TSCreature(this)
+        , TSMutable<float>(&mindamage)
+        , TSMutable<float>(&maxdamage)
+        , true
+        , uint8(attType)
+    );
+    // @tswow-end
 
     SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);

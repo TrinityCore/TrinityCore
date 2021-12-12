@@ -169,7 +169,7 @@ struct boss_ymiron : public BossAI
             {
                 DoCast(ancestor, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
                 ancestor->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                ancestor->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                ancestor->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                 ancestor->SetDisableGravity(true);
                 ActiveAncestorGUID = ancestor->GetGUID();
             }
@@ -200,7 +200,7 @@ struct boss_ymiron : public BossAI
         summons.Summon(summon);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(100 - HealthAmountMultipler * HealthAmountModifier, damage) && !(damage >= me->GetHealth()))
         {

@@ -195,12 +195,13 @@ enum Spells
 
 enum MiscData
 {
-    ITEM_GOBLIN_ROCKET_PACK = 49278,
+    ITEM_GOBLIN_ROCKET_PACK    = 49278,
+    SPELL_CREATE_ROCKET_PACK   = 70055,
 
-    PHASE_COMBAT            = 0,
-    PHASE_INTRO             = 1,
+    PHASE_COMBAT               = 0,
+    PHASE_INTRO                = 1,
 
-    MUSIC_ENCOUNTER         = 17289
+    MUSIC_ENCOUNTER            = 17289
 };
 
 enum EncounterActions
@@ -675,7 +676,7 @@ class npc_gunship : public CreatureScript
                 me->SetRegenerateHealth(false);
             }
 
-            void DamageTaken(Unit* /*source*/, uint32& damage) override
+            void DamageTaken(Unit* /*source*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -966,7 +967,7 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
         return false;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(65, damage) && !me->HasAura(SPELL_TASTE_OF_BLOOD))
             DoCast(me, SPELL_TASTE_OF_BLOOD, true);
@@ -1220,7 +1221,7 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
         return false;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(65, damage) && me->HasAura(SPELL_TASTE_OF_BLOOD))
             DoCast(me, SPELL_TASTE_OF_BLOOD, true);
@@ -1361,7 +1362,7 @@ struct npc_zafod_boombox : public gunship_npc_AI
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
-        player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
+        me->CastSpell(player, SPELL_CREATE_ROCKET_PACK);
         player->PlayerTalkClass->SendCloseGossip();
         return false;
     }
@@ -1451,7 +1452,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (_usedDesperateResolve)
             return;
@@ -1735,7 +1736,7 @@ class spell_igb_rocket_pack : public AuraScript
     {
         SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()));
+        args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0).CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()));
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_PACK_DAMAGE, args);
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
     }
@@ -1835,10 +1836,10 @@ class spell_igb_periodic_trigger_with_power_cost : public AuraScript
 {
     PrepareAuraScript(spell_igb_periodic_trigger_with_power_cost);
 
-    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+    void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
     }
 
     void Register() override

@@ -417,14 +417,14 @@ class npc_saronite_vapors : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 // This can't be on JustDied. In 63322 dummy handler caster needs to be this NPC
                 // if caster == target then damage mods will increase the damage taken
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());

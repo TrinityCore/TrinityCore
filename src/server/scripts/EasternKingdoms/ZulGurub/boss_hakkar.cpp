@@ -63,124 +63,113 @@ enum Events
     EVENT_ASPECT_OF_ARLOKK      = 10
 };
 
-class boss_hakkar : public CreatureScript
+struct boss_hakkar : public BossAI
 {
-    public:
-        boss_hakkar() : CreatureScript("boss_hakkar") { }
+    boss_hakkar(Creature* creature) : BossAI(creature, DATA_HAKKAR) { }
 
-        struct boss_hakkarAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
+        events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25s);
+        events.ScheduleEvent(EVENT_CAUSE_INSANITY, 15s);
+        events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 15s);
+        events.ScheduleEvent(EVENT_ENRAGE, 10min);
+        if (instance->GetBossState(DATA_JEKLIK) != DONE)
+            events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 4s);
+        if (instance->GetBossState(DATA_VENOXIS) != DONE)
+            events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 7s);
+        if (instance->GetBossState(DATA_MARLI) != DONE)
+            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s);
+        if (instance->GetBossState(DATA_THEKAL) != DONE)
+            events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 8s);
+        if (instance->GetBossState(DATA_ARLOKK) != DONE)
+            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 18s);
+        Talk(SAY_AGGRO);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_hakkarAI(Creature* creature) : BossAI(creature, DATA_HAKKAR) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
-                events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25s);
-                events.ScheduleEvent(EVENT_CAUSE_INSANITY, 15s);
-                events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 15s);
-                events.ScheduleEvent(EVENT_ENRAGE, 10min);
-                if (instance->GetBossState(DATA_JEKLIK) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 4s);
-                if (instance->GetBossState(DATA_VENOXIS) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 7s);
-                if (instance->GetBossState(DATA_MARLI) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s);
-                if (instance->GetBossState(DATA_THEKAL) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 8s);
-                if (instance->GetBossState(DATA_ARLOKK) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 18s);
-                Talk(SAY_AGGRO);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                case EVENT_BLOOD_SIPHON:
+                    DoCastVictim(SPELL_BLOOD_SIPHON, true);
+                    events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
+                    break;
+                case EVENT_CORRUPTED_BLOOD:
+                    DoCastVictim(SPELL_CORRUPTED_BLOOD, true);
+                    events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 30s, 45s);
+                    break;
+                case EVENT_CAUSE_INSANITY:
+                    // DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CAUSE_INSANITY);
+                    // events.ScheduleEvent(EVENT_CAUSE_INSANITY, 35s, 45s);
+                    break;
+                case EVENT_WILL_OF_HAKKAR:
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_BLOOD_SIPHON:
-                            DoCastVictim(SPELL_BLOOD_SIPHON, true);
-                            events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
-                            break;
-                        case EVENT_CORRUPTED_BLOOD:
-                            DoCastVictim(SPELL_CORRUPTED_BLOOD, true);
-                            events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 30s, 45s);
-                            break;
-                        case EVENT_CAUSE_INSANITY:
-                            // DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CAUSE_INSANITY);
-                            // events.ScheduleEvent(EVENT_CAUSE_INSANITY, 35s, 45s);
-                            break;
-                        case EVENT_WILL_OF_HAKKAR:
-                        {
-                            // Mind Control is only triggered when there is more than one unit currently fighting Hakkar, including pets/guardians
-                            // But it is only actually cast on the player with the highest threat
-                            std::list<Unit*> unitList;
-                            SelectTargetList(unitList, 2, SelectTargetMethod::MaxThreat, 0, 0.0f, false);
-                            if (unitList.size() > 1)
-                                DoCast(SelectTarget(SelectTargetMethod::MaxThreat, 0, 100, true), SPELL_WILL_OF_HAKKAR);
-                            events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 25s, 35s);
-                            break;
-                        }
-                        case EVENT_ENRAGE:
-                            if (!me->HasAura(SPELL_ENRAGE))
-                                DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 90s);
-                            break;
-                        case EVENT_ASPECT_OF_JEKLIK:
-                            DoCastVictim(SPELL_ASPECT_OF_JEKLIK, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 10s, 14s);
-                            break;
-                        case EVENT_ASPECT_OF_VENOXIS:
-                            DoCastVictim(SPELL_ASPECT_OF_VENOXIS, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 8s);
-                            break;
-                        case EVENT_ASPECT_OF_MARLI:
-                            DoCastVictim(SPELL_ASPECT_OF_MARLI, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 10s);
-                            break;
-                        case EVENT_ASPECT_OF_THEKAL:
-                            DoCastVictim(SPELL_ASPECT_OF_THEKAL, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 15s);
-                            break;
-                        case EVENT_ASPECT_OF_ARLOKK:
-                            DoCastVictim(SPELL_ASPECT_OF_ARLOKK, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 10s, 15s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
+                    // Mind Control is only triggered when there is more than one unit currently fighting Hakkar, including pets/guardians
+                    // But it is only actually cast on the player with the highest threat
+                    std::list<Unit*> unitList;
+                    SelectTargetList(unitList, 2, SelectTargetMethod::MaxThreat, 0, 0.0f, false);
+                    if (unitList.size() > 1)
+                        DoCast(SelectTarget(SelectTargetMethod::MaxThreat, 0, 100, true), SPELL_WILL_OF_HAKKAR);
+                    events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 25s, 35s);
+                    break;
                 }
-
-                DoMeleeAttackIfReady();
+                case EVENT_ENRAGE:
+                    if (!me->HasAura(SPELL_ENRAGE))
+                        DoCast(me, SPELL_ENRAGE);
+                    events.ScheduleEvent(EVENT_ENRAGE, 90s);
+                    break;
+                case EVENT_ASPECT_OF_JEKLIK:
+                    DoCastVictim(SPELL_ASPECT_OF_JEKLIK, true);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 10s, 14s);
+                    break;
+                case EVENT_ASPECT_OF_VENOXIS:
+                    DoCastVictim(SPELL_ASPECT_OF_VENOXIS, true);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 8s);
+                    break;
+                case EVENT_ASPECT_OF_MARLI:
+                    DoCastVictim(SPELL_ASPECT_OF_MARLI, true);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 10s);
+                    break;
+                case EVENT_ASPECT_OF_THEKAL:
+                    DoCastVictim(SPELL_ASPECT_OF_THEKAL, true);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 15s);
+                    break;
+                case EVENT_ASPECT_OF_ARLOKK:
+                    DoCastVictim(SPELL_ASPECT_OF_ARLOKK, true);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 10s, 15s);
+                    break;
+                default:
+                    break;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulGurubAI<boss_hakkarAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 class at_zulgurub_entrance : public OnlyOnceAreaTriggerScript
@@ -218,6 +207,6 @@ public:
 
 void AddSC_boss_hakkar()
 {
-    new boss_hakkar();
+    RegisterZulGurubCreatureAI(boss_hakkar);
     new at_zulgurub_entrance();
 }

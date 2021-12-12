@@ -204,7 +204,7 @@ class spell_ioc_launch : public SpellScript
         if (!GetCaster()->ToCreature() || !GetExplTargetDest())
             return;
 
-        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), GetHitPlayer()->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
+        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), ASSERT_NOTNULL(GetHitPlayer())->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
     }
 
     void Register() override

@@ -56,7 +56,9 @@ struct ClientPktHeader
     uint16 size;
     uint32 cmd;
 
-    bool IsValidSize() const { return size >= 4 && size < 10240; }
+    // @tswow-begin move implementation to cpp
+    bool IsValidSize() const;
+    // @tswow-end
     bool IsValidOpcode() const { return cmd < NUM_OPCODE_HANDLERS; }
 };
 

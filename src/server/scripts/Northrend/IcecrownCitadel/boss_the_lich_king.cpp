@@ -122,7 +122,7 @@ enum Spells
     SPELL_WINGS_OF_THE_DAMNED           = 74352,
     SPELL_VALKYR_TARGET_SEARCH          = 69030,
     SPELL_CHARGE                        = 74399,    // cast on selected target
-    SPELL_VALKYR_CARRY                  = 74445,    // removes unselectable flag
+    SPELL_VALKYR_CARRY                  = 74445,    // removes uninteractible flag
     SPELL_LIFE_SIPHON                   = 73488,
     SPELL_LIFE_SIPHON_HEAL              = 73489,
     SPELL_EJECT_ALL_PASSENGERS          = 68576,
@@ -682,7 +682,7 @@ struct boss_the_lich_king : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
         {
@@ -1304,7 +1304,7 @@ struct npc_shambling_horror_icc : public ScriptedAI
         _events.ScheduleEvent(EVENT_ENRAGE, 11s, 14s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_frenzied && IsHeroic() && me->HealthBelowPctDamaged(20, damage))
         {
@@ -1461,7 +1461,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
         _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500ms);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!IsHeroic())
             return;
@@ -1500,7 +1500,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
             case POINT_CHARGE:
                 if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
                 {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     if (GameObject* platform = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_ARTHAS_PLATFORM)))
                     {
                         std::list<Creature*> triggers;
@@ -1730,14 +1730,14 @@ struct npc_terenas_menethil : public ScriptedAI
         EngagementOver();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
             damage = me->GetHealth() - 1;
             if (!me->HasAura(SPELL_TERENAS_LOSES_INSIDE) && !IsHeroic())
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 DoCast(SPELL_TERENAS_LOSES_INSIDE);
                 _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1s);
                 if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
@@ -1798,7 +1798,7 @@ struct npc_terenas_menethil : public ScriptedAI
                     }
                     break;
                 case EVENT_DESTROY_SOUL:
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                         warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
                     DoCast(SPELL_TERENAS_LOSES_INSIDE);
@@ -2301,14 +2301,14 @@ class spell_the_lich_king_summon_into_air : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_summon_into_air);
 
-    void ModDestHeight(SpellEffIndex effIndex)
+    void ModDestHeight(SpellEffIndex /*effIndex*/)
     {
         static Position const offset = {0.0f, 0.0f, 15.0f, 0.0f};
         WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
         dest->RelocateOffset(offset);
         GetHitDest()->RelocateOffset(offset);
         // spirit bombs get higher
-        if (GetSpellInfo()->Effects[effIndex].MiscValue == NPC_SPIRIT_BOMB)
+        if (GetEffectInfo().MiscValue == NPC_SPIRIT_BOMB)
         {
             static Position const offsetExtra = { 0.0f, 0.0f, 5.0f, 0.0f };
             dest->RelocateOffset(offsetExtra);
@@ -2453,7 +2453,7 @@ private:
     void OnPeriodic(AuraEffect const* aurEff)
     {
         if (_is25Man || ((aurEff->GetTickNumber() - 1) % 5))
-            GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, { aurEff, GetCasterGUID() });
+            GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, { aurEff, GetCasterGUID() });
     }
 
     void Register() override
@@ -2548,7 +2548,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScript
                 summoner->GetAI()->SetData(DATA_VILE, 1);
         GetCaster()->CastSpell(nullptr, SPELL_SPIRIT_BURST, true);
         GetCaster()->ToCreature()->DespawnOrUnsummon(3s);
-        GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void Register() override

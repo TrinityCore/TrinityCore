@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "AreaBoundary.h"
+// @tswow-end
 #include "ObjectMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
@@ -182,12 +185,12 @@ std::vector<LanguageDesc> lang_description
     { LANG_GOBLIN_BINARY,   0, 0                       }
 };
 
-static void LoadLanguageDescs() 
+static void LoadLanguageDescs()
 {
-    for(auto sl : sSkillLineStore) 
+    for(auto sl : sSkillLineStore)
     {
         // Check category ID
-        if(sl->CategoryID != 10) 
+        if(sl->CategoryID != 10)
         {
             continue;
         }
@@ -1247,6 +1250,24 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
     }
 
+    if (uint32 disallowedUnitFlags = (cInfo->unit_flags & ~UNIT_FLAG_ALLOWED))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with disallowed `unit_flags` %u, removing incorrect flag.", cInfo->Entry, disallowedUnitFlags);
+        const_cast<CreatureTemplate*>(cInfo)->unit_flags &= UNIT_FLAG_ALLOWED;
+    }
+
+    if (uint32 disallowedUnitFlags2 = (cInfo->unit_flags2 & ~UNIT_FLAG2_ALLOWED))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with disallowed `unit_flags2` %u, removing incorrect flag.", cInfo->Entry, disallowedUnitFlags2);
+        const_cast<CreatureTemplate*>(cInfo)->unit_flags2 &= UNIT_FLAG2_ALLOWED;
+    }
+
+    if (cInfo->dynamicflags)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with `dynamicflags` > 0. Ignored and set to 0.", cInfo->Entry);
+        const_cast<CreatureTemplate*>(cInfo)->dynamicflags = 0;
+    }
+
     const_cast<CreatureTemplate*>(cInfo)->ModDamage *= Creature::_GetDamageMod(cInfo->rank);
 
     if (cInfo->GossipMenuId && !(cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP))
@@ -1662,23 +1683,20 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     return cinfo->GetFirstInvisibleModel();
 }
 
-void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data /*= nullptr*/)
+void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32* npcflag, uint32* unit_flags, uint32* dynamicflags, CreatureData const* data /*= nullptr*/)
 {
-    npcflag = cinfo->npcflag;
-    unit_flags = cinfo->unit_flags;
-    dynamicflags = cinfo->dynamicflags;
+#define ChooseCreatureFlagSource(field) ((data && data->field) ? data->field : cinfo->field)
 
-    if (data)
-    {
-        if (data->npcflag)
-            npcflag = data->npcflag;
+    if (npcflag)
+        *npcflag = ChooseCreatureFlagSource(npcflag);
 
-        if (data->unit_flags)
-            unit_flags = data->unit_flags;
+    if (unit_flags)
+        *unit_flags = ChooseCreatureFlagSource(unit_flags);
 
-        if (data->dynamicflags)
-            dynamicflags = data->dynamicflags;
-    }
+    if (dynamicflags)
+        *dynamicflags = ChooseCreatureFlagSource(dynamicflags);
+
+#undef ChooseCreatureFlagSource
 }
 
 CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID) const
@@ -2295,6 +2313,18 @@ void ObjectMgr::LoadCreatures()
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
             data.phaseMask = 1;
+        }
+
+        if (uint32 disallowedUnitFlags = (data.unit_flags & ~UNIT_FLAG_ALLOWED))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with disallowed `unit_flags` %u, removing incorrect flag.", guid, data.id, disallowedUnitFlags);
+            data.unit_flags &= UNIT_FLAG_ALLOWED;
+        }
+
+        if (data.dynamicflags)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: %u Entry: %u) with `dynamicflags` > 0. Ignored and set to 0.", guid, data.id);
+            data.dynamicflags = 0;
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
@@ -4568,6 +4598,438 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
+// @tswow-begin
+
+uint8 ObjectMgr::GetPlayerClassRoleMask(uint32 cls)
+{
+    return cls <= _playerClassRoles.size()
+        ? _playerClassRoles[cls - 1]
+        : 0;
+}
+
+void ObjectMgr::LoadPlayerClassRoles()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _playerClassRoles.clear();
+    QueryResult result = WorldDatabase.Query(
+    //           0        1       2         3         4
+        "SELECT `class`, `tank`, `healer`, `damage`, `leader`"
+        " FROM `player_class_roles`;"
+    );
+    if(result && result->GetRowCount() > 0)
+    {
+        do {
+            Field* field = result->Fetch();
+            uint32 clazz = field[0].GetUInt32();
+            bool tank = field[1].GetBool();
+            bool healer = field[2].GetBool();
+            bool damage = field[3].GetBool();
+            bool leader = field[4].GetBool();
+            uint32 mask = 0;
+            if (leader)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_LEADER;
+            if (tank)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_TANK;
+            if (healer)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_HEALER;
+            if (damage)
+                mask |= lfg::LfgRoles::PLAYER_ROLE_DAMAGE;
+
+            if (clazz > _playerClassRoles.size())
+            {
+                _playerClassRoles.resize(clazz);
+            }
+            _playerClassRoles[clazz - 1] = mask;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Instance doors %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+}
+
+std::vector<InstanceDoorData> const* ObjectMgr::GetInstanceDoors(uint32 mapid) const
+{
+    auto itr = _instanceDoors.find(mapid);
+    return (itr == _instanceDoors.end() ? nullptr : &itr->second);
+}
+
+void ObjectMgr::LoadInstanceDoors()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _instanceDoors.clear();
+    //                                                0       1       2       3
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `map`, `boss`, `type` FROM `instance_door_object`");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 entry = fields[0].GetUInt32();
+            uint32 map = fields[1].GetUInt32();
+            uint32 boss = fields[2].GetUInt32();
+            uint32 type = fields[3].GetUInt32();
+            if (type >= MAX_DOOR_TYPES)
+            {
+                TC_LOG_ERROR(
+                      "sql.sql"
+                    , "Invalid door type %u for door %u on map %u, ignoring"
+                    , type
+                    , entry
+                    , map
+                    );
+            }
+            else
+            {
+                auto itr = _instanceDoors.find(map);
+                std::vector<InstanceDoorData>* doors;
+                if (itr == _instanceDoors.end())
+                {
+                    doors = &(_instanceDoors[map] = std::vector<InstanceDoorData>());
+                }
+                else
+                {
+                    doors = &_instanceDoors[map];
+                }
+                doors->push_back({ entry,boss,type });
+            }
+            ++count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Instance doors %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::vector<BattlegroundDoorData> const* ObjectMgr::GetBattlegroundDoors(uint32 mapid) const
+{
+    auto itr = _battlegroundDoors.find(mapid);
+    return (itr == _battlegroundDoors.end() ? nullptr : &itr->second);
+}
+
+void ObjectMgr::LoadBattlegroundDoors()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _battlegroundDoors.clear();
+    //                                                0       1       2       3
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `map`, `type` FROM `battleground_door_object`");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 entry = fields[0].GetUInt32();
+            uint32 map = fields[1].GetUInt32();
+            uint32 type = fields[2].GetUInt32();
+            if (type >= MAX_BG_DOOR_TYPES)
+            {
+                TC_LOG_ERROR(
+                    "sql.sql"
+                    , "Invalid door type %u for door %u on map %u, ignoring"
+                    , type
+                    , entry
+                    , map
+                );
+            }
+            else
+            {
+                auto itr = _battlegroundDoors.find(map);
+                std::vector<BattlegroundDoorData>* doors;
+                if (itr == _battlegroundDoors.end())
+                {
+                    doors = &(_battlegroundDoors[map] = std::vector<BattlegroundDoorData>());
+                }
+                else
+                {
+                    doors = &itr->second;
+                }
+                doors->push_back({ entry,BattlegroundDoorType(type) });
+            }
+            ++count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Battleground doors %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::GetBossCount(uint32 mapid, uint32& count) const
+{
+    auto itr = _instanceAddons.find(mapid);
+    if (itr != _instanceAddons.end())
+    {
+        if (itr->second < count)
+        {
+            TC_LOG_ERROR(
+                "sql.sql"
+                , "Instance (mapid=%u) boss count %u in database is lower than %u from script"
+            );
+            return;
+        }
+        count = itr->second;
+    }
+}
+
+void ObjectMgr::LoadSpellAutolearn()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _spellAutoLearns.clear();
+    //                                               0      1         2          3
+    QueryResult result = WorldDatabase.Query("SELECT spell, racemask, classmask, level FROM spell_autolearn");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 spell     = fields[0].GetUInt32();
+            uint32 racemask  = fields[1].GetUInt32();
+            uint32 classmask = fields[2].GetUInt32();
+            uint32 level     = fields[3].GetUInt32();
+            if (level >= _spellAutoLearns.size())
+            {
+                _spellAutoLearns.resize(level + 1);
+            }
+            _spellAutoLearns[level].push_back({ spell,racemask,classmask });
+            ++count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Autolearn spells %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadInstanceBossCreatures()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _creatureBoss.clear();
+    _instanceBossCreatures.clear();
+    //                                                0        1      2
+    QueryResult result = WorldDatabase.Query("SELECT `guid`,  `map`, `boss` FROM `instance_boss_creature`");
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 guid = fields[0].GetUInt32();
+            uint32 map = fields[1].GetUInt32();
+            uint32 boss = fields[2].GetUInt32();
+            _creatureBoss[guid] = boss;
+
+            if (map >= _instanceBossCreatures.size())
+            {
+                _instanceBossCreatures.resize(map + 1);
+            }
+            InstanceBossCreatures &instanceData = _instanceBossCreatures[map];
+            if (boss >= instanceData.size())
+            {
+                instanceData.resize(boss + 1);
+            }
+            instanceData[boss].push_back(guid);
+            ++count;
+        } while (result->NextRow());
+    }
+    for (auto& k : _creatureBoss)
+    {
+        TC_LOG_INFO("server.loading", ">> %u is boss %u", k.first, k.second);
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u Instance Boss Creatures %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+enum class InstanceBossBoundaryType {
+    RECTANGLE      = 0,
+    CIRCLE         = 1,
+    ELLIPSE        = 2,
+    TRIANGLE       = 3,
+    PARALLELOGRAM  = 4,
+    ZRANGE         = 5,
+};
+
+void ObjectMgr::LoadInstanceAddon()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    _instanceAddons.clear();
+    QueryResult result = WorldDatabase.Query(
+        "SELECT `map`, `boss_count`"
+        " FROM `instance_addon`;"
+    );
+
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* field = result->Fetch();
+            uint32 map = field[0].GetUInt32();
+            uint32 boss_count = field[1].GetUInt32();
+            _instanceAddons[map] = boss_count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u instance addons %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadBossBoundaries()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    // we don't support destroying boundaries (no reload),
+    // because instances could hold onto them
+    //_bossBoundaries.clear();
+    QueryResult result = WorldDatabase.Query(
+        //       0      1       2       3            4      5
+        "SELECT `map`, `boss`, `index`,`unionGroup`,`type`,`inverted`,"
+        // 6...
+        " `data0`,"
+        " `data1`,"
+        " `data2`,"
+        " `data3`,"
+        " `data4`,"
+        " `data5`"
+        " FROM `instance_boss_boundary`;"
+    );
+    struct BoundaryHolder {
+        AreaBoundary * boundary;
+        uint32 unionGroup;
+    };
+
+    std::map<
+          std::pair<uint32,uint32>
+        , std::vector<std::vector<AreaBoundary*>>
+    > boundaryGroups;
+
+    if (result && result->GetRowCount() > 0)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 map = fields[0].GetUInt32();
+            uint32 boss = fields[1].GetUInt32();
+            uint32 index = fields[2].GetUInt32();
+            uint32 unionGroup = fields[3].GetUInt32();
+            InstanceBossBoundaryType type
+                = InstanceBossBoundaryType(fields[4].GetUInt32());
+            bool inverted = fields[5].GetUInt8();
+
+            std::pair<uint32, uint32> ibPair = std::make_pair(map, boss);
+            auto itr = boundaryGroups.find(ibPair);
+            std::vector<std::vector<AreaBoundary*>>* vec;
+            if (itr == boundaryGroups.end())
+            {
+                vec = &(boundaryGroups[ibPair] = std::vector<std::vector<AreaBoundary*>>());
+            }
+            else
+            {
+                vec = &itr->second;
+            }
+
+            std::vector<AreaBoundary*>* group;
+            if (vec->size() <= unionGroup)
+            {
+                vec->resize(unionGroup + 1);
+            }
+            group = &(*vec)[unionGroup];
+
+            constexpr uint32 DATA_START = 6;
+            switch (type) {
+            case InstanceBossBoundaryType::RECTANGLE: {
+                float minX = fields[DATA_START + 0].GetFloat();
+                float minY = fields[DATA_START + 1].GetFloat();
+                float maxX = fields[DATA_START + 2].GetFloat();
+                float maxY = fields[DATA_START + 3].GetFloat();
+                group->push_back(new RectangleBoundary(minX, maxX, minY, maxY, inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::CIRCLE: {
+                float centerX = fields[DATA_START + 0].GetFloat();
+                float centerY = fields[DATA_START + 1].GetFloat();
+                float radius  = fields[DATA_START + 2].GetFloat();
+                group->push_back(new CircleBoundary(
+                    Position(centerX, centerY), radius, inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::ELLIPSE: {
+                float cx = fields[DATA_START + 0].GetFloat();
+                float cy = fields[DATA_START + 1].GetFloat();
+                float r1 = fields[DATA_START + 2].GetFloat();
+                float r2 = fields[DATA_START + 3].GetFloat();
+                group->push_back(new EllipseBoundary(
+                    Position(cx,cy), r1,r2, inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::PARALLELOGRAM: {
+                float p1x = fields[DATA_START + 0].GetFloat();
+                float p1y = fields[DATA_START + 1].GetFloat();
+
+                float p2x = fields[DATA_START + 2].GetFloat();
+                float p2y = fields[DATA_START + 3].GetFloat();
+
+                float p3x = fields[DATA_START + 4].GetFloat();
+                float p3y = fields[DATA_START + 5].GetFloat();
+                group->push_back(new ParallelogramBoundary(
+                    Position(p1x, p1y),
+                    Position(p2x, p2y),
+                    Position(p3x, p3y),
+                    inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::TRIANGLE: {
+                float p1x = fields[DATA_START + 0].GetFloat();
+                float p1y = fields[DATA_START + 1].GetFloat();
+
+                float p2x = fields[DATA_START + 2].GetFloat();
+                float p2y = fields[DATA_START + 3].GetFloat();
+
+                float p3x = fields[DATA_START + 4].GetFloat();
+                float p3y = fields[DATA_START + 5].GetFloat();
+
+                group->push_back(new TriangleBoundary(
+                    Position(p1x,p1y),
+                    Position(p2x,p2y),
+                    Position(p3x,p3y),
+                    inverted));
+                break;
+            }
+            case InstanceBossBoundaryType::ZRANGE: {
+                float zMin = fields[DATA_START + 0].GetFloat();
+                float zMax = fields[DATA_START + 1].GetFloat();
+                group->push_back(new ZRangeBoundary(
+                    zMin,zMax,
+                    inverted));
+                break;
+            }
+            }
+            ++count;
+        } while (result->NextRow());
+    }
+
+    for (auto& pair : boundaryGroups)
+    {
+        uint32 instance = pair.first.first;
+        uint32 boss = pair.first.second;
+
+        std::vector<std::vector<AreaBoundary*>> *mapVec;
+        auto mapItr = _bossBoundaries.find(instance);
+        if (mapItr == _bossBoundaries.end())
+        {
+            mapVec = &(_bossBoundaries[instance] = std::vector<std::vector<AreaBoundary*>>());
+        }
+        else
+        {
+            mapVec = &mapItr->second;
+        }
+        if (mapVec->size() <= boss) mapVec->resize(boss + 1);
+        std::vector<AreaBoundary*>& areas = (*mapVec)[boss];
+        for (std::vector<AreaBoundary*>& unionGroup : pair.second)
+        {
+            AreaBoundary* acc = unionGroup[0];
+            for (size_t i = 1; i < unionGroup.size(); ++i)
+            {
+                acc = new BoundaryUnionBoundary(acc,unionGroup[i]);
+            }
+            areas.push_back(acc);
+        }
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u instance boss boundaries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+// @tswow-end
+
 void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassLevelInfo* info) const
 {
     if (level < 1 || class_ >= MAX_CLASSES)
@@ -5296,6 +5758,8 @@ void ObjectMgr::LoadQuests()
                 TC_LOG_ERROR("sql.sql", "Quest %u has PrevQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->_prevQuestId);
             else if (prevQuestItr->second._breadcrumbForQuestId)
                 TC_LOG_ERROR("sql.sql", "Quest %u should not be unlocked by breadcrumb quest %u", qinfo->_id, prevQuestId);
+            else if (qinfo->_prevQuestId > 0)
+                qinfo->DependentPreviousQuests.push_back(prevQuestId);
         }
 
         if (uint32 nextQuestId = qinfo->_nextQuestId)
@@ -5385,12 +5849,12 @@ void ObjectMgr::LoadQuests()
         if (!spellInfo)
             continue;
 
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
         {
-            if (spellInfo->Effects[j].Effect != SPELL_EFFECT_QUEST_COMPLETE)
+            if (spellEffectInfo.Effect != SPELL_EFFECT_QUEST_COMPLETE)
                 continue;
 
-            uint32 quest_id = spellInfo->Effects[j].MiscValue;
+            uint32 quest_id = spellEffectInfo.MiscValue;
 
             Quest const* quest = GetQuestTemplate(quest_id);
 
@@ -5788,10 +6252,16 @@ void ObjectMgr::LoadSpellScripts()
             continue;
         }
 
-        uint8 i = (uint8)((uint32(itr->first) >> 24) & 0x000000FF);
+        SpellEffIndex i = SpellEffIndex((uint32(itr->first) >> 24) & 0x000000FF);
+        if (uint32(i) >= MAX_SPELL_EFFECTS)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` has too high effect index %u for spell (Id: %u) as script id", uint32(i), spellId);
+            continue;
+        }
+
         //check for correct spellEffect
-        if (!spellInfo->Effects[i].Effect || (spellInfo->Effects[i].Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->Effects[i].Effect != SPELL_EFFECT_DUMMY))
-            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, i);
+        if (!spellInfo->GetEffect(i).Effect || (spellInfo->GetEffect(i).Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->GetEffect(i).Effect != SPELL_EFFECT_DUMMY))
+            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, uint32(i));
     }
 }
 
@@ -5808,10 +6278,10 @@ void ObjectMgr::LoadEventScripts()
     // Load all possible script entries from spells
     for (uint32 i = 1; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(i))
-            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                if (spell->Effects[j].Effect == SPELL_EFFECT_SEND_EVENT)
-                    if (spell->Effects[j].MiscValue)
-                        evt_scripts.insert(spell->Effects[j].MiscValue);
+            for (SpellEffectInfo const& spellEffectInfo : spell->GetEffects())
+                if (spellEffectInfo.IsEffect(SPELL_EFFECT_SEND_EVENT))
+                    if (spellEffectInfo.MiscValue)
+                        evt_scripts.insert(spellEffectInfo.MiscValue);
 
     for (size_t path_idx = 0; path_idx < sTaxiPathNodesByPath.size(); ++path_idx)
     {
@@ -6209,6 +6679,8 @@ void ObjectMgr::LoadInstanceEncounters()
                     TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->Name[0]);
                     continue;
                 }
+                break;
+            case ENCOUNTER_CREDIT_COMPLETE_ENCOUNTER:
                 break;
             default:
                 TC_LOG_ERROR("sql.sql", "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->Name[0]);
@@ -6795,14 +7267,18 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
+        // @tswow-begin - set upper limit
         if (!node || node->ContinentID != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
+        // @tswow-end
             continue;
 
         uint8  field   = (uint8)((i - 1) / 32);
         uint32 submask = 1<<((i-1)%32);
 
         // skip not taxi network nodes
-        if ((sTaxiNodesMask[field] & submask) == 0)
+        // @tswow-begin taxi nodes bounds
+        if (field >= sTaxiNodesMask.size() || (sTaxiNodesMask[field] & submask) == 0)
+        // @tswow-end
             continue;
 
         float dist2 = (node->Pos.X - x)*(node->Pos.X - x)+(node->Pos.Y - y)*(node->Pos.Y - y)+(node->Pos.Z - z)*(node->Pos.Z - z);
@@ -8999,10 +9475,15 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, "
+    // @tswow-begin : weapons
+    QueryResult result = WorldDatabase.Query("SELECT "
+        "entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, "
         "head, shoulders, body, chest, waist, "
         "legs, feet, wrists, hands, back, tabard, "
-        "guildid FROM creature_template_outfits");
+        "guildid, "
+        "mainhand, offhand, ranged "
+        "FROM creature_template_outfits");
+    // @tswow-end
 
     if (!result)
     {
@@ -9088,6 +9569,11 @@ void ObjectMgr::LoadCreatureOutfits()
             }
         }
         co->guild = fields[i++].GetUInt32();
+        // @tswow-begin
+        co->mainhand = fields[i++].GetInt32();
+        co->offhand = fields[i++].GetInt32();
+        co->ranged = fields[i++].GetInt32();
+        // @tswow-end
 
         _creatureOutfitStore[co->id] = std::move(co);
 
@@ -9343,7 +9829,9 @@ void ObjectMgr::LoadTrainers()
     _trainers.clear();
 
     std::unordered_map<int32, std::vector<Trainer::Spell>> spellsByTrainer;
-    if (QueryResult trainerSpellsResult = WorldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell"))
+    // @tswow-begin masks
+    if (QueryResult trainerSpellsResult = WorldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel, raceMask, classMask FROM trainer_spell"))
+    // @tswow-end
     {
         do
         {
@@ -9359,6 +9847,10 @@ void ObjectMgr::LoadTrainers()
             spell.ReqAbility[1] = fields[6].GetUInt32();
             spell.ReqAbility[2] = fields[7].GetUInt32();
             spell.ReqLevel = fields[8].GetUInt8();
+            // @tswow-begin
+            spell.raceMask = fields[9].GetUInt32();
+            spell.classMask = fields[10].GetUInt32();
+            // @tswow-end
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell.SpellId);
             if (!spellInfo)
@@ -9399,7 +9891,9 @@ void ObjectMgr::LoadTrainers()
         } while (trainerSpellsResult->NextRow());
     }
 
-    if (QueryResult trainersResult = WorldDatabase.Query("SELECT Id, Type, Requirement, Greeting FROM trainer"))
+    // @tswow-begin
+    if (QueryResult trainersResult = WorldDatabase.Query("SELECT Id, Type, Requirement, Greeting, raceMask, classMask FROM trainer"))
+    // @tswow-end
     {
         do
         {
@@ -9409,6 +9903,10 @@ void ObjectMgr::LoadTrainers()
             Trainer::Type trainerType = Trainer::Type(fields[1].GetUInt8());
             uint32 requirement = fields[2].GetUInt32();
             std::string greeting = fields[3].GetString();
+            // @tswow-begin
+            uint32 raceMask = fields[4].GetUInt32();
+            uint32 classMask = fields[5].GetUInt32();
+            // @tswow-end
             std::vector<Trainer::Spell> spells;
             auto spellsItr = spellsByTrainer.find(trainerId);
             if (spellsItr != spellsByTrainer.end())
@@ -9445,7 +9943,9 @@ void ObjectMgr::LoadTrainers()
                     break;
             }
 
-            auto [it, isNew] = _trainers.emplace(std::piecewise_construct, std::forward_as_tuple(trainerId), std::forward_as_tuple(trainerId, trainerType, requirement, std::move(greeting), std::move(spells)));
+            // @tswow-begin
+            auto [it, isNew] = _trainers.emplace(std::piecewise_construct, std::forward_as_tuple(trainerId), std::forward_as_tuple(trainerId, trainerType, requirement, std::move(greeting), classMask, raceMask, std::move(spells)));
+            // @tswow-end
             ASSERT(isNew);
             if (trainerType == Trainer::Type::Class)
                 _classTrainers[requirement].push_back(&it->second);
@@ -9543,13 +10043,19 @@ uint32 ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>
             int32  maxcount     = fields[1].GetUInt8();
             uint32 incrtime     = fields[2].GetUInt32();
             uint32 ExtendedCost = fields[3].GetUInt32();
+            // @tswow-begin masks
+            uint32 raceMask     = fields[4].GetUInt32();
+            uint32 classMask    = fields[5].GetUInt32();
+            // @tswow-end
 
             if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, nullptr, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
+            // @tswow-begin masks
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, raceMask, classMask);
+            // @tswow-end
             ++count;
         }
     } while (result->NextRow());
@@ -9568,7 +10074,9 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC");
+    // @tswow-begin masks
+    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, raceMask, classMask FROM npc_vendor ORDER BY entry, slot ASC");
+    // @tswow-end
     if (!result)
     {
 
@@ -9593,13 +10101,19 @@ void ObjectMgr::LoadVendors()
             uint32 maxcount     = fields[2].GetUInt8();
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
+            // @tswow-begin load masks
+            uint32 raceMask     = fields[5].GetUInt32();
+            uint32 classMask    = fields[6].GetUInt32();
+            // @tswow-end
 
             if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, nullptr, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
+            // @tswow-begin
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, raceMask, classMask);
+            // @tswow-end
             ++count;
         }
     }
@@ -9729,10 +10243,14 @@ Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 creatureId) const
     return nullptr;
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist /*= true*/)
+// @tswow-begin masks
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint32 raceMask, uint32 classMask, bool persist /*= true*/)
+// @tswow-end
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedCost);
+    // @tswow-begin masks
+    vList.AddItem(item, maxcount, incrtime, extendedCost, raceMask, classMask);
+    // @tswow-end
 
     if (persist)
     {
@@ -9743,6 +10261,10 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
         stmt->setUInt8(2, maxcount);
         stmt->setUInt32(3, incrtime);
         stmt->setUInt32(4, extendedCost);
+        // @tswow-begin masks
+        stmt->setUInt32(5, raceMask);
+        stmt->setUInt32(6, classMask);
+        // @tswow-end
 
         WorldDatabase.Execute(stmt);
     }

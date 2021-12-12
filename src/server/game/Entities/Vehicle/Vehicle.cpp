@@ -40,7 +40,7 @@
 // @tswow-end
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
-UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
+UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE)
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
@@ -514,9 +514,9 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     if (seat->second.SeatInfo->CanEnterOrExit() && ++UsableSeatNum)
         _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
-    // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
-    if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
-        unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    // Remove UNIT_FLAG_UNINTERACTIBLE if passenger did not have it before entering vehicle
+    if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUninteractible)
+        unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
     seat->second.Passenger.Reset();
 
@@ -832,7 +832,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     Passenger->SetVehicle(Target);
     Seat->second.Passenger.Guid = Passenger->GetGUID();
-    Seat->second.Passenger.IsUnselectable = Passenger->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    Seat->second.Passenger.IsUninteractible = Passenger->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     if (Seat->second.SeatInfo->CanEnterOrExit())
     {
         ASSERT(Target->UsableSeatNum);
@@ -867,7 +867,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     }
 
     if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))
-        Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
     float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
     float x = veSeat->AttachmentOffset.X;

@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "GameEventMgr.h"
+#include "WorldStatePackets.h"
+// @tswow-end
 #include "WorldSession.h"
 #include "ArenaTeamMgr.h"
 #include "CalendarMgr.h"
@@ -249,7 +253,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
                 ++num;
             }
         }
-        while (result->NextRow());
+        while (result->NextRow() && num < MAX_CHARACTERS_PER_REALM); // client shows an error if more than 10 characters are listed
     }
 
     data.put<uint8>(0, num);
@@ -1017,6 +1021,27 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         pCurrChar->BuildPlayerRepop();
         pCurrChar->RepopAtGraveyard();
     }
+
+    // @tswow-begin
+    for (auto const& evt : sGameEventMgr->GetEventMap())
+    {
+        for (auto const& cond : evt.conditions)
+        {
+            if (cond.second.auto_broadcast)
+            {
+                if (cond.second.done_world_state > 0)
+                {
+                    pCurrChar->SendUpdateWorldState(cond.second.done_world_state, cond.second.done);
+                }
+
+                if (cond.second.max_world_state > 0)
+                {
+                    pCurrChar->SendUpdateWorldState(cond.second.max_world_state, cond.second.max_world_state);
+                }
+            }
+        }
+    }
+    // @tswow-end
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 

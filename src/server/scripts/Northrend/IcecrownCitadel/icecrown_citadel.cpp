@@ -1313,7 +1313,7 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_PASSIVE);
-            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             target->SetImmuneToPC(true);
             target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
         }
@@ -1324,7 +1324,7 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_AGGRESSIVE);
-            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             target->SetImmuneToPC(false);
             target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
         }
@@ -1346,7 +1346,7 @@ class spell_icc_sprit_alarm : public SpellScript
     {
         PreventHitDefaultEffect(effIndex);
         uint32 trapId = 0;
-        switch (GetSpellInfo()->Effects[effIndex].MiscValue)
+        switch (GetEffectInfo().MiscValue)
         {
             case EVENT_AWAKEN_WARD_1:
                 trapId = GO_SPIRIT_ALARM_1;

@@ -156,7 +156,10 @@ struct boss_svala : public BossAI
         if (_introCompleted)
             events.SetPhase(NORMAL);
         else
+        {
             events.SetPhase(IDLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        }
 
         me->SetDisableGravity(false);
 
@@ -193,7 +196,7 @@ struct boss_svala : public BossAI
 
             if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                 _arthasGUID = arthas->GetGUID();
             }
             events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_0, 1s, 0, INTRO);
@@ -502,7 +505,7 @@ struct npc_scourge_hulk : public ScriptedAI
         return type == DATA_INCREDIBLE_HULK ? killedByRitualStrike : 0;
     }
 
-    void DamageTaken(Unit* attacker, uint32 &damage) override
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && attacker && attacker->GetEntry() == NPC_SVALA_SORROWGRAVE)
             killedByRitualStrike = true;

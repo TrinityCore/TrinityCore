@@ -239,6 +239,9 @@ public:
                 else
                     eruptTimer -= diff;
             }
+            // @tswow-begin call super
+            InstanceScript::Update(diff);
+            // @tswow-end
         }
 
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*source*/, Unit const* /*target = nullptr*/, uint32 /*miscValue1 = 0*/) override

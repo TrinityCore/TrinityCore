@@ -185,7 +185,7 @@ private:
 
     bool Load() override
     {
-        absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+        absorbPct = GetEffectInfo(EFFECT_0).CalcValue(GetCaster());
         return true;
     }
 
@@ -596,7 +596,7 @@ class spell_sha_flametongue_weapon : public AuraScript
 
         Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
 
-        float basePoints = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue();
+        float basePoints = aurEff->GetSpellEffectInfo().CalcValue();
 
         // Flametongue max damage is normalized based on a 4.0 speed weapon
         // Tooltip says max damage = BasePoints / 25, so BasePoints / 25 / 4 to get base damage per 1.0s AS
@@ -651,7 +651,7 @@ class spell_sha_frozen_power : public AuraScript
 
         Unit* caster = eventInfo.GetActor();
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_FREEZE);
-        float minDistance(spellInfo->Effects[EFFECT_0].CalcValue(caster));
+        float minDistance(spellInfo->GetEffect(EFFECT_0).CalcValue(caster));
 
         Unit* target = eventInfo.GetProcTarget();
         if (caster->GetDistance(target) < minDistance)
@@ -762,8 +762,8 @@ class spell_sha_glyph_of_totem_of_wrath : public AuraScript
         if (!totemSpell)
             return;
 
-        int32 bp0 = CalculatePct(totemSpell->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
-        int32 bp1 = CalculatePct(totemSpell->Effects[EFFECT_1].CalcValue(caster), aurEff->GetAmount());
+        int32 bp0 = CalculatePct(totemSpell->GetEffect(EFFECT_0).CalcValue(caster), aurEff->GetAmount());
+        int32 bp1 = CalculatePct(totemSpell->GetEffect(EFFECT_1).CalcValue(caster), aurEff->GetAmount());
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(bp0);
         args.AddSpellMod(SPELLVALUE_BASE_POINT1, bp1);
@@ -887,7 +887,7 @@ class spell_sha_imp_water_shield : public AuraScript
         if (!waterShield)
             return;
 
-        uint32 spellId = waterShield->GetSpellInfo()->Effects[waterShield->GetEffIndex()].TriggerSpell;
+        uint32 spellId = waterShield->GetSpellEffectInfo().TriggerSpell;
         caster->CastSpell(nullptr, spellId, aurEff);
     }
 
@@ -931,7 +931,7 @@ class spell_sha_lightning_overload : public AuraScript
             // Chain lightning has [LightOverload_Proc_Chance] / [Max_Number_of_Targets] chance to proc of each individual target hit.
             // A maxed LO would have a 33% / 3 = 11% chance to proc of each target.
             // LO chance was already "accounted" at the proc chance roll, now need to divide the chance by [Max_Number_of_Targets]
-            float chance = 100.0f / spellInfo->Effects[EFFECT_0].ChainTarget;
+            float chance = 100.0f / spellInfo->GetEffect(EFFECT_0).ChainTarget;
             if (!roll_chance_f(chance))
                 return;
 
@@ -1234,7 +1234,7 @@ class spell_sha_mana_tide : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -1243,7 +1243,7 @@ class spell_sha_mana_tide : public AuraScript
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(aurEff->GetAmount());
-        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, args);
+        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, args);
     }
 
     void Register() override
@@ -1310,7 +1310,7 @@ class spell_sha_nature_guardian : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return false;
 
-        int32 healthpct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+        int32 healthpct = GetEffectInfo(EFFECT_1).CalcValue();
         if (Unit* target = eventInfo.GetActionTarget())
             if (target->HealthBelowPctDamaged(healthpct, damageInfo->GetDamage()))
                 return true;
@@ -1852,9 +1852,9 @@ class spell_sha_windfury_weapon : public AuraScript
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_WINDFURY_WEAPON_R1);
         while (spellInfo)
         {
-            if (spellInfo->Effects[EFFECT_0].MiscValue == enchantId)
+            if (spellInfo->GetEffect(EFFECT_0).MiscValue == enchantId)
             {
-                extraAttackPower = spellInfo->Effects[EFFECT_1].CalcValue(player);
+                extraAttackPower = spellInfo->GetEffect(EFFECT_1).CalcValue(player);
                 break;
             }
             spellInfo = spellInfo->GetNextRankSpell();

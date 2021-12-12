@@ -623,19 +623,21 @@ void LoadDBCStores(const std::string& dataPath)
             // valid taxi network node
             uint8  field   = (uint8)((node->ID - 1) / 32);
             uint32 submask = 1  <<  ((node->ID - 1) % 32);
-            sTaxiNodesMask[field] |= submask;
+            // @tswow-begin fix out-of-range taxi nodes
+            // tswow todo: we still want to fix this
+            if(field < sTaxiNodesMask.size()) sTaxiNodesMask[field] |= submask;
 
-            if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
+            if (field < sHordeTaxiNodesMask.size() && node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
                 sHordeTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[1] && node->MountCreatureID[1] != 32981)
+            if (field < sAllianceTaxiNodesMask.size() && node->MountCreatureID[1] && node->MountCreatureID[1] != 32981)
                 sAllianceTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
+            if (field < sDeathKnightTaxiNodesMask.size() && node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
                 sDeathKnightTaxiNodesMask[field] |= submask;
 
             // old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
-            if (node->ContinentID < 2 || node->ID == 82 || node->ID == 83 || node->ID == 93 || node->ID == 94)
+            if (field < sOldContinentsNodesMask.size() && node->ContinentID < 2 || node->ID == 82 || node->ID == 83 || node->ID == 93 || node->ID == 94)
                 sOldContinentsNodesMask[field] |= submask;
-
+            // @tswow-end
             // fix DK node at Ebon Hold and Shadow Vault flight master
             if (node->ID == 315 || node->ID == 333)
                 const_cast<TaxiNodesEntry*>(node)->MountCreatureID[1] = 32981;

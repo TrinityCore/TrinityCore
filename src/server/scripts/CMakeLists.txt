@@ -119,7 +119,7 @@ function(ConfigureScriptLoader SCRIPTLOADER_NAME LOADER_OUT IS_DYNAMIC_SCRIPTLOA
     # Generate the funciton call and the forward declarations
 
     set(TRINITY_SCRIPTS_FORWARD_DECL
-    
+
       "${TRINITY_SCRIPTS_FORWARD_DECL}void ${LOADER_FUNCTION};\n")
     set(TRINITY_SCRIPTS_INVOKE
       "${TRINITY_SCRIPTS_INVOKE}    ${LOADER_FUNCTION};\n")
@@ -171,7 +171,11 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
 
     target_include_directories(${SCRIPT_MODULE_PROJECT_NAME}
       PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR})
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        #tswow-begin
+        ${TSWOW_INCLUDES}
+        #tswow-end
+      )
 
     set_target_properties(${SCRIPT_MODULE_PROJECT_NAME}
       PROPERTIES
@@ -218,7 +222,11 @@ target_link_libraries(scripts
 
 target_include_directories(scripts
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    #tswow-begin
+    ${TSWOW_INCLUDES}
+    #tswow-end
+    )
 
 set_target_properties(scripts
   PROPERTIES

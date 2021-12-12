@@ -157,6 +157,9 @@ class instance_oculus : public InstanceMapScript
                     packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
                     packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, 0);
                 }
+                // @tswow-begin call super
+                InstanceScript::FillInitialWorldStates(packet);
+                // @tswow-end
             }
 
             void ProcessEvent(WorldObject* /*unit*/, uint32 eventId) override
@@ -296,6 +299,9 @@ class instance_oculus : public InstanceMapScript
                             break;
                     }
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void GreaterWhelps()

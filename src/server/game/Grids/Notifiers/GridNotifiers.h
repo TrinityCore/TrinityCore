@@ -23,6 +23,7 @@
 #include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "Group.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
@@ -118,11 +119,16 @@ namespace Trinity
         WorldObject const* i_source;
         WorldPacket const* i_message;
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
         MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
-            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+            // @tswow-begin
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_phase_id(src->m_phase_id), i_distSq(dist * dist)
+            // @tswow-end
             , team(0)
             , skipped_receiver(skipped)
         {
@@ -154,10 +160,13 @@ namespace Trinity
         Unit* i_source;
         WorldPacket const* i_message;
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         float i_distSq;
 
         MessageDistDelivererToHostile(Unit* src, WorldPacket const* msg, float dist)
-            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_phase_id(src->m_phase_id), i_distSq(dist * dist)
         {
         }
 
@@ -220,11 +229,16 @@ namespace Trinity
     {
         uint32 i_mapTypeMask;
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         WorldObject* &i_object;
         Check &i_check;
 
         WorldObjectSearcher(WorldObject const* searcher, WorldObject* & result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+        // @tswow-begin
+            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+        // @tswow-end
 
         void Visit(GameObjectMapType &m);
         void Visit(PlayerMapType &m);
@@ -240,11 +254,17 @@ namespace Trinity
     {
         uint32 i_mapTypeMask;
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         WorldObject* &i_object;
         Check &i_check;
 
         WorldObjectLastSearcher(WorldObject const* searcher, WorldObject* & result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            :  i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            :  i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
+
 
         void Visit(GameObjectMapType &m);
         void Visit(PlayerMapType &m);
@@ -260,12 +280,17 @@ namespace Trinity
     {
         uint32 i_mapTypeMask;
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Check& i_check;
 
         template<typename Container>
         WorldObjectListSearcher(WorldObject const* searcher, Container& container, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
             : ContainerInserter<WorldObject*>(container),
-              i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+            // @tswow-begin
+              i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_check(check) { }
+            // @tswow-end
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -281,17 +306,24 @@ namespace Trinity
     {
         uint32 i_mapTypeMask;
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Do const& i_do;
 
         WorldObjectWorker(WorldObject const* searcher, Do const& _do, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_do(_do) { }
+            // @tswow-begin
+            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_do(_do) { }
+            // @tswow-end
 
         void Visit(GameObjectMapType &m)
         {
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_GAMEOBJECT))
                 return;
             for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(i_phaseMask,i_phase_id))
+                // @tswow-end
                     i_do(itr->GetSource());
         }
 
@@ -300,7 +332,9 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
                 return;
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(i_phaseMask,i_phase_id))
+                // @tswow-end
                     i_do(itr->GetSource());
         }
         void Visit(CreatureMapType &m)
@@ -308,7 +342,9 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CREATURE))
                 return;
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(i_phaseMask,i_phase_id))
+                // @tswow-end
                     i_do(itr->GetSource());
         }
 
@@ -317,7 +353,9 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CORPSE))
                 return;
             for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(i_phaseMask,i_phase_id))
+                // @tswow-end
                     i_do(itr->GetSource());
         }
 
@@ -326,7 +364,9 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_DYNAMICOBJECT))
                 return;
             for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(i_phaseMask,i_phase_id))
+                // @tswow-end
                     i_do(itr->GetSource());
         }
 
@@ -339,11 +379,17 @@ namespace Trinity
     struct GameObjectSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         GameObject* &i_object;
         Check &i_check;
 
         GameObjectSearcher(WorldObject const* searcher, GameObject* & result, Check& check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
+
 
         void Visit(GameObjectMapType &m);
 
@@ -355,11 +401,16 @@ namespace Trinity
     struct GameObjectLastSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         GameObject* &i_object;
         Check& i_check;
 
         GameObjectLastSearcher(WorldObject const* searcher, GameObject* & result, Check& check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
 
         void Visit(GameObjectMapType &m);
 
@@ -370,12 +421,17 @@ namespace Trinity
     struct GameObjectListSearcher : ContainerInserter<GameObject*>
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Check& i_check;
 
         template<typename Container>
         GameObjectListSearcher(WorldObject const* searcher, Container& container, Check & check)
             : ContainerInserter<GameObject*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+            // @tswow-begin
+              i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_check(check) { }
+            // @tswow-end
 
         void Visit(GameObjectMapType &m);
 
@@ -386,12 +442,16 @@ namespace Trinity
     struct GameObjectWorker
     {
         GameObjectWorker(WorldObject const* searcher, Functor& func)
-            : _func(func), _phaseMask(searcher->GetPhaseMask()) { }
+        // @tswow-begin
+            : _func(func), _phaseMask(searcher->GetPhaseMask()),_uint64(searcher->m_phase_id) { }
+        // @tswow-end
 
         void Visit(GameObjectMapType& m)
         {
             for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(_phaseMask,_uint64))
+                // @tswow-end
                     _func(itr->GetSource());
         }
 
@@ -400,6 +460,9 @@ namespace Trinity
     private:
         Functor& _func;
         uint32 _phaseMask;
+        // @tswow-begin
+        uint64 _uint64;
+        // @tswow-end
     };
 
     // Unit searchers
@@ -409,11 +472,16 @@ namespace Trinity
     struct UnitSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Unit* &i_object;
         Check & i_check;
 
         UnitSearcher(WorldObject const* searcher, Unit* & result, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
 
         void Visit(CreatureMapType &m);
         void Visit(PlayerMapType &m);
@@ -426,11 +494,16 @@ namespace Trinity
     struct UnitLastSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Unit* &i_object;
         Check & i_check;
 
         UnitLastSearcher(WorldObject const* searcher, Unit* & result, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
 
         void Visit(CreatureMapType &m);
         void Visit(PlayerMapType &m);
@@ -443,12 +516,17 @@ namespace Trinity
     struct UnitListSearcher : ContainerInserter<Unit*>
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Check& i_check;
 
         template<typename Container>
         UnitListSearcher(WorldObject const* searcher, Container& container, Check& check)
             : ContainerInserter<Unit*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+            // @tswow-begin
+              i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_check(check) { }
+            // @tswow-end
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -462,11 +540,16 @@ namespace Trinity
     struct CreatureSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Creature* &i_object;
         Check & i_check;
 
         CreatureSearcher(WorldObject const* searcher, Creature* & result, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
 
         void Visit(CreatureMapType &m);
 
@@ -478,11 +561,16 @@ namespace Trinity
     struct CreatureLastSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Creature* &i_object;
         Check & i_check;
 
         CreatureLastSearcher(WorldObject const* searcher, Creature* & result, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
 
         void Visit(CreatureMapType &m);
 
@@ -493,12 +581,17 @@ namespace Trinity
     struct CreatureListSearcher : ContainerInserter<Creature*>
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Check& i_check;
 
         template<typename Container>
         CreatureListSearcher(WorldObject const* searcher, Container& container, Check & check)
             : ContainerInserter<Creature*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+            // @tswow-begin
+              i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_check(check) { }
+            // @tswow-end
 
         void Visit(CreatureMapType &m);
 
@@ -509,15 +602,22 @@ namespace Trinity
     struct CreatureWorker
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Do& i_do;
 
         CreatureWorker(WorldObject const* searcher, Do& _do)
-            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_do(_do) { }
+            // @tswow-end
 
         void Visit(CreatureMapType &m)
         {
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(i_phaseMask,i_phase_id))
+                // @tswow-end
                     i_do(itr->GetSource());
         }
 
@@ -530,11 +630,16 @@ namespace Trinity
     struct PlayerSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Player* &i_object;
         Check & i_check;
 
         PlayerSearcher(WorldObject const* searcher, Player* & result, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check) { }
+            // @tswow-end
 
         void Visit(PlayerMapType &m);
 
@@ -545,12 +650,17 @@ namespace Trinity
     struct PlayerListSearcher : ContainerInserter<Player*>
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Check& i_check;
 
         template<typename Container>
         PlayerListSearcher(WorldObject const* searcher, Container& container, Check & check)
             : ContainerInserter<Player*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+            // @tswow-begin
+              i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_check(check) { }
+            // @tswow-end
 
         template<typename Container>
         PlayerListSearcher(uint32 phaseMask, Container& container, Check & check)
@@ -566,10 +676,15 @@ namespace Trinity
     struct PlayerLastSearcher
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Player* &i_object;
         Check& i_check;
 
-        PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check) : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check)
+        // @tswow-begin
+        PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check) : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_object(result), i_check(check)
+        // @tswow-end
         {
         }
 
@@ -582,15 +697,22 @@ namespace Trinity
     struct PlayerWorker
     {
         uint32 i_phaseMask;
+        // @tswow-begin
+        uint64 i_phase_id;
+        // @tswow-end
         Do& i_do;
 
         PlayerWorker(WorldObject const* searcher, Do& _do)
-            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) { }
+            // @tswow-begin
+            : i_phaseMask(searcher->GetPhaseMask(),searcher->m_phase_id), i_do(_do) { }
+            // @tswow-end
 
         void Visit(PlayerMapType &m)
         {
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                // @tswow-begin
+                if (itr->GetSource()->InSamePhase(i_phaseMask,i_phase_id))
+                // @tswow-end
                     i_do(itr->GetSource());
         }
 
@@ -874,6 +996,44 @@ namespace Trinity
             bool i_excludeSelf;
     };
 
+    class MostHPMissingGroupInRange
+    {
+        public:
+            MostHPMissingGroupInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) { }
+
+            bool operator()(Unit* u)
+            {
+                if (i_obj == u)
+                    return false;
+
+                Player* player = nullptr;
+                if (u->GetTypeId() == TYPEID_PLAYER)
+                    player = u->ToPlayer();
+                else if (u->IsPet() && u->GetOwner())
+                    player = u->GetOwner()->ToPlayer();
+
+                if (!player)
+                    return false;
+
+                Group* group = player->GetGroup();
+                if (!group || !group->IsMember(i_obj->IsPet() ? i_obj->GetOwnerGUID() : i_obj->GetGUID()))
+                    return false;
+
+                if (u->IsAlive() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
+                {
+                    i_hp = u->GetMaxHealth() - u->GetHealth();
+                    return true;
+                }
+
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            float i_range;
+            uint32 i_hp;
+    };
+
     class FriendlyCCedInRange
     {
         public:
@@ -1097,7 +1257,7 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                // Check contains checks for: live, non-selectable, non-attackable flags, flight check and GM check, ignore totems
+                // Check contains checks for: live, uninteractible, non-attackable flags, flight check and GM check, ignore totems
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 

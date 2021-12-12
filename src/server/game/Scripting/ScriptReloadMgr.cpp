@@ -58,6 +58,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <future>
 #include <memory>
 #include <sstream>
+#include <thread>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -179,7 +180,7 @@ typedef void (*AddScriptsType)();
 typedef char const* (*GetScriptModuleType)();
 typedef char const* (*GetBuildDirectiveType)();
 // @tswow-begin
-typedef void (*AddTSScriptsType)(TSEventHandlers*);
+typedef void (*AddTSScriptsType)(TSEvents*);
 // @tswow-end
 
 class ScriptModule
@@ -342,7 +343,9 @@ static bool HasValidScriptModuleName(std::string const& name)
 {
     // Detects scripts_NAME.dll's / .so's
     static Trinity::regex const regex(
-        Trinity::StringFormat("^%s[sS]cripts_[a-zA-Z0-9_-]+\\.%s$",
+        // @tswow-begin allow dots
+        Trinity::StringFormat("^%s[sS]cripts_[a-zA-Z0-9._-]+\\.%s$",
+        // @tswow-end
             GetSharedLibraryPrefix(),
             GetSharedLibraryExtension()));
 

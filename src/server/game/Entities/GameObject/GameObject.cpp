@@ -1466,6 +1466,79 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
     m_cooldownTime = time_to_restore ? (GameTime::GetGameTimeMS() + time_to_restore) : 0;
 }
 
+void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCaster, uint32 spellId, int32 effectIndex)
+{
+    Unit* unitCaster = spellCaster ? spellCaster->ToUnit() : nullptr;
+
+    switch (action)
+    {
+        case GameObjectActions::AnimateCustom0:
+        case GameObjectActions::AnimateCustom1:
+        case GameObjectActions::AnimateCustom2:
+        case GameObjectActions::AnimateCustom3:
+            SendCustomAnim(uint32(action) - uint32(GameObjectActions::AnimateCustom0));
+            break;
+        case GameObjectActions::Disturb: // What's the difference with Open?
+        case GameObjectActions::Open:
+            if (unitCaster)
+                Use(unitCaster);
+            break;
+        case GameObjectActions::OpenAndUnlock:
+            if (unitCaster)
+                UseDoorOrButton(0, false, unitCaster);
+            [[fallthrough]];
+        case GameObjectActions::Unlock:
+        case GameObjectActions::Lock:
+            ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED, action == GameObjectActions::Lock);
+            break;
+        case GameObjectActions::Close:
+        case GameObjectActions::Rebuild:
+            ResetDoorOrButton();
+            break;
+        case GameObjectActions::Despawn:
+            DespawnOrUnsummon();
+            break;
+        case GameObjectActions::MakeInert:
+        case GameObjectActions::MakeActive:
+            ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE, action == GameObjectActions::MakeInert);
+            break;
+        case GameObjectActions::CloseAndLock:
+            ResetDoorOrButton();
+            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Destroy:
+            if (unitCaster)
+                UseDoorOrButton(0, true, unitCaster);
+            break;
+        case GameObjectActions::UseArtKit0:
+        case GameObjectActions::UseArtKit1:
+        case GameObjectActions::UseArtKit2:
+        case GameObjectActions::UseArtKit3:
+        {
+            GameObjectTemplateAddon const* templateAddon = GetTemplateAddon();
+
+            uint32 artKitIndex = uint32(action) - uint32(GameObjectActions::UseArtKit0);
+
+            uint32 artKitValue = 0;
+            if (templateAddon != nullptr)
+                artKitValue = templateAddon->artKits[artKitIndex];
+
+            if (artKitValue == 0)
+                TC_LOG_ERROR("sql.sql", "GameObject %d hit by spell %d needs `artkit%d` in `gameobject_template_addon`", GetEntry(), spellId, artKitIndex);
+            else
+                SetGoArtKit(artKitValue);
+
+            break;
+        }
+        case GameObjectActions::None:
+            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", spellId, effectIndex);
+            break;
+        default:
+            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", spellId, int32(action), effectIndex);
+            break;
+    }
+}
+
 void GameObject::SetGoArtKit(uint8 kit)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 2, kit);
@@ -1505,9 +1578,10 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
 void GameObject::Use(Unit* user)
 {
     // @tswow-begin
+    WorldObject* target = user;
     bool shouldCancel = false;
     FIRE_MAP(GetGOInfo()->events,GameObjectOnUse,TSGameObject(this),TSUnit(user),TSMutable<bool>(&shouldCancel));
-    if(shouldCancel) 
+    if(shouldCancel)
     {
         return;
     }
@@ -1718,8 +1792,22 @@ void GameObject::Use(Unit* user)
 
             // cast this spell later if provided
             spellId = info->goober.spellId;
-            spellCaster = nullptr;
+            // @tswow-begin
 
+            if ((info->goober.spellFlags & SpellFlags::TRIGGERED))
+            {
+                triggered = true;
+            }
+
+            if (!(info->goober.spellFlags & SpellFlags::USER_CAST))
+            {
+                spellCaster = nullptr;
+            }
+            // @tswow-end
+            if ((info->goober.spellFlags & SpellFlags::TARGET_GOBJ))
+            {
+                target = this;
+            }
             break;
         }
         case GAMEOBJECT_TYPE_CAMERA:                        //13
@@ -2116,10 +2204,12 @@ void GameObject::Use(Unit* user)
     if (Player* player = user->ToPlayer())
         sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
+    // @tswow-begin add target
     if (spellCaster)
-        spellCaster->CastSpell(user, spellId, triggered);
+        spellCaster->CastSpell(target, spellId, triggered);
     else
-        CastSpell(user, spellId);
+        CastSpell(target, spellId);
+    // @tswow-end
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
@@ -2468,12 +2558,14 @@ void GameObject::SetDisplayId(uint32 displayid)
     UpdateModel();
 }
 
-void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
+// @tswow-begin
+void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId)
 {
-    WorldObject::SetPhaseMask(newPhaseMask, update);
+    WorldObject::SetPhaseMask(newPhaseMask, update, newPhaseId);
     if (m_model && m_model->isEnabled())
         EnableCollision(true);
 }
+// @tswow-end
 
 void GameObject::EnableCollision(bool enable)
 {
@@ -2814,9 +2906,9 @@ SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
 
         for (auto&& playerSpell : player->GetSpellMap())
             if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(playerSpell.first))
-                for (auto&& effect : spell->Effects)
-                    if (effect.Effect == SPELL_EFFECT_OPEN_LOCK && ((uint32) effect.MiscValue) == lock->Index[i])
-                        if (effect.CalcValue(player) >= int32(lock->Skill[i]))
+                for (SpellEffectInfo const& spellEffectInfo : spell->GetEffects())
+                    if (spellEffectInfo.IsEffect(SPELL_EFFECT_OPEN_LOCK) && ((uint32) spellEffectInfo.MiscValue) == lock->Index[i])
+                        if (spellEffectInfo.CalcValue(player) >= int32(lock->Skill[i]))
                             return spell;
     }
 

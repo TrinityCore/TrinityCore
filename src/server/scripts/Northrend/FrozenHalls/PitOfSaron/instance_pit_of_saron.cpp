@@ -57,6 +57,9 @@ class instance_pit_of_saron : public InstanceMapScript
             {
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
+                // @tswow-begin call super
+                InstanceScript::OnPlayerEnter(player);
+                // @tswow-end
             }
 
             void OnCreatureCreate(Creature* creature) override

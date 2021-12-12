@@ -403,9 +403,9 @@ inline void GetGameObjectListWithEntryInGrid(Container& container, WorldObject* 
 }
 
 template <typename Container>
-inline void GetPlayerListInGrid(Container& container, WorldObject* source, float maxSearchRange)
+inline void GetPlayerListInGrid(Container& container, WorldObject* source, float maxSearchRange, bool alive = true)
 {
-    source->GetPlayerListInGrid(container, maxSearchRange);
+    source->GetPlayerListInGrid(container, maxSearchRange, alive);
 }
 
 #endif // TRINITY_SCRIPTEDCREATURE_H

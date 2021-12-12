@@ -52,169 +52,136 @@ enum Events
     EVENT_SONIC_SHOCK           = 6
 };
 
-class boss_murmur : public CreatureScript
+struct boss_murmur : public BossAI
 {
-    public:
-        boss_murmur() : CreatureScript("boss_murmur") { }
+    boss_murmur(Creature* creature) : BossAI(creature, DATA_MURMUR)
+    {
+        SetCombatMovement(false);
+    }
 
-        struct boss_murmurAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
+        events.ScheduleEvent(EVENT_MURMURS_TOUCH, 8s, 20s);
+        events.ScheduleEvent(EVENT_RESONANCE, 5s);
+        events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
+        if (IsHeroic())
         {
-            boss_murmurAI(Creature* creature) : BossAI(creature, DATA_MURMUR)
-            {
-                SetCombatMovement(false);
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
-                events.ScheduleEvent(EVENT_MURMURS_TOUCH, 8s, 20s);
-                events.ScheduleEvent(EVENT_RESONANCE, 5s);
-                events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
-                if (IsHeroic())
-                {
-                    events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
-                    events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s);
-                }
-
-                // database should have `RegenHealth`=0 to prevent regen
-                uint32 hp = me->CountPctFromMaxHealth(40);
-                if (hp)
-                    me->SetHealth(hp);
-                me->ResetPlayerDamageReq();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SONIC_BOOM:
-                            Talk(EMOTE_SONIC_BOOM);
-                            DoCast(me, SPELL_SONIC_BOOM_CAST);
-                            events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
-                            events.ScheduleEvent(EVENT_RESONANCE, 1500ms);
-                            break;
-                        case EVENT_MURMURS_TOUCH:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
-                                DoCast(target, SPELL_MURMURS_TOUCH);
-                            events.ScheduleEvent(EVENT_MURMURS_TOUCH, 25s, 35s);
-                            break;
-                        case EVENT_RESONANCE:
-                            if (!(me->IsWithinMeleeRange(me->GetVictim())))
-                            {
-                                DoCast(me, SPELL_RESONANCE);
-                                events.ScheduleEvent(EVENT_RESONANCE, 5s);
-                            }
-                            break;
-                        case EVENT_MAGNETIC_PULL:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                            {
-                                DoCast(target, SPELL_MAGNETIC_PULL);
-                                events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
-                                break;
-                            }
-                            events.ScheduleEvent(EVENT_MAGNETIC_PULL, 500ms);
-                            break;
-                        case EVENT_THUNDERING_STORM:
-                            DoCastAOE(SPELL_THUNDERING_STORM, true);
-                            events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
-                            break;
-                        case EVENT_SONIC_SHOCK:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, false))
-                                DoCast(target, SPELL_SONIC_SHOCK);
-                            events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s, 20s);
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                // Select nearest most aggro target if top aggro too far
-                if (!me->isAttackReady())
-                    return;
-
-                if (!me->IsWithinMeleeRange(me->GetVictim()))
-                    me->GetThreatManager().ResetThreat(me->GetVictim());
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetShadowLabyrinthAI<boss_murmurAI>(creature);
+            events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
+            events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s);
         }
+
+        // database should have `RegenHealth`=0 to prevent regen
+        uint32 hp = me->CountPctFromMaxHealth(40);
+        if (hp)
+            me->SetHealth(hp);
+        me->ResetPlayerDamageReq();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SONIC_BOOM:
+                    Talk(EMOTE_SONIC_BOOM);
+                    DoCast(me, SPELL_SONIC_BOOM_CAST);
+                    events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
+                    events.ScheduleEvent(EVENT_RESONANCE, 1500ms);
+                    break;
+                case EVENT_MURMURS_TOUCH:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
+                        DoCast(target, SPELL_MURMURS_TOUCH);
+                    events.ScheduleEvent(EVENT_MURMURS_TOUCH, 25s, 35s);
+                    break;
+                case EVENT_RESONANCE:
+                    if (!(me->IsWithinMeleeRange(me->GetVictim())))
+                    {
+                        DoCast(me, SPELL_RESONANCE);
+                        events.ScheduleEvent(EVENT_RESONANCE, 5s);
+                    }
+                    break;
+                case EVENT_MAGNETIC_PULL:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                    {
+                        DoCast(target, SPELL_MAGNETIC_PULL);
+                        events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
+                        break;
+                    }
+                    events.ScheduleEvent(EVENT_MAGNETIC_PULL, 500ms);
+                    break;
+                case EVENT_THUNDERING_STORM:
+                    DoCastAOE(SPELL_THUNDERING_STORM, true);
+                    events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
+                    break;
+                case EVENT_SONIC_SHOCK:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, false))
+                        DoCast(target, SPELL_SONIC_SHOCK);
+                    events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s, 20s);
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        // Select nearest most aggro target if top aggro too far
+        if (!me->isAttackReady())
+            return;
+
+        if (!me->IsWithinMeleeRange(me->GetVictim()))
+            me->GetThreatManager().ResetThreat(me->GetVictim());
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 // 33923, 38796 - Sonic Boom
-class spell_murmur_sonic_boom : public SpellScriptLoader
+class spell_murmur_sonic_boom : public SpellScript
 {
-    public:
-        spell_murmur_sonic_boom() : SpellScriptLoader("spell_murmur_sonic_boom") { }
+    PrepareSpellScript(spell_murmur_sonic_boom);
 
-        class spell_murmur_sonic_boom_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_murmur_sonic_boom_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
-            }
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_SONIC_BOOM_EFFECT, true);
+    }
 
-            void HandleEffect(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastSpell(nullptr, SPELL_SONIC_BOOM_EFFECT, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHit += SpellEffectFn(spell_murmur_sonic_boom_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_murmur_sonic_boom_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_murmur_sonic_boom::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 33666, 38795 - Sonic Boom Effect
-class spell_murmur_sonic_boom_effect : public SpellScriptLoader
+class spell_murmur_sonic_boom_effect : public SpellScript
 {
-    public:
-        spell_murmur_sonic_boom_effect() : SpellScriptLoader("spell_murmur_sonic_boom_effect") { }
+    PrepareSpellScript(spell_murmur_sonic_boom_effect);
 
-        class spell_murmur_sonic_boom_effect_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_murmur_sonic_boom_effect_SpellScript);
+    void CalcDamage()
+    {
+        if (Unit* target = GetHitUnit())
+            SetHitDamage(target->CountPctFromMaxHealth(80)); /// @todo: find correct value
+    }
 
-            void CalcDamage()
-            {
-                if (Unit* target = GetHitUnit())
-                    SetHitDamage(target->CountPctFromMaxHealth(80)); /// @todo: find correct value
-            }
-
-            void Register() override
-            {
-                OnHit += SpellHitFn(spell_murmur_sonic_boom_effect_SpellScript::CalcDamage);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_murmur_sonic_boom_effect_SpellScript();
-        }
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_murmur_sonic_boom_effect::CalcDamage);
+    }
 };
 
 class ThunderingStormCheck
@@ -233,36 +200,25 @@ class ThunderingStormCheck
 };
 
 // 39365 - Thundering Storm
-class spell_murmur_thundering_storm : public SpellScriptLoader
+class spell_murmur_thundering_storm : public SpellScript
 {
-    public:
-        spell_murmur_thundering_storm() : SpellScriptLoader("spell_murmur_thundering_storm") { }
+    PrepareSpellScript(spell_murmur_thundering_storm);
 
-        class spell_murmur_thundering_storm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_murmur_thundering_storm_SpellScript);
+    void FilterTarget(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(ThunderingStormCheck(GetCaster()));
+    }
 
-            void FilterTarget(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(ThunderingStormCheck(GetCaster()));
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_murmur_thundering_storm_SpellScript::FilterTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_murmur_thundering_storm_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_murmur_thundering_storm::FilterTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
 };
 
 void AddSC_boss_murmur()
 {
-    new boss_murmur();
-    new spell_murmur_sonic_boom();
-    new spell_murmur_sonic_boom_effect();
-    new spell_murmur_thundering_storm();
+    RegisterShadowLabyrinthCreatureAI(boss_murmur);
+    RegisterSpellScript(spell_murmur_sonic_boom);
+    RegisterSpellScript(spell_murmur_sonic_boom_effect);
+    RegisterSpellScript(spell_murmur_thundering_storm);
 }

@@ -91,6 +91,9 @@ class instance_shattered_halls : public InstanceMapScript
 
                 if (ex)
                     ex->SetDuration(executionTimer);
+                // @tswow-begin call super
+                InstanceScript::OnPlayerEnter(player);
+                // @tswow-end
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -266,6 +269,9 @@ class instance_shattered_halls : public InstanceMapScript
                 }
                 else
                     executionTimer -= diff;
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
         private:

@@ -38,4 +38,6 @@ inline AI* GetAuchenaiCryptsAI(T* obj)
     return GetInstanceAI<AI>(obj, ACScriptName);
 }
 
+#define RegisterAuchenaiCryptsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAuchenaiCryptsAI)
+
 #endif // AUCHENAI_CRYPTS_H_

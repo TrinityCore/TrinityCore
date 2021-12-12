@@ -15,6 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSEvents.h"
+#include "TSPlayer.h"
+#include "TSArray.h"
+#include "TSMutable.h"
+// @tswow-end
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "Common.h"
@@ -537,6 +543,30 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         _player->SaveInventoryAndGoldToDB(trans);
         trader->SaveInventoryAndGoldToDB(trans);
         CharacterDatabase.CommitTransaction(trans);
+
+        // @tswow-begin
+        if (GetTSEvents()->PlayerOnTradeCompleted.GetSize() > 0)
+        {
+            TSArray<TSItem> myItemsTS;
+            TSArray<TSItem> hisItemsTS;
+            myItemsTS->reserve(TRADE_SLOT_TRADED_COUNT);
+            hisItemsTS->reserve(TRADE_SLOT_TRADED_COUNT);
+            for (size_t i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
+            {
+                if(myItems[i]) myItemsTS.push(TSItem(myItems[i]));
+                if(hisItems[i]) hisItemsTS.push(TSItem(hisItems[i]));
+            }
+            FIRE(
+                  PlayerOnTradeCompleted
+                , TSPlayer(_player)
+                , TSPlayer(trader)
+                , myItemsTS
+                , hisItemsTS
+                , my_trade->GetMoney()
+                , his_trade->GetMoney()
+            );
+        }
+        // @tswow-end
 
         info.Status = TRADE_STATUS_TRADE_COMPLETE;
         trader->GetSession()->SendTradeStatus(info);

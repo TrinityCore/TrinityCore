@@ -127,11 +127,14 @@ class instance_zulaman : public InstanceMapScript
             EncounterState RandVendor[RAND_VENDOR];
             EncounterState GongEvent;
 
-            void OnPlayerEnter(Player* /*player*/) override
+            // @tswow-begin call super
+            void OnPlayerEnter(Player* player) override
             {
                 if (!GetGuidData(NPC_HARRISON_JONES))
                     instance->SummonCreature(NPC_HARRISON_JONES, HarrisonJonesLoc);
+                InstanceScript::OnPlayerEnter(player);
             }
+            // @tswow-end
 
             void OnGameObjectCreate(GameObject* go) override
             {
@@ -305,6 +308,9 @@ class instance_zulaman : public InstanceMapScript
                     }
                     QuestTimer -= diff;
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
         };
 

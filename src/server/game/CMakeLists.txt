@@ -42,11 +42,19 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_SOURCES})
+  ${PRIVATE_SOURCES}
+  # tswow-begin
+  ${TSWOW_SOURCES}
+  # tswow-end
+  )
 
 target_include_directories(game
   PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
+    ${CMAKE_CURRENT_BINARY_DIR}
+    # tswow-begin
+    ${TSWOW_INCLUDES}
+    # tswow-end
+    )
 
 #tswow-begin
 include(FetchContent)
@@ -60,6 +68,17 @@ message (STATUS "Installing json.hpp...")
 FetchContent_Populate (json)
 endif()
 add_subdirectory (${json_SOURCE_DIR} ${json_BINARY_DIR})
+
+FILE(GLOB TSWOW_PUBLIC ${TSWOW_CORE_PUBLIC}/*)
+FILE(GLOB TSWOW_PRIVATE ${TSWOW_CORE_PRIVATE}/*)
+FILE(GLOB TSWOW_MESSAGES ${TSWOW_MESSAGES_INCLUDES}/*)
+
+target_compile_definitions(game PUBLIC CUSTOM_PACKET_API=TC_GAME_API)
+
+source_group("tswow-messages" FILES ${TSWOW_MESSAGES})
+source_group("tswow-public" FILES ${TSWOW_PUBLIC})
+source_group("tswow-private" FILES ${TSWOW_PRIVATE})
+
 # tswow-end
 
 target_link_libraries(game

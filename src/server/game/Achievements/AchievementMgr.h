@@ -373,14 +373,23 @@ class TC_GAME_API AchievementGlobalMgr
 
         void LoadAchievementCriteriaList();
         void LoadAchievementCriteriaData();
+        // @tswow-begin
+        void LoadEncounterCriteria();
+        // @tswow-end
         void LoadAchievementReferenceList();
         void LoadCompletedAchievements();
         void LoadRewards();
         void LoadRewardLocales();
         AchievementEntry const* GetAchievement(uint32 achievementId) const;
         AchievementCriteriaEntry const* GetAchievementCriteria(uint32 achievementId) const;
+        // @tswow-begin
+        uint32 GetEncounterID(uint32 miscValueA, uint32 miscValueB);
+        // @tswow-end
     private:
         AchievementCriteriaDataMap m_criteriaDataMap;
+        // @tswow-begin
+        std::map<std::pair<uint32, uint32>, uint32> m_encounterMap;
+        // @tswow-end
 
         // store achievement criterias by type to speed up lookup
         AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];

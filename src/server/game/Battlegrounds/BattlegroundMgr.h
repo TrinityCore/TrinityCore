@@ -18,6 +18,9 @@
 #ifndef __BATTLEGROUNDMGR_H
 #define __BATTLEGROUNDMGR_H
 
+// @tswow-begin
+#include "TSEvents.h"
+// @tswow-end
 #include "Common.h"
 #include "DBCEnums.h"
 #include "Battleground.h"
@@ -57,6 +60,9 @@ struct BattlegroundTemplate
     uint8 Weight;
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
+    // @tswow-begin
+    TSBattlegroundEvents* m_events = nullptr;
+    // @tswow-end
 
     bool IsArena() const;
 };
@@ -141,7 +147,10 @@ class TC_GAME_API BattlegroundMgr
         typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
         BattlegroundDataContainer bgDataStore;
 
-        BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES];
+        // @tswow-begin
+        std::vector<BattlegroundQueue> m_BattlegroundQueues;
+        //BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES];
+        // @tswow-end
 
         std::vector<uint64> m_QueueUpdateScheduler;
         uint32 m_NextRatedArenaUpdate;

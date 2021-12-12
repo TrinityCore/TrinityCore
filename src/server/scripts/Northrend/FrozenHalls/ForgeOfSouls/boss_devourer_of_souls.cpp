@@ -125,351 +125,307 @@ enum Misc
     DATA_THREE_FACED                = 1
 };
 
-class boss_devourer_of_souls : public CreatureScript
+struct boss_devourer_of_souls : public BossAI
 {
-    public:
-        boss_devourer_of_souls() : CreatureScript("boss_devourer_of_souls") { }
+    boss_devourer_of_souls(Creature* creature) : BossAI(creature, DATA_DEVOURER_OF_SOULS)
+    {
+        Initialize();
+        beamAngle = 0.f;
+        beamAngleDiff = 0.f;
+        wailingSoulTick = 0;
+    }
 
-        struct boss_devourer_of_soulsAI : public BossAI
+    void Initialize()
+    {
+        threeFaced = true;
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        me->SetControlled(false, UNIT_STATE_ROOT);
+        me->SetDisplayId(DISPLAY_ANGER);
+        me->SetReactState(REACT_AGGRESSIVE);
+
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_FACE_AGGRO);
+
+        if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
+            instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
+        events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
+        events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8s);
+        events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30s);
+        events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20s);
+        events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        uint8 textId = 0;
+        switch (me->GetDisplayId())
         {
-            boss_devourer_of_soulsAI(Creature* creature) : BossAI(creature, DATA_DEVOURER_OF_SOULS)
-            {
-                Initialize();
-                beamAngle = 0.f;
-                beamAngleDiff = 0.f;
-                wailingSoulTick = 0;
-            }
-
-            void Initialize()
-            {
-                threeFaced = true;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                me->SetControlled(false, UNIT_STATE_ROOT);
-                me->SetDisplayId(DISPLAY_ANGER);
-                me->SetReactState(REACT_AGGRESSIVE);
-
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_FACE_AGGRO);
-
-                if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
-                    instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
-                events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
-                events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8s);
-                events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30s);
-                events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20s);
-                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                uint8 textId = 0;
-                switch (me->GetDisplayId())
-                {
-                    case DISPLAY_ANGER:
-                        textId = SAY_FACE_ANGER_SLAY;
-                        break;
-                    case DISPLAY_SORROW:
-                        textId = SAY_FACE_SORROW_SLAY;
-                        break;
-                    case DISPLAY_DESIRE:
-                        textId = SAY_FACE_DESIRE_SLAY;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (textId)
-                    Talk(textId);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-
-                Position spawnPoint = {5618.139f, 2451.873f, 705.854f, 0};
-
-                Talk(SAY_FACE_DEATH);
-
-                int32 entryIndex;
-                if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                    entryIndex = 0;
-                else
-                    entryIndex = 1;
-
-                for (int8 i = 0; outroPositions[i].entry[entryIndex] != 0; ++i)
-                {
-                    if (TempSummon* summon = instance->instance->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint))
-                    {
-                        summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
-                        summon->GetMotionMaster()->MovePoint(0, outroPositions[i].movePosition);
-                        if (summon->GetEntry() == NPC_JAINA_PART2)
-                            summon->AI()->Talk(SAY_JAINA_OUTRO);
-                        else if (summon->GetEntry() == NPC_SYLVANAS_PART2)
-                            summon->AI()->Talk(SAY_SYLVANAS_OUTRO);
-                    }
-                }
-            }
-
-            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id == H_SPELL_PHANTOM_BLAST)
-                    threeFaced = false;
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_THREE_FACED)
-                    return threeFaced;
-
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                // Return since we have no target
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_PHANTOM_BLAST:
-                            DoCastVictim(SPELL_PHANTOM_BLAST);
-                            events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
-                            break;
-                        case EVENT_MIRRORED_SOUL:
-                            DoCastAOE(SPELL_MIRRORED_SOUL_TARGET_SELECTOR);
-                            Talk(EMOTE_MIRRORED_SOUL);
-                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, 15s, 30s);
-                            break;
-                        case EVENT_WELL_OF_SOULS:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                                DoCast(target, SPELL_WELL_OF_SOULS);
-                            events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20s);
-                            break;
-                        case EVENT_UNLEASHED_SOULS:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                                DoCast(target, SPELL_UNLEASHED_SOULS);
-                            me->SetDisplayId(DISPLAY_SORROW);
-                            Talk(SAY_FACE_UNLEASH_SOUL);
-                            Talk(EMOTE_UNLEASH_SOUL);
-                            events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30s);
-                            events.ScheduleEvent(EVENT_FACE_ANGER, 5s);
-                            break;
-                        case EVENT_FACE_ANGER:
-                            me->SetDisplayId(DISPLAY_ANGER);
-                            break;
-
-                        case EVENT_WAILING_SOULS:
-                            me->SetDisplayId(DISPLAY_DESIRE);
-                            Talk(SAY_FACE_WAILING_SOUL);
-                            Talk(EMOTE_WAILING_SOUL);
-                            DoCast(me, SPELL_WAILING_SOULS_STARTING);
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                            {
-                                me->SetFacingToObject(target);
-                                DoCast(me, SPELL_WAILING_SOULS_BEAM);
-                            }
-
-                            beamAngle = me->GetOrientation();
-
-                            beamAngleDiff = float(M_PI)/30.0f; // PI/2 in 15 sec = PI/30 per tick
-                            if (RAND(true, false))
-                                beamAngleDiff = -beamAngleDiff;
-
-                            me->InterruptNonMeleeSpells(false);
-                            me->SetReactState(REACT_PASSIVE);
-
-                            //Remove any target
-                            me->SetTarget(ObjectGuid::Empty);
-
-                            me->GetMotionMaster()->Clear();
-                            me->SetControlled(true, UNIT_STATE_ROOT);
-
-                            wailingSoulTick = 15;
-                            events.DelayEvents(18s); // no other events during wailing souls
-                            events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
-                            break;
-
-                        case EVENT_WAILING_SOULS_TICK:
-                            beamAngle += beamAngleDiff;
-                            me->SetFacingTo(beamAngle);
-
-                            DoCast(me, SPELL_WAILING_SOULS);
-
-                            if (--wailingSoulTick)
-                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1s);
-                            else
-                            {
-                                me->SetReactState(REACT_AGGRESSIVE);
-                                me->SetDisplayId(DISPLAY_ANGER);
-                                me->SetControlled(false, UNIT_STATE_ROOT);
-                                me->GetMotionMaster()->MoveChase(me->GetVictim());
-                                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
-                            }
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            bool threeFaced;
-
-            // wailing soul event
-            float beamAngle;
-            float beamAngleDiff;
-            int8 wailingSoulTick;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetForgeOfSoulsAI<boss_devourer_of_soulsAI>(creature);
+            case DISPLAY_ANGER:
+                textId = SAY_FACE_ANGER_SLAY;
+                break;
+            case DISPLAY_SORROW:
+                textId = SAY_FACE_SORROW_SLAY;
+                break;
+            case DISPLAY_DESIRE:
+                textId = SAY_FACE_DESIRE_SLAY;
+                break;
+            default:
+                break;
         }
+
+        if (textId)
+            Talk(textId);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+
+        Position spawnPoint = {5618.139f, 2451.873f, 705.854f, 0};
+
+        Talk(SAY_FACE_DEATH);
+
+        int32 entryIndex;
+        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+            entryIndex = 0;
+        else
+            entryIndex = 1;
+
+        for (int8 i = 0; outroPositions[i].entry[entryIndex] != 0; ++i)
+        {
+            if (TempSummon* summon = instance->instance->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint))
+            {
+                summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
+                summon->GetMotionMaster()->MovePoint(0, outroPositions[i].movePosition);
+                if (summon->GetEntry() == NPC_JAINA_PART2)
+                    summon->AI()->Talk(SAY_JAINA_OUTRO);
+                else if (summon->GetEntry() == NPC_SYLVANAS_PART2)
+                    summon->AI()->Talk(SAY_SYLVANAS_OUTRO);
+            }
+        }
+    }
+
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == H_SPELL_PHANTOM_BLAST)
+            threeFaced = false;
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_THREE_FACED)
+            return threeFaced;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PHANTOM_BLAST:
+                    DoCastVictim(SPELL_PHANTOM_BLAST);
+                    events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
+                    break;
+                case EVENT_MIRRORED_SOUL:
+                    DoCastAOE(SPELL_MIRRORED_SOUL_TARGET_SELECTOR);
+                    Talk(EMOTE_MIRRORED_SOUL);
+                    events.ScheduleEvent(EVENT_MIRRORED_SOUL, 15s, 30s);
+                    break;
+                case EVENT_WELL_OF_SOULS:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_WELL_OF_SOULS);
+                    events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20s);
+                    break;
+                case EVENT_UNLEASHED_SOULS:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_UNLEASHED_SOULS);
+                    me->SetDisplayId(DISPLAY_SORROW);
+                    Talk(SAY_FACE_UNLEASH_SOUL);
+                    Talk(EMOTE_UNLEASH_SOUL);
+                    events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30s);
+                    events.ScheduleEvent(EVENT_FACE_ANGER, 5s);
+                    break;
+                case EVENT_FACE_ANGER:
+                    me->SetDisplayId(DISPLAY_ANGER);
+                    break;
+
+                case EVENT_WAILING_SOULS:
+                    me->SetDisplayId(DISPLAY_DESIRE);
+                    Talk(SAY_FACE_WAILING_SOUL);
+                    Talk(EMOTE_WAILING_SOUL);
+                    DoCast(me, SPELL_WAILING_SOULS_STARTING);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    {
+                        me->SetFacingToObject(target);
+                        DoCast(me, SPELL_WAILING_SOULS_BEAM);
+                    }
+
+                    beamAngle = me->GetOrientation();
+
+                    beamAngleDiff = float(M_PI)/30.0f; // PI/2 in 15 sec = PI/30 per tick
+                    if (RAND(true, false))
+                        beamAngleDiff = -beamAngleDiff;
+
+                    me->InterruptNonMeleeSpells(false);
+                    me->SetReactState(REACT_PASSIVE);
+
+                    //Remove any target
+                    me->SetTarget(ObjectGuid::Empty);
+
+                    me->GetMotionMaster()->Clear();
+                    me->SetControlled(true, UNIT_STATE_ROOT);
+
+                    wailingSoulTick = 15;
+                    events.DelayEvents(18s); // no other events during wailing souls
+                    events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
+                    break;
+
+                case EVENT_WAILING_SOULS_TICK:
+                    beamAngle += beamAngleDiff;
+                    me->SetFacingTo(beamAngle);
+
+                    DoCast(me, SPELL_WAILING_SOULS);
+
+                    if (--wailingSoulTick)
+                        events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1s);
+                    else
+                    {
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetDisplayId(DISPLAY_ANGER);
+                        me->SetControlled(false, UNIT_STATE_ROOT);
+                        me->GetMotionMaster()->MoveChase(me->GetVictim());
+                        events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
+                    }
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool threeFaced;
+
+    // wailing soul event
+    float beamAngle;
+    float beamAngleDiff;
+    int8 wailingSoulTick;
 };
 
 // 69051 - Mirrored Soul
-class spell_devourer_of_souls_mirrored_soul : public SpellScriptLoader
+class spell_devourer_of_souls_mirrored_soul : public SpellScript
 {
-    public:
-        spell_devourer_of_souls_mirrored_soul() : SpellScriptLoader("spell_devourer_of_souls_mirrored_soul") { }
+    PrepareSpellScript(spell_devourer_of_souls_mirrored_soul);
 
-        class spell_devourer_of_souls_mirrored_soul_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_devourer_of_souls_mirrored_soul_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_PROC_AURA });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_PROC_AURA });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_PROC_AURA, true);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_PROC_AURA, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_devourer_of_souls_mirrored_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_devourer_of_souls_mirrored_soul_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_devourer_of_souls_mirrored_soul::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 69023 - Mirrored Soul (Proc)
-class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
+class spell_devourer_of_souls_mirrored_soul_proc : public AuraScript
 {
-    public:
-        spell_devourer_of_souls_mirrored_soul_proc() : SpellScriptLoader("spell_devourer_of_souls_mirrored_soul_proc") { }
+    PrepareAuraScript(spell_devourer_of_souls_mirrored_soul_proc);
 
-        class spell_devourer_of_souls_mirrored_soul_proc_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_devourer_of_souls_mirrored_soul_proc_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_DAMAGE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_DAMAGE });
-            }
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return GetCaster() && GetCaster()->IsAlive();
+    }
 
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                return GetCaster() && GetCaster()->IsAlive();
-            }
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return;
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo || !damageInfo->GetDamage())
-                    return;
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 45));
+        GetTarget()->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_DAMAGE, args);
+    }
 
-                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), 45));
-                GetTarget()->CastSpell(GetCaster(), SPELL_MIRRORED_SOUL_DAMAGE, args);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_devourer_of_souls_mirrored_soul_proc_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_devourer_of_souls_mirrored_soul_proc_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_devourer_of_souls_mirrored_soul_proc_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_devourer_of_souls_mirrored_soul_proc::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_devourer_of_souls_mirrored_soul_proc::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
 };
 
 // 69048 - Mirrored Soul (Target Selector)
-class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScriptLoader
+class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
 {
-    public:
-        spell_devourer_of_souls_mirrored_soul_target_selector() : SpellScriptLoader("spell_devourer_of_souls_mirrored_soul_target_selector") { }
+    PrepareSpellScript(spell_devourer_of_souls_mirrored_soul_target_selector);
 
-        class spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_BUFF });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_BUFF });
-            }
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
+        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        targets.clear();
+        targets.push_back(target);
+    }
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                targets.clear();
-                targets.push_back(target);
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_MIRRORED_SOUL_BUFF, false);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, SPELL_MIRRORED_SOUL_BUFF, false);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_devourer_of_souls_mirrored_soul_target_selector_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_devourer_of_souls_mirrored_soul_target_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_devourer_of_souls_mirrored_soul_target_selector::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 class achievement_three_faced : public AchievementCriteriaScript
@@ -492,9 +448,9 @@ class achievement_three_faced : public AchievementCriteriaScript
 
 void AddSC_boss_devourer_of_souls()
 {
-    new boss_devourer_of_souls();
-    new spell_devourer_of_souls_mirrored_soul();
-    new spell_devourer_of_souls_mirrored_soul_proc();
-    new spell_devourer_of_souls_mirrored_soul_target_selector();
+    RegisterForgeOfSoulsCreatureAI(boss_devourer_of_souls);
+    RegisterSpellScript(spell_devourer_of_souls_mirrored_soul);
+    RegisterSpellScript(spell_devourer_of_souls_mirrored_soul_proc);
+    RegisterSpellScript(spell_devourer_of_souls_mirrored_soul_target_selector);
     new achievement_three_faced();
 }

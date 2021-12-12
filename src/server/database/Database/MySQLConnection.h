@@ -93,7 +93,11 @@ class TC_DATABASE_API MySQLConnection
         bool LockIfReady();
 
         /// Called by parent databasepool. Will let other threads access this connection
+        // @tswow-begin make public
+    public:
         void Unlock();
+    protected:
+        // @tswow-end
 
         uint32 GetServerVersion() const;
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);

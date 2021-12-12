@@ -81,7 +81,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopFollow(bool complete);
         bool IsEscortInvokerInRange();
 
-        void WaypointStarted(uint32 nodeId, uint32 pathId) override;
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
         void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
@@ -125,7 +124,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
-        void DamageTaken(Unit* doneBy, uint32& damage) override;
+        void DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override;
 
         // Called when the creature receives heal
         void HealReceived(Unit* doneBy, uint32& addhealth) override;
@@ -182,11 +181,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Makes the creature run/walk
         void SetRun(bool run = true);
 
-        void SetCanFly(bool fly = true);
-
         void SetDisableGravity(bool disable = true);
-
-        void SetSwim(bool swim = true);
 
         void SetEvadeDisabled(bool disable = true);
 
@@ -228,6 +223,13 @@ class TC_GAME_API SmartAI : public CreatureAI
         {
             _escortQuestId = questID;
         }
+
+        // @tswow-begin - direct call to SmartScript::ProcessEventsFor
+        void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr)
+        {
+            _script.ProcessEventsFor(e, unit, var0, var1, bvar, spell, gob);
+        }
+        // @tswow-end
 
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
@@ -323,6 +325,14 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void SummonedCreatureDespawn(Creature* unit) override;
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
+
+        // @tswow-begin - direct call to SmartScript::ProcessEventsFor
+        void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr)
+        {
+            _script.ProcessEventsFor(e, unit, var0, var1, bvar, spell, gob);
+        }
+        // @tswow-end
+
 
     private:
         SmartScript _script;

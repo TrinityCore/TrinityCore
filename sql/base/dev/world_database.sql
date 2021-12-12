@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.34, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.36, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.7.34
+-- Server version	5.7.36
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -360,6 +360,7 @@ CREATE TABLE `creature_addon` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MountCreatureID` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` int(10) unsigned NOT NULL DEFAULT '0',
@@ -482,6 +483,21 @@ CREATE TABLE `creature_model_info` (
   `DisplayID_Other_Gender` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`DisplayID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Creature System (Model related info)';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `creature_movement_info`
+--
+
+DROP TABLE IF EXISTS `creature_movement_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_movement_info` (
+  `MovementID` int(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template.movementId value',
+  `WalkSpeed` float unsigned DEFAULT NULL,
+  `RunSpeed` float unsigned DEFAULT NULL,
+  PRIMARY KEY (`MovementID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -674,6 +690,7 @@ CREATE TABLE `creature_template_addon` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MountCreatureID` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1401,7 +1418,7 @@ DROP TABLE IF EXISTS `gossip_menu`;
 CREATE TABLE `gossip_menu` (
   `MenuID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `TextID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`MenuID`,`TextID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3385,8 +3402,8 @@ DROP TABLE IF EXISTS `spell_learn_spell`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `spell_learn_spell` (
-  `entry` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `SpellID` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `entry` int(10) unsigned NOT NULL DEFAULT '0',
+  `SpellID` int(10) unsigned NOT NULL DEFAULT '0',
   `Active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`entry`,`SpellID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
@@ -4044,4 +4061,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-05-14 12:20:37
+-- Dump completed on 2021-11-15 16:22:43

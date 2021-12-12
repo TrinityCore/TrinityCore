@@ -212,6 +212,9 @@ void BattlegroundWS::StartingEventCloseDoors()
 
     UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
     UpdateWorldState(BG_WS_STATE_TIMER, 25);
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundWS::StartingEventOpenDoors()
@@ -231,6 +234,9 @@ void BattlegroundWS::StartingEventOpenDoors()
 
     // players joining later are not eligibles
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundWS::AddPlayer(Player* player)
@@ -376,6 +382,9 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* player)
 
 void BattlegroundWS::EventPlayerDroppedFlag(Player* player)
 {
+    // @tswow-begin
+    Battleground::EventPlayerDroppedFlag(player);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
     {
         // if not running, do not cast things at the dropper player (prevent spawning the "dropped" flag), neither send unnecessary messages
@@ -464,6 +473,9 @@ void BattlegroundWS::EventPlayerDroppedFlag(Player* player)
 
 void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target_obj)
 {
+    // @tswow-begin
+    Battleground::EventPlayerClickedOnFlag(player, target_obj);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
@@ -572,8 +584,11 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundWS::RemovePlayer(Player* player, ObjectGuid guid, uint32 /*team*/)
+// @tswow-begin
+void BattlegroundWS::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
+    Battleground::RemovePlayer(player, guid, team);
+// @tswow-end
     // sometimes flag aura not removed :(
     if (IsAllianceFlagPickedup() && m_FlagKeepers[TEAM_ALLIANCE] == guid)
     {
@@ -712,7 +727,9 @@ bool BattlegroundWS::SetupBattleground()
 
     TC_LOG_DEBUG("bg.battleground", "BatteGroundWS: BG objects and spirit guides spawned");
 
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }
 
 void BattlegroundWS::Reset()

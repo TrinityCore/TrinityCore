@@ -168,13 +168,17 @@ class instance_halls_of_stone : public InstanceMapScript
                 {
                     case DATA_SJONNIR:
                         if (GetBossState(DATA_TRIBUNAL_OF_AGES) != DONE)
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     default:
                         break;
                 }
 
-                return true;
+                // @tswow-begin
+                return _CheckRequiredBosses(bossId, player, true);
+                // @tswow-end
             }
 
         protected:

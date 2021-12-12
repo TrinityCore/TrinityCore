@@ -117,7 +117,7 @@ void LoadDisables()
 
                 if (flags & SPELL_DISABLE_AREA)
                 {
-                    for (std::string_view areaStr : Trinity::Tokenize(params_0, ',', true))
+                    for (std::string_view areaStr : Trinity::Tokenize(params_1, ',', true))
                     {
                         if (Optional<uint32> areaId = Trinity::StringTo<uint32>(areaStr))
                             data.params[1].insert(*areaId);

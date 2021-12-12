@@ -28,8 +28,7 @@ GameClient::GameClient(WorldSession* sessionToServer)
 
 void GameClient::AddAllowedMover(Unit* unit)
 {
-    if (GameClient* previousController = unit->GetGameClientMovingMe())
-        previousController->RemoveAllowedMover(unit);
+    ASSERT(!unit->GetGameClientMovingMe() || unit->GetGameClientMovingMe() == this);
 
     _allowedMovers.insert(unit->GetGUID());
     unit->SetGameClientMovingMe(this);
@@ -37,6 +36,7 @@ void GameClient::AddAllowedMover(Unit* unit)
 
 void GameClient::RemoveAllowedMover(Unit* unit)
 {
+    unit->PurgeAndApplyPendingMovementChanges();
     _allowedMovers.erase(unit->GetGUID());
     if (unit->GetGameClientMovingMe() == this)
     {
@@ -66,4 +66,11 @@ void GameClient::SetMovedUnit(Unit* target, bool allowMove)
 void GameClient::SendDirectMessage(WorldPacket const* data) const
 {
     GetBasePlayer()->SendDirectMessage(data);
+}
+
+std::string GameClient::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << "GetBasePlayer(): " << (GetBasePlayer() ? GetBasePlayer()->GetGUID().ToString().c_str() : "NULL");
+    return sstr.str();
 }

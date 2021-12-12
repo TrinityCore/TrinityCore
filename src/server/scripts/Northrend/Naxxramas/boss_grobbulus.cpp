@@ -217,7 +217,7 @@ class spell_grobbulus_poison_cloud : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -226,7 +226,7 @@ class spell_grobbulus_poison_cloud : public AuraScript
         if (!aurEff->GetTotalTicks())
             return;
 
-        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+        uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
         int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
 
         CastSpellExtraArgs args(aurEff);

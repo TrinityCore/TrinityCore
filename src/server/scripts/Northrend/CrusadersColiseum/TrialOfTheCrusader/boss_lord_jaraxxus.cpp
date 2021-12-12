@@ -324,7 +324,7 @@ struct npc_infernal_volcano : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         DoCastSelf(SPELL_INFERNAL_ERUPTION_EFFECT, true);
         if (IsHeroic())
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     }
 };
 
@@ -386,7 +386,7 @@ struct npc_nether_portal : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         DoCastSelf(SPELL_NETHER_PORTAL_EFFECT, true);
         if (IsHeroic())
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
     }
 };
 
@@ -499,7 +499,7 @@ class spell_mistress_kiss_area : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -537,7 +537,7 @@ class spell_fel_streak_visual : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)

@@ -113,7 +113,7 @@ private:
 
 struct npc_underbog_mushroom : public ScriptedAI
 {
-    npc_underbog_mushroom(Creature* creature) : ScriptedAI(creature) { }
+    npc_underbog_mushroom(Creature* creature) : ScriptedAI(creature), _counter(0) { }
 
     void InitializeAI() override
     {

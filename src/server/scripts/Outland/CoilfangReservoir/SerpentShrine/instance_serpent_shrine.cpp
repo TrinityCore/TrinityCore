@@ -178,6 +178,9 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
                 else
                     FrenzySpawnTimer -= diff;
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -410,7 +413,13 @@ class instance_serpent_shrine : public InstanceMapScript
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                         m_auiEncounter[i] = NOT_STARTED;
-
+                // @tswow-begin
+                FIRE_MAP(
+                    GetInstanceEvent(instance->GetEntry()->ID)
+                    , InstanceOnLoad
+                    , TSInstance(instance, this)
+                );
+                // @tswow-end
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 

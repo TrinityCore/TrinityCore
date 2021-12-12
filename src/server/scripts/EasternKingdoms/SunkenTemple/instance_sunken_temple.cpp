@@ -111,7 +111,9 @@ public:
             }
         }
 
-         virtual void Update(uint32 /*diff*/) override // correct order goes form 1-6
+        // @tswow-begin arg
+         virtual void Update(uint32 diff) override // correct order goes form 1-6
+        // @tswow-end
          {
              switch (State)
              {
@@ -173,6 +175,9 @@ public:
                 }
                 break;
              }
+             // @tswow-begin call super
+             InstanceScript::Update(diff);
+             // @tswow-end
          };
 
         void UseStatue(GameObject* go)

@@ -155,7 +155,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                     criteria->ID, criteria->Type, (dataType == ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA?"ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA":"ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA"), dataType, aura.effect_idx);
                 return false;
             }
-            if (!spellEntry->Effects[aura.effect_idx].ApplyAuraName)
+            if (!spellEntry->GetEffect(SpellEffIndex(aura.effect_idx)).ApplyAuraName)
             {
                 TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type %s (%u) contains a non-aura spell effect (ID: %u Effect: %u), ignored.",
                     criteria->ID, criteria->Type, (dataType == ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA?"ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA":"ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA"), dataType, aura.spell_id, aura.effect_idx);
@@ -771,6 +771,14 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     TC_LOG_DEBUG("achievement", "UpdateAchievementCriteria: %s, %s (%u), %u, %u"
         , m_player->GetGUID().ToString().c_str(), AchievementGlobalMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2);
 
+    // @tswow-begin load encounter criteria id
+    if (type == AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ENCOUNTER)
+    {
+        miscValue1 = sAchievementMgr->GetEncounterID(miscValue1, miscValue2);
+        if (miscValue1 == UINT32_MAX) return;
+    }
+    // @tswow-end
+
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, miscValue1);
     for (AchievementCriteriaEntry const* achievementCriteria : achievementCriteriaList)
     {
@@ -836,6 +844,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
             case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
+            // @tswow-begin
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ENCOUNTER:
+            // @tswow-end
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscvalue1
@@ -1218,6 +1229,9 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
         case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+        // @tswow-begin
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ENCOUNTER:
+        // @tswow-end
             return progress->counter >= achievementCriteria->Quantity;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2571,6 +2585,31 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     TC_LOG_INFO("server.loading", ">> Loaded %u additional achievement criteria data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+// @tswow-begin
+void AchievementGlobalMgr::LoadEncounterCriteria()
+{
+    uint32 oldMSTime = getMSTime();
+    m_encounterMap.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT `entry`,`map`,`boss` FROM `instance_encounter_achievement`;");
+
+    uint32 count = 0;
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 entry = fields[0].GetUInt32();
+            uint32 map = fields[1].GetUInt32();
+            uint32 boss = fields[2].GetUInt32();
+            m_encounterMap[std::make_pair(map, boss)] = entry;
+            ++count;
+        } while (result->NextRow());
+    }
+    TC_LOG_INFO("server.loading", ">> Loaded %u encounter criterias in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+// @tswow-end
+
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
     uint32 oldMSTime = getMSTime();
@@ -2779,3 +2818,18 @@ AchievementCriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uin
 {
     return sAchievementCriteriaStore.LookupEntry(criteriaId);
 }
+
+// @tswow-begin
+uint32 AchievementGlobalMgr::GetEncounterID(uint32 miscValueA, uint32 miscValueB)
+{
+    auto res = m_encounterMap.find(std::make_pair(miscValueA, miscValueB));
+    if (res == m_encounterMap.end())
+    {
+        return UINT32_MAX;
+    }
+    else
+    {
+        return res->second;
+    }
+}
+// @tswow-end

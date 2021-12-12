@@ -29,12 +29,14 @@
 // @tswow-end
 #include <boost/container/flat_set.hpp>
 
-class Unit;
-class Player;
+class AuraEffect;
 class Item;
+class Player;
 class Spell;
 class SpellMgr;
 class SpellInfo;
+class Unit;
+struct Condition;
 struct SpellChainNode;
 struct SpellTargetPosition;
 struct SpellDurationEntry;
@@ -43,7 +45,6 @@ struct SpellRangeEntry;
 struct SpellRadiusEntry;
 struct SpellEntry;
 struct SpellCastTimesEntry;
-struct Condition;
 
 enum SpellCastTargetFlags : uint32
 {
@@ -200,8 +201,9 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_NEEDS_AMMO_DATA               = 0x00080000,
     SPELL_ATTR0_CU_BINARY_SPELL                  = 0x00100000,
     SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC  = 0x00200000,
-    SPELL_ATTR0_CU_LIQUID_AURA                   = 0x00400000,
+    SPELL_ATTR0_CU_DEPRECATED_LIQUID_AURA        = 0x00400000, // DO NOT REUSE
     SPELL_ATTR0_CU_IS_TALENT                     = 0x00800000, // reserved for master branch
+    SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED          = 0x01000000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
@@ -242,10 +244,10 @@ private:
 class TC_GAME_API SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
-    uint8 _effIndex;
 public:
-    uint32    Effect;
-    uint32    ApplyAuraName;
+    SpellEffIndex EffectIndex;
+    SpellEffects Effect;
+    AuraType  ApplyAuraName;
     uint32    Amplitude;
     int32     DieSides;
     float     RealPointsPerLevel;
@@ -266,7 +268,7 @@ public:
     flag96    SpellClassMask;
     std::vector<Condition*>* ImplicitTargetConditions;
 
-    SpellEffectInfo() : _spellInfo(nullptr), _effIndex(0), Effect(0), ApplyAuraName(0), Amplitude(0), DieSides(0),
+    SpellEffectInfo() : _spellInfo(nullptr), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(SPELL_AURA_NONE), Amplitude(0), DieSides(0),
                         RealPointsPerLevel(0), BasePoints(0), PointsPerComboPoint(0), ValueMultiplier(0), DamageMultiplier(0),
                         BonusMultiplier(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(nullptr), ChainTarget(0),
                         ItemType(0), TriggerSpell(0), ImplicitTargetConditions(nullptr) {}
@@ -401,7 +403,7 @@ class TC_GAME_API SpellInfo
         uint32 PreventionType;
         int32  AreaGroupId;
         uint32 SchoolMask;
-        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> Effects;
+        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> _effects;
         uint32 ExplicitTargetMask;
         SpellChainNode const* ChainEntry;
 
@@ -431,7 +433,6 @@ class TC_GAME_API SpellInfo
 
         bool IsExplicitDiscovery() const;
         bool IsLootCrafting() const;
-        bool IsQuestTame() const;
         bool IsProfessionOrRiding() const;
         bool IsProfession() const;
         bool IsPrimaryProfession() const;
@@ -493,10 +494,9 @@ class TC_GAME_API SpellInfo
 
         SpellSchoolMask GetSchoolMask() const;
         uint32 GetAllEffectsMechanicMask() const;
-        uint32 GetEffectMechanicMask(uint8 effIndex) const;
+        uint32 GetEffectMechanicMask(SpellEffIndex effIndex) const;
         uint32 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
-        Mechanics GetEffectMechanic(uint8 effIndex) const;
-        bool HasAnyEffectMechanic() const;
+        Mechanics GetEffectMechanic(SpellEffIndex effIndex) const;
         uint32 GetDispelMask() const;
         static uint32 GetDispelMask(DispelType type);
         uint32 GetExplicitTargetMask() const;
@@ -528,6 +528,9 @@ class TC_GAME_API SpellInfo
         bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
         bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
+        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> const& GetEffects() const { return _effects; }
+        SpellEffectInfo const& GetEffect(SpellEffIndex index) const { ASSERT(index < _effects.size()); return _effects[index]; }
+
         // spell diminishing returns
         DiminishingGroup GetDiminishingReturnsGroupForSpell(bool triggered) const;
         DiminishingReturnsType GetDiminishingReturnsGroupType(bool triggered) const;
@@ -537,7 +540,7 @@ class TC_GAME_API SpellInfo
         // spell immunities
         void ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool apply) const;
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
-        bool SpellCancelsAuraEffect(SpellInfo const* auraSpellInfo, uint8 auraEffIndex) const;
+        bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
         uint32 GetAllowedMechanicMask() const;
 
@@ -551,6 +554,9 @@ class TC_GAME_API SpellInfo
         void _LoadAuraState();
         void _LoadSpellDiminishInfo();
         void _LoadImmunityInfo();
+
+        std::array<SpellEffectInfo, MAX_SPELL_EFFECTS>& _GetEffects() { return _effects; }
+        SpellEffectInfo& _GetEffect(SpellEffIndex index) { ASSERT(index < _effects.size()); return _effects[index]; }
 
         // unloading helpers
         void _UnloadImplicitTargetConditionLists();

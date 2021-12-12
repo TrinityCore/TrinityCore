@@ -182,6 +182,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                 packet.Worldstates.emplace_back(WORLDSTATE_SHOW_ATTEMPTS, instance->IsHeroic() ? 1 : 0);
                 packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
                 packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_MAX, MaxHeroicAttempts);
+                // @tswow-begin call super
+                InstanceScript::FillInitialWorldStates(packet);
+                // @tswow-end
             }
 
             void OnPlayerEnter(Player* player) override
@@ -195,11 +198,17 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (IsFactionBuffActive)
                     DoCastSpellOnPlayer(player, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG);
+                // @tswow-begin call super
+                InstanceScript::OnPlayerEnter(player);
+                // @tswow-end
             }
 
             void OnPlayerLeave(Player* player) override
             {
                 DoRemoveAurasDueToSpellOnPlayer(player, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true, true);
+                // @tswow-begin call super
+                InstanceScript::OnPlayerLeave(player);
+                // @tswow-end
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -1186,36 +1195,52 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     case DATA_THE_LICH_KING:
                         if (!CheckPlagueworks(bossId))
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         if (!CheckCrimsonHalls(bossId))
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         if (!CheckFrostwingHalls(bossId))
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     case DATA_SINDRAGOSA:
                     case DATA_VALITHRIA_DREAMWALKER:
                         if (!CheckFrostwingHalls(bossId))
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                     case DATA_BLOOD_PRINCE_COUNCIL:
                         if (!CheckCrimsonHalls(bossId))
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     case DATA_FESTERGUT:
                     case DATA_ROTFACE:
                     case DATA_PROFESSOR_PUTRICIDE:
                         if (!CheckPlagueworks(bossId))
-                            return false;
+                            // @tswow-begin
+                            return _CheckRequiredBosses(bossId, player, false);
+                            // @tswow-end
                         break;
                     default:
                         break;
                 }
 
                 if (!CheckLowerSpire(bossId))
-                    return false;
+                    // @tswow-begin
+                    return _CheckRequiredBosses(bossId, player, false);
+                    // @tswow-end
 
-                return true;
+                // @tswow-begin
+                return _CheckRequiredBosses(bossId, player, true);
+                // @tswow-end
             }
 
             bool CheckPlagueworks(uint32 bossId) const
@@ -1418,6 +1443,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                             break;
                     }
                 }
+                // @tswow-begin call super
+                InstanceScript::Update(diff);
+                // @tswow-end
             }
 
             void ProcessEvent(WorldObject* source, uint32 eventId) override

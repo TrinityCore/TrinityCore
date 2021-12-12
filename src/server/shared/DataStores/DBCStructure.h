@@ -154,6 +154,11 @@ struct AchievementCriteriaEntry
 
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE              = 109
         uint32 LootType;
+
+        // @tswow-begin
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ENCOUNTER     = 120
+        uint32 EncounterDBID;
+        // @tswow-end
     } Asset;                                                // 3
 
     uint32 Quantity;                                        // 4

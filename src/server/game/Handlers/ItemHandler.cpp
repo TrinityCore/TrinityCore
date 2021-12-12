@@ -15,6 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSEvents.h"
+#include "TSCreature.h"
+#include "TSPlayer.h"
+#include "TSItemTemplate.h"
+#include "TSMutable.h"
+// @tswow-end
 #include "WorldSession.h"
 #include "Bag.h"
 #include "Common.h"
@@ -662,6 +669,26 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
         {
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item))
             {
+                // @tswow-begin check masks
+                if (!_player->MatchRaceClassMask(item->raceMask, item->classMask))
+                {
+                    continue;
+                }
+                bool shouldSend = true;
+                FIRE_MAP(
+                      vendor->GetCreatureTemplate()->events
+                    , CreatureOnSendVendorItem
+                    , TSCreature(vendor)
+                    , TSItemTemplate(itemTemplate)
+                    , TSPlayer(_player)
+                    , TSMutable<bool>(&shouldSend)
+                )
+                if (!shouldSend)
+                {
+                    continue;
+                }
+                // @tswow-end
+
                 if (!(itemTemplate->AllowableClass & _player->GetClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP && !_player->IsGameMaster())
                     continue;
                 // Only display items in vendor lists for the team the

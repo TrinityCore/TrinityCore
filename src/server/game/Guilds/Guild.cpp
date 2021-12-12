@@ -2347,6 +2347,15 @@ bool Guild::ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid
     return false;
 }
 
+uint64 Guild::GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const
+{
+    Member const* member = GetMember(guid);
+    if (!member)
+        return 0;
+
+    return std::min(m_bankMoney, static_cast<uint64>(_GetMemberRemainingMoney(*member)));
+}
+
 // Bank (items move)
 void Guild::SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount)
 {

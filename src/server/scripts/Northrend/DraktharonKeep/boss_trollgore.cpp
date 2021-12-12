@@ -262,7 +262,7 @@ class spell_trollgore_invader_taunt : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleTaunt(SpellEffIndex /*effIndex*/)

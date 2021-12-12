@@ -118,7 +118,7 @@ public:
         bool footer = false;
 
         std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-        for (auto const [playerGuid, player] : ObjectAccessor::GetPlayers())
+        for (auto const& [playerGuid, player] : ObjectAccessor::GetPlayers())
         {
             AccountTypes playerSec = player->GetSession()->GetSecurity();
             if ((player->IsGameMaster() ||

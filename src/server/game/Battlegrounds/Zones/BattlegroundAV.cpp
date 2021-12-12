@@ -78,6 +78,9 @@ void BattlegroundAV::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
 {
+    // @tswow-begin
+    Battleground::HandleKillUnit(unit, killer);
+    // @tswow-end
     TC_LOG_DEBUG("bg.battleground", "bg_av HandleKillUnit %i", unit->GetEntry());
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -422,6 +425,9 @@ void BattlegroundAV::StartingEventCloseDoors()
 {
     DoorClose(BG_AV_OBJECT_DOOR_A);
     DoorClose(BG_AV_OBJECT_DOOR_H);
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundAV::StartingEventOpenDoors()
@@ -442,6 +448,9 @@ void BattlegroundAV::StartingEventOpenDoors()
 
     // Achievement: The Alterac Blitz
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, BG_AV_EVENT_START_BATTLE);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundAV::AddPlayer(Player* player)
@@ -490,8 +499,11 @@ void BattlegroundAV::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-void BattlegroundAV::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
+// @tswow-begin
+void BattlegroundAV::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
+    Battleground::RemovePlayer(player, guid, team);
+// @tswow-end
    if (!player)
     {
         TC_LOG_ERROR("bg.battleground", "bg_AV no player at remove");
@@ -847,6 +859,9 @@ uint32 BattlegroundAV::GetObjectThroughNode(BG_AV_Nodes node)
 
 void BattlegroundAV::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
 {
+    // @tswow-begin
+    Battleground::EventPlayerClickedOnFlag(source, target_obj);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
     int32 object = GetObjectType(target_obj->GetGUID());
@@ -1408,7 +1423,9 @@ bool BattlegroundAV::SetupBattleground()
     for (i = AV_NPC_A_MARSHAL_SOUTH; i <= AV_NPC_H_MARSHAL_WTOWER; i++)
         AddAVCreature(i, AV_CPLACE_A_MARSHAL_SOUTH + (i - AV_NPC_A_MARSHAL_SOUTH));
     AddAVCreature(AV_NPC_HERALD, AV_CPLACE_HERALD);
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }
 
 void BattlegroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)

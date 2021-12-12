@@ -32,349 +32,260 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 struct RBACCommandData
 {
-    RBACCommandData(): id(0), realmId(0), rbac(nullptr), needDelete(false) { }
+    RBACCommandData(RBACCommandData const&) = delete;
     ~RBACCommandData()
     {
         if (needDelete)
             delete rbac;
     }
 
-    uint32 id;
-    int32 realmId;
-    rbac::RBACData* rbac;
-    bool needDelete;
+    rbac::RBACData* rbac = nullptr;
+    bool needDelete = false;
 };
+
+using namespace Trinity::ChatCommands;
 
 class rbac_commandscript : public CommandScript
 {
 public:
     rbac_commandscript() : CommandScript("rbac_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> rbacAccountCommandTable =
+        static ChatCommandTable rbacAccountCommandTable =
         {
-            {        "list", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST,   true, &HandleRBACPermListCommand,    "" },
-            {       "grant", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT,  true, &HandleRBACPermGrantCommand,   "" },
-            {        "deny", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY,   true, &HandleRBACPermDenyCommand,    "" },
-            {      "revoke", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE, true, &HandleRBACPermRevokeCommand,  "" },
+            { "list",   HandleRBACPermListCommand,   rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST,   Console::Yes },
+            { "grant",  HandleRBACPermGrantCommand,  rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT,  Console::Yes },
+            { "deny",   HandleRBACPermDenyCommand,   rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY,   Console::Yes },
+            { "revoke", HandleRBACPermRevokeCommand, rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE, Console::Yes },
         };
 
-        static std::vector<ChatCommand> rbacCommandTable =
+        static ChatCommandTable rbacCommandTable =
         {
-            {    "account", rbac::RBAC_PERM_COMMAND_RBAC_ACC,  true, nullptr, "", rbacAccountCommandTable },
-            {       "list", rbac::RBAC_PERM_COMMAND_RBAC_LIST, true, &HandleRBACListPermissionsCommand, "" },
+            { "account", rbacAccountCommandTable },
+            { "list",    HandleRBACListPermissionsCommand, rbac::RBAC_PERM_COMMAND_RBAC_LIST, Console::Yes },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            {       "rbac", rbac::RBAC_PERM_COMMAND_RBAC, true, nullptr, "", rbacCommandTable },
+            { "rbac", rbacCommandTable },
         };
 
         return commandTable;
     }
 
-    static RBACCommandData* ReadParams(ChatHandler* handler, char const* args, bool checkParams = true)
+    static RBACCommandData GetRBACData(AccountIdentifier account)
     {
-        if (!args)
-            return nullptr;
+        if (account.IsConnected())
+            return { account.GetConnectedSession()->GetRBACData(), false };
 
-        char* param1 = strtok((char*)args, " ");
-        char* param2 = strtok(nullptr, " ");
-        char* param3 = strtok(nullptr, " ");
+        rbac::RBACData* rbac = new rbac::RBACData(account.GetID(), account.GetName(), realm.Id.Realm, AccountMgr::GetSecurity(account.GetID(), realm.Id.Realm));
+        rbac->LoadFromDB();
 
-        int32 realmId = -1;
-        uint32 accountId = 0;
-        std::string accountName;
-        uint32 id = 0;
-        RBACCommandData* data = nullptr;
-        rbac::RBACData* rdata = nullptr;
-        bool useSelectedPlayer = false;
-
-        if (checkParams)
-        {
-            if (!param3)
-            {
-                if (param2)
-                    realmId = atoi(param2);
-
-                if (param1)
-                    id = atoi(param1);
-
-                useSelectedPlayer = true;
-            }
-            else
-            {
-                id = atoi(param2);
-                realmId = atoi(param3);
-            }
-
-            if (!id)
-            {
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, id);
-                handler->SetSentErrorMessage(true);
-                return nullptr;
-            }
-
-            if (realmId < -1 || !realmId)
-            {
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_REALM, realmId);
-                handler->SetSentErrorMessage(true);
-                return nullptr;
-            }
-        }
-        else if (!param1)
-            useSelectedPlayer = true;
-
-        if (useSelectedPlayer)
-        {
-            Player* player = handler->getSelectedPlayer();
-            if (!player)
-                return nullptr;
-
-            rdata = player->GetSession()->GetRBACData();
-            accountId = rdata->GetId();
-            AccountMgr::GetName(accountId, accountName);
-        }
-        else
-        {
-            accountName = param1;
-
-            if (Utf8ToUpperOnlyLatin(accountName))
-                accountId = AccountMgr::GetId(accountName);
-
-            if (!accountId)
-            {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-                handler->SetSentErrorMessage(true);
-                return nullptr;
-            }
-        }
-
-        if (checkParams && handler->HasLowerSecurityAccount(nullptr, accountId, true))
-            return nullptr;
-
-        data = new RBACCommandData();
-
-        if (!rdata)
-        {
-            data->rbac = new rbac::RBACData(accountId, accountName, realm.Id.Realm, AccountMgr::GetSecurity(accountId, realm.Id.Realm));
-            data->rbac->LoadFromDB();
-            data->needDelete = true;
-        }
-        else
-            data->rbac = rdata;
-
-        data->id = id;
-        data->realmId = realmId;
-        return data;
+        return { rbac, true };
     }
 
-    static bool HandleRBACPermGrantCommand(ChatHandler* handler, char const* args)
+    static bool HandleRBACPermGrantCommand(ChatHandler* handler, Optional<AccountIdentifier> account, uint32 permId, Optional<int32> realmId)
     {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
+        if (!account)
+            account = AccountIdentifier::FromTarget(handler);
+        if (!account)
             return false;
-        }
 
-        rbac::RBACCommandResult result = command->rbac->GrantPermission(command->id, command->realmId);
-        rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(command->id);
+        if (handler->HasLowerSecurityAccount(nullptr, account->GetID(), true))
+            return false;
+
+        if (!realmId)
+            realmId = -1;
+
+        RBACCommandData data = GetRBACData(*account);
+
+        rbac::RBACCommandResult result = data.rbac->GrantPermission(permId, *realmId);
+        rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(permId);
 
         switch (result)
         {
             case rbac::RBAC_CANT_ADD_ALREADY_ADDED:
-                handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED_IN_LIST, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED_IN_LIST, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_IN_DENIED_LIST:
-                handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED_IN_DENIED_LIST, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED_IN_DENIED_LIST, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
+                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, permId);
                 break;
             default:
                 break;
         }
 
-        delete command;
-
         return true;
     }
 
-    static bool HandleRBACPermDenyCommand(ChatHandler* handler, char const* args)
+    static bool HandleRBACPermDenyCommand(ChatHandler* handler, Optional<AccountIdentifier> account, uint32 permId, Optional<int32> realmId)
     {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
+        if (!account)
+            account = AccountIdentifier::FromTarget(handler);
+        if (!account)
             return false;
-        }
 
-        rbac::RBACCommandResult result = command->rbac->DenyPermission(command->id, command->realmId);
-        rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(command->id);
+        if (handler->HasLowerSecurityAccount(nullptr, account->GetID(), true))
+            return false;
+
+        if (!realmId)
+            realmId = -1;
+
+        RBACCommandData data = GetRBACData(*account);
+
+        rbac::RBACCommandResult result = data.rbac->DenyPermission(permId, *realmId);
+        rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(permId);
 
         switch (result)
         {
             case rbac::RBAC_CANT_ADD_ALREADY_ADDED:
-                handler->PSendSysMessage(LANG_RBAC_PERM_DENIED_IN_LIST, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_DENIED_IN_LIST, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_IN_GRANTED_LIST:
-                handler->PSendSysMessage(LANG_RBAC_PERM_DENIED_IN_GRANTED_LIST, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_DENIED_IN_GRANTED_LIST, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_PERM_DENIED, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_DENIED, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
+                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, permId);
                 break;
             default:
                 break;
         }
 
-        delete command;
-
         return true;
     }
 
-    static bool HandleRBACPermRevokeCommand(ChatHandler* handler, char const* args)
+    static bool HandleRBACPermRevokeCommand(ChatHandler* handler, Optional<AccountIdentifier> account, uint32 permId, Optional<int32> realmId)
     {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
+        if (!account)
+            account = AccountIdentifier::FromTarget(handler);
+        if (!account)
             return false;
-        }
 
-        rbac::RBACCommandResult result = command->rbac->RevokePermission(command->id, command->realmId);
-        rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(command->id);
+        if (handler->HasLowerSecurityAccount(nullptr, account->GetID(), true))
+            return false;
+
+        if (!realmId)
+            realmId = -1;
+
+        RBACCommandData data = GetRBACData(*account);
+
+        rbac::RBACCommandResult result = data.rbac->RevokePermission(permId, *realmId);
+        rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(permId);
 
         switch (result)
         {
             case rbac::RBAC_CANT_REVOKE_NOT_IN_LIST:
-                handler->PSendSysMessage(LANG_RBAC_PERM_REVOKED_NOT_IN_LIST, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_REVOKED_NOT_IN_LIST, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_PERM_REVOKED, command->id, permission->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_PERM_REVOKED, permId, permission->GetName(),
+                                         *realmId, account->GetID(), account->GetName());
                 break;
             case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
+                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, permId);
                 break;
             default:
                 break;
         }
 
-        delete command;
-
         return true;
     }
 
-    static bool HandleRBACPermListCommand(ChatHandler* handler, char const* args)
+    static bool HandleRBACPermListCommand(ChatHandler* handler, Optional<AccountIdentifier> account)
     {
-        RBACCommandData* command = ReadParams(handler, args, false);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
+        if (!account)
+            account = AccountIdentifier::FromTarget(handler);
+        if (!account)
             return false;
-        }
 
-        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_GRANTED, command->rbac->GetId(), command->rbac->GetName().c_str());
-        rbac::RBACPermissionContainer const& granted = command->rbac->GetGrantedPermissions();
+        RBACCommandData data = GetRBACData(*account);
+
+        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_GRANTED, data.rbac->GetId(), data.rbac->GetName());
+        rbac::RBACPermissionContainer const& granted = data.rbac->GetGrantedPermissions();
         if (granted.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (rbac::RBACPermissionContainer::const_iterator itr = granted.begin(); itr != granted.end(); ++itr)
+            for (uint32 grantedId : granted)
             {
-                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(grantedId);
+                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName());
             }
         }
 
-        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
-        rbac::RBACPermissionContainer const& denied = command->rbac->GetDeniedPermissions();
+        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, data.rbac->GetId(), data.rbac->GetName());
+        rbac::RBACPermissionContainer const& denied = data.rbac->GetDeniedPermissions();
         if (denied.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (rbac::RBACPermissionContainer::const_iterator itr = denied.begin(); itr != denied.end(); ++itr)
+            for (uint32 deniedId : denied)
             {
-                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(deniedId);
+                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName());
             }
         }
-        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_BY_SEC_LEVEL, command->rbac->GetId(), command->rbac->GetName().c_str(), command->rbac->GetSecurityLevel());
-        rbac::RBACPermissionContainer const& defaultPermissions = sAccountMgr->GetRBACDefaultPermissions(command->rbac->GetSecurityLevel());
+        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_BY_SEC_LEVEL, data.rbac->GetId(), data.rbac->GetName(), data.rbac->GetSecurityLevel());
+        rbac::RBACPermissionContainer const& defaultPermissions = sAccountMgr->GetRBACDefaultPermissions(data.rbac->GetSecurityLevel());
         if (defaultPermissions.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (rbac::RBACPermissionContainer::const_iterator itr = defaultPermissions.begin(); itr != defaultPermissions.end(); ++itr)
+            for (uint32 defaultPermission : defaultPermissions)
             {
-                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(defaultPermission);
+                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName());
             }
         }
-
-        delete command;
 
         return true;
     }
 
-    static bool HandleRBACListPermissionsCommand(ChatHandler* handler, char const* args)
+    static bool HandleRBACListPermissionsCommand(ChatHandler* handler, Optional<uint32> permId)
     {
-        uint32 id = 0;
-        if (char* param1 = strtok((char*)args, " "))
-          id = atoi(param1);
-
-        if (!id)
+        if (!permId)
         {
             rbac::RBACPermissionsContainer const& permissions = sAccountMgr->GetRBACPermissionList();
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
-            for (rbac::RBACPermissionsContainer::const_iterator it = permissions.begin(); it != permissions.end(); ++it)
+            for (auto const& [_, permission] : permissions)
             {
-                rbac::RBACPermission const* permission = it->second;
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName());
             }
         }
         else
         {
-            rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(id);
+            rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*permId);
             if (!permission)
             {
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, id);
+                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, *permId);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
 
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
-            handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+            handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName());
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMS_LINKED_HEADER));
-            rbac::RBACPermissionContainer const& permissions = permission->GetLinkedPermissions();
-            for (rbac::RBACPermissionContainer::const_iterator it = permissions.begin(); it != permissions.end(); ++it)
-                if (rbac::RBACPermission const* rbacPermission = sAccountMgr->GetRBACPermission(*it))
-                    handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, rbacPermission->GetId(), rbacPermission->GetName().c_str());
+            for (uint32 linkedPerm : permission->GetLinkedPermissions())
+                if (rbac::RBACPermission const* rbacPermission = sAccountMgr->GetRBACPermission(linkedPerm))
+                    handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, rbacPermission->GetId(), rbacPermission->GetName());
         }
 
         return true;

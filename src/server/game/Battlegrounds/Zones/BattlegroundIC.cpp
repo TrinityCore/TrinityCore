@@ -143,9 +143,9 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     {
                         if (siege->IsAlive())
                         {
-                            if (siege->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_CANNOT_SWIM|UNIT_FLAG_IMMUNE_TO_PC))
+                            if (siege->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_CANNOT_SWIM|UNIT_FLAG_IMMUNE_TO_PC))
                                 // following sniffs the vehicle always has UNIT_FLAG_CANNOT_SWIM
-                                siege->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_IMMUNE_TO_PC);
+                                siege->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_IMMUNE_TO_PC);
                             else
                                 siege->SetHealth(siege->GetMaxHealth());
                         }
@@ -222,6 +222,9 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
 
 void BattlegroundIC::StartingEventCloseDoors()
 {
+    // @tswow-begin
+    Battleground::StartingEventCloseDoors();
+    // @tswow-end
 }
 
 void BattlegroundIC::StartingEventOpenDoors()
@@ -244,6 +247,9 @@ void BattlegroundIC::StartingEventOpenDoors()
 
     for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTER_EFFECTS_SPAWNS; ++i)
         GetBGObject(BG_IC_TeleporterEffects[i].type)->SetGoState(GO_STATE_ACTIVE);
+    // @tswow-begin
+    Battleground::StartingEventOpenDoors();
+    // @tswow-end
 }
 
 void BattlegroundIC::AddPlayer(Player* player)
@@ -258,8 +264,11 @@ void BattlegroundIC::AddPlayer(Player* player)
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
-void BattlegroundIC::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
+// @tswow-begin
+void BattlegroundIC::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
+    Battleground::RemovePlayer(player, guid, team);
+// @tswow-end
     if (player)
     {
         player->RemoveAura(SPELL_QUARRY);
@@ -376,11 +385,16 @@ bool BattlegroundIC::SetupBattleground()
     for (uint8 i = BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1; i < BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4; ++i)
         GetBGObject(i)->SetRespawnTime(10);
 
-    return true;
+    // @tswow-begin
+    return Battleground::SetupBattleground();
+    // @tswow-end
 }
 
 void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
 {
+    // @tswow-begin
+    Battleground::HandleKillUnit(unit, killer);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;
 
@@ -420,6 +434,9 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target_obj)
 {
+    // @tswow-begin
+    Battleground::EventPlayerClickedOnFlag(player, target_obj);
+    // @tswow-end
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
@@ -580,7 +597,7 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* node)
         for (Creature* cannon : cannons)
         {
             cannon->GetVehicleKit()->RemoveAllPassengers();
-            cannon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            cannon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
         }
     }
     else if (node->nodeType == NODE_TYPE_WORKSHOP)
@@ -612,7 +629,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
                     gunshipHorde->GetCreatureListWithEntryInGrid(cannons, NPC_HORDE_GUNSHIP_CANNON, 150.0f);
 
                 for (Creature* cannon : cannons)
-                    cannon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    cannon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
                 for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; ++u)
                 {
@@ -767,7 +784,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
                         if (Creature* siegeEngine = GetBGCreature(siegeType))
                         {
-                            siegeEngine->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_CANNOT_SWIM);
+                            siegeEngine->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_CANNOT_SWIM);
                             siegeEngine->SetImmuneToPC(true);
                             siegeEngine->SetFaction(BG_IC_Factions[(node->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         }
@@ -796,6 +813,9 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
 void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
 {
+    // @tswow-begin
+    Battleground::DestroyGate(player,go);
+    // @tswow-end
     GateStatus[GetGateIDFromEntry(go->GetEntry())] = BG_IC_GATE_DESTROYED;
     uint32 uws_open = GetWorldStateFromGateEntry(go->GetEntry(), true);
     uint32 uws_close = GetWorldStateFromGateEntry(go->GetEntry(), false);

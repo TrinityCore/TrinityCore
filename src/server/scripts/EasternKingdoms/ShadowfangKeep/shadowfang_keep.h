@@ -56,4 +56,6 @@ inline AI* GetShadowfangKeepAI(T* obj)
     return GetInstanceAI<AI>(obj, SFKScriptName);
 }
 
+#define RegisterShadowfangKeepCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetShadowfangKeepAI)
+
 #endif

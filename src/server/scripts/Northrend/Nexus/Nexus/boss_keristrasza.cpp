@@ -148,7 +148,7 @@ struct boss_keristrasza : public BossAI
             _intenseColdList.push_back(guid);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_enrage && me->HealthBelowPctDamaged(25, damage))
         {

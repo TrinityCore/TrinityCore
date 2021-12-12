@@ -494,7 +494,7 @@ struct BloodPrincesBossAI : public BossAI
         me->SetHealth(_spawnHealth);
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_isEmpowered)
         {
@@ -555,7 +555,7 @@ struct BloodPrincesBossAI : public BossAI
         {
             case ACTION_STAND_UP:
                 me->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 me->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);   // was in sniff. don't ask why
                 me->m_Events.AddEvent(new StandUpEvent(me), me->m_Events.CalculateTime(1s));
@@ -779,7 +779,7 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
                 summon->GetPosition(x, y, z);
                 float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseMask(), x, y, z, true, 500.0f);
                 summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
-                summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 break;
             }
             case NPC_SHOCK_VORTEX:
@@ -1068,7 +1068,7 @@ struct npc_dark_nucleus : public ScriptedAI
         DoCast(who, SPELL_SHADOW_RESONANCE_RESIST);
     }
 
-    void DamageTaken(Unit* attacker, uint32& /*damage*/) override
+    void DamageTaken(Unit* attacker, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (attacker == me)
             return;

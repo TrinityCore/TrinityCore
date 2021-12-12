@@ -58,6 +58,7 @@
 #include "TSPlayer.h"
 #include "TSCreature.h"
 #include "TSGameObject.h"
+#include "TSMapManager.h"
 // @tswow-end
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
@@ -1030,6 +1031,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     // @tswow-begin
     FIRE_MAP(GetExtraData()->events,MapOnPlayerLeave,TSMap(this),TSPlayer(player));
+    player->m_tsWorldEntity.m_timers.remove_on_map_change();
     // @tswow-end
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
@@ -3298,6 +3300,7 @@ void Map::ProcessRespawns()
             sPoolMgr->UpdatePool(poolId, next->type, next->spawnId);
 
             // step 3: get rid of the actual entry
+            RemoveRespawnTime(next->type, next->spawnId, nullptr, true);
             delete next;
         }
         else if (CheckRespawn(next)) // see if we're allowed to respawn
@@ -3310,12 +3313,14 @@ void Map::ProcessRespawns()
             DoRespawn(next->type, next->spawnId, next->gridId);
 
             // step 3: get rid of the actual entry
+            RemoveRespawnTime(next->type, next->spawnId, nullptr, true);
             delete next;
         }
         else if (!next->respawnTime)
         { // just remove this respawn entry without rescheduling
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
+            RemoveRespawnTime(next->type, next->spawnId, nullptr, true);
             delete next;
         }
         else
@@ -3436,6 +3441,10 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
 
     for (SpawnData const* data : toSpawn)
     {
+        // don't spawn if the current map difficulty is not used by the spawn
+        if (!(data->spawnMask & (1 << GetSpawnMode())))
+            continue;
+
         // don't spawn if the grid isn't loaded (will be handled in grid loader)
         if (!IsGridLoaded(data->spawnPoint))
             continue;
@@ -3527,6 +3536,20 @@ void Map::AddFarSpellCallback(FarSpellCallback&& callback)
 
 void Map::DelayedUpdate(uint32 t_diff)
 {
+    // @tswow-begin
+    FIRE_MAP(
+          GetExtraData()->events
+        , MapOnUpdateDelayed
+        , TSMap(this)
+        , t_diff
+        , TSMapManager()
+    );
+    for (auto const& callback : m_delayCallbacks)
+    {
+        callback(TSMap(this), TSMapManager());
+    }
+    m_delayCallbacks.clear();
+    // @tswow-end
     {
         FarSpellCallback* callback;
         while (_farSpellCallbacks.Dequeue(callback))
@@ -4454,7 +4477,7 @@ void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uin
     if (startup)
     {
         if (!success)
-            TC_LOG_ERROR("maps", "Attempt to load saved respawn %" PRIu64 " for (%u,%u) failed - duplicate respawn? Skipped.", respawnTime, uint32(type), spawnId);
+            TC_LOG_ERROR("maps", "Attempt to load saved respawn " UI64FMTD " for (%u,%u) failed - duplicate respawn? Skipped.", uint64(respawnTime), uint32(type), spawnId);
     }
     else if (success)
         SaveRespawnInfoDB(ri, dbTrans);
@@ -4490,11 +4513,11 @@ void Map::LoadRespawnTimes()
                 if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
                     SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), nullptr, true);
                 else
-                    TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u,%u) - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
+                    TC_LOG_ERROR("maps", "Loading saved respawn time of " UI64FMTD " for spawnid (%u,%u) - spawn does not exist, ignoring", uint64(respawnTime), uint32(type), spawnId);
             }
             else
             {
-                TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u,%u) - invalid spawn type, ignoring", respawnTime, uint32(type), spawnId);
+                TC_LOG_ERROR("maps", "Loading saved respawn time of " UI64FMTD " for spawnid (%u,%u) - invalid spawn type, ignoring", uint64(respawnTime), uint32(type), spawnId);
             }
 
         } while (result->NextRow());

@@ -101,7 +101,7 @@ class boss_archaedas : public CreatureScript
 
                 instance->SetData(0, 5);    // respawn any dead minions
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->AddAura(SPELL_FREEZE_ANIM, me);
             }
@@ -114,7 +114,7 @@ class boss_archaedas : public CreatureScript
                 {
                     DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
                     minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
-                    minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     minion->SetControlled(false, UNIT_STATE_ROOT);
                     minion->SetFaction(FACTION_MONSTER);
                     minion->RemoveAura(SPELL_MINION_FREEZE_ANIM);
@@ -124,7 +124,7 @@ class boss_archaedas : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
@@ -264,7 +264,7 @@ class npc_archaedas_minions : public CreatureScript
                 Initialize();
 
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
@@ -274,7 +274,7 @@ class npc_archaedas_minions : public CreatureScript
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveAllAuras();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
                 bAmIAwake = true;
             }
@@ -353,7 +353,7 @@ class npc_stonekeepers : public CreatureScript
             void Reset() override
             {
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
@@ -362,7 +362,7 @@ class npc_stonekeepers : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 

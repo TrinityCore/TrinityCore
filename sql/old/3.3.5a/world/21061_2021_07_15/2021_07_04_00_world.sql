@@ -1,0 +1,24 @@
+--
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = -78644 AND `source_type` = 0 AND `id` = 5 AND `action_type` = 54;
+UPDATE `smart_scripts` SET `action_param3` = 0 WHERE `entryorguid` = 9543 AND `source_type` = 0 AND `id` = 3 AND `action_type` = 45;
+UPDATE `smart_scripts` SET `action_param1` = 0, `action_param6` = 0 WHERE `action_type` = 66;
+UPDATE `smart_scripts` SET `action_param5` = 0 WHERE `action_type` = 1;
+UPDATE `smart_scripts` SET `action_param6` = 0 WHERE `action_type` = 5;
+UPDATE `smart_scripts` SET `action_param2` = 5, `action_param3` = 0, `action_param4` = 0 WHERE `entryorguid` = 13196 AND `source_type` = 0 AND `id` = 3 AND `action_type` = 31;
+UPDATE `smart_scripts` SET `action_param3` = 0 WHERE `entryorguid` = 21657 AND `source_type` = 0 AND `id` = 0 AND `action_type` = 26;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = 24539 AND `source_type` = 0 AND `id` = 6 AND `action_type` = 72;
+UPDATE `smart_scripts` SET `action_param1` = 0 WHERE `action_type` = 49;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `action_type` = 75;
+UPDATE `smart_scripts` SET `action_param5` = 0 WHERE `action_type` = 107;
+UPDATE `smart_scripts` SET `action_param1` = 0 WHERE `action_type` = 114;
+UPDATE `smart_scripts` SET `action_param5` = 0 WHERE `action_type` = 69;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = 26780 AND `source_type` = 0 AND `id` = 9 AND `action_type` = 22;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = 27909 AND `source_type` = 0 AND `id` = 3 AND `action_type` = 103;
+UPDATE `smart_scripts` SET `action_param5` = 0 WHERE `entryorguid` = 30393 AND `source_type` = 0 AND `id` = 1 AND `action_type` = 18;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = 30945 AND `source_type` = 0 AND `id` = 9 AND `action_type` = 5;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = 30993 AND `source_type` = 0 AND `id` = 10 AND `action_type` = 89;
+UPDATE `smart_scripts` SET `action_param5` = 0 WHERE `entryorguid` = 31135 AND `source_type` = 0 AND `id` = 3 AND `action_type` = 81;
+UPDATE `smart_scripts` SET `action_param6` = 0 WHERE `entryorguid` = 779000 AND `source_type` = 9 AND `id` = 2 AND `action_type` = 15;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = 2297900 AND `source_type` = 9 AND `id` = 3 AND `action_type` = 37;
+UPDATE `smart_scripts` SET `action_param3` = 0 WHERE `entryorguid` = 2778800 AND `source_type` = 9 AND `id` = 3 AND `action_type` = 64;
+UPDATE `smart_scripts` SET `action_param2` = 0 WHERE `entryorguid` = 18842200 AND `source_type` = 9 AND `id` = 1 AND `action_type` = 99;

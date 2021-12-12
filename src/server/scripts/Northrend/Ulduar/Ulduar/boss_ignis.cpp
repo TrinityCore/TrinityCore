@@ -181,7 +181,7 @@ class boss_ignis : public CreatureScript
                 {
                     summon->SetFaction(FACTION_MONSTER_2);
                     summon->SetReactState(REACT_AGGRESSIVE);
-                    summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED);
+                    summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED);
                     summon->SetImmuneToPC(false);
                     summon->SetControlled(false, UNIT_STATE_ROOT);
                 }
@@ -323,7 +323,7 @@ class npc_iron_construct : public CreatureScript
                 Initialize();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HasAura(RAID_MODE(SPELL_BRITTLE, SPELL_BRITTLE_25)) && damage >= 5000)
                 {
@@ -383,7 +383,7 @@ class npc_scorch_ground : public CreatureScript
             npc_scorch_groundAI(Creature* creature) : ScriptedAI(creature)
             {
                 Initialize();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 creature->SetDisplayId(16925); //model 2 in db cannot overwrite wdb fields
             }

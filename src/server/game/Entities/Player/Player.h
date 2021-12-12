@@ -18,6 +18,9 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+// @tswow-begin
+#include "TSCustomPacket.h"
+// @tswow-end
 #include "GridObject.h"
 #include "Unit.h"
 #include "DatabaseEnvFwd.h"
@@ -32,7 +35,6 @@
 #include "QuestDef.h"
 // @tswow-begin (Using Rochet2/Transmog)
 #include "Transmogrification.h"
-#include "TSMessageBuffer.h"
 // @tswow-end
 #include <memory>
 #include <queue>
@@ -775,6 +777,11 @@ enum PlayerDelayedOperations
 // Maximum money amount : 2^31 - 1
 TC_GAME_API extern uint32 const MAX_MONEY_AMOUNT;
 
+// @tswow-begin
+TC_GAME_API extern float dodge_base[MAX_CLASSES];
+TC_GAME_API extern float crit_to_dodge[MAX_CLASSES];
+// @tswow-end
+
 enum BindExtensionState
 {
     EXTEND_STATE_EXPIRED  =   0,
@@ -905,7 +912,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
         // @tswow-begin
-        TSMessageBuffer m_message_buffer;
+        TSServerBuffer m_msg_buffer;
+        void ApplyAutolearnSpells(uint32 fromLevel);
         // @tswow-end
         explicit Player(WorldSession* session);
         ~Player();
@@ -933,7 +941,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const override;
 
         void SetInWater(bool apply);
 
@@ -1736,8 +1744,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DurabilityPointsLossAll(int32 points, bool inventory);
         void DurabilityPointsLoss(Item* item, int32 points);
         void DurabilityPointLossForEquipSlot(EquipmentSlots slot);
-        uint32 DurabilityRepairAll(bool cost, float discountMod, bool guildBank);
-        uint32 DurabilityRepair(uint16 pos, bool cost, float discountMod, bool guildBank);
+        // @tswow-begin return types
+        uint32 DurabilityRepairAll(bool takeCost, float discountMod, bool guildBank);
+        uint32 DurabilityRepair(uint16 pos, bool takeCost, float discountMod);
+        // @tswow-end
 
         void UpdateMirrorTimers();
         void StopMirrorTimers();
@@ -2044,7 +2054,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateVisibilityForPlayer();
         void UpdateVisibilityOf(WorldObject* target);
         void UpdateTriggerVisibility();
-        void SetPhaseMask(uint32 newPhaseMask, bool update) override;// overwrite Unit::SetPhaseMask
+        // @tswow-begin
+        void SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId = 0) override;// overwrite Unit::SetPhaseMask
+        // @tswow-end
 
         template<class T>
         void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);

@@ -289,14 +289,14 @@ class spell_hun_cobra_strikes : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
 
-        SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
+        SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(aurEff->GetSpellEffectInfo().TriggerSpell);
 
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellMod(SPELLVALUE_AURA_STACK, triggeredSpellInfo->StackAmount);
@@ -671,8 +671,8 @@ class spell_hun_masters_call : public SpellScript
         return ValidateSpellInfo(
         {
             SPELL_HUNTER_MASTERS_CALL_TRIGGERED,
-            static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()),
-            static_cast<uint32>(spellInfo->Effects[EFFECT_1].CalcValue())
+            static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            static_cast<uint32>(spellInfo->GetEffect(EFFECT_1).CalcValue())
         });
     }
 
@@ -929,7 +929,7 @@ class spell_hun_rapid_recuperation : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandlePeriodic(AuraEffect const* aurEff)
@@ -939,7 +939,7 @@ class spell_hun_rapid_recuperation : public AuraScript
         Unit* target = GetTarget();
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(CalculatePct(target->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
-        target->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, args);
+        target->CastSpell(target, aurEff->GetSpellEffectInfo().TriggerSpell, args);
     }
 
     void Register() override
@@ -1114,7 +1114,7 @@ class spell_hun_sniper_training : public AuraScript
             if (Player* playerTarget = GetUnitOwner()->ToPlayer())
             {
                 int32 baseAmount = aurEff->GetBaseAmount();
-                int32 amount = playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount);
+                int32 amount = playerTarget->CalculateSpellDamage(aurEff->GetSpellEffectInfo(), &baseAmount);
                 GetEffect(EFFECT_0)->SetAmount(amount);
             }
         }
@@ -1126,7 +1126,7 @@ class spell_hun_sniper_training : public AuraScript
         {
             int32 baseAmount = aurEff->GetBaseAmount();
             int32 amount = playerTarget->isMoving() ?
-            playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
+            playerTarget->CalculateSpellDamage(aurEff->GetSpellEffectInfo(), &baseAmount) :
             aurEff->GetAmount() - 1;
             aurEff->SetAmount(amount);
         }
@@ -1177,6 +1177,12 @@ class spell_hun_tame_beast : public SpellScript
 
             if (caster->GetCharmedGUID())
                 return SPELL_FAILED_ALREADY_HAVE_CHARM;
+
+            if (target->GetOwnerGUID())
+            {
+                caster->SendTameFailure(PETTAME_CREATUREALREADYOWNED);
+                return SPELL_FAILED_DONT_REPORT;
+            }
         }
         else
             return SPELL_FAILED_BAD_IMPLICIT_TARGETS;

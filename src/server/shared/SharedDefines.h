@@ -679,11 +679,11 @@ enum SpellAttr7 : uint32
     SPELL_ATTR7_UNK20                            = 0x00100000, // TITLE Unknown attribute 20@Attr7 DESCRIPTION Invulnerability related?
     SPELL_ATTR7_UNK21                            = 0x00200000, // TITLE Unknown attribute 21@Attr7
     SPELL_ATTR7_IGNORE_COLD_WEATHER_FLYING       = 0x00400000, // TITLE Ignore cold weather flying restriction DESCRIPTION Set for loaner mounts, allows them to be used despite lacking required flight skill
-    SPELL_ATTR7_UNK23                            = 0x00800000, // TITLE Unknown attribute 23@Attr7
-    SPELL_ATTR7_UNK24                            = 0x01000000, // TITLE Unknown attribute 24@Attr7
-    SPELL_ATTR7_UNK25                            = 0x02000000, // TITLE Unknown attribute 25@Attr7
+    SPELL_ATTR7_CANT_DODGE                       = 0x00800000, // TITLE Spell cannot be dodged
+    SPELL_ATTR7_CANT_PARRY                       = 0x01000000, // TITLE Spell cannot be parried
+    SPELL_ATTR7_CANT_MISS                        = 0x02000000, // TITLE Spell cannot be missed
     SPELL_ATTR7_UNK26                            = 0x04000000, // TITLE Unknown attribute 26@Attr7
-    SPELL_ATTR7_UNK27                            = 0x08000000, // TITLE Unknown attribute 27@Attr7
+    SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA         = 0x08000000, // TITLE Bypasses the prevent resurrection aura
     SPELL_ATTR7_CONSOLIDATED_RAID_BUFF           = 0x10000000, // TITLE Consolidate in raid buff frame (client only)
     SPELL_ATTR7_UNK29                            = 0x20000000, // TITLE Unknown attribute 29@Attr7
     SPELL_ATTR7_UNK30                            = 0x40000000, // TITLE Unknown attribute 30@Attr7
@@ -796,6 +796,7 @@ enum Team
 
 enum SpellEffects
 {
+    SPELL_EFFECT_NONE                               = 0,
     SPELL_EFFECT_INSTAKILL                          = 1,
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
     SPELL_EFFECT_DUMMY                              = 3,
@@ -2715,7 +2716,7 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_TAMEABLE                             = 0x00000001,   // Makes the mob tameable (must also be a beast and have family set)
     CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS                    = 0x00000002,   // Creature is also visible for not alive player. Allows gossip interaction if npcflag allows?
     CREATURE_TYPE_FLAG_BOSS_MOB                             = 0x00000004,   // Changes creature's visible level to "??" in the creature's portrait - Immune Knockback.
-    CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_PARRY_ANIMATION    = 0x00000008,
+    CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM               = 0x00000008,   // Does not play wound animation on parry
     CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP                   = 0x00000010,
     CREATURE_TYPE_FLAG_MORE_AUDIBLE                         = 0x00000020,   // Sound related
     CREATURE_TYPE_FLAG_SPELL_ATTACKABLE                     = 0x00000040,
@@ -2734,7 +2735,7 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES                = 0x00080000,   // Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
     CREATURE_TYPE_FLAG_NO_NAME_PLATE                        = 0x00100000,
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_MOUNTED_ANIMATIONS       = 0x00200000,
-    CREATURE_TYPE_FLAG_IS_LINK_ALL                          = 0x00400000,
+    CREATURE_TYPE_FLAG_LINK_ALL                             = 0x00400000,
     CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR           = 0x00800000,
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS        = 0x01000000,
     CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB                   = 0x02000000,
@@ -2743,7 +2744,7 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_DO_NOT_SHEATHE                       = 0x10000000,
     CREATURE_TYPE_FLAG_DO_NOT_TARGET_ON_INTERACTION         = 0x20000000,
     CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME            = 0x40000000,
-    CREATURE_TYPE_FLAG_UNIT_IS_QUEST_BOSS                   = 0x80000000    // Not verified
+    CREATURE_TYPE_FLAG_QUEST_BOSS                           = 0x80000000    // Not verified
 };
 
 enum CreatureEliteType
@@ -2753,7 +2754,7 @@ enum CreatureEliteType
     CREATURE_ELITE_RAREELITE       = 2,
     CREATURE_ELITE_WORLDBOSS       = 3,
     CREATURE_ELITE_RARE            = 4,
-    CREATURE_UNKNOWN               = 5                      // found in 2.2.3 for 2 mobs
+    CREATURE_ELITE_TRIVIAL         = 5                      // found in 2.2.3 for 2 mobs
 };
 
 // values based at Holidays.dbc

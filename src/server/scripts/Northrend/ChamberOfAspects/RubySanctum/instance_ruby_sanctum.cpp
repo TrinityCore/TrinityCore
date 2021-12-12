@@ -89,7 +89,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                 BaltharusSharedHealth = 0;
             }
 
-            void OnPlayerEnter(Player* /*player*/) override
+            // @tswow-begin call super
+            void OnPlayerEnter(Player* player) override
             {
                 if (!GetGuidData(DATA_HALION) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                 {
@@ -97,7 +98,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                     if (Creature* halionController = instance->GetCreature(GetGuidData(DATA_HALION_CONTROLLER)))
                         halionController->AI()->DoAction(ACTION_INTRO_HALION_2);
                 }
+                InstanceScript::OnPlayerEnter(player);
             }
+            // @tswow-end
 
             void OnCreatureCreate(Creature* creature) override
             {
@@ -176,7 +179,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
                     {
-                        zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         zarithrian->SetImmuneToPC(false);
                     }
             }
@@ -202,6 +205,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                 packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
                 packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
                 packet.Worldstates.emplace_back(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
+                // @tswow-begin call super
+                InstanceScript::FillInitialWorldStates(packet);
+                // @tswow-end
             }
 
         protected:

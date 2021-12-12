@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "InstanceScript.h"
+// @tswow-end
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
 #include "Creature.h"
@@ -39,6 +42,14 @@ AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
 CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _isEngaged(false), _moveInLOSLocked(false)
 {
+    // @tswow-begin load custom boss boundaries
+    auto imap = creature->GetMap()->ToInstanceMap();
+    if (!imap) return;
+    uint32 bossId = sObjectMgr->GetCreatureBoss(creature->GetSpawnId());
+    if (bossId == UINT32_MAX) return;
+    imap->GetInstanceScript()->GetBossBoundary(bossId);
+    SetBoundary(imap->GetInstanceScript()->GetBossBoundary(bossId));
+    // @tswow-end
 }
 
 CreatureAI::~CreatureAI()
@@ -303,7 +314,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     }
 
     me->RemoveAurasOnEvade();
-
+    me->ClearComboPointHolders(); // Remove all combo points targeting this unit
     me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
@@ -387,7 +398,7 @@ int32 CreatureAI::VisualizeBoundary(Seconds duration, Unit* owner, bool fill) co
                 point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 point->SetImmuneToAll(true);
                 if (!hasOutOfBoundsNeighbor)
-                    point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             }
         }
 

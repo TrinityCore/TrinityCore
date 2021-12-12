@@ -19,6 +19,11 @@
     \ingroup u2w
 */
 
+// @tswow-begin
+#include "TSPlayer.h"
+#include "TSEvents.h"
+#include "TSCustomPacket.h"
+// @tswow-end
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "AddonMgr.h"
@@ -38,6 +43,7 @@
 #include "Map.h"
 #include "Metric.h"
 #include "MoveSpline.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -926,6 +932,22 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
+    if (mi->guid.IsEmpty())
+    {
+        TC_LOG_ERROR("entities.unit", "WorldSession::ReadMovementInfo: mi->guid is empty, opcode %u", static_cast<uint32>(data.GetOpcode()));
+        return;
+    }
+
+    Unit* mover = GetPlayer()->GetGUID() == mi->guid ? GetPlayer() : ObjectAccessor::GetUnit(*GetPlayer(), mi->guid);
+    if (!mover)
+    {
+        TC_LOG_ERROR("entities.unit", "WorldSession::ReadMovementInfo: If the server allows the unit (GUID %s) to be moved by the client of player %s, the unit should still exist! Opcode %u",
+            mi->guid.ToString().c_str(),
+            GetPlayer()->GetGUID().ToString().c_str(),
+            static_cast<uint32>(data.GetOpcode()));
+        return;
+    }
+
     if (!GetPlayer()->GetVehicleBase() || !(GetPlayer()->GetVehicle()->GetVehicleInfo()->Flags & VEHICLE_FLAG_FIXED_POSITION))
         REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
 
@@ -937,7 +959,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         MOVEMENTFLAG_MASK_MOVING);
 
     //! Cannot hover without SPELL_AURA_HOVER
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER),
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !mover->HasAuraType(SPELL_AURA_HOVER),
         MOVEMENTFLAG_HOVER);
 
     //! Cannot ascend and descend at the same time
@@ -962,12 +984,12 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
     //! Cannot walk on water without SPELL_AURA_WATER_WALK except for ghosts
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
-        !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK) &&
-        !GetPlayer()->HasAuraType(SPELL_AURA_GHOST),
+        !mover->HasAuraType(SPELL_AURA_WATER_WALK) &&
+        !mover->HasAuraType(SPELL_AURA_GHOST),
         MOVEMENTFLAG_WATERWALKING);
 
     //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL),
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !mover->HasAuraType(SPELL_AURA_FEATHER_FALL),
         MOVEMENTFLAG_FALLING_SLOW);
 
     /*! Cannot fly if no fly auras present. Exception is being a GM.
@@ -977,8 +999,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     */
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !GetPlayer()->GetCharmedOrSelf()->HasAuraType(SPELL_AURA_FLY) &&
-        !GetPlayer()->GetCharmedOrSelf()->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+        !mover->HasAuraType(SPELL_AURA_FLY) &&
+        !mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
     //! Cannot fly and fall at the same time
@@ -986,7 +1008,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         MOVEMENTFLAG_FALLING);
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) &&
-        (!GetPlayer()->movespline->Initialized() || GetPlayer()->movespline->Finalized()), MOVEMENTFLAG_SPLINE_ENABLED);
+        (!mover->movespline->Initialized() || mover->movespline->Finalized()), MOVEMENTFLAG_SPLINE_ENABLED);
 
     #undef REMOVE_VIOLATING_FLAGS
 }
@@ -1684,3 +1706,11 @@ bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
 
     return true;
 }
+
+// @tswow-begin
+void WorldSession::HandleCustom(WorldPacket& packet)
+{
+    GetPlayer()->m_msg_buffer
+        .ReceivePacket(packet.size(),(char*)packet.contents());
+}
+// @tswow-end

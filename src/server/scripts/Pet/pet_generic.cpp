@@ -22,7 +22,6 @@
 
  /* ContentData
  npc_pet_gen_pandaren_monk          100%    Pandaren Monk drinks and bows with you
- npc_pet_gen_mojo                   100%    Mojo follows you when you kiss it
  EndContentData */
 
 #include "ScriptMgr.h"
@@ -40,86 +39,76 @@ enum PandarenMonkMisc
     EVENT_DRINK = 4
 };
 
-class npc_pet_gen_pandaren_monk : public CreatureScript
+struct npc_pet_gen_pandaren_monk : public NullCreatureAI
 {
-public:
-    npc_pet_gen_pandaren_monk() : CreatureScript("npc_pet_gen_pandaren_monk") {}
+    npc_pet_gen_pandaren_monk(Creature* creature) : NullCreatureAI(creature) { }
 
-    struct npc_pet_gen_pandaren_monkAI : public NullCreatureAI
+    void Reset() override
     {
-        npc_pet_gen_pandaren_monkAI(Creature* creature) : NullCreatureAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-            _events.ScheduleEvent(EVENT_FOCUS, 1s);
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (!_EnterEvadeMode(why))
-                return;
-
-            Reset();
-        }
-
-        void ReceiveEmote(Player* /*player*/, uint32 emote) override
-        {
-            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-            me->StopMoving();
-
-            switch (emote)
-            {
-            case TEXT_EMOTE_BOW:
-                _events.ScheduleEvent(EVENT_FOCUS, 1s);
-                break;
-            case TEXT_EMOTE_DRINK:
-                _events.ScheduleEvent(EVENT_DRINK, 1s);
-                break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (Unit* owner = me->GetCharmerOrOwner())
-                if (!me->IsWithinDist(owner, 30.f))
-                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_FOCUS:
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                        me->SetFacingToObject(owner);
-                    _events.ScheduleEvent(EVENT_EMOTE, 1s);
-                    break;
-                case EVENT_EMOTE:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                    _events.ScheduleEvent(EVENT_FOLLOW, 1s);
-                    break;
-                case EVENT_FOLLOW:
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                    break;
-                case EVENT_DRINK:
-                    me->CastSpell(me, SPELL_PANDAREN_MONK, false);
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-    private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_pet_gen_pandaren_monkAI(creature);
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_FOCUS, 1s);
     }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (!_EnterEvadeMode(why))
+            return;
+
+        Reset();
+    }
+
+    void ReceiveEmote(Player* /*player*/, uint32 emote) override
+    {
+        me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+        me->StopMoving();
+
+        switch (emote)
+        {
+        case TEXT_EMOTE_BOW:
+            _events.ScheduleEvent(EVENT_FOCUS, 1s);
+            break;
+        case TEXT_EMOTE_DRINK:
+            _events.ScheduleEvent(EVENT_DRINK, 1s);
+            break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (Unit* owner = me->GetCharmerOrOwner())
+            if (!me->IsWithinDist(owner, 30.f))
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_FOCUS:
+                if (Unit* owner = me->GetCharmerOrOwner())
+                    me->SetFacingToObject(owner);
+                _events.ScheduleEvent(EVENT_EMOTE, 1s);
+                break;
+            case EVENT_EMOTE:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                _events.ScheduleEvent(EVENT_FOLLOW, 1s);
+                break;
+            case EVENT_FOLLOW:
+                if (Unit* owner = me->GetCharmerOrOwner())
+                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                break;
+            case EVENT_DRINK:
+                me->CastSpell(me, SPELL_PANDAREN_MONK, false);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
 enum SoulTrader
@@ -177,7 +166,7 @@ struct npc_pet_lich : public ScriptedAI
 
 void AddSC_generic_pet_scripts()
 {
-    new npc_pet_gen_pandaren_monk();
+    RegisterCreatureAI(npc_pet_gen_pandaren_monk);
     RegisterCreatureAI(npc_pet_gen_soul_trader);
     RegisterCreatureAI(npc_pet_lich);
 }

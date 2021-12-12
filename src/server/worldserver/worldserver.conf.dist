@@ -36,6 +36,7 @@
 #    AUCTION HOUSE BOT BUYER CONFIG
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
+#    MISC ANTI-CHEAT SETTINGS
 #    METRIC SETTINGS
 #
 ###################################################################################################
@@ -1207,6 +1208,14 @@ Event.Announce = 0
 BeepAtStart = 1
 
 #
+#    FlashAtStart
+#        Description: Flashes in taskbar when the world server finished starting. (Works on Windows only)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+FlashAtStart = 1
+
+#
 #    Motd
 #        Description: Message of the Day, displayed at login. Use '@' for a newline.
 #        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
@@ -1302,6 +1311,15 @@ BirthdayTime = 1222964635
 #
 
 CacheDataQueries = 1
+
+#
+#    AllowLoggingIPAddressesInDatabase
+#        Description: Specifies if IP addresses can be logged to the database
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+
+AllowLoggingIPAddressesInDatabase = 1
 
 #
 ###################################################################################################
@@ -3891,7 +3909,7 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 
 Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
-Appender.GM=2,2,15,gm/gm_%s.log
+Appender.GM=2,2,1,GM.log
 Appender.DBErrors=2,2,0,DBErrors.log
 
 #  Logger config values: Given a logger "name"
@@ -4246,6 +4264,24 @@ Transmogrification.SetNpcText = 65001
 
 Transmogrification.SetCostModifier = 3.0
 Transmogrification.SetCopperCost = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+# MISC ANTI-CHEAT SETTINGS
+#
+# Settings to tweak various anti cheat measures.
+#
+#    AntiCheats.PendingMoveChangesTimeoutTime
+#        Description: Time each client has to acknowledge a movement change until they are kicked.
+#        Note:        A lower time will give cheaters less advantage when using a very specific
+#                     type of hack. However, the cost is that innocent but laggy players might
+#                     sometimes get kicked. Disabled if 0.
+#        Default:     0    - (Disabled)
+#                     3000 - (3 seconds, Recommended)
+
+AntiCheat.PendingMoveChangesTimeoutTime = 0
 
 #
 ###################################################################################################

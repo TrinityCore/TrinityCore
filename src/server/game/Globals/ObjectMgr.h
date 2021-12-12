@@ -18,6 +18,9 @@
 #ifndef _OBJECTMGR_H
 #define _OBJECTMGR_H
 
+// @tswow-begin
+#include "LFG.h"
+// @tswow-end
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureData.h"
@@ -685,7 +688,35 @@ struct PlayerCreateInfoSkill
     uint16 Rank;
 };
 
+// @tswow-begin
+struct SpellAutoLearn
+{
+    uint32 spell;
+    uint32 racemask;
+    uint32 classmask;
+};
+
+typedef std::vector<uint32> PlayerClassRoles;
+typedef std::vector<std::vector<SpellAutoLearn>> SpellAutoLearns;
+typedef std::vector<std::vector<uint32>> InstanceBossCreatures;
 typedef std::vector<PlayerCreateInfoSkill> PlayerCreateInfoSkills;
+typedef std::map<uint32,uint32> InstanceAddons;
+struct InstanceDoorData {
+    uint32 entry;
+    uint32 boss;
+    uint32 type;
+};
+
+enum BattlegroundDoorType: uint8 {
+    BG_DOOR_OPENS_ON_START  = 0,
+    BG_DOOR_CLOSES_ON_START = 1,
+    MAX_BG_DOOR_TYPES
+};
+struct BattlegroundDoorData {
+    uint32 entry;
+    BattlegroundDoorType type;
+};
+class AreaBoundary;
 
 // existence checked by displayId != 0
 struct PlayerInfo
@@ -902,8 +933,11 @@ LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 enum EncounterCreditType : uint8
 {
-    ENCOUNTER_CREDIT_KILL_CREATURE  = 0,
-    ENCOUNTER_CREDIT_CAST_SPELL     = 1
+    ENCOUNTER_CREDIT_KILL_CREATURE      = 0,
+    ENCOUNTER_CREDIT_CAST_SPELL         = 1,
+    // @tswow-begin
+    ENCOUNTER_CREDIT_COMPLETE_ENCOUNTER = 2,
+    // @tswow-end
 };
 
 struct DungeonEncounter
@@ -986,7 +1020,7 @@ class TC_GAME_API ObjectMgr
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId) const;
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID) const;
         static uint32 ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = nullptr);
-        static void ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data = nullptr);
+        static void ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32* npcflag, uint32* unit_flags, uint32* dynamicflags, CreatureData const* data = nullptr);
         EquipmentInfo const* GetEquipmentInfo(uint32 entry, int8& id) const;
         CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid) const;
         GameObjectAddon const* GetGameObjectAddon(ObjectGuid::LowType lowguid) const;
@@ -1017,6 +1051,34 @@ class TC_GAME_API ObjectMgr
         void GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassLevelInfo* info) const;
 
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const;
+
+        // @tswow-begin
+        uint8 GetPlayerClassRoleMask(uint32 cls);
+        void GetBossCount(uint32 mapid, uint32& count) const;
+        std::vector<InstanceDoorData> const* GetInstanceDoors(uint32 mapid) const;
+        std::vector<BattlegroundDoorData> const* GetBattlegroundDoors(uint32 mapid) const;
+        SpellAutoLearns const& GetSpellAutolearns() { return _spellAutoLearns;  }
+        InstanceBossCreatures const* GetInstanceBossCreatures(uint32 instance) {
+            if (instance >= _instanceBossCreatures.size()) return nullptr;
+            InstanceBossCreatures* val = &_instanceBossCreatures[instance];
+            if (val->size() == 0)
+            {
+                return nullptr;
+            }
+            return val;
+        }
+        uint32 GetCreatureBoss(uint32 guid)
+        {
+            auto itr = _creatureBoss.find(guid);
+            if (itr == _creatureBoss.end()) return UINT32_MAX;
+            return itr->second;
+        }
+        std::vector<std::vector<AreaBoundary*>>* GetBoundaries(uint32 instance)
+        {
+            auto itr = _bossBoundaries.find(instance);
+            return itr != _bossBoundaries.end() ? (&itr->second) : nullptr;
+        }
+        // @tswow-end
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
@@ -1215,6 +1277,15 @@ class TC_GAME_API ObjectMgr
         PageText const* GetPageText(uint32 pageEntry);
 
         void LoadPlayerInfo();
+        // @tswow-begin
+        void LoadPlayerClassRoles();
+        void LoadSpellAutolearn();
+        void LoadInstanceAddon();
+        void LoadInstanceBossCreatures();
+        void LoadBossBoundaries();
+        void LoadInstanceDoors();
+        void LoadBattlegroundDoors();
+        // @tswow-end
         void LoadPetLevelInfo();
         void LoadExplorationBaseXP();
         void LoadPetNames();
@@ -1507,7 +1578,9 @@ class TC_GAME_API ObjectMgr
 
             return &iter->second;
         }
-        void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist = true); // for event
+        // @tswow-begin masks
+        void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint32 raceMask, uint32 classMask, bool persist = true); // for event
+        // @tswow-end
         bool RemoveVendorItem(uint32 entry, uint32 item, bool persist = true); // for event
         bool IsVendorItemValid(uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
 
@@ -1679,6 +1752,18 @@ class TC_GAME_API ObjectMgr
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
         std::unique_ptr<PlayerInfo> _playerInfo[MAX_RACES][MAX_CLASSES];
+
+        // @tswow-begin
+        SpellAutoLearns _spellAutoLearns;
+        InstanceAddons _instanceAddons;
+        std::vector<InstanceBossCreatures> _instanceBossCreatures;
+        std::map<uint32, uint32> _creatureBoss;
+        std::map<uint32, std::vector<std::vector<AreaBoundary*>>> _bossBoundaries;
+        std::map<uint32, std::vector<InstanceDoorData>> _instanceDoors;
+        std::map<uint32, std::vector<BattlegroundDoorData>> _battlegroundDoors;
+        PlayerClassRoles _playerClassRoles;
+
+        // @tswow-end
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel _playerXPperLevel;

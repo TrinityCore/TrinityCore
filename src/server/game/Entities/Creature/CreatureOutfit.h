@@ -46,6 +46,12 @@ public:
     uint32 npcsoundsid = 0;
     uint64 guild = 0;
 
+    // @tswow-begin
+    int32 mainhand = -1;
+    int32 offhand = -1;
+    int32 ranged = -1;
+    // @tswow-end
+
     uint32 GetId() const { return id; }
     uint8 GetGender() const { return gender; }
     uint8 GetRace() const { return race; }

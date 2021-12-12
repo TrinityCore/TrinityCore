@@ -297,6 +297,13 @@ public:
             for (uint8 i = 0; i < EncounterCount; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                     m_auiEncounter[i] = NOT_STARTED;
+            // @tswow-begin
+            FIRE_MAP(
+                GetInstanceEvent(instance->GetEntry()->ID)
+                , InstanceOnLoad
+                , TSInstance(instance,this)
+            );
+            // @tswow-end
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 

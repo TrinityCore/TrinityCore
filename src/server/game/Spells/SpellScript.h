@@ -39,6 +39,7 @@ class ModuleReference;
 class Player;
 class ProcEventInfo;
 class Spell;
+class SpellEffectInfo;
 class SpellInfo;
 class SpellScript;
 class Unit;
@@ -427,6 +428,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         GameObject* GetGObjCaster() const;
         Unit* GetOriginalCaster() const;
         SpellInfo const* GetSpellInfo() const;
+        SpellEffectInfo const& GetEffectInfo(SpellEffIndex effIndex) const;
         SpellValue const* GetSpellValue() const;
 
         // methods useable after spell is prepared
@@ -500,6 +502,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         void PreventHitDefaultEffect(SpellEffIndex effIndex);
 
         // method avalible only in EffectHandler method
+        SpellEffectInfo const& GetEffectInfo() const;
         int32 GetEffectValue() const;
         void SetEffectValue(int32 value);
 
@@ -507,7 +510,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         Item* GetCastItem() const;
 
         // Creates item. Calls Spell::DoCreateItem method.
-        void CreateItem(uint32 effIndex, uint32 itemId);
+        void CreateItem(uint32 itemId);
 
         // Returns SpellInfo from the spell that triggered the current one
         SpellInfo const* GetTriggeringSpell() const;
@@ -898,6 +901,7 @@ class TC_GAME_API AuraScript : public _SpellScript
 
         // returns proto of the spell
         SpellInfo const* GetSpellInfo() const;
+        SpellEffectInfo const& GetEffectInfo(SpellEffIndex effIndex) const;
         // returns spellid of the spell
         uint32 GetId() const;
 

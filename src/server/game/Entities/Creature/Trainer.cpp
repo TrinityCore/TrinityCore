@@ -15,6 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSPlayer.h"
+#include "TSSpellInfo.h"
+#include "TSMutable.h"
+#include "TSEvents.h"
+// @tswow-end
 #include "Trainer.h"
 #include "Creature.h"
 #include "NPCPackets.h"
@@ -29,7 +35,9 @@ namespace Trainer
         return sSpellMgr->AssertSpellInfo(SpellId)->HasEffect(SPELL_EFFECT_LEARN_SPELL);
     }
 
-    Trainer::Trainer(uint32 trainerId, Type type, uint32 requirement, std::string greeting, std::vector<Spell> spells) : _trainerId(trainerId), _type(type), _requirement(requirement), _spells(std::move(spells))
+    // @tswow-begin
+    Trainer::Trainer(uint32 trainerId, Type type, uint32 requirement, std::string greeting, uint32 classMask, uint32 raceMask, std::vector<Spell> spells) : _trainerId(trainerId), _type(type), _requirement(requirement), _classMask(classMask), _raceMask(raceMask), _spells(std::move(spells))
+    // @tswow-end
     {
         _greeting[DEFAULT_LOCALE] = std::move(greeting);
     }
@@ -43,20 +51,42 @@ namespace Trainer
         trainerList.TrainerType = AsUnderlyingType(_type);
         trainerList.Greeting = GetGreeting(locale);
         trainerList.Spells.reserve(_spells.size());
-        for (Spell const& trainerSpell : _spells)
+        for(Spell const& trainerSpell : _spells)
         {
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
 
             SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
 
-            bool primaryProfessionFirstRank = false;
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            // @tswow-begin masks and event
+            uint32 raceMask = trainerSpell.raceMask;
+            uint32 classMask = trainerSpell.classMask;
+            if(!player->MatchRaceClassMask(trainerSpell.raceMask,trainerSpell.classMask))
             {
-                if (trainerSpellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+                continue;
+            }
+            bool allowTrain = true;
+
+            FIRE_MAP(
+                trainerSpellInfo->events
+                , SpellOnTrainerSend
+                , TSSpellInfo(trainerSpellInfo)
+                , _trainerId
+                , TSPlayer(const_cast<Player*>(player))
+                , TSMutable<bool>(&allowTrain)
+            )
+            if (!allowTrain)
+            {
+                continue;
+            }
+            // @tswow-end
+            bool primaryProfessionFirstRank = false;
+            for (SpellEffectInfo const& spellEffectInfo : trainerSpellInfo->GetEffects())
+            {
+                if (!spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
                     continue;
 
-                SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpellInfo->Effects[i].TriggerSpell);
+                SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell);
                 if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
                     primaryProfessionFirstRank = true;
             }
@@ -137,13 +167,32 @@ namespace Trainer
             return false;
 
         SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell->SpellId);
-
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        // @tswow-begin
+        if (!player->MatchRaceClassMask(trainerSpell->raceMask, trainerSpell->classMask))
         {
-            if (trainerSpellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+            return false;
+        }
+        bool allowTrain = true;
+        FIRE_MAP(
+              trainerSpellInfo->events
+            , SpellOnTrainerSend
+            , TSSpellInfo(trainerSpellInfo)
+            , _trainerId
+            , TSPlayer(const_cast<Player*>(player))
+            , TSMutable<bool>(&allowTrain)
+        )
+        if (!allowTrain)
+        {
+            return false;
+        }
+        // @tswow-end
+
+        for (SpellEffectInfo const& spellEffectInfo : trainerSpellInfo->GetEffects())
+        {
+            if (!spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
                 continue;
 
-            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpellInfo->Effects[i].TriggerSpell);
+            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell);
             if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank() && !player->GetFreePrimaryProfessionPoints())
                 return false;
         }
@@ -175,17 +224,16 @@ namespace Trainer
         // check ranks
         bool hasLearnSpellEffect = false;
         bool knowsAllLearnedSpells = true;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(trainerSpell->SpellId)->GetEffects())
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(trainerSpell->SpellId);
-            if (!spellInfo || spellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+            if (!spellEffectInfo.IsEffect(SPELL_EFFECT_LEARN_SPELL))
                 continue;
 
             hasLearnSpellEffect = true;
-            if (!player->HasSpell(spellInfo->Effects[i].TriggerSpell))
+            if (!player->HasSpell(spellEffectInfo.TriggerSpell))
                 knowsAllLearnedSpells = false;
 
-            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(spellInfo->Effects[i].TriggerSpell))
+            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(spellEffectInfo.TriggerSpell))
                 if (!player->HasSpell(previousRankSpellId))
                     return SpellState::Unavailable;
         }
@@ -209,6 +257,13 @@ namespace Trainer
 
     bool Trainer::IsTrainerValidForPlayer(Player const* player) const
     {
+        // @tswow-begin
+        if (!player->MatchRaceClassMask(_raceMask, _classMask))
+        {
+            return false;
+        }
+        // @tswow-end
+
         if (!GetTrainerRequirement())
             return true;
 

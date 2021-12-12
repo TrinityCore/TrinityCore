@@ -59,6 +59,7 @@
 #include "TSMacros.h"
 #include "TSEventLoader.h"
 #include "TSMap.h"
+#include "TSBossAI.h"
 // @tswow-end
 
 CreatureMovementData::CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run),
@@ -262,7 +263,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
     m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
-    _regenerateHealth(true), _regenerateHealthLock(false), _isMissingSwimmingFlagOutOfCombat(false)
+    _regenerateHealth(true), _regenerateHealthLock(false), _isMissingCanSwimFlagOutOfCombat(false)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -338,6 +339,23 @@ void Creature::RemoveFromWorld()
 
 void Creature::SetOutfit(std::shared_ptr<CreatureOutfit> const & outfit)
 {
+    // @tswow-begin apply weapons
+    if (outfit->mainhand >= 0)
+    {
+        SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, outfit->mainhand);
+    }
+
+    if (outfit->offhand >= 0)
+    {
+        SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, outfit->offhand);
+    }
+
+    if (outfit->ranged >= 0)
+    {
+        SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+2, outfit->ranged);
+    }
+    // @tswow-end
+
     // Set new outfit
     if (m_outfit)
     {
@@ -622,7 +640,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     SetFaction(cInfo->faction);
 
     uint32 npcflag, unit_flags, dynamicflags;
-    ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, dynamicflags, data);
+    ObjectMgr::ChooseCreatureFlags(cInfo, &npcflag, &unit_flags, &dynamicflags, data);
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
         SetUInt32Value(UNIT_NPC_FLAGS, npcflag | sGameEventMgr->GetNPCFlag(this));
@@ -685,9 +703,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         }
     }
 
-    // trigger creature is always not selectable and can not be attacked
+    // trigger creature is always uninteractible and can not be attacked
     if (IsTrigger())
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
     InitializeReactState();
 
@@ -697,7 +715,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    SetIgnoringCombat((cInfo->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_COMBAT) != 0);
+    SetIsCombatDisallowed((cInfo->flags_extra & CREATURE_FLAG_EXTRA_CANNOT_ENTER_COMBAT) != 0);
 
     LoadTemplateRoot();
     InitializeMovementFlags();
@@ -713,23 +731,25 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     return true;
 }
 
-void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
+// @tswow-begin
+void Creature::SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId)
 {
-    if (newPhaseMask == GetPhaseMask())
+    if (newPhaseMask == GetPhaseMask() && newPhaseId == m_phase_id)
         return;
 
-    Unit::SetPhaseMask(newPhaseMask, false);
+    Unit::SetPhaseMask(newPhaseMask, false, newPhaseId);
 
     if (Vehicle* vehicle = GetVehicleKit())
     {
         for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); seat++)
             if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
-                passenger->SetPhaseMask(newPhaseMask, update);
+                passenger->SetPhaseMask(newPhaseMask, update, newPhaseId);
     }
 
     if (update)
         UpdateObjectVisibility();
 }
+// @tswow-end
 
 void Creature::Update(uint32 diff)
 {
@@ -1522,11 +1542,11 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnMaxHealth
+        , CreatureOnUpdateLvlDepMaxHealth
         , TSCreature(this)
+        , TSMutable<uint32>(&health)
         , healthmod
         , basehp
-        , TSMutable<uint32>(&health)
         );
     // @tswow-end
 
@@ -1540,10 +1560,10 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnMaxMana
+        , CreatureOnUpdateLvlDepMaxMana
         , TSCreature(this)
-        , stats->BaseMana
         , TSMutable<uint32>(&mana)
+        , stats->BaseMana
     );
     // @tswow-end
     SetCreateMana(mana);
@@ -1570,11 +1590,11 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnBaseDamage
+        , CreatureOnUpdateLvlDepBaseDamage
         , TSCreature(this)
-        , basedamage
         , TSMutable<float>(&weaponBaseMinDamage)
         , TSMutable<float>(&weaponBaseMaxDamage)
+        , basedamage
     );
     // @tswow-end
 
@@ -1591,8 +1611,8 @@ void Creature::UpdateLevelDependantStats()
     uint32 attackPower = stats->AttackPower;
     uint32 rangedAttackPower = stats->RangedAttackPower;
     FIRE_MAP(
-        this->GetCreatureTemplate()->events
-        , CreatureOnAttackPower
+          this->GetCreatureTemplate()->events
+        , CreatureOnUpdateLvlDepAttackPower
         , TSCreature(this)
         , TSMutable<uint32>(&attackPower)
         , TSMutable<uint32>(&rangedAttackPower)
@@ -1605,10 +1625,10 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     FIRE_MAP(
         this->GetCreatureTemplate()->events
-        , CreatureOnArmor
+        , CreatureOnUpdateLvlDepArmor
         , TSCreature(this)
-        , stats->BaseArmor
         , TSMutable<float>(&armor)
+        , stats->BaseArmor
     );
     // @tswow-end
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);
@@ -1802,9 +1822,12 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
                 return false;
             }
         }
+        else
+        {
+            // compatibility mode creatures will be respawned in ::Update()
+            m_deathState = DEAD;
+        }
 
-        // compatibility mode creatures will be respawned in ::Update()
-        m_deathState = DEAD;
         if (CanFly())
         {
             float tz = map->GetHeight(GetPhaseMask(), data->spawnPoint, true, MAX_FALL_DISTANCE);
@@ -2021,15 +2044,19 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         return false;
 
     // No aggro from gray creatures
-    if (CheckNoGrayAggroConfig(who->GetLevelForTarget(this), GetLevelForTarget(who)))
+    // @tswow-begin player argument
+    if (CheckNoGrayAggroConfig(const_cast<Unit*>(who)->ToPlayer(),who->GetLevelForTarget(this), GetLevelForTarget(who)))
+    // @tswow-end
         return false;
 
     return IsWithinLOSInMap(who);
 }
 
-bool Creature::CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const
+// @tswow-begin player argument
+bool Creature::CheckNoGrayAggroConfig(Player* player, uint32 playerLevel, uint32 creatureLevel) const
+// @tswow-end
 {
-    if (Trinity::XP::GetColorCode(playerLevel, creatureLevel) != XP_GRAY)
+    if (Trinity::XP::GetColorCode(player, const_cast<Creature*>(this), playerLevel, creatureLevel) != XP_GRAY)
         return false;
 
     uint32 notAbove = sWorld->getIntConfig(CONFIG_NO_GRAY_AGGRO_ABOVE);
@@ -2160,7 +2187,7 @@ void Creature::setDeathState(DeathState s)
             CreatureTemplate const* cinfo = GetCreatureTemplate();
 
             uint32 npcflag, unit_flags, dynamicflags;
-            ObjectMgr::ChooseCreatureFlags(cinfo, npcflag, unit_flags, dynamicflags, creatureData);
+            ObjectMgr::ChooseCreatureFlags(cinfo, &npcflag, &unit_flags, &dynamicflags, creatureData);
 
             SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
             SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
@@ -2343,9 +2370,9 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* c
         return false;
 
     bool immunedToAllEffects = true;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
     {
-        if (spellInfo->Effects[i].IsEffect() && !IsImmunedToSpellEffect(spellInfo, i, caster))
+        if (spellEffectInfo.IsEffect() && !IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster))
         {
             immunedToAllEffects = false;
             break;
@@ -2358,12 +2385,12 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* c
     return Unit::IsImmunedToSpell(spellInfo, caster);
 }
 
-bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
+bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const
 {
-    if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && spellInfo->Effects[index].Effect == SPELL_EFFECT_HEAL)
+    if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && spellEffectInfo.IsEffect(SPELL_EFFECT_HEAL))
         return true;
 
-    return Unit::IsImmunedToSpellEffect(spellInfo, index, caster);
+    return Unit::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster);
 }
 
 bool Creature::isElite() const
@@ -2498,7 +2525,7 @@ bool Creature::CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction /
     if (IsCivilian())
         return false;
 
-    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE) || IsImmuneToNPC())
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE) || IsImmuneToNPC())
         return false;
 
     // skip fighting creature
@@ -2853,15 +2880,15 @@ bool Creature::CanEnterWater() const
     return GetMovementTemplate().IsSwimAllowed();
 }
 
-void Creature::RefreshSwimmingFlag(bool recheck)
+void Creature::RefreshCanSwimFlag(bool recheck)
 {
-    if (!_isMissingSwimmingFlagOutOfCombat || recheck)
-        _isMissingSwimmingFlagOutOfCombat = !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
+    if (!_isMissingCanSwimFlagOutOfCombat || recheck)
+        _isMissingCanSwimFlagOutOfCombat = !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CAN_SWIM);
 
-    // Check if the creature has UNIT_FLAG_SWIMMING and add it if it's missing
+    // Check if the creature has UNIT_FLAG_CAN_SWIM and add it if it's missing
     // Creatures must be able to chase a target in water if they can enter water
-    if (_isMissingSwimmingFlagOutOfCombat && CanEnterWater())
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
+    if (_isMissingCanSwimFlagOutOfCombat && CanEnterWater())
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CAN_SWIM);
 }
 
 void Creature::AllLootRemovedFromCorpse()
@@ -2916,7 +2943,7 @@ uint32 Creature::GetScriptId() const
         if (uint32 scriptId = creatureData->scriptId)
             return scriptId;
 
-    return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
+    return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptID;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
@@ -3507,7 +3534,7 @@ void Creature::AtEngage(Unit* target)
     if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT))
         Dismount();
 
-    RefreshSwimmingFlag();
+    RefreshCanSwimFlag();
 
     if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
     {
@@ -3538,6 +3565,9 @@ void Creature::AtEngage(Unit* target)
 
     if (CreatureAI* ai = AI())
         ai->JustEngagedWith(target);
+    // @tswow-begin custom boss check
+    sTSBossAI->OnJustEngage(this,target);
+    // @tswow-end
     if (CreatureGroup* formation = GetFormation())
         formation->MemberEngagingTarget(this, target);
 }
