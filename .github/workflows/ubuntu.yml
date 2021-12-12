@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
        include:
-          - os: ubuntu-20.04
+          - os: ubuntu-18.04
             COMPILER_CC: gcc
             COMPILER_PP: g++
     
