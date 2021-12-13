@@ -1287,7 +1287,7 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
 
         if (filters.HasFlag(AuctionHouseFilterMask::UsableOnly))
         {
-            if (bucketData->RequiredLevel && player->getLevel() < bucketData->RequiredLevel)
+            if (bucketData->RequiredLevel && player->GetLevel() < bucketData->RequiredLevel)
                 continue;
 
             if (player->CanUseItem(sObjectMgr->GetItemTemplate(bucket.first.ItemId), true) != EQUIP_ERR_OK)

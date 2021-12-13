@@ -133,10 +133,10 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         AccountID     = player->GetSession()->GetAccountGUID();
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
         Name          = player->GetName();
-        Race          = player->getRace();
-        Sex           = player->GetNativeSex();
-        ClassID       = player->getClass();
-        Level         = player->getLevel();
+        Race          = player->GetRace();
+        Sex           = player->GetNativeGender();
+        ClassID       = player->GetClass();
+        Level         = player->GetLevel();
 
         if (DeclinedName const* names = player->GetDeclinedNames())
             DeclinedNames = *names;

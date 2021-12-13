@@ -88,7 +88,7 @@ class spell_dk_advantage_t10_4p : public AuraScript
         if (Unit* caster = eventInfo.GetActor())
         {
             Player* player = caster->ToPlayer();
-            if (!player  || caster->getClass() != CLASS_DEATH_KNIGHT)
+            if (!player  || caster->GetClass() != CLASS_DEATH_KNIGHT)
                 return false;
 
             for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
@@ -367,7 +367,7 @@ class spell_dk_death_gate : public SpellScript
 
     SpellCastResult CheckClass()
     {
-        if (GetCaster()->getClass() != CLASS_DEATH_KNIGHT)
+        if (GetCaster()->GetClass() != CLASS_DEATH_KNIGHT)
         {
             SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_DEATH_KNIGHT);
             return SPELL_FAILED_CUSTOM_ERROR;

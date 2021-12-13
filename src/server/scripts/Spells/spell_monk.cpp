@@ -223,7 +223,7 @@ class spell_monk_stagger : public AuraScript
         Unit* target = GetTarget();
         float agility = target->GetStat(STAT_AGILITY);
         float base = CalculatePct(agility, float(effect->GetAmount()));
-        float K = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, target->getLevel(), -2, 0, Classes(target->getClass()));
+        float K = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, target->GetLevel(), -2, 0, Classes(target->GetClass()));
 
         float newAmount = (base / (base + K));
         newAmount *= multiplier;

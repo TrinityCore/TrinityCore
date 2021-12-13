@@ -1263,7 +1263,7 @@ public:
             {
                 for (uint8 gender = GENDER_MALE; gender <= GENDER_FEMALE; ++gender)
                 {
-                    if (target && target->getGender() != gender)
+                    if (target && target->GetGender() != gender)
                         continue;
 
                     LocaleConstant locale = handler->GetSessionDbcLocale();

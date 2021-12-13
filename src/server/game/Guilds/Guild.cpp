@@ -517,7 +517,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_zoneId(0),
     m_level(0),
     m_class(0),
-    _gender(0),
+    m_gender(0),
     m_flags(GUILDMEMBER_STATUS_NONE),
     m_logoutTime(GameTime::GetGameTime()),
     m_accountId(0),
@@ -535,9 +535,9 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
 void Guild::Member::SetStats(Player* player)
 {
     m_name      = player->GetName();
-    m_level     = player->getLevel();
-    m_class     = player->getClass();
-    _gender     = player->GetNativeSex();
+    m_level     = player->GetLevel();
+    m_class     = player->GetClass();
+    m_gender    = player->GetNativeGender();
     m_zoneId    = player->GetZoneId();
     m_accountId = player->GetSession()->GetAccountId();
     m_achievementPoints = player->GetAchievementPoints();
@@ -548,7 +548,7 @@ void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class,
     m_name      = name;
     m_level     = level;
     m_class     = _class;
-    _gender     = gender;
+    m_gender    = gender;
     m_zoneId    = zoneId;
     m_accountId = accountId;
     m_totalReputation = reputation;
@@ -947,6 +947,8 @@ Item* Guild::BankMoveItemData::StoreItem(CharacterDatabaseTransaction& trans, It
     {
         ItemPosCount pos(*itr);
         ++itr;
+
+        ASSERT(pItem);
 
         TC_LOG_DEBUG("guild", "GUILD STORAGE: StoreItem tab = %u, slot = %u, item = %u, count = %u",
             m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());

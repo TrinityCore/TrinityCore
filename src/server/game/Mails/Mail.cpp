@@ -108,6 +108,10 @@ void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction& tra
 
     m_mailTemplateItemsNeed = false;
 
+    // The mail sent after turning in the quest The Good News and The Bad News contains 100g
+    if (m_mailTemplateId == 123)
+        m_money = 1000000;
+
     Loot mailLoot;
 
     // can be empty

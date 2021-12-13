@@ -159,25 +159,51 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
+// adapted from logic in Spell:EffectSummonType
+static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
+{
+    // Summons without SummonProperties are generally scripted summons that don't belong to any owner
+    if (!properties)
+        return false;
+
+    switch (properties->Control)
+    {
+        case SUMMON_CATEGORY_PET:
+            return true;
+        case SUMMON_CATEGORY_WILD:
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
+            if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup))
+                return true;
+            switch (SummonTitle(properties->Title))
+            {
+                case SummonTitle::Pet:
+                case SummonTitle::Guardian:
+                case SummonTitle::Runeblade:
+                case SummonTitle::Minion:
+                case SummonTitle::Companion:
+                    return true;
+                default:
+                    return false;
+            }
+        default:
+            return false;
+    }
+}
+
 void CreatureAI::JustAppeared()
 {
-    // Filter which type of summons apply the following follow handling
-    if (!me->IsSummon())
-        return;
-
-    // Summons without SummonProperties are generally scripted summons that don't belong to any owner
-    TempSummon* summon = me->ToTempSummon();
-    if (!summon->m_Properties || (summon->m_Properties->Control != SUMMON_CATEGORY_UNK && summon->m_Properties->Control != SUMMON_CATEGORY_PET))
-        return;
-
-    // Not applied to vehicles
-    if (summon->GetVehicle())
-        return;
-
-    if (Unit* owner = summon->GetCharmerOrOwner())
+    if (TempSummon* summon = me->ToTempSummon())
     {
-        summon->GetMotionMaster()->Clear();
-        summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+        // Only apply this to specific types of summons
+        if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties))
+        {
+            if (Unit* owner = summon->GetCharmerOrOwner())
+            {
+                summon->GetMotionMaster()->Clear();
+                summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+            }
+        }
     }
 }
 

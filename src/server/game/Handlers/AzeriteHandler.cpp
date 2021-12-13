@@ -195,7 +195,7 @@ void WorldSession::HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::
         return;
 
     // Validate tier
-    int32 actualTier = azeriteEmpoweredItem->GetTierForAzeritePower(Classes(_player->getClass()), azeriteEmpoweredItemSelectPower.AzeritePowerID);
+    int32 actualTier = azeriteEmpoweredItem->GetTierForAzeritePower(Classes(_player->GetClass()), azeriteEmpoweredItemSelectPower.AzeritePowerID);
     if (azeriteEmpoweredItemSelectPower.Tier > MAX_AZERITE_EMPOWERED_TIER || azeriteEmpoweredItemSelectPower.Tier != actualTier)
         return;
 

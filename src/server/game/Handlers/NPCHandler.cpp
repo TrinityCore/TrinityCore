@@ -392,7 +392,7 @@ void WorldSession::SendStablePetCallback(ObjectGuid guid, PreparedQueryResult re
         stableEntry.PetNumber = pet->GetCharmInfo()->GetPetNumber();
         stableEntry.CreatureID = pet->GetEntry();
         stableEntry.DisplayID = pet->GetDisplayId();
-        stableEntry.ExperienceLevel = pet->getLevel();
+        stableEntry.ExperienceLevel = pet->GetLevel();
         stableEntry.PetFlags = PET_STABLE_ACTIVE;
         stableEntry.PetName = pet->GetName();
         ++petSlot;
