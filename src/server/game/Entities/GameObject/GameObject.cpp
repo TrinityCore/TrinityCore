@@ -19,8 +19,8 @@
 #include "ArtifactPackets.h"
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
-#include "Battleground.h"
 #include "BattlegroundPackets.h"
+#include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
@@ -125,6 +125,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;
     m_despawnRespawnTime = 0s;
+    m_restockTime = 0;
     m_lootState = GO_NOT_READY;
     m_spawnedByDefault = true;
     m_usetimes = 0;
@@ -434,11 +435,11 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             AddFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
             break;
         case GAMEOBJECT_TYPE_CAPTURE_POINT:
-            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), m_goInfo->capturePoint.SpellVisual1);
             m_goValue.CapturePoint.AssaultTimer = 0;
             m_goValue.CapturePoint.LastTeamCapture = TEAM_NEUTRAL;
             m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::Neutral;
             UpdateCapturePoint();
+            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), m_goInfo->capturePoint.SpellVisual1);
             break;
         default:
             SetGoAnimProgress(animProgress);
@@ -639,6 +640,14 @@ void GameObject::Update(uint32 diff)
                     }
                     return;
                 }
+                case GAMEOBJECT_TYPE_CHEST:
+                    if (m_restockTime > GameTime::GetGameTime())
+                        return;
+                    // If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
+                    m_restockTime = 0;
+                    m_lootState = GO_READY;
+                    AddToObjectUpdateIfNeeded();
+                    break;
                 default:
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
                     break;
@@ -865,6 +874,14 @@ void GameObject::Update(uint32 diff)
                         else
                             m_groupLootTimer -= diff;
                     }
+
+                    // Non-consumable chest was partially looted and restock time passed, restock all loot now
+                    if (GetGOInfo()->chest.consumable == 0 && GameTime::GetGameTime() >= m_restockTime)
+                    {
+                        m_restockTime = 0;
+                        m_lootState = GO_READY;
+                        AddToObjectUpdateIfNeeded();
+                    }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
                 {
@@ -938,21 +955,26 @@ void GameObject::Update(uint32 diff)
 
             loot.clear();
 
-            //! If this is summoned by a spell with ie. SPELL_EFFECT_SUMMON_OBJECT_WILD, with or without owner, we check respawn criteria based on speSendObjectDeSpawnAnim(GetGUID());ll
-            //! The GetOwnerGUID() check is mostly for compatibility with hacky scripts - 99% of the time summoning should be done trough spells.
-            if (GetSpellId() || !GetOwnerGUID().IsEmpty())
+            // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
+            bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
+            if ((GetGoType() == GAMEOBJECT_TYPE_CHEST || GetGoType() == GAMEOBJECT_TYPE_GOOBER) && !GetGOInfo()->IsDespawnAtAction() && !isSummonedAndExpired)
             {
-                //Don't delete spell spawned chests, which are not consumed on loot
-                if (m_respawnTime > 0 && GetGoType() == GAMEOBJECT_TYPE_CHEST && !GetGOInfo()->IsDespawnAtAction())
+                if (GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.chestRestockTime > 0)
                 {
-                    UpdateObjectVisibility();
-                    SetLootState(GO_READY);
+                    // Start restock timer when the chest is fully looted
+                    m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
+                    SetLootState(GO_NOT_READY);
+                    AddToObjectUpdateIfNeeded();
                 }
                 else
-                {
-                    SetRespawnTime(0);
-                    Delete();
-                }
+                    SetLootState(GO_READY);
+                UpdateObjectVisibility();
+                return;
+            }
+            else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
+            {
+                SetRespawnTime(0);
+                Delete();
                 return;
             }
 
@@ -1508,6 +1530,10 @@ bool GameObject::ActivateToQuest(Player const* target) const
         }
         case GAMEOBJECT_TYPE_CHEST:
         {
+            // Chests become inactive while not ready to be looted
+            if (getLootState() == GO_NOT_READY)
+                return false;
+
             // scan GO chest with loot including quest items
             if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
             {
@@ -2074,11 +2100,11 @@ void GameObject::Use(Unit* user)
 
             //required lvl checks!
             if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
-                if (player->getLevel() < userLevels->MaxLevel)
+                if (player->GetLevel() < userLevels->MaxLevel)
                     return;
 
             if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
-                if (targetPlayer->getLevel() < targetLevels->MaxLevel)
+                if (targetPlayer->GetLevel() < targetLevels->MaxLevel)
                     return;
 
             if (info->entry == 194097)
@@ -2210,6 +2236,44 @@ void GameObject::Use(Unit* user)
                 return;
 
             spellId = info->newflag.pickupSpell;
+            break;
+        }
+        case GAMEOBJECT_TYPE_NEW_FLAG_DROP:              /// 37
+        {
+            if (user->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player* player = user->ToPlayer();
+
+            if (player->CanUseBattlegroundObject(this))
+            {
+                // in battleground check
+                Battleground* bg = player->GetBattleground();
+                if (!bg)
+                    return;
+
+                if (player->GetVehicle())
+                    return;
+
+                player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+
+                GameObjectTemplate const* info = GetGOInfo();
+                if (info)
+                {
+                    switch (info->entry)
+                    {
+                        case 227745:                        // Silverwing Flag
+                        case 227744:                        // Warsong Flag
+                            if (bg->GetTypeID(true) == BATTLEGROUND_WS)
+                                bg->EventPlayerClickedOnFlag(player, this);
+                            break;
+                    }
+                }
+                //this cause to call return, all flags must be deleted here!!
+                spellId = 0;
+                Delete();
+            }
             break;
         }
         case GAMEOBJECT_TYPE_ITEM_FORGE:
@@ -2571,6 +2635,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         m_lootStateUnitGUID.Clear();
 
     AI()->OnLootStateChanged(state, unit);
+
+    // Start restock timer if the chest is partially looted or not looted at all
+    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED && GetGOInfo()->chest.chestRestockTime > 0 && m_restockTime == 0)
+        m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
         return;
@@ -3040,7 +3108,7 @@ void GameObject::UpdateCapturePoint()
         SendCustomAnim(customAnim);
 
     SetSpellVisualId(spellVisualId);
-    UpdateDynamicFlagsForNearbyPlayers();
+    AddDynamicFlag(GO_DYNFLAG_LO_NO_INTERACT);
 
     if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
     {
@@ -3095,32 +3163,6 @@ public:
 private:
     GameObject* _owner;
 };
-
-void GameObject::UpdateDynamicFlagsForNearbyPlayers() const
-{
-    std::list<Player*> players;
-    Trinity::AnyPlayerInObjectRangeCheck checker(this, GetVisibilityRange());
-    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, players, checker);
-    Cell::VisitWorldObjects(this, searcher, GetVisibilityRange());
-
-    UF::ObjectData::Base objMask;
-    UF::GameObjectData::Base const goMask;
-    objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-
-    for (Player const* player : players)
-    {
-        if (!player->HaveAtClient(this))
-            continue;
-
-        UpdateData udata(GetMapId());
-        WorldPacket packet;
-
-        BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), player);
-
-        udata.BuildPacket(&packet);
-        player->SendDirectMessage(&packet);
-    }
-}
 
 void GameObject::CreateModel()
 {
