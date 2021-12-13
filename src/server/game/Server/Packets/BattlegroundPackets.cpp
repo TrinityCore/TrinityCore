@@ -384,10 +384,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::Battlegroun
 
     return data;
 }
-void WorldPackets::Battleground::BattlemasterJoinArenaSkirmish::Read()
-{
-    _worldPacket.clear();
-}
 
 WorldPacket const* WorldPackets::Battleground::UpdateCapturePoint::Write()
 {
