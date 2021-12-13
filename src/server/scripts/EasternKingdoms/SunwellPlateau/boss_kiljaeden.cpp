@@ -624,7 +624,7 @@ public:
         //      summoned->SetVisibility(VISIBILITY_OFF);  //with this we cant see the armageddon visuals
             }
             else
-                summoned->SetLevel(me->GetLevel());
+                summoned->SetLevel(me->getLevel());
 
             summoned->SetFaction(me->GetFaction());
             summons.Summon(summoned);
@@ -953,7 +953,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->SetFaction(me->GetFaction());
-            summoned->SetLevel(me->GetLevel());
+            summoned->SetLevel(me->getLevel());
         }
 
         void JustEngagedWith(Unit* who) override
@@ -1046,7 +1046,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->SetFaction(me->GetFaction());
-            summoned->SetLevel(me->GetLevel());
+            summoned->SetLevel(me->getLevel());
         }
 
         void UpdateAI(uint32 diff) override
@@ -1327,7 +1327,7 @@ public:
 
             if ((victimClass == 0) && me->GetVictim())
             {
-                victimClass = me->EnsureVictim()->GetClass();
+                victimClass = me->EnsureVictim()->getClass();
                 switch (victimClass)
                 {
                     case CLASS_DRUID:

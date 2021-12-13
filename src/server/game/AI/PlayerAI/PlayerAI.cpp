@@ -416,7 +416,7 @@ bool PlayerAI::IsPlayerHealer(Player const* who)
     if (!who)
         return false;
 
-    switch (who->GetClass())
+    switch (who->getClass())
     {
         case CLASS_WARRIOR:
         case CLASS_HUNTER:
@@ -445,7 +445,7 @@ bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
     if (!who)
         return false;
 
-    switch (who->GetClass())
+    switch (who->getClass())
     {
         case CLASS_WARRIOR:
         case CLASS_PALADIN:

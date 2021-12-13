@@ -1311,9 +1311,9 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetPrimarySpecialization();
-            playerData.Sex = player->GetGender();
-            playerData.Race = player->GetRace();
-            playerData.Class = player->GetClass();
+            playerData.Sex = player->getGender();
+            playerData.Race = player->getRace();
+            playerData.Class = player->getClass();
             playerData.HonorLevel = player->GetHonorLevel();
         }
 

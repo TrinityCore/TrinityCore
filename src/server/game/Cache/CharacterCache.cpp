@@ -183,7 +183,6 @@ void CharacterCache::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 sl
     if (itr == _characterCacheStore.end())
         return;
 
-    ASSERT(slot < 3);
     itr->second.ArenaTeamId[slot] = arenaTeamId;
 }
 
@@ -296,9 +295,7 @@ uint32 CharacterCache::GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type
     if (itr == _characterCacheStore.end())
         return 0;
 
-    uint8 slot = ArenaTeam::GetSlotByType(type);
-    ASSERT(slot < 3);
-    return itr->second.ArenaTeamId[slot];
+    return itr->second.ArenaTeamId[ArenaTeam::GetSlotByType(type)];
 }
 
 bool CharacterCache::GetCharacterNameAndClassByGUID(ObjectGuid guid, std::string& name, uint8& _class) const

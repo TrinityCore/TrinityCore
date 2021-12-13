@@ -1751,7 +1751,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         if (!target->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
         {
             target->SetShapeshiftForm(FORM_NONE);
-            if (target->GetClass() == CLASS_DRUID)
+            if (target->getClass() == CLASS_DRUID)
             {
                 // Remove movement impairing effects also when shifting out
                 target->RemoveAurasByShapeShift();
@@ -1790,7 +1790,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     else
         target->UpdateDisplayPower();
 
-    if (target->GetClass() == CLASS_DRUID)
+    if (target->getClass() == CLASS_DRUID)
     {
         // Dash
         if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, flag128(0, 0, 0x8)))
@@ -1842,7 +1842,6 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
             // special case (spell specific functionality)
             if (GetMiscValue() == 0)
             {
-                Gender gender = target->GetNativeGender();
                 switch (GetId())
                 {
                     // Orb of Deception
@@ -1851,47 +1850,47 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                         if (target->GetTypeId() != TYPEID_PLAYER)
                             return;
 
-                        switch (target->GetRace())
+                        switch (target->getRace())
                         {
                             // Blood Elf
                             case RACE_BLOODELF:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 17830 : 17829);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 17830 : 17829);
                                 break;
                             // Orc
                             case RACE_ORC:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10140 : 10139);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10140 : 10139);
                                 break;
                             // Troll
                             case RACE_TROLL:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10134 : 10135);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10134 : 10135);
                                 break;
                             // Tauren
                             case RACE_TAUREN:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10147 : 10136);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10147 : 10136);
                                 break;
                             // Undead
                             case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10145 : 10146);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10145 : 10146);
                                 break;
                             // Draenei
                             case RACE_DRAENEI:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 17828 : 17827);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 17828 : 17827);
                                 break;
                             // Dwarf
                             case RACE_DWARF:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10142 : 10141);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10142 : 10141);
                                 break;
                             // Gnome
                             case RACE_GNOME:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10149 : 10148);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10149 : 10148);
                                 break;
                             // Human
                             case RACE_HUMAN:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10138 : 10137);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10138 : 10137);
                                 break;
                             // Night Elf
                             case RACE_NIGHTELF:
-                                target->SetDisplayId(gender == GENDER_FEMALE ? 10144 : 10143);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10144 : 10143);
                                 break;
                             default:
                                 break;
@@ -1910,47 +1909,47 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                         if (target->GetTypeId() != TYPEID_PLAYER)
                             return;
 
-                        switch (target->GetRace())
+                        switch (target->getRace())
                         {
                             // Blood Elf
                             case RACE_BLOODELF:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25032 : 25043);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25043 : 25032);
                                 break;
                             // Orc
                             case RACE_ORC:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25039 : 25050);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25050 : 25039);
                                 break;
                             // Troll
                             case RACE_TROLL:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25041 : 25052);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25052 : 25041);
                                 break;
                             // Tauren
                             case RACE_TAUREN:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25040 : 25051);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25051 : 25040);
                                 break;
                             // Undead
                             case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25042 : 25053);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25053 : 25042);
                                 break;
                             // Draenei
                             case RACE_DRAENEI:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25033 : 25044);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25044 : 25033);
                                 break;
                             // Dwarf
                             case RACE_DWARF:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25034 : 25045);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25045 : 25034);
                                 break;
                             // Gnome
                             case RACE_GNOME:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25035 : 25046);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25035 : 25046);
                                 break;
                             // Human
                             case RACE_HUMAN:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25037 : 25048);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25037 : 25048);
                                 break;
                             // Night Elf
                             case RACE_NIGHTELF:
-                                target->SetDisplayId(gender == GENDER_MALE ? 25038 : 25049);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 25038 : 25049);
                                 break;
                             default:
                                 break;
@@ -1964,15 +1963,15 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     // Honor the Dead
                     case 65386:
                     case 65495:
-                        target->SetDisplayId(gender == GENDER_MALE ? 29203 : 29204);
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 29203 : 29204);
                         break;
                     // Darkspear Pride
                     case 75532:
-                        target->SetDisplayId(gender == GENDER_MALE ? 31737 : 31738);
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31737 : 31738);
                         break;
                     // Gnomeregan Pride
                     case 75531:
-                        target->SetDisplayId(gender == GENDER_MALE ? 31654 : 31655);
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31654 : 31655);
                         break;
                     default:
                         break;
@@ -4185,7 +4184,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
 
     Unit* target = aurApp->GetTarget();
 
-    if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
+    if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
     target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
@@ -4215,7 +4214,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* au
 
     Unit* target = aurApp->GetTarget();
 
-    if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
+    if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
     //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
@@ -4448,7 +4447,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 {
                     if (caster)
                     {
-                        if (caster->GetGender() == GENDER_FEMALE)
+                        if (caster->getGender() == GENDER_FEMALE)
                             caster->CastSpell(target, 37095, this); // Blood Elf Disguise
                         else
                             caster->CastSpell(target, 37093, this);
@@ -4465,7 +4464,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 46354:                                     // Blood Elf Illusion
                     if (caster)
                     {
-                        if (caster->GetGender() == GENDER_FEMALE)
+                        if (caster->getGender() == GENDER_FEMALE)
                             caster->CastSpell(target, 46356, this);
                         else
                             caster->CastSpell(target, 46355, this);
@@ -5820,7 +5819,7 @@ void AuraEffect::HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mod
     if (!player)
         return;
 
-    if (player->GetClass() != CLASS_HUNTER)
+    if (player->getClass() != CLASS_HUNTER)
         return;
 
     Pet* pet = player->GetPet();

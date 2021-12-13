@@ -1698,15 +1698,15 @@ public:
             accId             = target->GetSession()->GetAccountId();
             money             = target->GetMoney();
             totalPlayerTime   = target->GetTotalPlayedTime();
-            level             = target->GetLevel();
+            level             = target->getLevel();
             latency           = target->GetSession()->GetLatency();
-            raceid            = target->GetRace();
-            classid           = target->GetClass();
+            raceid            = target->getRace();
+            classid           = target->getClass();
             muteTime          = target->GetSession()->m_muteTime;
             mapId             = target->GetMapId();
             areaId            = target->GetAreaId();
             alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
-            gender            = target->GetNativeGender();
+            gender            = target->GetNativeSex();
         }
         // get additional information from DB
         else

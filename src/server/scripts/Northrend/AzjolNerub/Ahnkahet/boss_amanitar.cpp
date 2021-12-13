@@ -104,7 +104,7 @@ struct boss_amanitar : public BossAI
     {
         _EnterEvadeMode();
         summons.DespawnAll();
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI, true, true);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
         _DespawnAtEvade();
     }
 
@@ -112,7 +112,7 @@ struct boss_amanitar : public BossAI
     {
         _JustDied();
         DoCastAOE(SPELL_REMOVE_MUSHROOM_POWER);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI, true, true);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
     }
 
     void JustSummoned(Creature* summon) override

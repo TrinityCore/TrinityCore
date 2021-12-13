@@ -731,11 +731,11 @@ void SpellMgr::ForEachSpellInfoDifficulty(uint32 spellId, std::function<void(Spe
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // is not expected gender
-        if (!player || gender != player->GetNativeGender())
+        if (!player || gender != player->getGender())
             return false;
 
     if (raceMask)                                // is not expected race
-        if (!player || !raceMask.HasRace(player->GetRace()))
+        if (!player || !raceMask.HasRace(player->getRace()))
             return false;
 
     if (areaId)                                  // is not in expected zone
@@ -3613,8 +3613,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         58121, // Torch
         43109, // Throw Torch
         58552, // Return to Orgrimmar
-        58533, // Return to Stormwind
-        21855  // Challenge Flag
+        58533  // Return to Stormwind
+        
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;

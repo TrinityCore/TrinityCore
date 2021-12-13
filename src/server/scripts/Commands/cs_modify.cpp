@@ -868,7 +868,7 @@ public:
             return false;
         }
 
-        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->GetRace(), target->GetClass());
+        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->getRace(), target->getClass());
         if (!info)
             return false;
 
@@ -879,14 +879,14 @@ public:
 
         if (!strncmp(gender_str, "male", gender_len))            // MALE
         {
-            if (target->GetGender() == GENDER_MALE)
+            if (target->getGender() == GENDER_MALE)
                 return true;
 
             gender = GENDER_MALE;
         }
         else if (!strncmp(gender_str, "female", gender_len))    // FEMALE
         {
-            if (target->GetGender() == GENDER_FEMALE)
+            if (target->getGender() == GENDER_FEMALE)
                 return true;
 
             gender = GENDER_FEMALE;
@@ -900,7 +900,7 @@ public:
 
         // Set gender
         target->SetGender(gender);
-        target->SetNativeGender(gender);
+        target->SetNativeSex(gender);
 
         // Change display ID
         target->InitDisplayIds();
@@ -911,8 +911,8 @@ public:
         // Generate random customizations
         std::vector<UF::ChrCustomizationChoice> customizations;
 
-        Classes playerClass = Classes(target->GetClass());
-        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->GetRace(), gender);
+        Classes playerClass = Classes(target->getClass());
+        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->getRace(), gender);
         WorldSession const* worldSession = target->GetSession();
         for (ChrCustomizationOptionEntry const* option : *options)
         {

@@ -513,7 +513,7 @@ public:
                         break;
                     case EVENT_CLASSCALL:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            switch (target->GetClass())
+                            switch (target->getClass())
                         {
                             case CLASS_MAGE:
                                 Talk(SAY_MAGE);

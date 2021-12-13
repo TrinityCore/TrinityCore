@@ -424,7 +424,7 @@ public:
 
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
-                switch (victim->GetClass())
+                switch (victim->getClass())
                 {
                     case CLASS_PRIEST:
                     case CLASS_PALADIN:

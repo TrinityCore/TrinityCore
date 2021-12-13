@@ -91,10 +91,10 @@ public:
 
     static bool HandleResetStatsOrLevelHelper(Player* player)
     {
-        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->GetClass());
+        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->getClass());
         if (!classEntry)
         {
-            TC_LOG_ERROR("misc", "Class %u not found in DBC (Wrong DBC files?)", player->GetClass());
+            TC_LOG_ERROR("misc", "Class %u not found in DBC (Wrong DBC files?)", player->getClass());
             return false;
         }
 
@@ -104,7 +104,7 @@ public:
         if (!player->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
             player->SetShapeshiftForm(FORM_NONE);
 
-        player->setFactionForRace(player->GetRace());
+        player->setFactionForRace(player->getRace());
         player->SetPowerType(Powers(powerType));
 
         // reset only if player not in some form;
@@ -129,10 +129,10 @@ public:
         if (!HandleResetStatsOrLevelHelper(target))
             return false;
 
-        uint8 oldLevel = target->GetLevel();
+        uint8 oldLevel = target->getLevel();
 
         // set starting level
-        uint8 startLevel = target->GetStartLevel(target->GetRace(), target->GetClass(), {});
+        uint8 startLevel = target->GetStartLevel(target->getRace(), target->getClass(), {});
 
         target->_ApplyAllLevelScaleItemMods(false);
         target->SetLevel(startLevel);

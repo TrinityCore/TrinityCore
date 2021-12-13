@@ -580,7 +580,7 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
         MemberStats.Status |= MEMBER_STATUS_VEHICLE;
 
     // Level
-    MemberStats.Level = player->GetLevel();
+    MemberStats.Level = player->getLevel();
 
     // Health
     MemberStats.CurrentHealth = player->GetHealth();

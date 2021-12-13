@@ -235,7 +235,7 @@ class boss_general_vezax : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AURA_OF_DESPAIR, true, true);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AURA_OF_DESPAIR);
             }
 
             void CheckShamanisticRage()

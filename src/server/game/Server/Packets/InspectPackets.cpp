@@ -77,9 +77,9 @@ void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* pla
     GUID = player->GetGUID();
     SpecializationID = player->GetPrimarySpecialization();
     Name = player->GetName();
-    GenderID = player->GetNativeGender();
-    Race = player->GetRace();
-    ClassID = player->GetClass();
+    GenderID = player->GetNativeSex();
+    Race = player->getRace();
+    ClassID = player->getClass();
 
     for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
         Customizations.push_back(customization);
