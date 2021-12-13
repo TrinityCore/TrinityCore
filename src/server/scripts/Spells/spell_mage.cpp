@@ -1099,7 +1099,6 @@ class spell_mage_water_elemental_freeze : public SpellScript
     }
 };
 
-
 // 1463 - Incanter's Flow
 class spell_mage_incanters_flow : public AuraScript
 {
