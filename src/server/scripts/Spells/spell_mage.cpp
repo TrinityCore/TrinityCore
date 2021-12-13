@@ -56,6 +56,7 @@ enum MageSpells
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
     SPELL_MAGE_MANA_SURGE                        = 37445,
@@ -1098,6 +1099,57 @@ class spell_mage_water_elemental_freeze : public SpellScript
     }
 };
 
+
+// 1463 - Incanter's Flow
+class spell_mage_incanters_flow : public AuraScript
+{
+    PrepareAuraScript(spell_mage_incanters_flow);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_INCANTERS_FLOW });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* aurEff)
+    {
+        // Incanter's flow should not cycle out of combat
+        if (!GetTarget()->IsInCombat())
+        {
+            GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_INCANTERS_FLOW);
+            return;
+        }
+
+        if (Aura* aura = GetTarget()->GetAura(SPELL_MAGE_INCANTERS_FLOW))
+        {
+            uint32 stacks = aura->GetStackAmount();
+            if (aurEff->GetAmount() == 0 || (stacks == 1 && aurEff->GetAmount() == 1)) // 0 = stack up, 1 = remove stack
+            {
+                if (stacks == 5)
+                    const_cast<AuraEffect*>(aurEff)->SetAmount(1);
+                else if (aurEff->GetAmount() == 1)
+                    const_cast<AuraEffect*>(aurEff)->SetAmount(0);
+                else
+                    GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
+            }
+            else if (stacks > 1 && aurEff->GetAmount() == 1)
+                aura->ModStackAmount(-1);
+        }
+        else
+            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_INCANTERS_FLOW);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_incanters_flow::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterAuraScript(spell_mage_alter_time_aura);
@@ -1129,4 +1181,5 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
+    RegisterAuraScript(spell_mage_incanters_flow);
 }
