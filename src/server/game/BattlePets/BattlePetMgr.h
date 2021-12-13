@@ -36,7 +36,7 @@ enum BattlePetMisc
     SPELL_SUMMON_BATTLE_PET             = 118301
 };
 
-static constexpr Milliseconds REVIVE_BATTLE_PETS_COOLDOWN = 180s;
+static constexpr Seconds REVIVE_BATTLE_PETS_COOLDOWN = 180s;
 
 enum class BattlePetBreedQuality : uint8
 {

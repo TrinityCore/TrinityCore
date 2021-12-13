@@ -1464,7 +1464,7 @@ class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
                 //if (!GetHitUnit())
                 //    return;
 
-                if (GetHitUnit()->GetInstanceScript())
+                if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
                     GetHitUnit()->CastSpell(nullptr, GetEffectInfo().TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                         .SetOriginalCaster(GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_DREAMWALKER)));
             }

@@ -1470,14 +1470,13 @@ public:
     {
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         char const* name = nullptr;
-        if (itemTemplate)
+        if (!itemTemplate)
             name = itemTemplate->GetName(handler->GetSessionDbcLocale());
         if (!name)
             name = "Unknown item";
         handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
             itemCount, ItemQualityColors[itemTemplate ? static_cast<ItemQualities>(itemTemplate->GetQuality()) : ITEM_QUALITY_POOR], itemId, name, itemId);
     }
-
     static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
     {
         for (NotNormalLootItemMap::value_type const& pair : map)

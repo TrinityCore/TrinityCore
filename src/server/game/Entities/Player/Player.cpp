@@ -9348,7 +9348,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             }
             break;
         case 3358: // Arathi Basin
-            if (battleground && battleground->GetTypeID(true) == BATTLEGROUND_AB)
+            if (battleground && (battleground->GetTypeID(true) == BATTLEGROUND_AB || battleground->GetTypeID(true) == BATTLEGROUND_DOM_AB))
                 battleground->FillInitialWorldStates(packet);
             else
             {
@@ -23652,7 +23652,7 @@ void Player::UpdateReviveBattlePetCooldown()
         }
         else
         {
-            GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, REVIVE_BATTLE_PETS_COOLDOWN);
+            GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, Milliseconds(REVIVE_BATTLE_PETS_COOLDOWN));
         }
     }
 }
