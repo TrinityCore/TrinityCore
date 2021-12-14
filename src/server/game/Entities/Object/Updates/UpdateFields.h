@@ -364,7 +364,7 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<195>
     UpdateField<int32, 96, 106> MaxItemLevel;
     UpdateField<int32, 96, 107> AzeriteItemLevel;
     UpdateField<int32, 96, 108> WildBattlePetLevel;
-    UpdateField<int32, 96, 109> Field_220;
+    UpdateField<int32, 96, 109> BattlePetCompanionExperience;
     UpdateField<uint32, 96, 110> BattlePetCompanionNameTimestamp;
     UpdateField<int32, 96, 111> InteractSpellID;
     UpdateField<int32, 96, 112> ScaleDuration;
