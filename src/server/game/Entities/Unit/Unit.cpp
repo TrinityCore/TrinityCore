@@ -3319,7 +3319,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator& i, AuraRemoveMode removeMo
 
     // only way correctly remove all auras from list
     //if (removedAuras != m_removedAurasCount) new aura may be added
-        i = m_appliedAuras.begin();
+    i = m_appliedAuras.begin();
 }
 
 void Unit::_UnapplyAura(AuraApplication* aurApp, AuraRemoveMode removeMode)

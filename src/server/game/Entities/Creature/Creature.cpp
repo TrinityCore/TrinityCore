@@ -2033,7 +2033,7 @@ float Creature::GetAttackDistance(Unit const* player) const
     float aggroRadius = baseAggroDistance + float(levelDifference);
 
     // detect range auras
-    if ((creatureLevel + 5) <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (uint32(creatureLevel + 5) <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
         aggroRadius += player->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
