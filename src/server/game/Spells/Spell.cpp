@@ -2448,7 +2448,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
     // Get original caster (if exist) and calculate damage/healing from him data
     // Skip if m_originalCaster not available
     Unit* caster = spell->m_originalCaster ? spell->m_originalCaster : spell->m_caster->ToUnit();
-    if (!caster)
+    if (caster)
     {
         // Fill base trigger info
         uint32 procAttacker = spell->m_procAttacker;
