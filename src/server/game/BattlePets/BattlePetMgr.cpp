@@ -506,12 +506,9 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
         pet->SaveInfo = BATTLE_PET_CHANGED;
 
     // Update the timestamp if the battle pet is summoned
-    Player* player = _owner->GetPlayer();
-    Creature* summonedBattlePet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, player->GetCritterGUID());
-    if (summonedBattlePet)
-        if (player->GetSummonedBattlePetGUID() == summonedBattlePet->GetBattlePetCompanionGUID())
-            if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
-                summonedBattlePet->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
+    if (Creature* summonedBattlePet = _owner->GetPlayer()->GetSummonedBattlePet())
+        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
+            summonedBattlePet->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
 }
 
 bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
@@ -627,6 +624,17 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     WorldPackets::BattlePet::BattlePetDeleted deletePet;
     deletePet.PetGuid = guid;
     _owner->SendPacket(deletePet.Write());
+
+    // Battle pet despawns if it's summoned
+    Player* player = _owner->GetPlayer();
+    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
+    {
+        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
+        {
+            summonedBattlePet->DespawnOrUnsummon();
+            player->SetBattlePetData(nullptr);
+        }
+    }
 }
 
 void BattlePetMgr::HealBattlePetsPct(uint8 pct)
@@ -661,20 +669,17 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
 
     // TODO: set proper CreatureID for spell SPELL_SUMMON_BATTLE_PET (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
     Player* player = _owner->GetPlayer();
-    player->SetSummonedBattlePetGUID(guid);
-    player->SetCurrentBattlePetBreedQuality(pet->PacketInfo.Quality);
+    player->SetBattlePetData(pet);
     player->CastSpell(player, speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(SPELL_SUMMON_BATTLE_PET));
 }
 
 void BattlePetMgr::DismissPet()
 {
     Player* player = _owner->GetPlayer();
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, player->GetCritterGUID());
-    if (pet && player->GetSummonedBattlePetGUID() == pet->GetBattlePetCompanionGUID())
+    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
     {
-        pet->DespawnOrUnsummon();
-        player->SetSummonedBattlePetGUID(ObjectGuid::Empty);
-        player->SetCurrentBattlePetBreedQuality(AsUnderlyingType(BattlePetBreedQuality::Poor));
+        summonedBattlePet->DespawnOrUnsummon();
+        player->SetBattlePetData(nullptr);
     }
 }
 
