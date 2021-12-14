@@ -19,6 +19,7 @@
 #define _PLAYER_H
 
 #include "Unit.h"
+#include "BattlePetMgr.h"
 #include "CUFProfile.h"
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
@@ -1209,6 +1210,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unordered_set<PetAura const*> m_petAuras;
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
+
+        Creature* GetSummonedBattlePet();
+        void SetBattlePetData(BattlePetMgr::BattlePet const* pet = nullptr);
 
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;
