@@ -476,8 +476,10 @@ void BattlegroundSA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundSA::AddPlayer(Player* player)
 {
+    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
+    if (!isInBattleground)
+        PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
 
     SendTransportInit(player);
 
