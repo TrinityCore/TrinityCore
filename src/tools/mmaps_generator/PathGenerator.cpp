@@ -96,7 +96,7 @@ bool handleArgs(int argc, char** argv,
                unsigned int& threads)
 {
     char* param = nullptr;
-    bool allowDebug = false;
+    [[maybe_unused]] bool allowDebug = false;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "--maxAngle") == 0)
