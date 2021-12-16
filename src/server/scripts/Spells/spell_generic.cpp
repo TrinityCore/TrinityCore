@@ -1606,6 +1606,48 @@ class spell_gen_feign_death_no_prevent_emotes : public AuraScript
     }
 };
 
+enum FuriousRage
+{
+    EMOTE_FURIOUS_RAGE       = 19415,
+    EMOTE_EXHAUSTED          = 18368,
+    SPELL_EXHAUSTION         = 35492
+};
+
+// 35491 - Furious Rage
+class spell_gen_furious_rage : public AuraScript
+{
+    PrepareAuraScript(spell_gen_furious_rage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EXHAUSTION }) &&
+            sBroadcastTextStore.HasRecord(EMOTE_FURIOUS_RAGE) &&
+            sBroadcastTextStore.HasRecord(EMOTE_EXHAUSTED);
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->Unit::TextEmote(EMOTE_FURIOUS_RAGE, target, false);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        target->Unit::TextEmote(EMOTE_EXHAUSTED, target, false);
+        target->CastSpell(target, SPELL_EXHAUSTION, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_gen_furious_rage::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_furious_rage::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 46642 - 5,000 Gold
 class spell_gen_5000_gold : public SpellScript
 {
@@ -4753,6 +4795,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_feign_death_all_flags);
     RegisterSpellScript(spell_gen_feign_death_no_dyn_flag);
     RegisterSpellScript(spell_gen_feign_death_no_prevent_emotes);
+    RegisterSpellScript(spell_gen_furious_rage);
     RegisterSpellScript(spell_gen_5000_gold);
     RegisterSpellScript(spell_gen_fishing);
     RegisterSpellScript(spell_gen_gadgetzan_transporter_backfire);
