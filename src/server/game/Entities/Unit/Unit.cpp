@@ -12324,6 +12324,22 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
     else
         missChance -= victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
 
+    // @tswow-begin
+    if (spellInfo)
+    {
+        FIRE_MAP(
+              spellInfo->events
+            , SpellOnCalcMeleeMiss
+            , TSSpellInfo(spellInfo)
+            , TSMutable<float>(&missChance)
+            , TSUnit(const_cast<Unit*>(this))
+            , TSUnit(const_cast<Unit*>(victim))
+            , attType
+            , skillDiff
+        );
+    }
+    // @tswow-end
+
     return std::max(missChance, 0.f);
 }
 
