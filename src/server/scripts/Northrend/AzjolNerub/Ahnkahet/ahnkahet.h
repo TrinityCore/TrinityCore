@@ -78,6 +78,11 @@ enum AKGameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
+enum AKSpellIds
+{
+    SPELL_SHADOW_SICKLE_TRIGGERED   = 56701,
+};
+
 template <class AI, class T>
 inline AI* GetAhnKahetAI(T* obj)
 {
@@ -85,5 +90,6 @@ inline AI* GetAhnKahetAI(T* obj)
 }
 
 #define RegisterAhnKahetCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAhnKahetAI)
+#define RegisterAhnKahetGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetAhnKahetAI)
 
 #endif // AHNKAHET_H_

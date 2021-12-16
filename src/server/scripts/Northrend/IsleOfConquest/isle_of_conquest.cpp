@@ -31,50 +31,39 @@
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
 
-class npc_four_car_garage : public CreatureScript
+struct npc_four_car_garage : public NullCreatureAI
 {
-    public:
-        npc_four_car_garage() : CreatureScript("npc_four_car_garage") { }
+    npc_four_car_garage(Creature* creature) : NullCreatureAI(creature) { }
 
-        struct npc_four_car_garageAI : public NullCreatureAI
+    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    {
+        if (apply)
         {
-            npc_four_car_garageAI(Creature* creature) : NullCreatureAI(creature) { }
+            uint32 spellId = 0;
 
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+            switch (me->GetEntry())
             {
-                if (apply)
-                {
-                    uint32 spellId = 0;
-
-                    switch (me->GetEntry())
-                    {
-                        case NPC_DEMOLISHER:
-                            spellId = SPELL_DRIVING_CREDIT_DEMOLISHER;
-                            break;
-                        case NPC_GLAIVE_THROWER_A:
-                        case NPC_GLAIVE_THROWER_H:
-                            spellId = SPELL_DRIVING_CREDIT_GLAIVE;
-                            break;
-                        case NPC_SIEGE_ENGINE_H:
-                        case NPC_SIEGE_ENGINE_A:
-                            spellId = SPELL_DRIVING_CREDIT_SIEGE;
-                            break;
-                        case NPC_CATAPULT:
-                            spellId = SPELL_DRIVING_CREDIT_CATAPULT;
-                            break;
-                        default:
-                            return;
-                    }
-
-                    me->CastSpell(who, spellId, true);
-                }
+                case NPC_DEMOLISHER:
+                    spellId = SPELL_DRIVING_CREDIT_DEMOLISHER;
+                    break;
+                case NPC_GLAIVE_THROWER_A:
+                case NPC_GLAIVE_THROWER_H:
+                    spellId = SPELL_DRIVING_CREDIT_GLAIVE;
+                    break;
+                case NPC_SIEGE_ENGINE_H:
+                case NPC_SIEGE_ENGINE_A:
+                    spellId = SPELL_DRIVING_CREDIT_SIEGE;
+                    break;
+                case NPC_CATAPULT:
+                    spellId = SPELL_DRIVING_CREDIT_CATAPULT;
+                    break;
+                default:
+                    return;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_four_car_garageAI(creature);
+            me->CastSpell(who, spellId, true);
         }
+    }
 };
 
 enum Events
@@ -88,124 +77,94 @@ enum Texts
     SAY_ONBOARD = 0
 };
 
-class npc_ioc_gunship_captain : public CreatureScript
+struct npc_ioc_gunship_captain : public ScriptedAI
 {
-    public:
-        npc_ioc_gunship_captain() : CreatureScript("npc_ioc_gunship_captain") { }
+    npc_ioc_gunship_captain(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_ioc_gunship_captainAI : public ScriptedAI
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_GUNSHIP_READY)
         {
-            npc_ioc_gunship_captainAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_GUNSHIP_READY)
-                {
-                    DoCast(me, SPELL_SIMPLE_TELEPORT);
-                    _events.ScheduleEvent(EVENT_TALK, 3s);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_TALK:
-                            _events.ScheduleEvent(EVENT_DESPAWN, 1s);
-                            Talk(SAY_ONBOARD);
-                            DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
-                            break;
-                        case EVENT_DESPAWN:
-                            if (BattlegroundMap* iocMap = me->GetMap()->ToBattlegroundMap())
-                                if (Battleground* bgIoC = iocMap->GetBG())
-                                    bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_ioc_gunship_captainAI(creature);
+            DoCast(me, SPELL_SIMPLE_TELEPORT);
+            _events.ScheduleEvent(EVENT_TALK, 3s);
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK:
+                    _events.ScheduleEvent(EVENT_DESPAWN, 1s);
+                    Talk(SAY_ONBOARD);
+                    DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
+                    break;
+                case EVENT_DESPAWN:
+                    if (BattlegroundMap* iocMap = me->GetMap()->ToBattlegroundMap())
+                        if (Battleground* bgIoC = iocMap->GetBG())
+                            bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
-class spell_ioc_gunship_portal : public SpellScriptLoader
+// 66630 - Alliance Gunship Portal
+// 66637 - Horde Gunship Portal
+class spell_ioc_gunship_portal : public SpellScript
 {
-    public:
-        spell_ioc_gunship_portal() : SpellScriptLoader("spell_ioc_gunship_portal") { }
+    PrepareSpellScript(spell_ioc_gunship_portal);
 
-        class spell_ioc_gunship_portal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_ioc_gunship_portal_SpellScript);
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        /*
+         * HACK: GetWorldLocation() returns real position and not transportposition.
+         * ServertoClient: SMSG_MOVE_TELEPORT (0x0B39)
+         * counter: 45
+         * Tranpsort Guid: Full: xxxx Type: MOTransport Low: xxx
+         * Transport Position X: 0 Y: 0 Z: 0 O: 0
+         * Position: X: 7.305609 Y: -0.095246 Z: 34.51022 O: 0
+         */
+        caster->TeleportTo(GetHitCreature()->GetWorldLocation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                /*
-                 * HACK: GetWorldLocation() returns real position and not transportposition.
-                 * ServertoClient: SMSG_MOVE_TELEPORT (0x0B39)
-                 * counter: 45
-                 * Tranpsort Guid: Full: xxxx Type: MOTransport Low: xxx
-                 * Transport Position X: 0 Y: 0 Z: 0 O: 0
-                 * Position: X: 7.305609 Y: -0.095246 Z: 34.51022 O: 0
-                 */
-                caster->TeleportTo(GetHitCreature()->GetWorldLocation(), TELE_TO_NOT_LEAVE_TRANSPORT);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_ioc_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_ioc_gunship_portal_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_ioc_gunship_portal::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
-class spell_ioc_parachute_ic : public SpellScriptLoader
+// 66656 - Parachute
+class spell_ioc_parachute_ic : public AuraScript
 {
-    public:
-        spell_ioc_parachute_ic() : SpellScriptLoader("spell_ioc_parachute_ic") { }
+    PrepareAuraScript(spell_ioc_parachute_ic);
 
-        class spell_ioc_parachute_ic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_ioc_parachute_ic_AuraScript);
+    void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        if (Player* target = GetTarget()->ToPlayer())
+            if (target->m_movementInfo.fallTime > 2000 && !target->GetTransport())
+                target->CastSpell(target, SPELL_PARACHUTE_IC, true);
+    }
 
-            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
-            {
-                PreventDefaultAction();
-                if (Player* target = GetTarget()->ToPlayer())
-                    if (target->m_movementInfo.fallTime > 2000 && !target->GetTransport())
-                        target->CastSpell(target, SPELL_PARACHUTE_IC, true);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ioc_parachute_ic_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_ioc_parachute_ic_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ioc_parachute_ic::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
 };
 
 class StartLaunchEvent : public BasicEvent
@@ -235,33 +194,23 @@ class StartLaunchEvent : public BasicEvent
         ObjectGuid::LowType _lowGuid;
 };
 
-class spell_ioc_launch : public SpellScriptLoader
+// 66218 - Launch
+class spell_ioc_launch : public SpellScript
 {
-    public:
-        spell_ioc_launch() : SpellScriptLoader("spell_ioc_launch") { }
+    PrepareSpellScript(spell_ioc_launch);
 
-        class spell_ioc_launch_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_ioc_launch_SpellScript);
+    void Launch()
+    {
+        if (!GetCaster()->ToCreature() || !GetExplTargetDest())
+            return;
 
-            void Launch()
-            {
-                if (!GetCaster()->ToCreature() || !GetExplTargetDest())
-                    return;
+        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), ASSERT_NOTNULL(GetHitPlayer())->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
+    }
 
-                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), GetHitPlayer()->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_ioc_launch_SpellScript::Launch);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_ioc_launch_SpellScript();
-        }
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_ioc_launch::Launch);
+    }
 };
 
 enum SeaforiumBombSpells
@@ -272,54 +221,45 @@ enum SeaforiumBombSpells
     SPELL_A_BOMB_INATION_CREDIT = 68367
 };
 
-class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
+// 66672 - Huge Seaforium Blast
+// 66676 - Seaforium Blast
+class spell_ioc_seaforium_blast_credit : public SpellScript
 {
-    public:
-        spell_ioc_seaforium_blast_credit() : SpellScriptLoader("spell_ioc_seaforium_blast_credit") { }
+    PrepareSpellScript(spell_ioc_seaforium_blast_credit);
 
-        class spell_ioc_seaforium_blast_credit_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_ioc_seaforium_blast_credit_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_A_BOMB_INABLE_CREDIT, SPELL_A_BOMB_INATION_CREDIT });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_A_BOMB_INABLE_CREDIT, SPELL_A_BOMB_INATION_CREDIT });
-            }
+    void HandleAchievementCredit(SpellEffIndex /*effIndex*/)
+    {
+        uint32 _creditSpell = 0;
+        Unit* caster = GetOriginalCaster();
+        if (!caster)
+            return;
 
-            void HandleAchievementCredit(SpellEffIndex /*effIndex*/)
-            {
-                uint32 _creditSpell = 0;
-                Unit* caster = GetOriginalCaster();
-                if (!caster)
-                    return;
+        if (GetSpellInfo()->Id == SPELL_SEAFORIUM_BLAST)
+            _creditSpell = SPELL_A_BOMB_INABLE_CREDIT;
+        else if (GetSpellInfo()->Id == SPELL_HUGE_SEAFORIUM_BLAST)
+            _creditSpell = SPELL_A_BOMB_INATION_CREDIT;
 
-                if (GetSpellInfo()->Id == SPELL_SEAFORIUM_BLAST)
-                    _creditSpell = SPELL_A_BOMB_INABLE_CREDIT;
-                else if (GetSpellInfo()->Id == SPELL_HUGE_SEAFORIUM_BLAST)
-                    _creditSpell = SPELL_A_BOMB_INATION_CREDIT;
+        if (GetHitGObj() && GetHitGObj()->IsDestructibleBuilding())
+            caster->CastSpell(caster, _creditSpell, true);
+    }
 
-                if (GetHitGObj() && GetHitGObj()->IsDestructibleBuilding())
-                    caster->CastSpell(caster, _creditSpell, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_ioc_seaforium_blast_credit_SpellScript::HandleAchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_ioc_seaforium_blast_credit_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_ioc_seaforium_blast_credit::HandleAchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
+    }
 };
 
 void AddSC_isle_of_conquest()
 {
-    new npc_four_car_garage();
-    new npc_ioc_gunship_captain();
-    new spell_ioc_gunship_portal();
-    new spell_ioc_parachute_ic();
-    new spell_ioc_launch();
-    new spell_ioc_seaforium_blast_credit();
+    RegisterCreatureAI(npc_four_car_garage);
+    RegisterCreatureAI(npc_ioc_gunship_captain);
+    RegisterSpellScript(spell_ioc_gunship_portal);
+    RegisterSpellScript(spell_ioc_parachute_ic);
+    RegisterSpellScript(spell_ioc_launch);
+    RegisterSpellScript(spell_ioc_seaforium_blast_credit);
 }

@@ -4,13 +4,11 @@ clone_depth: 1
 init:
 - ps: ''
 environment:
-  BOOST_ROOT: C:\Libraries\boost_1_71_0
+  BOOST_ROOT: C:\Libraries\boost_1_73_0
   OPENSSL_ROOT_DIR: C:\OpenSSL-Win64
 build_script:
 - cmd: >-
     git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"
-
-    git tag -a -m "AppVeyor build" init
 
     md build && cd build
 

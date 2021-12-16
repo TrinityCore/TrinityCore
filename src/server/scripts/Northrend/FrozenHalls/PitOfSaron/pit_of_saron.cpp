@@ -55,257 +55,203 @@ bool ScheduledIcicleSummons::Execute(uint64 /*time*/, uint32 /*diff*/)
     return true;
 }
 
-class npc_ymirjar_flamebearer : public CreatureScript
+struct npc_ymirjar_flamebearer: public ScriptedAI
 {
-    public:
-        npc_ymirjar_flamebearer() : CreatureScript("npc_ymirjar_flamebearer") { }
+    npc_ymirjar_flamebearer(Creature* creature) : ScriptedAI(creature)
+    {
+    }
 
-        struct npc_ymirjar_flamebearerAI: public ScriptedAI
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_FIREBALL, 4s);
+        _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_ymirjar_flamebearerAI(Creature* creature) : ScriptedAI(creature)
+            switch (eventId)
             {
+                case EVENT_FIREBALL:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_FIREBALL);
+                    _events.RescheduleEvent(EVENT_FIREBALL, 5s);
+                    break;
+                case EVENT_TACTICAL_BLINK:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_TACTICAL_BLINK);
+                    DoCast(me, SPELL_HELLFIRE);
+                    _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12s);
+                    break;
+                default:
+                    break;
             }
-
-            void Reset() override
-            {
-                _events.Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.ScheduleEvent(EVENT_FIREBALL, 4s);
-                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FIREBALL:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                                DoCast(target, SPELL_FIREBALL);
-                            _events.RescheduleEvent(EVENT_FIREBALL, 5s);
-                            break;
-                        case EVENT_TACTICAL_BLINK:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                                DoCast(target, SPELL_TACTICAL_BLINK);
-                            DoCast(me, SPELL_HELLFIRE);
-                            _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetPitOfSaronAI<npc_ymirjar_flamebearerAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
 };
 
-class npc_iceborn_protodrake : public CreatureScript
+struct npc_iceborn_protodrake: public ScriptedAI
 {
-    public:
-        npc_iceborn_protodrake() : CreatureScript("npc_iceborn_protodrake") { }
+    npc_iceborn_protodrake(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_iceborn_protodrakeAI: public ScriptedAI
+    void Initialize()
+    {
+        _frostBreathCooldown = 5000;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        if (Vehicle* _vehicle = me->GetVehicleKit())
+            _vehicle->RemoveAllPassengers();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (_frostBreathCooldown < diff)
         {
-            npc_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _frostBreathCooldown = 5000;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                if (Vehicle* _vehicle = me->GetVehicleKit())
-                    _vehicle->RemoveAllPassengers();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (_frostBreathCooldown < diff)
-                {
-                    DoCastVictim(SPELL_FROST_BREATH);
-                    _frostBreathCooldown = 10000;
-                }
-                else
-                    _frostBreathCooldown -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _frostBreathCooldown;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetPitOfSaronAI<npc_iceborn_protodrakeAI>(creature);
+            DoCastVictim(SPELL_FROST_BREATH);
+            _frostBreathCooldown = 10000;
         }
+        else
+            _frostBreathCooldown -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint32 _frostBreathCooldown;
 };
 
-class npc_geist_ambusher : public CreatureScript
+struct npc_geist_ambusher: public ScriptedAI
 {
-    public:
-        npc_geist_ambusher() : CreatureScript("npc_geist_ambusher") { }
+    npc_geist_ambusher(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_geist_ambusherAI: public ScriptedAI
+    void Initialize()
+    {
+        _leapingFaceMaulCooldown = 9000;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (who->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        // the max range is determined by aggro range
+        if (me->GetDistance(who) > 5.0f)
+            DoCast(who, SPELL_LEAPING_FACE_MAUL);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (_leapingFaceMaulCooldown < diff)
         {
-            npc_geist_ambusherAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _leapingFaceMaulCooldown = 9000;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                if (who->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                // the max range is determined by aggro range
-                if (me->GetDistance(who) > 5.0f)
-                    DoCast(who, SPELL_LEAPING_FACE_MAUL);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (_leapingFaceMaulCooldown < diff)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 5.0f, true))
-                        DoCast(target, SPELL_LEAPING_FACE_MAUL);
-                    _leapingFaceMaulCooldown = urand(9000, 14000);
-                }
-                else
-                    _leapingFaceMaulCooldown -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _leapingFaceMaulCooldown;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetPitOfSaronAI<npc_geist_ambusherAI>(creature);
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 5.0f, true))
+                DoCast(target, SPELL_LEAPING_FACE_MAUL);
+            _leapingFaceMaulCooldown = urand(9000, 14000);
         }
+        else
+            _leapingFaceMaulCooldown -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint32 _leapingFaceMaulCooldown;
 };
 
-class npc_pit_of_saron_icicle : public CreatureScript
+struct npc_pit_of_saron_icicle : public PassiveAI
 {
-    public:
-        npc_pit_of_saron_icicle() : CreatureScript("npc_pit_of_saron_icicle") { }
+    npc_pit_of_saron_icicle(Creature* creature) : PassiveAI(creature)
+    {
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+    }
 
-        struct npc_pit_of_saron_icicleAI : public PassiveAI
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        _summonerGUID = summoner->GetGUID();
+
+        _scheduler.Schedule(Milliseconds(3650), [this](TaskContext /*context*/)
         {
-            npc_pit_of_saron_icicleAI(Creature* creature) : PassiveAI(creature)
-            {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-            }
+            DoCastSelf(SPELL_ICICLE_FALL_TRIGGER, true);
+            DoCastSelf(SPELL_ICICLE_FALL_VISUAL);
 
-            void IsSummonedBy(WorldObject* summoner) override
-            {
-                _summonerGUID = summoner->GetGUID();
+            if (Unit* caster = ObjectAccessor::GetUnit(*me, _summonerGUID))
+                caster->RemoveDynObject(SPELL_ICICLE_SUMMON);
+        });
+    }
 
-                _scheduler.Schedule(Milliseconds(3650), [this](TaskContext /*context*/)
-                {
-                    DoCastSelf(SPELL_ICICLE_FALL_TRIGGER, true);
-                    DoCastSelf(SPELL_ICICLE_FALL_VISUAL);
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
 
-                    if (Unit* caster = ObjectAccessor::GetUnit(*me, _summonerGUID))
-                        caster->RemoveDynObject(SPELL_ICICLE_SUMMON);
-                });
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _scheduler.Update(diff);
-            }
-
-        private:
-            TaskScheduler _scheduler;
-            ObjectGuid _summonerGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetPitOfSaronAI<npc_pit_of_saron_icicleAI>(creature);
-        }
+private:
+    TaskScheduler _scheduler;
+    ObjectGuid _summonerGUID;
 };
 
-class spell_pos_ice_shards : public SpellScriptLoader
+// 70827 - Ice Shards
+class spell_pos_ice_shards : public SpellScript
 {
-    public:
-        spell_pos_ice_shards() : SpellScriptLoader("spell_pos_ice_shards") { }
+    PrepareSpellScript(spell_pos_ice_shards);
 
-        class spell_pos_ice_shards_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pos_ice_shards_SpellScript);
+    bool Load() override
+    {
+        // This script should execute only in Pit of Saron
+        return InstanceHasScript(GetCaster(), PoSScriptName);
+    }
 
-            bool Load() override
-            {
-                // This script should execute only in Pit of Saron
-                return InstanceHasScript(GetCaster(), PoSScriptName);
-            }
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitPlayer())
+            GetCaster()->GetInstanceScript()->SetData(DATA_ICE_SHARDS_HIT, 1);
+    }
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (GetHitPlayer())
-                    GetCaster()->GetInstanceScript()->SetData(DATA_ICE_SHARDS_HIT, 1);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pos_ice_shards_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pos_ice_shards_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pos_ice_shards::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 enum TyrannusEventCavernEmote
@@ -355,11 +301,11 @@ public:
 
 void AddSC_pit_of_saron()
 {
-    new npc_ymirjar_flamebearer();
-    new npc_iceborn_protodrake();
-    new npc_geist_ambusher();
-    new npc_pit_of_saron_icicle();
-    new spell_pos_ice_shards();
+    RegisterPitOfSaronCreatureAI(npc_ymirjar_flamebearer);
+    RegisterPitOfSaronCreatureAI(npc_iceborn_protodrake);
+    RegisterPitOfSaronCreatureAI(npc_geist_ambusher);
+    RegisterPitOfSaronCreatureAI(npc_pit_of_saron_icicle);
+    RegisterSpellScript(spell_pos_ice_shards);
     new at_pit_cavern_entrance();
     new at_pit_cavern_end();
 }

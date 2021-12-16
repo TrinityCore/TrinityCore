@@ -78,11 +78,7 @@ namespace Trinity::Impl::Readline
 void utf8print(void* /*arg*/, std::string_view str)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    std::wstring wbuf;
-    if (!Utf8toWStr(str, wbuf))
-        return;
-
-    wprintf(L"%s", wbuf.c_str());
+    WriteWinConsole(str);
 #else
 {
     printf(STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(str));
@@ -131,6 +127,18 @@ void CliThread()
     if (sConfigMgr->GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    if (sConfigMgr->GetBoolDefault("FlashAtStart", true))
+    {
+        FLASHWINFO fInfo;
+        fInfo.cbSize = sizeof(FLASHWINFO);
+        fInfo.dwFlags = FLASHW_TRAY | FLASHW_TIMERNOFG;
+        fInfo.hwnd = GetConsoleWindow();
+        fInfo.uCount = 0;
+        fInfo.dwTimeout = 0;
+        FlashWindowEx(&fInfo);
+    }
+#endif
     ///- As long as the World is running (no World::m_stopEvent), get the command line and handle it
     while (!World::IsStopped())
     {
@@ -139,15 +147,8 @@ void CliThread()
         std::string command;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-        wchar_t commandbuf[256];
-        if (fgetws(commandbuf, sizeof(commandbuf), stdin))
-        {
-            if (!WStrToUtf8(commandbuf, wcslen(commandbuf), command))
-            {
-                PrintCliPrefix();
-                continue;
-            }
-        }
+        if (!ReadWinConsole(command))
+            continue;
 #else
         char* command_str = readline(CLI_PREFIX);
         ::rl_bind_key('\t', ::rl_complete);
@@ -160,18 +161,13 @@ void CliThread()
 
         if (!command.empty())
         {
-            std::size_t nextLineIndex = command.find_first_of("\r\n");
-            if (nextLineIndex != std::string::npos)
+            Optional<std::size_t> nextLineIndex = RemoveCRLF(command);
+            if (nextLineIndex && *nextLineIndex == 0)
             {
-                if (nextLineIndex == 0)
-                {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-                    PrintCliPrefix();
+                PrintCliPrefix();
 #endif
-                    continue;
-                }
-
-                command.erase(nextLineIndex);
+                continue;
             }
 
             fflush(stdout);

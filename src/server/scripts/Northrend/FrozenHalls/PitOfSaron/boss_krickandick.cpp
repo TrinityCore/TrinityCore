@@ -513,6 +513,7 @@ private:
     ObjectGuid _tyrannusGUID;
 };
 
+// 69012 - Explosive Barrage
 class spell_krick_explosive_barrage : public AuraScript
 {
     PrepareAuraScript(spell_krick_explosive_barrage);
@@ -539,6 +540,7 @@ class spell_krick_explosive_barrage : public AuraScript
     }
 };
 
+// 69263 - Explosive Barrage
 class spell_ick_explosive_barrage : public AuraScript
 {
     PrepareAuraScript(spell_ick_explosive_barrage);
@@ -570,6 +572,7 @@ class spell_ick_explosive_barrage : public AuraScript
     }
 };
 
+// 44851 - Hasty Grow
 class spell_exploding_orb_hasty_grow : public AuraScript
 {
     PrepareAuraScript(spell_exploding_orb_hasty_grow);
@@ -594,6 +597,7 @@ class spell_exploding_orb_hasty_grow : public AuraScript
     }
 };
 
+// 68987 - Pursuit
 class spell_krick_pursuit : public SpellScript
 {
     PrepareSpellScript(spell_krick_pursuit);
@@ -636,6 +640,7 @@ class spell_krick_pursuit_AuraScript : public AuraScript
     }
 };
 
+// 69029, 70850 - Pursuit Confusion
 class spell_krick_pursuit_confusion : public AuraScript
 {
     PrepareAuraScript(spell_krick_pursuit_confusion);

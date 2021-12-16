@@ -165,7 +165,8 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    unit->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    if (uint32 pause = unit->GetMovementTemplate().GetInteractionPauseTimer())
+        unit->PauseMovement(pause);
     unit->SetHomePosition(unit->GetPosition());
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
@@ -422,7 +423,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
             }
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-            stmt->setUInt8(0, freeSlot);
+            stmt->setUInt8(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + freeSlot));
             stmt->setUInt32(1, _player->GetGUID().GetCounter());
             stmt->setUInt32(2, petStable->UnslottedPets[0].PetNumber);
             CharacterDatabase.Execute(stmt);
@@ -541,8 +542,6 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     }
     else
     {
-        std::swap(*stabledPet, petStable->CurrentPet);
-
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
@@ -695,8 +694,6 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
     }
     else
     {
-        std::swap(*stabledPet, petStable->CurrentPet);
-
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
@@ -737,7 +734,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
         Item* item = _player->GetItemByGuid(itemGUID);
         if (item)
-            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank != 0);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod);
     }
     else
     {

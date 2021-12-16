@@ -93,4 +93,6 @@ inline AI* GetEyeOfEternityAI(T* obj)
     return GetInstanceAI<AI>(obj, EoEScriptName);
 }
 
+#define RegisterEyeOfEternityCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetEyeOfEternityAI)
+
 #endif

@@ -15,85 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Bloodmyst_Isle
-SD%Complete: 80
-SDComment: Quest support: 9670
-SDCategory: Bloodmyst Isle
-EndScriptData */
-
-/* ContentData
-npc_webbed_creature
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-
-/*######
-## npc_webbed_creature
-######*/
-
-//possible creatures to be spawned
-uint32 const possibleSpawns[31] = {17322, 17661, 17496, 17522, 17340, 17352, 17333, 17524, 17654, 17348, 17339, 17345, 17359, 17353, 17336, 17550, 17330, 17701, 17321, 17325, 17320, 17683, 17342, 17715, 17334, 17341, 17338, 17337, 17346, 17344, 17327};
-
-enum WebbedCreature
-{
-    NPC_EXPEDITION_RESEARCHER                     = 17681
-};
-
-class npc_webbed_creature : public CreatureScript
-{
-public:
-    npc_webbed_creature() : CreatureScript("npc_webbed_creature") { }
-
-    struct npc_webbed_creatureAI : public NullCreatureAI
-    {
-        npc_webbed_creatureAI(Creature* creature) : NullCreatureAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void AttackStart(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void JustDied(Unit* killer) override
-        {
-            if (!killer)
-                return;
-
-            uint32 spawnCreatureID = 0;
-
-            switch (urand(0, 2))
-            {
-                case 0:
-                    if (Player* player = killer->ToPlayer())
-                        player->KilledMonsterCredit(NPC_EXPEDITION_RESEARCHER);
-                    spawnCreatureID = NPC_EXPEDITION_RESEARCHER;
-                    break;
-                case 1:
-                case 2:
-                    spawnCreatureID = possibleSpawns[urand(0, 30)];
-                    break;
-            }
-
-            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1min);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_webbed_creatureAI(creature);
-    }
-};
+#include "SpellScript.h"
 
 /*######
 ## Quest 9759: Ending Their World
@@ -824,9 +754,85 @@ public:
     }
 };
 
+/*######
+## Quest 9670: They're Alive! Maybe...
+######*/
+
+enum FreeWebbedBloodmyst
+{
+    SPELL_FREE_WEBBED_1      = 30954,
+    SPELL_FREE_WEBBED_2      = 30955,
+    SPELL_FREE_WEBBED_3      = 30956,
+    SPELL_FREE_WEBBED_4      = 30957,
+    SPELL_FREE_WEBBED_5      = 30958,
+    SPELL_FREE_WEBBED_6      = 30959,
+    SPELL_FREE_WEBBED_7      = 30960,
+    SPELL_FREE_WEBBED_8      = 30961,
+    SPELL_FREE_WEBBED_9      = 30962,
+    SPELL_FREE_WEBBED_10     = 30963,
+    SPELL_FREE_WEBBED_11     = 31010
+};
+
+uint32 const CocoonSummonSpells[10] =
+{
+    SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3, SPELL_FREE_WEBBED_4, SPELL_FREE_WEBBED_5,
+    SPELL_FREE_WEBBED_6, SPELL_FREE_WEBBED_7, SPELL_FREE_WEBBED_8, SPELL_FREE_WEBBED_9, SPELL_FREE_WEBBED_10
+};
+
+// 30950 - Free Webbed Creature
+class spell_free_webbed : public SpellScript
+{
+    PrepareSpellScript(spell_free_webbed);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_free_webbed::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 31009 - Free Webbed Creature
+class spell_free_webbed_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_free_webbed_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_11 });
+    }
+
+    // This one is a bit different from the one used in Terokkar. There is additional spell 31011 which apply periodic aura to trigger
+    // summon spell 31010 after 1.5 sec. However in retail Expedition Researcher is summoned instantly, we'll use 31010 directly
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (roll_chance_i(66))
+            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        else
+            target->CastSpell(caster, SPELL_FREE_WEBBED_11, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_free_webbed_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_bloodmyst_isle()
 {
-    new npc_webbed_creature();
     new npc_sironas();
     new npc_demolitionist_legoso();
+    RegisterSpellScript(spell_free_webbed);
+    RegisterSpellScript(spell_free_webbed_on_quest);
 }

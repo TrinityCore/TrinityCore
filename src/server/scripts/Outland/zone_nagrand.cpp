@@ -531,7 +531,7 @@ public:
             });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!has_fled && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
             {
@@ -583,7 +583,7 @@ public:
             used_bloodthirst = false;
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!used_bloodthirst && me->GetHealth() > damage && me->HealthBelowPctDamaged(50, damage))
             {
@@ -612,7 +612,7 @@ public:
             used_transform = false;
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!used_transform && me->GetHealth() > damage && me->HealthBelowPctDamaged(65, damage))
             {
@@ -653,7 +653,7 @@ public:
                 });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!used_healing && me->GetHealth() > damage && me->HealthBelowPctDamaged(50, damage))
             {

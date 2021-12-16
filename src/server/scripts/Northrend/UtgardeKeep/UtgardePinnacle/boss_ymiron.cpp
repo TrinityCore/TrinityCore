@@ -99,217 +99,206 @@ enum Misc
     DATA_KINGS_BANE                 = 2157
 };
 
-class boss_ymiron : public CreatureScript
+struct boss_ymiron : public BossAI
 {
-public:
-    boss_ymiron() : CreatureScript("boss_ymiron") { }
-
-    struct boss_ymironAI : public BossAI
+    boss_ymiron(Creature* creature) : BossAI(creature, DATA_KING_YMIRON)
     {
-        boss_ymironAI(Creature* creature) : BossAI(creature, DATA_KING_YMIRON)
+        Initialize();
+        // This ensures a random sequence of ancestors. Not sure if the order should change on reset or not, reason why this is left out of Initialize().
+        for (int i = 0; i < 4; ++i)
+            ActiveOrder[i] = i;
+        for (int i = 0; i < 3; ++i)
         {
-            Initialize();
-            // This ensures a random sequence of ancestors. Not sure if the order should change on reset or not, reason why this is left out of Initialize().
-            for (int i = 0; i < 4; ++i)
-                ActiveOrder[i] = i;
-            for (int i = 0; i < 3; ++i)
-            {
-                int r = i + (rand32() % (4 - i));
-                int temp = ActiveOrder[i];
-                ActiveOrder[i] = ActiveOrder[r];
-                ActiveOrder[r] = temp;
-            }
+            int r = i + (rand32() % (4 - i));
+            int temp = ActiveOrder[i];
+            ActiveOrder[i] = ActiveOrder[r];
+            ActiveOrder[r] = temp;
         }
-
-        void Initialize()
-        {
-            kingsBane = true;
-            ActivedNumber = 0;
-            HealthAmountModifier = 1;
-            HealthAmountMultipler = DUNGEON_MODE(20, 25);
-            ActiveAncestorGUID.Clear();
-            SpiritFountGUID.Clear();
-        }
-
-        void Reset() override
-        {
-            _Reset();
-            Initialize();
-            me->SetReactState(REACT_AGGRESSIVE);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_BANE, 18s, 23s, EVENT_GROUP_BASE_SPELLS);
-            events.ScheduleEvent(EVENT_FETID_ROT, 8s, 13s, EVENT_GROUP_BASE_SPELLS);
-            events.ScheduleEvent(EVENT_DARK_SLASH, 28s, 33s, EVENT_GROUP_BASE_SPELLS);
-            events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(60s, 45s), EVENT_GROUP_BASE_SPELLS);
-        }
-
-        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
-        {
-            if (target->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_BANE_HIT)
-                kingsBane = false;
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-            if (type == DATA_KINGS_BANE)
-                return kingsBane ? 1 : 0;
-
-            return 0;
-        }
-
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (pointId == POINT_BOAT) // Check might not be needed.
-            {
-                Talk(ActiveBoat[ActiveOrder[ActivedNumber]].say);
-                if (Creature* ancestor = me->SummonCreature(ActiveBoat[ActiveOrder[ActivedNumber]].npc, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnX, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnY, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnZ, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN))
-                {
-                    DoCast(ancestor, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
-                    ancestor->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                    ancestor->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    ancestor->SetDisableGravity(true);
-                    ActiveAncestorGUID = ancestor->GetGUID();
-                }
-                events.ScheduleEvent(EVENT_RESUME_COMBAT, 5s);
-            }
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            switch (summon->GetEntry())
-            {
-                case NPC_SPIRIT_FOUNT:
-                    summon->CastSpell(summon, SPELL_SPIRIT_FOUNT, true);
-                    summon->SetDisplayId(11686);
-                    SpiritFountGUID = summon->GetGUID();
-                    break;
-                case NPC_AVENGING_SPIRIT:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    {
-                        AddThreat(target, 0.0f, summon);
-                        summon->AI()->AttackStart(target);
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            summons.Summon(summon);
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (me->HealthBelowPctDamaged(100 - HealthAmountMultipler * HealthAmountModifier, damage) && !(damage >= me->GetHealth()))
-            {
-                uint8 Order = HealthAmountModifier - 1;
-                ++HealthAmountModifier;
-
-                me->InterruptNonMeleeSpells(true);
-                DoCast(me, SPELL_SCREAMS_OF_THE_DEAD);
-
-                me->AttackStop();
-                me->SetReactState(REACT_PASSIVE);
-                me->GetMotionMaster()->MovePoint(POINT_BOAT, ActiveBoat[ActiveOrder[Order]].MoveX, ActiveBoat[ActiveOrder[Order]].MoveY, ActiveBoat[ActiveOrder[Order]].MoveZ);
-
-                DespawnBoatGhosts(ActiveAncestorGUID);
-                DespawnBoatGhosts(SpiritFountGUID);
-
-                events.CancelEvent(ActiveBoat[ActiveOrder[ActivedNumber]].event); // Cancels the event started on the previous transition.
-                events.DelayEvents(10s, EVENT_GROUP_BASE_SPELLS);
-
-                ActivedNumber = Order;
-            }
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-                case EVENT_BANE:
-                    DoCast(SPELL_BANE);
-                    events.ScheduleEvent(EVENT_BANE, 20s, 25s);
-                    break;
-                case EVENT_FETID_ROT:
-                    DoCastVictim(SPELL_FETID_ROT);
-                    events.ScheduleEvent(EVENT_FETID_ROT, 10s, 15s);
-                    break;
-                case EVENT_DARK_SLASH:
-                    DoCastVictim(SPELL_DARK_SLASH);
-                    events.ScheduleEvent(EVENT_DARK_SLASH, 30s, 35s);
-                    break;
-                case EVENT_ANCESTORS_VENGEANCE:
-                    DoCast(me, SPELL_ANCESTORS_VENGEANCE);
-                    events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(randtime(60s, 65s), randtime(45s, 50s)));
-                    break;
-                case EVENT_RESUME_COMBAT:
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    events.ScheduleEvent(ActiveBoat[ActiveOrder[ActivedNumber]].event, 5s);
-                    break;
-                case EVENT_BJORN_SPIRIT_FOUNT:
-                    DoCast(SPELL_SUMMON_SPIRIT_FOUNT);
-                    break;
-                case EVENT_HALDOR_SPIRIT_STRIKE:
-                    DoCastVictim(SPELL_SPIRIT_STRIKE);
-                    events.ScheduleEvent(EVENT_HALDOR_SPIRIT_STRIKE, 5s);
-                    break;
-                case EVENT_RANULF_SPIRIT_BURST:
-                    DoCast(me, SPELL_SPIRIT_BURST);
-                    events.ScheduleEvent(EVENT_RANULF_SPIRIT_BURST, 10s);
-                    break;
-                case EVENT_TORGYN_SUMMON_AVENGING_SPIRITS:
-                    for (uint8 i = 0; i < 4; ++i)
-                        DoCast(SPELL_SUMMON_AVENGING_SPIRIT);
-                    events.ScheduleEvent(EVENT_TORGYN_SUMMON_AVENGING_SPIRITS, 15s);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            Talk(SAY_DEATH);
-        }
-
-        void KilledUnit(Unit* who) override
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-
-        void DespawnBoatGhosts(ObjectGuid& CreatureGUID)
-        {
-            // @todo: fire visual after ancestor despawns.
-            if (CreatureGUID)
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, CreatureGUID))
-                    temp->DisappearAndDie();
-
-            CreatureGUID.Clear();
-        }
-
-    private:
-        bool kingsBane; // Achievement King's Bane
-        uint8 ActiveOrder[4];
-        uint8 ActivedNumber;
-        uint32 HealthAmountModifier;
-        uint32 HealthAmountMultipler;
-        ObjectGuid ActiveAncestorGUID;
-        ObjectGuid SpiritFountGUID;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetUtgardePinnacleAI<boss_ymironAI>(creature);
     }
+
+    void Initialize()
+    {
+        kingsBane = true;
+        ActivedNumber = 0;
+        HealthAmountModifier = 1;
+        HealthAmountMultipler = DUNGEON_MODE(20, 25);
+        ActiveAncestorGUID.Clear();
+        SpiritFountGUID.Clear();
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        Initialize();
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_BANE, 18s, 23s, EVENT_GROUP_BASE_SPELLS);
+        events.ScheduleEvent(EVENT_FETID_ROT, 8s, 13s, EVENT_GROUP_BASE_SPELLS);
+        events.ScheduleEvent(EVENT_DARK_SLASH, 28s, 33s, EVENT_GROUP_BASE_SPELLS);
+        events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(60s, 45s), EVENT_GROUP_BASE_SPELLS);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (target->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_BANE_HIT)
+            kingsBane = false;
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_KINGS_BANE)
+            return kingsBane ? 1 : 0;
+
+        return 0;
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (pointId == POINT_BOAT) // Check might not be needed.
+        {
+            Talk(ActiveBoat[ActiveOrder[ActivedNumber]].say);
+            if (Creature* ancestor = me->SummonCreature(ActiveBoat[ActiveOrder[ActivedNumber]].npc, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnX, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnY, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnZ, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN))
+            {
+                DoCast(ancestor, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
+                ancestor->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
+                ancestor->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                ancestor->SetDisableGravity(true);
+                ActiveAncestorGUID = ancestor->GetGUID();
+            }
+            events.ScheduleEvent(EVENT_RESUME_COMBAT, 5s);
+        }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        switch (summon->GetEntry())
+        {
+            case NPC_SPIRIT_FOUNT:
+                summon->CastSpell(summon, SPELL_SPIRIT_FOUNT, true);
+                summon->SetDisplayId(11686);
+                SpiritFountGUID = summon->GetGUID();
+                break;
+            case NPC_AVENGING_SPIRIT:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                {
+                    AddThreat(target, 0.0f, summon);
+                    summon->AI()->AttackStart(target);
+                }
+                break;
+            default:
+                break;
+        }
+
+        summons.Summon(summon);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->HealthBelowPctDamaged(100 - HealthAmountMultipler * HealthAmountModifier, damage) && !(damage >= me->GetHealth()))
+        {
+            uint8 Order = HealthAmountModifier - 1;
+            ++HealthAmountModifier;
+
+            me->InterruptNonMeleeSpells(true);
+            DoCast(me, SPELL_SCREAMS_OF_THE_DEAD);
+
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            me->GetMotionMaster()->MovePoint(POINT_BOAT, ActiveBoat[ActiveOrder[Order]].MoveX, ActiveBoat[ActiveOrder[Order]].MoveY, ActiveBoat[ActiveOrder[Order]].MoveZ);
+
+            DespawnBoatGhosts(ActiveAncestorGUID);
+            DespawnBoatGhosts(SpiritFountGUID);
+
+            events.CancelEvent(ActiveBoat[ActiveOrder[ActivedNumber]].event); // Cancels the event started on the previous transition.
+            events.DelayEvents(10s, EVENT_GROUP_BASE_SPELLS);
+
+            ActivedNumber = Order;
+        }
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_BANE:
+                DoCast(SPELL_BANE);
+                events.ScheduleEvent(EVENT_BANE, 20s, 25s);
+                break;
+            case EVENT_FETID_ROT:
+                DoCastVictim(SPELL_FETID_ROT);
+                events.ScheduleEvent(EVENT_FETID_ROT, 10s, 15s);
+                break;
+            case EVENT_DARK_SLASH:
+                DoCastVictim(SPELL_DARK_SLASH);
+                events.ScheduleEvent(EVENT_DARK_SLASH, 30s, 35s);
+                break;
+            case EVENT_ANCESTORS_VENGEANCE:
+                DoCast(me, SPELL_ANCESTORS_VENGEANCE);
+                events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(randtime(60s, 65s), randtime(45s, 50s)));
+                break;
+            case EVENT_RESUME_COMBAT:
+                me->SetReactState(REACT_AGGRESSIVE);
+                events.ScheduleEvent(ActiveBoat[ActiveOrder[ActivedNumber]].event, 5s);
+                break;
+            case EVENT_BJORN_SPIRIT_FOUNT:
+                DoCast(SPELL_SUMMON_SPIRIT_FOUNT);
+                break;
+            case EVENT_HALDOR_SPIRIT_STRIKE:
+                DoCastVictim(SPELL_SPIRIT_STRIKE);
+                events.ScheduleEvent(EVENT_HALDOR_SPIRIT_STRIKE, 5s);
+                break;
+            case EVENT_RANULF_SPIRIT_BURST:
+                DoCast(me, SPELL_SPIRIT_BURST);
+                events.ScheduleEvent(EVENT_RANULF_SPIRIT_BURST, 10s);
+                break;
+            case EVENT_TORGYN_SUMMON_AVENGING_SPIRITS:
+                for (uint8 i = 0; i < 4; ++i)
+                    DoCast(SPELL_SUMMON_AVENGING_SPIRIT);
+                events.ScheduleEvent(EVENT_TORGYN_SUMMON_AVENGING_SPIRITS, 15s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void DespawnBoatGhosts(ObjectGuid& CreatureGUID)
+    {
+        // @todo: fire visual after ancestor despawns.
+        if (CreatureGUID)
+            if (Creature* temp = ObjectAccessor::GetCreature(*me, CreatureGUID))
+                temp->DisappearAndDie();
+
+        CreatureGUID.Clear();
+    }
+
+private:
+    bool kingsBane; // Achievement King's Bane
+    uint8 ActiveOrder[4];
+    uint8 ActivedNumber;
+    uint32 HealthAmountModifier;
+    uint32 HealthAmountMultipler;
+    ObjectGuid ActiveAncestorGUID;
+    ObjectGuid SpiritFountGUID;
 };
 
 // 48292 - Dark Slash
@@ -349,7 +338,7 @@ class achievement_kings_bane : public AchievementCriteriaScript
 
 void AddSC_boss_ymiron()
 {
-    new boss_ymiron();
+    RegisterUtgardePinnacleCreatureAI(boss_ymiron);
     RegisterSpellScript(spell_dark_slash);
     new achievement_kings_bane();
 }

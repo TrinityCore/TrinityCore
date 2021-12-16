@@ -73,7 +73,7 @@ class TC_GAME_API PoolGroup
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
         void DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid=0, bool alwaysDeleteRespawnTime = false);
-        void Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime = false);
+        void Despawn1Object(ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true);
         void SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom);
         void RemoveRespawnTimeFromDB(ObjectGuid::LowType guid);
 

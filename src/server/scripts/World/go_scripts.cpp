@@ -26,7 +26,6 @@ go_tele_to_violet_stand
 go_soulwell
 go_amberpine_outhouse
 go_veil_skith_cage
-go_toy_train_set
 go_bells
 EndContentData */
 
@@ -363,81 +362,6 @@ public:
 };
 
 /*######
-## matrix_punchograph
-######*/
-
-enum MatrixPunchograph
-{
-    ITEM_WHITE_PUNCH_CARD = 9279,
-    ITEM_YELLOW_PUNCH_CARD = 9280,
-    ITEM_BLUE_PUNCH_CARD = 9282,
-    ITEM_RED_PUNCH_CARD = 9281,
-    ITEM_PRISMATIC_PUNCH_CARD = 9316,
-    SPELL_YELLOW_PUNCH_CARD = 11512,
-    SPELL_BLUE_PUNCH_CARD = 11525,
-    SPELL_RED_PUNCH_CARD = 11528,
-    SPELL_PRISMATIC_PUNCH_CARD = 11545,
-    MATRIX_PUNCHOGRAPH_3005_A = 142345,
-    MATRIX_PUNCHOGRAPH_3005_B = 142475,
-    MATRIX_PUNCHOGRAPH_3005_C = 142476,
-    MATRIX_PUNCHOGRAPH_3005_D = 142696,
-};
-
-class go_matrix_punchograph : public GameObjectScript
-{
-public:
-    go_matrix_punchograph() : GameObjectScript("go_matrix_punchograph") { }
-
-    struct go_matrix_punchographAI : public GameObjectAI
-    {
-        go_matrix_punchographAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            switch (me->GetEntry())
-            {
-                case MATRIX_PUNCHOGRAPH_3005_A:
-                    if (player->HasItemCount(ITEM_WHITE_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_YELLOW_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_B:
-                    if (player->HasItemCount(ITEM_YELLOW_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_BLUE_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_C:
-                    if (player->HasItemCount(ITEM_BLUE_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_RED_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_D:
-                    if (player->HasItemCount(ITEM_RED_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_PRISMATIC_PUNCH_CARD, true);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_matrix_punchographAI(go);
-    }
-};
-
-/*######
 ## go_blood_filled_orb
 ######*/
 
@@ -533,7 +457,7 @@ class go_soulwell : public GameObjectScript
                 if (!spellInfo)
                     return;
 
-                _stoneId = spellInfo->Effects[EFFECT_0].ItemType;
+                _stoneId = spellInfo->GetEffect(EFFECT_0).ItemType;
             }
 
             bool OnGossipHello(Player* player) override
@@ -829,47 +753,6 @@ public:
     {
         return new go_midsummer_ribbon_poleAI(go);
     }
-};
-
-enum ToyTrainSpells
-{
-    SPELL_TOY_TRAIN_PULSE       = 61551,
-};
-
-class go_toy_train_set : public GameObjectScript
-{
-    public:
-        go_toy_train_set() : GameObjectScript("go_toy_train_set") { }
-
-        struct go_toy_train_setAI : public GameObjectAI
-        {
-            go_toy_train_setAI(GameObject* go) : GameObjectAI(go), _pulseTimer(3 * IN_MILLISECONDS) { }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (diff < _pulseTimer)
-                    _pulseTimer -= diff;
-                else
-                {
-                    me->CastSpell(nullptr, SPELL_TOY_TRAIN_PULSE, true);
-                    _pulseTimer = 6 * IN_MILLISECONDS;
-                }
-            }
-
-            // triggered on wrecker'd
-            void DoAction(int32 /*action*/) override
-            {
-                me->Delete();
-            }
-
-        private:
-            uint32 _pulseTimer;
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_toy_train_setAI(go);
-        }
 };
 
 /*####
@@ -1382,7 +1265,6 @@ void AddSC_go_scripts()
     new go_resonite_cask();
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
-    new go_matrix_punchograph();
     new go_blood_filled_orb();
     new go_soulwell();
     new go_amberpine_outhouse();
@@ -1391,7 +1273,6 @@ void AddSC_go_scripts()
     new go_frostblade_shrine();
     new go_midsummer_bonfire();
     new go_midsummer_ribbon_pole();
-    new go_toy_train_set();
     new go_brewfest_music();
     new go_midsummer_music();
     new go_darkmoon_faire_music();

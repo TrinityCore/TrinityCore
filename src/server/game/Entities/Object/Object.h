@@ -21,8 +21,6 @@
 #include "Common.h"
 #include "Duration.h"
 #include "EventProcessor.h"
-#include "GridReference.h"
-#include "GridRefManager.h"
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
@@ -48,6 +46,7 @@ class Map;
 class Player;
 class Spell;
 class SpellCastTargets;
+class SpellEffectInfo;
 class SpellInfo;
 class TempSummon;
 class Transport;
@@ -246,19 +245,6 @@ class TC_GAME_API Object
         Object& operator=(Object const& right) = delete;
 };
 
-template<class T>
-class GridObject
-{
-    public:
-        virtual ~GridObject() { }
-
-        bool IsInGrid() const { return _gridRef.isValid(); }
-        void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
-        void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
-    private:
-        GridReference<T> _gridRef;
-};
-
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, uint8 ARRAY_SIZE>
 class FlaggedValuesArray32
 {
@@ -430,7 +416,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Player* GetAffectingPlayer() const;
 
         Player* GetSpellModOwner() const;
-        int32 CalculateSpellDamage(SpellInfo const* spellInfo, uint8 effIndex, int32 const* basePoints = nullptr) const;
+        int32 CalculateSpellDamage(SpellEffectInfo const& spellEffectInfo, int32 const* basePoints = nullptr) const;
 
         // target dependent range checks
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
@@ -477,7 +463,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
 
         template <typename Container>
-        void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange) const;
+        void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive = true) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);

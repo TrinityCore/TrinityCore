@@ -195,12 +195,13 @@ enum Spells
 
 enum MiscData
 {
-    ITEM_GOBLIN_ROCKET_PACK = 49278,
+    ITEM_GOBLIN_ROCKET_PACK    = 49278,
+    SPELL_CREATE_ROCKET_PACK   = 70055,
 
-    PHASE_COMBAT            = 0,
-    PHASE_INTRO             = 1,
+    PHASE_COMBAT               = 0,
+    PHASE_INTRO                = 1,
 
-    MUSIC_ENCOUNTER         = 17289
+    MUSIC_ENCOUNTER            = 17289
 };
 
 enum EncounterActions
@@ -675,7 +676,7 @@ class npc_gunship : public CreatureScript
                 me->SetRegenerateHealth(false);
             }
 
-            void DamageTaken(Unit* /*source*/, uint32& damage) override
+            void DamageTaken(Unit* /*source*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -966,7 +967,7 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
         return false;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(65, damage) && !me->HasAura(SPELL_TASTE_OF_BLOOD))
             DoCast(me, SPELL_TASTE_OF_BLOOD, true);
@@ -1220,7 +1221,7 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
         return false;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(65, damage) && me->HasAura(SPELL_TASTE_OF_BLOOD))
             DoCast(me, SPELL_TASTE_OF_BLOOD, true);
@@ -1361,7 +1362,7 @@ struct npc_zafod_boombox : public gunship_npc_AI
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
-        player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
+        me->CastSpell(player, SPELL_CREATE_ROCKET_PACK);
         player->PlayerTalkClass->SendCloseGossip();
         return false;
     }
@@ -1451,7 +1452,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (_usedDesperateResolve)
             return;
@@ -1715,6 +1716,7 @@ struct npc_gunship_cannon : public PassiveAI
     }
 };
 
+// 68721 - Rocket Pack
 class spell_igb_rocket_pack : public AuraScript
 {
     PrepareAuraScript(spell_igb_rocket_pack);
@@ -1734,7 +1736,7 @@ class spell_igb_rocket_pack : public AuraScript
     {
         SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()));
+        args.AddSpellBP0(2 * (damageInfo->GetEffect(EFFECT_0).CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()));
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_PACK_DAMAGE, args);
         GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
     }
@@ -1746,6 +1748,7 @@ class spell_igb_rocket_pack : public AuraScript
     }
 };
 
+// 70348 - Rocket Pack Useable
 class spell_igb_rocket_pack_useable : public AuraScript
 {
     PrepareAuraScript(spell_igb_rocket_pack_useable);
@@ -1784,6 +1787,8 @@ class spell_igb_rocket_pack_useable : public AuraScript
     }
 };
 
+// 70120 - On Skybreaker Deck
+// 70121 - On Orgrim's Hammer Deck
 class spell_igb_on_gunship_deck : public AuraScript
 {
     PrepareAuraScript(spell_igb_on_gunship_deck);
@@ -1825,14 +1830,16 @@ private:
     uint32 _teamInInstance;
 };
 
+// 69470 - Heat Drain
+// 69487 - Overheat
 class spell_igb_periodic_trigger_with_power_cost : public AuraScript
 {
     PrepareAuraScript(spell_igb_periodic_trigger_with_power_cost);
 
-    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+    void HandlePeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
     }
 
     void Register() override
@@ -1841,6 +1848,7 @@ class spell_igb_periodic_trigger_with_power_cost : public AuraScript
     }
 };
 
+// 69399, 70172 - Cannon Blast
 class spell_igb_cannon_blast : public SpellScript
 {
     PrepareSpellScript(spell_igb_cannon_blast);
@@ -1867,6 +1875,7 @@ class spell_igb_cannon_blast : public SpellScript
     }
 };
 
+// 69402, 70175 - Incinerating Blast
 class spell_igb_incinerating_blast : public SpellScript
 {
     PrepareSpellScript(spell_igb_incinerating_blast);
@@ -1903,6 +1912,7 @@ private:
     uint32 _energyLeft;
 };
 
+// 69487 - Overheat
 class spell_igb_overheat : public AuraScript
 {
     PrepareAuraScript(spell_igb_overheat);
@@ -1948,6 +1958,7 @@ class spell_igb_overheat : public AuraScript
     }
 };
 
+// 69705 - Below Zero
 class spell_igb_below_zero : public SpellScript
 {
     PrepareSpellScript(spell_igb_below_zero);
@@ -1966,6 +1977,7 @@ class spell_igb_below_zero : public SpellScript
     }
 };
 
+// 70104 - Teleport to Enemy Ship
 class spell_igb_teleport_to_enemy_ship : public SpellScript
 {
     PrepareSpellScript(spell_igb_teleport_to_enemy_ship);
@@ -1989,6 +2001,7 @@ class spell_igb_teleport_to_enemy_ship : public SpellScript
     }
 };
 
+// 70397, 70403 - Burning Pitch
 class spell_igb_burning_pitch_selector : public SpellScript
 {
     PrepareSpellScript(spell_igb_burning_pitch_selector);
@@ -2027,6 +2040,7 @@ class spell_igb_burning_pitch_selector : public SpellScript
     }
 };
 
+// 71335, 71339 - Burning Pitch
 class spell_igb_burning_pitch : public SpellScript
 {
     PrepareSpellScript(spell_igb_burning_pitch);
@@ -2046,6 +2060,7 @@ class spell_igb_burning_pitch : public SpellScript
     }
 };
 
+// 69678, 70609 - Rocket Artillery
 class spell_igb_rocket_artillery : public SpellScript
 {
     PrepareSpellScript(spell_igb_rocket_artillery);
@@ -2073,6 +2088,7 @@ class spell_igb_rocket_artillery : public SpellScript
     }
 };
 
+// 69679 - Rocket Artillery
 class spell_igb_rocket_artillery_explosion : public SpellScript
 {
     PrepareSpellScript(spell_igb_rocket_artillery_explosion);
@@ -2093,6 +2109,7 @@ class spell_igb_rocket_artillery_explosion : public SpellScript
     }
 };
 
+// 67335 - Gunship Fall Teleport
 class spell_igb_gunship_fall_teleport : public SpellScript
 {
     PrepareSpellScript(spell_igb_gunship_fall_teleport);
@@ -2123,6 +2140,7 @@ class spell_igb_gunship_fall_teleport : public SpellScript
     }
 };
 
+// 70331 - Check for Players
 class spell_igb_check_for_players : public SpellScript
 {
     PrepareSpellScript(spell_igb_check_for_players);
@@ -2166,6 +2184,7 @@ private:
     uint32 _playerCount;
 };
 
+// 72340 - Teleport Players on Victory
 class spell_igb_teleport_players_on_victory : public SpellScript
 {
     PrepareSpellScript(spell_igb_teleport_players_on_victory);

@@ -197,6 +197,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         return false;
     }
 
+    // Don't try to reload the current pet
+    if (petStable->CurrentPet && owner->GetPet() && petStable->CurrentPet.value().PetNumber == petInfo->PetNumber)
+        return false;
+
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(petInfo->CreatedBySpellId);
 
     bool isTemporarySummon = spellInfo && spellInfo->GetDuration() > 0;
@@ -320,15 +324,32 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     // PET_SAVE_NOT_IN_SLOT(100) = not stable slot (summoning))
     if (slot == PET_SAVE_NOT_IN_SLOT)
     {
+        uint32 petInfoNumber = petInfo->PetNumber;
+        if (petStable->CurrentPet)
+            owner->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT);
+
         auto unslottedPetItr = std::find_if(petStable->UnslottedPets.begin(), petStable->UnslottedPets.end(), [&](PetStable::PetInfo const& unslottedPet)
         {
-            return unslottedPet.PetNumber == petInfo->PetNumber;
+            return unslottedPet.PetNumber == petInfoNumber;
         });
         ASSERT(!petStable->CurrentPet);
         ASSERT(unslottedPetItr != petStable->UnslottedPets.end());
 
         petStable->CurrentPet = std::move(*unslottedPetItr);
         petStable->UnslottedPets.erase(unslottedPetItr);
+
+        // old petInfo pointer is no longer valid, refresh it
+        petInfo = &petStable->CurrentPet.value();
+    }
+    else if (PET_SAVE_FIRST_STABLE_SLOT <= slot && slot <= PET_SAVE_LAST_STABLE_SLOT)
+    {
+        auto stabledPet = std::find_if(petStable->StabledPets.begin(), petStable->StabledPets.end(), [petnumber](Optional<PetStable::PetInfo> const& pet)
+        {
+            return pet && pet->PetNumber == petnumber;
+        });
+        ASSERT(stabledPet != petStable->StabledPets.end());
+
+        std::swap(*stabledPet, petStable->CurrentPet);
 
         // old petInfo pointer is no longer valid, refresh it
         petInfo = &petStable->CurrentPet.value();

@@ -303,7 +303,8 @@ std::string TempSummon::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Creature::GetDebugInfo() << "\n"
         << std::boolalpha
-        << "TempSummonType : " << std::to_string(GetSummonType()) << " Summoner: " << GetSummonerGUID().ToString();
+        << "TempSummonType: " << std::to_string(GetSummonType()) << " Summoner: " << GetSummonerGUID().ToString()
+        << "Timer: " << GetTimer();
     return sstr.str();
 }
 

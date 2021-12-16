@@ -519,8 +519,8 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->setUInt32(0, auction->bidder);
         stmt->setUInt32(1, auction->bid);
-        stmt->setUInt32(2, auction->Id);
-        stmt->setUInt8(3, auction->Flags);
+        stmt->setUInt8(2, auction->Flags);
+        stmt->setUInt32(3, auction->Id);
         trans->Append(stmt);
 
         if (auction->bidders.find(player->GetGUID()) == auction->bidders.end())
@@ -700,7 +700,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
     auctionHouse->BuildListBidderItems(data, player, count, totalcount);
     data.put<uint32>(0, count);                           // add count to placeholder
     data << totalcount;
-    data << (uint32)300;                                    //unk 2.3.0
+    data << (uint32)sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
     SendPacket(&data);
 }
 
@@ -737,7 +737,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
     auctionHouse->BuildListOwnerItems(data, _player, count, totalcount);
     data.put<uint32>(0, count);
     data << (uint32) totalcount;
-    data << (uint32) 0;
+    data << (uint32) sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
     SendPacket(&data);
 }
 

@@ -40,77 +40,66 @@ enum Events
     EVENT_FRENZY                    = 3
 };
 
-class boss_gizrul_the_slavener : public CreatureScript
+struct boss_gizrul_the_slavener : public BossAI
 {
-public:
-    boss_gizrul_the_slavener() : CreatureScript("boss_gizrul_the_slavener") { }
+    boss_gizrul_the_slavener(Creature* creature) : BossAI(creature, DATA_GIZRUL_THE_SLAVENER) { }
 
-    struct boss_gizrul_the_slavenerAI : public BossAI
+    void Reset() override
     {
-       boss_gizrul_the_slavenerAI(Creature* creature) : BossAI(creature, DATA_GIZRUL_THE_SLAVENER) { }
+        _Reset();
+    }
 
-        void Reset() override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_FATAL_BITE, 17s, 20s);
+        events.ScheduleEvent(EVENT_INFECTED_BITE, 10s, 12s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-        }
-
-        void IsSummonedBy(WorldObject* /*summoner*/) override
-        {
-            me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_FATAL_BITE, 17s, 20s);
-            events.ScheduleEvent(EVENT_INFECTED_BITE, 10s, 12s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_FATAL_BITE:
+                    DoCastVictim(SPELL_FATAL_BITE);
+                    events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
+                    break;
+                case EVENT_INFECTED_BITE:
+                    DoCast(me, SPELL_INFECTED_BITE);
+                    events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
+                    break;
+                default:
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_FATAL_BITE:
-                        DoCastVictim(SPELL_FATAL_BITE);
-                        events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
-                        break;
-                    case EVENT_INFECTED_BITE:
-                        DoCast(me, SPELL_INFECTED_BITE);
-                        events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackrockSpireAI<boss_gizrul_the_slavenerAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_gizrul_the_slavener()
 {
-    new boss_gizrul_the_slavener();
+    RegisterBlackrockSpireCreatureAI(boss_gizrul_the_slavener);
 }

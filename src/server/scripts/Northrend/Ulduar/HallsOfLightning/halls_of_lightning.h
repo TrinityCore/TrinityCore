@@ -57,4 +57,6 @@ inline AI* GetHallsOfLightningAI(T* obj)
     return GetInstanceAI<AI>(obj, HoLScriptName);
 }
 
+#define RegisterHallsOfLightningCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfLightningAI)
+
 #endif // HALLS_OF_LIGHTNING_H_

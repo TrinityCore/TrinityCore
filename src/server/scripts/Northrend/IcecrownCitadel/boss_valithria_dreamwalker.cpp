@@ -345,7 +345,7 @@ struct boss_valithria_dreamwalker : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(25, damage))
         {
@@ -378,7 +378,7 @@ struct boss_valithria_dreamwalker : public ScriptedAI
             DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
             // this display id was found in sniff instead of the one on aura
             me->SetDisplayId(11686);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->DespawnOrUnsummon(4s);
             if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_TRIGGER)))
                 Unit::Kill(me, trigger);
@@ -987,6 +987,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 71085 - Mana Void
 class spell_dreamwalker_mana_void : public AuraScript
 {
     PrepareAuraScript(spell_dreamwalker_mana_void);
@@ -1006,6 +1007,10 @@ class spell_dreamwalker_mana_void : public AuraScript
     }
 };
 
+// 70912 - Summon Timer: Suppresser
+// 70913 - Summon Timer: Blazing Skeleton
+// 70915 - Summon Timer: Gluttonous Abomination
+// 70916 - Summon Timer: Risen Archmage
 class spell_dreamwalker_decay_periodic_timer : public AuraScript
 {
     PrepareAuraScript(spell_dreamwalker_decay_periodic_timer);
@@ -1033,6 +1038,10 @@ class spell_dreamwalker_decay_periodic_timer : public AuraScript
     int32 _decayRate = 0;
 };
 
+// 70921 - Summon Gluttonous Abomination
+// 70933 - Summon Blazing Skeleton
+// 71032 - Summon Blistering Zombie
+// 71078 - Summon Risen Archmage
 class spell_dreamwalker_summoner : public SpellScript
 {
     PrepareSpellScript(spell_dreamwalker_summoner);
@@ -1061,7 +1070,7 @@ class spell_dreamwalker_summoner : public SpellScript
         if (!GetHitUnit())
             return;
 
-        GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
     }
 
     void Register() override
@@ -1071,6 +1080,7 @@ class spell_dreamwalker_summoner : public SpellScript
     }
 };
 
+// 70912 - Summon Timer: Suppresser
 class spell_dreamwalker_summon_suppresser : public AuraScript
 {
     PrepareAuraScript(spell_dreamwalker_summon_suppresser);
@@ -1113,6 +1123,7 @@ class spell_dreamwalker_summon_suppresser : public AuraScript
     }
 };
 
+// 70936 - Summon Suppresser
 class spell_dreamwalker_summon_suppresser_effect : public SpellScript
 {
     PrepareSpellScript(spell_dreamwalker_summon_suppresser_effect);
@@ -1130,7 +1141,7 @@ class spell_dreamwalker_summon_suppresser_effect : public SpellScript
         if (!GetHitUnit())
             return;
 
-        GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
     }
 
     void Register() override
@@ -1139,6 +1150,7 @@ class spell_dreamwalker_summon_suppresser_effect : public SpellScript
     }
 };
 
+// 72224 - Summon Dream Portal
 class spell_dreamwalker_summon_dream_portal : public SpellScript
 {
     PrepareSpellScript(spell_dreamwalker_summon_dream_portal);
@@ -1159,6 +1171,7 @@ class spell_dreamwalker_summon_dream_portal : public SpellScript
     }
 };
 
+// 72480 - Summon Nightmare Portal
 class spell_dreamwalker_summon_nightmare_portal : public SpellScript
 {
     PrepareSpellScript(spell_dreamwalker_summon_nightmare_portal);
@@ -1179,6 +1192,7 @@ class spell_dreamwalker_summon_nightmare_portal : public SpellScript
     }
 };
 
+// 71970 - Nightmare Cloud
 class spell_dreamwalker_nightmare_cloud : public AuraScript
 {
     PrepareAuraScript(spell_dreamwalker_nightmare_cloud);
@@ -1210,6 +1224,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 71941 - Twisted Nightmares
 class spell_dreamwalker_twisted_nightmares : public SpellScript
 {
     PrepareSpellScript(spell_dreamwalker_twisted_nightmares);
@@ -1219,7 +1234,7 @@ class spell_dreamwalker_twisted_nightmares : public SpellScript
         PreventHitDefaultEffect(effIndex);
 
         if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
-            GetHitUnit()->CastSpell(nullptr, GetSpellInfo()->Effects[effIndex].TriggerSpell, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
+            GetHitUnit()->CastSpell(nullptr, GetEffectInfo().TriggerSpell, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
     }
 
     void Register() override

@@ -93,7 +93,7 @@ class TC_GAME_API OutdoorPvPMgr
         OutdoorPvPMap m_OutdoorPvPMap;
 
         // Holds the outdoor PvP templates
-        OutdoorPvPScriptIds m_OutdoorPvPDatas;
+        OutdoorPvPScriptIds m_OutdoorPvPDatas = {};
 
         // update interval
         uint32 m_UpdateTimer;

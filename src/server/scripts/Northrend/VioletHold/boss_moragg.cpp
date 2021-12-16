@@ -35,159 +35,129 @@ enum Spells
     SPELL_OPTIC_LINK_LEVEL_3                   = 54395
 };
 
-class boss_moragg : public CreatureScript
+struct boss_moragg : public BossAI
 {
-    public:
-        boss_moragg() : CreatureScript("boss_moragg") { }
+    boss_moragg(Creature* creature) : BossAI(creature, DATA_MORAGG) { }
 
-        struct boss_moraggAI : public BossAI
+    void Reset() override
+    {
+        BossAI::Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+    }
+
+    void JustReachedHome() override
+    {
+        BossAI::JustReachedHome();
+        instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        scheduler.Update(diff,
+            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+    }
+
+    void ScheduleTasks() override
+    {
+        scheduler.Async([this]
         {
-            boss_moraggAI(Creature* creature) : BossAI(creature, DATA_MORAGG) { }
+            DoCast(me, SPELL_RAY_OF_PAIN);
+            DoCast(me, SPELL_RAY_OF_SUFFERING);
+        });
 
-            void Reset() override
-            {
-                BossAI::Reset();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-            }
-
-            void JustReachedHome() override
-            {
-                BossAI::JustReachedHome();
-                instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
-            }
-
-            void ScheduleTasks() override
-            {
-                scheduler.Async([this]
-                {
-                    DoCast(me, SPELL_RAY_OF_PAIN);
-                    DoCast(me, SPELL_RAY_OF_SUFFERING);
-                });
-
-                scheduler.Schedule(Seconds(15), [this](TaskContext task)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
-                        DoCast(target, SPELL_OPTIC_LINK);
-                    task.Repeat(Seconds(25));
-                });
-
-                scheduler.Schedule(Seconds(5), [this](TaskContext task)
-                {
-                    DoCastVictim(SPELL_CORROSIVE_SALIVA);
-                    task.Repeat(Seconds(10));
-                });
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
+        scheduler.Schedule(Seconds(15), [this](TaskContext task)
         {
-            return GetVioletHoldAI<boss_moraggAI>(creature);
-        }
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
+                DoCast(target, SPELL_OPTIC_LINK);
+            task.Repeat(Seconds(25));
+        });
+
+        scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        {
+            DoCastVictim(SPELL_CORROSIVE_SALIVA);
+            task.Repeat(Seconds(10));
+        });
+    }
 };
 
-class spell_moragg_ray : public SpellScriptLoader
+// 54438, 59523 - Ray of Pain
+// 54442, 59524 - Ray of Suffering
+class spell_moragg_ray : public AuraScript
 {
-    public:
-        spell_moragg_ray() : SpellScriptLoader("spell_moragg_ray") { }
+    PrepareAuraScript(spell_moragg_ray);
 
-        class spell_moragg_ray_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_moragg_ray_AuraScript);
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
 
-            void OnPeriodic(AuraEffect const* aurEff)
+        if (UnitAI* AI = GetTarget()->GetAI())
+            if (Unit* target = AI->SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
             {
-                PreventDefaultAction();
-
-                if (UnitAI* AI = GetTarget()->GetAI())
-                    if (Unit* target = AI->SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
-                    {
-                        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                        GetTarget()->CastSpell(target, triggerSpell, aurEff);
-                    }
+                uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
+                GetTarget()->CastSpell(target, triggerSpell, aurEff);
             }
+    }
 
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_ray_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_moragg_ray_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_ray::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
 };
 
-class spell_moragg_optic_link : public SpellScriptLoader
+// 54396 - Optic Link
+class spell_moragg_optic_link : public AuraScript
 {
-public:
-    spell_moragg_optic_link() : SpellScriptLoader("spell_moragg_optic_link") { }
+    PrepareAuraScript(spell_moragg_optic_link);
 
-    class spell_moragg_optic_link_AuraScript : public AuraScript
+    void OnPeriodic(AuraEffect const* aurEff)
     {
-        PrepareAuraScript(spell_moragg_optic_link_AuraScript);
-
-        void OnPeriodic(AuraEffect const* aurEff)
+        if (Unit* caster = GetCaster())
         {
-            if (Unit* caster = GetCaster())
-            {
-                if (aurEff->GetTickNumber() >= 8)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, aurEff);
+            if (aurEff->GetTickNumber() >= 8)
+                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, aurEff);
 
-                if (aurEff->GetTickNumber() >= 4)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, aurEff);
+            if (aurEff->GetTickNumber() >= 4)
+                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, aurEff);
 
-                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, aurEff);
-            }
+            caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, aurEff);
         }
+    }
 
-        void OnUpdate(AuraEffect* aurEff)
-        {
-            switch (aurEff->GetTickNumber())
-            {
-                case 1:
-                    aurEff->SetAmount(aurEff->GetAmount() + 250); // base amount is 500
-                    break;
-                case 4:
-                    aurEff->SetAmount(aurEff->GetAmount() * 2); // goes to 1500
-                    break;
-                case 8:
-                    aurEff->SetAmount(aurEff->GetAmount() * 2); // goes to 3000
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_optic_link_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_moragg_optic_link_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void OnUpdate(AuraEffect* aurEff)
     {
-        return new spell_moragg_optic_link_AuraScript();
+        switch (aurEff->GetTickNumber())
+        {
+            case 1:
+                aurEff->SetAmount(aurEff->GetAmount() + 250); // base amount is 500
+                break;
+            case 4:
+                aurEff->SetAmount(aurEff->GetAmount() * 2); // goes to 1500
+                break;
+            case 8:
+                aurEff->SetAmount(aurEff->GetAmount() * 2); // goes to 3000
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_optic_link::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_moragg_optic_link::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
 void AddSC_boss_moragg()
 {
-    new boss_moragg();
-    new spell_moragg_ray();
-    new spell_moragg_optic_link();
+    RegisterVioletHoldCreatureAI(boss_moragg);
+    RegisterSpellScript(spell_moragg_ray);
+    RegisterSpellScript(spell_moragg_optic_link);
 }

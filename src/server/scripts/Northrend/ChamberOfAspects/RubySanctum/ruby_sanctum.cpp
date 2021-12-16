@@ -55,103 +55,92 @@ enum Spells
 
 Position const xerestraszaMovePos = {3151.236f, 379.8733f, 86.31996f, 0.0f};
 
-class npc_xerestrasza : public CreatureScript
+struct npc_xerestrasza : public ScriptedAI
 {
-    public:
-        npc_xerestrasza() : CreatureScript("npc_xerestrasza") { }
+    npc_xerestrasza(Creature* creature) : ScriptedAI(creature)
+    {
+        _isIntro = true;
+        _introDone = false;
+    }
 
-        struct npc_xerestraszaAI : public ScriptedAI
+    void Reset() override
+    {
+        _events.Reset();
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_BALTHARUS_DEATH)
         {
-            npc_xerestraszaAI(Creature* creature) : ScriptedAI(creature)
-            {
-                _isIntro = true;
-                _introDone = false;
-            }
+            me->setActive(true);
+            me->SetFarVisible(true);
+            _isIntro = false;
 
-            void Reset() override
-            {
-                _events.Reset();
-                me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
-            }
+            Talk(SAY_XERESTRASZA_EVENT);
+            me->SetWalk(true);
+            me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
 
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_BALTHARUS_DEATH)
-                {
-                    me->setActive(true);
-                    me->SetFarVisible(true);
-                    _isIntro = false;
-
-                    Talk(SAY_XERESTRASZA_EVENT);
-                    me->SetWalk(true);
-                    me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
-
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69s);
-                }
-                else if (action == ACTION_INTRO_BALTHARUS && !_introDone)
-                {
-                    _introDone = true;
-                    Talk(SAY_XERESTRASZA_INTRO);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (_isIntro)
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_XERESTRASZA_EVENT_1:
-                            Talk(SAY_XERESTRASZA_EVENT_1);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_2:
-                            Talk(SAY_XERESTRASZA_EVENT_2);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_3:
-                            Talk(SAY_XERESTRASZA_EVENT_3);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_4:
-                            Talk(SAY_XERESTRASZA_EVENT_4);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_5:
-                            Talk(SAY_XERESTRASZA_EVENT_5);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_6:
-                            Talk(SAY_XERESTRASZA_EVENT_6);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_7:
-                            me->SetFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
-                            Talk(SAY_XERESTRASZA_EVENT_7);
-                            me->setActive(false);
-                            me->SetFarVisible(false);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-            bool _isIntro;
-            bool _introDone;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetRubySanctumAI<npc_xerestraszaAI>(creature);
+            _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16s);
+            _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25s);
+            _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32s);
+            _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42s);
+            _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51s);
+            _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61s);
+            _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69s);
         }
+        else if (action == ACTION_INTRO_BALTHARUS && !_introDone)
+        {
+            _introDone = true;
+            Talk(SAY_XERESTRASZA_INTRO);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_isIntro)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_XERESTRASZA_EVENT_1:
+                    Talk(SAY_XERESTRASZA_EVENT_1);
+                    break;
+                case EVENT_XERESTRASZA_EVENT_2:
+                    Talk(SAY_XERESTRASZA_EVENT_2);
+                    break;
+                case EVENT_XERESTRASZA_EVENT_3:
+                    Talk(SAY_XERESTRASZA_EVENT_3);
+                    break;
+                case EVENT_XERESTRASZA_EVENT_4:
+                    Talk(SAY_XERESTRASZA_EVENT_4);
+                    break;
+                case EVENT_XERESTRASZA_EVENT_5:
+                    Talk(SAY_XERESTRASZA_EVENT_5);
+                    break;
+                case EVENT_XERESTRASZA_EVENT_6:
+                    Talk(SAY_XERESTRASZA_EVENT_6);
+                    break;
+                case EVENT_XERESTRASZA_EVENT_7:
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    Talk(SAY_XERESTRASZA_EVENT_7);
+                    me->setActive(false);
+                    me->SetFarVisible(false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _isIntro;
+    bool _introDone;
 };
 
 class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
@@ -176,53 +165,42 @@ class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
 };
 
 // 75415 - Rallying Shout
-class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
+class spell_ruby_sanctum_rallying_shout : public SpellScript
 {
-    public:
-        spell_ruby_sanctum_rallying_shout() : SpellScriptLoader("spell_ruby_sanctum_rallying_shout") { }
+    PrepareSpellScript(spell_ruby_sanctum_rallying_shout);
 
-        class spell_ruby_sanctum_rallying_shout_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RALLY });
+    }
+
+    void CountTargets(std::list<WorldObject*>& targets)
+    {
+        _targetCount = targets.size();
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (_targetCount && !GetCaster()->HasAura(SPELL_RALLY))
         {
-            PrepareSpellScript(spell_ruby_sanctum_rallying_shout_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_RALLY });
-            }
-
-            void CountTargets(std::list<WorldObject*>& targets)
-            {
-                _targetCount = targets.size();
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (_targetCount && !GetCaster()->HasAura(SPELL_RALLY))
-                {
-                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
-                    GetCaster()->CastSpell(GetCaster(), SPELL_RALLY, args);
-                }
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ruby_sanctum_rallying_shout_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnEffectHit += SpellEffectFn(spell_ruby_sanctum_rallying_shout_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-
-            uint32 _targetCount = 0;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_ruby_sanctum_rallying_shout_SpellScript();
+            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+            args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
+            GetCaster()->CastSpell(GetCaster(), SPELL_RALLY, args);
         }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ruby_sanctum_rallying_shout::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHit += SpellEffectFn(spell_ruby_sanctum_rallying_shout::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    uint32 _targetCount = 0;
 };
 
 void AddSC_ruby_sanctum()
 {
-    new npc_xerestrasza();
+    RegisterRubySanctumCreatureAI(npc_xerestrasza);
     new at_baltharus_plateau();
-    new spell_ruby_sanctum_rallying_shout();
+    RegisterSpellScript(spell_ruby_sanctum_rallying_shout);
 }

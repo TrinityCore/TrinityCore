@@ -44,8 +44,8 @@
         return false;
     if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return false;
-    // ... both units must not be ignoring combat
-    if (a->IsIgnoringCombat() || b->IsIgnoringCombat())
+    // ... both units must be allowed to enter combat
+    if (a->IsCombatDisallowed() || b->IsCombatDisallowed())
         return false;
     if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
         return false;
@@ -237,14 +237,11 @@ void CombatManager::InheritCombatStatesFrom(Unit const* who)
     }
     for (auto& ref : mgr._pvpRefs)
     {
-        if (!IsInCombatWith(ref.first))
-        {
-            Unit* target = ref.second->GetOther(who);
-            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) ||
-                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)))
-                continue;
-            SetInCombatWith(target);
-        }
+        Unit* target = ref.second->GetOther(who);
+        if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) ||
+            (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)))
+            continue;
+        SetInCombatWith(target);
     }
 }
 
@@ -296,6 +293,35 @@ void CombatManager::EndAllPvECombat()
     _owner->GetThreatManager().ClearAllThreat();
     while (!_pveRefs.empty())
         _pveRefs.begin()->second->EndCombat();
+}
+
+void CombatManager::RevalidateCombat()
+{
+    auto it = _pveRefs.begin(), end = _pveRefs.end();
+    while (it != end)
+    {
+        CombatReference* const ref = it->second;
+        if (!CanBeginCombat(_owner, ref->GetOther(_owner)))
+        {
+            it = _pveRefs.erase(it), end = _pveRefs.end(); // erase manually here to avoid iterator invalidation
+            ref->EndCombat();
+        }
+        else
+            ++it;
+    }
+
+    auto it2 = _pvpRefs.begin(), end2 = _pvpRefs.end();
+    while (it2 != end2)
+    {
+        CombatReference* const ref = it2->second;
+        if (!CanBeginCombat(_owner, ref->GetOther(_owner)))
+        {
+            it2 = _pvpRefs.erase(it2), end2 = _pvpRefs.end(); // erase manually here to avoid iterator invalidation
+            ref->EndCombat();
+        }
+        else
+            ++it2;
+    }
 }
 
 void CombatManager::EndAllPvPCombat()

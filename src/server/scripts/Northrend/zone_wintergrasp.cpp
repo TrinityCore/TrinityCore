@@ -376,7 +376,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                 return nullptr;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 _checkTimer += diff;
                 if (_checkTimer >= 1000)
@@ -399,6 +399,11 @@ class go_wg_vehicle_teleporter : public GameObjectScript
         }
 };
 
+/* 49899 - Activate Robotic Arms
+   56659 - Build Demolisher (Force)
+   56662 - Build Siege Vehicle (Force)
+   56664 - Build Catapult (Force)
+   61409 - Build Siege Vehicle (Force) */
 class spell_wintergrasp_force_building : public SpellScriptLoader
 {
     public:
@@ -437,6 +442,7 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
         }
 };
 
+// 61178 - Grab Passenger
 class spell_wintergrasp_grab_passenger : public SpellScriptLoader
 {
     public:
@@ -493,6 +499,7 @@ enum WgTeleport
     SPELL_WINTERGRASP_TELEPORT_TRIGGER = 54643,
 };
 
+// 54640 - Teleport
 class spell_wintergrasp_defender_teleport : public SpellScriptLoader
 {
     public:
@@ -524,6 +531,7 @@ class spell_wintergrasp_defender_teleport : public SpellScriptLoader
         }
 };
 
+// 54643 - Teleport
 class spell_wintergrasp_defender_teleport_trigger : public SpellScriptLoader
 {
     public:
@@ -554,15 +562,15 @@ class spell_wintergrasp_defender_teleport_trigger : public SpellScriptLoader
         }
 };
 
-// 58549 Tenacity
-// 59911 Tenacity
+// 58549 - Tenacity
+// 59911 - Tenacity
 class spell_wintergrasp_tenacity_refresh : public AuraScript
 {
     PrepareAuraScript(spell_wintergrasp_tenacity_refresh);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        uint32 triggeredSpellId = spellInfo->Effects[EFFECT_2].CalcValue();
+        uint32 triggeredSpellId = spellInfo->GetEffect(EFFECT_2).CalcValue();
         return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });
     }
 
@@ -570,7 +578,7 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
     {
         PreventDefaultAction();
 
-        if (uint32 triggeredSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue())
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValue())
         {
             int32 bp = 0;
             if (AuraEffect const* healEffect = GetEffect(EFFECT_0))
@@ -588,7 +596,7 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (uint32 triggeredSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue())
+        if (uint32 triggeredSpellId = aurEff->GetSpellEffectInfo().CalcValue())
             GetTarget()->RemoveAurasDueToSpell(triggeredSpellId);
     }
 
@@ -604,7 +612,7 @@ class condition_is_wintergrasp_horde : public ConditionScript
     public:
         condition_is_wintergrasp_horde() : ConditionScript("condition_is_wintergrasp_horde") { }
 
-        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
+        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */) override
         {
             Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
             if (wintergrasp && wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_HORDE)
@@ -618,7 +626,7 @@ class condition_is_wintergrasp_alliance : public ConditionScript
     public:
         condition_is_wintergrasp_alliance() : ConditionScript("condition_is_wintergrasp_alliance") { }
 
-        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
+        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */) override
         {
             Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
             if (wintergrasp && wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE)

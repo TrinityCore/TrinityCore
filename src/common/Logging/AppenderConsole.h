@@ -53,6 +53,7 @@ class TC_COMMON_API AppenderConsole : public Appender
     private:
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
+        void Print(std::string const& str, bool error);
         void _write(LogMessage const* message) override;
         bool _colored;
         ColorTypes _colors[NUM_ENABLED_LOG_LEVELS];

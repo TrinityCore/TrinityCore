@@ -71,4 +71,7 @@ inline AI* GetNexusAI(T* obj)
     return GetInstanceAI<AI>(obj, NexusScriptName);
 }
 
+#define RegisterNexusCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetNexusAI)
+#define RegisterNexusGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetNexusAI)
+
 #endif

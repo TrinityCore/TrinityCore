@@ -97,7 +97,7 @@ public:
             UnkorUnfriendly_Timer = 60000;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!done_by || !me->HealthBelowPctDamaged(30, damage))
                 return;
@@ -177,8 +177,77 @@ class spell_skyguard_flare : public SpellScript
     }
 };
 
+/*######
+## Quest 10873: Taken in the Night
+######*/
+
+enum FreeWebbedTerokkar
+{
+    SPELL_FREE_WEBBED_1      = 38953,
+    SPELL_FREE_WEBBED_2      = 38955,
+    SPELL_FREE_WEBBED_3      = 38956,
+    SPELL_FREE_WEBBED_4      = 38957,
+    SPELL_FREE_WEBBED_5      = 38958,
+    SPELL_FREE_WEBBED_6      = 38978
+};
+
+uint32 const CocoonSummonSpells[5] =
+{
+    SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3, SPELL_FREE_WEBBED_4, SPELL_FREE_WEBBED_5
+};
+
+// 38949 - Terrokar Free Webbed Creature
+class spell_free_webbed_terokkar : public SpellScript
+{
+    PrepareSpellScript(spell_free_webbed_terokkar);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_free_webbed_terokkar::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 38950 - Terokkar Free Webbed Creature ON QUEST
+class spell_free_webbed_terokkar_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_free_webbed_terokkar_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_6 });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (roll_chance_i(66))
+            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        else
+            target->CastSpell(caster, SPELL_FREE_WEBBED_6, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_free_webbed_terokkar_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
     RegisterSpellScript(spell_skyguard_flare);
+    RegisterSpellScript(spell_free_webbed_terokkar);
+    RegisterSpellScript(spell_free_webbed_terokkar_on_quest);
 }

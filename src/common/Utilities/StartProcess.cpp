@@ -20,6 +20,9 @@
 #include "Log.h"
 #include "Optional.h"
 #include "Util.h"
+
+#include "Hacks/boost_1_73_process_windows_nopch.h"
+
 #include <boost/algorithm/string/join.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/process/args.hpp>
@@ -52,9 +55,8 @@ public:
     std::streamsize write(char const* str, std::streamsize size)
     {
         std::string consoleStr(str, size);
-        std::string utf8;
-        if (consoleToUtf8(consoleStr, utf8))
-            callback_(utf8);
+        RemoveCRLF(consoleStr);
+        callback_(consoleStr);
         return size;
     }
 };
@@ -81,17 +83,24 @@ static int CreateChildProcess(T waiter, std::string const& executable,
                 executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
     }
 
+    // prepare file with only read permission (boost process opens with read_write)
+    std::shared_ptr<FILE> inputFile(!input.empty() ? fopen(input.c_str(), "rb") : nullptr, [](FILE* ptr)
+    {
+        if (ptr != nullptr)
+            fclose(ptr);
+    });
+
     // Start the child process
     child c = [&]()
     {
-        if (!input.empty())
+        if (inputFile)
         {
             // With binding stdin
             return child{
                 exe = boost::filesystem::absolute(executable).string(),
                 args = argsVector,
                 env = environment(boost::this_process::environment()),
-                std_in = input,
+                std_in = inputFile.get(),
                 std_out = outStream,
                 std_err = errStream
             };

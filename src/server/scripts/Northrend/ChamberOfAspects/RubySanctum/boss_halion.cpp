@@ -278,7 +278,7 @@ class boss_halion : public CreatureScript
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
                     damage = me->GetHealth() - 1;
@@ -289,7 +289,7 @@ class boss_halion : public CreatureScript
                     Talk(SAY_PHASE_TWO);
 
                     me->CastStop();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                     DoCastSelf(SPELL_TWILIGHT_PHASING);
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -464,7 +464,7 @@ class boss_twilight_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
                     damage = me->GetHealth() - 1;
@@ -572,6 +572,7 @@ class npc_halion_controller : public CreatureScript
                 _materialCorporealityValue = 5;
                 _materialDamageTaken = 0;
                 _twilightDamageTaken = 0;
+                SetBoundary(_instance->GetBossBoundary(DATA_HALION));
             }
 
             void JustAppeared() override
@@ -670,7 +671,7 @@ class npc_halion_controller : public CreatureScript
                                 continue;
 
                             halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
-                            halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         }
 
                         // Summon Twilight portals
@@ -1398,6 +1399,7 @@ class go_twilight_portal : public GameObjectScript
         }
 };
 
+// 74641 - Meteor Strike
 class spell_halion_meteor_strike_marker : public SpellScriptLoader
 {
     public:
@@ -1485,6 +1487,8 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
         uint32 _spellID;
 };
 
+// 74629 - Combustion Periodic
+// 74803 - Consumption Periodic
 class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 {
     public:
@@ -1496,7 +1500,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+                return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
             }
 
             void HandleTick(AuraEffect const* aurEff)
@@ -1506,7 +1510,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
                 int32 radius = caster->GetObjectScale() * M_PI * 10000 / 3;
 
                 CastSpellExtraArgs args(aurEff);
@@ -1589,6 +1593,8 @@ class spell_halion_marks : public SpellScriptLoader
         uint32 _removeSpell;
 };
 
+// 74610 - Fiery Combustion
+// 74800 - Soul Consumption
 class spell_halion_damage_aoe_summon : public SpellScriptLoader
 {
     public:
@@ -1602,8 +1608,8 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 Unit* caster = GetCaster();
-                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
-                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->Effects[effIndex].MiscValueB));
+                uint32 entry = uint32(GetEffectInfo().MiscValue);
+                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
                 Position pos = caster->GetPosition();
@@ -1689,6 +1695,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
         bool _isApplyHandler;
 };
 
+// 75396 - Clear Debuffs
 class spell_halion_clear_debuffs : public SpellScriptLoader
 {
     public:
@@ -1703,10 +1710,10 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_CLEAR_DEBUFFS, SPELL_TWILIGHT_REALM });
             }
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit()->HasAura(GetSpellInfo()->Effects[effIndex].CalcValue()))
-                    GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[effIndex].CalcValue());
+                if (GetHitUnit()->HasAura(GetEffectInfo().CalcValue()))
+                    GetHitUnit()->RemoveAurasDueToSpell(GetEffectInfo().CalcValue());
             }
 
             void Register() override
@@ -1736,6 +1743,7 @@ class TwilightCutterSelector
         Unit* _channelTarget;
 };
 
+// 74769, 77844, 77845, 77846 - Twilight Cutter
 class spell_halion_twilight_cutter : public SpellScriptLoader
 {
     public:
@@ -1773,6 +1781,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         }
 };
 
+// 74808 - Twilight Phasing
 class spell_halion_twilight_phasing : public SpellScriptLoader
 {
     public:
@@ -1841,6 +1850,7 @@ class spell_halion_summon_exit_portals : public SpellScriptLoader
         }
 };
 
+// 75880 - Spawn Living Embers
 class spell_halion_spawn_living_embers : public SpellScriptLoader
 {
     public:
@@ -1874,6 +1884,7 @@ class spell_halion_spawn_living_embers : public SpellScriptLoader
         }
 };
 
+// 75886, 75887 - Blazing Aura
 class spell_halion_blazing_aura : public SpellScriptLoader
 {
     public:
@@ -1886,7 +1897,7 @@ class spell_halion_blazing_aura : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[EFFECT_1].TriggerSpell);
+                GetHitUnit()->CastSpell(GetHitUnit(), GetEffectInfo().TriggerSpell);
             }
 
             void Register() override

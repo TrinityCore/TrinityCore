@@ -380,7 +380,7 @@ struct boss_gormok : public boss_northrend_beastsAI
                     if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
                     {
                         snobold->ExitVehicle();
-                        snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                         snobold->GetAI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
                         snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
                         break;
@@ -484,7 +484,7 @@ struct npc_snobold_vassal : public ScriptedAI
         }
         else
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
             _events.CancelEvent(EVENT_CHECK_MOUNT);
             _events.CancelEvent(EVENT_FIRE_BOMB);
             me->AttackStop();
@@ -743,7 +743,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             DoCastSelf(SPELL_GROUND_VISUAL_0, true);
             events.SetPhase(PHASE_SUBMERGED);
             events.ScheduleEvent(EVENT_EMERGE, 5s, 0, PHASE_SUBMERGED);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
         else
         {
@@ -755,7 +755,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             events.SetPhase(PHASE_SUBMERGED);
             me->SetControlled(false, UNIT_STATE_ROOT);
             events.ScheduleEvent(EVENT_EMERGE, 6s, 0, PHASE_SUBMERGED);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
         me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetCollisionHeight());
     }
@@ -768,7 +768,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_0);
         DoCastSelf(SPELL_EMERGE);
         DoCastAOE(SPELL_HATE_TO_ZERO, true);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         me->SetReactState(REACT_AGGRESSIVE);
         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
             AttackStart(target);
@@ -1137,7 +1137,7 @@ class spell_gormok_snobolled : public AuraScript
     }
 };
 
-// 66823 - Paralytic Toxin
+// 66823, 67618, 67619, 67620 - Paralytic Toxin
 class spell_jormungars_paralytic_toxin : public AuraScript
 {
     PrepareAuraScript(spell_jormungars_paralytic_toxin);
@@ -1191,7 +1191,7 @@ class spell_jormungars_paralytic_toxin : public AuraScript
     }
 };
 
-// 66870 - Burning Bile
+// 66870, 67621, 67622, 67623 - Burning Bile
 class spell_jormungars_burning_bile : public SpellScript
 {
     PrepareSpellScript(spell_jormungars_burning_bile);
@@ -1215,7 +1215,7 @@ class spell_jormungars_slime_pool : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -1225,7 +1225,7 @@ class spell_jormungars_slime_pool : public AuraScript
         int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_RADIUS_MOD, radius);
-        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, args);
+        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, args);
     }
 
     void Register() override
@@ -1236,42 +1236,29 @@ class spell_jormungars_slime_pool : public AuraScript
 
 /* 66869 - Burning Bile
    66823 - Paralytic Toxin */
-class spell_jormungars_snakes_spray : public SpellScriptLoader
+class spell_jormungars_snakes_spray : public SpellScript
 {
+    PrepareSpellScript(spell_jormungars_snakes_spray);
+
 public:
-    spell_jormungars_snakes_spray(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
-
-    class spell_jormungars_snakes_spray_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_jormungars_snakes_spray_SpellScript);
-
-    public:
-        spell_jormungars_snakes_spray_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
-
-    private:
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            return ValidateSpellInfo({ _spellId });
-        }
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-        uint32 _spellId;
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_jormungars_snakes_spray_SpellScript(_spellId);
-    }
+    spell_jormungars_snakes_spray(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
 private:
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ _spellId });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
     uint32 _spellId;
 };
 
@@ -1303,12 +1290,12 @@ class spell_icehowl_arctic_breath : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
-    void HandleScriptEffect(SpellEffIndex effIndex)
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        uint32 spellId = GetSpellInfo()->Effects[effIndex].CalcValue();
+        uint32 spellId = GetEffectInfo().CalcValue();
         GetCaster()->CastSpell(GetHitUnit(), spellId, true);
     }
 
@@ -1381,8 +1368,8 @@ void AddSC_boss_northrend_beasts()
     RegisterSpellScript(spell_jormungars_paralytic_toxin);
     RegisterSpellScript(spell_jormungars_burning_bile);
     RegisterSpellScript(spell_jormungars_slime_pool);
-    new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
-    new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
+    RegisterSpellScriptWithArgs(spell_jormungars_snakes_spray, "spell_jormungars_burning_spray", SPELL_BURNING_BILE);
+    RegisterSpellScriptWithArgs(spell_jormungars_snakes_spray, "spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
     RegisterSpellScript(spell_jormungars_paralysis);
     RegisterSpellScript(spell_icehowl_arctic_breath);
     RegisterSpellScript(spell_icehowl_trample);

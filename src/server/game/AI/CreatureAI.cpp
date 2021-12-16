@@ -303,7 +303,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     }
 
     me->RemoveAurasOnEvade();
-
+    me->ClearComboPointHolders(); // Remove all combo points targeting this unit
     me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
@@ -387,7 +387,7 @@ int32 CreatureAI::VisualizeBoundary(Seconds duration, Unit* owner, bool fill) co
                 point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 point->SetImmuneToAll(true);
                 if (!hasOutOfBoundsNeighbor)
-                    point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             }
         }
 

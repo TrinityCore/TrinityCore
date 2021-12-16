@@ -268,7 +268,7 @@ class boss_zuljin : public CreatureScript
                     {
                         creature->CastSpell(creature, SPELL_SPIRIT_AURA, true);
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                         SpiritGUID[i] = creature->GetGUID();
                     }
                 }
@@ -325,8 +325,6 @@ class boss_zuljin : public CreatureScript
                                 {
                                     Vortex->CastSpell(Vortex, SPELL_CYCLONE_PASSIVE, true);
                                     Vortex->CastSpell(Vortex, SPELL_CYCLONE_VISUAL, true);
-                                    Vortex->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    Vortex->SetSpeedRate(MOVE_RUN, 1.0f);
                                     Vortex->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random, 0));
                                     DoZoneInCombat(Vortex);
                                 }

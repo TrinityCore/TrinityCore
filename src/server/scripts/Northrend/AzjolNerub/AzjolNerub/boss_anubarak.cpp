@@ -117,7 +117,7 @@ struct boss_anub_arak : public BossAI
     void Reset() override
     {
         BossAI::Reset();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
         _nextSubmerge = 75;
         _petCount = 0;
@@ -328,7 +328,7 @@ struct boss_anub_arak : public BossAI
                 {
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                     me->RemoveAurasDueToSpell(SPELL_IMPALE_AURA);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                     DoCastSelf(SPELL_EMERGE);
                     events.SetPhase(PHASE_EMERGE);
                     events.ScheduleEvent(EVENT_POUND, 13s, 18s, 0, PHASE_EMERGE);
@@ -342,7 +342,7 @@ struct boss_anub_arak : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*source*/, uint32& damage) override
+    void DamageTaken(Unit* /*source*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HasAura(SPELL_SUBMERGE))
             damage = 0;
@@ -358,7 +358,7 @@ struct boss_anub_arak : public BossAI
     {
         if (spellInfo->Id == SPELL_SUBMERGE)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
             me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
             DoCastSelf(SPELL_IMPALE_AURA, true);
 
@@ -600,6 +600,7 @@ struct npc_anubarak_impale_target : public NullCreatureAI
     }
 };
 
+// 53472, 59433 - Pound
 class spell_anubarak_pound : public AuraScript
 {
     PrepareAuraScript(spell_anubarak_pound);
@@ -621,6 +622,7 @@ class spell_anubarak_pound : public AuraScript
     }
 };
 
+// 53520 - Carrion Beetles
 class spell_anubarak_carrion_beetles : public AuraScript
 {
     PrepareAuraScript(spell_anubarak_carrion_beetles);
@@ -644,13 +646,13 @@ class spell_anubarak_carrion_beetles : public AuraScript
 
 void AddSC_boss_anub_arak()
 {
-    RegisterCreatureAIWithFactory(boss_anub_arak, GetAzjolNerubAI);
+    RegisterAzjolNerubCreatureAI(boss_anub_arak);
 
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_darter, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_assassin, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_guardian, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_venomancer, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_darter);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_assassin);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_guardian);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_venomancer);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_impale_target);
 
     RegisterSpellScript(spell_anubarak_pound);
     RegisterSpellScript(spell_anubarak_carrion_beetles);

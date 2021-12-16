@@ -139,332 +139,310 @@ Position const FirstWaveLocations[FIRST_WAVE_SIZE] =
     { 481.3883f, -507.1089f, 104.7241f, 3.263766f },
 };
 
-class boss_skadi : public CreatureScript
+struct boss_skadi : public BossAI
 {
-public:
-    boss_skadi() : CreatureScript("boss_skadi") { }
-
-    struct boss_skadiAI : public BossAI
+    boss_skadi(Creature* creature) : BossAI(creature, DATA_SKADI_THE_RUTHLESS)
     {
-        boss_skadiAI(Creature* creature) : BossAI(creature, DATA_SKADI_THE_RUTHLESS)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            firstWaveSummoned = false;
-            _harpoonHit = 0;
-            _loveSkadi = 0;
-            _phase = PHASE_GROUND;
-            scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-        }
-
-        void Reset() override
-        {
-            _Reset();
-            Initialize();
-            me->SetReactState(REACT_PASSIVE);
-            if (!instance->GetCreature(DATA_GRAUF))
-                me->SummonCreature(NPC_GRAUF, GraufLoc);
-
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            summons.DespawnAll();
-            _DespawnAtEvade();
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            switch (summon->GetEntry())
-            {
-                case NPC_YMIRJAR_WARRIOR:
-                case NPC_YMIRJAR_WITCH_DOCTOR:
-                case NPC_YMIRJAR_HARPOONER:
-                    if (firstWaveSummoned)
-                        summon->GetMotionMaster()->MovePoint(POINT_1, SecondaryWavesInitialPoint);
-                    break;
-                default:
-                    break;
-            }
-            summons.Summon(summon);
-        }
-
-        void SpawnFirstWave()
-        {
-            for (uint8 i = 0; i < FIRST_WAVE_MAX_WARRIORS; i++)
-                if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
-                    summon->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[i]);
-
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
-                crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[10]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
-                crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[11]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
-                crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[12]);
-
-            firstWaveSummoned = true;
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            Talk(SAY_DEATH);
-        }
-
-        void KilledUnit(Unit* who) override
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_KILL);
-        }
-
-        void DoAction(int32 action) override
-        {
-            switch (action)
-            {
-                case ACTION_START_ENCOUNTER:
-                    instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->setActive(true);
-                    SpawnFirstWave();
-                    Talk(SAY_AGGRO);
-                    _phase = PHASE_FLYING;
-                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
-
-                    scheduler
-                        .Schedule(Seconds(6), [this](TaskContext resetCheck)
-                        {
-                            if (Creature* resetTrigger = me->FindNearestCreature(NPC_TRIGGER_RESET, 200.0f))
-                                resetTrigger->CastSpell(resetTrigger, SPELL_UTGARDE_PINNACLE_GUANTLET_RESET_CHECK, true);
-                            resetCheck.Repeat();
-                        })
-                        .Schedule(Seconds(2), [this](TaskContext /*context*/)
-                        {
-                            if (Creature* grauf = instance->GetCreature(DATA_GRAUF))
-                                DoCast(grauf, SPELL_RIDE_GRAUF);
-                        });
-
-                    if (Creature* summonTrigger = me->SummonCreature(NPC_WORLD_TRIGGER, SpawnLoc))
-                        summonTrigger->CastSpell(summonTrigger, SPELL_SUMMON_GAUNLET_MOBS_PERIODIC, true);
-
-                    if (Creature* combatTrigger = me->SummonCreature(NPC_COMBAT_TRIGGER, SpawnLoc))
-                        combatTrigger->AI()->DoZoneInCombat();
-                    break;
-                case ACTION_DRAKE_BREATH:
-                    if (_loveSkadi == 1)
-                        _loveSkadi++;
-                    Talk(SAY_DRAKE_BREATH);
-                    break;
-                case ACTION_GAUNTLET_END:
-                    Talk(SAY_DRAKE_DEATH);
-                    DoCastSelf(SPELL_SKADI_TELEPORT);
-                    summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->SetImmuneToPC(false);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    _phase = PHASE_GROUND;
-
-                    scheduler
-                        .Schedule(Seconds(8), [this](TaskContext crush)
-                        {
-                            DoCastVictim(SPELL_CRUSH);
-                            crush.Repeat();
-                        })
-                        .Schedule(Seconds(11), [this](TaskContext poisonedSpear)
-                        {
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                                DoCast(target, SPELL_POISONED_SPEAR);
-                            poisonedSpear.Repeat();
-                        })
-                        .Schedule(Seconds(23), [this](TaskContext whirlwind)
-                        {
-                            DoCast(SPELL_WHIRLWIND);
-                            whirlwind.Repeat();
-                        });
-                    break;
-                case ACTION_HARPOON_HIT:
-                    _harpoonHit++;
-                    if (_harpoonHit == 1)
-                        _loveSkadi = 1;
-                    break;
-            }
-        }
-
-        uint32 GetData(uint32 id) const override
-        {
-            if (id == DATA_LOVE_TO_SKADI)
-                return _loveSkadi;
-
-            return 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            scheduler.Update(diff);
-
-            if (_phase == PHASE_GROUND)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-        }
-
-    private:
-        CombatPhase _phase;
-        uint8 _harpoonHit;
-        uint8 _loveSkadi;
-        bool firstWaveSummoned;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetUtgardePinnacleAI<boss_skadiAI>(creature);
+        Initialize();
     }
+
+    void Initialize()
+    {
+        firstWaveSummoned = false;
+        _harpoonHit = 0;
+        _loveSkadi = 0;
+        _phase = PHASE_GROUND;
+        scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        Initialize();
+        me->SetReactState(REACT_PASSIVE);
+        if (!instance->GetCreature(DATA_GRAUF))
+            me->SummonCreature(NPC_GRAUF, GraufLoc);
+
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        switch (summon->GetEntry())
+        {
+            case NPC_YMIRJAR_WARRIOR:
+            case NPC_YMIRJAR_WITCH_DOCTOR:
+            case NPC_YMIRJAR_HARPOONER:
+                if (firstWaveSummoned)
+                    summon->GetMotionMaster()->MovePoint(POINT_1, SecondaryWavesInitialPoint);
+                break;
+            default:
+                break;
+        }
+        summons.Summon(summon);
+    }
+
+    void SpawnFirstWave()
+    {
+        for (uint8 i = 0; i < FIRST_WAVE_MAX_WARRIORS; i++)
+            if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+                summon->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[i]);
+
+        if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+            crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[10]);
+        if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+            crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[11]);
+        if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
+            crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[12]);
+
+        firstWaveSummoned = true;
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_KILL);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_START_ENCOUNTER:
+                instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->setActive(true);
+                SpawnFirstWave();
+                Talk(SAY_AGGRO);
+                _phase = PHASE_FLYING;
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
+
+                scheduler
+                    .Schedule(Seconds(6), [this](TaskContext resetCheck)
+                    {
+                        if (Creature* resetTrigger = me->FindNearestCreature(NPC_TRIGGER_RESET, 200.0f))
+                            resetTrigger->CastSpell(resetTrigger, SPELL_UTGARDE_PINNACLE_GUANTLET_RESET_CHECK, true);
+                        resetCheck.Repeat();
+                    })
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    {
+                        if (Creature* grauf = instance->GetCreature(DATA_GRAUF))
+                            DoCast(grauf, SPELL_RIDE_GRAUF);
+                    });
+
+                if (Creature* summonTrigger = me->SummonCreature(NPC_WORLD_TRIGGER, SpawnLoc))
+                    summonTrigger->CastSpell(summonTrigger, SPELL_SUMMON_GAUNLET_MOBS_PERIODIC, true);
+
+                if (Creature* combatTrigger = me->SummonCreature(NPC_COMBAT_TRIGGER, SpawnLoc))
+                    combatTrigger->AI()->DoZoneInCombat();
+                break;
+            case ACTION_DRAKE_BREATH:
+                if (_loveSkadi == 1)
+                    _loveSkadi++;
+                Talk(SAY_DRAKE_BREATH);
+                break;
+            case ACTION_GAUNTLET_END:
+                Talk(SAY_DRAKE_DEATH);
+                DoCastSelf(SPELL_SKADI_TELEPORT);
+                summons.DespawnEntry(NPC_WORLD_TRIGGER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetImmuneToPC(false);
+                me->SetReactState(REACT_AGGRESSIVE);
+                _phase = PHASE_GROUND;
+
+                scheduler
+                    .Schedule(Seconds(8), [this](TaskContext crush)
+                    {
+                        DoCastVictim(SPELL_CRUSH);
+                        crush.Repeat();
+                    })
+                    .Schedule(Seconds(11), [this](TaskContext poisonedSpear)
+                    {
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+                            DoCast(target, SPELL_POISONED_SPEAR);
+                        poisonedSpear.Repeat();
+                    })
+                    .Schedule(Seconds(23), [this](TaskContext whirlwind)
+                    {
+                        DoCast(SPELL_WHIRLWIND);
+                        whirlwind.Repeat();
+                    });
+                break;
+            case ACTION_HARPOON_HIT:
+                _harpoonHit++;
+                if (_harpoonHit == 1)
+                    _loveSkadi = 1;
+                break;
+        }
+    }
+
+    uint32 GetData(uint32 id) const override
+    {
+        if (id == DATA_LOVE_TO_SKADI)
+            return _loveSkadi;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        scheduler.Update(diff);
+
+        if (_phase == PHASE_GROUND)
+        {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    }
+
+private:
+    CombatPhase _phase;
+    uint8 _harpoonHit;
+    uint8 _loveSkadi;
+    bool firstWaveSummoned;
 };
 
-class npc_grauf : public CreatureScript
+struct npc_grauf : public ScriptedAI
 {
-public:
-    npc_grauf() : CreatureScript("npc_grauf") { }
+    npc_grauf(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-    struct npc_graufAI : public ScriptedAI
+    void Reset() override
     {
-        npc_graufAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-        void Reset() override
-        {
-            me->SetReactState(REACT_PASSIVE);
-            me->SetRegenerateHealth(false);
-            me->SetSpeedRate(MOVE_RUN, 2.5f);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
-                skadi->ExitVehicle();
-
-            me->DespawnOrUnsummon(Seconds(6));
-        }
-
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
-        {
-            if (!apply)
-            {
-                if (Creature * skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
-                    skadi->AI()->DoAction(ACTION_GAUNTLET_END);
-                return;
-            }
-
-            Movement::MoveSplineInit init(who);
-            init.DisableTransportPathTransformations();
-            init.MoveTo(0.3320355f, 0.05355075f, 5.196949f, false);
-            who->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
-
-            me->setActive(true);
-            me->SetFarVisible(true);
-            me->SetCanFly(true);
-            me->SetDisableGravity(true);
-
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
-            {
-                me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_INITIAL, false);
-            });
-        }
-
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type != SPLINE_CHAIN_MOTION_TYPE)
-                return;
-
-            switch (pointId)
-            {
-                case POINT_BREACH:
-                    _scheduler
-                        .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
-                        {
-                            me->SetFacingTo(BreachPoint);
-                            Talk(EMOTE_ON_RANGE);
-                        })
-                        .Schedule(Seconds(10), [this](TaskContext /*context*/)
-                        {
-                            if (RAND(POINT_LEFT, POINT_RIGHT) == POINT_LEFT)
-                                me->GetMotionMaster()->MoveAlongSplineChain(POINT_LEFT, SPLINE_CHAIN_BREACH_LEFT, false);
-                            else
-                                me->GetMotionMaster()->MoveAlongSplineChain(POINT_RIGHT, SPLINE_CHAIN_BREACH_RIGHT, false);
-                        });
-                    break;
-                case POINT_LEFT:
-                    _scheduler
-                        .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
-                        {
-                            me->SetFacingTo(BreathPointLeft);
-                            Talk(EMOTE_BREATH);
-                        })
-                        .Schedule(Seconds(2), [this](TaskContext /*context*/)
-                        {
-                            me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_LEFT, false);
-                            DoCast(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
-                            if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
-                                skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
-                        })
-                        .Schedule(Seconds(10), [this](TaskContext /*context*/)
-                        {
-                            me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
-                        });
-                    break;
-                case POINT_RIGHT:
-                    _scheduler
-                        .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
-                        {
-                            me->SetFacingTo(BreathPointRight);
-                            Talk(EMOTE_BREATH);
-                        })
-                        .Schedule(Seconds(2), [this](TaskContext /*context*/)
-                        {
-                            me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_RIGHT, false);
-                            DoCast(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
-                            if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
-                                skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
-                        })
-                        .Schedule(Seconds(10), [this](TaskContext /*context*/)
-                        {
-                            me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
-                        });
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_LAUNCH_HARPOON)
-                if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
-                    skadi->AI()->DoAction(ACTION_HARPOON_HIT);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
-
-    private:
-        TaskScheduler _scheduler;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetUtgardePinnacleAI<npc_graufAI>(creature);
+        me->SetReactState(REACT_PASSIVE);
+        me->SetRegenerateHealth(false);
+        me->SetSpeedRate(MOVE_RUN, 2.5f);
     }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
+            skadi->ExitVehicle();
+
+        me->DespawnOrUnsummon(Seconds(6));
+    }
+
+    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    {
+        if (!apply)
+        {
+            if (Creature * skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
+                skadi->AI()->DoAction(ACTION_GAUNTLET_END);
+            return;
+        }
+
+        Movement::MoveSplineInit init(who);
+        init.DisableTransportPathTransformations();
+        init.MoveTo(0.3320355f, 0.05355075f, 5.196949f, false);
+        who->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
+
+        me->setActive(true);
+        me->SetFarVisible(true);
+        me->SetCanFly(true);
+        me->SetDisableGravity(true);
+
+        _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+        {
+            me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_INITIAL, false);
+        });
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != SPLINE_CHAIN_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_BREACH:
+                _scheduler
+                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    {
+                        me->SetFacingTo(BreachPoint);
+                        Talk(EMOTE_ON_RANGE);
+                    })
+                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    {
+                        if (RAND(POINT_LEFT, POINT_RIGHT) == POINT_LEFT)
+                            me->GetMotionMaster()->MoveAlongSplineChain(POINT_LEFT, SPLINE_CHAIN_BREACH_LEFT, false);
+                        else
+                            me->GetMotionMaster()->MoveAlongSplineChain(POINT_RIGHT, SPLINE_CHAIN_BREACH_RIGHT, false);
+                    });
+                break;
+            case POINT_LEFT:
+                _scheduler
+                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    {
+                        me->SetFacingTo(BreathPointLeft);
+                        Talk(EMOTE_BREATH);
+                    })
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    {
+                        me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_LEFT, false);
+                        DoCast(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
+                        if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
+                            skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
+                    })
+                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    {
+                        me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
+                    });
+                break;
+            case POINT_RIGHT:
+                _scheduler
+                    .Schedule(Milliseconds(1), [this](TaskContext /*context*/)
+                    {
+                        me->SetFacingTo(BreathPointRight);
+                        Talk(EMOTE_BREATH);
+                    })
+                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    {
+                        me->GetMotionMaster()->MoveAlongSplineChain(POINT_BREACH, SPLINE_CHAIN_RIGHT, false);
+                        DoCast(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
+                        if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
+                            skadi->AI()->DoAction(ACTION_DRAKE_BREATH);
+                    })
+                    .Schedule(Seconds(10), [this](TaskContext /*context*/)
+                    {
+                        me->RemoveAurasDueToSpell(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
+                    });
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_LAUNCH_HARPOON)
+            if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
+                skadi->AI()->DoAction(ACTION_HARPOON_HIT);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    InstanceScript* _instance;
 };
 
 struct npc_skadi_trashAI : public ScriptedAI
@@ -532,317 +510,224 @@ protected:
     TaskScheduler _scheduler;
 };
 
-class npc_ymirjar_warrior : public CreatureScript
+struct npc_ymirjar_warrior : public npc_skadi_trashAI
 {
-public:
-    npc_ymirjar_warrior() : CreatureScript("npc_ymirjar_warrior") { }
+    npc_ymirjar_warrior(Creature* creature) : npc_skadi_trashAI(creature) { }
 
-    struct npc_ymirjar_warriorAI : public npc_skadi_trashAI
+    void ScheduleTasks() override
     {
-        npc_ymirjar_warriorAI(Creature* creature) : npc_skadi_trashAI(creature) { }
-
-        void ScheduleTasks() override
-        {
-            _scheduler
-                .Schedule(Seconds(2), [this](TaskContext context)
-                {
-                    DoCastVictim(SPELL_HAMSTRING);
-                    context.Repeat(Seconds(11), Seconds(18));
-                })
-                .Schedule(Seconds(9), [this](TaskContext context)
-                {
-                    DoCastVictim(SPELL_STRIKE);
-                    context.Repeat(Seconds(10), Seconds(13));
-                });
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetUtgardePinnacleAI<npc_ymirjar_warriorAI>(creature);
+        _scheduler
+            .Schedule(Seconds(2), [this](TaskContext context)
+            {
+                DoCastVictim(SPELL_HAMSTRING);
+                context.Repeat(Seconds(11), Seconds(18));
+            })
+            .Schedule(Seconds(9), [this](TaskContext context)
+            {
+                DoCastVictim(SPELL_STRIKE);
+                context.Repeat(Seconds(10), Seconds(13));
+            });
     }
 };
 
-class npc_ymirjar_witch_doctor : public CreatureScript
+struct npc_ymirjar_witch_doctor : public npc_skadi_trashAI
 {
-public:
-    npc_ymirjar_witch_doctor() : CreatureScript("npc_ymirjar_witch_doctor") { }
+    npc_ymirjar_witch_doctor(Creature* creature) : npc_skadi_trashAI(creature) { }
 
-    struct npc_ymirjar_witch_doctorAI : public npc_skadi_trashAI
+    void ScheduleTasks() override
     {
-        npc_ymirjar_witch_doctorAI(Creature* creature) : npc_skadi_trashAI(creature) { }
-
-        void ScheduleTasks() override
-        {
-            _scheduler
-                .Schedule(Seconds(2), [this](TaskContext shadowBolt)
-                {
-                    DoCastVictim(SPELL_SHADOW_BOLT);
-                    shadowBolt.Repeat();
-                })
-                .Schedule(Seconds(20), Seconds(34), [this](TaskContext shrink)
-                {
-                    DoCastVictim(SPELL_SHRINK);
-                    shrink.Repeat();
-                });
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetUtgardePinnacleAI<npc_ymirjar_witch_doctorAI>(creature);
+        _scheduler
+            .Schedule(Seconds(2), [this](TaskContext shadowBolt)
+            {
+                DoCastVictim(SPELL_SHADOW_BOLT);
+                shadowBolt.Repeat();
+            })
+            .Schedule(Seconds(20), Seconds(34), [this](TaskContext shrink)
+            {
+                DoCastVictim(SPELL_SHRINK);
+                shrink.Repeat();
+            });
     }
 };
 
-class npc_ymirjar_harpooner : public CreatureScript
+struct npc_ymirjar_harpooner : public npc_skadi_trashAI
 {
-public:
-    npc_ymirjar_harpooner() : CreatureScript("npc_ymirjar_harpooner") { }
+    npc_ymirjar_harpooner(Creature* creature) : npc_skadi_trashAI(creature) { }
 
-    struct npc_ymirjar_harpoonerAI : public npc_skadi_trashAI
+    void ScheduleTasks() override
     {
-        npc_ymirjar_harpoonerAI(Creature* creature) : npc_skadi_trashAI(creature) { }
+        _scheduler
+            .Schedule(Seconds(13), [this](TaskContext net)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30, true))
+                    DoCast(target, SPELL_NET);
+                net.Repeat();
+            })
+            .Schedule(Seconds(2), [this](TaskContext castThrow)
+            {
+                DoCastVictim(SPELL_THROW);
+                castThrow.Repeat();
+            });
+    }
 
-        void ScheduleTasks() override
-        {
-            _scheduler
-                .Schedule(Seconds(13), [this](TaskContext net)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30, true))
-                        DoCast(target, SPELL_NET);
-                    net.Repeat();
-                })
-                .Schedule(Seconds(2), [this](TaskContext castThrow)
-                {
-                    DoCastVictim(SPELL_THROW);
-                    castThrow.Repeat();
-                });
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            DoCast(SPELL_SUMMON_HARPOON);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustDied(Unit* /*killer*/) override
     {
-        return GetUtgardePinnacleAI<npc_ymirjar_harpoonerAI>(creature);
+        DoCast(SPELL_SUMMON_HARPOON);
     }
 };
 
-class spell_freezing_cloud_area_right : public SpellScriptLoader
+// 47594 - Freezing Cloud
+class spell_freezing_cloud_area_right : public SpellScript
 {
-    public:
-        spell_freezing_cloud_area_right() : SpellScriptLoader("spell_freezing_cloud_area_right") { }
+    PrepareSpellScript(spell_freezing_cloud_area_right);
 
-        class spell_freezing_cloud_area_right_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_freezing_cloud_area_right_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
-            }
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* obj) { return obj->GetPositionY() > -511.0f; });
+    }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if([](WorldObject* obj) { return obj->GetPositionY() > -511.0f; });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_FREEZING_CLOUD, true);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_FREEZING_CLOUD, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_freezing_cloud_area_right_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_freezing_cloud_area_right_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_freezing_cloud_area_right_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_freezing_cloud_area_right::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_freezing_cloud_area_right::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
-class spell_freezing_cloud_area_left : public SpellScriptLoader
+// 47574 - Freezing Cloud
+class spell_freezing_cloud_area_left : public SpellScript
 {
-    public:
-        spell_freezing_cloud_area_left() : SpellScriptLoader("spell_freezing_cloud_area_left") { }
+    PrepareSpellScript(spell_freezing_cloud_area_left);
 
-        class spell_freezing_cloud_area_left_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_freezing_cloud_area_left_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
-            }
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* obj) { return obj->GetPositionY() < -511.0f; });
+    }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if([](WorldObject* obj) { return obj->GetPositionY() < -511.0f; });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_FREEZING_CLOUD, true);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_FREEZING_CLOUD, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_freezing_cloud_area_left_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_freezing_cloud_area_left_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_freezing_cloud_area_left_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_freezing_cloud_area_left::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_freezing_cloud_area_left::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
-class spell_freezing_cloud_damage : public SpellScriptLoader
+// 47579, 60020 - Freezing Cloud
+class spell_freezing_cloud_damage : public AuraScript
 {
-    public:
-        spell_freezing_cloud_damage() : SpellScriptLoader("spell_freezing_cloud_damage") { }
+    PrepareAuraScript(spell_freezing_cloud_damage);
 
-        class spell_freezing_cloud_damage_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_freezing_cloud_damage_AuraScript);
+    bool CanBeAppliedOn(Unit* target)
+    {
+        if (Aura* aur = target->GetAura(GetId()))
+            if (aur->GetOwner() != GetOwner())
+                return false;
 
-            bool CanBeAppliedOn(Unit* target)
-            {
-                if (Aura* aur = target->GetAura(GetId()))
-                    if (aur->GetOwner() != GetOwner())
-                        return false;
+        return true;
+    }
 
-                return true;
-            }
-
-            void Register() override
-            {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_freezing_cloud_damage_AuraScript::CanBeAppliedOn);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_freezing_cloud_damage_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_freezing_cloud_damage::CanBeAppliedOn);
+    }
 };
 
-class spell_skadi_reset_check : public SpellScriptLoader
+// 49308 - Utgarde Pinnacle Guantlet Reset Check
+class spell_skadi_reset_check : public SpellScript
 {
-    public:
-        spell_skadi_reset_check() : SpellScriptLoader("spell_skadi_reset_check") { }
+    PrepareSpellScript(spell_skadi_reset_check);
 
-        class spell_skadi_reset_check_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_skadi_reset_check_SpellScript);
+    void CountTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_UTGARDE_PINNACLE_GAUNTLET_EFFECT));
+        _targetCount = targets.size();
+    }
 
-            void CountTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_UTGARDE_PINNACLE_GAUNTLET_EFFECT));
-                _targetCount = targets.size();
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (_targetCount)
+            return;
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (_targetCount)
-                    return;
+        Creature* target = GetHitCreature();
+        if (!target)
+            return;
 
-                Creature* target = GetHitCreature();
-                if (!target)
-                    return;
+        if (InstanceScript* instance = target->GetInstanceScript())
+            if (instance->GetBossState(DATA_SKADI_THE_RUTHLESS) == IN_PROGRESS)
+                target->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
+    }
 
-                if (InstanceScript* instance = target->GetInstanceScript())
-                    if (instance->GetBossState(DATA_SKADI_THE_RUTHLESS) == IN_PROGRESS)
-                        target->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
-            }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skadi_reset_check::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_skadi_reset_check::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skadi_reset_check_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget += SpellEffectFn(spell_skadi_reset_check_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-
-        private:
-            uint32 _targetCount = 0;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_skadi_reset_check_SpellScript();
-        }
+private:
+    uint32 _targetCount = 0;
 };
 
-class spell_skadi_launch_harpoon : public SpellScriptLoader
+// 48642 - Launch Harpoon
+class spell_skadi_launch_harpoon : public SpellScript
 {
-    public:
-        spell_skadi_launch_harpoon() : SpellScriptLoader("spell_skadi_launch_harpoon") { }
+    PrepareSpellScript(spell_skadi_launch_harpoon);
 
-        class spell_skadi_launch_harpoon_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_skadi_launch_harpoon_SpellScript);
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() >= 2)
+            targets.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_GRAUF; });
+    }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.size() >= 2)
-                    targets.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_GRAUF; });
-            }
+    void HandleDamageCalc()
+    {
+        if (Unit* target = GetHitUnit())
+            SetHitDamage(target->CountPctFromMaxHealth(35));
+    }
 
-            void HandleDamageCalc()
-            {
-                if (Unit* target = GetHitUnit())
-                    SetHitDamage(target->CountPctFromMaxHealth(35));
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skadi_launch_harpoon_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY);
-                OnHit += SpellHitFn(spell_skadi_launch_harpoon_SpellScript::HandleDamageCalc);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_skadi_launch_harpoon_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skadi_launch_harpoon::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY);
+        OnHit += SpellHitFn(spell_skadi_launch_harpoon::HandleDamageCalc);
+    }
 };
 
-class spell_skadi_poisoned_spear : public SpellScriptLoader
+// 50255, 59331 - Poisoned Spear
+class spell_skadi_poisoned_spear : public SpellScript
 {
-    public:
-        spell_skadi_poisoned_spear() : SpellScriptLoader("spell_skadi_poisoned_spear") { }
+    PrepareSpellScript(spell_skadi_poisoned_spear);
 
-        class spell_skadi_poisoned_spear_left_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_skadi_poisoned_spear_left_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POISONED_SPEAR_PERIODIC });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_POISONED_SPEAR_PERIODIC });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_POISONED_SPEAR_PERIODIC, true);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_POISONED_SPEAR_PERIODIC, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_skadi_poisoned_spear_left_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_skadi_poisoned_spear_left_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_skadi_poisoned_spear::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 61791 - Ride Vehicle
@@ -867,70 +752,60 @@ class spell_skadi_ride_vehicle : public AuraScript
     }
 };
 
-class spell_summon_gauntlet_mobs_periodic : public SpellScriptLoader
+// 59275 - Summon Gauntlet Mobs Periodic
+class spell_summon_gauntlet_mobs_periodic : public AuraScript
 {
-    public:
-        spell_summon_gauntlet_mobs_periodic() : SpellScriptLoader("spell_summon_gauntlet_mobs_periodic") { }
+    PrepareAuraScript(spell_summon_gauntlet_mobs_periodic);
 
-        class spell_summon_gauntlet_mobs_periodic_AuraScript : public AuraScript
+    void CastTheNextTwoSpells()
+    {
+        for (uint8 i = 0; i < 2; ++i)
         {
-            PrepareAuraScript(spell_summon_gauntlet_mobs_periodic_AuraScript);
-
-            void CastTheNextTwoSpells()
-            {
-                for (uint8 i = 0; i < 2; ++i)
-                {
-                    uint32 spellId = SummonSpellsList.front();
-                    GetTarget()->CastSpell(nullptr, spellId, true);
-                    SummonSpellsList.push_back(spellId);
-                    SummonSpellsList.pop_front();
-                }
-            }
-            void PushBackTheNextTwoSpells()
-            {
-                for (uint8 j = 0; j < 2; ++j)
-                {
-                    SummonSpellsList.push_back(SummonSpellsList.front());
-                    SummonSpellsList.pop_front();
-                }
-            }
-
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                if (RAND(0, 1))
-                {
-                    CastTheNextTwoSpells();
-                    PushBackTheNextTwoSpells();
-                }
-                else
-                {
-                    PushBackTheNextTwoSpells();
-                    CastTheNextTwoSpells();
-                }
-            }
-        private:
-            std::deque<uint32> SummonSpellsList =
-            {
-                SPELL_SUMMON_YMIRJAR_WARRIOR_E,
-                SPELL_SUMMON_YMIRJAR_HARPOONER_W,
-                SPELL_SUMMON_YMIRJAR_WARRIOR_W,
-                SPELL_SUMMON_YMIRJAR_HARPOONER_E,
-                SPELL_SUMMON_YMIRJAR_WARRIOR_W,
-                SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_E,
-                SPELL_SUMMON_YMIRJAR_WARRIOR_E,
-                SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_W
-            };
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_summon_gauntlet_mobs_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_summon_gauntlet_mobs_periodic_AuraScript();
+            uint32 spellId = SummonSpellsList.front();
+            GetTarget()->CastSpell(nullptr, spellId, true);
+            SummonSpellsList.push_back(spellId);
+            SummonSpellsList.pop_front();
         }
+    }
+    void PushBackTheNextTwoSpells()
+    {
+        for (uint8 j = 0; j < 2; ++j)
+        {
+            SummonSpellsList.push_back(SummonSpellsList.front());
+            SummonSpellsList.pop_front();
+        }
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (RAND(0, 1))
+        {
+            CastTheNextTwoSpells();
+            PushBackTheNextTwoSpells();
+        }
+        else
+        {
+            PushBackTheNextTwoSpells();
+            CastTheNextTwoSpells();
+        }
+    }
+private:
+    std::deque<uint32> SummonSpellsList =
+    {
+        SPELL_SUMMON_YMIRJAR_WARRIOR_E,
+        SPELL_SUMMON_YMIRJAR_HARPOONER_W,
+        SPELL_SUMMON_YMIRJAR_WARRIOR_W,
+        SPELL_SUMMON_YMIRJAR_HARPOONER_E,
+        SPELL_SUMMON_YMIRJAR_WARRIOR_W,
+        SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_E,
+        SPELL_SUMMON_YMIRJAR_WARRIOR_E,
+        SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_W
+    };
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_summon_gauntlet_mobs_periodic::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 class achievement_girl_love_to_skadi : public AchievementCriteriaScript
@@ -975,19 +850,19 @@ class at_skadi_gaunlet : public AreaTriggerScript
 
 void AddSC_boss_skadi()
 {
-    new boss_skadi();
-    new npc_grauf();
-    new npc_ymirjar_warrior();
-    new npc_ymirjar_witch_doctor();
-    new npc_ymirjar_harpooner();
-    new spell_freezing_cloud_area_left();
-    new spell_freezing_cloud_area_right();
-    new spell_freezing_cloud_damage();
-    new spell_skadi_reset_check();
-    new spell_skadi_launch_harpoon();
-    new spell_skadi_poisoned_spear();
+    RegisterUtgardePinnacleCreatureAI(boss_skadi);
+    RegisterUtgardePinnacleCreatureAI(npc_grauf);
+    RegisterUtgardePinnacleCreatureAI(npc_ymirjar_warrior);
+    RegisterUtgardePinnacleCreatureAI(npc_ymirjar_witch_doctor);
+    RegisterUtgardePinnacleCreatureAI(npc_ymirjar_harpooner);
+    RegisterSpellScript(spell_freezing_cloud_area_left);
+    RegisterSpellScript(spell_freezing_cloud_area_right);
+    RegisterSpellScript(spell_freezing_cloud_damage);
+    RegisterSpellScript(spell_skadi_reset_check);
+    RegisterSpellScript(spell_skadi_launch_harpoon);
+    RegisterSpellScript(spell_skadi_poisoned_spear);
     RegisterSpellScript(spell_skadi_ride_vehicle);
-    new spell_summon_gauntlet_mobs_periodic();
+    RegisterSpellScript(spell_summon_gauntlet_mobs_periodic);
     new achievement_girl_love_to_skadi();
     new at_skadi_gaunlet();
 }

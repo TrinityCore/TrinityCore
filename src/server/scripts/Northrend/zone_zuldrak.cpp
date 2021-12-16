@@ -56,7 +56,7 @@ public:
         void Reset() override
         {
             _rageclawGUID.Clear();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
 
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 0.1f);
@@ -631,10 +631,9 @@ uint32 const FetchIngredients[21][4] =
     { SPELL_FETCH_FROZEN_SPIDER_ICHOR,        SPELL_HAVE_FROZEN_SPIDER_ICHOR,        ITEM_FROZEN_SPIDER_ICHOR,        SAY_FROZEN_SPIDER_ICHOR        }
 };
 
-/*#####
-# spell_random_ingredient_aura
-#####*/
-
+// 51015 - Random Ingredient Easy Aura
+// 51154 - Random Ingredient Medium Aura
+// 51157 - Random Ingredient Hard Aura
 class spell_random_ingredient_aura : public SpellScriptLoader
 {
     public: spell_random_ingredient_aura() : SpellScriptLoader("spell_random_ingredient_aura") { }
@@ -681,10 +680,9 @@ class spell_random_ingredient_aura : public SpellScriptLoader
         }
 };
 
-/*#####
-# spell_random_ingredient
-#####*/
-
+// 51105 - Random Ingredient Medium
+// 51107 - Random Ingredient Hard
+// 51134 - Random Ingredient Easy
 class spell_random_ingredient : public SpellScriptLoader
 {
     public: spell_random_ingredient() : SpellScriptLoader("spell_random_ingredient") { }
@@ -764,6 +762,7 @@ class spell_random_ingredient : public SpellScriptLoader
 # spell_pot_check
 #####*/
 
+// 51046 - Pot Check
 class spell_pot_check : public SpellScriptLoader
 {
     public: spell_pot_check() : SpellScriptLoader("spell_pot_check") { }
@@ -960,6 +959,7 @@ enum ScourgeDisguise
     TEXT_DISGUISE_WARNING              = 28891
 };
 
+// 51966 - Scourge Disguise
 class spell_scourge_disguise : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise);
@@ -983,6 +983,7 @@ class spell_scourge_disguise : public AuraScript
     }
 };
 
+// 51971 - Scourge Disguise Instability
 class spell_scourge_disguise_instability : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise_instability);
@@ -1011,6 +1012,7 @@ class spell_scourge_disguise_instability : public AuraScript
     }
 };
 
+// 52010 - Scourge Disguise Expiring
 class spell_scourge_disguise_expiring : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise_expiring);
@@ -1028,6 +1030,7 @@ class spell_scourge_disguise_expiring : public AuraScript
     }
 };
 
+// 54089 - Drop Disguise
 class spell_drop_disguise : public SpellScript
 {
     PrepareSpellScript(spell_drop_disguise);
@@ -1042,6 +1045,64 @@ class spell_drop_disguise : public SpellScript
     void Register() override
     {
         AfterHit += SpellHitFn(spell_drop_disguise::HandleHit);
+    }
+};
+
+/*######
+## Quest 12606: Cocooned!
+######*/
+
+enum Cocooned
+{
+    SPELL_SUMMON_SCOURGED_CAPTIVE      = 51597,
+    SPELL_SUMMON_CAPTIVE_FOOTMAN       = 51599
+};
+
+// 51596 - Cocooned: Player Not On Quest
+class spell_cocooned_not_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_cocooned_not_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SCOURGED_CAPTIVE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_SUMMON_SCOURGED_CAPTIVE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cocooned_not_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 51598 - Cocooned: Player On Quest
+class spell_cocooned_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_cocooned_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SCOURGED_CAPTIVE, SPELL_SUMMON_CAPTIVE_FOOTMAN });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (roll_chance_i(66))
+            target->CastSpell(caster, SPELL_SUMMON_SCOURGED_CAPTIVE, true);
+        else
+            target->CastSpell(caster, SPELL_SUMMON_CAPTIVE_FOOTMAN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cocooned_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1063,4 +1124,6 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_scourge_disguise_instability);
     RegisterSpellScript(spell_scourge_disguise_expiring);
     RegisterSpellScript(spell_drop_disguise);
+    RegisterSpellScript(spell_cocooned_not_on_quest);
+    RegisterSpellScript(spell_cocooned_on_quest);
 }

@@ -41,7 +41,7 @@ enum BattlegroundNAGameObjects
     BG_NA_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-constexpr Seconds BG_NA_REMOVE_DOORS_TIMER    = 5s;
+inline constexpr Seconds BG_NA_REMOVE_DOORS_TIMER    = 5s;
 
 enum BattlegroundNAEvents
 {

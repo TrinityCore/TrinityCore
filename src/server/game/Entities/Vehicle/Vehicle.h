@@ -63,9 +63,6 @@ class TC_GAME_API Vehicle : public TransportBase
         bool IsVehicleInUse() const;
         bool IsControllableVehicle() const;
 
-        void SetLastShootPos(Position const& pos) { _lastShootPos.Relocate(pos); }
-        Position const& GetLastShootPos() const { return _lastShootPos; }
-
         SeatMap Seats;                                      ///< The collection of all seats on the vehicle. Including vacant ones.
 
         VehicleSeatEntry const* GetSeatForPassenger(Unit const* passenger) const;
@@ -73,6 +70,8 @@ class TC_GAME_API Vehicle : public TransportBase
         void RemovePendingEventsForPassenger(Unit* passenger);
 
         Milliseconds GetDespawnDelay();
+
+        std::string GetDebugInfo() const;
 
     protected:
         friend class VehicleJoinEvent;
@@ -117,7 +116,6 @@ class TC_GAME_API Vehicle : public TransportBase
 
         uint32 _creatureEntry;                              ///< Can be different than the entry of _me in case of players
         Status _status;                                     ///< Internal variable for sanity checks
-        Position _lastShootPos;
 
         typedef std::list<VehicleJoinEvent*> PendingJoinEventContainer;
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers

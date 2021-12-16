@@ -20,6 +20,7 @@
 
 #include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "SharedDefines.h"
 #include <set>
 #include <unordered_map>
@@ -715,6 +716,7 @@ class TC_GAME_API Guild
         bool AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
         void DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 newRank);
+        uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
 
         // Bank
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
@@ -820,6 +822,6 @@ class TC_GAME_API Guild
         void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
         void _SendBankList(WorldSession* session = nullptr, uint8 tabId = 0, bool sendFullSlots = false, SlotIds* slots = nullptr) const;
 
-        void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, std::string_view param1 = "", std::string_view param2 = "", std::string_view param3 = "") const;
+        void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, Optional<std::string_view> param1 = {}, Optional<std::string_view> param2 = {}, Optional<std::string_view> param3 = {}) const;
 };
 #endif

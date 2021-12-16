@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.30, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.36, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.7.30-0ubuntu0.18.04.1
+-- Server version	5.7.36
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -342,7 +342,7 @@ CREATE TABLE `creature` (
   `unit_flags` int(10) unsigned NOT NULL DEFAULT '0',
   `dynamicflags` int(10) unsigned NOT NULL DEFAULT '0',
   `ScriptName` char(64) DEFAULT '',
-  `VerifiedBuild` smallint(5) DEFAULT '0',
+  `VerifiedBuild` int(11) DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_map` (`map`),
   KEY `idx_id` (`id`)
@@ -360,6 +360,7 @@ CREATE TABLE `creature_addon` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MountCreatureID` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` int(10) unsigned NOT NULL DEFAULT '0',
@@ -485,6 +486,21 @@ CREATE TABLE `creature_model_info` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `creature_movement_info`
+--
+
+DROP TABLE IF EXISTS `creature_movement_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_movement_info` (
+  `MovementID` int(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template.movementId value',
+  `WalkSpeed` float unsigned DEFAULT NULL,
+  `RunSpeed` float unsigned DEFAULT NULL,
+  PRIMARY KEY (`MovementID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `creature_movement_override`
 --
 
@@ -493,12 +509,13 @@ DROP TABLE IF EXISTS `creature_movement_override`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_movement_override` (
   `SpawnId` int(10) unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Chase` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Random` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned DEFAULT NULL,
+  `Swim` tinyint(3) unsigned DEFAULT NULL,
+  `Flight` tinyint(3) unsigned DEFAULT NULL,
+  `Rooted` tinyint(3) unsigned DEFAULT NULL,
+  `Chase` tinyint(3) unsigned DEFAULT NULL,
+  `Random` tinyint(3) unsigned DEFAULT NULL,
+  `InteractionPauseTimer` int(10) unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
   PRIMARY KEY (`SpawnId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -673,6 +690,7 @@ CREATE TABLE `creature_template_addon` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MountCreatureID` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -708,12 +726,13 @@ DROP TABLE IF EXISTS `creature_template_movement`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_template_movement` (
   `CreatureId` int(10) unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Chase` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Random` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned DEFAULT NULL,
+  `Swim` tinyint(3) unsigned DEFAULT NULL,
+  `Flight` tinyint(3) unsigned DEFAULT NULL,
+  `Rooted` tinyint(3) unsigned DEFAULT NULL,
+  `Chase` tinyint(3) unsigned DEFAULT NULL,
+  `Random` tinyint(3) unsigned DEFAULT NULL,
+  `InteractionPauseTimer` int(10) unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
   PRIMARY KEY (`CreatureId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1399,7 +1418,7 @@ DROP TABLE IF EXISTS `gossip_menu`;
 CREATE TABLE `gossip_menu` (
   `MenuID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `TextID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`MenuID`,`TextID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3383,8 +3402,8 @@ DROP TABLE IF EXISTS `spell_learn_spell`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `spell_learn_spell` (
-  `entry` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `SpellID` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `entry` int(10) unsigned NOT NULL DEFAULT '0',
+  `SpellID` int(10) unsigned NOT NULL DEFAULT '0',
   `Active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`entry`,`SpellID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
@@ -3756,6 +3775,20 @@ CREATE TABLE `vehicle_seat_addon` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vehicle_template`
+--
+
+DROP TABLE IF EXISTS `vehicle_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vehicle_template` (
+  `creatureId` int(10) unsigned NOT NULL,
+  `despawnDelayMs` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`creatureId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vehicle_template_accessory`
 --
 
@@ -4028,4 +4061,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-12-15 22:47:29
+-- Dump completed on 2021-11-15 16:22:43

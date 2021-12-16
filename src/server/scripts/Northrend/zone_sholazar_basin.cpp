@@ -26,6 +26,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "GameObject.h"
 
 /*######
 ## npc_engineer_helice
@@ -34,8 +35,9 @@
 enum EngineerHelice
 {
     // Spells
-    SPELL_EXPLODE_CRYSTAL       = 62487,
-    SPELL_FLAMES                = 64561,
+    SPELL_DETONATE_1            = 52369,
+    SPELL_DETONATE_2            = 52371,
+    SPELL_EXPLOSION             = 46419,
 
     // Yells
     SAY_WP_1                    = 0,
@@ -50,109 +52,135 @@ enum EngineerHelice
     QUEST_DISASTER              = 12688
 };
 
-class npc_engineer_helice : public CreatureScript
+struct npc_engineer_helice : public EscortAI
 {
-public:
-    npc_engineer_helice() : CreatureScript("npc_engineer_helice") { }
+    npc_engineer_helice(Creature* creature) : EscortAI(creature) {  }
 
-    struct npc_engineer_heliceAI : public EscortAI
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
-        npc_engineer_heliceAI(Creature* creature) : EscortAI(creature)
+        switch (waypointId)
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            m_uiChatTimer = 4000;
-        }
-
-        uint32 m_uiChatTimer;
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-
-            switch (waypointId)
-            {
-                case 0:
-                    Talk(SAY_WP_2);
-                    break;
-                case 1:
-                    Talk(SAY_WP_3);
-                    me->CastSpell({ 5918.33f, 5372.91f, -98.770f }, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, QuaternionData(), 3s, GO_SUMMON_TIMED_DESPAWN);
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                    break;
-                case 2:
-                    Talk(SAY_WP_4);
-                    break;
-                case 7:
-                    Talk(SAY_WP_5);
-                    break;
-                case 8:
-                    me->CastSpell({ 5887.37f, 5379.39f, -91.289f }, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, QuaternionData(), 3s, GO_SUMMON_TIMED_DESPAWN);
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                    break;
-                case 9:
-                    Talk(SAY_WP_6);
-                    break;
-                case 13:
-                    if (player)
-                    {
-                        player->GroupEventHappens(QUEST_DISASTER, me);
-                        Talk(SAY_WP_7);
-                    }
-                    break;
-            }
-        }
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (HasEscortState(STATE_ESCORT_ESCORTING))
-            {
+            case 0:
+                Talk(SAY_WP_2);
+                break;
+            case 1:
+                Talk(SAY_WP_3);
+                DoCast(SPELL_DETONATE_1);
+                break;
+            case 7:
+                Talk(SAY_WP_5);
+                break;
+            case 8:
+                DoCast(SPELL_DETONATE_2);
+                break;
+            case 9:
+                Talk(SAY_WP_6);
+                break;
+            case 13:
                 if (Player* player = GetPlayerForEscort())
-                    player->FailQuest(QUEST_DISASTER);
-            }
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            EscortAI::UpdateAI(uiDiff);
-
-            if (HasEscortState(STATE_ESCORT_ESCORTING))
-            {
-                if (m_uiChatTimer <= uiDiff)
                 {
-                    m_uiChatTimer = 12000;
+                    player->GroupEventHappens(QUEST_DISASTER, me);
+                    Talk(SAY_WP_7);
                 }
-                else
-                    m_uiChatTimer -= uiDiff;
-            }
+                break;
+            default:
+                break;
         }
+    }
 
-        void OnQuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_DISASTER)
-            {
-                me->GetMotionMaster()->MoveJumpTo(0, 0.4f, 0.4f);
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-
-                Start(false, false, player->GetGUID());
-                Talk(SAY_WP_1);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustDied(Unit* /*killer*/) override
     {
-        return new npc_engineer_heliceAI(creature);
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            if (Player* player = GetPlayerForEscort())
+                player->FailQuest(QUEST_DISASTER);
+        }
+    }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_DISASTER)
+        {
+            me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+
+            Start(false, false, player->GetGUID());
+            Talk(SAY_WP_1);
+        }
+    }
+};
+
+class spell_q12688_detonate_1 : public SpellScript
+{
+    PrepareSpellScript(spell_q12688_detonate_1);
+
+    static constexpr uint32 SPAWN_GROUP_FLAMES = 67;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EXPLOSION });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            target->CastSpell(target, SPELL_EXPLOSION);
+
+            std::vector<WorldObject*> flames;
+            target->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_FLAMES, false, false, &flames);
+            target->GetMap()->SetSpawnGroupInactive(SPAWN_GROUP_FLAMES);
+            for (WorldObject* flame : flames)
+            {
+                if (GameObject* flame_go = flame->ToGameObject())
+                    flame_go->DespawnOrUnsummon(20s);
+            }
+        }
+    }
+
+    void HandleAfterHit()
+    {
+        if (Creature* caster = GetCaster()->ToCreature())
+            caster->AI()->Talk(EngineerHelice::SAY_WP_4);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q12688_detonate_1::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterHit += SpellHitFn(spell_q12688_detonate_1::HandleAfterHit);
+    }
+};
+
+class spell_q12688_detonate_2 : public SpellScript
+{
+    PrepareSpellScript(spell_q12688_detonate_2);
+
+    static constexpr uint32 SPAWN_GROUP_FLAMES = 68;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EXPLOSION });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            target->CastSpell(target, SPELL_EXPLOSION);
+
+            std::vector<WorldObject*> flames;
+            target->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_FLAMES, false, false, &flames);
+            target->GetMap()->SetSpawnGroupInactive(SPAWN_GROUP_FLAMES);
+            for (WorldObject* flame : flames)
+            {
+                if (GameObject* flame_go = flame->ToGameObject())
+                    flame_go->DespawnOrUnsummon(20s);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q12688_detonate_2::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -370,6 +398,7 @@ enum MiscLifewarden
     SPELL_WILD_GROWTH            = 52948,
 };
 
+// 51957 - Call of the Lifewarden
 class spell_q12620_the_lifewarden_wrath : public SpellScriptLoader
 {
 public:
@@ -458,6 +487,7 @@ enum KickWhatKick
     SAY_DROSTAN_REPLY_MISS    = 0,
 };
 
+// 51330 - Shoot RJR
 class spell_q12589_shoot_rjr : public SpellScriptLoader
 {
 public:
@@ -609,6 +639,8 @@ enum ShangoTracks
     SAY_INCORRECT_TRACKS   = 28635
 };
 
+// 52160 - Correct Tracks
+// 52163 - Incorrect Tracks
 class spell_shango_tracks : public SpellScriptLoader
 {
 public:
@@ -655,6 +687,7 @@ enum ReturnedSevenfold
     SPELL_DEATHBOLT             = 51855
 };
 
+// 51854 - Deathbolt
 class spell_q12611_deathbolt : public SpellScript
 {
     PrepareSpellScript(spell_q12611_deathbolt);
@@ -688,7 +721,9 @@ class spell_q12611_deathbolt : public SpellScript
 
 void AddSC_sholazar_basin()
 {
-    new npc_engineer_helice();
+    RegisterCreatureAI(npc_engineer_helice);
+    RegisterSpellScript(spell_q12688_detonate_1);
+    RegisterSpellScript(spell_q12688_detonate_2);
     new npc_jungle_punch_target();
     new spell_q12620_the_lifewarden_wrath();
     new spell_q12589_shoot_rjr();

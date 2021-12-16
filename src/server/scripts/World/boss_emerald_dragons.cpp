@@ -97,7 +97,7 @@ struct emerald_dragonAI : public WorldBossAI
     void Reset() override
     {
         WorldBossAI::Reset();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
         DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4s);
@@ -280,7 +280,7 @@ class boss_ysondre : public CreatureScript
             }
 
             // Summon druid spirits on 75%, 50% and 25% health
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -373,7 +373,7 @@ class boss_lethon : public CreatureScript
                 WorldBossAI::JustEngagedWith(who);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -512,7 +512,7 @@ class boss_emeriss : public CreatureScript
                 WorldBossAI::JustEngagedWith(who);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -615,7 +615,7 @@ class boss_taerar : public CreatureScript
                 --_shades;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 // At 75, 50 or 25 percent health, we need to activate the shades and go "banished"
                 // Note: _stage holds the amount of times they have been summoned
@@ -635,7 +635,7 @@ class boss_taerar : public CreatureScript
                     _shades += count;
 
                     DoCast(SPELL_SHADE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
 
                     ++_stage;
@@ -672,7 +672,7 @@ class boss_taerar : public CreatureScript
                     {
                         _banished = false;
 
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
                         me->RemoveAurasDueToSpell(SPELL_SHADE);
                         me->SetReactState(REACT_AGGRESSIVE);
                     }
@@ -719,6 +719,7 @@ class DreamFogTargetSelector
         }
 };
 
+// 24778 - Sleep
 class spell_dream_fog_sleep : public SpellScriptLoader
 {
     public:
@@ -763,6 +764,7 @@ class MarkOfNatureTargetSelector
         }
 };
 
+// 25042 - Triggerspell - Mark of Nature
 class spell_mark_of_nature : public SpellScriptLoader
 {
     public:
