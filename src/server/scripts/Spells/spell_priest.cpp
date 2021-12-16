@@ -55,6 +55,7 @@ enum PriestSpells
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
+    SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
@@ -1319,6 +1320,32 @@ public:
     }
 };
 
+// 205369 - Mind Bomb
+class spell_pri_mind_bomb : public AuraScript
+{
+    PrepareAuraScript(spell_pri_mind_bomb);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PRIEST_MIND_BOMB_STUN
+        });
+    }
+
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(GetTarget(), SPELL_PRIEST_MIND_BOMB_STUN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_pri_mind_bomb::RemoveEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_aq_3p_bonus();
@@ -1346,4 +1373,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_touch();
     new spell_pri_angelic_feather_trigger();
     new areatrigger_pri_angelic_feather();
+    RegisterAuraScript(spell_pri_mind_bomb);
 }
