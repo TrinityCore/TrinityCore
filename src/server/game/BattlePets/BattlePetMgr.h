@@ -25,6 +25,8 @@
 
 struct BattlePetSpeciesEntry;
 
+namespace BattlePets
+{
 enum BattlePetMisc
 {
     DEFAULT_MAX_BATTLE_PETS_PER_SPECIES = 3,
@@ -123,19 +125,19 @@ enum BattlePetSaveInfo
     BATTLE_PET_REMOVED   = 3
 };
 
+struct BattlePet
+{
+    void CalculateStats();
+
+    WorldPackets::BattlePet::BattlePet PacketInfo;
+    time_t NameTimestamp = time_t(0);
+    std::unique_ptr<::DeclinedName> DeclinedName;
+    BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
+};
+
 class BattlePetMgr
 {
 public:
-    struct BattlePet
-    {
-        void CalculateStats();
-
-        WorldPackets::BattlePet::BattlePet PacketInfo;
-        time_t NameTimestamp = time_t(0);
-        std::unique_ptr<::DeclinedName> DeclinedName;
-        BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
-    };
-
     explicit BattlePetMgr(WorldSession* owner);
 
     static void Initialize();
@@ -193,12 +195,6 @@ private:
 
     static void LoadAvailablePetBreeds();
     static void LoadDefaultPetQualities();
-
-    // hash no longer required in C++14
-    static std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetBreedStates;
-    static std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetSpeciesStates;
-    static std::unordered_map<uint32 /*SpeciesID*/, std::unordered_set<uint8 /*breed*/>> _availableBreedsPerSpecies;
-    static std::unordered_map<uint32 /*SpeciesID*/, uint8 /*quality*/> _defaultQualityPerSpecies;
 };
-
+}
 #endif // BattlePetMgr_h__

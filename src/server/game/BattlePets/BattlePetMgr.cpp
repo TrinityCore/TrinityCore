@@ -31,7 +31,17 @@
 #include "World.h"
 #include "WorldSession.h"
 
-void BattlePetMgr::BattlePet::CalculateStats()
+namespace BattlePets
+{
+namespace
+{
+std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetBreedStates;
+std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetSpeciesStates;
+std::unordered_map<uint32 /*SpeciesID*/, std::unordered_set<uint8 /*breed*/>> _availableBreedsPerSpecies;
+std::unordered_map<uint32 /*SpeciesID*/, uint8 /*quality*/> _defaultQualityPerSpecies;
+}
+
+void BattlePet::CalculateStats()
 {
     float health = 0.0f;
     float power = 0.0f;
@@ -79,11 +89,6 @@ void BattlePetMgr::BattlePet::CalculateStats()
     PacketInfo.Power = uint32(round(power / 100));
     PacketInfo.Speed = uint32(round(speed / 100));
 }
-
-std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> BattlePetMgr::_battlePetBreedStates;
-std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> BattlePetMgr::_battlePetSpeciesStates;
-std::unordered_map<uint32 /*SpeciesID*/, std::unordered_set<uint8 /*breed*/>> BattlePetMgr::_availableBreedsPerSpecies;
-std::unordered_map<uint32 /*SpeciesID*/, uint8 /*quality*/> BattlePetMgr::_defaultQualityPerSpecies;
 
 void BattlePetMgr::Initialize()
 {
@@ -414,7 +419,7 @@ void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
     }
 }
 
-BattlePetMgr::BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
+BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
 {
     return Trinity::Containers::MapGetValuePtr(_pets, guid.GetCounter());
 }
@@ -740,4 +745,5 @@ void BattlePetMgr::SendJournalLockStatus()
 bool BattlePetMgr::IsJournalLockAcquired() const
 {
     return sWorld->IsBattlePetJournalLockAcquired(_owner->GetBattlenetAccountGUID());
+}
 }

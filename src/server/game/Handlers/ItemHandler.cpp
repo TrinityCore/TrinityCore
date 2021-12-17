@@ -1208,7 +1208,8 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
             continue;
 
         if (BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(uint32(itemEffect->SpellID)))
-            GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
+            GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePets::BattlePetMgr::SelectPetDisplay(speciesEntry),
+                BattlePets::BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePets::BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
     }
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);

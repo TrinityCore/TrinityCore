@@ -121,7 +121,8 @@ namespace Trainer
 
             if (speciesEntry)
             {
-                player->GetSession()->GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
+                player->GetSession()->GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePets::BattlePetMgr::SelectPetDisplay(speciesEntry),
+                    BattlePets::BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePets::BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
                 // If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
                 // marking as dependent prevents saving the spell to database (intended)
                 dependent = true;

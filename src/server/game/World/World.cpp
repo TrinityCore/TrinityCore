@@ -2402,7 +2402,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadRealmNames();
 
     TC_LOG_INFO("server.loading", "Loading battle pets info...");
-    BattlePetMgr::Initialize();
+    BattlePets::BattlePetMgr::Initialize();
 
     TC_LOG_INFO("server.loading", "Loading scenarios");
     sScenarioMgr->LoadDB2Data();
