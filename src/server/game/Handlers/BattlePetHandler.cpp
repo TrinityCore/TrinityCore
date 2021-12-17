@@ -37,8 +37,8 @@ void WorldSession::HandleBattlePetRequestJournalLock(WorldPackets::BattlePet::Ba
 
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
 {
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
-        if (WorldPackets::BattlePet::BattlePetSlot* slot = GetBattlePetMgr()->GetSlot(BattlePetSlot(battlePetSetBattleSlot.Slot)))
+    if (BattlePets::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
+        if (WorldPackets::BattlePet::BattlePetSlot* slot = GetBattlePetMgr()->GetSlot(BattlePets::BattlePetSlot(battlePetSetBattleSlot.Slot)))
             slot->Pet = pet->PacketInfo;
 }
 
@@ -69,7 +69,7 @@ void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattle
         return;
     }
 
-    BattlePetMgr::BattlePet const* battlePet = petOwner->ToPlayer()->GetSession()->GetBattlePetMgr()->GetPet(queryBattlePetName.BattlePetID);
+    BattlePets::BattlePet const* battlePet = petOwner->ToPlayer()->GetSession()->GetBattlePetMgr()->GetPet(queryBattlePetName.BattlePetID);
     if (!battlePet)
     {
         SendPacket(response.Write());
@@ -98,15 +98,15 @@ void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSet
     if (!GetBattlePetMgr()->HasJournalLock())
         return;
 
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
+    if (BattlePets::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
     {
-        if (battlePetSetFlags.ControlType == FLAGS_CONTROL_TYPE_APPLY)
+        if (battlePetSetFlags.ControlType == BattlePets::FLAGS_CONTROL_TYPE_APPLY)
             pet->PacketInfo.Flags |= battlePetSetFlags.Flags;
         else // FLAGS_CONTROL_TYPE_REMOVE
             pet->PacketInfo.Flags &= ~battlePetSetFlags.Flags;
 
-        if (pet->SaveInfo != BATTLE_PET_NEW)
-            pet->SaveInfo = BATTLE_PET_CHANGED;
+        if (pet->SaveInfo != BattlePets::BATTLE_PET_NEW)
+            pet->SaveInfo = BattlePets::BATTLE_PET_CHANGED;
     }
 }
 

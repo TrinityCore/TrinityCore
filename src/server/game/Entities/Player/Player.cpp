@@ -32,6 +32,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
@@ -18654,7 +18655,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     // Unlock battle pet system if it's enabled in bnet account
     if (GetSession()->GetBattlePetMgr()->IsBattlePetSystemEnabled())
-        LearnSpell(SPELL_BATTLE_PET_TRAINING, false);
+        LearnSpell(BattlePets::SPELL_BATTLE_PET_TRAINING, false);
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
@@ -22038,7 +22039,7 @@ Creature* Player::GetSummonedBattlePet()
     return nullptr;
 }
 
-void Player::SetBattlePetData(BattlePetMgr::BattlePet const* pet)
+void Player::SetBattlePetData(BattlePets::BattlePet const* pet)
 {
     if (pet)
     {
@@ -22050,7 +22051,7 @@ void Player::SetBattlePetData(BattlePetMgr::BattlePet const* pet)
     else
     {
         SetSummonedBattlePetGUID(ObjectGuid::Empty);
-        SetCurrentBattlePetBreedQuality(AsUnderlyingType(BattlePetBreedQuality::Poor));
+        SetCurrentBattlePetBreedQuality(AsUnderlyingType(BattlePets::BattlePetBreedQuality::Poor));
         SetBattlePetCompanionExperience(0);
         SetWildBattlePetLevel(0);
     }
@@ -23695,19 +23696,19 @@ void Player::UpdatePotionCooldown(Spell* spell)
 
 void Player::UpdateReviveBattlePetCooldown()
 {
-    SpellInfo const* reviveBattlePetSpellInfo = sSpellMgr->GetSpellInfo(SPELL_REVIVE_BATTLE_PETS, DIFFICULTY_NONE);
+    SpellInfo const* reviveBattlePetSpellInfo = sSpellMgr->GetSpellInfo(BattlePets::SPELL_REVIVE_BATTLE_PETS, DIFFICULTY_NONE);
 
-    if (reviveBattlePetSpellInfo && HasSpell(SPELL_REVIVE_BATTLE_PETS))
+    if (reviveBattlePetSpellInfo && HasSpell(BattlePets::SPELL_REVIVE_BATTLE_PETS))
     {
         SpellHistory::Duration remainingCooldown = GetSpellHistory()->GetRemainingCategoryCooldown(reviveBattlePetSpellInfo);
         if (remainingCooldown > SpellHistory::Duration::zero())
         {
-            if (remainingCooldown < REVIVE_BATTLE_PETS_COOLDOWN)
-                GetSpellHistory()->ModifyCooldown(reviveBattlePetSpellInfo, REVIVE_BATTLE_PETS_COOLDOWN - remainingCooldown);
+            if (remainingCooldown < BattlePets::REVIVE_BATTLE_PETS_COOLDOWN)
+                GetSpellHistory()->ModifyCooldown(reviveBattlePetSpellInfo, BattlePets::REVIVE_BATTLE_PETS_COOLDOWN - remainingCooldown);
         }
         else
         {
-            GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, REVIVE_BATTLE_PETS_COOLDOWN);
+            GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, BattlePets::REVIVE_BATTLE_PETS_COOLDOWN);
         }
     }
 }
