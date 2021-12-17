@@ -2758,6 +2758,9 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
     else
         (*GetTalentMap(spec))[talent->ID] = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
 
+    if (learning)
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeTalent);
+
     return true;
 }
 
@@ -27633,6 +27636,8 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
     UnsummonAllTotems();
     ExitVehicle();
     RemoveAllControlled();
+
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeSpec);
 
     // remove single target auras at other targets
     AuraList& scAuras = GetSingleCastAuras();

@@ -3347,6 +3347,8 @@ void Spell::EffectApplyGlyph()
     else if (glyphId)
         glyphs.push_back(glyphId);
 
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeGlyph);
+
     if (GlyphPropertiesEntry const* glyphProperties = sGlyphPropertiesStore.LookupEntry(glyphId))
         player->CastSpell(player, glyphProperties->SpellID, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
             .SetOriginalCastId(m_castId));
