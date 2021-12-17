@@ -725,6 +725,52 @@ class spell_mage_imp_mana_gems : public AuraScript
     }
 };
 
+// 1463 - Incanter's Flow
+class spell_mage_incanters_flow : public AuraScript
+{
+    PrepareAuraScript(spell_mage_incanters_flow);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_INCANTERS_FLOW });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* aurEff)
+    {
+        // Incanter's flow should not cycle out of combat
+        if (!GetTarget()->IsInCombat())
+            return;
+
+        if (Aura* aura = GetTarget()->GetAura(SPELL_MAGE_INCANTERS_FLOW))
+        {
+            uint32 stacks = aura->GetStackAmount();
+            if (aurEff->GetAmount() == 0 || (stacks == 1 && aurEff->GetAmount() == 1)) // 0 = stack up, 1 = remove stack
+            {
+                AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0);
+
+                int8 up = 0;
+                int8 down = 1;
+
+                if (stacks == 5)
+                    aurEff->SetAmount(down);
+                else if (aurEff->GetAmount() == 1)
+                    aurEff->SetAmount(up);
+                else
+                    GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
+            }
+            else if (stacks > 1 && aurEff->GetAmount() == 1)
+                aura->ModStackAmount(-1);
+        }
+        else
+            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 44457 - Living Bomb
 class spell_mage_living_bomb : public SpellScript
 {
@@ -1096,52 +1142,6 @@ class spell_mage_water_elemental_freeze : public SpellScript
     void Register() override
     {
         AfterHit += SpellHitFn(spell_mage_water_elemental_freeze::HandleImprovedFreeze);
-    }
-};
-
-// 1463 - Incanter's Flow
-class spell_mage_incanters_flow : public AuraScript
-{
-    PrepareAuraScript(spell_mage_incanters_flow);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_MAGE_INCANTERS_FLOW });
-    }
-
-    void HandlePeriodicTick(AuraEffect const* aurEff)
-    {
-        // Incanter's flow should not cycle out of combat
-        if (!GetTarget()->IsInCombat())
-            return;
-
-        if (Aura* aura = GetTarget()->GetAura(SPELL_MAGE_INCANTERS_FLOW))
-        {
-            uint32 stacks = aura->GetStackAmount();
-            if (aurEff->GetAmount() == 0 || (stacks == 1 && aurEff->GetAmount() == 1)) // 0 = stack up, 1 = remove stack
-            {
-                AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0);
-
-                int8 up = 0;
-                int8 down = 1;
-
-                if (stacks == 5)
-                    aurEff->SetAmount(down);
-                else if (aurEff->GetAmount() == 1)
-                    aurEff->SetAmount(up);
-                else
-                    GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
-            }
-            else if (stacks > 1 && aurEff->GetAmount() == 1)
-                aura->ModStackAmount(-1);
-        }
-        else
-            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
