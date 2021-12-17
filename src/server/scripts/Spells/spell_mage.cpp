@@ -1113,20 +1113,22 @@ class spell_mage_incanters_flow : public AuraScript
     {
         // Incanter's flow should not cycle out of combat
         if (!GetTarget()->IsInCombat())
-        {
-            GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_INCANTERS_FLOW);
             return;
-        }
 
         if (Aura* aura = GetTarget()->GetAura(SPELL_MAGE_INCANTERS_FLOW))
         {
             uint32 stacks = aura->GetStackAmount();
             if (aurEff->GetAmount() == 0 || (stacks == 1 && aurEff->GetAmount() == 1)) // 0 = stack up, 1 = remove stack
             {
+                AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0);
+
+                int8 up = 0;
+                int8 down = 1;
+
                 if (stacks == 5)
-                    const_cast<AuraEffect*>(aurEff)->SetAmount(1);
+                    aurEff->SetAmount(down);
                 else if (aurEff->GetAmount() == 1)
-                    const_cast<AuraEffect*>(aurEff)->SetAmount(0);
+                    aurEff->SetAmount(up);
                 else
                     GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
             }
@@ -1137,15 +1139,9 @@ class spell_mage_incanters_flow : public AuraScript
             GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
     }
 
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_INCANTERS_FLOW);
-    }
-
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_incanters_flow::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1169,6 +1165,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ice_lance_damage);
     RegisterAuraScript(spell_mage_ignite);
     RegisterAuraScript(spell_mage_imp_mana_gems);
+    RegisterAuraScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
     RegisterAuraScript(spell_mage_living_bomb_periodic);
@@ -1180,5 +1177,4 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
-    RegisterAuraScript(spell_mage_incanters_flow);
 }
