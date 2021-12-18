@@ -377,6 +377,7 @@ class TC_GAME_API Spell
         void EffectActivateGarrisonBuilding();
         void EffectHealBattlePetPct();
         void EffectEnableBattlePets();
+        void EffectChangeBattlePetQuality();
         void EffectLaunchQuestChoice();
         void EffectUncageBattlePet();
         void EffectCreateHeirloomItem();

@@ -20,6 +20,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "CombatLogPackets.h"
 #include "Common.h"
@@ -6000,6 +6001,64 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     ArtifactEntry const* artifactEntry = sArtifactStore.LookupEntry(artifact->GetTemplate()->GetArtifactID());
                     if (!artifactEntry || artifactEntry->ArtifactCategoryID != spellEffectInfo.MiscValue)
                         return SPELL_FAILED_WRONG_ARTIFACT_EQUIPPED;
+                }
+                break;
+            }
+            case SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY:
+            case SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE:
+            {
+                Player* playerCaster = m_caster->ToPlayer();
+                if (!playerCaster || !m_targets.GetUnitTarget() || !m_targets.GetUnitTarget()->IsCreature())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                BattlePets::BattlePetMgr* battlePetMgr = playerCaster->GetSession()->GetBattlePetMgr();
+                if (!battlePetMgr->HasJournalLock())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                Creature* creature = m_targets.GetUnitTarget()->ToCreature();
+                if (creature)
+                {
+                    if (!playerCaster->GetSummonedBattlePetGUID() || !creature->GetBattlePetCompanionGUID())
+                        return SPELL_FAILED_NO_PET;
+
+                    if (playerCaster->GetSummonedBattlePetGUID() != creature->GetBattlePetCompanionGUID())
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if (BattlePets::BattlePet* battlePet = battlePetMgr->GetPet(creature->GetBattlePetCompanionGUID()))
+                    {
+                        if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(battlePet->PacketInfo.Species))
+                        {
+                            if (uint32 battlePetType = spellEffectInfo.MiscValue)
+                                if (!(battlePetType & (1 << battlePetSpecies->PetTypeEnum)))
+                                    return SPELL_FAILED_WRONG_BATTLE_PET_TYPE;
+
+                            if (spellEffectInfo.Effect == SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY)
+                            {
+                                BattlePets::BattlePetBreedQuality quality = BattlePets::BattlePetBreedQuality::Poor;
+                                switch (spellEffectInfo.BasePoints)
+                                {
+                                    case 85:
+                                        quality = BattlePets::BattlePetBreedQuality::Rare;
+                                        break;
+                                    case 75:
+                                        quality = BattlePets::BattlePetBreedQuality::Uncommon;
+                                        break;
+                                    default:
+                                        // Ignore Epic Battle-Stones
+                                        break;
+                                }
+                                if (battlePet->PacketInfo.Quality >= AsUnderlyingType(quality))
+                                    return SPELL_FAILED_CANT_UPGRADE_BATTLE_PET;
+                            }
+
+                            if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
+                                if (battlePet->PacketInfo.Level >= BattlePets::MAX_BATTLE_PET_LEVEL)
+                                    return SPELL_FAILED_GRANT_PET_LEVEL_FAIL;
+
+                            if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::CantBattle))
+                                return SPELL_FAILED_BAD_TARGETS;
+                        }
+                    }
                 }
                 break;
             }

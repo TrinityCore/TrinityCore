@@ -38,6 +38,7 @@ enum BattlePetMisc
     SPELL_SUMMON_BATTLE_PET             = 118301
 };
 
+static constexpr uint16 MAX_BATTLE_PET_LEVEL = 25;
 static constexpr Milliseconds REVIVE_BATTLE_PETS_COOLDOWN = 180s;
 
 enum class BattlePetBreedQuality : uint8
@@ -170,6 +171,7 @@ public:
     std::vector<WorldPackets::BattlePet::BattlePetSlot> const& GetSlots() const { return _slots; }
 
     void CageBattlePet(ObjectGuid guid);
+    void ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality quality);
     void HealBattlePetsPct(uint8 pct);
 
     void SummonPet(ObjectGuid guid);
