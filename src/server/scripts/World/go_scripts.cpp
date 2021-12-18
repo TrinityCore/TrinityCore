@@ -640,48 +640,6 @@ class go_veil_skith_cage : public GameObjectScript
 };
 
 /*######
-## go_frostblade_shrine
-######*/
-
-enum TheCleansing
-{
-   QUEST_THE_CLEANSING_HORDE      = 11317,
-   QUEST_THE_CLEANSING_ALLIANCE   = 11322,
-   SPELL_CLEANSING_SOUL           = 43351,
-   SPELL_RECENT_MEDITATION        = 61720,
-};
-
-class go_frostblade_shrine : public GameObjectScript
-{
-public:
-    go_frostblade_shrine() : GameObjectScript("go_frostblade_shrine") { }
-
-    struct go_frostblade_shrineAI : public GameObjectAI
-    {
-        go_frostblade_shrineAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            me->UseDoorOrButton(10);
-            if (!player->HasAura(SPELL_RECENT_MEDITATION))
-            {
-                if (player->GetQuestStatus(QUEST_THE_CLEANSING_HORDE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_CLEANSING_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
-                {
-                    player->CastSpell(player, SPELL_CLEANSING_SOUL);
-                    player->SetStandState(UNIT_STAND_STATE_SIT);
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_frostblade_shrineAI(go);
-    }
-};
-
-/*######
 ## go_midsummer_bonfire
 ######*/
 
@@ -1270,7 +1228,6 @@ void AddSC_go_scripts()
     new go_amberpine_outhouse();
     new go_massive_seaforium_charge();
     new go_veil_skith_cage();
-    new go_frostblade_shrine();
     new go_midsummer_bonfire();
     new go_midsummer_ribbon_pole();
     new go_brewfest_music();
