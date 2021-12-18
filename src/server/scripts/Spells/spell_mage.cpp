@@ -735,7 +735,7 @@ class spell_mage_incanters_flow : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_INCANTERS_FLOW });
     }
 
-    void HandlePeriodicTick(AuraEffect const* aurEff)
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
         // Incanter's flow should not cycle out of combat
         if (!GetTarget()->IsInCombat())
