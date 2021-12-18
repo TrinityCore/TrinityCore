@@ -1388,9 +1388,10 @@ public:
                         me->RemoveAurasDueToSpell(SPELL_THE_MIGHT_OF_MOGRAINE);
                     me->RemoveAllAuras();
                     me->CombatStop(true);
-                    me->GetThreatManager().NotifyDisengaged();
                     me->InterruptNonMeleeSpells(false);
                     me->SetWalk(false);
+                    
+                    EngagementOver();
 
                     for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
                         DespawnNPC(uiDefenderGUID[i]);
@@ -1407,9 +1408,9 @@ public:
 
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiKorfaxGUID))
                     {
+                        temp->AI()->EnterEvadeMode();
                         temp->RemoveAllAuras();
                         temp->CombatStop(true);
-                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
@@ -1428,9 +1429,9 @@ public:
 
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiEligorGUID))
                     {
+                        temp->AI()->EnterEvadeMode();
                         temp->RemoveAllAuras();
                         temp->CombatStop(true);
-                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
@@ -1440,9 +1441,9 @@ public:
 
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiKoltiraGUID))
                     {
+                        temp->AI()->EnterEvadeMode();
                         temp->RemoveAllAuras();
                         temp->CombatStop(true);
-                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
@@ -1455,9 +1456,9 @@ public:
 
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiThassarianGUID))
                     {
+                        temp->AI()->EnterEvadeMode();
                         temp->RemoveAllAuras();
                         temp->CombatStop(true);
-                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);

@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::threat_list_heap::value_type)
@@ -71,6 +72,7 @@ void ThreatReference::UpdateOffline()
     {
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
         HeapNotifyIncreased();
+        _mgr.RegisterForAIUpdate(this);
     }
 }
 
@@ -157,9 +159,11 @@ void ThreatReference::UnregisterAndFree()
     if (cWho->IsPet() || cWho->IsTotem() || cWho->IsTrigger())
         return false;
 
-    // summons cannot have a threat list, unless they are controlled by a creature
-    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && !cWho->GetOwnerGUID().IsCreature())
-        return false;
+    // summons cannot have a threat list if they were summoned by a player
+    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN))
+        if (TempSummon const* tWho = cWho->ToTempSummon())
+            if (tWho->GetSummonerGUID().IsPlayer())
+                return false;
 
     return true;
 }
@@ -184,7 +188,7 @@ void ThreatManager::Initialize()
 
 void ThreatManager::Update(uint32 tdiff)
 {
-    if (!CanHaveThreatList() || IsThreatListEmpty())
+    if (!CanHaveThreatList() || IsThreatListEmpty(true))
         return;
     if (_updateTimer <= tdiff)
     {
@@ -199,10 +203,11 @@ Unit* ThreatManager::GetCurrentVictim()
 {
     if (!_currentVictimRef || _currentVictimRef->ShouldBeOffline())
         UpdateVictim();
-    return const_cast<ThreatManager const*>(this)->GetCurrentVictim();
+    ASSERT(!_currentVictimRef || _currentVictimRef->IsAvailable());
+    return _currentVictimRef ? _currentVictimRef->GetVictim() : nullptr;
 }
 
-Unit* ThreatManager::GetCurrentVictim() const
+Unit* ThreatManager::GetLastVictim() const
 {
     if (_currentVictimRef && !_currentVictimRef->ShouldBeOffline())
         return _currentVictimRef->GetVictim();
@@ -244,7 +249,7 @@ float ThreatManager::GetThreat(Unit const* who, bool includeOffline) const
     return (includeOffline || it->second->IsAvailable()) ? it->second->GetThreat() : 0.0f;
 }
 
-std::vector<ThreatReference*> ThreatManager::GetModifiableThreatList() const
+std::vector<ThreatReference*> ThreatManager::GetModifiableThreatList()
 {
     std::vector<ThreatReference*> list;
     list.reserve(_myThreatListEntries.size());
@@ -394,16 +399,14 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     PutThreatListRef(target->GetGUID(), ref);
     target->GetThreatManager().PutThreatenedByMeRef(_owner->GetGUID(), ref);
 
-    // afterwards, we evaluate whether this is an online reference (it might not be an acceptable target, but we need to add it to our threat list before we check!)
     ref->UpdateOffline();
-    if (ref->IsOnline()) // ...and if the ref is online it also gets the threat it should have
+    if (ref->IsOnline()) // we only add the threat if the ref is currently available
         ref->AddThreat(amount);
 
-    if (!_owner->IsEngaged())
-    {
-        _owner->AtEngage(target);
+    if (!_currentVictimRef)
         UpdateVictim();
-    }
+    else
+        ProcessAIUpdates();
 }
 
 void ThreatManager::ScaleThreat(Unit* target, float factor)
@@ -488,14 +491,6 @@ void ThreatManager::ClearAllThreat()
     }
 }
 
-void ThreatManager::NotifyDisengaged()
-{
-    // note: i don't really like having this here
-    // (maybe engage flag should be in creature ai? it's inherently an AI property...)
-    if (_owner->IsEngaged())
-        _owner->AtDisengage();
-}
-
 void ThreatManager::FixateTarget(Unit* target)
 {
     if (target)
@@ -530,6 +525,7 @@ void ThreatManager::UpdateVictim()
         _needClientUpdate = false;
     }
 
+    ProcessAIUpdates();
 }
 
 ThreatReference const* ThreatManager::ReselectVictim()
@@ -538,7 +534,7 @@ ThreatReference const* ThreatManager::ReselectVictim()
         return nullptr;
 
     for (auto const& pair : _myThreatListEntries)
-        pair.second->UpdateOffline();
+        pair.second->UpdateOffline(); // AI notifies are processed in ::UpdateVictim caller
 
     // fixated target is always preferred
     if (_fixateRef && _fixateRef->IsAvailable())
@@ -585,6 +581,16 @@ ThreatReference const* ThreatManager::ReselectVictim()
     // we should have found the old victim at some point in the loop above, so execution should never get to this point
     ASSERT(false, "Current victim not found in sorted threat list even though it has a reference - manager desync!");
     return nullptr;
+}
+
+void ThreatManager::ProcessAIUpdates()
+{
+    CreatureAI* ai = ASSERT_NOTNULL(_owner->ToCreature())->AI();
+    std::vector<ThreatReference const*> v(std::move(_needsAIUpdate)); // _needClientUpdate is now empty in case this triggers a recursive call
+    if (!ai)
+        return;
+    for (ThreatReference const* ref : v)
+        ai->JustStartedThreateningMe(ref->GetVictim());
 }
 
 // returns true if a is LOWER on the threat list than b

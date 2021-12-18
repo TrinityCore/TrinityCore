@@ -438,8 +438,7 @@ public:
 
 enum zumrahConsts
 {
-    ZUMRAH_ID = 7271,
-    ZUMRAH_HOSTILE_FACTION = 37
+    ZUMRAH_ID = 7271
 };
 
 class at_zumrah : public AreaTriggerScript
@@ -454,7 +453,7 @@ public:
         if (!pZumrah)
             return false;
 
-        pZumrah->SetFaction(ZUMRAH_HOSTILE_FACTION);
+        pZumrah->SetFaction(FACTION_TROLL_FROSTMANE);
         return true;
     }
 

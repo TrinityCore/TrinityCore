@@ -247,29 +247,29 @@ class TC_GAME_API Group
         void Update(uint32 diff);
 
         // group manipulation methods
-        bool   Create(Player* leader);
-        void   LoadGroupFromDB(Field* field);
+        bool Create(Player* leader);
+        void LoadGroupFromDB(Field* field);
         void LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
-        bool   AddInvite(Player* player);
-        void   RemoveInvite(Player* player);
-        void   RemoveAllInvites();
-        bool   AddLeaderInvite(Player* player);
-        bool   AddMember(Player* player);
-        bool   RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
-        void   ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
- static void   ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
-        void   SetLootMethod(LootMethod method);
-        void   SetLooterGuid(ObjectGuid guid);
-        void   SetMasterLooterGuid(ObjectGuid guid);
-        void   UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
-        void   SetLootThreshold(ItemQualities threshold);
-        void   Disband(bool hideDestroy = false);
-        void   SetLfgRoles(ObjectGuid guid, uint8 roles);
-        uint8  GetLfgRoles(ObjectGuid guid);
-        void   SetEveryoneIsAssistant(bool apply);
+        bool AddInvite(Player* player);
+        void RemoveInvite(Player* player);
+        void RemoveAllInvites();
+        bool AddLeaderInvite(Player* player);
+        bool AddMember(Player* player);
+        bool RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
+        void ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
+        static void ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
+        void SetLootMethod(LootMethod method);
+        void SetLooterGuid(ObjectGuid guid);
+        void SetMasterLooterGuid(ObjectGuid guid);
+        void UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
+        void SetLootThreshold(ItemQualities threshold);
+        void Disband(bool hideDestroy = false);
+        void SetLfgRoles(ObjectGuid guid, uint8 roles);
+        uint8 GetLfgRoles(ObjectGuid guid);
+        void SetEveryoneIsAssistant(bool apply);
 
         // Update
-        void   UpdateReadyCheck(uint32 diff);
+        void UpdateReadyCheck(uint32 diff);
 
         // Ready check
         void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration = Milliseconds(READYCHECK_DURATION));

@@ -40,7 +40,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-class BattlePetMgr;
 class BlackMarketEntry;
 class CollectionMgr;
 class Creature;
@@ -64,6 +63,11 @@ enum class AuctionCommand : int8;
 enum class AuctionResult : int8;
 enum InventoryResult : uint8;
 enum class StableResult : uint8;
+
+namespace BattlePets
+{
+    class BattlePetMgr;
+}
 
 namespace lfg
 {
@@ -1143,7 +1147,7 @@ class TC_GAME_API WorldSession
         uint32 AdjustClientMovementTime(uint32 time) const;
 
         // Battle Pets
-        BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
+        BattlePets::BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
 
         CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
 
@@ -1929,7 +1933,7 @@ class TC_GAME_API WorldSession
         uint32 _timeSyncNextCounter;
         uint32 _timeSyncTimer;
 
-        std::unique_ptr<BattlePetMgr> _battlePetMgr;
+        std::unique_ptr<BattlePets::BattlePetMgr> _battlePetMgr;
 
         std::unique_ptr<CollectionMgr> _collectionMgr;
 

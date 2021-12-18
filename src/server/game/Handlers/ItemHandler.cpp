@@ -536,7 +536,8 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         {
             _player->ModifyMoney(-(int32)price);
             _player->RemoveItemFromBuyBackSlot(packet.Slot, false);
-            _player->MoveItemToInventory(dest, pItem, true);
+            _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+            _player->StoreItem(dest, pItem, true);
         }
         else
             _player->SendEquipError(msg, pItem, nullptr);
@@ -1207,7 +1208,8 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
             continue;
 
         if (BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(uint32(itemEffect->SpellID)))
-            GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePetMgr::SelectPetDisplay(speciesEntry), BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
+            GetBattlePetMgr()->AddPet(speciesEntry->ID, BattlePets::BattlePetMgr::SelectPetDisplay(speciesEntry),
+                BattlePets::BattlePetMgr::RollPetBreed(speciesEntry->ID), BattlePets::BattlePetMgr::GetDefaultPetQuality(speciesEntry->ID));
     }
 
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);

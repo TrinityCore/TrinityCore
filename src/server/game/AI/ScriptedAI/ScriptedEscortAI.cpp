@@ -94,8 +94,9 @@ void EscortAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     me->RemoveAllAuras();
     me->CombatStop(true);
-    me->GetThreatManager().NotifyDisengaged();
     me->SetLootRecipient(nullptr);
+    
+    EngagementOver();
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
@@ -226,7 +227,7 @@ void EscortAI::UpdateAI(uint32 diff)
                     if (!isEscort)
                       me->DespawnOrUnsummon(0, 1s);
                     else
-                      me->GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, me->GetSpawnId(), true);
+                      me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, me->GetSpawnId());
                 }
                 else
                     me->DespawnOrUnsummon();
@@ -279,14 +280,8 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
     {
         if (CreatureData const* cdata = me->GetCreatureData())
         {
-            if (SpawnGroupTemplateData const* groupdata = cdata->spawnGroupData)
-            {
-                if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (groupdata->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC) && !map->GetCreatureRespawnTime(me->GetSpawnId()))
-                {
-                    me->SetRespawnTime(me->GetRespawnDelay());
-                    me->SaveRespawnTime();
-                }
-            }
+            if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
+                me->SaveRespawnTime(me->GetRespawnDelay());
         }
     }
 
@@ -373,17 +368,6 @@ void EscortAI::SetEscortPaused(bool on)
         RemoveEscortState(STATE_ESCORT_PAUSED);
         _resume = true;
     }
-}
-
-bool EscortAI::IsEscortNPC(bool onlyIfActive) const
-{
-    if (!onlyIfActive)
-        return true;
-
-    if (!GetEventStarterGUID().IsEmpty())
-        return true;
-
-    return false;
 }
 
 Player* EscortAI::GetPlayerForEscort()

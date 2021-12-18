@@ -102,6 +102,8 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
         bool departureEvent = true;
         do
         {
+            ASSERT(_currentNode < _path.size(), "Point Id: %u\n%s", pointId, owner->GetDebugInfo().c_str());
+
             DoEventIfAny(owner, _path[_currentNode], departureEvent);
             while (!_pointsForPathSwitch.empty() && _pointsForPathSwitch.front().PathIndex <= _currentNode)
             {
@@ -151,7 +153,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     if (owner->m_taxi.empty())
     {
         // update z position to ground and orientation for landing point
-        // this prevent cheating with landing  point at lags
+        // this prevent cheating with landing point at lags
         // when client side flight end early in comparison server side
         owner->StopMoving();
         float mapHeight = owner->GetMap()->GetHeight(owner->GetPhaseShift(), _path[GetCurrentNode()]->Loc.X, _path[GetCurrentNode()]->Loc.Y, _path[GetCurrentNode()]->Loc.Z);
@@ -244,7 +246,7 @@ void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
 
 void FlightPathMovementGenerator::DoEventIfAny(Player* owner, TaxiPathNodeEntry const* node, bool departure)
 {
-    ASSERT(node);
+    ASSERT(node, "%s", owner->GetDebugInfo().c_str());
 
     if (uint32 eventid = departure ? node->DepartureEventID : node->ArrivalEventID)
     {

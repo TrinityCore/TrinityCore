@@ -274,7 +274,6 @@ enum UnitState : uint32
     UNIT_STATE_UNATTACKABLE        = UNIT_STATE_IN_FLIGHT,
     UNIT_STATE_MOVING              = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE,
     UNIT_STATE_CONTROLLED          = UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING,
-    UNIT_STATE_CANT_CLIENT_CONTROL = UNIT_STATE_CHARMED | UNIT_STATE_FLEEING | UNIT_STATE_CONFUSED | UNIT_STATE_POSSESSED,
     UNIT_STATE_LOST_CONTROL        = UNIT_STATE_CONTROLLED | UNIT_STATE_POSSESSED | UNIT_STATE_JUMPING | UNIT_STATE_CHARGING,
     UNIT_STATE_CANNOT_AUTOATTACK   = UNIT_STATE_CONTROLLED | UNIT_STATE_CHARGING | UNIT_STATE_CASTING,
     UNIT_STATE_SIGHTLESS           = UNIT_STATE_LOST_CONTROL | UNIT_STATE_EVADE,
@@ -853,7 +852,7 @@ class TC_GAME_API Unit : public WorldObject
 
         uint8 GetLevel() const { return uint8(m_unitData->Level); }
         uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return GetLevel(); }
-        void SetLevel(uint8 lvl);
+        void SetLevel(uint8 lvl, bool sendUpdate = true);
         uint8 GetRace() const { return m_unitData->Race; }
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race); }
         uint64 GetRaceMask() const { return UI64LIT(1) << (GetRace() - 1); }
@@ -904,7 +903,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual float GetArmorMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
 
         Powers GetPowerType() const { return Powers(*m_unitData->DisplayPower); }
-        void SetPowerType(Powers power);
+        void SetPowerType(Powers power, bool sendUpdate = true);
         void SetOverrideDisplayPowerId(uint32 powerDisplayId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::OverrideDisplayPowerID), powerDisplayId); }
         void UpdateDisplayPower();
         int32 GetPower(Powers power) const;
@@ -1100,10 +1099,10 @@ class TC_GAME_API Unit : public WorldObject
 
         /// ====================== THREAT & COMBAT ====================
         bool CanHaveThreatList() const { return m_threatManager.CanHaveThreatList(); }
-        // This value can be different from IsInCombat:
+        // This value can be different from IsInCombat, for example:
         // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
         // - when the creature has no targets left, but the AI has not yet ceased engaged logic
-        bool IsEngaged() const { return m_isEngaged; }
+        virtual bool IsEngaged() const { return IsInCombat(); }
         bool IsEngagedBy(Unit const* who) const { return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who); }
         void EngageWithTarget(Unit* who); // Adds target to threat list if applicable, otherwise just sets combat state
         // Combat handling
@@ -1303,6 +1302,8 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 GetBattlePetCompanionNameTimestamp() const { return m_unitData->BattlePetCompanionNameTimestamp; }
         void SetBattlePetCompanionNameTimestamp(uint32 timestamp) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BattlePetCompanionNameTimestamp), timestamp); }
+        uint32 GetBattlePetCompanionExperience() const { return m_unitData->BattlePetCompanionExperience; }
+        void SetBattlePetCompanionExperience(uint32 experience) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BattlePetCompanionExperience), experience); }
         uint32 GetWildBattlePetLevel() const { return m_unitData->WildBattlePetLevel; }
         void SetWildBattlePetLevel(uint32 wildBattlePetLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WildBattlePetLevel), wildBattlePetLevel); }
 
@@ -1502,7 +1503,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
         uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const override;
 
-        virtual bool IsFocusing(Spell const* /*focusSpell*/ = nullptr, bool /*withDelay*/ = false) { return false; }
+        virtual bool HandleSpellFocus(Spell const* /*focusSpell*/ = nullptr, bool /*withDelay*/ = false) { return false; }
+        virtual bool HasSpellFocusTarget() const { return false; }
         virtual bool IsMovementPreventedByCasting() const;
         bool CanCastSpellWhileMoving(SpellInfo const* spellInfo) const;
 
@@ -1658,11 +1660,11 @@ class TC_GAME_API Unit : public WorldObject
         bool IsMagnet() const;
         Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = nullptr);
 
-        int32  SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
+        int32 SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
         uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, SpellEffectInfo const& spellEffectInfo, uint32 stack = 1) const;
-        float  SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const;
+        float SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const;
         uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype) const;
-        int32  SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
+        int32 SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
         uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffectInfo const& spellEffectInfo, uint32 stack = 1) const;
         float SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const;
         uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype) const;
@@ -1670,10 +1672,10 @@ class TC_GAME_API Unit : public WorldObject
         uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
 
-        bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
-        bool   isBlockCritical();
-        float  SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
-        float  SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType = BASE_ATTACK) const;
+        bool isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
+        bool isBlockCritical();
+        float SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
+        float SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect const* aurEff, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType = BASE_ATTACK) const;
         static uint32 SpellCriticalDamageBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
         static uint32 SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
 
@@ -1693,7 +1695,7 @@ class TC_GAME_API Unit : public WorldObject
         static void CalcAbsorbResist(DamageInfo& damageInfo);
         static void CalcHealAbsorb(HealInfo& healInfo);
 
-        void  UpdateSpeed(UnitMoveType mtype);
+        void UpdateSpeed(UnitMoveType mtype);
         float GetSpeed(UnitMoveType mtype) const;
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float newValue);
@@ -1939,11 +1941,12 @@ class TC_GAME_API Unit : public WorldObject
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
         virtual void SetInWater(bool inWater);
 
+        // notifiers
         virtual void AtEnterCombat();
         virtual void AtExitCombat();
 
-        virtual void AtEngage(Unit* /*target*/) { m_isEngaged = true; }
-        virtual void AtDisengage() { m_isEngaged = false; }
+        virtual void AtEngage(Unit* /*target*/) {}
+        virtual void AtDisengage() {}
 
     private:
 
@@ -1972,7 +1975,6 @@ class TC_GAME_API Unit : public WorldObject
         Diminishing m_Diminishing;
 
         // Threat+combat management
-        bool m_isEngaged;
         friend class CombatManager;
         CombatManager m_combatManager;
         friend class ThreatManager;

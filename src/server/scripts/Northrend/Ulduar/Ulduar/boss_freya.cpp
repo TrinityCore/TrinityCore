@@ -634,7 +634,7 @@ class boss_freya : public CreatureScript
                         Elder->RemoveAllAuras();
                         Elder->AttackStop();
                         Elder->CombatStop(true);
-                        Elder->GetThreatManager().NotifyDisengaged();
+                        EngagementOver();
                         Elder->AI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                     }
                 }

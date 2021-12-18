@@ -79,4 +79,23 @@ enum PetTalk
 #define PET_FOLLOW_DIST  1.0f
 #define PET_FOLLOW_ANGLE float(M_PI)
 
+enum class PetTameResult : uint8
+{
+    Ok                      = 0,
+    InvalidCreature         = 1,
+    TooMany                 = 2,
+    CreatureAlreadyOwned    = 3,
+    NotTameable             = 4,
+    AnotherSummonActive     = 5,
+    UnitsCantTame           = 6,
+    NoPetAvailable          = 7,
+    InternalError           = 8,
+    TooHighLevel            = 9,
+    Dead                    = 10,
+    NotDead                 = 11,
+    CantControlExotic       = 12,
+    InvalidSlot             = 13,
+    EliteTooHighLevel       = 14
+};
+
 #endif

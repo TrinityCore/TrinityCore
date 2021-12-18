@@ -326,7 +326,7 @@ void Group::ConvertToRaid()
     // update quest related GO states (quest activity dependent from raid membership)
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
         if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
-            player->UpdateForQuestWorldObjects();
+            player->UpdateVisibleGameobjectsOrSpellClicks();
 }
 
 void Group::ConvertToGroup()
@@ -357,7 +357,7 @@ void Group::ConvertToGroup()
     // update quest related GO states (quest activity dependent from raid membership)
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
         if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
-            player->UpdateForQuestWorldObjects();
+            player->UpdateVisibleGameobjectsOrSpellClicks();
 }
 
 bool Group::AddInvite(Player* player)
@@ -534,7 +534,7 @@ bool Group::AddMember(Player* player)
 
     // quest related GO state dependent from raid membership
     if (isRaidGroup())
-        player->UpdateForQuestWorldObjects();
+        player->UpdateVisibleGameobjectsOrSpellClicks();
 
     {
         // Broadcast new player group member fields to rest of the group
@@ -622,7 +622,7 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod method /*= GROUP_REMOVEME
                     player->SetGroup(nullptr);
 
                 // quest related GO state dependent from raid membership
-                player->UpdateForQuestWorldObjects();
+                player->UpdateVisibleGameobjectsOrSpellClicks();
             }
 
             player->SetPartyType(m_groupCategory, GROUP_TYPE_NONE);
@@ -859,7 +859,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         // quest related GO state dependent from raid membership
         if (isRaidGroup())
-            player->UpdateForQuestWorldObjects();
+            player->UpdateVisibleGameobjectsOrSpellClicks();
 
         if (!hideDestroy)
             player->SendDirectMessage(WorldPackets::Party::GroupDestroyed().Write());
@@ -1900,6 +1900,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // offline member? don't let join
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
+        // rbac permissions
+        if (!member->CanJoinToBattleground(bgOrTemplate))
+            return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
         {
@@ -1925,7 +1928,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if ((bgOrTemplate->GetTypeID() == BATTLEGROUND_RB || bgOrTemplate->GetTypeID() == BATTLEGROUND_RANDOM_EPIC) && member->InBattlegroundQueue(true) && !isInRandomBgQueue)
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
-        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground(bgOrTemplate))
+        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && member->IsDeserter())
             return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
         // check if member can join any more battleground queues
         if (!member->HasFreeBattlegroundQueueId())
@@ -2152,7 +2155,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             // do not reset the instance, just unbind if others are permanently bound to it
             if (isEmpty && instanceSave->CanReset())
             {
-                if (map && isRaidGroup() && map->IsDungeon() && SendMsgTo)
+                if (map && map->IsDungeon() && SendMsgTo)
                 {
                     AreaTriggerStruct const* instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
 

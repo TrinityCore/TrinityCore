@@ -1725,7 +1725,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
         ObjectGuid::LowType guidLow = fields[0].GetUInt64();
         ObjectGuid::LowType linkedGuidLow = fields[1].GetUInt64();
-        uint8  linkType = fields[2].GetUInt8();
+        uint8 linkType = fields[2].GetUInt8();
 
         ObjectGuid guid, linkedGuid;
         bool error = false;
@@ -2068,13 +2068,13 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2    3           4           5           6            7        8             9              10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, spawndist, "
-    //   11               12         13       14            15                 16          17          18                19                   20                    21
-        "currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, "
+    //   11               12         13       14            15                 16          17           18                19                   20                    21
+        "currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, "
     //   22                     23                      24                25                   26                       27
         "creature.dynamicflags, creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
-        "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
+        "LEFT OUTER JOIN pool_members ON pool_members.type = 0 AND creature.guid = pool_members.spawnId");
 
     if (!result)
     {
@@ -2419,11 +2419,11 @@ void ObjectMgr::LoadGameObjects()
     //                                                0                1   2    3           4           5           6
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
     //   7          8          9          10         11             12            13     14                 15          16
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnDifficulties, eventEntry, pool_entry, "
+        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnDifficulties, eventEntry, poolSpawnId, "
     //   17             18       19          20              21
         "phaseUseFlags, phaseid, phasegroup, terrainSwapMap, ScriptName "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
-        "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
+        "LEFT OUTER JOIN pool_members ON pool_members.type = 1 AND gameobject.guid = pool_members.spawnId");
 
     if (!result)
     {
@@ -5109,8 +5109,6 @@ void ObjectMgr::LoadQuests()
             }
             if (qinfo->_nextQuestID)
                 TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb, should not unlock quest %u", qinfo->_id, qinfo->_nextQuestID);
-            if (qinfo->_exclusiveGroup)
-                TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb in exclusive group %i", qinfo->_id, qinfo->_exclusiveGroup);
         }
 
         if (qinfo->_exclusiveGroup)
@@ -8318,7 +8316,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
 
         uint8 userType = fields[3].GetUInt16();
         if (userType >= SPELL_CLICK_USER_MAX)
-            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells creature: %u  references unknown user type %u. Skipping entry.", npc_entry, uint32(userType));
+            TC_LOG_ERROR("sql.sql", "Table npc_spellclick_spells creature: %u references unknown user type %u. Skipping entry.", npc_entry, uint32(userType));
 
         uint8 castFlags = fields[2].GetUInt8();
         SpellClickInfo info;
@@ -9541,7 +9539,7 @@ void ObjectMgr::AddVendorItem(uint32 entry, VendorItem const& vItem, bool persis
 
 bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool persist /*= true*/)
 {
-    CacheVendorItemContainer::iterator  iter = _cacheVendorItemStore.find(entry);
+    CacheVendorItemContainer::iterator iter = _cacheVendorItemStore.find(entry);
     if (iter == _cacheVendorItemStore.end())
         return false;
 

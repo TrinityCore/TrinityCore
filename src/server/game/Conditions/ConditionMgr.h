@@ -23,6 +23,7 @@
 #include <array>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 class Creature;
@@ -292,6 +293,9 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const;
         bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
+
+        bool IsSpellUsedInSpellClickConditions(uint32 spellId) const;
+
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
         bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
 
@@ -329,6 +333,8 @@ class TC_GAME_API ConditionMgr
         ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
         ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
         SmartEventConditionContainer    SmartEventConditionStore;
+
+        std::unordered_set<uint32> SpellsUsedInSpellClickConditions;
         ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
         ConditionEntriesByCreatureIdMap TrainerSpellConditionContainerStore;
 };

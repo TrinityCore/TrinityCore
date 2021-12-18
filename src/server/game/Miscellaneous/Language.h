@@ -116,15 +116,15 @@ enum TrinityStrings
     LANG_GOINFO_SIZE                      = 84,
     LANG_GOINFO_ADDON                     = 85,
     LANG_GOINFO_MODEL                     = 86,
-    LANG_UNKNOWN_ERROR                    = 87, // 3.3.5 RESERVED
-    LANG_2FA_COMMANDS_NOT_SETUP           = 88, // 3.3.5 RESERVED
-    LANG_2FA_ALREADY_SETUP                = 89, // 3.3.5 RESERVED
-    LANG_2FA_INVALID_TOKEN                = 90, // 3.3.5 RESERVED
-    LANG_2FA_SECRET_SUGGESTION            = 91, // 3.3.5 RESERVED
-    LANG_2FA_SETUP_COMPLETE               = 92, // 3.3.5 RESERVED
-    LANG_2FA_NOT_SETUP                    = 93, // 3.3.5 RESERVED
-    LANG_2FA_REMOVE_NEED_TOKEN            = 94, // 3.3.5 RESERVED
-    LANG_2FA_REMOVE_COMPLETE              = 95, // 3.3.5 RESERVED
+    LANG_UNKNOWN_ERROR                    = 87,
+    LANG_2FA_COMMANDS_NOT_SETUP           = 88,
+    LANG_2FA_ALREADY_SETUP                = 89,
+    LANG_2FA_INVALID_TOKEN                = 90,
+    LANG_2FA_SECRET_SUGGESTION            = 91,
+    LANG_2FA_SETUP_COMPLETE               = 92,
+    LANG_2FA_NOT_SETUP                    = 93,
+    LANG_2FA_REMOVE_NEED_TOKEN            = 94,
+    LANG_2FA_REMOVE_COMPLETE              = 95,
     LANG_GUILD_RENAME_ALREADY_EXISTS      = 96,
     LANG_GUILD_RENAME_DONE                = 97,
     LANG_RENAME_PLAYER_ALREADY_EXISTS     = 98,
@@ -229,9 +229,9 @@ enum TrinityStrings
     //                                      185 not used
     LANG_TRANSPORT_POSITION               = 186,
     LANG_PARTIAL_GROUP_SUMMON             = 187,
-    LANG_2FA_SECRET_TOO_LONG              = 188, // 3.3.5 RESERVED
-    LANG_2FA_SECRET_INVALID               = 189, // 3.3.5 RESERVED
-    LANG_2FA_SECRET_SET_COMPLETE          = 190, // 3.3.5 RESERVED
+    LANG_2FA_SECRET_TOO_LONG              = 188,
+    LANG_2FA_SECRET_INVALID               = 189,
+    LANG_2FA_SECRET_SET_COMPLETE          = 190,
     LANG_SUBCMDS_LIST_ENTRY               = 191, // 3.3.5 RESERVED
     LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS      = 192, // 3.3.5 RESERVED
     LANG_SUBCMD_INVALID                   = 193, // 3.3.5 RESERVED
@@ -1137,8 +1137,8 @@ enum TrinityStrings
     LANG_LIST_RESPAWNS_ZONE               = 5078,
     LANG_LIST_RESPAWNS_LISTHEADER         = 5079,
     LANG_LIST_RESPAWNS_OVERDUE            = 5080,
-    LANG_LIST_RESPAWNS_CREATURES          = 5081,
-    LANG_LIST_RESPAWNS_GAMEOBJECTS        = 5082,
+    // unused 5081
+    // unused 5082
     LANG_OBJECTINFO_AITYPE                = 5083,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_2       = 5084,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085,

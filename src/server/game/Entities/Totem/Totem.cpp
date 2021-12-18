@@ -17,6 +17,7 @@
 
 #include "Totem.h"
 #include "Group.h"
+#include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "SpellHistory.h"
@@ -68,6 +69,9 @@ void Totem::InitStats(uint32 duration)
         // set display id depending on caster's race
         if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(m_unitData->CreatedBySpell, owner->GetRace()))
             SetDisplayId(totemDisplayId);
+        else
+            TC_LOG_ERROR("misc", "Totem with entry %u, does not have a specialized model for spell %u and race %s. Set to default.",
+                         GetEntry(), *m_unitData->CreatedBySpell, EnumUtils::ToTitle(Races(owner->GetRace())));
     }
 
     Minion::InitStats(duration);

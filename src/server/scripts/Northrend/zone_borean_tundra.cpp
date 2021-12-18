@@ -395,12 +395,10 @@ public:
     }
 };
 
-/*######
-## npc_nesingwary_trapper
-######*/
-
 enum NesingwaryTrapper
 {
+    NPC_NESINGWARY_TRAPPER = 25835,
+
     GO_HIGH_QUALITY_FUR = 187983,
 
     GO_CARIBOU_TRAP_1   = 187982,
@@ -428,6 +426,42 @@ const uint32 CaribouTraps[CaribouTrapsNum] =
     GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
     GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
     GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
+};
+
+class spell_q11865_place_fake_fur : public SpellScript
+{
+    PrepareSpellScript(spell_q11865_place_fake_fur);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void ActivateGameObject(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GameObject* go = GetHitGObj();
+        Player* player = GetCaster()->ToPlayer();
+
+        if (go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || go->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
+            return;
+
+        float x, y, z;
+        go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
+
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 20);
+        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
+        {
+            summon->SetVisible(false);
+            summon->SetReactState(REACT_PASSIVE);
+            summon->SetImmuneToPC(true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q11865_place_fake_fur::ActivateGameObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
+    }
 };
 
 class npc_nesingwary_trapper : public CreatureScript
@@ -717,12 +751,11 @@ public:
             Creature* owner = GetOwner()->ToCreature();
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
-            owner->GetThreatManager().NotifyDisengaged();
             owner->GetMotionMaster()->Clear();
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
-            owner->SetFaction(35);
+            owner->SetFaction(FACTION_FRIENDLY);
             owner->SetImmuneToAll(true);
             owner->DespawnOrUnsummon(3min);
         }
@@ -903,7 +936,7 @@ public:
                         if (talbot)
                         {
                             talbot->UpdateEntry(NPC_PRINCE_VALANAR);
-                            talbot->SetFaction(14);
+                            talbot->SetFaction(FACTION_MONSTER);
                             talbot->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             talbot->SetReactState(REACT_PASSIVE);
                         }
@@ -2209,7 +2242,7 @@ public:
 
         void AttackPlayer()
         {
-            me->SetFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 AttackStart(player);
         }
@@ -2555,6 +2588,7 @@ void AddSC_borean_tundra()
     new npc_corastrasza();
     new npc_iruk();
     new npc_nerubar_victim();
+    RegisterSpellScript(spell_q11865_place_fake_fur);
     new npc_nesingwary_trapper();
     new npc_lurgglbr();
     new spell_red_dragonblood();

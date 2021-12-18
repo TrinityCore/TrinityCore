@@ -289,14 +289,6 @@ Compression = 1
 PlayerLimit = 0
 
 #
-#    SaveRespawnTimeImmediately
-#        Description: Save respawn time for creatures at death and gameobjects at use/open.
-#        Default:     1 - (Enabled, Save respawn time immediately)
-#                     0 - (Disabled, Save respawn time at grid unloading)
-
-SaveRespawnTimeImmediately = 1
-
-#
 #    MaxOverspeedPings
 #        Description: Maximum overspeed ping count before character is disconnected.
 #        Default:     2  - (Enabled, Minimum value)
@@ -1681,13 +1673,13 @@ WorldBossLevelDiff = 3
 #    Corpse.Decay.RAREELITE
 #    Corpse.Decay.WORLDBOSS
 #        Description: Time (in seconds) until creature corpse will decay if not looted or skinned.
-#        Default:     60   - (1 Minute, Corpse.Decay.NORMAL)
+#        Default:     300  - (5 Minutes, Corpse.Decay.NORMAL)
 #                     300  - (5 Minutes, Corpse.Decay.RARE)
 #                     300  - (5 Minutes, Corpse.Decay.ELITE)
 #                     300  - (5 Minutes, Corpse.Decay.RAREELITE)
 #                     3600 - (1 Hour, Corpse.Decay.WORLDBOSS)
 
-Corpse.Decay.NORMAL    = 60
+Corpse.Decay.NORMAL    = 300
 Corpse.Decay.RARE      = 300
 Corpse.Decay.ELITE     = 300
 Corpse.Decay.RAREELITE = 300
@@ -2021,6 +2013,13 @@ PartyLevelReq = 1
 #                     1 - (Enabled)
 
 PreserveCustomChannels = 1
+
+#
+#    PreserveCustomChannelInterval
+#        Description: Interval (in minutes) at which custom channel data is saved to the database
+#        Default:     5 minutes
+
+PreserveCustomChannelInterval = 5
 
 #
 #    PreserveCustomChannelDuration

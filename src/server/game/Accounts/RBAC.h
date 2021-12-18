@@ -283,10 +283,10 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GM_LIST                                = 375,
     RBAC_PERM_COMMAND_GM_VISIBLE                             = 376,
     RBAC_PERM_COMMAND_GO                                     = 377,
-    //                                                       = 378, // DEPRECATED: DON'T REUSE
-    //                                                       = 379, // DEPRECATED: DON'T REUSE
-    //                                                       = 380, // DEPRECATED: DON'T REUSE
-    //                                                       = 381, // DEPRECATED: DON'T REUSE
+    RBAC_PERM_COMMAND_ACCOUNT_2FA                            = 378,
+    RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP                      = 379,
+    RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE                     = 380,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_2FA                        = 381,
     //                                                       = 382, // DEPRECATED: DON'T REUSE
     //                                                       = 383, // DEPRECATED: DON'T REUSE
     //                                                       = 384, // DEPRECATED: DON'T REUSE
@@ -783,7 +783,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LOOKUP_MAP_ID                          = 875,
     RBAC_PERM_COMMAND_LOOKUP_ITEM_ID                         = 876,
     RBAC_PERM_COMMAND_LOOKUP_QUEST_ID                        = 877,
-    // 878-879 previously used, do not reuse
+    RBAC_PERM_COMMAND_DEBUG_QUESTRESET                       = 878,
+    RBAC_PERM_COMMAND_DEBUG_POOLSTATUS                       = 879,
     RBAC_PERM_COMMAND_PDUMP_COPY                             = 880,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
     RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPT_NAMES              = 882,

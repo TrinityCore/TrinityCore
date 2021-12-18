@@ -84,6 +84,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Gets the id of the AI (script id)
         uint32 GetId() const { return _scriptId; }
 
+        bool IsEngaged() const { return _isEngaged; }
+
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
 
         /// == Reactions At =================================
@@ -96,6 +98,12 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
+
+        // Called for reaction whenever we start being in combat (overridden from base UnitAI)
+        void JustEnteredCombat(Unit* /*who*/) override;
+
+        // Called for reaction whenever a new non-offline unit is added to the threat list
+        virtual void JustStartedThreateningMe(Unit* who) { if (!IsEngaged()) EngagementStart(who); }
 
         // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
         virtual void JustEngagedWith(Unit* /*who*/) { }
@@ -133,6 +141,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
         virtual void SpellHitTargetGameObject(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 
+        // Should return true if the NPC is currently being escorted
         virtual bool IsEscorted() const { return false; }
 
         // Called when creature appears in the world (spawn, respawn, grid load etc...)
@@ -221,12 +230,11 @@ class TC_GAME_API CreatureAI : public UnitAI
         // If a PlayerAI* is returned, that AI is placed on the player instead of the default charm AI
         // Object destruction is handled by Unit::RemoveCharmedBy
         virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
-        // Should return true if the NPC is target of an escort quest
-        // If onlyIfActive is set, should return true only if the escort quest is currently active
-        virtual bool IsEscortNPC(bool /*onlyIfActive*/) const { return false; }
 
         // intended for encounter design/debugging. do not use for other purposes. expensive.
         int32 VisualizeBoundary(uint32 duration, Unit* owner = nullptr, bool fill = false) const;
+
+        // boundary system methods
         virtual bool CheckInRoom();
         CreatureBoundary const* GetBoundary() const { return _boundary; }
         void SetBoundary(CreatureBoundary const* boundary, bool negativeBoundaries = false);
@@ -235,6 +243,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool IsInBoundary(Position const* who = nullptr) const;
 
     protected:
+        void EngagementStart(Unit* who);
+        void EngagementOver();
         virtual void MoveInLineOfSight(Unit* /*who*/);
 
         bool _EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
@@ -246,6 +256,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void OnOwnerCombatInteraction(Unit* target);
 
         uint32 const _scriptId;
+        bool _isEngaged;
         bool _moveInLOSLocked;
 };
 

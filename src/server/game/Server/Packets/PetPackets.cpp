@@ -208,3 +208,10 @@ WorldPacket const* WorldPackets::Pet::PetActionSound::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetTameFailure::Write()
+{
+    _worldPacket << uint8(Result);
+
+    return &_worldPacket;
+}

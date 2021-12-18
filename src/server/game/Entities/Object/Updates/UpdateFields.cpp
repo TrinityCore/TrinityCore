@@ -1102,7 +1102,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << int32(MaxItemLevel);
     data << int32(AzeriteItemLevel);
     data << int32(WildBattlePetLevel);
-    data << int32(Field_220);
+    data << int32(BattlePetCompanionExperience);
     data << uint32(BattlePetCompanionNameTimestamp);
     data << int32(InteractSpellID);
     data << int32(ScaleDuration);
@@ -1646,7 +1646,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[109])
         {
-            data << int32(Field_220);
+            data << int32(BattlePetCompanionExperience);
         }
         if (changesMask[110])
         {
@@ -1890,7 +1890,7 @@ void UnitData::ClearChangesMask()
     Base::ClearChangesMask(MaxItemLevel);
     Base::ClearChangesMask(AzeriteItemLevel);
     Base::ClearChangesMask(WildBattlePetLevel);
-    Base::ClearChangesMask(Field_220);
+    Base::ClearChangesMask(BattlePetCompanionExperience);
     Base::ClearChangesMask(BattlePetCompanionNameTimestamp);
     Base::ClearChangesMask(InteractSpellID);
     Base::ClearChangesMask(ScaleDuration);

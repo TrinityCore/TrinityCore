@@ -46,7 +46,7 @@ SplineChainMovementGenerator::SplineChainMovementGenerator(SplineChainResumeInfo
     BaseUnitState = UNIT_STATE_ROAMING;
 }
 
-uint32 SplineChainMovementGenerator::SendPathSpline(Unit* owner, Movement::PointsArray const& path) const
+uint32 SplineChainMovementGenerator::SendPathSpline(Unit* owner, float velocity, Movement::PointsArray const& path) const
 {
     uint32 nodeCount = path.size();
     ASSERT(nodeCount > 1, "SplineChainMovementGenerator::SendPathSpline: Every path must have source & destination (size > 1)! (%s)", owner->GetGUID().ToString().c_str());
@@ -56,6 +56,9 @@ uint32 SplineChainMovementGenerator::SendPathSpline(Unit* owner, Movement::Point
         init.MovebyPath(path);
     else
         init.MoveTo(path[1], false, true);
+
+    if (velocity > 0.f)
+        init.SetVelocity(velocity);
     init.SetWalk(_walk);
     return init.Launch();
 }
@@ -66,7 +69,7 @@ void SplineChainMovementGenerator::SendSplineFor(Unit* owner, uint32 index, uint
     TC_LOG_DEBUG("movement.splinechain", "SplineChainMovementGenerator::SendSplineFor: sending spline on index: %u. (%s)", index, owner->GetGUID().ToString().c_str());
 
     SplineChainLink const& thisLink = _chain[index];
-    uint32 actualDuration = SendPathSpline(owner, thisLink.Points);
+    uint32 actualDuration = SendPathSpline(owner, thisLink.Velocity, thisLink.Points);
     if (actualDuration != thisLink.ExpectedDuration)
     {
         TC_LOG_DEBUG("movement.splinechain", "SplineChainMovementGenerator::SendSplineFor: sent spline on index: %u, duration: %u ms. Expected duration: %u ms (delta %d ms). Adjusting. (%s)", index, actualDuration, thisLink.ExpectedDuration, int32(actualDuration) - int32(thisLink.ExpectedDuration), owner->GetGUID().ToString().c_str());
@@ -110,7 +113,7 @@ void SplineChainMovementGenerator::Initialize(Unit* owner)
 
         owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
         Movement::PointsArray partial(thisLink.Points.begin() + (_nextFirstWP-1), thisLink.Points.end());
-        SendPathSpline(owner, partial);
+        SendPathSpline(owner, thisLink.Velocity, partial);
 
         TC_LOG_DEBUG("movement.splinechain", "SplineChainMovementGenerator::Initialize: resumed spline chain generator from resume state. (%s)", owner->GetGUID().ToString().c_str());
 

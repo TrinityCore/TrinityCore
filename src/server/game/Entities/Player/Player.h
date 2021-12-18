@@ -98,6 +98,11 @@ enum LootType : uint8;
 enum PlayerRestState : uint8;
 enum RestTypes : uint8;
 
+namespace BattlePets
+{
+    struct BattlePet;
+}
+
 namespace WorldPackets
 {
     namespace Character
@@ -1202,13 +1207,17 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
         Pet* GetPet() const;
-        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
+        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, bool aliveOnly = false);
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
+        void SendTameFailure(PetTameResult result);
 
         // pet auras
         std::unordered_set<PetAura const*> m_petAuras;
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
+
+        Creature* GetSummonedBattlePet();
+        void SetBattlePetData(BattlePets::BattlePet const* pet = nullptr);
 
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;
@@ -1599,7 +1608,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int32 objectId, int64 addCount, ObjectGuid victimGuid = ObjectGuid::Empty);
         bool HasQuestForItem(uint32 itemId) const;
         bool HasQuestForGO(int32 goId) const;
-        void UpdateForQuestWorldObjects();
+        void UpdateVisibleGameobjectsOrSpellClicks();
         bool CanShareQuest(uint32 questId) const;
 
         int32 GetQuestObjectiveData(QuestObjective const& objective) const;
@@ -1692,7 +1701,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint64 GetMoney() const { return m_activePlayerData->Coinage; }
         bool ModifyMoney(int64 amount, bool sendError = true);
         bool HasEnoughMoney(uint64 amount) const { return (GetMoney() >= amount); }
-        bool HasEnoughMoney(int64 amount) const;
+        bool HasEnoughMoney(int64 amount) const{ return (amount < 0) || HasEnoughMoney(uint64(amount)); }
         void SetMoney(uint64 value);
 
         RewardedQuestSet const& getRewardedQuests() const { return m_RewardedQuests; }
@@ -1891,6 +1900,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetMultiActionBars(uint8 mask) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MultiActionBars), mask); }
 
         PvPInfo pvpInfo;
+        void InitPvP();
         void UpdatePvPState(bool onlyFFA = false);
         void SetPvP(bool state) override;
         void UpdatePvP(bool state, bool override = false);
@@ -2152,7 +2162,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static TeamId TeamIdForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
-        void setFactionForRace(uint8 race);
+        void SetFactionForRace(uint8 race);
 
         void InitDisplayIds();
 
@@ -2178,7 +2188,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
-        // TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
         bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         void ResetHonorStats();
@@ -2316,6 +2325,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool InBattlegroundQueue(bool ignoreArena = false) const;
+        bool IsDeserter() const { return HasAura(26013); }
+
         BattlegroundQueueTypeId GetBattlegroundQueueTypeId(uint32 index) const;
         uint32 GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool IsInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
@@ -2386,7 +2397,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void StopCastingBindSight() const;
 
         uint32 GetSaveTimer() const { return m_nextSave; }
-        void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
+        void SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
         void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); }
         void Recall() { TeleportTo(m_recall_location); }

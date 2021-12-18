@@ -46,15 +46,20 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packe
 
     if (!pet)
     {
-        TC_LOG_DEBUG("entities.pet", "Vanitypet (%s) does not exist - player '%s' (%s / account: %u) attempted to dismiss it (possibly lagged out)",
+        TC_LOG_DEBUG("entities.pet", "Critter (%s) does not exist - player '%s' (%s / account: %u) attempted to dismiss it (possibly lagged out)",
             packet.CritterGUID.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetAccountId());
         return;
     }
 
     if (_player->GetCritterGUID() == pet->GetGUID())
     {
-         if (pet->GetTypeId() == TYPEID_UNIT && pet->IsSummon())
-             pet->ToTempSummon()->UnSummon();
+        if (pet->GetTypeId() == TYPEID_UNIT && pet->IsSummon())
+        {
+            if (!_player->GetSummonedBattlePetGUID().IsEmpty() && _player->GetSummonedBattlePetGUID() == pet->GetBattlePetCompanionGUID())
+                _player->SetBattlePetData(nullptr);
+
+            pet->ToTempSummon()->UnSummon();
+        }
     }
 }
 
@@ -332,14 +337,14 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             {
                 if (unit_target)
                 {
-                    if (!pet->IsFocusing())
+                    if (!pet->HandleSpellFocus())
                         pet->SetInFront(unit_target);
                     if (Player* player = unit_target->ToPlayer())
                         pet->SendUpdateToPlayer(player);
                 }
                 else if (Unit* unit_target2 = spell->m_targets.GetUnitTarget())
                 {
-                    if (!pet->IsFocusing())
+                    if (!pet->HandleSpellFocus())
                         pet->SetInFront(unit_target2);
                     if (Player* player = unit_target2->ToPlayer())
                         pet->SendUpdateToPlayer(player);
