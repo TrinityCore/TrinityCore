@@ -744,22 +744,15 @@ class spell_mage_incanters_flow : public AuraScript
         if (Aura* aura = GetTarget()->GetAura(SPELL_MAGE_INCANTERS_FLOW))
         {
             uint32 stacks = aura->GetStackAmount();
-            if (aurEff->GetAmount() == 0 || (stacks == 1 && aurEff->GetAmount() == 1)) // 0 = stack up, 1 = remove stack
+
+            // Force always to values between 1 and 5
+            if ((modifier == -1 && stacks == 1) || (modifier == 1 && stacks == 5))
             {
-                AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_0);
-
-                int8 up = 0;
-                int8 down = 1;
-
-                if (stacks == 5)
-                    aurEff->SetAmount(down);
-                else if (aurEff->GetAmount() == 1)
-                    aurEff->SetAmount(up);
-                else
-                    GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
+                modifier *= -1;
+                return;
             }
-            else if (stacks > 1 && aurEff->GetAmount() == 1)
-                aura->ModStackAmount(-1);
+
+            aura->ModStackAmount(modifier);
         }
         else
             GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_FLOW, true);
@@ -769,6 +762,9 @@ class spell_mage_incanters_flow : public AuraScript
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
+
+private:
+    int8 modifier = 1;
 };
 
 // 44457 - Living Bomb
