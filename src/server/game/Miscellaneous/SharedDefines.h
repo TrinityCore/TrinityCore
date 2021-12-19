@@ -1678,7 +1678,7 @@ enum SpellCastResult
     SPELL_FAILED_NO_TELEPORT_FROM_DUNGEON                       = 251,
     SPELL_FAILED_MAX_LEVEL_TOO_LOW                              = 252,
     SPELL_FAILED_CANT_REPLACE_ITEM_BONUS                        = 253,
-    SPELL_FAILED_GRANT_PET_LEVEL_FAIL                           = 254,
+    GRANT_PET_LEVEL_FAIL                                        = 254,
     SPELL_FAILED_SKILL_LINE_NOT_KNOWN                           = 255,
     SPELL_FAILED_BLUEPRINT_KNOWN                                = 256,
     SPELL_FAILED_FOLLOWER_KNOWN                                 = 257,

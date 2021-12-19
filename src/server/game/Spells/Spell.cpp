@@ -6053,7 +6053,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
                             if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
                                 if (battlePet->PacketInfo.Level >= BattlePets::MAX_BATTLE_PET_LEVEL)
-                                    return SPELL_FAILED_GRANT_PET_LEVEL_FAIL;
+                                    return GRANT_PET_LEVEL_FAIL;
 
                             if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::CantBattle))
                                 return SPELL_FAILED_BAD_TARGETS;
