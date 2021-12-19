@@ -3122,6 +3122,18 @@ float Creature::GetAggroRange(Unit const* target) const
     return 0.0f;
 }
 
+void Creature::AddInstanceEncounterFrame(uint8 priority /*= 0*/)
+{
+    if (InstanceScript* instance = GetInstanceScript())
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, this, priority);
+}
+
+void Creature::RemoveInstanceEncounterFrame(uint8 priority /*= 0*/)
+{
+    if (InstanceScript* instance = GetInstanceScript())
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, this, priority);
+}
+
 Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
 {
     // Selects nearest hostile target within creature's aggro range. Used primarily by

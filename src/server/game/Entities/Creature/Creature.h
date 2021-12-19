@@ -241,6 +241,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         float GetAttackDistance(Unit const* player) const;
         float GetAggroRange(Unit const* target) const;
 
+        void AddInstanceEncounterFrame(uint8 priority = 0);
+        void RemoveInstanceEncounterFrame(uint8 priority = 0);
+
         void SendAIReaction(AiReaction reactionType);
 
         Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
