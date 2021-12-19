@@ -66,12 +66,6 @@ enum TempSummonType
     TEMPSUMMON_MANUAL_DESPAWN              = 8              // despawns when UnSummon() is called
 };
 
-enum PhaseMasks
-{
-    PHASEMASK_NORMAL   = 0x00000001,
-    PHASEMASK_ANYWHERE = 0xFFFFFFFF
-};
-
 enum NotifyFlags
 {
     NOTIFY_NONE                     = 0x00,
