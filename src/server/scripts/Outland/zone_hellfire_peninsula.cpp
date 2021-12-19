@@ -38,6 +38,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_aeranas
@@ -152,15 +153,21 @@ public:
 
     struct npc_ancestral_wolfAI : public EscortAI
     {
-        npc_ancestral_wolfAI(Creature* creature) : EscortAI(creature)
+        npc_ancestral_wolfAI(Creature* creature) : EscortAI(creature) { }
+
+        void InitializeAI() override
         {
-            if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-                Start(false, false, creature->GetOwner()->GetGUID());
+            if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            {
+                EscortAI::Start(false, false, me->GetOwner()->GetGUID());
+
+                me->SetSpeedRate(MOVE_WALK, 1.5f);
+
+                if (TempSummon* tempSummon = me->ToTempSummon())
+                    tempSummon->SetCanFollowOwner(false);
+            }
             else
                 TC_LOG_ERROR("scripts", "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
-
-            creature->SetSpeedRate(MOVE_WALK, 1.5f);
-            Reset();
         }
 
         void Reset() override
@@ -187,33 +194,31 @@ public:
                     break;
                 // Move Ryga into position
                 case 48:
-                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA, 70.0f))
                     {
                         if (ryga->IsAlive() && !ryga->IsInCombat())
                         {
                             ryga->SetWalk(true);
                             ryga->SetSpeedRate(MOVE_WALK, 1.5f);
                             ryga->GetMotionMaster()->MovePoint(0, 517.340698f, 3885.03975f, 190.455978f, true);
-                            Reset();
                         }
                     }
                     break;
                 // Ryga Kneels and welcomes spirit wolf
                 case 50:
-                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA, 70.0f))
                     {
                         if (ryga->IsAlive() && !ryga->IsInCombat())
                         {
                             ryga->SetFacingTo(0.776773f);
                             ryga->SetStandState(UNIT_STAND_STATE_KNEEL);
                             ryga->AI()->Talk(SAY_WOLF_WELCOME);
-                            Reset();
                         }
                     }
                     break;
                 // Ryga returns to spawn point
                 case 51:
-                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA,70))
+                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA, 70.0f))
                     {
                         if (ryga->IsAlive() && !ryga->IsInCombat())
                         {
@@ -222,7 +227,6 @@ public:
                             ryga->SetHomePosition(fRetX, fRetY, fRetZ, fRetO);
                             ryga->SetStandState(UNIT_STAND_STATE_STAND);
                             ryga->GetMotionMaster()->MoveTargetedHome();
-                            Reset();
                         }
                     }
                     break;

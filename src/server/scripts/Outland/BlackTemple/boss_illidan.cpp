@@ -450,7 +450,7 @@ private:
     Unit* _owner;
 };
 
-class ChargeTargetSelector : public std::unary_function<Unit*, bool>
+class ChargeTargetSelector
 {
 public:
     ChargeTargetSelector() { }

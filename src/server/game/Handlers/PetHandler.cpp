@@ -63,10 +63,6 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packe
     }
 }
 
-void WorldSession::HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& /*packet */)
-{
-}
-
 void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
 {
     ObjectGuid guid1 = packet.PetGUID; //pet guid
@@ -253,8 +249,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                             if (((Pet*)pet)->getPetType() == HUNTER_PET)
                                 GetPlayer()->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
                             else
-                                // dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
-                                pet->setDeathState(CORPSE);
+                                GetPlayer()->RemovePet((Pet*)pet, PET_SAVE_NOT_IN_SLOT);
                         }
                         else if (pet->HasUnitTypeMask(UNIT_MASK_MINION))
                         {
@@ -748,4 +743,9 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
         petNameInvalid.RenameData.DeclinedNames = *declinedName;
 
     SendPacket(petNameInvalid.Write());
+}
+
+void WorldSession::HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& /*requestPetInfo*/)
+{
+    GetPlayer()->PetSpellInitialize();
 }

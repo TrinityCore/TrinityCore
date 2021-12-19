@@ -33,9 +33,9 @@
  * Hyper-threaded CPUs may need a special instruction inside spin loops in
  * order to yield to another virtual CPU.
  */
-#define CPU_SPINWAIT __asm__ volatile("pause")
+#define CPU_SPINWAIT @JEM_CPU_SPINWAIT@
 /* 1 if CPU_SPINWAIT is defined, 0 otherwise. */
-#define HAVE_CPU_SPINWAIT 1
+#define HAVE_CPU_SPINWAIT @JEM_HAVE_CPU_SPINWAIT@
 
 /*
  * Number of significant bits in virtual addresses.  This may be less than the
@@ -361,8 +361,8 @@
  */
 #define JEMALLOC_STRERROR_R_RETURNS_CHAR_WITH_GNU_SOURCE 
 
-/* Performs additional size-matching sanity checks when defined. */
-/* #undef JEMALLOC_EXTRA_SIZE_CHECK */
+/* Performs additional safety checks when defined. */
+/* #undef JEMALLOC_OPT_SAFETY_CHECKS */
 
 /* sizeof(void *) == 2^LG_SIZEOF_PTR. */
 #define LG_SIZEOF_PTR @JEM_SIZEDEF@

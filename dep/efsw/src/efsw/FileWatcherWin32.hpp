@@ -6,7 +6,7 @@
 #if EFSW_PLATFORM == EFSW_PLATFORM_WIN32
 
 #include <efsw/WatcherWin32.hpp>
-#include <vector>
+#include <set>
 #include <map>
 
 namespace efsw
@@ -18,8 +18,7 @@ class FileWatcherWin32 : public FileWatcherImpl
 {
 	public:
 		/// type for a map from WatchID to WatcherWin32 pointer
-		typedef std::vector<WatcherStructWin32*> WatchVector;
-		typedef std::vector<HANDLE>	HandleVector;
+		typedef std::set<WatcherStructWin32*> Watches;
 
 		FileWatcherWin32( FileWatcher * parent );
 
@@ -44,11 +43,9 @@ class FileWatcherWin32 : public FileWatcherImpl
 		/// @return Returns a list of the directories that are being watched
 		std::list<std::string> directories();
 	protected:
-		/// Vector of WatcherWin32 pointers
-		WatchVector mWatches;
-
-		/// Keeps an updated handles vector
-		HandleVector mHandles;
+		Watches mWatches;
+		Watches mWatchesRemoved;
+		Watches mWatchesNew;
 
 		/// The last watchid
 		WatchID mLastWatchID;
@@ -58,6 +55,14 @@ class FileWatcherWin32 : public FileWatcherImpl
 		Mutex mWatchesLock;
 
 		bool pathInWatches( const std::string& path );
+
+		/// Remove all directory watches.
+		void removeAllWatches();
+
+		/// Remove needed directory watches.
+		void removeWatches();
+
+		void removeWatch(WatcherStructWin32* watch);
 	private:
 		void run();
 };
