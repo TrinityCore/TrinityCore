@@ -25,7 +25,7 @@
 
 ObjectData const creatureData[] =
 {
-  /*{BOSS_THE_TERRAGRUE,               DATA_THE_TERRAGRUE               },
+  /*{ BOSS_THE_TERRAGRUE,              DATA_THE_TERRAGRUE               },
     { BOSS_THE_EYE_OF_THE_JAILER,      DATA_THE_EYE_OF_THE_JAILER       },
     { BOSS_SKYJA,                      DATA_THE_NINE                    },
     { BOSS_REMNANT_OF_NERZHUL,         DATA_REMNANT_OF_NERZHUL          },

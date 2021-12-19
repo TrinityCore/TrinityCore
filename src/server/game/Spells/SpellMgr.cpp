@@ -4629,8 +4629,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Barbed Shot
     ApplySpellFix({ 347807 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-
         spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeavingCombat;
         spellInfo->AuraInterruptFlags2 |= SpellAuraInterruptFlags2::EndOfEncounter;
     });

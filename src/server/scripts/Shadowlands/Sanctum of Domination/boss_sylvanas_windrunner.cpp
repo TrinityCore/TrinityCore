@@ -246,23 +246,20 @@ enum Actions
 enum Texts
 {
     SAY_AGGRO                                   = 0,
-    SAY_SLAY,
-    SAY_DISENGAGE,
-    SAY_ANNOUNCE_WINDRUNNER,
-    SAY_SHADOW_DAGGER,
-    SAY_DESECRATING_SHOT,
-    SAY_ANNOUNCE_WAILING_ARROW,
-    SAY_ANNOUNCE_WAILING_ARROW_TANK,
-    SAY_WAILING_ARROW,
-    SAY_ANNOUNCE_DOMINATION_CHAINS,
-    SAY_DOMINATION_CHAINS,
-    SAY_ANNOUNCE_VEIL_OF_DARKNESS,
-    SAY_VEIL_OF_DARKNESS,
-    SAY_INTERMISSION_BEGIN,
-    SAY_INTERMISSION_END,
-
-
-
+    SAY_SLAY                                    = 1,
+    SAY_DISENGAGE                               = 2,
+    SAY_ANNOUNCE_WINDRUNNER                     = 3,
+    SAY_SHADOW_DAGGER                           = 4,
+    SAY_DESECRATING_SHOT                        = 5,
+    SAY_ANNOUNCE_WAILING_ARROW                  = 6,
+    SAY_ANNOUNCE_WAILING_ARROW_TANK             = 7,
+    SAY_WAILING_ARROW                           = 8,
+    SAY_ANNOUNCE_DOMINATION_CHAINS              = 9,
+    SAY_DOMINATION_CHAINS                       = 10,
+    SAY_ANNOUNCE_VEIL_OF_DARKNESS               = 11,
+    SAY_VEIL_OF_DARKNESS                        = 12,
+    SAY_INTERMISSION_BEGIN                      = 13,
+    SAY_INTERMISSION_END                        = 14,
 
     SAY_START_PHASE_THREE                       = 25
 };
@@ -406,13 +403,13 @@ Position const RiveThrowPos[8] =
     { 287.948f, -778.238f, 4113.2285f }
 };
 
-Position const RiveFinish =            { 235.1163f, -829.90106f, 4105.0386f, 5.4824f    };
+Position const RiveFinish =            { 235.1163f, -829.90106f, 4105.0386f, 5.4824f   };
 
-Position const SylvanasPhase2Pre =     { -14.5625f, -943.441f,   4999.990f,  0.8928f    };
+Position const SylvanasPhase2Pre =     { -14.5625f, -943.441f,   4999.990f,  0.8928f   };
 
-Position const SylvanasPhase3Pre =     { -258.991f, -1265.9966f, 5667.114f,  0.3118f    };
+Position const SylvanasPhase3Pre =     { -258.991f, -1265.9966f, 5667.114f,  0.3118f   };
 
-Position const SylvanasPlaform1Pos =   { -280.646f, -1245.48f,   5672.13f,   2.3046f    };
+Position const SylvanasPlaform1Pos =   { -280.646f, -1245.48f,   5672.13f,   2.3046f   };
 
 Position const PlaformsMiddlePos[4] =
 {
@@ -422,7 +419,7 @@ Position const PlaformsMiddlePos[4] =
     { 0.f }
 };
 
-Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f    };
+Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f   };
 
 // Sylvanas Windrunner - 175732
 struct boss_sylvanas_windrunner : public BossAI
