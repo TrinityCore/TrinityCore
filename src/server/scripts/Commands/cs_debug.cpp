@@ -1848,7 +1848,7 @@ public:
                 // 4. call a AI hook on them again, it should be null and crash
                 target->GetAI()->SetData(0, 0);
 
-                player->m_Events.AddEventAtOffset(target]()
+                player->m_Events.AddEventAtOffset([target]()
                 {
                     // 5. call a AI hook on them again, it should be the new AI
                     target->GetAI()->SetData(0, 0);
