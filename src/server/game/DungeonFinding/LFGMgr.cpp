@@ -714,9 +714,10 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
     roles &= PLAYER_ROLE_ANY;
 
     if (guid) {
-        Player* player = ObjectAccessor::FindPlayer(guid);
-        if (!player) return;
-        roles = FilterClassRoles(player, roles);
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
+            roles = FilterClassRoles(player, roles);
+        else
+            return;
     }
 
     LfgRoleCheck& roleCheck = itRoleCheck->second;
