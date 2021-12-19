@@ -502,10 +502,7 @@ class spell_pal_eye_for_an_eye : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PALADIN_EYE_FOR_AN_EYE_TRIGGERED
-        });
+        return ValidateSpellInfo({ SPELL_PALADIN_EYE_FOR_AN_EYE_TRIGGERED });
     }
 
     void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
