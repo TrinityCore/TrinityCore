@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Spell.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
@@ -245,7 +246,8 @@ void ScriptedAI::ForceCombatStop(Creature* who, bool reset /*= true*/)
     who->DoNotReacquireSpellFocusTarget();
     who->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
 
-    if (reset) {
+    if (reset)
+    {
         who->LoadCreaturesAddon();
         who->SetLootRecipient(nullptr);
         who->ResetPlayerDamageReq();
@@ -254,7 +256,7 @@ void ScriptedAI::ForceCombatStop(Creature* who, bool reset /*= true*/)
     }
 }
 
-void ScriptedAI::ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange /*= 250.0f*/, bool /*samePhase*/ /*= true*/, bool reset /*= true*/)
+void ScriptedAI::ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange /*= 250.0f*/, bool samePhase /*= true*/, bool reset /*= true*/)
 {
     TC_LOG_DEBUG("scripts.ai", "ScriptedAI::ForceCombatStopForCreatureEntry: called on '%s'. Debug info: %s", me->GetGUID().ToString().c_str(), me->GetDebugInfo().c_str());
 
@@ -262,11 +264,13 @@ void ScriptedAI::ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRa
     Trinity::AllCreaturesOfEntryInRange check(me, entry, maxSearchRange);
     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, creatures, check);
 
-    // TODO: FIX THIS
-    //if (!samePhase)
-    //    searcher.i_phaseMask = PHASEMASK_ANYWHERE;
+    if (!samePhase)
+        PhasingHandler::SetAlwaysVisible(me, true, false);
 
     Cell::VisitGridObjects(me, searcher, maxSearchRange);
+
+    if (!samePhase)
+        PhasingHandler::SetAlwaysVisible(me, false, false);
 
     for (Creature* creature : creatures)
         ForceCombatStop(creature, reset);
