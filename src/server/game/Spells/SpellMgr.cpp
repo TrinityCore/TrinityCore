@@ -4620,8 +4620,157 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx8 |= SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
     });
 
-    // ENDOF THE AZURE VAULT SPELLS
+    // END OF THE AZURE VAULT SPELLS
+	
     //
+    // SANCTUM OF DOMINATION
+    //
+
+    // Barbed Shot
+    ApplySpellFix({ 347807 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+
+        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeavingCombat;
+        spellInfo->AuraInterruptFlags2 |= SpellAuraInterruptFlags2::EndOfEncounter;
+    });
+
+    // Ranger's Heartseeker
+    ApplySpellFix({ 352663 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+            spellEffectInfo->ApplyAuraPeriod = 180; // Sniffed value
+        });
+    });
+
+    // Domination Chain (Player)
+    ApplySpellFix({ 349451 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
+    // Wailing Arrow (Missile)
+    ApplySpellFix({ 348055 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->BasePoints = 348056;
+        });
+    });
+
+    // Wailing Arrow (AoE)
+    ApplySpellFix({ 348056 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TriggerSpell = 357617;
+        });
+
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TriggerSpell = 357618;
+        });
+    });
+
+    // Veil of Darkness (Phase 1)
+    ApplySpellFix({ 347726 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_TRIGGER_SPELL;
+            spellEffectInfo->TriggerSpell = 347704;
+        });
+
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_TRIGGER_SPELL;
+            spellEffectInfo->TriggerSpell = 350777;
+        });
+    });
+
+    // Rive Marker
+    ApplySpellFix({ 353419 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5s
+    });
+
+    // Banshee Wail (Marker)
+    ApplySpellFix({ 357719 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+    });
+
+    // Banshee Wail (Missile)
+    ApplySpellFix({ 348133 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TriggerSpell = 348108;
+        });
+    });
+
+    // Banshee Wail (Triggered Missile)
+    ApplySpellFix({ 348108 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_TRIGGER_SPELL;
+            spellEffectInfo->TriggerSpell = 348109;
+        });
+
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_TRIGGER_SPELL;
+            spellEffectInfo->TriggerSpell = 351252;
+        });
+    });
+
+    // Winds of Icecrown
+    ApplySpellFix({ 356941 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_TRIGGER_SPELL;
+            spellEffectInfo->TriggerSpell = 348146;
+        });
+    });
+
+    // Comet Barrage
+    ApplySpellFix({ 354936 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->BasePoints = 354937;
+        });
+    });
+
+    // Teleport random position from Phase 2 to Phase 3
+    ApplySpellFix({ 350906 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_TRIGGER_SPELL;
+        });
+
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TriggerSpell = 358815;
+        });
+    });
+
+    // Teleport
+    ApplySpellFix({ 357103 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_TRIGGER_SPELL;
+        });
+    });
+
+    // END OF SANCTUM OF DOMINATION
+
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {

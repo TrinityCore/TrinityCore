@@ -2,18 +2,14 @@
 SET @CGUID := 1200000;
 SET @OGUID := 650000;
 
-DELETE FROM `access_requirement` WHERE `mapId` IN (1755, 2450);
+DELETE FROM `access_requirement` WHERE `mapId` IN (2450);
 INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max`, `item`, `item2`, `quest_done_A`, `quest_done_H`, `completed_achievement`, `quest_failed_text`, `comment`) VALUES 
-(1755, 14, 60, 65, 0, 0, 0, 0, 0, NULL, 'Castle Nathria - NM'),
-(1755, 15, 60, 65, 0, 0, 0, 0, 0, NULL, 'Castle Nathria - HM'),
-(1755, 16, 60, 65, 0, 0, 0, 0, 0, NULL, 'Castle Nathria - MM'),
 (2450, 14, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - NM'),
 (2450, 15, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - HM'),
 (2450, 16, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - MM');
 
-DELETE FROM `instance_template` WHERE `map` IN (1755, 2450);
+DELETE FROM `instance_template` WHERE `map` IN (2450);
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
-(1755, 0, 'instance_castle_nathria'),
 (2450, 0, 'instance_sanctum_of_domination');
 
 DELETE FROM `instance_encounters` WHERE `entry`=2435;
@@ -276,28 +272,15 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=351252 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (351252, 'spell_sylvanas_windrunner_banshee_wail_interrupt');
 
-
-
-
-
-
  -- Veil of Darkness (Phase 2 - Fade)
 DELETE FROM `spell_script_names` WHERE `spell_id`=353273 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (353273, 'spell_sylvanas_windrunner_veil_of_darkness_fade');
 
-
-
-
-
-
-
  -- Veil of Darkness (Phase 3 - Fade)
 DELETE FROM `spell_script_names` WHERE `spell_id`=354168 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354168, 'spell_sylvanas_windrunner_veil_of_darkness_fade');
-
-
 
  -- Torghast Spike
 DELETE FROM `gameobject_template` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);
@@ -717,9 +700,4 @@ INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `mingold`,
 DELETE FROM `spell_target_position` WHERE `ID`=344598 AND `EffectIndex`=0;
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES 
 (344598, 0, 2222, -1834.21, 1542.27, 5274.16, 41079);
-
-
-
-
-
 

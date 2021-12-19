@@ -537,7 +537,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (!victim && !victim->IsPlayer())
+        if (!victim->IsPlayer())
             return;
 
         Talk(SAY_SLAY);
@@ -737,13 +737,11 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_WINDRUNNER_MODEL:
             {
+                // HACKFIX: apparently, sylvanas is the one doing the visual stuff here, but I haven't found the spellId or whatever makes her black, further research needed
                 me->SetReactState(REACT_PASSIVE);
 
                 DoCastSelf(SPELL_DOMINATION_CHAINS_SPIN, true);
-                //me->SendPlaySpellVisualKit(VISUAL_KIT_SYLVANAS_DISAPPEAR_MODEL, 0, 1000);
 
-                // HACKFIX: this is not the real visualkit used, there must be something I'm missing
-                //me->SendPlaySpellVisualKit(VISUAL_KIT_SYLVANAS_BLACKEN_WITH_DAGGERS, 0, 0);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_DODGE);
 
                 scheduler.Schedule(650ms, [this](TaskContext context)
@@ -895,6 +893,9 @@ struct boss_sylvanas_windrunner : public BossAI
                 _lastSpellUsed = spell->Id;
                 break;
             }
+
+            default:
+                break;
         }
     }
 
@@ -947,7 +948,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             _windrunnerActive = false;
                         });
                     }
-                    else if (_windrunnerCastTimes = 1)
+                    else if (_windrunnerCastTimes == 1)
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 13000));
 
@@ -962,7 +963,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             _windrunnerActive = false;
                         });
                     }
-                    else if (_windrunnerCastTimes = 2)
+                    else if (_windrunnerCastTimes == 2)
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 15000));
 
@@ -2128,7 +2129,6 @@ private:
     ObjectGuid _arrowAreaTriggerGUID;
 };
 
-
 enum BolvarSpells
 {
     SPELL_RUNIC_MARK                            = 354926,
@@ -2708,7 +2708,6 @@ private:
     TaskScheduler _scheduler;
 };
 
-
 enum AnduinSpells
 {
     SPELL_BLASPHEMY_PRE                         = 357729,
@@ -2935,7 +2934,6 @@ class spell_sylvanas_windrunner_blasphemy : public AuraScript
         AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_blasphemy::OnRemove, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
     }
 };
-
 
 // Ranger (Bow) - 347560 
 class spell_sylvanas_windrunner_ranger_bow : public SpellScript
@@ -3493,9 +3491,6 @@ class spell_sylvanas_windrunner_banshee_wail_interrupt : public SpellScript
     }
 };
 
-
-
-
 // Frigid Shards - 354933
 class spell_sylvanas_windrunner_frigid_shards : public AuraScript
 {
@@ -3516,9 +3511,6 @@ class spell_sylvanas_windrunner_frigid_shards : public AuraScript
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_sylvanas_windrunner_frigid_shards::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
-
-
-
 
 // Desecrating Shot - 22400
 struct at_sylvanas_windrunner_disecrating_shot : AreaTriggerAI
