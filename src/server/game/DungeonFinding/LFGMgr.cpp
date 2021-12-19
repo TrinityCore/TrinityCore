@@ -401,8 +401,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
 
     // Sanitize input roles
     roles &= PLAYER_ROLE_ANY;
-
-    // check classes for permitted roles
     roles = FilterClassRoles(player, roles);
 
     // At least 1 role must be selected
@@ -1871,7 +1869,6 @@ uint8 LFGMgr::GetTeam(ObjectGuid guid)
 
 uint8 LFGMgr::FilterClassRoles(Player* player, uint8 roles)
 {
-    // check classes for permitted roles
     roles &= PLAYER_ROLE_ANY;
     if (!(LfgRoleClasses::TANK & player->GetClassMask()))
         roles &= ~PLAYER_ROLE_TANK;
