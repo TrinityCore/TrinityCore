@@ -1840,13 +1840,19 @@ public:
 
         player->m_Events.AddEventAtOffset([player, target]()
         {
-            // 3. call a AI hook on them
+            // 3. call a AI hook on them, it should be the old AI
             target->GetAI()->SetData(0, 0);
 
             player->m_Events.AddEventAtOffset([player, target]()
             {
-                // 4. call a AI hook on them again
+                // 4. call a AI hook on them again, it should be null and crash
                 target->GetAI()->SetData(0, 0);
+
+                player->m_Events.AddEventAtOffset(target]()
+                {
+                    // 5. call a AI hook on them again, it should be the new AI
+                    target->GetAI()->SetData(0, 0);
+                }, 1ms);
             }, 1ms);
         }, 1ms);
 
