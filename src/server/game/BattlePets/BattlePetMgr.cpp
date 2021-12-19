@@ -642,6 +642,41 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     }
 }
 
+void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality quality)
+{
+    if (!HasJournalLock())
+        return;
+
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    if (quality > BattlePetBreedQuality::Rare)
+        return;
+
+    if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::CantBattle))
+            return;
+
+    uint8 qualityValue = AsUnderlyingType(quality);
+    if (pet->PacketInfo.Quality >= qualityValue)
+        return;
+
+    pet->PacketInfo.Quality = qualityValue;
+    pet->CalculateStats();
+    pet->PacketInfo.Health = pet->PacketInfo.MaxHealth;
+
+    if (pet->SaveInfo != BATTLE_PET_NEW)
+        pet->SaveInfo = BATTLE_PET_CHANGED;
+
+    std::vector<std::reference_wrapper<BattlePet>> updates;
+    updates.push_back(std::ref(*pet));
+    SendUpdates(std::move(updates), false);
+
+    // UF::PlayerData::CurrentBattlePetBreedQuality isn't updated (Intended)
+    // _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(qualityValue);
+}
+
 void BattlePetMgr::HealBattlePetsPct(uint8 pct)
 {
     // TODO: After each Pet Battle, any injured companion will automatically
