@@ -24,6 +24,7 @@
 #include "LFGQueue.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
+#include "SharedDefines.h"
 #include <unordered_map>
 
 class Group;
