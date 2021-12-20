@@ -44,301 +44,267 @@ ObjectData const creatureData[] =
 
 class instance_sanctum_of_domination : public InstanceMapScript
 {
-    public:
-        instance_sanctum_of_domination() : InstanceMapScript(SDScriptName, 2450) { }
+public:
+    instance_sanctum_of_domination() : InstanceMapScript(SDScriptName, 2450) { }
 
-        struct instance_sanctum_of_domination_InstanceMapScript : public InstanceScript
+    struct instance_sanctum_of_domination_InstanceMapScript : public InstanceScript
+    {
+        instance_sanctum_of_domination_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            instance_sanctum_of_domination_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
-            {
-                SetHeaders(DataHeader);
-                SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
-            }
+            SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadObjectData(creatureData, nullptr);
+        }
 
-            void OnPlayerEnter(Player* player) override
+        void OnPlayerEnter(Player* player) override
+        {
+            /*
+            if (GetData(DATA_SYLVANAS_INTRO) == NOT_STARTED)
+            {
+                if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                {
+                    if (sylvanas->IsAIEnabled())
+                        sylvanas->AI()->DoAction(ACTION_START_SYLVANAS_INTRO);
+                }
+            }
+            */
+        }
+
+        void OnCreatureCreate(Creature* creature) override
+        {
+            InstanceScript::OnCreatureCreate(creature);
+
+            switch (creature->GetEntry())
             {
                 /*
-                if (GetData(DATA_SYLVANAS_INTRO) == NOT_STARTED)
+                case BOSS_THE_TERRAGRUE:
                 {
+                    TerragrueGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_THE_EYE_OF_THE_JAILER:
+                {
+                    EyeoftheJailerGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_SKYJA:
+                {
+                    SkyjaGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_REMNANT_OF_NERZHUL:
+                {
+                    RemnantofNerzhulGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_SOULRENDER_DORMAZAIN:
+                {
+                    SoulrenderDormazainGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_PAINSMITH_RAZNAL:
+                {
+                    PainsmithRaznalGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_GUARDIAN_OF_THE_FIRST_ONES:
+                {
+                    GuardianoftheFirstOnesGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_FATESCRIBE_ROHKALO:
+                {
+                    FatescribeRohkaloGUID = creature->GetGUID();
+                    break;
+                }
+
+                case BOSS_KELTHUZAD:
+                {
+                    KelthuzadGUID = creature->GetGUID();
+                    break;
+                }*/
+
+                case BOSS_SYLVANAS_WINDRUNNER:
+                {
+                    SylvanasGUID = creature->GetGUID();
+
+                    if (GetData(DATA_SYLVANAS_INTRO) != DONE)
+                        SetData(DATA_SYLVANAS_INTRO, DONE);
+                    break;
+                }
+
+                case DATA_BOLVAR_FORDRAGON_PINNACLE:
+                {
+                    BolvarPinnacleGUID = creature->GetGUID();
+
                     if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    {
-                        if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->DoAction(ACTION_START_SYLVANAS_INTRO);
-                    }
-                }
-                */
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                InstanceScript::OnCreatureCreate(creature);
-
-                switch (creature->GetEntry())
-                {
-                    /*
-                    case BOSS_THE_TERRAGRUE:
-                    {
-                        TerragrueGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_THE_EYE_OF_THE_JAILER:
-                    {
-                        EyeoftheJailerGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_SKYJA:
-                    {
-                        SkyjaGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_REMNANT_OF_NERZHUL:
-                    {
-                        RemnantofNerzhulGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_SOULRENDER_DORMAZAIN:
-                    {
-                        SoulrenderDormazainGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_PAINSMITH_RAZNAL:
-                    {
-                        PainsmithRaznalGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_GUARDIAN_OF_THE_FIRST_ONES:
-                    {
-                        GuardianoftheFirstOnesGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_FATESCRIBE_ROHKALO:
-                    {
-                        FatescribeRohkaloGUID = creature->GetGUID();
-                        break;
-                    }
-
-                    case BOSS_KELTHUZAD:
-                    {
-                        KelthuzadGUID = creature->GetGUID();
-                        break;
-                    }*/
-
-                    case BOSS_SYLVANAS_WINDRUNNER:
-                    {
-                        SylvanasGUID = creature->GetGUID();
-
-                        if (GetData(DATA_SYLVANAS_INTRO) != DONE)
-                            SetData(DATA_SYLVANAS_INTRO, DONE);
-                        break;
-                    }
-
-                    case DATA_BOLVAR_FORDRAGON_PINNACLE:
-                    {
-                        BolvarPinnacleGUID = creature->GetGUID();
-
-                        if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                            sylvanas->AI()->JustSummoned(creature);
-                        break;
-                    }
-
-                    case NPC_JAINA_PROUDMOORE_PINNACLE:
-                    {
-                        JainaPinnacleGUID = creature->GetGUID();
-
-                        if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                            sylvanas->AI()->JustSummoned(creature);
-
-                        break;
-                    }
-
-                    case DATA_THRALL_PINNACLE:
-                    {
-                        ThrallPinnacleGUID = creature->GetGUID();
-
-                        if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                            sylvanas->AI()->JustSummoned(creature);
-                        break;
-                    }
-
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GAMEOBJECT_TORGHAST_SPIKE_01:
-                    case GAMEOBJECT_TORGHAST_SPIKE_02:
-                    case GAMEOBJECT_TORGHAST_SPIKE_03:
-                    case GAMEOBJECT_TORGHAST_SPIKE_04:
-                    case GAMEOBJECT_TORGHAST_SPIKE_05:
-                    case GAMEOBJECT_TORGHAST_SPIKE_06:
-                    case GAMEOBJECT_TORGHAST_SPIKE_07:
-                    case GAMEOBJECT_TORGHAST_SPIKE_08:
-                    case GAMEOBJECT_TORGHAST_SPIKE_09:
-                    case GAMEOBJECT_TORGHAST_SPIKE_10:
-                    case GAMEOBJECT_TORGHAST_SPIKE_11:
-                    case GAMEOBJECT_TORGHAST_SPIKE_12:
-                        TorghastSpikeGUID.push_back(go->GetGUID());
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_SYLVANAS_INTRO:
-                        return SylvanasIntro;
-
-                    default:
-                        break;
+                        sylvanas->AI()->JustSummoned(creature);
+                    break;
                 }
 
-                return 0;
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
+                case NPC_JAINA_PROUDMOORE_PINNACLE:
                 {
-                    /*
-                    case DATA_THE_TERRAGRUE:
-                        return TerragrueGUID;
-                    case DATA_THE_EYE_OF_THE_JAILER:
-                        return EyeoftheJailerGUID;
-                    case DATA_THE_NINE:
-                        return SkyjaGUID;
-                    case DATA_REMNANT_OF_NERZHUL:
-                        return RemnantofNerzhulGUID;
-                    case DATA_SOULRENDER_DORMAZAIN:
-                        return SoulrenderDormazainGUID;
-                    case DATA_PAINSMITH_RAZNAL:
-                        return PainsmithRaznalGUID;
-                    case DATA_GUARDIAN_OF_THE_FIRST_ONES:
-                        return GuardianoftheFirstOnesGUID;
-                    case DATA_FATESCRIBE_ROHKALO:
-                        return FatescribeRohkaloGUID;
-                    case DATA_KELTHUZAD:
-                        return KelthuzadGUID;*/
-                    case DATA_SYLVANAS_WINDRUNNER:
-                        return SylvanasGUID;
-                    default:
-                        break;
+                    JainaPinnacleGUID = creature->GetGUID();
+
+                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->AI()->JustSummoned(creature);
+
+                    break;
                 }
 
-                return ObjectGuid::Empty;
+                case DATA_THRALL_PINNACLE:
+                {
+                    ThrallPinnacleGUID = creature->GetGUID();
+
+                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->AI()->JustSummoned(creature);
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+
+        void OnGameObjectCreate(GameObject* go) override
+        {
+            switch (go->GetEntry())
+            {
+                case GAMEOBJECT_TORGHAST_SPIKE_01:
+                case GAMEOBJECT_TORGHAST_SPIKE_02:
+                case GAMEOBJECT_TORGHAST_SPIKE_03:
+                case GAMEOBJECT_TORGHAST_SPIKE_04:
+                case GAMEOBJECT_TORGHAST_SPIKE_05:
+                case GAMEOBJECT_TORGHAST_SPIKE_06:
+                case GAMEOBJECT_TORGHAST_SPIKE_07:
+                case GAMEOBJECT_TORGHAST_SPIKE_08:
+                case GAMEOBJECT_TORGHAST_SPIKE_09:
+                case GAMEOBJECT_TORGHAST_SPIKE_10:
+                case GAMEOBJECT_TORGHAST_SPIKE_11:
+                case GAMEOBJECT_TORGHAST_SPIKE_12:
+                    TorghastSpikeGUID.push_back(go->GetGUID());
+            }
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            switch (type)
+            {
+                case DATA_SYLVANAS_INTRO:
+                    return SylvanasIntro;
+
+                default:
+                    break;
             }
 
-            bool SetBossState(uint32 id, EncounterState state) override
-            {
-                if (!InstanceScript::SetBossState(id, state))
-                    return false;
+            return 0;
+        }
 
-                switch (id)
+        ObjectGuid GetGuidData(uint32 type) const override
+        {
+            switch (type)
+            {
+                /*
+                case DATA_THE_TERRAGRUE:
+                    return TerragrueGUID;
+                case DATA_THE_EYE_OF_THE_JAILER:
+                    return EyeoftheJailerGUID;
+                case DATA_THE_NINE:
+                    return SkyjaGUID;
+                case DATA_REMNANT_OF_NERZHUL:
+                    return RemnantofNerzhulGUID;
+                case DATA_SOULRENDER_DORMAZAIN:
+                    return SoulrenderDormazainGUID;
+                case DATA_PAINSMITH_RAZNAL:
+                    return PainsmithRaznalGUID;
+                case DATA_GUARDIAN_OF_THE_FIRST_ONES:
+                    return GuardianoftheFirstOnesGUID;
+                case DATA_FATESCRIBE_ROHKALO:
+                    return FatescribeRohkaloGUID;
+                case DATA_KELTHUZAD:
+                    return KelthuzadGUID;*/
+                case DATA_SYLVANAS_WINDRUNNER:
+                    return SylvanasGUID;
+                default:
+                    break;
+            }
+
+            return ObjectGuid::Empty;
+        }
+
+        bool SetBossState(uint32 id, EncounterState state) override
+        {
+            if (!InstanceScript::SetBossState(id, state))
+                return false;
+
+            switch (id)
+            {
+                case DATA_SYLVANAS_WINDRUNNER:
                 {
-                    case DATA_SYLVANAS_WINDRUNNER:
+                    if (state == FAIL)
                     {
-                        if (state == FAIL)
+                        for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
                         {
-                            for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
-                            {
-                                if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
-                                    torghastSpike->SetSpellVisualId(0);
-                            }
-
-                            Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 3s);
+                            if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
+                                torghastSpike->SetSpellVisualId(0);
                         }
 
-                        break;
+                        Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 3s);
                     }
 
-                    default:
-                        break;
+                    break;
                 }
 
-                return true;
+                default:
+                    break;
             }
 
-            void SetData(uint32 type, uint32 data) override
+            return true;
+        }
+
+        void SetData(uint32 type, uint32 data) override
+        {
+            switch (type)
             {
-                switch (type)
+                case DATA_SYLVANAS_INTRO:
                 {
-                    case DATA_SYLVANAS_INTRO:
+                    switch (data)
                     {
-                        switch (data)
+                        case NOT_STARTED:
                         {
-                            case NOT_STARTED:
+                            if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != DONE)
                             {
-                                if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != DONE)
+                                if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                 {
-                                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                                    {
-                                        sylvanas->AddUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                        sylvanas->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                                        sylvanas->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                                    sylvanas->AddUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+                                    sylvanas->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                                    sylvanas->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 
-                                        sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 4.0f);
-                                    }
+                                    sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 4.0f);
                                 }
-
-                                break;
                             }
 
-                            case DONE:
-                            {
-                                if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != DONE)
-                                {
-                                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                                    {
-                                        sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                        sylvanas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                                        sylvanas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-
-                                        sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 14.0f);
-                                    }
-                                }
-
-                                break;
-                            }
-
-                            default:
-                                break;
+                            break;
                         }
-                    }
 
-                    default:
-                        break;
-                }
-            }
-
-            void Update(uint32 diff) override
-            {
-                Events.Update(diff);
-
-                while (uint32 eventId = Events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_RESET_PLAYERS_ON_SYLVANAS:
+                        case DONE:
                         {
-                            Map::PlayerList const& playerList = instance->GetPlayers();
-
-                            for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                            if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != DONE)
                             {
-                                if (Player* player = itr->GetSource())
+                                if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                 {
-                                    if (!player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
-                                        player->NearTeleportTo(platformRevivePos, false);
+                                    sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+                                    sylvanas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                                    sylvanas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+
+                                    sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 14.0f);
                                 }
                             }
 
@@ -349,31 +315,65 @@ class instance_sanctum_of_domination : public InstanceMapScript
                             break;
                     }
                 }
+
+                default:
+                    break;
             }
-
-            protected:
-                EventMap Events;
-                ObjectGuid TerragrueGUID;
-                ObjectGuid EyeoftheJailerGUID;
-                ObjectGuid SkyjaGUID;
-                ObjectGuid RemnantofNerzhulGUID;
-                ObjectGuid SoulrenderDormazainGUID;
-                ObjectGuid PainsmithRaznalGUID;
-                ObjectGuid GuardianoftheFirstOnesGUID;
-                ObjectGuid FatescribeRohkaloGUID;
-                ObjectGuid KelthuzadGUID;
-                ObjectGuid SylvanasGUID;
-                ObjectGuid BolvarPinnacleGUID;
-                ObjectGuid JainaPinnacleGUID;
-                ObjectGuid ThrallPinnacleGUID;
-                std::vector <ObjectGuid> TorghastSpikeGUID;
-                uint32 SylvanasIntro;
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
-        {
-            return new instance_sanctum_of_domination_InstanceMapScript(map);
         }
+
+        void Update(uint32 diff) override
+        {
+            Events.Update(diff);
+
+            while (uint32 eventId = Events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_RESET_PLAYERS_ON_SYLVANAS:
+                    {
+                        Map::PlayerList const& playerList = instance->GetPlayers();
+
+                        for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        {
+                            if (Player* player = itr->GetSource())
+                            {
+                                if (!player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
+                                    player->NearTeleportTo(SylvanasPlatformRevivePos, false);
+                            }
+                        }
+
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        protected:
+            EventMap Events;
+            ObjectGuid TerragrueGUID;
+            ObjectGuid EyeoftheJailerGUID;
+            ObjectGuid SkyjaGUID;
+            ObjectGuid RemnantofNerzhulGUID;
+            ObjectGuid SoulrenderDormazainGUID;
+            ObjectGuid PainsmithRaznalGUID;
+            ObjectGuid GuardianoftheFirstOnesGUID;
+            ObjectGuid FatescribeRohkaloGUID;
+            ObjectGuid KelthuzadGUID;
+            ObjectGuid SylvanasGUID;
+            ObjectGuid BolvarPinnacleGUID;
+            ObjectGuid JainaPinnacleGUID;
+            ObjectGuid ThrallPinnacleGUID;
+            std::vector<ObjectGuid> TorghastSpikeGUID;
+            uint32 SylvanasIntro;
+    };
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_sanctum_of_domination_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_sanctum_of_domination()

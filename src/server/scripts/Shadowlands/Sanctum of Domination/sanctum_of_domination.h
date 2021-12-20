@@ -23,7 +23,7 @@
 #define DataHeader "SD"
 #define SDScriptName "instance_sanctum_of_domination"
 
-Position const platformRevivePos = { 265.834f, -799.287f, 4104.977f, 3.811291f };
+Position const SylvanasPlatformRevivePos = { 265.834f, -799.287f, 4104.977f, 3.811291f };
 
 uint32 const EncounterCount = 10;
 

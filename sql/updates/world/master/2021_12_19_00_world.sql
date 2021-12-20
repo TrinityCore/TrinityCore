@@ -4,9 +4,9 @@ SET @OGUID := 650000;
 
 DELETE FROM `access_requirement` WHERE `mapId` IN (2450);
 INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max`, `item`, `item2`, `quest_done_A`, `quest_done_H`, `completed_achievement`, `quest_failed_text`, `comment`) VALUES 
-(2450, 14, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - NM'),
-(2450, 15, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - HM'),
-(2450, 16, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - MM');
+(2450, 14, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Normal Mode'),
+(2450, 15, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Heroic Mode'),
+(2450, 16, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Mythic Mode');
 
 DELETE FROM `instance_template` WHERE `map` IN (2450);
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
@@ -54,7 +54,7 @@ INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags
  -- Throne of the Damned
 DELETE FROM `creature_template` WHERE `entry`=180803;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(180803, 'Throne of the Damned', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 190, 16777216, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 768, 67143680, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(180803, 'Throne of the Damned', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 190, 16777216, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 768, 67143680, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=180803 AND `spell_id`=358839;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES 
@@ -80,6 +80,10 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 DELETE FROM `creature_template_scaling` WHERE `Entry`=175732;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
 (175732, 14, 3, 3, 2104, 41079);
+
+DELETE FROM `creature_model_info` WHERE `DisplayID`=101311;
+INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
+(101311, 1.15358, 4, 1, 41359);
 
 DELETE FROM `creature` WHERE `guid`=@CGUID+0;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
@@ -141,7 +145,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
  -- Sylvanas Copy (Riding)
 DELETE FROM `creature_template` WHERE `entry`=178355;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(178355, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 35653664, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(178355, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 35653664, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178355;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -163,6 +167,10 @@ INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `Titl
 DELETE FROM `creature_template_addon` WHERE `entry`=176920;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (176920, 0, 0, 0, 1, 0, 0, 0, 0, '');
+
+DELETE FROM `creature_model_info` WHERE `DisplayID`=100416;
+INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
+(100416, 0.75, 1.5, 2, 41359);
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=176920;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -237,6 +245,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=347609 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (347609, 'spell_sylvanas_windrunner_wailing_arrow');
 
+ -- Wailing Arrow (Damage)
+DELETE FROM `spell_script_names` WHERE `spell_id`=348056 AND `ScriptName`='spell_sylvanas_windrunner_wailing_arrow_damage';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(348056, 'spell_sylvanas_windrunner_wailing_arrow_damage');
+
  -- Veil of Darkness (Phase 1 - Fade)
 DELETE FROM `spell_script_names` WHERE `spell_id`=352470 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -267,6 +280,16 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=357719 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357719, 'spell_sylvanas_windrunner_banshee_wail_marker');
 
+ -- Banshee Wail (Missile)
+DELETE FROM `spell_script_names` WHERE `spell_id`=348133 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_missile';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(348133, 'spell_sylvanas_windrunner_banshee_wail_missile');
+
+ -- Banshee Wail (Triggered Missile)
+DELETE FROM `spell_script_names` WHERE `spell_id`=348108 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_triggered_missile';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(348108, 'spell_sylvanas_windrunner_banshee_wail_triggered_missile');
+
  -- Banshee Wail (Interrupt)
 DELETE FROM `spell_script_names` WHERE `spell_id`=351252 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_interrupt';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -281,6 +304,16 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=354168 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354168, 'spell_sylvanas_windrunner_veil_of_darkness_fade');
+
+ -- Activate Phase Intermission
+DELETE FROM `spell_script_names` WHERE `spell_id`=359429 AND `ScriptName`='spell_sylvanas_windrunner_activate_phase_intermission';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(359429, 'spell_sylvanas_windrunner_activate_phase_intermission');
+
+ -- Activate Phase Intermission
+DELETE FROM `spell_script_names` WHERE `spell_id`=359431 AND `ScriptName`='spell_sylvanas_windrunner_activate_finish_boss';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(359431, 'spell_sylvanas_windrunner_activate_finish_boss');
 
  -- Torghast Spike
 DELETE FROM `gameobject_template` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);
@@ -398,6 +431,10 @@ DELETE FROM `creature_equip_template` WHERE `CreatureID` = 178081;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
 (178081, 1, 177838, 0, 0, 0, 0, 0, 0, 0, 0);
 
+DELETE FROM `creature_model_info` WHERE `DisplayID`=101964;
+INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
+(101964, 0.772164, 3.675, 0, 41359);
+
 DELETE FROM `creature_template_scaling` WHERE `Entry` = 178081;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
 (178081, 0, 0, 0, 837, 41079);
@@ -409,6 +446,11 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 DELETE FROM `creature` WHERE `guid`=@CGUID+1;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+1, 178081, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 239.795, -806.064, 4105.07, 4.77206, 30, 0, 0, 1179100, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
+
+ -- Winds of Icecrown
+DELETE FROM `spell_script_names` WHERE `spell_id`=356941 AND `ScriptName`='spell_sylvanas_windrunner_winds_of_icecrown';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(356941, 'spell_sylvanas_windrunner_winds_of_icecrown');
 
  -- Lady Jaina Proudmoore
 DELETE FROM `creature_template` WHERE `entry`=176533;
@@ -422,6 +464,10 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 176533;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
 (176533, 1, 153575, 0, 0, 0, 0, 0, 0, 0, 0);
+
+DELETE FROM `creature_model_info` WHERE `DisplayID`=101962;
+INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
+(101962, 0.652598, 0, 1, 41359);
 
 DELETE FROM `creature_template_scaling` WHERE `Entry` = 176533;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -440,10 +486,25 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=354933 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354933, 'spell_sylvanas_windrunner_frigid_shards');
 
+ -- Comet Barrage
+DELETE FROM `spell_script_names` WHERE `spell_id`=354938 AND `ScriptName`='spell_sylvanas_windrunner_comet_barrage';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354938, 'spell_sylvanas_windrunner_comet_barrage');
+
+ -- Teleport (Master - To Phase 3)
+DELETE FROM `spell_script_names` WHERE `spell_id`=350906 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_master';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(350906, 'spell_sylvanas_windrunner_teleport_to_phase_3_master');
+
+ -- Teleport (Random Position)
+DELETE FROM `spell_script_names` WHERE `spell_id`=357103 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_random_position';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357103, 'spell_sylvanas_windrunner_teleport_to_phase_3_random_position');
+
  -- Teleport to Oribos - Raid
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=350906 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=176533 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 1, 350906, 0, 0, 31, 0, 3, 176533, 0, 0, 0, 0, '', 'Teleport to Oribos - Target Jaina'); -- The entry is most likely wrong, we need to find which one uses as destination
+(13, 1, 350906, 0, 0, 31, 0, 3, 176533, 0, 0, 0, 0, '', 'Teleport to Oribos - Target Jaina'); -- TODO: The entry is most likely wrong, we need to find which one uses as target
 
  -- Thrall
 DELETE FROM `creature_template` WHERE `entry`=176532;
@@ -457,6 +518,10 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 176532;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
 (176532, 1, 168268, 0, 0, 0, 0, 0, 0, 0, 0);
+
+DELETE FROM `creature_model_info` WHERE `DisplayID`=101963;
+INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
+(101963, 0.998133, 1.5, 0, 41359);
 
 DELETE FROM `creature_template_scaling` WHERE `Entry` = 176532;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -473,7 +538,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
  -- The Jailer
 DELETE FROM `creature_template` WHERE `entry`=178079;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(178079, 'The Jailer', NULL, NULL, NULL, NULL, 0, 63, 63, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 32832, 71303168, 32769, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7513, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(178079, 'The Jailer', NULL, NULL, NULL, NULL, 0, 63, 63, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 32832, 71303168, 32769, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7513, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178079;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -502,7 +567,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
  -- Soul Leader 1 (Last Phase - Rides 178079)
 DELETE FROM `creature_template` WHERE `entry`=179788;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(179788, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7536, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(179788, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7536, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179788;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -527,7 +592,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
  -- Soul Leader 2 (Last Phase - Rides 179788)
 DELETE FROM `creature_template` WHERE `entry`=179787;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(179787, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7535, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(179787, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7535, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179787;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -558,7 +623,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
  -- Soul Leader 3 (Last Phase - Rides 178079)
 DELETE FROM `creature_template` WHERE `entry`=179784;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(179784, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7533, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(179784, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7533, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179784;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -583,7 +648,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
  -- Soul Leader 4 (Last Phase - Rides 179784)
 DELETE FROM `creature_template` WHERE `entry`=179261;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(179261, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7514, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(179261, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7514, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179261;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -615,7 +680,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
  -- Soul Follower 1 (Last Phase - inside 179261)
 DELETE FROM `creature_template` WHERE `entry`=179262;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(179262, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(179262, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 33556512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=179262;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -632,11 +697,15 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
  -- Anduin Wrynn
 DELETE FROM `creature_template` WHERE `entry`=178072;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(178072, 'Anduin Wrynn', NULL, NULL, NULL, NULL, 0, 62, 62, 0, 0, 0, 14, 35184372088832, 1, 1.14286, 1, 1, 0, 2000, 0, 1, 1, 2, 32784, 71303168, 98336, 0, 0, 0, 0, 0, 0, 0, 0, 0, 584, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_sylvanas_windrunner_anduin', 0);
+(178072, 'Anduin Wrynn', NULL, NULL, NULL, NULL, 0, 62, 62, 0, 0, 0, 14, 35184372088832, 1, 1.14286, 1, 1, 0, 2000, 0, 1, 1, 2, 32784, 71303168, 98336, 0, 0, 0, 0, 0, 0, 0, 0, 0, 584, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_sylvanas_windrunner_anduin', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178072;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (178072, 0, 0, 0, 1, 0, 0, 0, 0, '358166');
+
+DELETE FROM `creature_model_info` WHERE `DisplayID`=99092;
+INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
+(99092, 0.616386, 0, 0, 41359);
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=178072;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -678,7 +747,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
  -- Death Gate
 DELETE FROM `creature_template` WHERE `entry`=182021;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(182021, 'Death Gate', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 190, 16777216, 1, 1, 1, 0, 0, 1000, 0, 1, 1, 0, 768, 101189632, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 0);
+(182021, 'Death Gate', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 190, 16777216, 1, 1, 1, 0, 0, 1000, 0, 1, 1, 0, 768, 101189632, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=182021 AND `spell_id`=360276;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES 
