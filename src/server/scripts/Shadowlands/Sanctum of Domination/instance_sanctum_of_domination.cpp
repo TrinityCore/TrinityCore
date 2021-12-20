@@ -56,7 +56,7 @@ public:
             LoadObjectData(creatureData, nullptr);
         }
 
-        void OnPlayerEnter(Player* player) override
+        void OnPlayerEnter(Player* /*player*/) override
         {
             /*
             if (GetData(DATA_SYLVANAS_INTRO) == NOT_STARTED)

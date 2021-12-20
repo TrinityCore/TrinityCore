@@ -1920,9 +1920,9 @@ private:
     bool _windrunnerActive;
     bool _sayDaggersOnCD;
     bool _sayDesecratingOnCD;
+    uint32 _lastSpellUsed;
     uint8 _windrunnerCastTimes;
     uint8 _riveCastTimes;
-    uint32 _lastSpellUsed;
 };
 
 // Sylvanas (Copy Fight) - 176369
