@@ -11428,22 +11428,6 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
-            // @tswow-begin
-            uint32 evtRes = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
-            FIRE_MAP( pProto->events
-                    , ItemOnEquipEarly
-                    , TSItem(pItem)
-                    , TSPlayer(const_cast<Player*>(this))
-                    , slot
-                    , swap
-                    , TSMutable<uint32>(&evtRes)
-                    );
-            InventoryResult evtResEnum = static_cast<InventoryResult>(evtRes);
-            if(evtResEnum != InventoryResult::EQUIP_ERR_OK)
-            {
-                return evtResEnum;
-            }
-            // @tswow-end
             // item used
             if (pItem->m_lootGenerated)
                 return EQUIP_ERR_ALREADY_LOOTED;
@@ -11594,7 +11578,18 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 }
             }
             dest = ((INVENTORY_SLOT_BAG_0 << 8) | eslot);
-            return EQUIP_ERR_OK;
+            // @tswow-begin
+            uint32 evtRes = EQUIP_ERR_OK;
+            FIRE_MAP(pProto->events
+                , ItemOnCanEquip
+                , TSItem(pItem)
+                , TSPlayer(const_cast<Player*>(this))
+                , slot
+                , swap
+                , TSMutable<uint32>(&evtRes)
+            );
+            return InventoryResult(evtRes);
+            // @tswow-end
         }
     }
 
@@ -11919,7 +11914,7 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
             {
                 uint32 evtRes = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
                 FIRE_MAP( pProto->events
-                        , ItemOnUseLate
+                        , ItemOnCanUse
                         , TSItem(pItem)
                         , TSPlayer(const_cast<Player*>(this))
                         , TSMutable<uint32>(&evtRes)
@@ -11973,8 +11968,16 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
         if (HasSpell(proto->Spells[1].SpellId))
             return EQUIP_ERR_NONE;
-
-    return EQUIP_ERR_OK;
+    // @tswow-begin
+    uint32 res = EQUIP_ERR_OK;
+    FIRE_MAP(proto->events
+        , ItemOnCanUseType
+        , TSItemTemplate(proto)
+        , TSPlayer(const_cast<Player*>(this))
+        , TSMutable<uint32>(&res)
+    )
+    return InventoryResult(res);
+    // @tswow-end
 }
 
 InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObject const* lootedObject) const
