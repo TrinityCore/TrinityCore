@@ -567,12 +567,12 @@ struct boss_sylvanas_windrunner : public BossAI
         {
             case ACTION_START_SYLVANAS_INTRO:
             {
-                scheduler.Schedule(22s + 328ms, [this](TaskContext task)
+                scheduler.Schedule(22s + 328ms, [this](TaskContext /*task*/)
                 {
                     Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty);
                 });
 
-                scheduler.Schedule(23s + 828ms, [this](TaskContext task)
+                scheduler.Schedule(23s + 828ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01, 0, 0);
 
@@ -580,106 +580,106 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->SetFacingToObject(bolvar);
                 });
 
-                scheduler.Schedule(24s + 968ms, [this](TaskContext task)
+                scheduler.Schedule(24s + 968ms, [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntro[0]);
                 });
 
-                scheduler.Schedule(26s + 468ms, [this](TaskContext task)
+                scheduler.Schedule(26s + 468ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02, 0, 0);
                 });
 
-                scheduler.Schedule(28s + 203ms, [this](TaskContext task)
+                scheduler.Schedule(28s + 203ms, [this](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_ANCHOR_HERE, true);
                 });
 
-                scheduler.Schedule(29s + 828ms, [this](TaskContext task)
+                scheduler.Schedule(29s + 828ms, [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntro[1]);
                 });
 
-                scheduler.Schedule(30s + 297ms, [this](TaskContext task)
+                scheduler.Schedule(30s + 297ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03, 0, 0);
                 });
 
-                scheduler.Schedule(33s + 797ms, [this](TaskContext task)
+                scheduler.Schedule(33s + 797ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04, 0, 0);
                 });
 
-                scheduler.Schedule(35s + 797ms, [this](TaskContext task)
+                scheduler.Schedule(35s + 797ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05, 0, 0);
                 });
 
-                scheduler.Schedule(40s + 797ms, [this](TaskContext task)
+                scheduler.Schedule(40s + 797ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         me->SetFacingToObject(bolvar);
                 });
 
-                scheduler.Schedule(41s + 547ms, [this](TaskContext task)
+                scheduler.Schedule(41s + 547ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06, 0, 0);
                 });
 
-                scheduler.Schedule(42s, [this](TaskContext task)
+                scheduler.Schedule(42s, [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntro[2]);
                 });
 
-                scheduler.Schedule(50s + 484ms, [this](TaskContext task)
+                scheduler.Schedule(50s + 484ms, [this](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_ANCHOR_HERE, true);
                 });
 
-                scheduler.Schedule(60s + 656ms, [this](TaskContext task)
+                scheduler.Schedule(60s + 656ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         me->SetFacingToObject(bolvar);
                 });
 
-                scheduler.Schedule(61s + 140ms, [this](TaskContext task)
+                scheduler.Schedule(61s + 140ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07, 0, 0);
                 });
 
-                scheduler.Schedule(66s + 656ms, [this](TaskContext task)
+                scheduler.Schedule(66s + 656ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08, 0, 0);
                 });
 
-                scheduler.Schedule(68s + 172ms, [this](TaskContext task)
+                scheduler.Schedule(68s + 172ms, [this](TaskContext /*task*/)
                 {
                     me->NearTeleportTo(SylvanasIntro[3], false);
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TELEPORT, 0, 0);
                 });
 
-                scheduler.Schedule(69s + 437ms, [this](TaskContext task)
+                scheduler.Schedule(69s + 437ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         me->SetFacingToObject(bolvar);
                 });
 
-                scheduler.Schedule(70s + 406ms, [this](TaskContext task)
+                scheduler.Schedule(70s + 406ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09, 0, 0);
                 });
 
-                scheduler.Schedule(75s + 172ms, [this](TaskContext task)
+                scheduler.Schedule(75s + 172ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10, 0, 0);
                 });
 
-                scheduler.Schedule(78s + 422ms, [this](TaskContext task)
+                scheduler.Schedule(78s + 422ms, [this](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
                 });
 
-                scheduler.Schedule(78s + 437ms, [this](TaskContext task)
+                scheduler.Schedule(78s + 437ms, [this](TaskContext /*task*/)
                 {
                     me->SetHomePosition(me->GetPosition());
 
@@ -691,7 +691,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_REGENERATE_POWER:
             {
-                scheduler.Schedule(1s, [this](TaskContext task)
+                scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
                     uint8 powerRegenCycle = 0;
                     uint32 powerGained = 0;
@@ -738,12 +738,12 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 me->HandleEmoteCommand(EMOTE_ONESHOT_DODGE);
 
-                scheduler.Schedule(650ms, [this](TaskContext context)
+                scheduler.Schedule(650ms, [this](TaskContext /*task*/)
                 {
                      me->HandleEmoteCommand(EMOTE_ONESHOT_PARRY1H);
                 });
 
-                scheduler.Schedule(1s, [this](TaskContext context)
+                scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
                      me->SetReactState(REACT_AGGRESSIVE);
                 });
@@ -766,12 +766,12 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     shadowCopy->NearTeleportTo(me->GetNearPosition(5.0f, float(M_PI)), false);
 
-                    scheduler.Schedule(50ms, [this, shadowCopy](TaskContext context)
+                    scheduler.Schedule(50ms, [this, shadowCopy](TaskContext /*task*/)
                     {
                          shadowCopy->NearTeleportTo(shadowCopy->GetPositionX(), shadowCopy->GetPositionY(), shadowCopy->GetPositionZ() + 5.0f, shadowCopy->GetOrientation(), false);
                     });
 
-                    scheduler.Schedule(150ms, [this, shadowCopy](TaskContext context)
+                    scheduler.Schedule(150ms, [this, shadowCopy](TaskContext /*task*/)
                     {
                          if (!_sayDesecratingOnCD)
                          {
@@ -787,12 +787,12 @@ struct boss_sylvanas_windrunner : public BossAI
                          shadowCopy->CastSpell(shadowCopy, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                     });
 
-                    scheduler.Schedule(450ms, [this, shadowCopy](TaskContext context)
+                    scheduler.Schedule(450ms, [this, shadowCopy](TaskContext /*task*/)
                     {
                          shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                     });
 
-                    scheduler.Schedule(650ms, [this, shadowCopy](TaskContext context)
+                    scheduler.Schedule(650ms, [this, shadowCopy](TaskContext /*task*/)
                     {
                          me->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
@@ -852,17 +852,17 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->SendPlayOrphanSpellVisual(SylvanasPlaform1Pos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
 
-                scheduler.Schedule(250ms, [this](TaskContext context)
+                scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                 {
                     Talk(SAY_START_PHASE_THREE);
                 });
 
-                scheduler.Schedule(525ms, [this](TaskContext context)
+                scheduler.Schedule(525ms, [this](TaskContext /*task*/)
                 {
                     me->NearTeleportTo(SylvanasPlaform1Pos, false);
                 });
 
-                scheduler.Schedule(1s, [this](TaskContext context)
+                scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
                     DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
 
@@ -927,7 +927,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (!me->HasAura(SPELL_RANGER_DAGGERS_STANCE))
                         DoCastSelf(SPELL_RANGER_DAGGERS_STANCE, false);
 
-                    if (!_windrunnerCastTimes)
+                    if (_windrunnerCastTimes == 0)
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 11000));
 
@@ -938,7 +938,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 7s, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 7s + 500ms, 2, PHASE_ONE);
 
-                        scheduler.Schedule(11s + 500ms, [this](TaskContext context)
+                        scheduler.Schedule(11s + 500ms, [this](TaskContext /*task*/)
                         {
                             _windrunnerActive = false;
                         });
@@ -953,7 +953,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 7s, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s, 2, PHASE_ONE);
 
-                        scheduler.Schedule(13s + 500ms, [this](TaskContext context)
+                        scheduler.Schedule(13s + 500ms, [this](TaskContext /*task*/)
                         {
                             _windrunnerActive = false;
                         });
@@ -969,7 +969,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s, 2, PHASE_ONE);
 
-                        scheduler.Schedule(15s + 500ms, [this](TaskContext context)
+                        scheduler.Schedule(15s + 500ms, [this](TaskContext /*task*/)
                         {
                             _windrunnerActive = false;
                         });
@@ -978,7 +978,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 17000));
 
-                        scheduler.Schedule(17s + 500ms, [this](TaskContext context)
+                        scheduler.Schedule(17s + 500ms, [this](TaskContext /*task*/)
                         {
                             _windrunnerActive = false;
                         });
@@ -986,8 +986,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     _windrunnerCastTimes++;
 
-                    events.Repeat(15s);
-                    //events.Repeat(51s);
+                    events.Repeat(51s);
                     break;
                 }
 
@@ -1008,23 +1007,23 @@ struct boss_sylvanas_windrunner : public BossAI
                     uint8 castTimes = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 :
                         std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
 
-                    scheduler.Schedule(100ms, [this, witheringFirstPos, castTimes](TaskContext context)
+                    scheduler.Schedule(100ms, [this, witheringFirstPos, castTimes](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                         {
-                            scheduler.Schedule(50ms, [this, shadowCopy, witheringFirstPos](TaskContext context)
+                            scheduler.Schedule(50ms, [this, shadowCopy, witheringFirstPos](TaskContext /*task*/)
                             {
                                 me->SendPlayOrphanSpellVisual(witheringFirstPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy->CastSpell(witheringFirstPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy](TaskContext context)
+                            scheduler.Schedule(300ms, [this, shadowCopy](TaskContext /*task*/)
                             {
                                 shadowCopy->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(450ms, [this, shadowCopy, castTimes](TaskContext context)
+                            scheduler.Schedule(450ms, [this, shadowCopy, castTimes](TaskContext /*task*/)
                             {
                                 std::list<Player*> targetList;
                                 GetPlayerListInGrid(targetList, me, 150.0f);
@@ -1038,7 +1037,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                     uint32 timeToCast = shadowCopy->GetDistance(target) * 0.0208;
 
-                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext context)
+                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext /*task*/)
                                     {
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
@@ -1047,21 +1046,21 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy->CastSpell(shadowCopy, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
-                            scheduler.Schedule(1s, [this, shadowCopy](TaskContext context)
+                            scheduler.Schedule(1s, [this, shadowCopy](TaskContext /*task*/)
                             {
                                 shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this, shadowCopy](TaskContext context)
+                            scheduler.Schedule(1s + 250ms, [this, shadowCopy](TaskContext /*task*/)
                             {
                                 shadowCopy->SetOrientation(me->GetOrientation());
                             });
                         }
                     });
 
-                    scheduler.Schedule(200ms, [this, witheringSecondPos, castTimes](TaskContext context)
+                    scheduler.Schedule(200ms, [this, witheringSecondPos, castTimes](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy1 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[1]))
                         {
@@ -1069,19 +1068,19 @@ struct boss_sylvanas_windrunner : public BossAI
 
                             me->SetNameplateAttachToGUID(_shadowCopyGUID[1]);
 
-                            scheduler.Schedule(50ms, [this, shadowCopy1, witheringSecondPos](TaskContext context)
+                            scheduler.Schedule(50ms, [this, shadowCopy1, witheringSecondPos](TaskContext /*task*/)
                             {
                                 me->SendPlayOrphanSpellVisual(witheringSecondPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy1->CastSpell(witheringSecondPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy1](TaskContext context)
+                            scheduler.Schedule(300ms, [this, shadowCopy1](TaskContext /*task*/)
                             {
                                 shadowCopy1->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(450ms, [this, shadowCopy1, castTimes](TaskContext context)
+                            scheduler.Schedule(450ms, [this, shadowCopy1, castTimes](TaskContext /*task*/)
                             {
                                 std::list<Player*> targetList;
                                 GetPlayerListInGrid(targetList, me, 150.0f);
@@ -1095,7 +1094,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                     int32 timeToCast = shadowCopy1->GetDistance(target) * 0.0208;
 
-                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext context)
+                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext /*task*/)
                                     {
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
@@ -1104,37 +1103,37 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy1->CastSpell(shadowCopy1, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
-                            scheduler.Schedule(1s, [this, shadowCopy1](TaskContext context)
+                            scheduler.Schedule(1s, [this, shadowCopy1](TaskContext /*task*/)
                             {
                                 shadowCopy1->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy1->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this, shadowCopy1](TaskContext context)
+                            scheduler.Schedule(1s + 250ms, [this, shadowCopy1](TaskContext /*task*/)
                             {
                                 me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                             });
                         }
                     });
 
-                    scheduler.Schedule(300ms, [this, witheringThirdPos, castTimes](TaskContext context)
+                    scheduler.Schedule(300ms, [this, witheringThirdPos, castTimes](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                         {
-                            scheduler.Schedule(50ms, [this, shadowCopy2, witheringThirdPos](TaskContext context)
+                            scheduler.Schedule(50ms, [this, shadowCopy2, witheringThirdPos](TaskContext /*task*/)
                             {
                                 me->SendPlayOrphanSpellVisual(witheringThirdPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy2->CastSpell(witheringThirdPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy2](TaskContext context)
+                            scheduler.Schedule(300ms, [this, shadowCopy2](TaskContext /*task*/)
                             {
                                 shadowCopy2->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(450ms, [this, shadowCopy2, castTimes](TaskContext context)
+                            scheduler.Schedule(450ms, [this, shadowCopy2, castTimes](TaskContext /*task*/)
                             {
                                 std::list<Player*> targetList;
                                 GetPlayerListInGrid(targetList, me, 150.0f);
@@ -1148,7 +1147,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                     int32 timeToCast = shadowCopy2->GetDistance(target) * 0.0208;
 
-                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext context)
+                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext /*task*/)
                                     {
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
@@ -1157,37 +1156,37 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy2->CastSpell(shadowCopy2, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
-                            scheduler.Schedule(1s, [this, shadowCopy2](TaskContext context)
+                            scheduler.Schedule(1s, [this, shadowCopy2](TaskContext /*task*/)
                             {
                                 shadowCopy2->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy2->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this, shadowCopy2](TaskContext context)
+                            scheduler.Schedule(1s + 250ms, [this, shadowCopy2](TaskContext /*task*/)
                             {
                                 shadowCopy2->SetOrientation(me->GetOrientation());
                             });
                         }
                     });
 
-                    scheduler.Schedule(400ms, [this, witheringFourthPos, castTimes](TaskContext context)
+                    scheduler.Schedule(400ms, [this, witheringFourthPos, castTimes](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[3]))
                         {
-                            scheduler.Schedule(50ms, [this, shadowCopy3, witheringFourthPos](TaskContext context)
+                            scheduler.Schedule(50ms, [this, shadowCopy3, witheringFourthPos](TaskContext /*task*/)
                             {
                                 me->SendPlayOrphanSpellVisual(witheringFourthPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy3->CastSpell(witheringFourthPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy3](TaskContext context)
+                            scheduler.Schedule(300ms, [this, shadowCopy3](TaskContext /*task*/)
                             {
                                 shadowCopy3->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(450ms, [this, shadowCopy3, castTimes](TaskContext context)
+                            scheduler.Schedule(450ms, [this, shadowCopy3, castTimes](TaskContext /*task*/)
                             {
                                 std::list<Player*> targetList;
                                 GetPlayerListInGrid(targetList, me, 150.0f);
@@ -1201,7 +1200,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                     int32 timeToCast = shadowCopy3->GetDistance(target) * 0.0208;
 
-                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext context)
+                                    scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext /*task*/)
                                     {
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
@@ -1210,14 +1209,14 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy3->CastSpell(shadowCopy3, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
-                            scheduler.Schedule(1s, [this, shadowCopy3](TaskContext context)
+                            scheduler.Schedule(1s, [this, shadowCopy3](TaskContext /*task*/)
                             {
                                 shadowCopy3->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
                                 shadowCopy3->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this, shadowCopy3](TaskContext context)
+                            scheduler.Schedule(1s + 250ms, [this, shadowCopy3](TaskContext /*task*/)
                             {
                                 shadowCopy3->SetOrientation(me->GetOrientation());
                             });
@@ -1258,26 +1257,26 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                 shadowCopy->CastSpell(targetPos, SPELL_WINDRUNNER_MOVE, true);
 
-                                scheduler.Schedule(100ms, [this, shadowCopy, target, i](TaskContext context)
+                                scheduler.Schedule(100ms, [this, shadowCopy, target, i](TaskContext /*task*/)
                                 {
                                     shadowCopy->SetFacingToObject(target);
                                 });
 
-                                scheduler.Schedule(250ms, [this, shadowCopy, target](TaskContext context)
+                                scheduler.Schedule(250ms, [this, shadowCopy, target](TaskContext /*task*/)
                                 {
                                     shadowCopy->CastSpell(shadowCopy, SPELL_SHADOW_DAGGER_COPY, true);
 
                                     me->CastSpell(target, SPELL_SHADOW_DAGGER, true);
                                 });
 
-                                scheduler.Schedule(600ms, [this, shadowCopy](TaskContext context)
+                                scheduler.Schedule(600ms, [this, shadowCopy](TaskContext /*task*/)
                                 {
                                     shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
                                     shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                                 });
 
-                                scheduler.Schedule(850ms, [this, shadowCopy](TaskContext context)
+                                scheduler.Schedule(850ms, [this, shadowCopy](TaskContext /*task*/)
                                 {
                                     me->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
@@ -1303,7 +1302,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             while (DrawDesecratingShotStraightArrow(step, orientation))
                                 ++step;
 
-                            scheduler.Schedule(2s + 750ms, [this](TaskContext context)
+                            scheduler.Schedule(2s + 750ms, [this](TaskContext /*task*/)
                             {
                                  DoAction(ACTION_DESECRATING_SHOT_LAUNCH);
                             });
@@ -1313,7 +1312,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         DrawDesecratingShotScattered();
 
-                        scheduler.Schedule(2s + 750ms, [this](TaskContext context)
+                        scheduler.Schedule(2s + 750ms, [this](TaskContext /*task*/)
                         {
                             DoAction(ACTION_DESECRATING_SHOT_LAUNCH);
                         });
@@ -1375,7 +1374,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             shadowCopy->NearTeleportTo(me->GetPosition(), false);
                         }
 
-                        scheduler.Schedule(50ms, [this](TaskContext context)
+                        scheduler.Schedule(50ms, [this](TaskContext /*task*/)
                         {
                             DoCastSelf(SPELL_RIVE_DISAPPEAR, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3000));
                             DoCastSelf(SPELL_DOMINATION_CHAINS, false);
@@ -1383,7 +1382,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
                         });
 
-                        scheduler.Schedule(550ms, [this, jumpFirstPos](TaskContext context)
+                        scheduler.Schedule(550ms, [this, jumpFirstPos](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                                 shadowCopy->CastSpell(jumpFirstPos, SPELL_DOMINATION_CHAINS_JUMP, true);
@@ -1391,7 +1390,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             me->SendPlayOrphanSpellVisual(jumpFirstPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                         });
 
-                        scheduler.Schedule(1s + 285ms, [this, jumpFirstPos](TaskContext context)
+                        scheduler.Schedule(1s + 285ms, [this, jumpFirstPos](TaskContext /*task*/)
                         {
                             me->NearTeleportTo(jumpFirstPos, true);
 
@@ -1399,7 +1398,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 me->SetFacingTo(shadowCopy->GetOrientation());
                         });
 
-                        scheduler.Schedule(1s + 347ms, [this, jumpSecondPos](TaskContext context)
+                        scheduler.Schedule(1s + 347ms, [this, jumpSecondPos](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                                 shadowCopy->CastSpell(jumpSecondPos, SPELL_DOMINATION_CHAINS_JUMP, true);
@@ -1407,7 +1406,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             me->SendPlayOrphanSpellVisual(jumpSecondPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                         });
 
-                        scheduler.Schedule(2s + 97ms, [this, jumpSecondPos](TaskContext context)
+                        scheduler.Schedule(2s + 97ms, [this, jumpSecondPos](TaskContext /*task*/)
                         {
                             me->NearTeleportTo(jumpSecondPos, true);
 
@@ -1415,7 +1414,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 me->SetFacingTo(shadowCopy->GetOrientation());
                         });
 
-                        scheduler.Schedule(2s + 160ms, [this, jumpThirdPos](TaskContext context)
+                        scheduler.Schedule(2s + 160ms, [this, jumpThirdPos](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                                 shadowCopy->CastSpell(jumpThirdPos, SPELL_DOMINATION_CHAINS_JUMP, true);
@@ -1423,7 +1422,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             me->SendPlayOrphanSpellVisual(jumpThirdPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                         });
 
-                        scheduler.Schedule(2s + 720ms, [this, jumpThirdPos](TaskContext context)
+                        scheduler.Schedule(2s + 720ms, [this, jumpThirdPos](TaskContext /*task*/)
                         {
                             me->NearTeleportTo(jumpThirdPos, true);
 
@@ -1431,19 +1430,19 @@ struct boss_sylvanas_windrunner : public BossAI
                                 me->SetFacingTo(shadowCopy->GetOrientation());
                         });
 
-                        scheduler.Schedule(2s + 800ms, [this](TaskContext context)
+                        scheduler.Schedule(2s + 800ms, [this](TaskContext /*task*/)
                         {
                             me->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
                             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
                         });
 
-                        scheduler.Schedule(7s + 60ms, [this](TaskContext context)
+                        scheduler.Schedule(7s + 60ms, [this](TaskContext /*task*/)
                         {
                             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_NORMAL_CAST, 0, 0);
                         });
 
-                        scheduler.Schedule(9s + 128ms, [this](TaskContext context)
+                        scheduler.Schedule(9s + 128ms, [this](TaskContext /*task*/)
                         {
                             if (events.GetPhaseMask() == PHASE_ONE)
                             {
@@ -1504,7 +1503,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, false);
                     }
 
-                    scheduler.Schedule(5s + 500ms, [this](TaskContext context)
+                    scheduler.Schedule(5s + 500ms, [this](TaskContext /*task*/)
                     {
                         DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
 
@@ -1515,13 +1514,13 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
 
-                        scheduler.Schedule(1s + 500ms, [this](TaskContext context)
+                        scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
                         {
                             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_JUMP, 0, 0);
                             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_EFFECT, 0, 0);
                         });
 
-                        scheduler.Schedule(3s + 500ms, [this](TaskContext context)
+                        scheduler.Schedule(3s + 500ms, [this](TaskContext /*task*/)
                         {
                             DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
 
@@ -1544,13 +1543,13 @@ struct boss_sylvanas_windrunner : public BossAI
                     Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
                     Talk(SAY_VEIL_OF_DARKNESS);
 
-                    scheduler.Schedule(250ms, [this](TaskContext context)
+                    scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                     {
                         DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
                         me->NearTeleportTo(SylvanasVeilOfDarknessPos, false);
                     });
 
-                    scheduler.Schedule(1s + 750ms, [this](TaskContext context)
+                    scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true))
                             me->NearTeleportTo(target->GetPosition(), false);
@@ -1558,7 +1557,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
                     });
 
-                    scheduler.Schedule(9s, [this](TaskContext context)
+                    scheduler.Schedule(9s, [this](TaskContext /*task*/)
                     {
                         DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
                     });
@@ -1571,14 +1570,14 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     if (_riveCastTimes < 8)
                     {
-                        scheduler.Schedule(50ms, [this](TaskContext context)
+                        scheduler.Schedule(50ms, [this](TaskContext /*task*/)
                         {
                             me->SetNameplateAttachToGUID(_shadowCopyGUID[1]);
 
                             DoCastSelf(SPELL_RIVE_DISAPPEAR, true);
                         });
 
-                        scheduler.Schedule(100ms, [this](TaskContext context)
+                        scheduler.Schedule(100ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                                 shadowCopy->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
@@ -1590,7 +1589,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy3->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
                         });
 
-                        scheduler.Schedule(200ms, [this](TaskContext context)
+                        scheduler.Schedule(200ms, [this](TaskContext /*task*/)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true, true))
                             {
@@ -1605,19 +1604,19 @@ struct boss_sylvanas_windrunner : public BossAI
                             }
                         });
 
-                        scheduler.Schedule(300ms, [this](TaskContext context)
+                        scheduler.Schedule(300ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                                 shadowCopy2->NearTeleportTo(shadowCopy2->GetPositionX(), shadowCopy2->GetPositionY(), 4105.00f, shadowCopy2->GetOrientation(), false);
                         });
 
-                        scheduler.Schedule(400ms, [this](TaskContext context)
+                        scheduler.Schedule(400ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                                 shadowCopy2->NearTeleportTo(shadowCopy2->GetNearPosition(24.4f, 0.0), false);
                         });
 
-                        scheduler.Schedule(500ms, [this](TaskContext context)
+                        scheduler.Schedule(500ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                             {
@@ -1628,13 +1627,13 @@ struct boss_sylvanas_windrunner : public BossAI
                             }
                         });
 
-                        scheduler.Schedule(1s, [this](TaskContext context)
+                        scheduler.Schedule(1s, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                                 me->NearTeleportTo(shadowCopy2->GetPosition(), false);
                         });
 
-                        scheduler.Schedule(1s + 150ms, [this](TaskContext context)
+                        scheduler.Schedule(1s + 150ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                                 me->CastSpell(shadowCopy2->GetNearPosition(9.0f, 0.0f), SPELL_RIVE_MARKER, true);
@@ -1644,7 +1643,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             DoCastSelf(SPELL_ANCHOR_HERE, true);
                         });
 
-                        scheduler.Schedule(1s + 500ms, [this](TaskContext context)
+                        scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                                 shadowCopy->SetFacingTo(shadowCopy->GetAbsoluteAngle(me) + M_PI + 0.040f);
@@ -1653,7 +1652,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             {
                                 DoCastSelf(SPELL_RIVE, false);
 
-                                scheduler.Schedule(1s + 750ms, [this](TaskContext context)
+                                scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                                 {
                                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK, 0, 0);
                                 });
@@ -1702,34 +1701,34 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                         shadowCopy->CastSpell(RiveFinish, SPELL_DOMINATION_CHAINS_JUMP, true);
 
-                    scheduler.Schedule(600ms, [this](TaskContext context)
+                    scheduler.Schedule(600ms, [this](TaskContext /*task*/)
                     {
                         me->NearTeleportTo(RiveFinish, false);
 
                         me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     });
 
-                    scheduler.Schedule(1s + 100ms, [this](TaskContext context)
+                    scheduler.Schedule(1s + 100ms, [this](TaskContext /*task*/)
                     {
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
                     });
 
-                    scheduler.Schedule(1s + 700ms, [this](TaskContext context)
+                    scheduler.Schedule(1s + 700ms, [this](TaskContext /*task*/)
                     {
                         Talk(SAY_INTERMISSION_END);
                     });
 
-                    scheduler.Schedule(2s + 400ms, [this](TaskContext context)
+                    scheduler.Schedule(2s + 400ms, [this](TaskContext /*task*/)
                     {
                         DoCastSelf(SPELL_BANSHEE_WAIL, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
                     });
 
-                    scheduler.Schedule(6s + 400ms, [this](TaskContext context)
+                    scheduler.Schedule(6s + 400ms, [this](TaskContext /*task*/)
                     {
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TRANSFORM_INTO_BANSHEE, 0, 0);
                     });
 
-                    scheduler.Schedule(9s + 400ms, [this](TaskContext context)
+                    scheduler.Schedule(9s + 400ms, [this](TaskContext /*task*/)
                     {
                         me->SendPlayOrphanSpellVisual(SylvanasPhase2Pre, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
@@ -1784,7 +1783,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         if (_lastSpellUsed == SPELL_RANGER_SHOT)
                         {
-                            scheduler.Schedule(250ms, [this](TaskContext context)
+                            scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                             {
                                 DoCastVictim(SPELL_RANGER_SHOT, false);
                             });
@@ -1822,7 +1821,7 @@ struct boss_sylvanas_windrunner : public BossAI
         if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
             return false;
 
-        scheduler.Schedule(Milliseconds(step * 10), [this, arrowCenter](TaskContext context)
+        scheduler.Schedule(Milliseconds(step * 10), [this, arrowCenter](TaskContext /*task*/)
         {
             me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
         });
@@ -1830,7 +1829,7 @@ struct boss_sylvanas_windrunner : public BossAI
         Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
         Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
 
-        scheduler.Schedule(Milliseconds(step * 10 + 50), [this, arrowInnerLeft, arrowInnerRight](TaskContext context)
+        scheduler.Schedule(Milliseconds(step * 10 + 50), [this, arrowInnerLeft, arrowInnerRight](TaskContext /*task*/)
         {
             me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
             me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
@@ -1839,7 +1838,7 @@ struct boss_sylvanas_windrunner : public BossAI
         Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
         Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
 
-        scheduler.Schedule(Milliseconds(step * 10 + 75), [this, arrowOuterLeft, arrowOuterRight](TaskContext context)
+        scheduler.Schedule(Milliseconds(step * 10 + 75), [this, arrowOuterLeft, arrowOuterRight](TaskContext /*task*/)
         {
             me->CastSpell(arrowOuterLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
             me->CastSpell(arrowOuterRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
@@ -1854,7 +1853,7 @@ struct boss_sylvanas_windrunner : public BossAI
         {
             for (uint8 i = 0; i < 2; i++)
             {
-                scheduler.Schedule(250ms, [this](TaskContext context)
+                scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                 {
                     me->CastSpell(me->GetRandomPoint(me->GetPosition(), frand(0.0f, 40.0f)), SPELL_DESECRATING_SHOT_AREATRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3000));
                 });
@@ -1867,7 +1866,7 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 for (uint8 i = 0; i < 2; i++)
                 {
-                    scheduler.Schedule(250ms, [this, target](TaskContext context)
+                    scheduler.Schedule(250ms, [this, target](TaskContext /*task*/)
                     {
                         me->CastSpell(target->GetRandomPoint(target->GetPosition(), frand(1.0f, 2.5f)), SPELL_DESECRATING_SHOT_AREATRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3000));
                     });
@@ -1990,7 +1989,7 @@ struct npc_sylvanas_windrunner_sylvanas : public ScriptedAI
                 {
                     me->StopMoving();
 
-                    _scheduler.Schedule(50ms, [this](TaskContext context)
+                    _scheduler.Schedule(50ms, [this](TaskContext /*task*/)
                     {
                         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             me->SetFacingToObject(sylvanas);
@@ -2013,7 +2012,7 @@ struct npc_sylvanas_windrunner_sylvanas : public ScriptedAI
 
                             me->SendPlaySpellVisual(falseArrowPos, 0.0f, SPELL_VISUAL_DOMINATION_ARROW, 0, 0, 2.5f, true);
 
-                            _scheduler.Schedule(2s + 500ms, [this, sylvanas, falseArrowPos](TaskContext context)
+                            _scheduler.Schedule(2s + 500ms, [this, sylvanas, falseArrowPos](TaskContext /*task*/)
                             {
                                  sylvanas->CastSpell(falseArrowPos, SPELL_DOMINATION_ARROW_FALL, true);
                             });
@@ -2028,7 +2027,7 @@ struct npc_sylvanas_windrunner_sylvanas : public ScriptedAI
                             {
                                 me->SendPlaySpellVisual(dominationArrow, SPELL_VISUAL_DOMINATION_ARROW_SPAWN, 0, 0, 2.5f, true);
 
-                                _scheduler.Schedule(2s + 500ms, [this, sylvanas, dominationArrow](TaskContext context)
+                                _scheduler.Schedule(2s + 500ms, [this, sylvanas, dominationArrow](TaskContext /*task*/)
                                 {
                                     sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
                                 });
@@ -2481,19 +2480,19 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 200.0f);
 
-                _scheduler.Schedule(980ms, [this](TaskContext context)
+                _scheduler.Schedule(980ms, [this](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_ANCHOR_HERE, true);
                 });
 
-                _scheduler.Schedule(1s + 800ms, [this](TaskContext context)
+                _scheduler.Schedule(1s + 800ms, [this](TaskContext /*task*/)
                 {
                     Position const frontJainaPos = me->GetNearPosition(5.0f, 0.0f);
 
                     me->CastSpell(frontJainaPos, SPELL_PORTAL_TO_ORIBOS_PHASE_3, false);
                 });
 
-                _scheduler.Schedule(5s, [this](TaskContext context)
+                _scheduler.Schedule(5s, [this](TaskContext /*task*/)
                 {
                     Talk(SAY_FINISHING_PORTAL_TO_PHASE_THREE);
 
@@ -2504,12 +2503,12 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     }
                 });
 
-                _scheduler.Schedule(12s, [this](TaskContext context)
+                _scheduler.Schedule(12s, [this](TaskContext /*task*/)
                 {
                     Talk(SAY_FINISHED_PORTAL_TO_PHASE_THREE);
                 });
 
-                _scheduler.Schedule(12s + 250ms, [this](TaskContext context)
+                _scheduler.Schedule(12s + 250ms, [this](TaskContext /*task*/)
                 {
                     me->NearTeleportTo(JainaPrePhaseThreePos, false);
 
@@ -2520,13 +2519,13 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         thrall->NearTeleportTo(ThrallPrePhaseThreePos, false);
                 });
 
-                _scheduler.Schedule(12s + 500ms, [this, playerList](TaskContext context)
+                _scheduler.Schedule(12s + 500ms, [this, playerList](TaskContext /*task*/)
                 {
                     for (auto i = playerList.begin(); i != playerList.end(); i++)
                         (*i)->NearTeleportTo(me->GetNearPosition(frand(1.5f, 2.5f), frand(1.5f, 2.5f)), false);
                 });
 
-                _scheduler.Schedule(13s, [this, playerList](TaskContext context)
+                _scheduler.Schedule(13s, [this, playerList](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_ANCHOR_HERE, true);
 
@@ -2534,7 +2533,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         (*i)->CastSpell(me, SPELL_TELEPORT_TO_PHASE_3, true);
                 });
 
-                _scheduler.Schedule(13s + 200ms, [this](TaskContext context)
+                _scheduler.Schedule(13s + 200ms, [this](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_CHAMPIONS_MOD_FACTION, true);
 
@@ -2545,7 +2544,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     }
                 });
 
-                _scheduler.Schedule(14s, [this](TaskContext context)
+                _scheduler.Schedule(14s, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                     {
@@ -2554,7 +2553,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     }
                 });
 
-                _scheduler.Schedule(17s + 950ms, [this](TaskContext context)
+                _scheduler.Schedule(17s + 950ms, [this](TaskContext /*task*/)
                 {
                     DoCastSelf(SPELL_FROZEN_SHELL, false);
 
@@ -2562,28 +2561,28 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         anduin->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_ANDUIN_FINISH_BLASPHEMY, 0, 0);
                 });
 
-                _scheduler.Schedule(19s, [this](TaskContext context)
+                _scheduler.Schedule(19s, [this](TaskContext /*task*/)
                 {
                     me->RemoveAura(SPELL_BLASPHEMY_STUN);
                 });
 
-                _scheduler.Schedule(19s + 200ms, [this](TaskContext context)
+                _scheduler.Schedule(19s + 200ms, [this](TaskContext /*task*/)
                 {
                     me->CastStop();
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_JAINA_BREAK_BLASPHEMY, 0, 0);
                 });
 
-                _scheduler.Schedule(19s + 950ms, [this](TaskContext context)
+                _scheduler.Schedule(19s + 950ms, [this](TaskContext /*task*/)
                 {
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_JAINA_TELEPORT_PLAYERS, 0, 0);
                 });
 
-                _scheduler.Schedule(21s + 122ms, [this](TaskContext context)
+                _scheduler.Schedule(21s + 122ms, [this](TaskContext /*task*/)
                 {
                     Talk(SAY_FREED_PLAYERS_ON_PHASE_THREE);
                 });
 
-                _scheduler.Schedule(22s + 122ms, [this, playerList](TaskContext context)  // CHANGE
+                _scheduler.Schedule(22s + 122ms, [this, playerList](TaskContext /*task*/)  // CHANGE
                 {
                     for (auto i = playerList.begin(); i != playerList.end(); i++)
                     {
@@ -2598,7 +2597,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         thrall->RemoveAura(SPELL_BLASPHEMY_STUN);
                 });
 
-                _scheduler.Schedule(23s, [this, playerList](TaskContext context)
+                _scheduler.Schedule(23s, [this, playerList](TaskContext /*task*/)
                 {
                     DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
 
@@ -2628,7 +2627,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     }
                 });
 
-                _scheduler.Schedule(24s + 522ms, [this, playerList](TaskContext context)
+                _scheduler.Schedule(24s + 522ms, [this, playerList](TaskContext /*task*/)
                 {
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     {
@@ -2791,7 +2790,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
 
                 DoCastSelf(SPELL_BLASPHEMY_PRE, false);
 
-                _scheduler.Schedule(12s, [this](TaskContext context)
+                _scheduler.Schedule(12s, [this](TaskContext /*task*/)
                 {
                     DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
 

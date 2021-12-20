@@ -337,7 +337,7 @@ public:
                         {
                             if (Player* player = itr->GetSource())
                             {
-                                if (!player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
+                                if (player->GetAreaId() != AREA_PINNACLE_OF_DOMINANCE)
                                     player->NearTeleportTo(SylvanasPlatformRevivePos, false);
                             }
                         }
