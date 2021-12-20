@@ -3321,9 +3321,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     bool Load() override
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->SetPlayHoverAnim(true);
         GetCaster()->SetDisableGravity(false);
         GetCaster()->SetCanFly(false);
@@ -3509,9 +3506,6 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
 
     bool Load() override
     {
-        if (!GetCaster())
-            return;
-
         std::list<Player*> targetList;
         GetPlayerListInGrid(targetList, GetCaster(), 200.0f);
 
@@ -3775,9 +3769,6 @@ class spell_sylvanas_windrunner_activate_phase_intermission : public SpellScript
 
     bool Load() override
     {
-        if (!GetCaster())
-            return;
-
         _instance = GetCaster()->GetInstanceScript();
 
         return true;
@@ -3808,9 +3799,6 @@ class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
 
     bool Load() override
     {
-        if (!GetCaster())
-            return;
-
         _instance = GetCaster()->GetInstanceScript();
 
         return true;
