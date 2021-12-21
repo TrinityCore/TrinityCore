@@ -27,6 +27,7 @@
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Group.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
 #include "Spell.h"
