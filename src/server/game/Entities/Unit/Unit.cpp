@@ -60,6 +60,7 @@
 #include "PlayerAI.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
+#include "ScheduledChangeAI.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Spell.h"
@@ -9538,6 +9539,14 @@ void Unit::RestoreDisabledAI()
     while (PopAI())
         if (GetTopAI())
             return;
+}
+
+UnitAI* Unit::GetScheduledChangeAI() const
+{
+    if (const Creature* creature = ToCreature())
+        return new ScheduledChangeAI(creature);
+    else
+        return nullptr;
 }
 
 void Unit::AddToWorld()
