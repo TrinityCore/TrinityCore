@@ -4956,7 +4956,7 @@ class spell_item_talisman_of_ascendance : public AuraScript
         return ValidateSpellInfo({ SPELL_TALISMAN_OF_ASCENDANCE });
     }
 
-    void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
     }
@@ -4975,7 +4975,7 @@ class spell_item_jom_gabbar : public AuraScript
         return ValidateSpellInfo({ SPELL_JOM_GABBAR });
     }
 
-    void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
     }
@@ -4994,7 +4994,7 @@ class spell_item_battle_trance : public AuraScript
         return ValidateSpellInfo({ SPELL_BATTLE_TRANCE });
     }
 
-    void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
     }
@@ -5013,7 +5013,7 @@ class spell_item_world_queller_focus : public AuraScript
         return ValidateSpellInfo({ SPELL_WORLD_QUELLER_FOCUS });
     }
 
-    void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
     }
