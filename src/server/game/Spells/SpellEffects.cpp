@@ -1924,9 +1924,6 @@ void Spell::EffectSummonType()
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
-                    summon->SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
-                    summon->SetNpcFlags(NPCFlags(summon->GetCreatureTemplate()->npcflag & 0xFFFFFFFF));
-                    summon->SetNpcFlags2(NPCFlags2(summon->GetCreatureTemplate()->npcflag >> 32));
                     summon->SetImmuneToAll(true);
                     break;
                 }
@@ -4750,15 +4747,6 @@ void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPr
         unitCaster = unitCaster->ToTotem()->GetOwner();
 
     // in another case summon new
-    uint8 level = unitCaster->GetLevel();
-
-    // level of pet summoned using engineering item based at engineering skill level
-    if (m_CastItem && unitCaster->GetTypeId() == TYPEID_PLAYER)
-        if (ItemTemplate const* proto = m_CastItem->GetTemplate())
-            if (proto->GetRequiredSkill() == SKILL_ENGINEERING)
-                if (uint16 skill202 = unitCaster->ToPlayer()->GetSkillValue(SKILL_ENGINEERING))
-                    level = skill202 / 5;
-
     float radius = 5.0f;
     int32 duration = m_spellInfo->CalcDuration(m_originalCaster);
 
@@ -4778,7 +4766,20 @@ void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPr
             return;
 
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+        {
+            uint8 level = summon->GetLevel();
+            if (!properties || !properties->GetFlags().HasFlag(SummonPropertiesFlags::UseCreatureLevel))
+                level = unitCaster->GetLevel();
+
+            // level of pet summoned using engineering item based at engineering skill level
+            if (m_CastItem && unitCaster->GetTypeId() == TYPEID_PLAYER)
+                if (ItemTemplate const* proto = m_CastItem->GetTemplate())
+                    if (proto->GetRequiredSkill() == SKILL_ENGINEERING)
+                        if (uint16 skill202 = unitCaster->ToPlayer()->GetSkillValue(SKILL_ENGINEERING))
+                            level = skill202 / 5;
+
             ((Guardian*)summon)->InitStatsForLevel(level);
+        }
 
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
             ((Minion*)summon)->SetFollowAngle(unitCaster->GetAbsoluteAngle(summon));

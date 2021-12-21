@@ -187,14 +187,16 @@ void TempSummon::InitStats(uint32 duration)
     Unit* owner = GetSummonerUnit();
 
     if (owner && IsTrigger() && m_spells[0])
-    {
-        SetLevel(owner->GetLevel());
         if (owner->GetTypeId() == TYPEID_PLAYER)
             m_ControlledByPlayer = true;
-    }
 
     if (!m_Properties)
+    {
+        if (owner)
+            SetLevel(owner->GetLevel());
+
         return;
+    }
 
     if (owner)
     {
@@ -209,15 +211,20 @@ void TempSummon::InitStats(uint32 duration)
             }
             owner->m_SummonSlot[slot] = GetGUID();
         }
+
+        if (!m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseCreatureLevel))
+            SetLevel(owner->GetLevel());
     }
 
     uint32 faction = m_Properties->Faction;
-    if (m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
-       if (owner)
-           faction = owner->GetFaction();
+    if (owner && m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
+        faction = owner->GetFaction();
 
     if (faction)
-       SetFaction(faction);
+        SetFaction(faction);
+
+    if (m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::SummonFromBattlePetJournal))
+        RemoveNpcFlag(UNIT_NPC_FLAG_WILD_BATTLE_PET);
 }
 
 void TempSummon::InitSummon()
@@ -434,7 +441,6 @@ Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)
 void Puppet::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
-    SetLevel(GetOwner()->GetLevel());
     SetReactState(REACT_PASSIVE);
 }
 
