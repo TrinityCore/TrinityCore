@@ -1084,8 +1084,11 @@ class TC_GAME_API ObjectMgr
         public:
             struct Entry
             {
-                uint32 Id;
-                bool IsScriptDatabaseBound;
+                Entry() = default;
+                Entry(uint32 id, bool isScriptDatabaseBound) : Id(id), IsScriptDatabaseBound(isScriptDatabaseBound) { }
+
+                uint32 Id = 0;
+                bool IsScriptDatabaseBound = false;
             };
 
         private:

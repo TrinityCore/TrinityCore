@@ -1449,7 +1449,7 @@ uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
     {
         if (Player const* player = target->ToPlayer())
             if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
-                return uint8(advstd::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
+                return uint8(std::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
 
         if (Unit const* targetUnit = target->ToUnit())
             return targetUnit->GetLevel();

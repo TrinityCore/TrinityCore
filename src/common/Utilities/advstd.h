@@ -133,35 +133,6 @@ namespace advstd
     // C++20 std::remove_cvref_t
     template <class T>
     using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
-
-    template<typename B>
-    struct negation : std::integral_constant<bool, !bool(B::value)> { };
-
-    template <typename...>
-    struct conjunction : std::true_type { };
-    template <typename B1>
-    struct conjunction<B1> : B1 { };
-    template <typename B1, class... Bn>
-    struct conjunction<B1, Bn...> : std::conditional_t<bool(B1::value), conjunction<Bn...>, B1> { };
-
-    template <typename...>
-    struct disjunction : std::false_type { };
-    template <typename B1>
-    struct disjunction<B1> : B1 { };
-    template <typename B1, class... Bn>
-    struct disjunction<B1, Bn...> : std::conditional_t<bool(B1::value), B1, disjunction<Bn...>>  { };
-
-    template <class T>
-    constexpr T const& clamp(T const& val, T const& lo, T const& hi)
-    {
-        if (hi < val)
-            return hi;
-
-        if (val < lo)
-            return lo;
-
-        return val;
-    }
 }
 
 #endif

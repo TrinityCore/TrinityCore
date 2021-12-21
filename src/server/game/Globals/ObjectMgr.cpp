@@ -9749,10 +9749,9 @@ ObjectMgr::ScriptNameContainer::ScriptNameContainer()
 {
     // We insert an empty placeholder here so we can use the
     // script id 0 as dummy for "no script found".
-    uint32 const id = insert("", false);
+    [[maybe_unused]] uint32 const id = insert("", false);
 
     ASSERT(id == 0);
-    (void)id;
 }
 
 void ObjectMgr::ScriptNameContainer::reserve(size_t capacity)
@@ -9762,22 +9761,14 @@ void ObjectMgr::ScriptNameContainer::reserve(size_t capacity)
 
 uint32 ObjectMgr::ScriptNameContainer::insert(std::string const& scriptName, bool isScriptNameBound)
 {
-    // c++17 try_emplace
-    auto const itr = NameToIndex.find(scriptName);
-    if (itr != NameToIndex.end())
+    auto result = NameToIndex.try_emplace(scriptName, static_cast<uint32>(NameToIndex.size()), isScriptNameBound);
+    if (result.second)
     {
-        return itr->second.Id;
-    }
-    else
-    {
-        ASSERT(NameToIndex.size() < std::numeric_limits<uint32>::max());
-        uint32 const id = static_cast<uint32>(NameToIndex.size());
-
-        auto result = NameToIndex.insert({ scriptName, Entry{ id, isScriptNameBound } });
+        ASSERT(NameToIndex.size() <= std::numeric_limits<uint32>::max());
         IndexToName.emplace_back(result.first);
-
-        return id;
     }
+
+    return result.first->second.Id;
 }
 
 size_t ObjectMgr::ScriptNameContainer::size() const

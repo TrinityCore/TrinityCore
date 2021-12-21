@@ -29,7 +29,6 @@
 #include "Timer.h"
 #include "Util.h"
 #include "World.h"
-#include "advstd.h"
 #include <boost/filesystem/operations.hpp>
 #include <array>
 #include <bitset>
@@ -1998,12 +1997,12 @@ Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTun
     ContentTuningLevels levels;
     levels.MinLevel = contentTuning->MinLevel + getLevelAdjustment(static_cast<ContentTuningCalcType>(contentTuning->MinLevelType));
     levels.MaxLevel = contentTuning->MaxLevel + getLevelAdjustment(static_cast<ContentTuningCalcType>(contentTuning->MaxLevelType));
-    levels.MinLevelWithDelta = advstd::clamp<int32>(levels.MinLevel + contentTuning->TargetLevelDelta, 1, MAX_LEVEL);
-    levels.MaxLevelWithDelta = advstd::clamp<int32>(levels.MaxLevel + contentTuning->TargetLevelMaxDelta, 1, MAX_LEVEL);
+    levels.MinLevelWithDelta = std::clamp<int32>(levels.MinLevel + contentTuning->TargetLevelDelta, 1, MAX_LEVEL);
+    levels.MaxLevelWithDelta = std::clamp<int32>(levels.MaxLevel + contentTuning->TargetLevelMaxDelta, 1, MAX_LEVEL);
 
     // clamp after calculating levels with delta (delta can bring "overflown" level back into correct range)
-    levels.MinLevel = advstd::clamp<int32>(levels.MinLevel, 1, MAX_LEVEL);
-    levels.MaxLevel = advstd::clamp<int32>(levels.MaxLevel, 1, MAX_LEVEL);
+    levels.MinLevel = std::clamp<int32>(levels.MinLevel, 1, MAX_LEVEL);
+    levels.MaxLevel = std::clamp<int32>(levels.MaxLevel, 1, MAX_LEVEL);
 
     if (contentTuning->TargetLevelMin)
         levels.TargetLevelMin = contentTuning->TargetLevelMin;

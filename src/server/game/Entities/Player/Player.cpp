@@ -17051,7 +17051,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                 int32 currentProgress = GetQuestSlotObjectiveData(logSlot, objective);
                 if (addCount > 0 ? (currentProgress < objective.Amount) : (currentProgress > 0))
                 {
-                    int32 newProgress = advstd::clamp<int32>(currentProgress + addCount, 0, objective.Amount);
+                    int32 newProgress = std::clamp<int32>(currentProgress + addCount, 0, objective.Amount);
                     SetQuestObjectiveData(objective, newProgress);
                     if (addCount > 0 && !(objective.Flags & QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG))
                     {
