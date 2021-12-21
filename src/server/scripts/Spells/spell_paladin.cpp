@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "Group.h"
 #include "Player.h"
