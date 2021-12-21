@@ -4626,23 +4626,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // SANCTUM OF DOMINATION
     //
 
-    // Barbed Shot
-    ApplySpellFix({ 347807 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeavingCombat;
-        spellInfo->AuraInterruptFlags2 |= SpellAuraInterruptFlags2::EndOfEncounter;
-    });
-
-    // Ranger's Heartseeker
-    ApplySpellFix({ 352663 }, [](SpellInfo* spellInfo)
-    {
-        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
-        {
-            spellEffectInfo->ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-            spellEffectInfo->ApplyAuraPeriod = 180; // Sniffed value
-        });
-    });
-
     // Domination Chain (Player)
     ApplySpellFix({ 349451 }, [](SpellInfo* spellInfo)
     {

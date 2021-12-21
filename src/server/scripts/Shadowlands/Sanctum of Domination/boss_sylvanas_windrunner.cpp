@@ -33,14 +33,6 @@
 
 enum Spells
 {
-    // Miscelanea
-    SPELL_ANCHOR_HERE                                   = 45313,
-    SPELL_SYLVANAS_ROOT                                 = 347608,
-    SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING              = 352311,
-    SPELL_CHAMPIONS_MOD_FACTION                         = 355537,
-
-    DATA_OVERRIDE_DISPLAY_POWER_SUFFERING               = 479,
-
     // General Visuals
     SPELL_VISUAL_DISAPPEAR_LONG                         = 358975,
 
@@ -60,7 +52,6 @@ enum Spells
     SPELL_WINDRUNNER_MOVE                               = 347606,
     SPELL_WINDRUNNER_SHOT_01                            = 347604, // Not on the sniff
     SPELL_WINDRUNNER_JUMP_02                            = 347605, // Not on the sniff
-    SPELL_WINDRUNNER_JUMP_03                            = 347606, // Not on the sniff
     SPELL_WINDRUNNER_DAGGER_01                          = 350737, // Not on the sniff
     SPELL_WINDRUNNER_BANSHEE                            = 352211,
 
@@ -197,6 +188,14 @@ enum Spells
     SPELL_FOCUSING_PRISM_AURA                           = 358166, // Related to the achievement
 
     // Miscelanea
+    SPELL_ANCHOR_HERE                                   = 45313,
+    SPELL_SYLVANAS_ROOT                                 = 347608,
+    SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING              = 352311,
+    SPELL_SYLVANAS_POWER_ENERGIZE_AURA                  = 352312,
+    SPELL_CHAMPIONS_MOD_FACTION                         = 355537,
+
+    DATA_OVERRIDE_DISPLAY_POWER_SUFFERING               = 479,
+
     SPELL_INTERMISSION_SCENE                            = 359062,
 
     SPELL_FINAL_SCENE                                   = 358806,
@@ -225,19 +224,16 @@ enum Events
     EVENT_DESECRATING_SHOT,
     EVENT_DESECRATING_SHOT_LAUNCH,
     EVENT_DOMINATION_CHAINS,
+    EVENT_WAILING_ARROW_MARKER,
     EVENT_WAILING_ARROW,
     EVENT_VEIL_OF_DARKNESS,
-    EVENT_RANGER_HEARTSEEKER,
     EVENT_RIVE,
-    EVENT_FINISH_INTERMISSION,
-
-    EVENT_DESECRATING_SHOT_SPIRAL
+    EVENT_FINISH_INTERMISSION
 };
 
 enum Actions
-{
-    ACTION_REGENERATE_POWER                             = 2,
-    ACTION_PAUSE_ATTACK_FOR_EVENT,
+{                    
+    ACTION_PAUSE_ATTACK_FOR_EVENT                       = 2,
     ACTION_ACTIVATE_ATTACK_FOR_EVENT ,
     ACTION_WINDRUNNER_MODEL,
     ACTION_DESECRATING_SHOT_LAUNCH,
@@ -379,12 +375,6 @@ enum Miscelanea
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
 
 constexpr float PLATFORM_RADIUS = 75.0f;
-
-/// Regens 10 energy every 3s
-static std::array<int32, 3> _sylvanasPowerRegenCycle =
-{
-    3, 3, 4
-};
 
 Position const SylvanasIntro[4] =
 {
@@ -544,18 +534,20 @@ struct boss_sylvanas_windrunner : public BossAI
         _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
+        Talk(SAY_AGGRO);
+
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        Talk(SAY_AGGRO);
-
         events.SetPhase(PHASE_ONE);
+        _specialEvents.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
-        events.ScheduleEvent(EVENT_WAILING_ARROW, 33s, 1, PHASE_ONE);
+        // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
+        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 45s, 1, PHASE_ONE);
 
-        DoAction(ACTION_REGENERATE_POWER);
+        DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
@@ -582,7 +574,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(24s + 968ms, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntro[0]);
+                    me->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntro[0], false);
                 });
 
                 scheduler.Schedule(26s + 468ms, [this](TaskContext /*task*/)
@@ -597,7 +589,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(29s + 828ms, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntro[1]);
+                    me->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntro[1], false);
                 });
 
                 scheduler.Schedule(30s + 297ms, [this](TaskContext /*task*/)
@@ -628,7 +620,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(42s, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntro[2]);
+                    me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntro[2], false);
                 });
 
                 scheduler.Schedule(50s + 484ms, [this](TaskContext /*task*/)
@@ -689,31 +681,12 @@ struct boss_sylvanas_windrunner : public BossAI
                 break;
             }
 
-            case ACTION_REGENERATE_POWER:
-            {
-                scheduler.Schedule(1s, [this](TaskContext /*task*/)
-                {
-                    uint8 powerRegenCycle = 0;
-                    uint32 powerGained = 0;
-
-                    powerGained = _sylvanasPowerRegenCycle[powerRegenCycle++];
-
-                    if (powerRegenCycle >= 3)
-                        powerRegenCycle = 0;
-
-                    me->ModifyPower(me->GetPowerType(), powerGained);
-
-                    DoAction(ACTION_REGENERATE_POWER);
-                });
-
-                break;
-            }
-
             case ACTION_PAUSE_ATTACK_FOR_EVENT:
             {
                 me->InterruptNonMeleeSpells(true);
                 me->GetMotionMaster()->Clear();
                 me->StopMoving();
+                me->AttackStop();
 
                 me->SetReactState(REACT_PASSIVE);
                 break;
@@ -731,10 +704,11 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_WINDRUNNER_MODEL:
             {
-                // HACKFIX: apparently, sylvanas is the one doing the visual stuff here, but I haven't found the spellId or whatever makes her black, further research needed
-                me->SetReactState(REACT_PASSIVE);
+                DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
 
-                DoCastSelf(SPELL_DOMINATION_CHAINS_SPIN, true);
+                // HACKFIX: apparently, sylvanas is the one doing the visual stuff here, but I haven't found the spellId or whatever makes her black, further research needed
+                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
+                DoCastSelf(SPELL_RIVE_DISAPPEAR, true);
 
                 me->HandleEmoteCommand(EMOTE_ONESHOT_DODGE);
 
@@ -745,7 +719,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
-                     me->SetReactState(REACT_AGGRESSIVE);
+                     DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
                 });
 
                 break;
@@ -755,15 +729,6 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                 {
-                    shadowCopy->NearTeleportTo(me->GetPosition(), false);
-
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
-                    //me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
-
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
-                    DoCastSelf(SPELL_RIVE_DISAPPEAR, true);
-                    DoAction(ACTION_WINDRUNNER_MODEL);
-
                     shadowCopy->NearTeleportTo(me->GetNearPosition(5.0f, float(M_PI)), false);
 
                     scheduler.Schedule(50ms, [this, shadowCopy](TaskContext /*task*/)
@@ -901,6 +866,47 @@ struct boss_sylvanas_windrunner : public BossAI
         if (!UpdateVictim())
             return;
 
+        _specialEvents.Update(diff);
+
+        while (uint32 specialEventId = _specialEvents.ExecuteEvent())
+        {
+            switch (specialEventId)
+            {
+                case EVENT_WAILING_ARROW_MARKER:
+                {
+                    if (_windrunnerActive)
+                        return;
+
+                    std::vector <ObjectGuid> _everyPlayerButCurrentVictimGUID;
+
+                    std::list<Unit*> everyPlayerButCurrentVictim;
+                    SelectTargetList(everyPlayerButCurrentVictim, 30, SELECT_TARGET_MAXTHREAT, 1);
+
+                    for (auto itr = everyPlayerButCurrentVictim.begin(); itr != everyPlayerButCurrentVictim.end(); itr++)
+                        Talk(SAY_ANNOUNCE_WAILING_ARROW, *itr);
+
+                    if (Unit* currentTank = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 150.0f, true, true))
+                    {
+                        Talk(SAY_ANNOUNCE_WAILING_ARROW_TANK, currentTank);
+
+                        me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
+                    }
+
+                    scheduler.Schedule(4s + 500ms, [this](TaskContext /*task*/)
+                    {
+                        if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
+                            DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+                    });
+
+                    events.ScheduleEvent(EVENT_WAILING_ARROW, 5s + 500ms, 1, PHASE_ONE);
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+
         events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -998,29 +1004,31 @@ struct boss_sylvanas_windrunner : public BossAI
                             shadowCopy->NearTeleportTo(me->GetPosition(), false);
                     }
 
-                    Position const witheringFirstPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
-                    Position const witheringSecondPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
-                    Position const witheringThirdPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
-                    Position const witheringFourthPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
-
                     // Number of casts is dependent on raid's difficulty and size: if mythic, 15 casts; if not, half the raid (min. 5, max. 15).
                     uint8 castTimes = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 :
                         std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
 
-                    scheduler.Schedule(100ms, [this, witheringFirstPos, castTimes](TaskContext /*task*/)
+                    scheduler.Schedule(100ms, [this, castTimes](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                         {
-                            scheduler.Schedule(50ms, [this, shadowCopy, witheringFirstPos](TaskContext /*task*/)
-                            {
-                                me->SendPlayOrphanSpellVisual(witheringFirstPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                            Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
 
-                                shadowCopy->CastSpell(witheringFirstPos, SPELL_WINDRUNNER_MOVE, true);
+                            scheduler.Schedule(50ms, [this, shadowCopy, witheringCastPos](TaskContext /*task*/)
+                            {
+                                me->SendPlayOrphanSpellVisual(witheringCastPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                                shadowCopy->CastSpell(witheringCastPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy](TaskContext /*task*/)
+                            scheduler.Schedule(350ms, [this, shadowCopy](TaskContext /*task*/)
                             {
                                 shadowCopy->SetFacingToObject(me);
+                            });
+
+                            scheduler.Schedule(400ms, [this, shadowCopy](TaskContext /*task*/)
+                            {
+                                shadowCopy->CastSpell(shadowCopy, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(450ms, [this, shadowCopy, castTimes](TaskContext /*task*/)
@@ -1042,8 +1050,6 @@ struct boss_sylvanas_windrunner : public BossAI
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
                                 }
-
-                                shadowCopy->CastSpell(shadowCopy, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(1s, [this, shadowCopy](TaskContext /*task*/)
@@ -1060,7 +1066,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         }
                     });
 
-                    scheduler.Schedule(200ms, [this, witheringSecondPos, castTimes](TaskContext /*task*/)
+                    scheduler.Schedule(200ms, [this, castTimes](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy1 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[1]))
                         {
@@ -1068,16 +1074,23 @@ struct boss_sylvanas_windrunner : public BossAI
 
                             me->SetNameplateAttachToGUID(_shadowCopyGUID[1]);
 
-                            scheduler.Schedule(50ms, [this, shadowCopy1, witheringSecondPos](TaskContext /*task*/)
-                            {
-                                me->SendPlayOrphanSpellVisual(witheringSecondPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                            Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
 
-                                shadowCopy1->CastSpell(witheringSecondPos, SPELL_WINDRUNNER_MOVE, true);
+                            scheduler.Schedule(50ms, [this, shadowCopy1, witheringCastPos](TaskContext /*task*/)
+                            {
+                                me->SendPlayOrphanSpellVisual(witheringCastPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                                shadowCopy1->CastSpell(witheringCastPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy1](TaskContext /*task*/)
+                            scheduler.Schedule(350ms, [this, shadowCopy1](TaskContext /*task*/)
                             {
                                 shadowCopy1->SetFacingToObject(me);
+                            });
+
+                            scheduler.Schedule(400ms, [this, shadowCopy1](TaskContext /*task*/)
+                            {
+                                shadowCopy1->CastSpell(shadowCopy1, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(450ms, [this, shadowCopy1, castTimes](TaskContext /*task*/)
@@ -1099,8 +1112,6 @@ struct boss_sylvanas_windrunner : public BossAI
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
                                 }
-
-                                shadowCopy1->CastSpell(shadowCopy1, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(1s, [this, shadowCopy1](TaskContext /*task*/)
@@ -1117,20 +1128,27 @@ struct boss_sylvanas_windrunner : public BossAI
                         }
                     });
 
-                    scheduler.Schedule(300ms, [this, witheringThirdPos, castTimes](TaskContext /*task*/)
+                    scheduler.Schedule(300ms, [this, castTimes](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                         {
-                            scheduler.Schedule(50ms, [this, shadowCopy2, witheringThirdPos](TaskContext /*task*/)
-                            {
-                                me->SendPlayOrphanSpellVisual(witheringThirdPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                            Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
 
-                                shadowCopy2->CastSpell(witheringThirdPos, SPELL_WINDRUNNER_MOVE, true);
+                            scheduler.Schedule(50ms, [this, shadowCopy2, witheringCastPos](TaskContext /*task*/)
+                            {
+                                me->SendPlayOrphanSpellVisual(witheringCastPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                                shadowCopy2->CastSpell(witheringCastPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy2](TaskContext /*task*/)
+                            scheduler.Schedule(350ms, [this, shadowCopy2](TaskContext /*task*/)
                             {
                                 shadowCopy2->SetFacingToObject(me);
+                            });
+
+                            scheduler.Schedule(400ms, [this, shadowCopy2](TaskContext /*task*/)
+                            {
+                                shadowCopy2->CastSpell(shadowCopy2, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(450ms, [this, shadowCopy2, castTimes](TaskContext /*task*/)
@@ -1152,8 +1170,6 @@ struct boss_sylvanas_windrunner : public BossAI
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
                                 }
-
-                                shadowCopy2->CastSpell(shadowCopy2, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(1s, [this, shadowCopy2](TaskContext /*task*/)
@@ -1170,20 +1186,27 @@ struct boss_sylvanas_windrunner : public BossAI
                         }
                     });
 
-                    scheduler.Schedule(400ms, [this, witheringFourthPos, castTimes](TaskContext /*task*/)
+                    scheduler.Schedule(400ms, [this, castTimes](TaskContext /*task*/)
                     {
+                        Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
+
                         if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[3]))
                         {
-                            scheduler.Schedule(50ms, [this, shadowCopy3, witheringFourthPos](TaskContext /*task*/)
+                            scheduler.Schedule(50ms, [this, shadowCopy3, witheringCastPos](TaskContext /*task*/)
                             {
-                                me->SendPlayOrphanSpellVisual(witheringFourthPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                                me->SendPlayOrphanSpellVisual(witheringCastPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
-                                shadowCopy3->CastSpell(witheringFourthPos, SPELL_WINDRUNNER_MOVE, true);
+                                shadowCopy3->CastSpell(witheringCastPos, SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(300ms, [this, shadowCopy3](TaskContext /*task*/)
+                            scheduler.Schedule(350ms, [this, shadowCopy3](TaskContext /*task*/)
                             {
                                 shadowCopy3->SetFacingToObject(me);
+                            });
+
+                            scheduler.Schedule(400ms, [this, shadowCopy3](TaskContext /*task*/)
+                            {
+                                shadowCopy3->CastSpell(shadowCopy3, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(450ms, [this, shadowCopy3, castTimes](TaskContext /*task*/)
@@ -1205,8 +1228,6 @@ struct boss_sylvanas_windrunner : public BossAI
                                         me->CastSpell(target, SPELL_WITHERING_FIRE, true);
                                     });
                                 }
-
-                                shadowCopy3->CastSpell(shadowCopy3, SPELL_WITHERING_FIRE_COPY, true);
                             });
 
                             scheduler.Schedule(1s, [this, shadowCopy3](TaskContext /*task*/)
@@ -1223,7 +1244,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         }
                     });
 
-                    events.Repeat(5s);
                     break;
                 }
 
@@ -1236,8 +1256,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         Talk(SAY_SHADOW_DAGGER);
                     }
 
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
-                    DoCastSelf(SPELL_RIVE_DISAPPEAR, true);
                     DoAction(ACTION_WINDRUNNER_MODEL);
 
                     for (uint8 i = 0; i < 4; i++)
@@ -1317,23 +1335,6 @@ struct boss_sylvanas_windrunner : public BossAI
                             DoAction(ACTION_DESECRATING_SHOT_LAUNCH);
                         });
                     }
-
-                    break;
-                }
-
-                case EVENT_RANGER_HEARTSEEKER:
-                {
-                    if (_windrunnerActive)
-                        return;
-
-                    if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                    {
-                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-
-                        events.Repeat(1s);
-                    }
-                    else
-                        DoCastVictim(SPELL_RANGER_HEARTSEEKER, false);
 
                     break;
                 }
@@ -1437,12 +1438,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
                         });
 
-                        scheduler.Schedule(7s + 60ms, [this](TaskContext /*task*/)
-                        {
-                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_NORMAL_CAST, 0, 0);
-                        });
-
-                        scheduler.Schedule(9s + 128ms, [this](TaskContext /*task*/)
+                        scheduler.Schedule(9s + 500ms, [this](TaskContext /*task*/)
                         {
                             if (events.GetPhaseMask() == PHASE_ONE)
                             {
@@ -1458,6 +1454,9 @@ struct boss_sylvanas_windrunner : public BossAI
                                             shadowCopy->AI()->SetData(1, 1);
                                     }
                                 }
+
+                                if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2500)
+                                    events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s, 1, PHASE_ONE);
                             }
                             else
                             {
@@ -1485,47 +1484,26 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_WAILING_ARROW:
                 {
-                    if (_windrunnerActive)
-                        return;
+                    DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
 
-                    std::vector <ObjectGuid> _everyPlayerButCurrentVictimGUID;
+                    Talk(SAY_WAILING_ARROW);
 
-                    std::list<Unit*> everyPlayerButCurrentVictim;
-                    SelectTargetList(everyPlayerButCurrentVictim, 30, SELECT_TARGET_MAXTHREAT, 1);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, true, SPELL_WAILING_ARROW_POINTER))
+                        me->CastSpell(target, SPELL_WAILING_ARROW, false);
 
-                    for (auto i = everyPlayerButCurrentVictim.begin(); i != everyPlayerButCurrentVictim.end(); i++)
-                        Talk(SAY_ANNOUNCE_WAILING_ARROW, *i);
+                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
 
-                    if (Unit* currentTank = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 150.0f, true, true))
+                    scheduler.Schedule(1s + 300ms, [this](TaskContext /*task*/)
                     {
-                        Talk(SAY_ANNOUNCE_WAILING_ARROW_TANK, currentTank);
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_JUMP, 0, 0);
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_EFFECT, 0, 0);
+                    });
 
-                        me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, false);
-                    }
-
-                    scheduler.Schedule(5s + 500ms, [this](TaskContext /*task*/)
+                    scheduler.Schedule(3s + 500ms, [this](TaskContext /*task*/)
                     {
-                        DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+                        DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
 
-                        Talk(SAY_WAILING_ARROW);
-
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, true, SPELL_WAILING_ARROW_POINTER))
-                            me->CastSpell(target, SPELL_WAILING_ARROW, false);
-
-                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
-
-                        scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
-                        {
-                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_JUMP, 0, 0);
-                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_EFFECT, 0, 0);
-                        });
-
-                        scheduler.Schedule(3s + 500ms, [this](TaskContext /*task*/)
-                        {
-                            DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
-
-                            events.Repeat(33s);
-                        });
+                        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, PHASE_ONE);
                     });
 
                     break;
@@ -1536,33 +1514,43 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (_windrunnerActive)
                         return;
 
-                    DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
-
-                    me->SetPower(me->GetPowerType(), 0);
-
-                    Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
-                    Talk(SAY_VEIL_OF_DARKNESS);
-
-                    scheduler.Schedule(250ms, [this](TaskContext /*task*/)
+                    if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                     {
-                        DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
-                        me->NearTeleportTo(SylvanasVeilOfDarknessPos, false);
-                    });
+                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
 
-                    scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
+                        events.Repeat(1s);
+                    }
+                    else
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true))
-                            me->NearTeleportTo(target->GetPosition(), false);
+                        DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
 
-                        DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
-                    });
+                        me->SetPower(me->GetPowerType(), 0);
 
-                    scheduler.Schedule(9s, [this](TaskContext /*task*/)
-                    {
-                        DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
-                    });
+                        Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
+                        Talk(SAY_VEIL_OF_DARKNESS);
 
-                    events.Repeat(48s);
+                        scheduler.Schedule(250ms, [this](TaskContext /*task*/)
+                        {
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
+                            me->NearTeleportTo(SylvanasVeilOfDarknessPos, false);
+                        });
+
+                        scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
+                        {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true))
+                                me->NearTeleportTo(target->GetPosition(), false);
+
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
+                        });
+
+                        scheduler.Schedule(9s, [this](TaskContext /*task*/)
+                        {
+                            DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
+                        });
+
+                        events.Repeat(48s);
+                    }
+
                     break;
                 }
 
@@ -1743,39 +1731,25 @@ struct boss_sylvanas_windrunner : public BossAI
             }
         }
 
-        DoSylvanasAttackIfReady();
-    }
-
-    void DoSylvanasAttackIfReady()
-    {
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        Unit* victim = me->GetVictim();
-
         if (me->HasAura(SPELL_WINDRUNNER))
-        {
-            if (me->isAttackReady(BASE_ATTACK))
-                DoCastVictim(SPELL_RANGER_STRIKE, false);
-
-            if (me->isAttackReady(OFF_ATTACK))
-                me->AttackerStateUpdate(victim, OFF_ATTACK);
-        }
+            DoMeleeAttackIfReady();
         else
         {
-            if (me->isAttackReady(BASE_ATTACK))
+            if (IsAnyEventIncoming())
+                return;
+
+            Aura* rangerHeartseekerCharge = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
+
+            if (rangerHeartseekerCharge && rangerHeartseekerCharge->GetStackAmount() >= 3)
             {
-                if (IsAnyEventIncoming())
-                    return;
-
-                Aura* rangerHeartseekerCharge = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
-
-                if (rangerHeartseekerCharge && rangerHeartseekerCharge->GetStackAmount() >= 3)
-                {
-                    if (events.GetNextEventTime(EVENT_RANGER_HEARTSEEKER) == 0)
-                        events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, 1s, PHASE_ONE);
-                }
-                else if (!me->IsWithinMeleeRange(victim))
+                if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+                else
+                    DoCastVictim(SPELL_RANGER_HEARTSEEKER, false);
+            }
+            else
+            {
+                if (!me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                         DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
@@ -1800,12 +1774,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (!me->HasAura(SPELL_RANGER_DAGGERS_STANCE))
                         DoCastSelf(SPELL_RANGER_DAGGERS_STANCE, false);
                     else
-                    {
-                        DoCastVictim(SPELL_RANGER_STRIKE, false);
-
-                        if (me->isAttackReady(OFF_ATTACK))
-                            me->AttackerStateUpdate(victim, OFF_ATTACK);
-                    }
+                        DoMeleeAttackIfReady();
                 }
             }
         }
@@ -1915,6 +1884,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
 private:
     InstanceScript* _instance;
+    EventMap _specialEvents;
     std::vector<ObjectGuid> _shadowCopyGUID;
     bool _windrunnerActive;
     bool _sayDaggersOnCD;
@@ -2000,40 +1970,46 @@ struct npc_sylvanas_windrunner_sylvanas : public ScriptedAI
 
                 if (_onChainsOfDomination)
                 {
-                    DoCastSelf(SPELL_DOMINATION_ARROW_SHOT_VISUAL, true);
-
-                    DoCastSelf(SPELL_ANCHOR_HERE, true);
-
-                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                    _scheduler.Schedule(150ms, [this](TaskContext /*task*/)
                     {
-                        for (uint8 i = 0; i < 5; i++)
+                        DoCastSelf(SPELL_DOMINATION_ARROW_SHOT_VISUAL, true);
+
+                        DoCastSelf(SPELL_ANCHOR_HERE, true);
+                    });
+
+                    _scheduler.Schedule(200ms, [this](TaskContext /*task*/)
+                    {
+                        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                         {
-                            Position const falseArrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
-
-                            me->SendPlaySpellVisual(falseArrowPos, 0.0f, SPELL_VISUAL_DOMINATION_ARROW, 0, 0, 2.5f, true);
-
-                            _scheduler.Schedule(2s + 500ms, [this, sylvanas, falseArrowPos](TaskContext /*task*/)
+                            for (uint8 i = 0; i < 5; i++)
                             {
-                                 sylvanas->CastSpell(falseArrowPos, SPELL_DOMINATION_ARROW_FALL, true);
-                            });
-                        }
+                                Position const falseArrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
 
-                        // Number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10
-                        for (uint8 arrowsToSpawn = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3)) / 3.0f; arrowsToSpawn > 0; arrowsToSpawn--)
-                        {
-                            Position const arrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
+                                me->SendPlaySpellVisual(falseArrowPos, 0.0f, SPELL_VISUAL_DOMINATION_ARROW, 0, 0, 2.5f, true);
 
-                            if (Creature* dominationArrow = sylvanas->SummonCreature(NPC_DOMINATION_ARROW, arrowPos, TEMPSUMMON_MANUAL_DESPAWN))
-                            {
-                                me->SendPlaySpellVisual(dominationArrow, SPELL_VISUAL_DOMINATION_ARROW_SPAWN, 0, 0, 2.5f, true);
-
-                                _scheduler.Schedule(2s + 500ms, [this, sylvanas, dominationArrow](TaskContext /*task*/)
+                                _scheduler.Schedule(2s + 500ms, [this, sylvanas, falseArrowPos](TaskContext /*task*/)
                                 {
-                                    sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
+                                    sylvanas->CastSpell(falseArrowPos, SPELL_DOMINATION_ARROW_FALL, true);
                                 });
                             }
+
+                            // Number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10
+                            for (uint8 arrowsToSpawn = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3)) / 3.0f; arrowsToSpawn > 0; arrowsToSpawn--)
+                            {
+                                Position const arrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
+
+                                if (Creature* dominationArrow = sylvanas->SummonCreature(NPC_DOMINATION_ARROW, arrowPos, TEMPSUMMON_MANUAL_DESPAWN))
+                                {
+                                    me->SendPlaySpellVisual(dominationArrow, SPELL_VISUAL_DOMINATION_ARROW_SPAWN, 0, 0, 2.5f, true);
+
+                                    _scheduler.Schedule(2s + 500ms, [this, sylvanas, dominationArrow](TaskContext /*task*/)
+                                    {
+                                        sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
+                                    });
+                                }
+                            }
                         }
-                    }
+                    });
                 }
 
                 if (_onRiveEvent)
@@ -2936,13 +2912,10 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         if (GetCaster()->HasAura(SPELL_RANGER_DAGGERS_STANCE))
             GetCaster()->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
 
-        if (urand(0, 1) == 0)
+        if (urand(0, 1))
             GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, 0, 0);
         else
             GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN, 0, 0);
@@ -2963,13 +2936,13 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         if (GetCaster()->HasAura(SPELL_RANGER_BOW_STANCE))
             GetCaster()->RemoveAura(SPELL_RANGER_BOW_STANCE);
 
-        if (urand(0, 1) == 0)
+        if (GetCaster()->HasAura(SPELL_RANGER_SHOT))
+            GetCaster()->RemoveAura(SPELL_RANGER_SHOT);
+
+        if (urand(0, 1))
             GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS, 0, 0);
         else
             GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
@@ -2979,7 +2952,7 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_ranger_dagger::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_ranger_dagger::HandleHit, EFFECT_0, SPELL_AURA_ANIM_REPLACEMENT_SET);
     }
 };
 
@@ -3022,9 +2995,6 @@ class spell_sylvanas_windrunner_desecrating_shot : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DESECRATING_SHOT_DAMAGE, true);
     }
 
@@ -3034,41 +3004,52 @@ class spell_sylvanas_windrunner_desecrating_shot : public SpellScript
     }
 };
 
+class RangerHeartseekerMissileEvent : public BasicEvent
+{
+    public:
+        RangerHeartseekerMissileEvent(Unit* caster, Unit* victim) : _caster(caster), _victim(victim) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _caster->SendPlaySpellVisual(_victim, SPELL_VISUAL_RANGER_HEARTSEEKER, 0, 0, 36.0f, false);
+
+            _caster->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
+            _caster->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
+
+            if (Aura* rangerHeartseeker = _caster->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE))
+                rangerHeartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
+            return true;
+        }
+
+    private:
+        Unit* _caster;
+        Unit* _victim;
+};
+
 // Ranger's Heartseeker - 352663
 class spell_sylvanas_windrunner_ranger_heartseeker : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_ranger_heartseeker);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    SpellCastResult CheckCast()
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE,
-            SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE
-        });
+        if (GetCaster()->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE) && GetCaster()->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE)->GetStackAmount() >= 3)
+            return SPELL_CAST_OK;
     }
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (!GetCaster())
             return;
 
-        // TODO: adjust periodic tick slightly so it matches with the throw arrow animation
-        if (aurEff->GetTickNumber() <= 3)
-        {
-            GetCaster()->SendPlaySpellVisual(GetCaster()->GetVictim(), SPELL_VISUAL_RANGER_HEARTSEEKER, 0, 0, 36.0f, false);
-
-            GetCaster()->CastSpell(GetCaster()->GetVictim(), SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
-            GetCaster()->CastSpell(GetCaster()->GetVictim(), SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
-
-            if (Aura* rangerHeartseeker = GetCaster()->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE))
-                rangerHeartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
-        }
+        GetCaster()->m_Events.AddEvent(new RangerHeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(0));
+        GetCaster()->m_Events.AddEvent(new RangerHeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(281));
+        GetCaster()->m_Events.AddEvent(new RangerHeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(562));
     }
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sylvanas_windrunner_ranger_heartseeker::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_ranger_heartseeker::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -3084,9 +3065,6 @@ class spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage : public SpellS
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_MARK, true);
     }
 
@@ -3101,16 +3079,13 @@ class spell_sylvanas_windrunner_domination_chains : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_domination_chains);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo ({ SPELL_DOMINATION_ARROW_ACTIVATE });
     }
 
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        if (!GetCaster())
-            return;
-
         std::list<Creature*> arrowList;
         GetCreatureListWithEntryInGrid(arrowList, GetCaster(), NPC_DOMINATION_ARROW, 250.0f);
 
@@ -3123,9 +3098,15 @@ class spell_sylvanas_windrunner_domination_chains : public SpellScript
         }
     }
 
+    void HandleAfterCast()
+    {
+        GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_NORMAL_CAST, 0, 0);
+    }
+
     void Register() override
     {
         BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_domination_chains::OnCast);
+        AfterCast += SpellCastFn(spell_sylvanas_windrunner_domination_chains::HandleAfterCast);
     }
 };
 
@@ -3142,9 +3123,6 @@ class spell_sylvanas_windrunner_domination_arrow : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DOMINATION_ARROW_DAMAGE, true);
     }
 
@@ -3224,9 +3202,6 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
 
     void OnCast(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WAILING_ARROW_MISSILE, true);
     }
 
@@ -3241,7 +3216,7 @@ class spell_sylvanas_windrunner_wailing_arrow_damage : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_wailing_arrow_damage);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
@@ -3252,9 +3227,6 @@ class spell_sylvanas_windrunner_wailing_arrow_damage : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        if (!GetCaster())
-            return;
-
         if (effIndex == 0)
             GetCaster()->CastSpell(GetHitUnit(), SPELL_WAILING_ARROW_TARGET_DAMAGE, true);
 
@@ -3276,7 +3248,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_fade);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
@@ -3287,9 +3259,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
 
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_SCREEN_FOG);
         GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_DARKNESS_DESELECT, true);
 
@@ -3308,7 +3277,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_1);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
@@ -3343,9 +3312,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        if (!GetCaster())
-            return;
-
         if (effIndex == 0)
             GetCaster()->CastSpell(GetHitUnit(), SPELL_VEIL_OF_DARKNESS_ABSORB_AURA, true);
 
@@ -3355,9 +3321,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     void HandleAfterCast()
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->SetPlayHoverAnim(false);
         GetCaster()->SetDisplayId(DISPLAYID_SYLVANAS_ELF_MODEL);
     }
@@ -3375,7 +3338,7 @@ class spell_sylvanas_windrunner_rive : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_rive);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
@@ -3433,7 +3396,7 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_rive_fast);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
@@ -3468,7 +3431,6 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
             // TODO: we need to remove the areatrigger marker upon cast
-
             if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
             {
                 if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
@@ -3491,7 +3453,7 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_banshee_wail);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
@@ -3516,9 +3478,6 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
 
     void HandleAfterCast()
     {
-        if (!GetCaster())
-            return;
-
         // HACKFIX: SPELL_AURA_TRIGGER_SPELL_ON_EXPIRE is not implemented, this is a workaround
         GetCaster()->CastSpell(GetCaster(), SPELL_BANSHEE_FORM, true);
         GetCaster()->CastSpell(GetCaster(), SPELL_BANSHEE_SHROUD, true);
@@ -3553,37 +3512,12 @@ class spell_sylvanas_windrunner_banshee_wail_marker : public AuraScript
     }
 };
 
-// Banshee Wail (Missile) - 348133
-class spell_sylvanas_windrunner_banshee_wail_missile : public SpellScript
-{
-    PrepareSpellScript(spell_sylvanas_windrunner_banshee_wail_missile);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellInfo({ SPELL_BANSHEE_WAIL_TRIGGERED_MISSILE });
-    }
-
-    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (!GetCaster())
-            return;
-
-        if (GetCaster())
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_TRIGGERED_MISSILE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_banshee_wail_missile::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // Banshee Wail (Triggered Missile) - 348108
 class spell_sylvanas_windrunner_banshee_wail_triggered_missile : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_banshee_wail_triggered_missile);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
@@ -3594,16 +3528,10 @@ class spell_sylvanas_windrunner_banshee_wail_triggered_missile : public SpellScr
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        if (!GetCaster())
-            return;
-
         if (effIndex == 0)
             GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_DAMAGE, true);
 
         if (effIndex == 1)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_INTERRUPT, true);
-
-        if (effIndex == 2)
             GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_INTERRUPT, true);
     }
 
@@ -3611,7 +3539,6 @@ class spell_sylvanas_windrunner_banshee_wail_triggered_missile : public SpellScr
     {
         OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_banshee_wail_triggered_missile::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
         OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_banshee_wail_triggered_missile::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_banshee_wail_triggered_missile::HandleDummyEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3620,16 +3547,13 @@ class spell_sylvanas_windrunner_banshee_wail_interrupt : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_banshee_wail_interrupt);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BANSHEE_WAIL_SILENCE });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         if (GetHitUnit()->HasUnitState(UNIT_STATE_CASTING))
             GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_SILENCE, true);
     }
@@ -3645,12 +3569,12 @@ class spell_sylvanas_windrunner_frigid_shards : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_frigid_shards);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo ({ SPELL_FRIGID_SHARDS_MISSILE });
     }
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (!GetCaster())
             return;
@@ -3669,22 +3593,19 @@ class spell_sylvanas_windrunner_comet_barrage : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_comet_barrage);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_COMET_BARRAGE_MISSILE });
     }
 
-    void HandleAfterCast()
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetHitUnit(), SPELL_COMET_BARRAGE_MISSILE, true);
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_sylvanas_windrunner_comet_barrage::HandleAfterCast);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_comet_barrage::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3693,16 +3614,13 @@ class spell_sylvanas_windrunner_winds_of_icecrown : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_winds_of_icecrown);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WINDS_OF_ICECROWN_INTERRUPT });
     }
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WINDS_OF_ICECROWN_INTERRUPT, true);
     }
 
@@ -3718,16 +3636,13 @@ class spell_sylvanas_windrunner_teleport_to_phase_3_master : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_teleport_to_phase_3_master);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TELEPORT_TO_PHASE_3_RANDOM_POSITION });
     }
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetCaster(), SPELL_TELEPORT_TO_PHASE_3_RANDOM_POSITION, true);
     }
 
@@ -3742,22 +3657,52 @@ class spell_sylvanas_windrunner_teleport_to_phase_3_random_position : public Spe
 {
     PrepareSpellScript(spell_sylvanas_windrunner_teleport_to_phase_3_random_position);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_TELEPORT_TO_PHASE_3_MISSILE });
     }
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        if (!GetCaster())
-            return;
-
         GetCaster()->CastSpell(GetCaster(), SPELL_TELEPORT_TO_PHASE_3_MISSILE, true);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_teleport_to_phase_3_random_position::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/// Regenates 10 energy every 3s roughly
+static std::array<int32, 3> _sylvanasPowerRegenCycle =
+{
+    3, 3, 4
+};
+
+// Energize Power Aura (Sylvanas) - 352312
+class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_energize_power_aura);
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (!GetCaster())
+            return;
+
+        uint8 powerRegenCycle = 0;
+        uint32 powerGained = 0;
+
+        powerGained = _sylvanasPowerRegenCycle[powerRegenCycle++];
+
+        if (powerRegenCycle >= 3)
+            powerRegenCycle = 0;
+
+        GetTarget()->ModifyPower(GetTarget()->GetPowerType(), powerGained);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sylvanas_windrunner_energize_power_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -3982,7 +3927,6 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_rive_fast);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail);
     RegisterAuraScript(spell_sylvanas_windrunner_banshee_wail_marker);
-    RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_missile);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_triggered_missile);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_interrupt);
 
@@ -3995,6 +3939,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAuraScript(spell_sylvanas_windrunner_blasphemy_pre);
     RegisterAuraScript(spell_sylvanas_windrunner_blasphemy);
 
+    RegisterAuraScript(spell_sylvanas_windrunner_energize_power_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_finish_boss);
 

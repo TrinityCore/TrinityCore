@@ -191,9 +191,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (348010, 'spell_sylvanas_windrunner_ranger_dagger');
 
  -- Windrunner
-DELETE FROM `jump_charge_params` WHERE `id`=529;
+DELETE FROM `jump_charge_params` WHERE `id` IN (529, 530, 531);
 INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES 
-(529, 0.501, 1, 47.8086, NULL, 0, NULL);
+(529, 0.501, 1, 47.8086, NULL, 0, NULL),
+(530, 0.501, 1, 47.8086, NULL, 0, NULL),
+(531, 0.151, 1, 526.293, NULL, 0, NULL);
 
  -- Withering Fire
 DELETE FROM `spell_script_names` WHERE `spell_id`=347928 AND `ScriptName`='spell_sylvanas_windrunner_withering_fire';
@@ -280,11 +282,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=357719 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357719, 'spell_sylvanas_windrunner_banshee_wail_marker');
 
- -- Banshee Wail (Missile)
-DELETE FROM `spell_script_names` WHERE `spell_id`=348133 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_missile';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(348133, 'spell_sylvanas_windrunner_banshee_wail_missile');
-
  -- Banshee Wail (Triggered Missile)
 DELETE FROM `spell_script_names` WHERE `spell_id`=348108 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_triggered_missile';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -304,6 +301,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=354168 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354168, 'spell_sylvanas_windrunner_veil_of_darkness_fade');
+
+ -- Energize Power Aura (Sylvanas)
+DELETE FROM `spell_script_names` WHERE `spell_id`=352312 AND `ScriptName`='spell_sylvanas_windrunner_energize_power_aura';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(352312, 'spell_sylvanas_windrunner_energize_power_aura');
 
  -- Activate Phase Intermission
 DELETE FROM `spell_script_names` WHERE `spell_id`=359429 AND `ScriptName`='spell_sylvanas_windrunner_activate_phase_intermission';
@@ -452,6 +454,10 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=356941 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (356941, 'spell_sylvanas_windrunner_winds_of_icecrown');
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=356941 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=175732 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 356941, 0, 0, 31, 0, 3, 175732, 0, 0, 0, 0, '', 'Winds of Icecrown - Target Sylvanas Windrunner');
+
  -- Lady Jaina Proudmoore
 DELETE FROM `creature_template` WHERE `entry`=176533;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
@@ -496,15 +502,14 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=350906 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (350906, 'spell_sylvanas_windrunner_teleport_to_phase_3_master');
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=350906 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=176533 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 350906, 0, 0, 31, 0, 3, 176533, 0, 0, 0, 0, '', 'Teleport (Master - To Phase 3) - Target Jaina'); -- TODO: The entry is most likely wrong, we need to find which one uses as target
+
  -- Teleport (Random Position)
 DELETE FROM `spell_script_names` WHERE `spell_id`=357103 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_random_position';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357103, 'spell_sylvanas_windrunner_teleport_to_phase_3_random_position');
-
- -- Teleport to Oribos - Raid
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=350906 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=176533 AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 1, 350906, 0, 0, 31, 0, 3, 176533, 0, 0, 0, 0, '', 'Teleport to Oribos - Target Jaina'); -- TODO: The entry is most likely wrong, we need to find which one uses as target
 
  -- Thrall
 DELETE FROM `creature_template` WHERE `entry`=176532;
