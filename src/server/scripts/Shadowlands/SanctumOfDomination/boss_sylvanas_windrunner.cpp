@@ -376,7 +376,7 @@ enum Miscelanea
     DISPLAYID_SYLVANAS_BANSHEE_MODEL                    = 100930,
 
     DATA_OVERRIDE_DISPLAY_POWER_SUFFERING               = 479,
-    DATA_SPLINEPOINT_RIVE_MARKER                        = 2,
+    DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR              = 2,
 };
 
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
@@ -3850,47 +3850,36 @@ struct at_sylvanas_windrunner_rive : AreaTriggerAI
         if (!_instance)
             return;
 
-        switch (splineIndex)
+        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
-            case DATA_SPLINEPOINT_RIVE_MARKER:
+            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
             {
-                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                for (uint8 i = 0; i < 5; i++)
                 {
-                    std::list<WorldObject*> riveMarkerAreaTriggers;
-                    Trinity::AllWorldObjectsInRange objects(sylvanas, 250.0f);
-                    Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(sylvanas, riveMarkerAreaTriggers, objects);
-                    Cell::VisitAllObjects(sylvanas, searcher, 250.0f);
+                    Position const debrisPos = at->GetRandomNearPosition(30.0f);
 
-                    for (std::list<WorldObject*>::const_iterator itr = riveMarkerAreaTriggers.begin(); itr != riveMarkerAreaTriggers.end(); ++itr)
-                    {
-                        if (AreaTrigger* riveMarkerAreaTrigger = (*itr)->ToAreaTrigger())
-                        {
-                            if (riveMarkerAreaTrigger->GetEntry() == 6197)
-                                riveMarkerAreaTrigger->Remove();
-                        }
-                    }
+                    at->SendPlayOrphanSpellVisual(debrisPos, SPELL_VISUAL_RIVEN_DEBRIS, 1.50f, true, false);
+
+                    sylvanas->m_Events.AddEvent(new DebrisEvent(sylvanas, debrisPos), sylvanas->m_Events.CalculateTime(1500));
                 }
-                break;
             }
 
-            default:
+            if (splineIndex == DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR)
             {
-                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                std::list<WorldObject*> riveMarkerAreaTriggers;
+                Trinity::AllWorldObjectsInRange objects(sylvanas, 250.0f);
+                Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(sylvanas, riveMarkerAreaTriggers, objects);
+                Cell::VisitAllObjects(sylvanas, searcher, 250.0f);
+
+                for (std::list<WorldObject*>::const_iterator itr = riveMarkerAreaTriggers.begin(); itr != riveMarkerAreaTriggers.end(); ++itr)
                 {
-                    if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                    if (AreaTrigger* riveMarkerAreaTrigger = (*itr)->ToAreaTrigger())
                     {
-                        for (uint8 i = 0; i < 5; i++)
-                        {
-                            Position const debrisPos = at->GetRandomNearPosition(30.0f);
-
-                            at->SendPlayOrphanSpellVisual(debrisPos, SPELL_VISUAL_RIVEN_DEBRIS, 1.50f, true, false);
-
-                            sylvanas->m_Events.AddEvent(new DebrisEvent(sylvanas, debrisPos), sylvanas->m_Events.CalculateTime(100));
-                        }
+                        if (riveMarkerAreaTrigger->GetEntry() == 6197)
+                            riveMarkerAreaTrigger->Remove();
                     }
                 }
             }
-                break;
         }
     }
 
