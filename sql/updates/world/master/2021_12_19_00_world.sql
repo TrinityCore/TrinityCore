@@ -71,7 +71,7 @@ INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `Titl
 
 DELETE FROM `creature_template_addon` WHERE `entry`=175732;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(175732, 0, 0, 0, 1, 0, 0, 0, 0, '42459 352311');
+(175732, 0, 0, 0, 1, 0, 0, 0, 0, '');
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=175732;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES

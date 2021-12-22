@@ -68,7 +68,7 @@ enum Spells
     // Withering Fire
     SPELL_WITHERING_FIRE_COPY                           = 358981,
     SPELL_WITHERING_FIRE                                = 347928,
-    SPELL_BARBED_SHOT                                   = 347807,
+    SPELL_BARBED_ARROW                                  = 347807,
 
     // Desecrating Shot
     SPELL_DESECRATING_SHOT_AREATRIGGER                  = 348626,
@@ -195,6 +195,7 @@ enum Spells
     SPELL_ANCHOR_HERE                                   = 45313,
     SPELL_SYLVANAS_ROOT                                 = 347608,
     SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING              = 352311,
+    SPELL_DUAL_WIELD                                    = 42459,
     SPELL_SYLVANAS_POWER_ENERGIZE_AURA                  = 352312,
     SPELL_CHAMPIONS_MOD_FACTION                         = 355537,
 
@@ -375,7 +376,6 @@ enum Miscelanea
     DISPLAYID_SYLVANAS_ELF_MODEL                        = 101311,
     DISPLAYID_SYLVANAS_BANSHEE_MODEL                    = 100930,
 
-    DATA_OVERRIDE_DISPLAY_POWER_SUFFERING               = 479,
     DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR              = 2,
 };
 
@@ -444,9 +444,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
         scheduler.ClearValidator();
 
-        // HACKFIX: for some reason, SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING does not override her DisplayPowerId
-        me->SetOverrideDisplayPowerId(DATA_OVERRIDE_DISPLAY_POWER_SUFFERING);
-
         if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
         {
             ridingCopy->SetReactState(REACT_PASSIVE);
@@ -455,6 +452,9 @@ struct boss_sylvanas_windrunner : public BossAI
             ridingCopy->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
             ridingCopy->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
         }
+
+        DoCastSelf(SPELL_DUAL_WIELD, true);
+        DoCastSelf(SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING, true);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -465,7 +465,7 @@ struct boss_sylvanas_windrunner : public BossAI
         summons.DespawnAll();
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BARBED_SHOT);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BARBED_ARROW);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BANSHEE_MARK);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINATION_CHAIN_PLAYER);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINATION_CHAIN_PERIODIC);
@@ -2159,7 +2159,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
         damage = 0;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.SetPhase(PHASE_ONE);
     }
@@ -2271,7 +2271,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
         damage = 0;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.SetPhase(PHASE_ONE);
     }
@@ -2413,7 +2413,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
         damage = 0;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.SetPhase(PHASE_THREE);
         _events.ScheduleEvent(EVENT_FRIGID_SHARDS, 5s, 1, PHASE_THREE);
@@ -2740,7 +2740,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
         damage = 0;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.SetPhase(PHASE_THREE);
 
@@ -2975,7 +2975,7 @@ class spell_sylvanas_windrunner_withering_fire : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_BARBED_SHOT });
+        return ValidateSpellInfo({ SPELL_BARBED_ARROW });
     }
 
     bool Load() override
@@ -2988,7 +2988,7 @@ class spell_sylvanas_windrunner_withering_fire : public SpellScript
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            sylvanas->CastSpell(GetHitUnit(), SPELL_BARBED_SHOT, true);
+            sylvanas->CastSpell(GetHitUnit(), SPELL_BARBED_ARROW, true);
     }
 
     void Register() override
@@ -3158,6 +3158,9 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
     {
         if (!GetCaster())
             return;
+
+        if (GetTarget()->HasAura(SPELL_BARBED_ARROW))
+            GetTarget()->RemoveAura(SPELL_BARBED_ARROW);
 
         GetCaster()->CastSpell(GetTarget(), SPELL_DOMINATION_CHAIN_PERIODIC, true);
     }
