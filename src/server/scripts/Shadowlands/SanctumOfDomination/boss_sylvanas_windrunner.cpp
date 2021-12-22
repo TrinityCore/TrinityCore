@@ -1364,131 +1364,134 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else
                     {
-                        Position const jumpFirstPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
-                        Position const jumpSecondPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
-                        Position const jumpThirdPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
-
-                        DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
-
-                        Talk(SAY_ANNOUNCE_DOMINATION_CHAINS);
-
-                        if (events.GetPhaseMask() == PHASE_ONE)
-                            Talk(SAY_DOMINATION_CHAINS);
-                        else
-                            Talk(SAY_INTERMISSION_BEGIN);
-
-                        DoCastSelf(SPELL_DOMINATION_CHAINS_SPIN, true);
-
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                        scheduler.Schedule(1s, [this](TaskContext /*task*/)
                         {
-                            if (shadowCopy->IsAIEnabled())
-                                shadowCopy->AI()->SetData(1, 2);
+                            Position const jumpFirstPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
+                            Position const jumpSecondPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
+                            Position const jumpThirdPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
 
-                            shadowCopy->NearTeleportTo(me->GetPosition(), false);
-                        }
+                            DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
 
-                        scheduler.Schedule(50ms, [this](TaskContext /*task*/)
-                        {
-                            DoCastSelf(SPELL_RIVE_DISAPPEAR, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3000));
-                            DoCastSelf(SPELL_DOMINATION_CHAINS, false);
+                            Talk(SAY_ANNOUNCE_DOMINATION_CHAINS);
 
-                            me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
-                        });
-
-                        scheduler.Schedule(550ms, [this, jumpFirstPos](TaskContext /*task*/)
-                        {
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                shadowCopy->CastSpell(jumpFirstPos, SPELL_DOMINATION_CHAINS_JUMP, true);
-
-                            me->SendPlayOrphanSpellVisual(jumpFirstPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                        });
-
-                        scheduler.Schedule(1s + 285ms, [this, jumpFirstPos](TaskContext /*task*/)
-                        {
-                            me->NearTeleportTo(jumpFirstPos, true);
-
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                me->SetFacingTo(shadowCopy->GetOrientation());
-                        });
-
-                        scheduler.Schedule(1s + 347ms, [this, jumpSecondPos](TaskContext /*task*/)
-                        {
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                shadowCopy->CastSpell(jumpSecondPos, SPELL_DOMINATION_CHAINS_JUMP, true);
-
-                            me->SendPlayOrphanSpellVisual(jumpSecondPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                        });
-
-                        scheduler.Schedule(2s + 97ms, [this, jumpSecondPos](TaskContext /*task*/)
-                        {
-                            me->NearTeleportTo(jumpSecondPos, true);
-
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                me->SetFacingTo(shadowCopy->GetOrientation());
-                        });
-
-                        scheduler.Schedule(2s + 160ms, [this, jumpThirdPos](TaskContext /*task*/)
-                        {
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                shadowCopy->CastSpell(jumpThirdPos, SPELL_DOMINATION_CHAINS_JUMP, true);
-
-                            me->SendPlayOrphanSpellVisual(jumpThirdPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                        });
-
-                        scheduler.Schedule(2s + 720ms, [this, jumpThirdPos](TaskContext /*task*/)
-                        {
-                            me->NearTeleportTo(jumpThirdPos, true);
-
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                me->SetFacingTo(shadowCopy->GetOrientation());
-                        });
-
-                        scheduler.Schedule(2s + 800ms, [this](TaskContext /*task*/)
-                        {
-                            me->SetNameplateAttachToGUID(ObjectGuid::Empty);
-
-                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
-                        });
-
-                        scheduler.Schedule(9s + 500ms, [this](TaskContext /*task*/)
-                        {
                             if (events.GetPhaseMask() == PHASE_ONE)
-                            {
-                                DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
-
-                                for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
-                                {
-                                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
-                                    {
-                                        shadowCopy->NearTeleportTo(me->GetPosition(), false);
-
-                                        if (shadowCopy->IsAIEnabled())
-                                            shadowCopy->AI()->SetData(1, 1);
-                                    }
-                                }
-
-                                if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2500)
-                                    events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s, 1, PHASE_ONE);
-                            }
+                                Talk(SAY_DOMINATION_CHAINS);
                             else
+                                Talk(SAY_INTERMISSION_BEGIN);
+
+                            DoCastSelf(SPELL_DOMINATION_CHAINS_SPIN, true);
+
+                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                             {
-                                for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
-                                {
-                                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
-                                    {
-                                        shadowCopy->NearTeleportTo(me->GetPosition(), false);
+                                if (shadowCopy->IsAIEnabled())
+                                    shadowCopy->AI()->SetData(1, 2);
 
-                                        if (shadowCopy->IsAIEnabled())
-                                            shadowCopy->AI()->SetData(1, 3);
-                                    }
-                                }
-
-                                events.ScheduleEvent(EVENT_RIVE, 1s, PHASE_INTERMISSION);
+                                shadowCopy->NearTeleportTo(me->GetPosition(), false);
                             }
-                        });
 
-                        if (events.GetPhaseMask() == PHASE_ONE)
-                            events.Repeat(54s);
+                            scheduler.Schedule(50ms, [this](TaskContext /*task*/)
+                            {
+                                DoCastSelf(SPELL_RIVE_DISAPPEAR, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3000));
+                                DoCastSelf(SPELL_DOMINATION_CHAINS, false);
+
+                                me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
+                            });
+
+                            scheduler.Schedule(550ms, [this, jumpFirstPos](TaskContext /*task*/)
+                            {
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                                    shadowCopy->CastSpell(jumpFirstPos, SPELL_DOMINATION_CHAINS_JUMP, true);
+
+                                me->SendPlayOrphanSpellVisual(jumpFirstPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                            });
+
+                            scheduler.Schedule(1s + 285ms, [this, jumpFirstPos](TaskContext /*task*/)
+                            {
+                                me->NearTeleportTo(jumpFirstPos, true);
+
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                                    me->SetFacingTo(shadowCopy->GetOrientation());
+                            });
+
+                            scheduler.Schedule(1s + 347ms, [this, jumpSecondPos](TaskContext /*task*/)
+                            {
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                                    shadowCopy->CastSpell(jumpSecondPos, SPELL_DOMINATION_CHAINS_JUMP, true);
+
+                                me->SendPlayOrphanSpellVisual(jumpSecondPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                            });
+
+                            scheduler.Schedule(2s + 97ms, [this, jumpSecondPos](TaskContext /*task*/)
+                            {
+                                me->NearTeleportTo(jumpSecondPos, true);
+
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                                    me->SetFacingTo(shadowCopy->GetOrientation());
+                            });
+
+                            scheduler.Schedule(2s + 160ms, [this, jumpThirdPos](TaskContext /*task*/)
+                            {
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                                    shadowCopy->CastSpell(jumpThirdPos, SPELL_DOMINATION_CHAINS_JUMP, true);
+
+                                me->SendPlayOrphanSpellVisual(jumpThirdPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                            });
+
+                            scheduler.Schedule(2s + 720ms, [this, jumpThirdPos](TaskContext /*task*/)
+                            {
+                                me->NearTeleportTo(jumpThirdPos, true);
+
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                                    me->SetFacingTo(shadowCopy->GetOrientation());
+                            });
+
+                            scheduler.Schedule(2s + 800ms, [this](TaskContext /*task*/)
+                            {
+                                me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+
+                                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
+                            });
+
+                            scheduler.Schedule(9s + 500ms, [this](TaskContext /*task*/)
+                            {
+                                if (events.GetPhaseMask() == PHASE_ONE)
+                                {
+                                    DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
+
+                                    for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+                                    {
+                                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                                        {
+                                            shadowCopy->NearTeleportTo(me->GetPosition(), false);
+
+                                            if (shadowCopy->IsAIEnabled())
+                                                shadowCopy->AI()->SetData(1, 1);
+                                        }
+                                    }
+
+                                    if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2500)
+                                        events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s, 1, PHASE_ONE);
+                                }
+                                else
+                                {
+                                    for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+                                    {
+                                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                                        {
+                                            shadowCopy->NearTeleportTo(me->GetPosition(), false);
+
+                                            if (shadowCopy->IsAIEnabled())
+                                                shadowCopy->AI()->SetData(1, 3);
+                                        }
+                                    }
+
+                                    events.ScheduleEvent(EVENT_RIVE, 1s, PHASE_INTERMISSION);
+                                }
+                            });
+
+                            if (events.GetPhaseMask() == PHASE_ONE)
+                                events.Repeat(54s);
+                        });
                     }
 
                     break;
@@ -1534,33 +1537,36 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else
                     {
-                        DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
-
-                        me->SetPower(me->GetPowerType(), 0);
-
-                        Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
-                        Talk(SAY_VEIL_OF_DARKNESS);
-
-                        scheduler.Schedule(250ms, [this](TaskContext /*task*/)
+                        scheduler.Schedule(1s, [this](TaskContext /*task*/)
                         {
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
-                            me->NearTeleportTo(SylvanasVeilOfDarknessPos, false);
+                            DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+
+                            me->SetPower(me->GetPowerType(), 0);
+
+                            Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
+                            Talk(SAY_VEIL_OF_DARKNESS);
+
+                            scheduler.Schedule(250ms, [this](TaskContext /*task*/)
+                            {
+                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
+                                me->NearTeleportTo(SylvanasVeilOfDarknessPos, false);
+                            });
+
+                            scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
+                            {
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true))
+                                    me->NearTeleportTo(target->GetPosition(), false);
+
+                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
+                            });
+
+                            scheduler.Schedule(9s, [this](TaskContext /*task*/)
+                            {
+                                DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
+                            });
+
+                            events.Repeat(48s);
                         });
-
-                        scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
-                        {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true))
-                                me->NearTeleportTo(target->GetPosition(), false);
-
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
-                        });
-
-                        scheduler.Schedule(9s, [this](TaskContext /*task*/)
-                        {
-                            DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
-                        });
-
-                        events.Repeat(48s);
                     }
 
                     break;
