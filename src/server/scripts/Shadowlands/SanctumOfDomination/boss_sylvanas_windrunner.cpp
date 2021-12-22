@@ -733,7 +733,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     shadowCopy->NearTeleportTo(me->GetNearPosition(5.0f, float(M_PI)), false);
 
-                    scheduler.Schedule(50ms, [this, shadowCopy](TaskContext /*task*/)
+                    scheduler.Schedule(50ms, [shadowCopy](TaskContext /*task*/)
                     {
                          shadowCopy->NearTeleportTo(shadowCopy->GetPositionX(), shadowCopy->GetPositionY(), shadowCopy->GetPositionZ() + 5.0f, shadowCopy->GetOrientation(), false);
                     });
@@ -1028,7 +1028,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(400ms, [this, shadowCopy](TaskContext /*task*/)
+                            scheduler.Schedule(400ms, [shadowCopy](TaskContext /*task*/)
                             {
                                 shadowCopy->CastSpell(shadowCopy, SPELL_WITHERING_FIRE_COPY, true);
                             });
@@ -1090,7 +1090,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy1->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(400ms, [this, shadowCopy1](TaskContext /*task*/)
+                            scheduler.Schedule(400ms, [shadowCopy1](TaskContext /*task*/)
                             {
                                 shadowCopy1->CastSpell(shadowCopy1, SPELL_WITHERING_FIRE_COPY, true);
                             });
@@ -1148,7 +1148,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy2->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(400ms, [this, shadowCopy2](TaskContext /*task*/)
+                            scheduler.Schedule(400ms, [shadowCopy2](TaskContext /*task*/)
                             {
                                 shadowCopy2->CastSpell(shadowCopy2, SPELL_WITHERING_FIRE_COPY, true);
                             });
@@ -1206,7 +1206,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy3->SetFacingToObject(me);
                             });
 
-                            scheduler.Schedule(400ms, [this, shadowCopy3](TaskContext /*task*/)
+                            scheduler.Schedule(400ms, [shadowCopy3](TaskContext /*task*/)
                             {
                                 shadowCopy3->CastSpell(shadowCopy3, SPELL_WITHERING_FIRE_COPY, true);
                             });
@@ -1989,7 +1989,7 @@ struct npc_sylvanas_windrunner_sylvanas : public ScriptedAI
 
                                 me->SendPlaySpellVisual(falseArrowPos, 0.0f, SPELL_VISUAL_DOMINATION_ARROW, 0, 0, 2.5f, true);
 
-                                _scheduler.Schedule(2s + 500ms, [this, sylvanas, falseArrowPos](TaskContext /*task*/)
+                                _scheduler.Schedule(2s + 500ms, [sylvanas, falseArrowPos](TaskContext /*task*/)
                                 {
                                     sylvanas->CastSpell(falseArrowPos, SPELL_DOMINATION_ARROW_FALL, true);
                                 });
@@ -2004,7 +2004,7 @@ struct npc_sylvanas_windrunner_sylvanas : public ScriptedAI
                                 {
                                     me->SendPlaySpellVisual(dominationArrow, SPELL_VISUAL_DOMINATION_ARROW_SPAWN, 0, 0, 2.5f, true);
 
-                                    _scheduler.Schedule(2s + 500ms, [this, sylvanas, dominationArrow](TaskContext /*task*/)
+                                    _scheduler.Schedule(2s + 500ms, [sylvanas, dominationArrow](TaskContext /*task*/)
                                     {
                                         sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
                                     });
@@ -2954,7 +2954,7 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_ranger_dagger::HandleHit, EFFECT_0, SPELL_AURA_ANIM_REPLACEMENT_SET);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_ranger_dagger::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
