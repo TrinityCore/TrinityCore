@@ -106,7 +106,7 @@ enum SanctumOfDominationEvents
 
 enum SanctumOfDominationActions
 {
-    ACTION_START_SYLVANAS_INTRO                     = 1
+    ACTION_START_SYLVANAS_INTRO                     = 50
 };
 
 enum SanctumOfDominationAreas

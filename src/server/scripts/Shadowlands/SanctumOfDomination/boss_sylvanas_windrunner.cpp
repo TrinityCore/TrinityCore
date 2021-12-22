@@ -235,8 +235,8 @@ enum Events
 
 enum Actions
 {                    
-    ACTION_PAUSE_ATTACK_FOR_EVENT                       = 2,
-    ACTION_ACTIVATE_ATTACK_FOR_EVENT ,
+    ACTION_PAUSE_ATTACK_FOR_EVENT                       = 1,
+    ACTION_ACTIVATE_ATTACK_FOR_EVENT,
     ACTION_WINDRUNNER_MODEL,
     ACTION_DESECRATING_SHOT_LAUNCH,
     ACTION_ACTIVATE_DOMINATION_ARROW,
@@ -542,12 +542,13 @@ struct boss_sylvanas_windrunner : public BossAI
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
         events.SetPhase(PHASE_ONE);
-        _specialEvents.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
-        // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
-        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 45s, 1, PHASE_ONE);
+
+        // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
+        _specialEvents.SetPhase(PHASE_ONE);
+        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, 1, PHASE_ONE);
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
@@ -1127,7 +1128,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy1->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this, shadowCopy1](TaskContext /*task*/)
+                            scheduler.Schedule(1s + 250ms, [this](TaskContext /*task*/)
                             {
                                 me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                             });
@@ -1185,7 +1186,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy2->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this, shadowCopy2](TaskContext /*task*/)
+                            scheduler.Schedule(1s + 250ms, [this](TaskContext /*task*/)
                             {
                                 shadowCopy2->SetOrientation(me->GetOrientation());
                             });
@@ -1243,7 +1244,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy3->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this, shadowCopy3](TaskContext /*task*/)
+                            scheduler.Schedule(1s + 250ms, [this](TaskContext /*task*/)
                             {
                                 shadowCopy3->SetOrientation(me->GetOrientation());
                             });
@@ -1281,7 +1282,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                 shadowCopy->CastSpell(targetPos, SPELL_WINDRUNNER_MOVE, true);
 
-                                scheduler.Schedule(100ms, [this, shadowCopy, target, i](TaskContext /*task*/)
+                                scheduler.Schedule(100ms, [shadowCopy, target](TaskContext /*task*/)
                                 {
                                     shadowCopy->SetFacingToObject(target);
                                 });
@@ -1300,7 +1301,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                     shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                                 });
 
-                                scheduler.Schedule(850ms, [this, shadowCopy](TaskContext /*task*/)
+                                scheduler.Schedule(850ms, [this](TaskContext /*task*/)
                                 {
                                     me->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
