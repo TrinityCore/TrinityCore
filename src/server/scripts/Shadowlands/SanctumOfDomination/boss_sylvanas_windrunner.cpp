@@ -25,6 +25,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -904,7 +905,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
                     }
 
-                    scheduler.Schedule(4s + 500ms, [this](TaskContext /*task*/)
+                    scheduler.Schedule(4s, [this](TaskContext /*task*/)
                     {
                         if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                             DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
@@ -1364,7 +1365,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else
                     {
-                        scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                        scheduler.Schedule(500ms, [this](TaskContext /*task*/)
                         {
                             Position const jumpFirstPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
                             Position const jumpSecondPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
@@ -1503,7 +1504,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     Talk(SAY_WAILING_ARROW);
 
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, true, SPELL_WAILING_ARROW_POINTER))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true, true, SPELL_WAILING_ARROW_POINTER))
                         me->CastSpell(target, SPELL_WAILING_ARROW, false);
 
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
@@ -1537,7 +1538,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else
                     {
-                        scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                        scheduler.Schedule(500ms, [this](TaskContext /*task*/)
                         {
                             DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
 
@@ -2077,10 +2078,6 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
                     _playerGUID = target->GetGUID();
 
                     me->CastSpell(target, SPELL_DOMINATION_CHAIN_PLAYER, false);
-
-                    _arrowAreaTriggerGUID = AreaTrigger::CreateNewMovementForceId(me->GetMap(), 27683);
-
-                    target->ApplyMovementForce(_arrowAreaTriggerGUID, me->GetPosition(), 3.20000004768371582f, MovementForceType::Gravity);
                 }
 
                 break;
@@ -2095,20 +2092,13 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
     {
         if (Player* chainedPlayer = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
-            chainedPlayer->RemoveAura(SPELL_DOMINATION_CHAIN_PLAYER);
-
-            chainedPlayer->RemoveMovementForce(_arrowAreaTriggerGUID);
+            if (chainedPlayer->HasAura(SPELL_DOMINATION_CHAIN_PLAYER))
+                chainedPlayer->RemoveAura(SPELL_DOMINATION_CHAIN_PLAYER);
         }
-    }
-
-    void OnRemove()
-    {
-
     }
 
 private:
     ObjectGuid _playerGUID;
-    ObjectGuid _arrowAreaTriggerGUID;
 };
 
 enum BolvarSpells
@@ -3165,18 +3155,29 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
         if (!GetCaster())
             return;
 
+        _playerGUID = GetTarget()->GetGUID();
+
         if (GetTarget()->HasAura(SPELL_BARBED_ARROW))
             GetTarget()->RemoveAura(SPELL_BARBED_ARROW);
 
         GetCaster()->CastSpell(GetTarget(), SPELL_DOMINATION_CHAIN_PERIODIC, true);
+
+        _arrowAreaTriggerGUID = AreaTrigger::CreateNewMovementForceId(GetCaster()->GetMap(), 27683);
+
+        GetTarget()->ApplyMovementForce(_arrowAreaTriggerGUID, GetCaster()->GetPosition(), 3.20000004768371582f, MovementForceType::Gravity);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (!GetCaster())
             return;
-        
-        GetTarget()->RemoveAurasDueToSpell(SPELL_DOMINATION_CHAIN_PERIODIC);
+
+        if (Player* chainedPlayer = ObjectAccessor::GetPlayer(*GetCaster(), _playerGUID))
+        {
+            chainedPlayer->RemoveAurasDueToSpell(SPELL_DOMINATION_CHAIN_PERIODIC);
+
+            chainedPlayer->RemoveMovementForce(_arrowAreaTriggerGUID);
+        }
     }
 
     void Register() override
@@ -3184,6 +3185,10 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
         OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_domination_chain::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_domination_chain::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
+
+private:
+    ObjectGuid _playerGUID;
+    ObjectGuid _arrowAreaTriggerGUID;
 };
 
 // Domination Chain (Periodic) - 349458
@@ -3412,7 +3417,7 @@ private:
     InstanceScript* _instance;
 };
 
-// Rive (fast) - 353418
+// Rive (Fast) - 353418
 class spell_sylvanas_windrunner_rive_fast : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_rive_fast);
