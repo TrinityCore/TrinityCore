@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "sanctum_of_domination.h"
 

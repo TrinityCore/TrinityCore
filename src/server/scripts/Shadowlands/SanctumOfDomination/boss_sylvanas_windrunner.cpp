@@ -759,7 +759,7 @@ struct boss_sylvanas_windrunner : public BossAI
                          shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                     });
 
-                    scheduler.Schedule(650ms, [this, shadowCopy](TaskContext /*task*/)
+                    scheduler.Schedule(650ms, [this](TaskContext /*task*/)
                     {
                          me->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
@@ -772,6 +772,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_PREPARE_INTERMISSION:
             {
+                _specialEvents.CancelEventGroup(1);
+                events.CancelEventGroup(1);
+
+                _specialEvents.SetPhase(PHASE_INTERMISSION);
                 events.SetPhase(PHASE_INTERMISSION);
                 events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 1s, PHASE_INTERMISSION);
                 break;
