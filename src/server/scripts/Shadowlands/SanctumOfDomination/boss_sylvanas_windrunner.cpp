@@ -17,9 +17,11 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "CellImpl.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
@@ -123,7 +125,7 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_PHASE_1                      = 347726,
 
     // Banshee Shroud
-    SPELL_BANSHEE_SHROUD                                = 359429,
+    SPELL_BANSHEE_SHROUD                                = 350857,
 
     // Rive
     SPELL_RIVE_DISAPPEAR                                = 353519,
@@ -196,8 +198,6 @@ enum Spells
     SPELL_SYLVANAS_POWER_ENERGIZE_AURA                  = 352312,
     SPELL_CHAMPIONS_MOD_FACTION                         = 355537,
 
-    DATA_OVERRIDE_DISPLAY_POWER_SUFFERING               = 479,
-
     SPELL_INTERMISSION_SCENE                            = 359062,
 
     SPELL_FINAL_SCENE                                   = 358806,
@@ -207,7 +207,9 @@ enum Spells
     SPELL_TELEPORT_TO_PHASE_3_RANDOM_POS                = 357101,
 
     SPELL_HEALTH_PCT_CHECK_INTERMISSION                 = 358794,
-    SPELL_HEALTH_PCT_CHECK_FINISH                       = 359430
+    SPELL_ACTIVATE_INTERMISSION                         = 359429,
+    SPELL_HEALTH_PCT_CHECK_FINISH                       = 359430,
+    SPELL_ACTIVATE_FINISH                               = 359431
 };
 
 enum Phases
@@ -371,7 +373,10 @@ enum SpellVisuals
 enum Miscelanea
 {
     DISPLAYID_SYLVANAS_ELF_MODEL                        = 101311,
-    DISPLAYID_SYLVANAS_BANSHEE_MODEL                    = 100930
+    DISPLAYID_SYLVANAS_BANSHEE_MODEL                    = 100930,
+
+    DATA_OVERRIDE_DISPLAY_POWER_SUFFERING               = 479,
+    DATA_SPLINEPOINT_RIVE_MARKER                        = 2,
 };
 
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
@@ -1186,7 +1191,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy2->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this](TaskContext /*task*/)
+                            scheduler.Schedule(1s + 250ms, [this, shadowCopy2](TaskContext /*task*/)
                             {
                                 shadowCopy2->SetOrientation(me->GetOrientation());
                             });
@@ -1244,7 +1249,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy3->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
                             });
 
-                            scheduler.Schedule(1s + 250ms, [this](TaskContext /*task*/)
+                            scheduler.Schedule(1s + 250ms, [this, shadowCopy3](TaskContext /*task*/)
                             {
                                 shadowCopy3->SetOrientation(me->GetOrientation());
                             });
@@ -3837,7 +3842,7 @@ struct at_sylvanas_windrunner_rive : AreaTriggerAI
 
     void OnCreate() override
     {
-        _instance = at->GetInstanceScript();  
+        _instance = at->GetInstanceScript();
     }
 
     void OnSplineIndexReached(int splineIndex) override
@@ -3845,19 +3850,47 @@ struct at_sylvanas_windrunner_rive : AreaTriggerAI
         if (!_instance)
             return;
 
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        switch (splineIndex)
         {
-            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+            case DATA_SPLINEPOINT_RIVE_MARKER:
             {
-                for (uint8 i = 0; i < 5; i++)
+                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
-                    Position const debrisPos = at->GetRandomNearPosition(30.0f);
+                    std::list<WorldObject*> riveMarkerAreaTriggers;
+                    Trinity::AllWorldObjectsInRange objects(sylvanas, 250.0f);
+                    Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(sylvanas, riveMarkerAreaTriggers, objects);
+                    Cell::VisitAllObjects(sylvanas, searcher, 250.0f);
 
-                    at->SendPlayOrphanSpellVisual(debrisPos, SPELL_VISUAL_RIVEN_DEBRIS, 1.50f, true, false);
+                    for (std::list<WorldObject*>::const_iterator itr = riveMarkerAreaTriggers.begin(); itr != riveMarkerAreaTriggers.end(); ++itr)
+                    {
+                        if (AreaTrigger* riveMarkerAreaTrigger = (*itr)->ToAreaTrigger())
+                        {
+                            if (riveMarkerAreaTrigger->GetEntry() == 6197)
+                                riveMarkerAreaTrigger->Remove();
+                        }
+                    }
+                }
+                break;
+            }
 
-                    sylvanas->m_Events.AddEvent(new DebrisEvent(sylvanas, debrisPos), sylvanas->m_Events.CalculateTime(1500));
+            default:
+            {
+                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                {
+                    if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                    {
+                        for (uint8 i = 0; i < 5; i++)
+                        {
+                            Position const debrisPos = at->GetRandomNearPosition(30.0f);
+
+                            at->SendPlayOrphanSpellVisual(debrisPos, SPELL_VISUAL_RIVEN_DEBRIS, 1.50f, true, false);
+
+                            sylvanas->m_Events.AddEvent(new DebrisEvent(sylvanas, debrisPos), sylvanas->m_Events.CalculateTime(100));
+                        }
+                    }
                 }
             }
+                break;
         }
     }
 
