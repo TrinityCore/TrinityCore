@@ -9491,7 +9491,6 @@ void Unit::AIUpdateTick(uint32 diff)
 
 void Unit::PushAI(UnitAI* newAI)
 {
-    ASSERT(newAI);
     i_AIs.emplace(newAI);
 }
 
