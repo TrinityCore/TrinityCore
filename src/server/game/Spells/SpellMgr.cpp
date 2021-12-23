@@ -3760,6 +3760,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
     });
 
+    // Earthen Rage
+    ApplySpellFix({ 170374 }, [](SpellInfo* spellInfo)
+    {
+        // This spell isn't a mastery
+        spellInfo->AttributesEx8 &= ~SPELL_ATTR8_MASTERY_SPECIALIZATION;
+    });
+
     ApplySpellFix({
         70728, // Exploit Weakness (needs target selection script)
         70840  // Devious Minds (needs target selection script)
