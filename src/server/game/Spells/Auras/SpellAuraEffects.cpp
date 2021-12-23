@@ -536,7 +536,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
-    &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT
+    &AuraEffect::HandleTriggerSpellOnHealthPercent,               //468 SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT
     &AuraEffect::HandleShowConfirmationPrompt,                    //469 SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_MOD_AURA_TIME_RATE_BY_SPELL_LABEL
     &AuraEffect::HandleModVersatilityByPct,                       //471 SPELL_AURA_MOD_VERSATILITY
@@ -3889,6 +3889,32 @@ void AuraEffect::HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 m
     int32 change = target->GetMaxPower(powerType) - oldMaxPower;
     change = (oldPower + change) - target->GetPower(powerType);
     target->ModifyPower(powerType, change);
+}
+
+void AuraEffect::HandleTriggerSpellOnHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL) || !apply)
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    int32 const thresholdPct = GetAmount();
+    uint32 const triggerSpell = GetSpellEffectInfo().TriggerSpell;
+
+    switch (AuraTriggerOnHealthChangeDirection(GetMiscValue()))
+    {
+        case AuraTriggerOnHealthChangeDirection::Above:
+            if (!target->HealthAbovePct(thresholdPct))
+                return;
+            break;
+        case AuraTriggerOnHealthChangeDirection::Below:
+            if (!target->HealthBelowPct(thresholdPct))
+                return;
+            break;
+        default:
+            break;
+    }
+
+    target->CastSpell(target, triggerSpell, this);
 }
 
 /********************************/

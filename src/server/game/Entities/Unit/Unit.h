@@ -900,6 +900,7 @@ class TC_GAME_API Unit : public WorldObject
         inline void SetFullHealth() { SetHealth(GetMaxHealth()); }
         int64 ModifyHealth(int64 val);
         int64 GetHealthGain(int64 dVal);
+        void TriggerOnHealthChangeAuras(uint64 oldVal, uint64 newVal);
 
         virtual float GetHealthMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
         virtual float GetDamageMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
