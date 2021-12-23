@@ -35,6 +35,8 @@ class TC_GAME_API ScheduledChangeAI final : public CreatureAI
         void OnCharmed(bool /*isNew*/) override { }
 
         static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
+
+        bool IsScheduledChangeAI() const override { return true; }
 };
 
 #endif

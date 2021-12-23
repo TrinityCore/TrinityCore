@@ -9491,6 +9491,7 @@ void Unit::AIUpdateTick(uint32 diff)
 
 void Unit::PushAI(UnitAI* newAI)
 {
+    ASSERT(newAI);
     i_AIs.emplace(newAI);
 }
 
@@ -9525,11 +9526,11 @@ void Unit::ScheduleAIChange()
     bool const charmed = IsCharmed();
 
     if (charmed)
-        PushAI(nullptr);
+        PushAI(GetScheduledChangeAI());
     else
     {
         RestoreDisabledAI();
-        PushAI(nullptr); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
+        PushAI(GetScheduledChangeAI()); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
     }
 }
 
@@ -9552,7 +9553,7 @@ UnitAI* Unit::GetScheduledChangeAI()
 bool Unit::HasScheduledAIChange() const
 {
     if (UnitAI* ai = GetAI())
-        return false;
+        return ai->IsScheduledChangeAI();
     else
         return true;
 }
