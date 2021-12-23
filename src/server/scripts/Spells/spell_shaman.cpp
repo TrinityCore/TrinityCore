@@ -52,7 +52,6 @@ enum ShamanSpells
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
-    SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM          = 188389,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
     SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT     = 334294,
     SPELL_SHAMAN_FLAMETONGUE_WEAPON_AURA        = 319778,
@@ -67,8 +66,6 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE        = 71824,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
     SPELL_SHAMAN_LIQUID_MAGMA_HIT               = 192231,
-    SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
-    SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
@@ -716,30 +713,6 @@ class spell_sha_item_t18_elemental_4p_bonus : public AuraScript
     }
 };
 
-// 51505 - Lava burst
-class spell_sha_lava_burst : public SpellScript
-{
-    PrepareSpellScript(spell_sha_lava_burst);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-            if (Unit* target = GetExplTargetUnit())
-                if (caster->HasAura(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
-                    caster->CastSpell(target, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 // 77756 - Lava Surge
 class spell_sha_lava_surge : public AuraScript
 {
@@ -819,47 +792,6 @@ class spell_sha_liquid_magma_totem : public SpellScript
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_liquid_magma_totem::HandleTargetSelect, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_sha_liquid_magma_totem::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 210621 - Path of Flames Spread
-class spell_sha_path_of_flames_spread : public SpellScript
-{
-    PrepareSpellScript(spell_sha_path_of_flames_spread);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove(GetExplTargetUnit());
-        Trinity::Containers::RandomResize(targets, [this](WorldObject* target)
-        {
-            return target->GetTypeId() == TYPEID_UNIT && !target->ToUnit()->HasAura(SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM, GetCaster()->GetGUID());
-        }, 1);
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* mainTarget = GetExplTargetUnit())
-        {
-            if (Aura* flameShock = mainTarget->GetAura(SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM, GetCaster()->GetGUID()))
-            {
-                if (Aura* newAura = GetCaster()->AddAura(SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM, GetHitUnit()))
-                {
-                    newAura->SetDuration(flameShock->GetDuration());
-                    newAura->SetMaxDuration(flameShock->GetDuration());
-                }
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_path_of_flames_spread::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_sha_path_of_flames_spread::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1202,11 +1134,9 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_item_t6_trinket);
     RegisterAuraScript(spell_sha_item_t10_elemental_2p_bonus);
     RegisterAuraScript(spell_sha_item_t18_elemental_4p_bonus);
-    RegisterSpellScript(spell_sha_lava_burst);
     RegisterAuraScript(spell_sha_lava_surge);
     RegisterSpellScript(spell_sha_lava_surge_proc);
     RegisterSpellScript(spell_sha_liquid_magma_totem);
-    RegisterSpellScript(spell_sha_path_of_flames_spread);
     RegisterAuraScript(spell_sha_tidal_waves);
     RegisterAuraScript(spell_sha_t3_6p_bonus);
     RegisterAuraScript(spell_sha_t3_8p_bonus);
