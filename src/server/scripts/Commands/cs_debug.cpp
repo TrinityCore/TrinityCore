@@ -1825,37 +1825,7 @@ public:
 
     static bool HandleDebugDummyCommand(ChatHandler* handler)
     {
-        //handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
-
-        // 1. get the current creature target
-        Creature* target = handler->getSelectedCreature();
-        if (!target)
-            return false;
-
-        // 2. charm it
-        Player* player = handler->GetSession()->GetPlayer();
-        if (!player)
-            return false;
-        player->CastSpell(target, 530, true);
-
-        player->m_Events.AddEventAtOffset([player, target]()
-        {
-            // 3. call a AI hook on them, it should be the old AI
-            target->GetAI()->SetData(0, 0);
-
-            player->m_Events.AddEventAtOffset([player, target]()
-            {
-                // 4. call a AI hook on them again, it should be null and crash
-                target->GetAI()->SetData(0, 0);
-
-                player->m_Events.AddEventAtOffset([target]()
-                {
-                    // 5. call a AI hook on them again, it should be the new AI
-                    target->GetAI()->SetData(0, 0);
-                }, 1ms);
-            }, 1ms);
-        }, 1ms);
-
+        handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
         return true;
     }
 };
