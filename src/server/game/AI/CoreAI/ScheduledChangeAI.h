@@ -22,18 +22,19 @@
 
 class TC_GAME_API ScheduledChangeAI final : public CreatureAI
 {
-    explicit ScheduledChangeAI(Creature* creature);
+    public:
+        explicit ScheduledChangeAI(Creature* creature);
 
-    void MoveInLineOfSight(Unit*) override { }
-    void AttackStart(Unit*) override { }
-    void JustStartedThreateningMe(Unit*) override { }
-    void JustEnteredCombat(Unit*) override { }
-    void UpdateAI(uint32) override { }
-    void JustAppeared() override { }
-    void EnterEvadeMode(EvadeReason /*why*/) override { }
-    void OnCharmed(bool /*isNew*/) override { }
+        void MoveInLineOfSight(Unit*) override { }
+        void AttackStart(Unit*) override { }
+        void JustStartedThreateningMe(Unit*) override { }
+        void JustEnteredCombat(Unit*) override { }
+        void UpdateAI(uint32) override { }
+        void JustAppeared() override { }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
-    static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
+        static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
 #endif
