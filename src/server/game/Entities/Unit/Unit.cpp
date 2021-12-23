@@ -492,7 +492,7 @@ void Unit::Update(uint32 p_time)
     // All position info based actions have been executed, reset info
     _positionUpdateInfo.Reset();
 
-    if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
+    if (HasScheduledAIChange() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
         UpdateCharmAI();
     RefreshAI();
 }
@@ -9541,12 +9541,20 @@ void Unit::RestoreDisabledAI()
             return;
 }
 
-UnitAI* Unit::GetScheduledChangeAI() const
+UnitAI* Unit::GetScheduledChangeAI()
 {
-    if (const Creature* creature = ToCreature())
+    if (Creature* creature = ToCreature())
         return new ScheduledChangeAI(creature);
     else
         return nullptr;
+}
+
+bool Unit::HasScheduledAIChange() const
+{
+    if (UnitAI* ai = GetAI())
+        return false;
+    else
+        return true;
 }
 
 void Unit::AddToWorld()
