@@ -191,12 +191,7 @@ void TempSummon::InitStats(uint32 duration)
             m_ControlledByPlayer = true;
 
     if (!m_Properties)
-    {
-        if (owner)
-            SetLevel(owner->GetLevel());
-
         return;
-    }
 
     if (owner)
     {

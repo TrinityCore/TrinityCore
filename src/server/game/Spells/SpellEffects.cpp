@@ -4768,7 +4768,7 @@ void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPr
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         {
             uint8 level = summon->GetLevel();
-            if (!properties || !properties->GetFlags().HasFlag(SummonPropertiesFlags::UseCreatureLevel))
+            if (properties && !properties->GetFlags().HasFlag(SummonPropertiesFlags::UseCreatureLevel))
                 level = unitCaster->GetLevel();
 
             // level of pet summoned using engineering item based at engineering skill level
