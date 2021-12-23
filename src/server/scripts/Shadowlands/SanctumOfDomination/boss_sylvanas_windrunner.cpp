@@ -378,6 +378,9 @@ enum Miscelanea
     DISPLAYID_SYLVANAS_ELF_MODEL                        = 101311,
     DISPLAYID_SYLVANAS_BANSHEE_MODEL                    = 100930,
 
+    DATA_AREATRIGGER_DOMINATION_ARROW                   = 27683,
+    DATA_AREATRIGGER_RIVE_MARKER                        = 6197,
+
     DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR              = 2,
 
     DATA_DESECRATING_SHOT_PATTERN_STRAIGHT              = 0,
@@ -3200,7 +3203,7 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
 
         GetCaster()->CastSpell(GetTarget(), SPELL_DOMINATION_CHAIN_PERIODIC, true);
 
-        _arrowAreaTriggerGUID = AreaTrigger::CreateNewMovementForceId(GetCaster()->GetMap(), 27683);
+        _arrowAreaTriggerGUID = AreaTrigger::CreateNewMovementForceId(GetCaster()->GetMap(), DATA_AREATRIGGER_DOMINATION_ARROW);
 
         GetTarget()->ApplyMovementForce(_arrowAreaTriggerGUID, GetCaster()->GetPosition(), 3.20000004768371582f, MovementForceType::Gravity);
     }
@@ -3531,7 +3534,7 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
     bool Load() override
     {
         std::list<Player*> targetList;
-        GetPlayerListInGrid(targetList, GetCaster(), 200.0f);
+        GetPlayerListInGrid(targetList, GetCaster(), 250.0f);
 
         for (auto itr = targetList.begin(); itr != targetList.end(); itr++)
             GetCaster()->CastSpell(*itr, SPELL_BANSHEE_WAIL_MARKER, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4650));
@@ -3564,7 +3567,7 @@ class spell_sylvanas_windrunner_banshee_wail_marker : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_banshee_wail_marker);
 
-    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_SCREAM_EXPIRE, 0, 0);
     }
@@ -3902,7 +3905,7 @@ struct at_sylvanas_windrunner_rive : AreaTriggerAI
                 {
                     if (AreaTrigger* riveMarkerAreaTrigger = (*itr)->ToAreaTrigger())
                     {
-                        if (riveMarkerAreaTrigger->GetEntry() == 6197)
+                        if (riveMarkerAreaTrigger->GetEntry() == DATA_AREATRIGGER_RIVE_MARKER)
                             riveMarkerAreaTrigger->Remove();
                     }
                 }
