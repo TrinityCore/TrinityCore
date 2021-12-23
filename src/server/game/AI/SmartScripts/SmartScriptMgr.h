@@ -530,7 +530,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_UNIT_FIELD_BYTES_1             = 90,     // bytes, target
     SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
     SMART_ACTION_INTERRUPT_SPELL                    = 92,
-    SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
+    SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // UNUSED, DO NOT REUSE
     SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // UNUSED, DO NOT REUSE
     SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // UNUSED, DO NOT REUSE
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // UNUSED, DO NOT REUSE
@@ -961,11 +961,6 @@ struct SmartAction
             uint32 spell_id;
             SAIBool withInstant;
         } interruptSpellCasting;
-
-        struct
-        {
-            uint32 anim;
-        } sendGoCustomAnim;
 
         struct
         {
