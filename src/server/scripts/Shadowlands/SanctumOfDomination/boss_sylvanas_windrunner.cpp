@@ -380,9 +380,11 @@ enum Miscelanea
 
     DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR              = 2,
 
-    DATA_DESECRATING_SHOT_PATTERN_STRAIGHT_ARROW        = 0,
+    DATA_DESECRATING_SHOT_PATTERN_STRAIGHT              = 0,
     DATA_DESECRATING_SHOT_PATTERN_SCATTERED             = 1,
-    DATA_DESECRATING_SHOT_PATTERN_WAVE_ARROW            = 2
+    DATA_DESECRATING_SHOT_PATTERN_WAVE                  = 2,
+    DATA_DESECRATING_SHOT_PATTERN_SPIRAL                = 3,
+    DATA_DESECRATING_SHOT_PATTERN_JAR                   = 4
 };
 
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
@@ -463,8 +465,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
     void JustAppeared() override
     {
-        _instance = me->GetInstanceScript();
-
         scheduler.ClearValidator();
 
         if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
@@ -486,7 +486,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
         _EnterEvadeMode();
         summons.DespawnAll();
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BARBED_ARROW);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BANSHEE_MARK);
@@ -494,13 +494,13 @@ struct boss_sylvanas_windrunner : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINATION_CHAIN_PERIODIC);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_ABSORB_AURA);
 
-        if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+        if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
             bolvar->DespawnOrUnsummon();
 
-        if (Creature* jaina = _instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+        if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
             jaina->DespawnOrUnsummon();
 
-        if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+        if (Creature* thrall = instance->GetCreature(DATA_THRALL_PINNACLE))
             thrall->DespawnOrUnsummon();
 
         _DespawnAtEvade();
@@ -711,7 +711,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     me->SetHomePosition(me->GetPosition());
 
-                    _instance->SetData(DATA_SYLVANAS_INTRO, DONE);
+                    instance->SetData(DATA_SYLVANAS_INTRO, DONE);
                 });
 
                 break;
@@ -1961,7 +1961,6 @@ struct boss_sylvanas_windrunner : public BossAI
     }
 
 private:
-    InstanceScript* _instance;
     EventMap _specialEvents;
     std::vector<ObjectGuid> _shadowCopyGUID;
     bool _windrunnerActive;
@@ -3026,26 +3025,19 @@ class spell_sylvanas_windrunner_withering_fire : public SpellScript
         return ValidateSpellInfo({ SPELL_BARBED_ARROW });
     }
 
-    bool Load() override
-    {
-        _instance = GetCaster()->GetInstanceScript();
-
-        return true;
-    }
-
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            sylvanas->CastSpell(GetHitUnit(), SPELL_BARBED_ARROW, true);
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        {
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                sylvanas->CastSpell(GetHitUnit(), SPELL_BARBED_ARROW, true);
+        }
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_withering_fire::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // Desecrating Shot - 348627
@@ -3090,12 +3082,6 @@ class RangerHeartseekerMissileEvent : public BasicEvent
 class spell_sylvanas_windrunner_ranger_heartseeker : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_ranger_heartseeker);
-
-    SpellCastResult CheckCast()
-    {
-        if (GetCaster()->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE) && GetCaster()->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE)->GetStackAmount() >= 3)
-            return SPELL_CAST_OK;
-    }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -3427,18 +3413,19 @@ class spell_sylvanas_windrunner_rive : public SpellScript
 
     bool Load() override
     {
-        _instance = GetCaster()->GetInstanceScript();
-
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
-            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             {
-                if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(3)))
+                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    shadowCopy3->CastSpell(sylvanas, SPELL_RIVE_CHAIN, false);
+                    if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(3)))
+                    {
+                        shadowCopy3->CastSpell(sylvanas, SPELL_RIVE_CHAIN, false);
 
-                    if (GameObject* platformSpear = shadowCopy3->FindNearestGameObjectOfType(GameobjectTypes::GAMEOBJECT_TYPE_GOOBER, 15.0f))
-                        platformSpear->SetSpellVisualId(SPELL_VISUAL_TORGHAST_SPIRE_BREAK, sylvanas->GetGUID());
+                        if (GameObject* platformSpear = shadowCopy3->FindNearestGameObjectOfType(GameobjectTypes::GAMEOBJECT_TYPE_GOOBER, 15.0f))
+                            platformSpear->SetSpellVisualId(SPELL_VISUAL_TORGHAST_SPIRE_BREAK, sylvanas->GetGUID());
+                    }
                 }
             }
         }
@@ -3448,12 +3435,15 @@ class spell_sylvanas_windrunner_rive : public SpellScript
 
     void HandleAfterCast()
     {
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
-            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             {
-                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
-                    sylvanas->CastSpell(shadowCopy->GetPosition(), SPELL_RIVE_AREATRIGGER, true);
+                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                {
+                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
+                        sylvanas->CastSpell(shadowCopy->GetPosition(), SPELL_RIVE_AREATRIGGER, true);
+                }
             }
         }
     }
@@ -3462,9 +3452,6 @@ class spell_sylvanas_windrunner_rive : public SpellScript
     {
         AfterCast += SpellCastFn(spell_sylvanas_windrunner_rive::HandleAfterCast);
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // Rive (Fast) - 353418
@@ -3483,18 +3470,19 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
 
     bool Load() override
     {
-        _instance = GetCaster()->GetInstanceScript();
-
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
-            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             {
-                if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(3)))
+                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    shadowCopy3->CastSpell(sylvanas, SPELL_RIVE_CHAIN_FAST, false);
+                    if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(3)))
+                    {
+                        shadowCopy3->CastSpell(sylvanas, SPELL_RIVE_CHAIN_FAST, false);
 
-                    if (GameObject* platformSpear = shadowCopy3->FindNearestGameObjectOfType(GameobjectTypes::GAMEOBJECT_TYPE_GOOBER, 15.0f))
-                        platformSpear->SetSpellVisualId(SPELL_VISUAL_TORGHAST_SPIRE_BREAK_FAST, sylvanas->GetGUID());
+                        if (GameObject* platformSpear = shadowCopy3->FindNearestGameObjectOfType(GameobjectTypes::GAMEOBJECT_TYPE_GOOBER, 15.0f))
+                            platformSpear->SetSpellVisualId(SPELL_VISUAL_TORGHAST_SPIRE_BREAK_FAST, sylvanas->GetGUID());
+                    }
                 }
             }
         }
@@ -3504,12 +3492,15 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
 
     void HandleAfterCast()
     {
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
-            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             {
-                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
-                    sylvanas->CastSpell(shadowCopy->GetPosition(), SPELL_RIVE_AREATRIGGER, true);
+                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                {
+                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
+                        sylvanas->CastSpell(shadowCopy->GetPosition(), SPELL_RIVE_AREATRIGGER, true);
+                }
             }
         }
     }
@@ -3518,9 +3509,6 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
     {
         AfterCast += SpellCastFn(spell_sylvanas_windrunner_rive_fast::HandleAfterCast);
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // Banshee Wail - 348094
@@ -3786,19 +3774,15 @@ class spell_sylvanas_windrunner_activate_phase_intermission : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);
 
-    bool Load() override
-    {
-        _instance = GetCaster()->GetInstanceScript();
-
-        return true;
-    }
-
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
-            if (sylvanas->IsAIEnabled())
-                sylvanas->AI()->DoAction(ACTION_PREPARE_INTERMISSION);
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            {
+                if (sylvanas->IsAIEnabled())
+                    sylvanas->AI()->DoAction(ACTION_PREPARE_INTERMISSION);
+            }
         }
     }
 
@@ -3806,9 +3790,6 @@ class spell_sylvanas_windrunner_activate_phase_intermission : public SpellScript
     {
         BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_activate_phase_intermission::OnCast);
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // Activate Finish Boss - 359431 
@@ -3816,19 +3797,15 @@ class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_activate_finish_boss);
 
-    bool Load() override
-    {
-        _instance = GetCaster()->GetInstanceScript();
-
-        return true;
-    }
-
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
-            if (sylvanas->IsAIEnabled())
-                sylvanas->AI()->DoAction(ACTION_PREPARE_FINISH_BOSS);
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            {
+                if (sylvanas->IsAIEnabled())
+                    sylvanas->AI()->DoAction(ACTION_PREPARE_FINISH_BOSS);
+            }
         }
     }
 
@@ -3836,22 +3813,13 @@ class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
     {
         BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_activate_finish_boss::OnCast);
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // Desecrating Shot - 22400
 struct at_sylvanas_windrunner_disecrating_shot : AreaTriggerAI
 {
-    at_sylvanas_windrunner_disecrating_shot(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnCreate() override
-    {
-        _instance = at->GetInstanceScript();
-
-        _updateDiff = 0;
-    }
+    at_sylvanas_windrunner_disecrating_shot(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()), _updateDiff(0) { }
 
     void OnUpdate(uint32 diff) override
     {
@@ -3901,12 +3869,8 @@ class DebrisEvent : public BasicEvent
 // Rive - 23028
 struct at_sylvanas_windrunner_rive : AreaTriggerAI
 {
-    at_sylvanas_windrunner_rive(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnCreate() override
-    {
-        _instance = at->GetInstanceScript();
-    }
+    at_sylvanas_windrunner_rive(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
 
     void OnSplineIndexReached(int splineIndex) override
     {
@@ -3962,12 +3926,8 @@ private:
 // Blasphemy (Pre-Phase 3) - 23506
 struct at_sylvanas_windrunner_blasphemy_pre : AreaTriggerAI
 {
-    at_sylvanas_windrunner_blasphemy_pre(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnCreate() override
-    {
-        _instance = at->GetInstanceScript();
-    }
+    at_sylvanas_windrunner_blasphemy_pre(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
 
     void OnUnitEnter(Unit* unit) override
     {
