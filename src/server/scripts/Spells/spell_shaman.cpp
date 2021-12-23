@@ -92,23 +92,6 @@ enum MiscNpcs
     NPC_HEALING_RAIN_INVISIBLE_STALKER          = 73400,
 };
 
-class RaidCheck
-{
-public:
-    explicit RaidCheck(Unit const* caster) : _caster(caster) { }
-
-    bool operator()(WorldObject* obj) const
-    {
-        if (Unit* target = obj->ToUnit())
-            return !_caster->IsInRaidWith(target);
-
-        return true;
-    }
-
-private:
-    Unit const* _caster;
-};
-
 // 108281 - Ancestral Guidance
 class spell_sha_ancestral_guidance : public AuraScript
 {
@@ -487,7 +470,6 @@ class spell_sha_healing_stream_totem_heal : public SpellScript
 
     void SelectTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(RaidCheck(GetCaster()));
         targets.remove_if([](WorldObject* target)
         {
             return !target->ToUnit() || target->ToUnit()->IsFullHealth();
