@@ -751,7 +751,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_WINDRUNNER_MODEL:
             {
-                // HACKFIX: apparently, sylvanas is the one doing the visual stuff here, but I haven't found the spellId or whatever makes her black, further research needed
+                // HACKFIX: apparently, it's either sylvanas or the copy riding her doing the visual stuff here, but I haven't found what's going on here yet
                 me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
                 DoCastSelf(SPELL_RIVE_DISAPPEAR, true);
 
@@ -1039,6 +1039,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     uint8 randomCopy = urand(0, 3);
 
+                    DoAction(ACTION_WINDRUNNER_MODEL);
+
                     for (uint8 itr = 0; itr < 4; itr++)
                     {
                         scheduler.Schedule(Milliseconds(100 * itr), [this, castTimes, itr, randomCopy](TaskContext /*task*/)
@@ -1048,11 +1050,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
 
                                 if (itr == randomCopy)
-                                {
-                                    DoAction(ACTION_WINDRUNNER_MODEL);
-
                                     me->SetNameplateAttachToGUID(_shadowCopyGUID[randomCopy]);
-                                }
 
                                 scheduler.Schedule(50ms, [this, shadowCopy, witheringCastPos](TaskContext /*task*/)
                                 {
@@ -1776,12 +1774,6 @@ struct boss_sylvanas_windrunner : public BossAI
                 me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
             });
         }
-    }
-
-    bool DrawDesecratingShowWaveSecond(int32 step, Position pos, float orientation)
-    {
-
-        return true;
     }
 
     void DrawDesecratingShotScattered()
