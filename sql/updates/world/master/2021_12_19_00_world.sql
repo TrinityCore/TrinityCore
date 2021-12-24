@@ -197,6 +197,11 @@ INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, 
 (530, 0.501, 1, 47.8086, NULL, 0, NULL),
 (531, 0.151, 1, 526.293, NULL, 0, NULL);
 
+ -- Ranger Strike
+DELETE FROM `spell_script_names` WHERE `spell_id`=348299 AND `ScriptName`='spell_sylvanas_windrunner_ranger_strike';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(348299, 'spell_sylvanas_windrunner_ranger_strike');
+
  -- Withering Fire
 DELETE FROM `spell_script_names` WHERE `spell_id`=347928 AND `ScriptName`='spell_sylvanas_windrunner_withering_fire';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
