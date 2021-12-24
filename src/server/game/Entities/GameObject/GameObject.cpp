@@ -1438,6 +1438,9 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
 
     switch (action)
     {
+        case GameObjectActions::None:
+            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", spellId, effectIndex);
+            break;
         case GameObjectActions::AnimateCustom0:
         case GameObjectActions::AnimateCustom1:
         case GameObjectActions::AnimateCustom2:
@@ -1445,21 +1448,39 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
             SendCustomAnim(uint32(action) - uint32(GameObjectActions::AnimateCustom0));
             break;
         case GameObjectActions::Disturb: // What's the difference with Open?
+            if (unitCaster)
+                Use(unitCaster);
+            break;
+        case GameObjectActions::Unlock:
+        case GameObjectActions::Lock:
+            ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED, action == GameObjectActions::Lock);
+            break;
         case GameObjectActions::Open:
             if (unitCaster)
                 Use(unitCaster);
             break;
         case GameObjectActions::OpenAndUnlock:
             if (unitCaster)
+            {
                 UseDoorOrButton(0, false, unitCaster);
-            [[fallthrough]];
-        case GameObjectActions::Unlock:
-        case GameObjectActions::Lock:
-            ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED, action == GameObjectActions::Lock);
+                RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            }
             break;
         case GameObjectActions::Close:
+            ResetDoorOrButton();
+            break;
+        case GameObjectActions::ToggleOpen:
+            // No use cases, implementation unknown
+            break;
+        case GameObjectActions::Destroy:
+            if (unitCaster)
+                UseDoorOrButton(0, true, unitCaster);
+            break;
         case GameObjectActions::Rebuild:
             ResetDoorOrButton();
+            break;
+        case GameObjectActions::Creation:
+            // No use cases, implementation unknown
             break;
         case GameObjectActions::Despawn:
             DespawnOrUnsummon();
@@ -1471,10 +1492,6 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
         case GameObjectActions::CloseAndLock:
             ResetDoorOrButton();
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            break;
-        case GameObjectActions::Destroy:
-            if (unitCaster)
-                UseDoorOrButton(0, true, unitCaster);
             break;
         case GameObjectActions::UseArtKit0:
         case GameObjectActions::UseArtKit1:
@@ -1496,8 +1513,8 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
 
             break;
         }
-        case GameObjectActions::None:
-            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", spellId, effectIndex);
+        case GameObjectActions::SetTapList:
+            // No use cases, implementation unknown
             break;
         default:
             TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", spellId, int32(action), effectIndex);
