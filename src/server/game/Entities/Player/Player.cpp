@@ -24178,6 +24178,27 @@ Battleground* Player::GetBattleground() const
     return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
 }
 
+uint32 Player::GetBattlegroundQueueJoinTime(uint32 bgTypeId) const
+{
+    std::map<uint32, uint32>::const_iterator itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
+    if (itr != m_bgData.bgQueuesJoinedTime.end())
+        return itr->second;
+
+    return GameTime::GetGameTimeMS();
+}
+
+void Player::AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime)
+{
+    m_bgData.bgQueuesJoinedTime[bgTypeId] = joinTime;
+}
+
+void Player::RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
+{
+    std::map<uint32, uint32>::const_iterator itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
+    if (itr != m_bgData.bgQueuesJoinedTime.end())
+        m_bgData.bgQueuesJoinedTime.erase(itr->second);
+}
+
 bool Player::InBattlegroundQueue() const
 {
     for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)

@@ -2082,15 +2082,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;
 
-        uint32 GetBattlegroundQueueJoinTime(uint32 bgTypeId) const { return m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second; }
-        void AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime)
-        {
-            m_bgData.bgQueuesJoinedTime[bgTypeId] = joinTime;
-        }
-        void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
-        {
-            m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
-        }
+        uint32 GetBattlegroundQueueJoinTime(uint32 bgTypeId) const;
+        void AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime);
+        void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId);
 
         bool InBattlegroundQueue() const;
 
