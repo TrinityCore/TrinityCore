@@ -91,7 +91,7 @@ Optional<int32> GetFinishingMoveCPCost(Spell const* spell)
  * A finishing move is a spell that cost combo points */
 bool IsFinishingMove(Spell const* spell)
 {
-    return GetFinishingMoveCPCost(spell).has_value();
+    return GetFinishingMoveCPCost(spell).is_initialized();
 }
 
 // 53 - Backstab
@@ -581,7 +581,7 @@ class spell_rog_rupture : public SpellScriptLoader
 
                 // Venomous Wounds: if unit dies while being affected by rupture, regain energy based on remaining duration
                 Optional<SpellPowerCost> cost = GetSpellInfo()->CalcPowerCost(POWER_ENERGY, false, caster, GetSpellInfo()->GetSchoolMask(), nullptr);
-                if (!cost.has_value())
+                if (!cost)
                     return;
 
                 float pct = float(aura->GetDuration()) / float(aura->GetMaxDuration());
