@@ -39,6 +39,7 @@ enum ShamanSpells
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE             = 108281,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL        = 114911,
     SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE       = 195897,
+    SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE = 218558,
     SPELL_SHAMAN_CHAINED_HEAL                   = 70809,
     SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE         = 187878,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 204290,
@@ -46,7 +47,9 @@ enum ShamanSpells
     SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC          = 170377,
     SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE            = 170379,
     SPELL_SHAMAN_ELECTRIFIED                    = 64930,
+    SPELL_SHAMAN_ELEMENTAL_BLAST                = 117014,
     SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT           = 118522,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_ENERGIZE       = 344645,
     SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE          = 173183,
     SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY        = 173184,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
@@ -68,6 +71,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE        = 71824,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
     SPELL_SHAMAN_LIGHTNING_BOLT_ENERGIZE        = 214815,
+    SPELL_SHAMAN_LIGHTNING_BOLT_OVERLOAD_ENERGIZE = 214816,
     SPELL_SHAMAN_LIQUID_MAGMA_HIT               = 192231,
     SPELL_SHAMAN_MAELSTROM_CONTROLLER           = 343725,
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
@@ -187,7 +191,7 @@ class spell_sha_bloodlust : public SpellScript
     }
 };
 
-// 188443 - Chain lightning
+// 188443 - Chain Lightning
 class spell_sha_chain_lightning : public SpellScript
 {
     PrepareSpellScript(spell_sha_chain_lightning);
@@ -208,6 +212,30 @@ class spell_sha_chain_lightning : public SpellScript
     void Register() override
     {
         OnEffectLaunch += SpellEffectFn(spell_sha_chain_lightning::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 45297 - Chain Lightning Overload
+class spell_sha_chain_lightning_overload : public SpellScript
+{
+    PrepareSpellScript(spell_sha_chain_lightning_overload);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
+            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_5;
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* energizeAmount = GetCaster()->GetAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_5))
+            GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE, CastSpellExtraArgs(energizeAmount)
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, energizeAmount->GetAmount() * GetUnitTargetCountForEffect(EFFECT_0)));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sha_chain_lightning_overload::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -337,30 +365,46 @@ class spell_sha_earthen_rage_proc_aura : public AuraScript
 };
 
 // 117014 - Elemental Blast
+// 120588 - Elemental Blast Overload
 class spell_sha_elemental_blast : public SpellScript
 {
     PrepareSpellScript(spell_sha_elemental_blast);
 
+    static constexpr uint32 BuffSpells[] = { SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY };
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY });
+        return ValidateSpellInfo(
+        {
+            SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT,
+            SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE,
+            SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY,
+            SPELL_SHAMAN_ELEMENTAL_BLAST_ENERGIZE,
+            SPELL_SHAMAN_MAELSTROM_CONTROLLER
+        }) && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_10;
     }
 
-    bool Load() override
+    void HandleEnergize(SpellEffIndex /*effIndex*/)
     {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        if (AuraEffect const* energizeAmount = GetCaster()->GetAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, GetSpellInfo()->Id == SPELL_SHAMAN_ELEMENTAL_BLAST ? EFFECT_9 : EFFECT_10))
+            GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_ELEMENTAL_BLAST_ENERGIZE, CastSpellExtraArgs(energizeAmount)
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, energizeAmount->GetAmount()));
     }
 
     void TriggerBuff()
     {
-        Player* caster = GetCaster()->ToPlayer();
-        uint32 spellId = RAND(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY);
+        Unit* caster = GetCaster();
+        uint32 spellId = *Trinity::Containers::SelectRandomWeightedContainerElement(BuffSpells, [caster](uint32 buffSpellId)
+        {
+            return !caster->HasAura(buffSpellId) ? 1.0 : 0.0;
+        });
 
-        caster->CastSpell(caster, spellId, TRIGGERED_FULL_MASK);
+        GetCaster()->CastSpell(GetCaster(), spellId, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
+        OnEffectLaunch += SpellEffectFn(spell_sha_elemental_blast::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         AfterCast += SpellCastFn(spell_sha_elemental_blast::TriggerBuff);
     }
 };
@@ -817,7 +861,31 @@ class spell_sha_lightning_bolt : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_lightning_bolt::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunch += SpellEffectFn(spell_sha_lightning_bolt::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 45284 - Lightning Bolt Overload
+class spell_sha_lightning_bolt_overload : public SpellScript
+{
+    PrepareSpellScript(spell_sha_lightning_bolt_overload);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_BOLT_OVERLOAD_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
+            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* energizeAmount = GetCaster()->GetAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_1))
+            GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_LIGHTNING_BOLT_OVERLOAD_ENERGIZE, CastSpellExtraArgs(energizeAmount)
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, energizeAmount->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sha_lightning_bolt_overload::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1220,6 +1288,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_ancestral_guidance_heal);
     RegisterSpellScript(spell_sha_bloodlust);
     RegisterSpellScript(spell_sha_chain_lightning);
+    RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
     RegisterAuraScript(spell_sha_earth_shield);
     RegisterAuraScript(spell_sha_earthen_rage_passive);
@@ -1240,6 +1309,7 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_lava_surge);
     RegisterSpellScript(spell_sha_lava_surge_proc);
     RegisterSpellScript(spell_sha_lightning_bolt);
+    RegisterSpellScript(spell_sha_lightning_bolt_overload);
     RegisterSpellScript(spell_sha_liquid_magma_totem);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
     RegisterAuraScript(spell_sha_tidal_waves);
