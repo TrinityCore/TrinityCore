@@ -954,94 +954,58 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
 // 53600 - Shield of the Righteous
 /// Updated 4.3.4
-class spell_pal_shield_of_the_righteous : public SpellScriptLoader
+class spell_pal_shield_of_the_righteous : public SpellScript
 {
-    public:
-        spell_pal_shield_of_the_righteous() : SpellScriptLoader("spell_pal_shield_of_the_righteous") { }
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer() && GetCaster()->getClass() == CLASS_PALADIN;
+    }
 
-        class spell_pal_shield_of_the_righteous_SpellScript : public SpellScript
-        {
-            bool Load() override
-            {
-                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                    return false;
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = GetHitDamage();
 
-                if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
-                    return false;
+        // The cast initially consumes 1 holy power for casting and the rest afterwards
+        // So holy power returns 0 at 1, 1 at 2 and 2 at 3.
+        int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
+        float damageMod = 1.f;
+        if (hp >= 1)
+            damageMod = hp > 1 ? 6.f : 3.f;
 
-                return true;
-            }
-            void ChangeDamage(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetHitDamage();
+        SetHitDamage(damage * damageMod);
+    }
 
-                // Because 1 Holy Power (HP) is consumed when casting spell,
-                // GetPower(POWER_HOLY_POWER) will return 0 when player has 1 HP,
-                // return 1 at 2 HP, and 2 at 3 HP
-                int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
-
-                // Holy Power Scaling: 3 times damage at 2 HP, 6 times at 3 HP
-                damage *= 0.5 * hp * hp + 1.5 * hp + 1;
-
-                SetHitDamage(damage);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_pal_shield_of_the_righteous_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_shield_of_the_righteous_SpellScript();
-        }
+    void Register() override
+    {
+        // We have to apply the holy power multiplier on hit instead of on launch because holy power multiplies the final damage, not the base value
+        OnEffectHitTarget.Register(&spell_pal_shield_of_the_righteous::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 85256 - Templar's Verdict
 /// Updated 4.3.4
 class spell_pal_templar_s_verdict : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
-    }
-
     bool Load() override
     {
-        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
-            return false;
-
-        return true;
+        return GetCaster()->IsPlayer() && GetCaster()->getClass() == CLASS_PALADIN;
     }
 
     void HandleDamageBonus(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
         int32 damage = GetEffectValue();
+        float damageMod = 1.f;
 
-        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
-            damage *= 7.5;  // 7.5*30% = 225%
+        if (GetCaster()->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+            damageMod = 7.83334f; // 235%
         else
         {
-            switch (caster->GetPower(POWER_HOLY_POWER))
-            {
-                case 0: // 1 Holy Power
-                    // same damage
-                    break;
-                case 1: // 2 Holy Power
-                    damage *= 3;    // 3*30 = 90%
-                    break;
-                case 2: // 3 Holy Power
-                    damage *= 7.5;  // 7.5*30% = 225%
-                    break;
-            }
+            int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
+            if (hp >= 1)
+                damageMod = hp > 1 ? 7.83334f : 3.f;
         }
 
-        SetEffectValue(damage);
+        SetEffectValue(damage * damageMod);
     }
 
     void Register() override
@@ -2068,7 +2032,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_seal_of_insight);
     RegisterSpellScript(spell_pal_seal_of_righteousness);
     RegisterSpellScript(spell_pal_seal_of_truth);
-    new spell_pal_shield_of_the_righteous();
+    RegisterSpellScript(spell_pal_shield_of_the_righteous);
     RegisterSpellScript(spell_pal_selfless_healer);
     RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellScript(spell_pal_tower_of_radiance);
