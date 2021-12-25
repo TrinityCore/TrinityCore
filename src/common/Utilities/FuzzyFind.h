@@ -18,9 +18,9 @@
 #ifndef TRINITY_FUZZYFIND_H
 #define TRINITY_FUZZYFIND_H
 
-#include "advstd.h"
 #include <map>
 #include <string>
+#include <type_traits>
 
 namespace Trinity
 {
@@ -30,7 +30,7 @@ namespace Trinity
         auto FuzzyFindIn(Container const& container, NeedleContainer const& needles, ContainsOperator const& contains = StringContainsStringI, int(*bonus)(decltype((*std::begin(std::declval<Container>())))) = nullptr)
         {
             using IteratorResult = decltype((*std::begin(container)));
-            using MappedType = std::conditional_t<advstd::is_reference_v<IteratorResult>, std::reference_wrapper<std::remove_reference_t<IteratorResult>>, IteratorResult>;
+            using MappedType = std::conditional_t<std::is_reference_v<IteratorResult>, std::reference_wrapper<std::remove_reference_t<IteratorResult>>, IteratorResult>;
             std::multimap<size_t, MappedType, std::greater<size_t>> results;
 
             for (auto outerIt = std::begin(container), outerEnd = std::end(container); outerIt != outerEnd; ++outerIt)

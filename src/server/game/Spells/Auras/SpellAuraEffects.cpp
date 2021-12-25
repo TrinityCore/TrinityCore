@@ -622,7 +622,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // default amount calculation
     int32 amount = 0;
 
-    if (!m_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION) || G3D::fuzzyEq(GetSpellEffectInfo().BonusCoefficient, 0.0f))
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS) || G3D::fuzzyEq(GetSpellEffectInfo().BonusCoefficient, 0.0f))
         amount = GetSpellEffectInfo().CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), nullptr, GetBase()->GetCastItemId(), GetBase()->GetCastItemLevel());
     else if (caster && caster->GetTypeId() == TYPEID_PLAYER)
         amount = int32(caster->ToPlayer()->m_activePlayerData->Mastery * GetSpellEffectInfo().BonusCoefficient);
@@ -1332,10 +1332,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first, DIFFICULTY_NONE);
                 if (!spellInfo || !(spellInfo->IsPassive() || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
-                    continue;
-
-                // always valid?
-                if ((spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION)) && !plrTarget->IsCurrentSpecMasterySpell(spellInfo))
                     continue;
 
                 if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))

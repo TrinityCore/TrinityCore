@@ -24,8 +24,10 @@
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "Group.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
 #include "Spell.h"
@@ -75,6 +77,10 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_POWER_ATTACK_POWER        = 28791,
     SPELL_PALADIN_HOLY_POWER_SPELL_POWER         = 28793,
     SPELL_PALADIN_HOLY_POWER_MP5                 = 28795,
+    SPELL_PALADIN_HOLY_PRISM_AREA_BEAM_VISUAL    = 121551,
+    SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY         = 114871,
+    SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY        = 114852,
+    SPELL_PALADIN_HOLY_PRISM_TARGET_BEAM_VISUAL  = 114862,
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
@@ -729,6 +735,95 @@ class spell_pal_judgement : public SpellScript
     }
 };
 
+// 114165 - Holy Prism
+class spell_pal_holy_prism : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_prism);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY, SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY, SPELL_PALADIN_HOLY_PRISM_TARGET_BEAM_VISUAL });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->IsFriendlyTo(GetHitUnit()))
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY, true);
+        else
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY , true);
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_HOLY_PRISM_TARGET_BEAM_VISUAL, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_prism::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 114852 - Holy Prism (Damage)
+// 114871 - Holy Prism (Heal)
+class spell_pal_holy_prism_selector : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_prism_selector);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY, SPELL_PALADIN_HOLY_PRISM_AREA_BEAM_VISUAL });
+    }
+
+    void SaveTargetGuid(SpellEffIndex /*effIndex*/)
+    {
+        _targetGUID = GetHitUnit()->GetGUID();
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        uint8 const maxTargets = 5;
+
+        if (targets.size() > maxTargets)
+        {
+            if (GetSpellInfo()->Id == SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY)
+            {
+                targets.sort(Trinity::HealthPctOrderPred());
+                targets.resize(maxTargets);
+            }
+            else
+                Trinity::Containers::RandomResize(targets, maxTargets);
+        }
+
+        _sharedTargets = targets;
+    }
+
+    void ShareTargets(std::list<WorldObject*>& targets)
+    {
+        targets = _sharedTargets;
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* initialTarget = ObjectAccessor::GetUnit(*GetCaster(), _targetGUID))
+            initialTarget->CastSpell(GetHitUnit(), SPELL_PALADIN_HOLY_PRISM_AREA_BEAM_VISUAL, true);
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY)
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_selector::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+        else if (m_scriptSpellId == SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY)
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_selector::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_selector::ShareTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENTRY);
+
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_prism_selector::SaveTargetGuid, EFFECT_0, SPELL_EFFECT_ANY);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_prism_selector::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+private:
+    std::list<WorldObject*> _sharedTargets;
+    ObjectGuid _targetGUID;
+};
+
 // 20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScript
 {
@@ -1224,6 +1319,8 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_hammer_of_the_righteous);
     RegisterSpellScript(spell_pal_moment_of_glory);
     RegisterSpellScript(spell_pal_judgement);
+    RegisterSpellScript(spell_pal_holy_prism);
+    RegisterSpellScript(spell_pal_holy_prism_selector);
     RegisterSpellScript(spell_pal_holy_shock);
     RegisterAuraScript(spell_pal_item_healing_discount);
     RegisterAuraScript(spell_pal_item_t6_trinket);

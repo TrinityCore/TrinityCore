@@ -113,7 +113,7 @@ void Map::DiscoverGridMapFiles()
             && fread(&build, sizeof(build), 1, tileList) == 1
             && fread(&tilesData[0], MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS, 1, tileList) == 1)
         {
-            i_gridFileExists = std::bitset<MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS>(tilesData, advstd::size(tilesData));
+            i_gridFileExists = std::bitset<MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS>(tilesData, std::size(tilesData));
             fclose(tileList);
             return;
         }

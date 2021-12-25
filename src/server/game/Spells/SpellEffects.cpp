@@ -1924,9 +1924,6 @@ void Spell::EffectSummonType()
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
-                    summon->SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
-                    summon->SetNpcFlags(NPCFlags(summon->GetCreatureTemplate()->npcflag & 0xFFFFFFFF));
-                    summon->SetNpcFlags2(NPCFlags2(summon->GetCreatureTemplate()->npcflag >> 32));
                     summon->SetImmuneToAll(true);
                     break;
                 }
@@ -4002,12 +3999,15 @@ void Spell::EffectPullTowards()
     if (!unitTarget)
         return;
 
-    float speedXY = effectInfo->MiscValue / 10.0f;
-    float speedZ = damage / 10.0f;
-    Position pos;
-    pos.Relocate(m_caster);
+    Position pos = m_caster->GetFirstCollisionPosition(m_caster->GetCombatReach(), m_caster->GetRelativeAngle(unitTarget));
 
-    unitTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
+    // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance.
+    float distXY = unitTarget->GetExactDist(pos);
+    float distZ = pos.GetPositionZ() - unitTarget->GetPositionZ();
+    float speedXY = effectInfo->MiscValue ? effectInfo->MiscValue / 10.0f : 30.0f;
+    float speedZ = (2 * speedXY * speedXY * distZ + Movement::gravity * distXY * distXY) / (2 * speedXY * distXY);
+
+    unitTarget->JumpTo(speedXY, speedZ, true, pos);
 }
 
 void Spell::EffectPullTowardsDest()
@@ -4760,15 +4760,6 @@ void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPr
         unitCaster = unitCaster->ToTotem()->GetOwner();
 
     // in another case summon new
-    uint8 level = unitCaster->GetLevel();
-
-    // level of pet summoned using engineering item based at engineering skill level
-    if (m_CastItem && unitCaster->GetTypeId() == TYPEID_PLAYER)
-        if (ItemTemplate const* proto = m_CastItem->GetTemplate())
-            if (proto->GetRequiredSkill() == SKILL_ENGINEERING)
-                if (uint16 skill202 = unitCaster->ToPlayer()->GetSkillValue(SKILL_ENGINEERING))
-                    level = skill202 / 5;
-
     float radius = 5.0f;
     int32 duration = m_spellInfo->CalcDuration(m_originalCaster);
 
@@ -4788,7 +4779,20 @@ void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPr
             return;
 
         if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+        {
+            uint8 level = summon->GetLevel();
+            if (properties && !properties->GetFlags().HasFlag(SummonPropertiesFlags::UseCreatureLevel))
+                level = unitCaster->GetLevel();
+
+            // level of pet summoned using engineering item based at engineering skill level
+            if (m_CastItem && unitCaster->GetTypeId() == TYPEID_PLAYER)
+                if (ItemTemplate const* proto = m_CastItem->GetTemplate())
+                    if (proto->GetRequiredSkill() == SKILL_ENGINEERING)
+                        if (uint16 skill202 = unitCaster->ToPlayer()->GetSkillValue(SKILL_ENGINEERING))
+                            level = skill202 / 5;
+
             ((Guardian*)summon)->InitStatsForLevel(level);
+        }
 
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
             ((Minion*)summon)->SetFollowAngle(unitCaster->GetAbsoluteAngle(summon));

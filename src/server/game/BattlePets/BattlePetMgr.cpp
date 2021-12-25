@@ -707,10 +707,17 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
     if (!speciesEntry)
         return;
 
-    // TODO: set proper CreatureID for spell SPELL_SUMMON_BATTLE_PET (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
     Player* player = _owner->GetPlayer();
     player->SetBattlePetData(pet);
-    player->CastSpell(player, speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(SPELL_SUMMON_BATTLE_PET));
+
+    CastSpellExtraArgs args;
+    uint32 summonSpellId = speciesEntry->SummonSpellID;
+    if (!summonSpellId)
+    {
+        summonSpellId = uint32(SPELL_SUMMON_BATTLE_PET);
+        args.AddSpellBP0(speciesEntry->CreatureID);
+    }
+    player->CastSpell(_owner->GetPlayer(), summonSpellId, args);
 }
 
 void BattlePetMgr::DismissPet()

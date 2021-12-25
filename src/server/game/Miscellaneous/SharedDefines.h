@@ -726,7 +726,7 @@ enum SpellAttr8 : uint32
     SPELL_ATTR8_RAID_MARKER                      = 0x04000000, // TITLE Skip Is Known Check
     SPELL_ATTR8_UNK27                            = 0x08000000, // TITLE Unknown attribute 27@Attr8
     SPELL_ATTR8_NOT_IN_BG_OR_ARENA               = 0x10000000, // TITLE Not in Battleground
-    SPELL_ATTR8_MASTERY_SPECIALIZATION           = 0x20000000, // TITLE Mastery Affects Points
+    SPELL_ATTR8_MASTERY_AFFECTS_POINTS           = 0x20000000, // TITLE Mastery Affects Points
     SPELL_ATTR8_UNK30                            = 0x40000000, // TITLE Unknown attribute 30@Attr8
     SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG  = 0x80000000  // TITLE Can Attack ImmunePC DESCRIPTION Do not check UNIT_FLAG_IMMUNE_TO_PC in IsValidAttackTarget
 };

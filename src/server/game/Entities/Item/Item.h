@@ -377,7 +377,7 @@ class TC_GAME_API Item : public Object
         void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::ItemData::Mask const& requestedItemMask, Player const* target) const;
-        void AddToObjectUpdate() override;
+        bool AddToObjectUpdate() override;
         void RemoveFromObjectUpdate() override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }

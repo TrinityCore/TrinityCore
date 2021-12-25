@@ -39,16 +39,16 @@ ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size
     message().assign(ss.str());
 }
 
-ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, size_t pos)
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
 {
-    message().assign(Trinity::StringFormat("Invalid %s value found in ByteBuffer at pos " SZFMTD));
+    message().assign(Trinity::StringFormat("Invalid %s value (%s) found in ByteBuffer", type, value));
 }
 
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
     value = read<float>();
     if (!std::isfinite(value))
-        throw ByteBufferInvalidValueException("float", _rpos - sizeof(float));
+        throw ByteBufferInvalidValueException("float", "infinity");
     return *this;
 }
 
@@ -56,7 +56,7 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
 {
     value = read<double>();
     if (!std::isfinite(value))
-        throw ByteBufferInvalidValueException("double", _rpos - sizeof(double));
+        throw ByteBufferInvalidValueException("double", "infinity");
     return *this;
 }
 
@@ -71,7 +71,7 @@ std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
         value += c;
     }
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", _rpos - value.length() - 1);
+        throw ByteBufferInvalidValueException("string", value.c_str());
     return value;
 }
 
@@ -87,7 +87,7 @@ std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true
     std::string value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
     _rpos += length;
     if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", _rpos - value.length() - 1);
+        throw ByteBufferInvalidValueException("string", value.c_str());
     return value;
 }
 

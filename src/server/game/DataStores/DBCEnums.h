@@ -1552,7 +1552,7 @@ enum class SummonPropertiesFlags : uint32
     CannotDismissPet                  = 0x00000020, // NYI
     UseDemonTimeout                   = 0x00000040, // NYI
     UnlimitedSummons                  = 0x00000080, // NYI
-    UseCreatureLevel                  = 0x00000100, // NYI
+    UseCreatureLevel                  = 0x00000100,
     JoinSummonerSpawnGroup            = 0x00000200, // NYI
     DoNotToggle                       = 0x00000400, // NYI
     DespawnWhenExpired                = 0x00000800, // NYI
@@ -1565,7 +1565,7 @@ enum class SummonPropertiesFlags : uint32
     CastRideVehicleSpellOnSummoner    = 0x00040000, // NYI
     GuardianActsLikePet               = 0x00080000, // NYI
     DontSnapSessileToGround           = 0x00100000, // NYI
-    SummonFromBattlePetJournal        = 0x00200000, // NYI
+    SummonFromBattlePetJournal        = 0x00200000,
     UnitClutter                       = 0x00400000, // NYI
     DefaultNameColor                  = 0x00800000, // NYI
     UseOwnInvisibilityDetection       = 0x01000000, // NYI. Ignore Owner's Invisibility Detection
