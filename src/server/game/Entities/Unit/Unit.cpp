@@ -9537,7 +9537,7 @@ void Unit::RestoreDisabledAI()
 {
     // Keep popping the stack until we either reach the bottom or find a valid AI
     while (PopAI())
-        if (GetTopAI() && !GetTopAI()->IsScheduledChangeAI())
+        if (GetTopAI() && dynamic_cast<ScheduledChangeAI*>(GetTopAI()) == nullptr)
             return;
 }
 
@@ -9552,7 +9552,7 @@ UnitAI* Unit::GetScheduledChangeAI()
 bool Unit::HasScheduledAIChange() const
 {
     if (UnitAI* ai = GetAI())
-        return ai->IsScheduledChangeAI();
+        return dynamic_cast<ScheduledChangeAI*>(ai) != nullptr;
     else
         return true;
 }
