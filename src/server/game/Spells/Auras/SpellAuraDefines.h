@@ -83,6 +83,12 @@ enum class AuraTriggerOnPowerChangeDirection : int32
     Loss    = 1
 };
 
+enum class AuraTriggerOnHealthChangeDirection : int32
+{
+    Above   = 0,
+    Below   = 1,
+};
+
 enum AuraType : uint32
 {
     SPELL_AURA_NONE                                         = 0,
