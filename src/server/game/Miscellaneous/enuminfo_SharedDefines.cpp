@@ -916,7 +916,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr8>::ToString(SpellAttr8 value)
         case SPELL_ATTR8_RAID_MARKER: return { "SPELL_ATTR8_RAID_MARKER", "Skip Is Known Check", "" };
         case SPELL_ATTR8_UNK27: return { "SPELL_ATTR8_UNK27", "Unknown attribute 27@Attr8", "" };
         case SPELL_ATTR8_NOT_IN_BG_OR_ARENA: return { "SPELL_ATTR8_NOT_IN_BG_OR_ARENA", "Not in Battleground", "" };
-        case SPELL_ATTR8_MASTERY_SPECIALIZATION: return { "SPELL_ATTR8_MASTERY_SPECIALIZATION", "Mastery Affects Points", "" };
+        case SPELL_ATTR8_MASTERY_AFFECTS_POINTS: return { "SPELL_ATTR8_MASTERY_AFFECTS_POINTS", "Mastery Affects Points", "" };
         case SPELL_ATTR8_UNK30: return { "SPELL_ATTR8_UNK30", "Unknown attribute 30@Attr8", "" };
         case SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG: return { "SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG", "Can Attack ImmunePC", "Do not check UNIT_FLAG_IMMUNE_TO_PC in IsValidAttackTarget" };
         default: throw std::out_of_range("value");
@@ -960,7 +960,7 @@ TC_API_EXPORT SpellAttr8 EnumUtils<SpellAttr8>::FromIndex(size_t index)
         case 26: return SPELL_ATTR8_RAID_MARKER;
         case 27: return SPELL_ATTR8_UNK27;
         case 28: return SPELL_ATTR8_NOT_IN_BG_OR_ARENA;
-        case 29: return SPELL_ATTR8_MASTERY_SPECIALIZATION;
+        case 29: return SPELL_ATTR8_MASTERY_AFFECTS_POINTS;
         case 30: return SPELL_ATTR8_UNK30;
         case 31: return SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG;
         default: throw std::out_of_range("index");
