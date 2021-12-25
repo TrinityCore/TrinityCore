@@ -66,6 +66,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE        = 71824,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
+    SPELL_SHAMAN_LIGHTNING_BOLT_ENERGIZE        = 214815,
     SPELL_SHAMAN_LIQUID_MAGMA_HIT               = 192231,
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
@@ -770,6 +771,27 @@ class spell_sha_lava_surge_proc : public SpellScript
     }
 };
 
+// 188196 - Lightning Bolt
+class spell_sha_lightning_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_sha_lightning_bolt);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_BOLT_ENERGIZE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_LIGHTNING_BOLT_ENERGIZE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_lightning_bolt::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 192223 - Liquid Magma Totem (erupting hit spell)
 class spell_sha_liquid_magma_totem : public SpellScript
 {
@@ -1187,6 +1209,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_lava_burst);
     RegisterAuraScript(spell_sha_lava_surge);
     RegisterSpellScript(spell_sha_lava_surge_proc);
+    RegisterSpellScript(spell_sha_lightning_bolt);
     RegisterSpellScript(spell_sha_liquid_magma_totem);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
     RegisterAuraScript(spell_sha_tidal_waves);
