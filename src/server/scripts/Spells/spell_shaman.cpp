@@ -190,8 +190,6 @@ class spell_sha_chain_lightning : public SpellScript
 {
     PrepareSpellScript(spell_sha_chain_lightning);
 
-    bool staticOverload = false;
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE });
