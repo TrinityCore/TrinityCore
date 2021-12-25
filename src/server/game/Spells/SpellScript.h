@@ -151,11 +151,25 @@ class TC_GAME_API _SpellScript
         template <class T>
         static bool ValidateSpellInfo(T const& spellIds)
         {
-            return _ValidateSpellInfo(std::begin(spellIds), std::end(spellIds));
+            return _ValidateSpellInfo(std::cbegin(spellIds), std::cend(spellIds));
         }
 
     private:
-        static bool _ValidateSpellInfo(uint32 const* begin, uint32 const* end);
+        template <class InputIt>
+        static bool _ValidateSpellInfo(InputIt first, InputIt last)
+        {
+            bool allValid = true;
+            while (first != last)
+            {
+                if (!_ValidateSpellInfo(*first))
+                    allValid = false;
+
+                ++first;
+            }
+            return allValid;
+        }
+
+        static bool _ValidateSpellInfo(uint32 spellId);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls
