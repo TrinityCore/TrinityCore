@@ -2118,16 +2118,20 @@ float WorldObject::ApplyEffectModifiers(SpellInfo const* spellInfo, uint8 effInd
 
 int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo) const
 {
-    uint8 comboPoints = 0;
+    int32 comboPoints = 0;
+    int32 maxComboPoints = 5;
     if (Unit const* unit = ToUnit())
+    {
         comboPoints = unit->GetPower(POWER_COMBO_POINTS);
+        maxComboPoints = unit->GetMaxPower(POWER_COMBO_POINTS);
+    }
 
     int32 minduration = spellInfo->GetDuration();
     int32 maxduration = spellInfo->GetMaxDuration();
 
     int32 duration;
     if (comboPoints && minduration != -1 && minduration != maxduration)
-        duration = minduration + int32((maxduration - minduration) * comboPoints / 5);
+        duration = minduration + int32((maxduration - minduration) * comboPoints / maxComboPoints);
     else
         duration = minduration;
 
