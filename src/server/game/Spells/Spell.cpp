@@ -2334,7 +2334,7 @@ int64 Spell::GetUnitTargetCountForEffect(SpellEffIndex effect) const
 {
     return std::count_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [effect](TargetInfo const& targetInfo)
     {
-        return targetInfo.MissCondition == SPELL_MISS_MISS && targetInfo.EffectMask & (1 << effect);
+        return targetInfo.MissCondition == SPELL_MISS_NONE && targetInfo.EffectMask & (1 << effect);
     });
 }
 
