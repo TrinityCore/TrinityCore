@@ -276,7 +276,7 @@ struct npc_shard_of_torment : public NullCreatureAI
 {
     npc_shard_of_torment(Creature* creature) : NullCreatureAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         DoCastAOE(SPELL_TORMENT_PRE_VISUAL);
         scheduler.Schedule(Milliseconds(4400), [this](TaskContext)
@@ -326,7 +326,7 @@ class spell_baleroc_blades_of_baleroc : public SpellScript
     void ChooseBlade(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster()->ToCreature();
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         switch (urand(1, 2))
@@ -364,13 +364,13 @@ class spell_baleroc_inferno_blade : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_INFERNO_BLADE);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DEFAULT);
     }
 
@@ -393,13 +393,13 @@ class spell_baleroc_decimation_blade : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DECIMATION_BLADE);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DEFAULT);
     }
 

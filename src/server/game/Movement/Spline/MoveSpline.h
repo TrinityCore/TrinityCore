@@ -95,9 +95,9 @@ namespace Movement
         int32 next_timestamp() const { return spline.length(point_Idx + 1); }
         int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
         int32 timeElapsed() const { return Duration() - time_passed; }
-        int32 timePassed() const { return time_passed; }
 
     public:
+        int32 timePassed() const { return time_passed; }
         int32 Duration() const { return spline.length(); }
         MySpline const& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
@@ -140,6 +140,10 @@ namespace Movement
         bool onTransport;
         bool splineIsFacingOnly;
         std::string ToString() const;
+        bool HasStarted() const
+        {
+            return time_passed > 0;
+        }
     };
 }
 #endif // TRINITYSERVER_MOVEPLINE_H

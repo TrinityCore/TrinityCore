@@ -219,7 +219,7 @@ class npc_image_belgaristrasz : public CreatureScript
         {
             npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() == NPC_VAROS)
                 {
@@ -285,7 +285,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                     }
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (_instance->GetBossState(DATA_EREGOS) == IN_PROGRESS)
                     if (Creature* eregos = me->FindNearestCreature(NPC_EREGOS, 450.0f, true))
@@ -296,13 +296,13 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_RUBY_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_RUBY_DRAKE_QUE, true);
                         break;
                     case NPC_EMERALD_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_EMERALD_DRAKE_QUE, true);
                         break;
                     case NPC_AMBER_DRAKE_VEHICLE:
-                        me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE);
+                        me->CastSpell(summoner, SPELL_RIDE_AMBER_DRAKE_QUE, true);
                         break;
                     default:
                         return;
@@ -326,15 +326,15 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 if (apply)
                 {
                     if (_instance->GetBossState(DATA_VAROS) != DONE)
-                        _events.ScheduleEvent(EVENT_WELCOME, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_WELCOME, 10s);
 
                     else if (_instance->GetBossState(DATA_UROM) == DONE)
-                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10s);
                 }
                 else
                 {
                     _events.Reset();
-                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2s);
                 }
             }
 
@@ -355,7 +355,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                         case EVENT_WELCOME:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_WELCOME, creator);
-                            _events.ScheduleEvent(EVENT_ABILITIES, 5 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ABILITIES, 5s);
                             break;
                         case EVENT_ABILITIES:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
@@ -369,7 +369,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_LOWHEALTH, creator);
                             _healthWarning = false;
-                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25000);
+                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25s);
                             break;
                         case EVENT_RESET_LOW_HEALTH:
                             _healthWarning = true;

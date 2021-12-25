@@ -57,16 +57,15 @@ enum Events
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     using SimpleCharmedPlayerAI::SimpleCharmedPlayerAI;
-    void OnCharmed(bool apply) override
+    void OnCharmed(bool isNew) override
     {
-        SimpleCharmedPlayerAI::OnCharmed(apply);
-        if (!me->GetMap()->IsDungeon())
-            return;
-        if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
-        {
-            blackheart->AI()->SetData(0, apply);
-            blackheart->GetThreatManager().AddThreat(me, 0.0f);
-        }
+        if (me->GetMap()->IsDungeon())
+            if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
+            {
+                blackheart->AI()->SetData(0, me->IsCharmed());
+                blackheart->GetThreatManager().AddThreat(me, 0.0f);
+            }
+        SimpleCharmedPlayerAI::OnCharmed(isNew);
     }
 };
 
@@ -80,11 +79,11 @@ struct boss_blackheart_the_inciter : public BossAI
         _Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
-        events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
-        events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5000);
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_INCITE_CHAOS, 20s);
+        events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5s);
         events.ScheduleEvent(EVENT_WAR_STOMP, 15000);
 
         Talk(SAY_AGGRO);
@@ -139,17 +138,17 @@ struct boss_blackheart_the_inciter : public BossAI
                         ResetThreatList();
                         DoCast(me, SPELL_INCITE_CHAOS);
                     }
-                    events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
+                    events.ScheduleEvent(EVENT_INCITE_CHAOS, 40s);
                     break;
                 }
                 case EVENT_CHARGE_ATTACK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CHARGE);
-                    events.ScheduleEvent(EVENT_CHARGE, urand(15000, 25000));
+                    events.ScheduleEvent(EVENT_CHARGE, 15s, 25s);
                     break;
                 case EVENT_WAR_STOMP:
                     DoCast(me, SPELL_WAR_STOMP);
-                    events.ScheduleEvent(EVENT_WAR_STOMP, urand(18000, 24000));
+                    events.ScheduleEvent(EVENT_WAR_STOMP, 18s, 24s);
                     break;
             }
 
@@ -166,8 +165,11 @@ struct boss_blackheart_the_inciter_mc_dummy : public NullCreatureAI
     using NullCreatureAI::NullCreatureAI;
     void InitializeAI() override { me->SetReactState(REACT_PASSIVE); }
     static const uint32 FIRST_DUMMY = NPC_BLACKHEART_DUMMY1, LAST_DUMMY = NPC_BLACKHEART_DUMMY5;
-    void IsSummonedBy(Unit* who) override
+    void IsSummonedBy(WorldObject* whoWO) override
     {
+        Unit* who = whoWO->ToUnit();
+        if (!who)
+            return;
         me->CastSpell(who, SPELL_INCITE_CHAOS_B, true);
 
         // ensure everyone is in combat with everyone

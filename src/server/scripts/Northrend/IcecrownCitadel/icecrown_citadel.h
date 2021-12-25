@@ -21,24 +21,10 @@
 #include "CreatureAIImpl.h"
 #include "ScriptMgr.h"
 
-struct Position;
-enum TriggerCastFlags : uint32;
-
 #define ICCScriptName "instance_icecrown_citadel"
-#define DataHeader    "IC"
+#define DataHeader "IC"
 
 uint32 const EncounterCount = 13;
-uint32 const WeeklyNPCs = 9;
-uint32 const MaxHeroicAttempts = 50;
-
-// Defined in boss_valithria_dreamwalker.cpp
-extern Position const ValithriaSpawnPos;
-// Defined in boss_sindragosa.cpp
-extern Position const SindragosaSpawnPos;
-// Defined in boss_the_lich_king.cpp
-extern Position const TerenasSpawn;
-extern Position const TerenasSpawnHeroic;
-extern Position const SpiritWardenSpawn;
 
 // Shared spells used by more than one script
 enum ICSharedSpells
@@ -59,7 +45,14 @@ enum ICSharedSpells
 
     // Shadowmourne questline
     SPELL_UNSATED_CRAVING               = 71168,
-    SPELL_SHADOWS_FATE                  = 71169
+    SPELL_SHADOWS_FATE                  = 71169,
+
+    // Empowering Blood Orb
+    SPELL_EMPOWERED_BLOOD               = 70227,
+
+    // ICC Buffs
+    SPELL_HELLSCREAMS_WARSONG           = 73822,
+    SPELL_STRENGHT_OF_WRYNN             = 73828
 };
 
 enum ICTeleporterSpells
@@ -122,7 +115,8 @@ enum ICDataTypes
     DATA_UPPERSPIRE_TELE_ACT           = 41, /// also used by conditions
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42,
     DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43,
-    DATA_SINDRAGOSA_INTRO              = 44
+    DATA_SINDRAGOSA_INTRO              = 44,
+    DATA_FACTION_BUFF                  = 45 // used by conditions
 };
 
 enum ICCreaturesIds
@@ -165,6 +159,7 @@ enum ICCreaturesIds
     NPC_INFILTRATOR_MINCHAR_BQ_25               = 39123,
     NPC_MINCHAR_BEAM_STALKER                    = 38557,
     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
+    NPC_THE_LICH_KING_QUEST                     = 38153,
 
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
@@ -255,6 +250,13 @@ enum ICCreaturesIds
     NPC_KINETIC_BOMB                            = 38454,
     NPC_SHOCK_VORTEX                            = 38422,
     NPC_BLOOD_QUEEN_LANA_THEL_COUNCIL           = 38004,
+    NPC_DARKFALLEN_BLOOD_KNIGHT                 = 37595,
+    NPC_DARKFALLEN_NOBLE                        = 37663,
+    NPC_DARKFALLEN_ARCHMAGE                     = 37664,
+    NPC_DARKFALLEN_ADVISOR                      = 37571,
+    NPC_DARKFALLEN_TACTICIAN                    = 37666,
+    NPC_VAMPIRIC_FIEND                          = 37901,
+    NPC_ORB_VISUAL_STALKER                      = 38463,
 
     // Blood-Queen Lana'thel
     NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
@@ -394,6 +396,7 @@ enum ICGameObjectsIds
     GO_CRIMSON_HALL_DOOR                    = 201376,
     GO_BLOOD_ELF_COUNCIL_DOOR               = 201378,
     GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT         = 201377,
+    GO_EMPOWERING_BLOOD_ORB                 = 201741,
 
     // Blood-Queen Lana'thel
     GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01  = 201746,
@@ -530,6 +533,21 @@ enum ICAreaIds
     AREA_ICECROWN_CITADEL = 4812
 };
 
+struct Position;
+enum TriggerCastFlags : uint32;
+
+// Defined in boss_valithria_dreamwalker.cpp
+extern Position const ValithriaSpawnPos;
+// Defined in boss_sindragosa.cpp
+extern Position const SindragosaSpawnPos;
+// Defined in boss_the_lich_king.cpp
+extern Position const TerenasSpawn;
+extern Position const TerenasSpawnHeroic;
+extern Position const SpiritWardenSpawn;
+
+uint32 const WeeklyNPCs = 9;
+uint32 const MaxHeroicAttempts = 50;
+
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
     public:
@@ -547,5 +565,7 @@ inline AI* GetIcecrownCitadelAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ICCScriptName);
 }
+
+#define RegisterIcecrownCitadelCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetIcecrownCitadelAI)
 
 #endif // ICECROWN_CITADEL_H_

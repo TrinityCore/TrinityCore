@@ -53,7 +53,6 @@ AreaTriggerTemplate::AreaTriggerTemplate()
 {
     Id = { 0, false };
     Flags = 0;
-    ScriptId = 0;
 }
 
 AreaTriggerTemplate::~AreaTriggerTemplate()
@@ -85,6 +84,8 @@ AreaTriggerCreateProperties::AreaTriggerCreateProperties()
     ExtraScale.Data.Structured.OverrideActive = 1;
 
     Template = nullptr;
+
+    ScriptId = 0;
 }
 
 AreaTriggerCreateProperties::~AreaTriggerCreateProperties()

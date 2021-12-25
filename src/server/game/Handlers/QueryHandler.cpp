@@ -258,15 +258,13 @@ void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQues
 
         questCompletionNPC.QuestID = questID;
 
-        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questID);
-        for (auto it = creatures.first; it != creatures.second; ++it)
-            questCompletionNPC.NPCs.push_back(it->second);
+        for (auto const& creatures : sObjectMgr->GetCreatureQuestInvolvedRelationReverseBounds(questID))
+            questCompletionNPC.NPCs.push_back(creatures.second);
 
-        auto gos = sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questID);
-        for (auto it = gos.first; it != gos.second; ++it)
-            questCompletionNPC.NPCs.push_back(it->second | 0x80000000); // GO mask
+        for (auto const& gos : sObjectMgr->GetGOQuestInvolvedRelationReverseBounds(questID))
+            questCompletionNPC.NPCs.push_back(gos.second | 0x80000000); // GO mask
 
-        response.QuestCompletionNPCs.push_back(questCompletionNPC);
+        response.QuestCompletionNPCs.push_back(std::move(questCompletionNPC));
     }
 
     SendPacket(response.Write());

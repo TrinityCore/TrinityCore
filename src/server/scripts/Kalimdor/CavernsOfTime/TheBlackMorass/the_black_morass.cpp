@@ -97,8 +97,6 @@ public:
                 DoCast(me, SPELL_CHANNEL, true);
             else if (me->HasAura(SPELL_CHANNEL))
                 me->RemoveAura(SPELL_CHANNEL);
-
-            DoCast(me, SPELL_PORTAL_RUNE, true);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -156,7 +154,7 @@ public:
 
         void JustDied(Unit* killer) override
         {
-            if (killer->GetEntry() == me->GetEntry())
+            if (killer && killer->GetEntry() == me->GetEntry())
                 return;
 
             Talk(SAY_DEATH);

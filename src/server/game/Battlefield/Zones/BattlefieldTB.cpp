@@ -382,7 +382,7 @@ void BattlefieldTB::SendInitWorldStatesToAll()
     sWorld->setWorldState(TB_WS_TIME_NEXT_BATTLE_SHOW, uint32(!IsWarTime() ? 1 : 0));
 
     // Tol Barad
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; team++)
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; team++)
         for (ObjectGuid const& guid : m_players[team])
             if (Player* player = ObjectAccessor::FindPlayer(guid))
                 SendInitWorldStatesTo(player);
@@ -402,7 +402,7 @@ void BattlefieldTB::OnStartGrouping()
     SendUpdateWorldState(TB_WS_STATE_PREPARATIONS, uint32(1));
 
     // Teleport players out of questing area
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
         for (ObjectGuid const& guid : m_players[team])
             if (Player* player = ObjectAccessor::FindPlayer(guid))
                 if (player->GetAreaId() == TBQuestAreas[m_iCellblockRandom].entry)

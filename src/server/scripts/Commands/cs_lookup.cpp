@@ -45,6 +45,18 @@ public:
 
     std::vector<ChatCommand> GetCommands() const override
     {
+        static std::vector<ChatCommand> lookupItemCommandTable =
+        {
+            { "id", rbac::RBAC_PERM_COMMAND_LOOKUP_ITEM_ID,  true, &HandleLookupItemIdCommand,          "" },
+            { "",   rbac::RBAC_PERM_COMMAND_LOOKUP_ITEM,     true, &HandleLookupItemCommand,            "" },
+        };
+
+        static std::vector<ChatCommand> lookupQuestCommandTable =
+        {
+            { "id", rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST_ID, true, &HandleLookupQuestIdCommand,         "" },
+            { "",   rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,    true, &HandleLookupQuestCommand,           "" },
+        };
+
         static std::vector<ChatCommand> lookupPlayerCommandTable =
         {
             { "ip",      rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,      true, &HandleLookupPlayerIpCommand,        "" },
@@ -58,23 +70,29 @@ public:
             { "",   rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, &HandleLookupSpellCommand,           "" },
         };
 
+        static std::vector<ChatCommand> lookupMapCommandTable =
+        {
+            { "id", rbac::RBAC_PERM_COMMAND_LOOKUP_MAP_ID, true, &HandleLookupMapIdCommand,           "" },
+            { "",   rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,    true, &HandleLookupMapCommand,             "" },
+        };
+
         static std::vector<ChatCommand> lookupCommandTable =
         {
             { "area",     rbac::RBAC_PERM_COMMAND_LOOKUP_AREA,     true, &HandleLookupAreaCommand,     "" },
             { "creature", rbac::RBAC_PERM_COMMAND_LOOKUP_CREATURE, true, &HandleLookupCreatureCommand, "" },
             { "event",    rbac::RBAC_PERM_COMMAND_LOOKUP_EVENT,    true, &HandleLookupEventCommand,    "" },
             { "faction",  rbac::RBAC_PERM_COMMAND_LOOKUP_FACTION,  true, &HandleLookupFactionCommand,  "" },
-            { "item",     rbac::RBAC_PERM_COMMAND_LOOKUP_ITEM,     true, &HandleLookupItemCommand,     "" },
+            { "item",     rbac::RBAC_PERM_COMMAND_LOOKUP_ITEM,     true, nullptr,                      "", lookupItemCommandTable },
             { "itemset",  rbac::RBAC_PERM_COMMAND_LOOKUP_ITEMSET,  true, &HandleLookupItemSetCommand,  "" },
             { "object",   rbac::RBAC_PERM_COMMAND_LOOKUP_OBJECT,   true, &HandleLookupObjectCommand,   "" },
-            { "quest",    rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,    true, &HandleLookupQuestCommand,    "" },
+            { "quest",    rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,    true, nullptr,                      "", lookupQuestCommandTable },
             { "player",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,   true, nullptr,                      "", lookupPlayerCommandTable },
             { "skill",    rbac::RBAC_PERM_COMMAND_LOOKUP_SKILL,    true, &HandleLookupSkillCommand,    "" },
             { "spell",    rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, nullptr,                      "", lookupSpellCommandTable },
             { "taxinode", rbac::RBAC_PERM_COMMAND_LOOKUP_TAXINODE, true, &HandleLookupTaxiNodeCommand, "" },
             { "tele",     rbac::RBAC_PERM_COMMAND_LOOKUP_TELE,     true, &HandleLookupTeleCommand,     "" },
             { "title",    rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,    true, &HandleLookupTitleCommand,    "" },
-            { "map",      rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,      true, &HandleLookupMapCommand,      "" },
+            { "map",      rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,      true, nullptr,                      "", lookupMapCommandTable },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -443,6 +461,34 @@ public:
         return true;
     }
 
+    static bool HandleLookupItemIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 id = atoi((char*)args);
+
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(id))
+        {
+            std::string name = itemTemplate->GetName(handler->GetSessionDbcLocale());
+
+            if (name.empty())
+            {
+                handler->SendSysMessage(LANG_COMMAND_NOITEMFOUND);
+                return true;
+            }
+
+            if (handler->GetSession())
+                handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
+            else
+                handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, id, name.c_str());
+        }
+        else
+            handler->SendSysMessage(LANG_COMMAND_NOITEMFOUND);
+
+        return true;
+    }
+
     static bool HandleLookupItemSetCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
@@ -735,6 +781,71 @@ public:
         }
 
         if (!found)
+            handler->SendSysMessage(LANG_COMMAND_NOQUESTFOUND);
+
+        return true;
+    }
+
+    static bool HandleLookupQuestIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 id = atoi((char*)args);
+
+        // can be NULL at console call
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(id))
+        {
+            std::string title = quest->GetLogTitle();
+            if (title.empty())
+            {
+                handler->SendSysMessage(LANG_COMMAND_NOQUESTFOUND);
+                return true;
+            }
+
+            char const* statusStr = "";
+
+            if (target)
+            {
+                switch (target->GetQuestStatus(id))
+                {
+                    case QUEST_STATUS_COMPLETE:
+                        statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
+                        break;
+                    case QUEST_STATUS_INCOMPLETE:
+                        statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
+                        break;
+                    case QUEST_STATUS_REWARDED:
+                        statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (handler->GetSession())
+            {
+                int32 maxLevel = 0;
+                if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(),
+                    handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                    maxLevel = questLevels->MaxLevel;
+
+                int32 scalingFactionGroup = 0;
+                if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(quest->GetContentTuningId()))
+                    scalingFactionGroup = contentTuning->GetScalingFactionGroup();
+
+                handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, id, id,
+                    handler->GetSession()->GetPlayer()->GetQuestLevel(quest),
+                    handler->GetSession()->GetPlayer()->GetQuestMinLevel(quest),
+                    maxLevel, scalingFactionGroup,
+                    title.c_str(), statusStr);
+            }
+            else
+                handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, id, title.c_str(), statusStr);
+        }
+        else
             handler->SendSysMessage(LANG_COMMAND_NOQUESTFOUND);
 
         return true;
@@ -1152,7 +1263,7 @@ public:
             {
                 for (uint8 gender = GENDER_MALE; gender <= GENDER_FEMALE; ++gender)
                 {
-                    if (target && target->getGender() != gender)
+                    if (target && target->GetGender() != gender)
                         continue;
 
                     LocaleConstant locale = handler->GetSessionDbcLocale();
@@ -1282,6 +1393,9 @@ public:
                         case MAP_ARENA:
                             ss << handler->GetTrinityString(LANG_ARENA);
                             break;
+                        case MAP_SCENARIO:
+                            ss << handler->GetTrinityString(LANG_SCENARIO);
+                            break;
                     }
 
                     handler->SendSysMessage(ss.str().c_str());
@@ -1292,6 +1406,56 @@ public:
         }
 
         if (!counter)
+            handler->SendSysMessage(LANG_COMMAND_NOMAPFOUND);
+
+        return true;
+    }
+
+    static bool HandleLookupMapIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 id = atoi((char*)args);
+
+        if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
+        {
+            LocaleConstant locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
+            std::string name = mapInfo->MapName[locale];
+            if (name.empty())
+            {
+                handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+                return true;
+            }
+
+            std::ostringstream ss;
+            ss << id << " - [" << name << ']';
+
+            if (mapInfo->IsContinent())
+                ss << handler->GetTrinityString(LANG_CONTINENT);
+
+            switch (mapInfo->MapType)
+            {
+                case MAP_INSTANCE:
+                    ss << handler->GetTrinityString(LANG_INSTANCE);
+                    break;
+                case MAP_RAID:
+                    ss << handler->GetTrinityString(LANG_RAID);
+                    break;
+                case MAP_BATTLEGROUND:
+                    ss << handler->GetTrinityString(LANG_BATTLEGROUND);
+                    break;
+                case MAP_ARENA:
+                    ss << handler->GetTrinityString(LANG_ARENA);
+                    break;
+                case MAP_SCENARIO:
+                    ss << handler->GetTrinityString(LANG_SCENARIO);
+                    break;
+            }
+
+            handler->SendSysMessage(ss.str().c_str());
+        }
+        else
             handler->SendSysMessage(LANG_COMMAND_NOMAPFOUND);
 
         return true;
@@ -1400,8 +1564,9 @@ public:
                     Field* characterFields  = result2->Fetch();
                     ObjectGuid guid         = ObjectGuid::Create<HighGuid::Player>(characterFields[0].GetUInt64());
                     std::string name        = characterFields[1].GetString();
+                    uint8 online = characterFields[2].GetUInt8();
 
-                    handler->PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid.ToString().c_str());
+                    handler->PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid.ToString().c_str(), online ? handler->GetTrinityString(LANG_ONLINE) : "");
                     ++counter;
                 }
                 while (result2->NextRow() && (limit == -1 || counter < limit));

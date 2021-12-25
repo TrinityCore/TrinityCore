@@ -26,7 +26,6 @@
 class TC_GAME_API Bag : public Item
 {
     public:
-
         Bag();
         ~Bag();
 
@@ -35,7 +34,6 @@ class TC_GAME_API Bag : public Item
 
         bool Create(ObjectGuid::LowType guidlow, uint32 itemid, ItemContext context, Player const* owner) override;
 
-        void Clear();
         void StoreItem(uint8 slot, Item* pItem, bool update);
         void RemoveItem(uint8 slot, bool update);
 
@@ -63,6 +61,8 @@ class TC_GAME_API Bag : public Item
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
             UF::ContainerData::Mask const& requestedContainerMask, Player const* target) const;
+
+        std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::ContainerData, 0, TYPEID_CONTAINER> m_containerData;
 

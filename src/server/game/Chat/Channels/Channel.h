@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
+#include <ctime>
 #include <map>
 #include <unordered_set>
 
@@ -172,7 +173,7 @@ class TC_GAME_API Channel
 
     public:
         Channel(ObjectGuid const& guid, uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
-        Channel(ObjectGuid const& guid, std::string const& name, uint32 team = 0);                                      // custom player channel ctor
+        Channel(ObjectGuid const& guid, std::string const& name, uint32 team = 0, std::string const& banList = "");     // custom player channel ctor
 
         static void GetChannelName(std::string& channelName, uint32 channelId, LocaleConstant locale, AreaTableEntry const* zoneEntry);
         std::string GetName(LocaleConstant locale = DEFAULT_LOCALE) const;
@@ -185,10 +186,14 @@ class TC_GAME_API Channel
         bool IsLFG() const { return (GetFlags() & CHANNEL_FLAG_LFG) != 0; }
 
         bool IsAnnounce() const { return _announceEnabled; }
-        void SetAnnounce(bool nannounce) { _announceEnabled = nannounce; }
+        void SetAnnounce(bool announce) { _announceEnabled = announce; }
 
-        std::string const& GetPassword() const { return _channelPassword; }
-        void SetPassword(std::string const& npassword) { _channelPassword = npassword; }
+        // will be saved to DB on next channel save interval
+        void SetDirty() { _isDirty = true; }
+        void UpdateChannelInDB();
+
+        void SetPassword(std::string const& password) { _channelPassword = password; }
+        bool CheckPassword(std::string const& password) const { return _channelPassword.empty() || (_channelPassword == password); }
 
         uint32 GetNumPlayers() const { return uint32(_playersStore.size()); }
 
@@ -197,7 +202,7 @@ class TC_GAME_API Channel
 
         AreaTableEntry const* GetZoneEntry() const { return _zoneEntry; }
 
-        void JoinChannel(Player* player, std::string const& pass);
+        void JoinChannel(Player* player, std::string const& pass = "");
         void LeaveChannel(Player* player, bool send = true, bool suspend = false);
 
         void KickOrBan(Player const* player, std::string const& badname, bool ban);
@@ -229,11 +234,10 @@ class TC_GAME_API Channel
         void JoinNotify(Player const* player);
         void LeaveNotify(Player const* player);
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
-        static void CleanOldChannelsInDB();
 
     private:
         template <class Builder>
-        void SendToAll(Builder& builder, ObjectGuid const& guid = ObjectGuid::Empty) const;
+        void SendToAll(Builder& builder, ObjectGuid const& guid = ObjectGuid::Empty, ObjectGuid const& accountGuid = ObjectGuid::Empty) const;
 
         template <class Builder>
         void SendToAllButOne(Builder& builder, ObjectGuid const& who) const;
@@ -242,13 +246,11 @@ class TC_GAME_API Channel
         void SendToOne(Builder& builder, ObjectGuid const& who) const;
 
         template <class Builder>
-        void SendToAllWithAddon(Builder& builder, std::string const& addonPrefix, ObjectGuid const& guid = ObjectGuid::Empty) const;
+        void SendToAllWithAddon(Builder& builder, std::string const& addonPrefix, ObjectGuid const& guid = ObjectGuid::Empty, ObjectGuid const& accountGuid = ObjectGuid::Empty) const;
 
-        bool IsOn(ObjectGuid const& who) const { return _playersStore.count(who) != 0; }
-        bool IsBanned(ObjectGuid const& guid) const { return _bannedStore.count(guid) != 0; }
-
-        void UpdateChannelInDB() const;
-        void UpdateChannelUseageInDB() const;
+        bool IsOn(ObjectGuid who) const { return _playersStore.find(who) != _playersStore.end(); }
+        bool IsBanned(ObjectGuid guid) const { return _bannedStore.find(guid) != _bannedStore.end(); }
+        
 
         uint8 GetPlayerFlags(ObjectGuid const& guid) const
         {
@@ -262,9 +264,11 @@ class TC_GAME_API Channel
         typedef std::map<ObjectGuid, PlayerInfo> PlayerContainer;
         typedef GuidUnorderedSet BannedContainer;
 
+        bool _isDirty; // whether the channel needs to be saved to DB
+        time_t _nextActivityUpdateTime;
+
         bool _announceEnabled;          //< Whether we should broadcast a packet whenever a player joins/exits the channel
         bool _ownershipEnabled;         //< Whether the channel has to maintain an owner
-        bool _persistentChannel;        //< Whether the channel is saved to DB
         bool _isOwnerInvisible;         //< Whether the channel is owned by invisible GM, ownership should change to first player that joins channel
 
         uint8 _channelFlags;

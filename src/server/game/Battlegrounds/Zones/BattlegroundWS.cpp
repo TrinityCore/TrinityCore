@@ -821,42 +821,42 @@ WorldSafeLocsEntry const* BattlegroundWS::GetExploitTeleportLocation(Team team)
 
 void BattlegroundWS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_CAPTURES_ALLIANCE), int32(GetTeamScore(TEAM_ALLIANCE)));
-    packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_CAPTURES_HORDE), int32(GetTeamScore(TEAM_HORDE)));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_ALLIANCE, GetTeamScore(TEAM_ALLIANCE));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_HORDE, GetTeamScore(TEAM_HORDE));
 
     if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_GROUND)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_ALLIANCE), -1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, uint32(-1)); // ??
     else if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_ALLIANCE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, 1);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_ALLIANCE), 0);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, 0);
 
     if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_GROUND)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_HORDE), -1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, uint32(-1)); // ??
     else if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_HORDE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, 1);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_HORDE), 0);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, 0);
 
-    packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_CAPTURES_MAX), int32(BG_WS_MAX_TEAM_SCORE));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_MAX, BG_WS_MAX_TEAM_SCORE);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER_ACTIVE), 1);
-        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER), int32(25 - _minutesElapsed));
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 1);
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
     }
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER_ACTIVE), 0);
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 0);
 
     if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_HORDE), 2);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_HORDE, 2);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_HORDE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_HORDE, 1);
 
     if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_ALLIANCE), 2);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_ALLIANCE, 2);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_ALLIANCE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_ALLIANCE, 1);
 }
 
 uint32 BattlegroundWS::GetPrematureWinner()

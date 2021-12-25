@@ -16,13 +16,14 @@
  */
 
 #include "TotemAI.h"
-#include "Totem.h"
+#include "CellImpl.h"
 #include "Creature.h"
-#include "ObjectAccessor.h"
-#include "SpellMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "CellImpl.h"
+#include "ObjectAccessor.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "Totem.h"
 
 int32 TotemAI::Permissible(Creature const* creature)
 {
@@ -32,16 +33,9 @@ int32 TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid()
+TotemAI::TotemAI(Creature* creature, uint32 scriptId) : NullCreatureAI(creature, scriptId), _victimGUID()
 {
-    ASSERT(c->IsTotem());
-}
-
-void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
-
-void TotemAI::EnterEvadeMode(EvadeReason /*why*/)
-{
-    me->CombatStop(true);
+    ASSERT(creature->IsTotem(), "TotemAI: AI assigned to a non-totem creature (%s)!", creature->GetGUID().ToString().c_str());
 }
 
 void TotemAI::UpdateAI(uint32 /*diff*/)
@@ -63,12 +57,10 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     // SpellModOp::Range not applied in this place just because not existence range mods for attacking totems
 
     // pointer to appropriate target if found any
-    Unit* victim = !i_victimGuid.IsEmpty() ? ObjectAccessor::GetUnit(*me, i_victimGuid) : nullptr;
+    Unit* victim = !_victimGUID.IsEmpty() ? ObjectAccessor::GetUnit(*me, _victimGUID) : nullptr;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-    if (!victim ||
-        !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
+    if (!victim || !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) || me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
         victim = nullptr;
         Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), max_range);
@@ -80,13 +72,13 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     if (victim)
     {
         // remember
-        i_victimGuid = victim->GetGUID();
+        _victimGUID = victim->GetGUID();
 
         // attack
         me->CastSpell(victim, me->ToTotem()->GetSpell());
     }
     else
-        i_victimGuid.Clear();
+        _victimGUID.Clear();
 }
 
 void TotemAI::AttackStart(Unit* /*victim*/)

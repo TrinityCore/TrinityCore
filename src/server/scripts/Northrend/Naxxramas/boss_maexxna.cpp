@@ -72,7 +72,7 @@ enum Events
 
 const float WEB_WRAP_MOVE_SPEED = 20.0f;
 
-struct WebTargetSelector : public std::unary_function<Unit*, bool>
+struct WebTargetSelector
 {
     WebTargetSelector(Unit* maexxna) : _maexxna(maexxna) {}
     bool operator()(Unit const* target) const
@@ -104,14 +104,14 @@ public:
     {
         boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)  {  }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
-            events.ScheduleEvent(EVENT_WRAP, Seconds(20));
-            events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_WRAP, 20s);
+            events.ScheduleEvent(EVENT_SPRAY, 40s);
             events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
             events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
-            events.ScheduleEvent(EVENT_SUMMON, Seconds(30));
+            events.ScheduleEvent(EVENT_SUMMON, 30s);
         }
 
         void Reset() override

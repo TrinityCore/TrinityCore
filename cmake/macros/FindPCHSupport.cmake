@@ -21,7 +21,7 @@ if (CMAKE_VERSION VERSION_LESS "3.16.0")
       set_target_properties(${TARGET_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${PCH_HEADER})
 
       # Workaround for cotire bug: https://github.com/sakra/cotire/issues/138
-      set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 14)
+      set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
     endforeach ()
 
     cotire(${TARGET_NAME_LIST})

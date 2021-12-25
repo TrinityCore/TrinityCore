@@ -610,7 +610,7 @@ class npc_raz_the_crazed : public CreatureScript
                 _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() == NPC_ROMOGG_BONECRUSHER)
                 {
@@ -691,7 +691,7 @@ class npc_chains_of_woe : public CreatureScript
         {
             npc_chains_of_woeAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 me->SetDisplayId(MODEL_INVISIBLE);
                 DoCast(me, SPELL_CHAINS_OF_WOE_1, true);

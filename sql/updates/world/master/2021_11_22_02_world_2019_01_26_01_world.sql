@@ -1,0 +1,4 @@
+-- Remove deprecated mount quests
+DELETE FROM `creature_questender` WHERE `quest` IN (7664,7665,7678,7677,7671,7672,7663,7662,7674,7661,7660,7676,7675,7673);
+DELETE FROM `creature_queststarter` WHERE `quest` IN (7664,7665,7678,7677,7671,7672,7663,7662,7674,7661,7660,7676,7675,7673);
+UPDATE `creature_template` SET `npcflag`=129 WHERE `entry` IN (7952,384,4730,3685,1261,7955,3362);

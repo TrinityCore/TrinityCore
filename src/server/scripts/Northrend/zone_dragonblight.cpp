@@ -164,8 +164,8 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 for (ObjectGuid& guid : imageList)
                     guid.Clear();
 
-                _events.ScheduleEvent(EVENT_GET_TARGETS, 5000);
-                _events.ScheduleEvent(EVENT_START_RANDOM, 20000);
+                _events.ScheduleEvent(EVENT_GET_TARGETS, 5s);
+                _events.ScheduleEvent(EVENT_START_RANDOM, 20s);
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -223,7 +223,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                 }
                                 break;
                             case 5: // Home
-                                _events.ScheduleEvent(EVENT_START_RANDOM, 30000);
+                                _events.ScheduleEvent(EVENT_START_RANDOM, 30s);
                                 break;
                         }
                     }
@@ -267,7 +267,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                     creature->SetEntry(entry);
                     creature->SetDisplayId(model);
                     creature->CastSpell(creature, SPELL_HEROIC_IMAGE_CHANNEL);
-                    _events.ScheduleEvent(EVENT_TALK_COMPLETE, 40000);
+                    _events.ScheduleEvent(EVENT_TALK_COMPLETE, 40s);
                 }
             }
 
@@ -291,7 +291,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                         case EVENT_START_RANDOM:
                             talkWing = urand (0, 4);
                             Talk(talkWing);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 8000);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 8s);
                             break;
                         case EVENT_MOVE_TO_POINT:
                             me->SetWalk(true);
@@ -301,7 +301,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                         case EVENT_TALK_COMPLETE:
                             talkWing = 5;
                             Talk(talkWing);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 5000);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 5s);
                             break;
                         case EVENT_GET_TARGETS:
                             StoreTargets();
@@ -469,10 +469,8 @@ enum WyrmDefenderEnum
 {
     // Quest data
     QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
-    GOSSIP_TEXTID_DEF1                       = 12899,
-
-    // Gossip data
-    GOSSIP_TEXTID_DEF2                       = 12900,
+    GOSSIP_OPTION_ID                         = 0,
+    MENU_ID                                  = 9568,
 
     // Spells data
     SPELL_CHARACTER_SCRIPT                   = 49213,
@@ -484,8 +482,6 @@ enum WyrmDefenderEnum
     WHISPER_MOUNTED                        = 0,
     BOSS_EMOTE_ON_LOW_HEALTH               = 2
 };
-
-#define GOSSIP_ITEM_1      "We need to get into the fight. Are you ready?"
 
 class npc_wyrmrest_defender : public CreatureScript
 {
@@ -564,32 +560,20 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            bool GossipHello(Player* player) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
+                if (menuId == MENU_ID && gossipListId == GOSSIP_OPTION_ID)
                 {
-                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF1, me->GetGUID());
+                    // Makes player cast trigger spell for 49207 on self
+                    player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
+                    CloseGossipMenuFor(player);
                 }
-                else
-                    SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            void OnCharmed(bool /*apply*/) override
             {
-                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-                ClearGossipMenuFor(player);
-                if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                {
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF2, me->GetGUID());
-                    // Makes player cast trigger spell for 49207 on self
-                    player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
-                    // The gossip should not auto close
-                }
-
-                return true;
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
         };
 
@@ -633,8 +617,8 @@ class npc_torturer_lecraft : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(5000, 8000));
-                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
+                _events.ScheduleEvent(EVENT_HEMORRHAGE, 5s, 8s);
+                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 12s, 15s);
 
                 if (Player* player = who->ToPlayer())
                     Talk (SAY_AGGRO, player);
@@ -682,7 +666,7 @@ class npc_torturer_lecraft : public CreatureScript
                             break;
                         case EVENT_KIDNEY_SHOT:
                             DoCastVictim(SPELL_KIDNEY_SHOT);
-                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(20000, 26000));
+                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 20s, 26s);
                             break;
                         default:
                             break;
@@ -715,9 +699,9 @@ class at_nearby_messenger_torvus : public AreaTriggerScript
 public:
     at_nearby_messenger_torvus() : AreaTriggerScript("at_nearby_messenger_torvus") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/, bool entered) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
-        if (player->IsAlive() && entered)
+        if (player->IsAlive())
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_MESSAGE_FROM_THE_WEST))
                 if (player->CanTakeQuest(quest, false))
                     if (Creature* creature = player->FindNearestCreature(NPC_MESSENGER_TORVUS, 50.0f, true))

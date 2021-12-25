@@ -164,10 +164,8 @@ class TC_GAME_API AuraEffect
         void HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraDisableAttackingExceptAbilities(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  tracking
-        void HandleAuraTrackResources(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTrackCreatures(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTrackStealthed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModStalked(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -322,7 +320,9 @@ class TC_GAME_API AuraEffect
         void HandleTriggerSpellOnPowerAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleMountRestrictions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;

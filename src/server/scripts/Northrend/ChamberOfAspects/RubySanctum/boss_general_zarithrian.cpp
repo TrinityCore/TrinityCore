@@ -88,13 +88,13 @@ class boss_general_zarithrian : public CreatureScript
                 return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE && BossAI::CanAIAttack(target));
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_CLEAVE, Seconds(8));
-                events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, Seconds(14));
-                events.ScheduleEvent(EVENT_SUMMON_ADDS, Seconds(15));
+                events.ScheduleEvent(EVENT_CLEAVE, 8s);
+                events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 14s);
+                events.ScheduleEvent(EVENT_SUMMON_ADDS, 15s);
                 if (Is25ManRaid())
                     events.ScheduleEvent(EVENT_SUMMON_ADDS2, Seconds(16));
             }
@@ -157,7 +157,7 @@ class boss_general_zarithrian : public CreatureScript
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE_ARMOR);
-                            events.ScheduleEvent(EVENT_CLEAVE, Seconds(15));
+                            events.ScheduleEvent(EVENT_CLEAVE, 15s);
                             break;
                         default:
                             break;
@@ -196,13 +196,13 @@ class npc_onyx_flamecaller : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(17));
-                _events.ScheduleEvent(EVENT_LAVA_GOUT, Seconds(3));
+                _events.ScheduleEvent(EVENT_BLAST_NOVA, 17s);
+                _events.ScheduleEvent(EVENT_LAVA_GOUT, 3s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // Let Zarithrian count as summoner.
                 if (Creature* zarithrian = _instance->GetCreature(DATA_GENERAL_ZARITHRIAN))

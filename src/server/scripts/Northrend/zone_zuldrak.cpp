@@ -38,8 +38,8 @@ enum DrakuruShackles
 {
     NPC_RAGECLAW                             = 29686,
     QUEST_TROLLS_IS_GONE_CRAZY               = 12861,
-    SPELL_LEFT_CHAIN                         = 59951,
-    SPELL_RIGHT_CHAIN                        = 59952,
+    SPELL_CHAIN_OF_THE_SCURGE_RIGHT          = 54990,
+    SPELL_CHAIN_OF_THE_SCURGE_LEFT           = 55009,
     SPELL_UNLOCK_SHACKLE                     = 55083,
     SPELL_FREE_RAGECLAW                      = 55223
 };
@@ -73,9 +73,6 @@ public:
             // pointer check not needed
             me->SetFacingToObject(rageclaw);
             rageclaw->SetFacingToObject(me);
-
-            DoCast(rageclaw, SPELL_LEFT_CHAIN, true);
-            DoCast(rageclaw, SPELL_RIGHT_CHAIN, true);
         }
 
         void UnlockRageclaw(Unit* who, Creature* rageclaw)
@@ -99,6 +96,7 @@ public:
                     {
                         UnlockRageclaw(caster, rageclaw);
                         caster->ToPlayer()->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
+                        me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_RIGHT);
                         me->DespawnOrUnsummon();
                     }
                     else
@@ -124,7 +122,6 @@ public:
 enum Rageclaw
 {
     SPELL_UNSHACKLED                         = 55085,
-    SPELL_KNEEL                              = 39656,
     SAY_RAGECLAW                             = 0
 };
 
@@ -140,7 +137,7 @@ public:
         void Reset() override
         {
             me->SetFaction(FACTION_FRIENDLY);
-            DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
+            DoCast(me, SPELL_CHAIN_OF_THE_SCURGE_RIGHT, true);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
@@ -149,9 +146,8 @@ public:
         {
             if (spell->Id == SPELL_FREE_RAGECLAW)
             {
-                me->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
-                me->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
-                me->RemoveAurasDueToSpell(SPELL_KNEEL);
+                me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_LEFT);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetFaction(me->GetCreatureTemplate()->faction);
                 DoCast(me, SPELL_UNSHACKLED, true);
                 Talk(SAY_RAGECLAW);
@@ -484,7 +480,7 @@ public:
             {
                 _playerGUID.Clear();
                 _getingredienttry = 0;
-                _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
+                _events.ScheduleEvent(EVENT_TURN_TO_POT, 15s, 26s);
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -521,12 +517,12 @@ public:
                         case EVENT_TURN_TO_POT:
                             me->SetFacingTo(6.230825f);
                             me->SetEmoteState(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
-                            _events.ScheduleEvent(EVENT_TURN_BACK, 11000);
+                            _events.ScheduleEvent(EVENT_TURN_BACK, 11s);
                             break;
                         case EVENT_TURN_BACK:
                             me->SetFacingTo(4.886922f);
                             me->SetEmoteState(EMOTE_STATE_NONE);
-                            _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(25000, 41000));
+                            _events.ScheduleEvent(EVENT_TURN_TO_POT, 25s, 41s);
                             break;
                         case EVENT_EASY_123:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
@@ -949,6 +945,100 @@ public:
     }
 };
 
+enum ScourgeDisguise
+{
+    SPELL_SCOURGE_DISGUISE             = 51966,
+    SPELL_SCOURGE_DISGUISE_INSTABILITY = 51971,
+    SPELL_SCOURGE_DISGUISE_EXPIRING    = 52010,
+    SPELL_DROP_DISGUISE                = 54089,
+    TEXT_DISGUISE_WARNING              = 28891
+};
+
+class spell_scourge_disguise : public AuraScript
+{
+    PrepareAuraScript(spell_scourge_disguise);
+
+    void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_SCOURGE_DISGUISE_INSTABILITY, true);
+    }
+
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAura(SPELL_SCOURGE_DISGUISE_INSTABILITY);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_scourge_disguise::RemoveEffect, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise::ApplyEffect, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_scourge_disguise_instability : public AuraScript
+{
+    PrepareAuraScript(spell_scourge_disguise_instability);
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    {
+        isPeriodic = true;
+        amplitude = irand(30, 240) * IN_MILLISECONDS;
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SCOURGE_DISGUISE_EXPIRING, true);
+    }
+
+    void HandleUpdatePeriodic(AuraEffect* aurEff)
+    {
+        aurEff->CalculatePeriodic(GetCaster());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_scourge_disguise_instability::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_scourge_disguise_instability::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_scourge_disguise_instability::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+class spell_scourge_disguise_expiring : public AuraScript
+{
+    PrepareAuraScript(spell_scourge_disguise_expiring);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* player = GetTarget()->ToPlayer())
+            if (player->HasAura(SPELL_SCOURGE_DISGUISE))
+                player->Unit::Whisper(TEXT_DISGUISE_WARNING, player, true);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise_expiring::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_drop_disguise : public SpellScript
+{
+    PrepareSpellScript(spell_drop_disguise);
+
+    void HandleHit()
+    {
+        if (Unit* target = GetHitUnit())
+            if (target->HasAura(SPELL_SCOURGE_DISGUISE))
+                target->CastSpell(target, SPELL_SCOURGE_DISGUISE_EXPIRING, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_drop_disguise::HandleHit);
+    }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles();
@@ -963,4 +1053,8 @@ void AddSC_zuldrak()
     new spell_pot_check();
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
+    RegisterAuraScript(spell_scourge_disguise);
+    RegisterAuraScript(spell_scourge_disguise_instability);
+    RegisterAuraScript(spell_scourge_disguise_expiring);
+    RegisterSpellScript(spell_drop_disguise);
 }

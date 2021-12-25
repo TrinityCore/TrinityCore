@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.35, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.36, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.7.35
+-- Server version	5.7.36
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -112,8 +112,104 @@ CREATE TABLE `areatrigger` (
   `PhaseUseFlags` tinyint(3) unsigned DEFAULT '0',
   `PhaseId` int(10) unsigned DEFAULT '0',
   `PhaseGroup` int(10) unsigned DEFAULT '0',
+  `Shape` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `ShapeData0` float NOT NULL DEFAULT '0',
+  `ShapeData1` float NOT NULL DEFAULT '0',
+  `ShapeData2` float NOT NULL DEFAULT '0',
+  `ShapeData3` float NOT NULL DEFAULT '0',
+  `ShapeData4` float NOT NULL DEFAULT '0',
+  `ShapeData5` float NOT NULL DEFAULT '0',
   `Comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`SpawnId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `areatrigger_create_properties`
+--
+
+DROP TABLE IF EXISTS `areatrigger_create_properties`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `areatrigger_create_properties` (
+  `Id` int(10) unsigned NOT NULL,
+  `AreaTriggerId` int(10) unsigned NOT NULL,
+  `MoveCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `AnimId` int(11) NOT NULL DEFAULT '-1',
+  `AnimKitId` int(11) NOT NULL DEFAULT '0',
+  `DecalPropertiesId` int(10) unsigned NOT NULL DEFAULT '0',
+  `TimeToTarget` int(10) unsigned NOT NULL DEFAULT '0',
+  `TimeToTargetScale` int(10) unsigned NOT NULL DEFAULT '0',
+  `Shape` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `ShapeData0` float NOT NULL DEFAULT '0',
+  `ShapeData1` float NOT NULL DEFAULT '0',
+  `ShapeData2` float NOT NULL DEFAULT '0',
+  `ShapeData3` float NOT NULL DEFAULT '0',
+  `ShapeData4` float NOT NULL DEFAULT '0',
+  `ShapeData5` float NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `areatrigger_create_properties_orbit`
+--
+
+DROP TABLE IF EXISTS `areatrigger_create_properties_orbit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `areatrigger_create_properties_orbit` (
+  `AreaTriggerCreatePropertiesId` int(10) unsigned NOT NULL,
+  `StartDelay` int(10) unsigned NOT NULL DEFAULT '0',
+  `CircleRadius` float NOT NULL DEFAULT '0',
+  `BlendFromRadius` float NOT NULL DEFAULT '0',
+  `InitialAngle` float NOT NULL DEFAULT '0',
+  `ZOffset` float NOT NULL DEFAULT '0',
+  `CounterClockwise` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `CanLoop` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`AreaTriggerCreatePropertiesId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `areatrigger_create_properties_polygon_vertex`
+--
+
+DROP TABLE IF EXISTS `areatrigger_create_properties_polygon_vertex`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `areatrigger_create_properties_polygon_vertex` (
+  `AreaTriggerCreatePropertiesId` int(10) unsigned NOT NULL,
+  `Idx` int(10) unsigned NOT NULL,
+  `VerticeX` float NOT NULL DEFAULT '0',
+  `VerticeY` float NOT NULL DEFAULT '0',
+  `VerticeTargetX` float DEFAULT NULL,
+  `VerticeTargetY` float DEFAULT NULL,
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`AreaTriggerCreatePropertiesId`,`Idx`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `areatrigger_create_properties_spline_point`
+--
+
+DROP TABLE IF EXISTS `areatrigger_create_properties_spline_point`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `areatrigger_create_properties_spline_point` (
+  `AreaTriggerCreatePropertiesId` int(10) unsigned NOT NULL,
+  `Idx` int(10) unsigned NOT NULL,
+  `X` float NOT NULL DEFAULT '0',
+  `Y` float NOT NULL DEFAULT '0',
+  `Z` float NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`AreaTriggerCreatePropertiesId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -213,25 +309,6 @@ CREATE TABLE `areatrigger_template_actions` (
   `ActionParam` int(10) unsigned NOT NULL,
   `TargetType` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`AreaTriggerId`,`IsServerSide`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `areatrigger_template_polygon_vertices`
---
-
-DROP TABLE IF EXISTS `areatrigger_template_polygon_vertices`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `areatrigger_template_polygon_vertices` (
-  `AreaTriggerId` int(10) unsigned NOT NULL,
-  `Idx` int(10) unsigned NOT NULL,
-  `VerticeX` float NOT NULL DEFAULT '0',
-  `VerticeY` float NOT NULL DEFAULT '0',
-  `VerticeTargetX` float DEFAULT NULL,
-  `VerticeTargetY` float DEFAULT NULL,
-  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`AreaTriggerId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -433,7 +510,6 @@ DROP TABLE IF EXISTS `conversation_line_template`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `conversation_line_template` (
   `Id` int(10) unsigned NOT NULL,
-  `StartTime` int(10) unsigned NOT NULL DEFAULT '0',
   `UiCameraID` int(10) unsigned NOT NULL DEFAULT '0',
   `ActorIdx` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `Flags` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -452,7 +528,6 @@ DROP TABLE IF EXISTS `conversation_template`;
 CREATE TABLE `conversation_template` (
   `Id` int(10) unsigned NOT NULL,
   `FirstLineId` int(10) unsigned NOT NULL,
-  `LastLineEndTime` int(10) unsigned NOT NULL,
   `TextureKitId` int(10) unsigned NOT NULL DEFAULT '0',
   `ScriptName` varchar(64) NOT NULL DEFAULT '',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
@@ -627,6 +702,23 @@ CREATE TABLE `creature_model_info` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `creature_movement_override`
+--
+
+DROP TABLE IF EXISTS `creature_movement_override`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_movement_override` (
+  `SpawnId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`SpawnId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `creature_onkill_reputation`
 --
 
@@ -781,7 +873,6 @@ CREATE TABLE `creature_template` (
   `maxgold` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `AIName` varchar(64) NOT NULL DEFAULT '',
   `MovementType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `InhabitType` tinyint(3) unsigned NOT NULL DEFAULT '3',
   `HoverHeight` float NOT NULL DEFAULT '1',
   `HealthModifier` float NOT NULL DEFAULT '1',
   `HealthModifierExtra` float NOT NULL DEFAULT '1',
@@ -866,6 +957,23 @@ CREATE TABLE `creature_template_model` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `creature_template_movement`
+--
+
+DROP TABLE IF EXISTS `creature_template_movement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_template_movement` (
+  `CreatureId` int(10) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`CreatureId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `creature_template_scaling`
 --
 
@@ -901,6 +1009,7 @@ CREATE TABLE `creature_text` (
   `Emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Duration` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Sound` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `SoundPlayType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `BroadcastTextId` mediumint(6) NOT NULL DEFAULT '0',
   `TextRange` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` varchar(255) DEFAULT '',
@@ -1311,7 +1420,7 @@ CREATE TABLE `game_tele` (
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1689 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
+) ENGINE=MyISAM AUTO_INCREMENT=1758 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1527,6 +1636,7 @@ CREATE TABLE `gameobject_template` (
   `Data31` int(10) NOT NULL DEFAULT '0',
   `Data32` int(10) NOT NULL DEFAULT '0',
   `Data33` int(11) NOT NULL DEFAULT '0',
+  `Data34` int(11) NOT NULL DEFAULT '0',
   `ContentTuningId` int(11) NOT NULL DEFAULT '0',
   `AIName` char(64) NOT NULL DEFAULT '',
   `ScriptName` varchar(64) NOT NULL DEFAULT '',
@@ -1789,7 +1899,6 @@ CREATE TABLE `instance_template` (
   `map` smallint(5) unsigned NOT NULL,
   `parent` smallint(5) unsigned NOT NULL,
   `script` varchar(128) NOT NULL DEFAULT '',
-  `allowMount` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`map`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2538,11 +2647,19 @@ CREATE TABLE `playercreateinfo` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `zone` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `position_x` float NOT NULL DEFAULT '0',
   `position_y` float NOT NULL DEFAULT '0',
   `position_z` float NOT NULL DEFAULT '0',
   `orientation` float NOT NULL DEFAULT '0',
+  `npe_map` int(10) unsigned DEFAULT NULL,
+  `npe_position_x` float DEFAULT NULL,
+  `npe_position_y` float DEFAULT NULL,
+  `npe_position_z` float DEFAULT NULL,
+  `npe_orientation` float DEFAULT NULL,
+  `npe_transport_guid` bigint(20) unsigned DEFAULT NULL,
+  `intro_movie_id` int(10) unsigned DEFAULT NULL,
+  `intro_scene_id` int(10) unsigned DEFAULT NULL,
+  `npe_intro_scene_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`race`,`class`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3728,6 +3845,7 @@ CREATE TABLE `smart_scripts` (
   `target_param1` int(10) unsigned NOT NULL DEFAULT '0',
   `target_param2` int(10) unsigned NOT NULL DEFAULT '0',
   `target_param3` int(10) unsigned NOT NULL DEFAULT '0',
+  `target_param4` int(10) unsigned NOT NULL DEFAULT '0',
   `target_x` float NOT NULL DEFAULT '0',
   `target_y` float NOT NULL DEFAULT '0',
   `target_z` float NOT NULL DEFAULT '0',
@@ -3786,69 +3904,6 @@ CREATE TABLE `spell_area` (
   `quest_start_status` int(11) NOT NULL DEFAULT '64',
   `quest_end_status` int(11) NOT NULL DEFAULT '11',
   PRIMARY KEY (`spell`,`area`,`quest_start`,`aura_spell`,`racemask`,`gender`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `spell_areatrigger`
---
-
-DROP TABLE IF EXISTS `spell_areatrigger`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `spell_areatrigger` (
-  `SpellMiscId` int(10) unsigned NOT NULL,
-  `AreaTriggerId` int(10) unsigned NOT NULL,
-  `MoveCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `AnimId` int(11) NOT NULL DEFAULT '0',
-  `AnimKitId` int(11) NOT NULL DEFAULT '0',
-  `DecalPropertiesId` int(10) unsigned NOT NULL DEFAULT '0',
-  `TimeToTarget` int(10) unsigned NOT NULL DEFAULT '0',
-  `TimeToTargetScale` int(10) unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`SpellMiscId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `spell_areatrigger_circular`
---
-
-DROP TABLE IF EXISTS `spell_areatrigger_circular`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `spell_areatrigger_circular` (
-  `SpellMiscId` int(10) unsigned NOT NULL,
-  `StartDelay` int(10) unsigned NOT NULL DEFAULT '0',
-  `CircleRadius` float NOT NULL DEFAULT '0',
-  `BlendFromRadius` float NOT NULL DEFAULT '0',
-  `InitialAngle` float NOT NULL DEFAULT '0',
-  `ZOffset` float NOT NULL DEFAULT '0',
-  `CounterClockwise` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `CanLoop` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`SpellMiscId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `spell_areatrigger_splines`
---
-
-DROP TABLE IF EXISTS `spell_areatrigger_splines`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `spell_areatrigger_splines` (
-  `SpellMiscId` int(10) unsigned NOT NULL,
-  `Idx` int(10) unsigned NOT NULL,
-  `X` float NOT NULL DEFAULT '0',
-  `Y` float NOT NULL DEFAULT '0',
-  `Z` float NOT NULL DEFAULT '0',
-  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`SpellMiscId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4450,4 +4505,4 @@ CREATE TABLE `world_safe_locs` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-18 15:14:19
+-- Dump completed on 2021-11-17 13:23:19

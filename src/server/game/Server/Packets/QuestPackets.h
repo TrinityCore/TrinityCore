@@ -545,6 +545,7 @@ namespace WorldPackets
 
             ObjectGuid SenderGUID;
             uint8 Result = 0;
+            std::string QuestTitle;
         };
 
         class QuestLogFull final : public ServerPacket

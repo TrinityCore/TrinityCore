@@ -21,6 +21,7 @@
 #include "Battleground.h"
 #include "BattlegroundScore.h"
 #include "Object.h"
+#include "QuaternionData.h"
 
 #define BG_AV_CAPTIME                    240000  //4:00
 #define BG_AV_SNOWFALL_FIRSTCAP          300000  //5:00 but i also have seen 4:05
@@ -88,7 +89,7 @@ enum BG_AV_Sounds
     ally wins
 8192:
     ally tower destroy(only iceblood - found a bug^^)
-    ally tower  defend
+    ally tower defend
     horde tower defend
 8213
 horde:
@@ -106,7 +107,7 @@ horde:
     AV_SOUND_HORDE_GOOD                     = 8213,
     AV_SOUND_BOTH_TOWER_DEFEND              = 8192,
 
-    AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 3min+rand(x)*10sec (maybe buff)
+    AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 5min+rand(x)*10sec (maybe buff)
     AV_SOUND_HORDE_CAPTAIN                  = 8333
 };
 
@@ -542,8 +543,14 @@ Position const BG_AV_ObjectPos[AV_OPLACE_MAX] =
 
 Position const BG_AV_DoorPositons[2] =
 {
-    {780.487f, -493.024f, 99.9553f, 3.0976f},   //alliance
-    {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
+    {794.64310f, -493.4745f, 99.77789f, -0.122173f}, //alliance
+    {-1382.057f, -545.9169f, 54.90467f, 0.7679439f}  //horde
+};
+
+QuaternionData const BG_AV_DoorRotation[2] =
+{
+    {0.0f, 0.0f, -0.06104851f, 0.9981348f}, //alliance
+    {0.0f, 0.0f, 0.374606100f, 0.9271840f}  //horde
 };
 
 //creaturestuff starts here

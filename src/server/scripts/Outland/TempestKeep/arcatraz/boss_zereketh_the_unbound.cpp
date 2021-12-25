@@ -61,12 +61,12 @@ class boss_zereketh_the_unbound : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_VOID_ZONE, urand (6000, 10000));
                 events.ScheduleEvent(EVENT_SHADOW_NOVA, urand (6000, 10000));
-                events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, urand(12000, 20000));
+                events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, 12s, 20s);
                 Talk(SAY_AGGRO);
             }
 
@@ -102,7 +102,7 @@ class boss_zereketh_the_unbound : public CreatureScript
                         case EVENT_SEED_OF_CORRUPTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                                 DoCast(target, SPELL_SEED_OF_CORRUPTION);
-                            events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, urand(12000, 20000));
+                            events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, 12s, 20s);
                             break;
                         default:
                             break;

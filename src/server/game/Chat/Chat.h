@@ -18,6 +18,7 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
+#include "ChatCommand.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
@@ -35,21 +36,6 @@ class WorldObject;
 struct GameTele;
 
 enum LocaleConstant : uint8;
-
-class TC_GAME_API ChatCommand
-{
-    typedef bool(*pHandler)(ChatHandler*, char const*);
-
-    public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
-
-        char const* Name;
-        uint32 Permission;                   // function pointer required correct align (use uint32)
-        bool AllowConsole;
-        pHandler Handler;
-        std::string Help;
-        std::vector<ChatCommand> ChildCommands;
-};
 
 class TC_GAME_API ChatHandler
 {
@@ -90,7 +76,6 @@ class TC_GAME_API ChatHandler
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
 
-        bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(const char* name, const char* part);
@@ -108,21 +93,21 @@ class TC_GAME_API ChatHandler
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalGMSysMessage(const char *str);
-        Player*   getSelectedPlayer();
+        Player* getSelectedPlayer();
         Creature* getSelectedCreature();
-        Unit*     getSelectedUnit();
+        Unit* getSelectedUnit();
         WorldObject* getSelectedObject();
         // Returns either the selected player or self if there is no selected player
-        Player*   getSelectedPlayerOrSelf();
+        Player* getSelectedPlayerOrSelf();
 
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
+        char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
+        char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
         // if args have single value then it return in arg2 and arg1 == nullptr
-        void      extractOptFirstArg(char* args, char** arg1, char** arg2);
-        char*     extractQuotedArg(char* args);
+        void extractOptFirstArg(char* args, char** arg1, char** arg2);
+        char* extractQuotedArg(char* args);
 
-        uint32    extractSpellIdFromLink(char* text);
+        uint32 extractSpellIdFromLink(char* text);
         ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);

@@ -41,6 +41,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Config.h"
 #include "GitRevision.h"
 #include "CryptoHash.h"
+#include "Duration.h"
 #include "Log.h"
 #include "MPSCQueue.h"
 #include "Regex.h"
@@ -58,6 +59,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <future>
 #include <memory>
 #include <sstream>
+#include <thread>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -276,7 +278,7 @@ Optional<std::shared_ptr<ScriptModule>>
                          path.generic_string().c_str());
         }
 
-        return boost::none;
+        return {};
     }
 
     // Use RAII to release the library on failure.
@@ -303,7 +305,7 @@ Optional<std::shared_ptr<ScriptModule>>
         TC_LOG_ERROR("scripts.hotswap", "Could not extract all required functions from the shared library \"%s\"!",
             path.generic_string().c_str());
 
-        return boost::none;
+        return {};
     }
 }
 
@@ -1035,7 +1037,7 @@ private:
             // Wait for the current build job to finish, if the job finishes in time
             // evaluate it and continue with the next one.
             if (_build_job->GetProcess()->GetFutureResult().
-                    wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    wait_for(0s) == std::future_status::ready)
                 ProcessReadyBuildJob();
             else
                 return; // Return when the job didn't finish in time

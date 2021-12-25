@@ -39,7 +39,6 @@ struct ConversationActor
 struct ConversationLineTemplate
 {
     uint32 Id;          // Link to ConversationLine.db2
-    uint32 StartTime;   // Time in ms after conversation creation the line is displayed
     uint32 UiCameraID;  // Link to UiCamera.db2
     uint8 ActorIdx;     // Index from conversation_actors
     uint8 Flags;
@@ -51,7 +50,6 @@ struct ConversationTemplate
 {
     uint32 Id;
     uint32 FirstLineId;     // Link to ConversationLine.db2
-    uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
     uint32 TextureKitId;    // Background texture
 
     std::vector<ConversationActor> Actors;
@@ -67,6 +65,7 @@ public:
     void LoadConversationTemplates();
 
     ConversationTemplate const* GetConversationTemplate(uint32 conversationId) const;
+    ConversationLineTemplate const* GetConversationLineTemplate(uint32 conversationLineId) const;
 
     static ConversationDataStore* Instance();
 };

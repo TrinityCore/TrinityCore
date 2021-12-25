@@ -147,7 +147,8 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(3610, 1);
+    packet.Worldstates.emplace_back(3610, 1); // ARENA_WORLD_STATE_ALIVE_PLAYERS_SHOW
+
     Arena::FillInitialWorldStates(packet);
 }
 

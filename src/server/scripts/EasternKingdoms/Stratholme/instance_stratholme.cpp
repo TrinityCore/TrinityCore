@@ -359,7 +359,7 @@ class instance_stratholme : public InstanceMapScript
 
                         if (data == DONE)
                         {
-                            events.ScheduleEvent(EVENT_SLAUGHTER_SQUARE, 60000);
+                            events.ScheduleEvent(EVENT_SLAUGHTER_SQUARE, 1min);
                             TC_LOG_DEBUG("scripts", "Instance Stratholme: Slaugther event will continue in 1 minute.");
                         }
                         EncounterState[4] = data;

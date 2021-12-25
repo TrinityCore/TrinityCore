@@ -103,7 +103,7 @@ class spell_moragg_ray : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!GetTarget()->IsAIEnabled)
+                if (!GetTarget()->GetAI())
                     return;
 
                 if (Unit* target = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))

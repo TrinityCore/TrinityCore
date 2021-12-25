@@ -314,18 +314,18 @@ class spell_ichoron_drained : public SpellScriptLoader
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+                GetTarget()->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+                GetTarget()->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_DRAINED);
+                    if (UnitAI* ai = GetTarget()->GetAI())
+                        ai->DoAction(ACTION_DRAINED);
             }
 
             void Register() override
@@ -398,8 +398,8 @@ class spell_ichoron_protective_bubble : public SpellScriptLoader
             {
                 //if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                 if (GetAura()->GetCharges() <= 1)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
+                    if (UnitAI* targetAI = GetTarget()->GetAI())
+                        targetAI->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
             }
 
             void Register() override

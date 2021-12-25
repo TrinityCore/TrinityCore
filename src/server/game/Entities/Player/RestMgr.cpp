@@ -38,7 +38,7 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
     {
         case REST_TYPE_XP:
             // Reset restBonus (XP only) for max level players
-            if (_player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            if (_player->GetLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
                 restBonus = 0;
 
             next_level_xp = _player->m_activePlayerData->NextLevelXP;
@@ -87,7 +87,7 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
 void RestMgr::AddRestBonus(RestTypes restType, float restBonus)
 {
     // Don't add extra rest bonus to max level players. Note: Might need different condition in next expansion for honor XP (PLAYER_LEVEL_MIN_HONOR perhaps).
-    if (_player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (_player->GetLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         restBonus = 0;
 
     float totalRestBonus = GetRestBonus(restType) + restBonus;

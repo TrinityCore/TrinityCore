@@ -183,7 +183,7 @@ class boss_krik_thir : public CreatureScript
                 summons.DoZoneInCombat();
 
                 events.CancelEvent(EVENT_SEND_GROUP);
-                events.ScheduleEvent(EVENT_SWARM, Seconds(5));
+                events.ScheduleEvent(EVENT_SWARM, 5s);
                 events.ScheduleEvent(EVENT_MIND_FLAY, randtime(Seconds(1), Seconds(3)));
 
                 BossAI::JustEngagedWith(who);
@@ -237,7 +237,7 @@ class boss_krik_thir : public CreatureScript
                             break;
                         _petsInCombat = true;
                         Talk(SAY_AGGRO);
-                        events.ScheduleEvent(EVENT_SEND_GROUP, Seconds(70));
+                        events.ScheduleEvent(EVENT_SEND_GROUP, 70s);
                         break;
                     case ACTION_PET_EVADE:
                         EnterEvadeMode(EVADE_REASON_OTHER);
@@ -258,7 +258,7 @@ class boss_krik_thir : public CreatureScript
                 if (me->HealthBelowPct(10) && !_hadFrenzy)
                 {
                     _hadFrenzy = true;
-                    events.ScheduleEvent(EVENT_FRENZY, Seconds(1));
+                    events.ScheduleEvent(EVENT_FRENZY, 1s);
                 }
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -350,6 +350,7 @@ struct npc_gatewatcher_petAI : public ScriptedAI
         }
         _JustEngagedWith();
         ScriptedAI::JustEngagedWith(who);
+        me->SetCombatPulseDelay(5);
     }
 
     void SetData(uint32 data, uint32 value) override
@@ -781,7 +782,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
 
             void _JustEngagedWith() override
             {
-                _events.ScheduleEvent(EVENT_SHADOW_BOLT, Seconds(4));
+                _events.ScheduleEvent(EVENT_SHADOW_BOLT, 4s);
                 _events.ScheduleEvent(EVENT_SHADOW_NOVA, randtime(Seconds(10), Seconds(14)));
             }
 
@@ -898,7 +899,7 @@ class npc_gatewatcher_web_wrap : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (TempSummon* meSummon = me->ToTempSummon())
-                    if (Unit* summoner = meSummon->GetSummoner())
+                    if (Unit* summoner = meSummon->GetSummonerUnit())
                         summoner->RemoveAurasDueToSpell(SPELL_WEB_WRAP_WRAPPED);
             }
         };

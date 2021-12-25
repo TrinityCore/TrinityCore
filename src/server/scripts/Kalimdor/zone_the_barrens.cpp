@@ -36,42 +36,6 @@ EndContentData */
 #include "TemporarySummon.h"
 
 /*######
-## npc_beaten_corpse
-######*/
-
-enum BeatenCorpse
-{
-    GOSSIP_OPTION_ID_BEATEN_CORPSE  = 0,
-    GOSSIP_MENU_OPTION_INSPECT_BODY = 2871
-};
-
-class npc_beaten_corpse : public CreatureScript
-{
-    public:
-        npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
-
-        struct npc_beaten_corpseAI : public ScriptedAI
-        {
-            npc_beaten_corpseAI(Creature* creature) : ScriptedAI(creature) { }
-
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-            {
-                if (menuId == GOSSIP_MENU_OPTION_INSPECT_BODY && gossipListId == GOSSIP_OPTION_ID_BEATEN_CORPSE)
-                {
-                    CloseGossipMenuFor(player);
-                    player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-                }
-                return false;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_beaten_corpseAI(creature);
-        }
-};
-
-/*######
 # npc_gilthares
 ######*/
 
@@ -170,7 +134,6 @@ public:
 
 enum TaskmasterFizzule
 {
-    FACTION_FRIENDLY_F  = 35,
     SPELL_FLARE         = 10113,
     SPELL_FOLLY         = 10137,
 };
@@ -214,13 +177,13 @@ public:
         void DoFriend()
         {
             me->RemoveAllAuras();
-            me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
-
             me->StopMoving();
+            
+            EngagementOver();
+            
             me->GetMotionMaster()->MoveIdle();
-
-            me->SetFaction(FACTION_FRIENDLY_F);
+            me->SetFaction(FACTION_FRIENDLY);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
         }
 
@@ -260,7 +223,7 @@ public:
             {
                 if (FlareCount >= 2)
                 {
-                    if (me->GetFaction() == FACTION_FRIENDLY_F)
+                    if (me->GetFaction() == FACTION_FRIENDLY)
                         return;
 
                     DoFriend();
@@ -514,7 +477,6 @@ enum Wizzlecrank
     SAY_END             = 6,
 
     QUEST_ESCAPE        = 863,
-    FACTION_RATCHET     = 637,
     NPC_PILOT_WIZZ      = 3451,
     NPC_MERCENARY       = 3282,
 };
@@ -621,7 +583,7 @@ public:
                     if (Player* player = GetPlayerForEscort())
                     {
                         player->GroupEventHappens(QUEST_ESCAPE, me);
-                        me->DespawnOrUnsummon(3min);
+                        me->DespawnOrUnsummon(5min);
                         me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
                     }
                     break;

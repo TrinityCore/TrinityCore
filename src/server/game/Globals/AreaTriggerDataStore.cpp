@@ -150,8 +150,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger splines. DB table `areatrigger_create_properties_spline_point` is empty.");
     }
 
-    //                                                      0   1             2      3
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, IsServerSide, Flags, ScriptName FROM `areatrigger_template`"))
+    //                                                      0   1             2
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, IsServerSide, Flags FROM `areatrigger_template`"))
     {
         do
         {
@@ -169,7 +169,6 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[3].GetString());
             areaTriggerTemplate.Actions = std::move(actionsByAreaTrigger[areaTriggerTemplate.Id]);
 
             _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
@@ -179,8 +178,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
     //                                                                        0   1              2            3             4             5              6       7          8                  9             10
     if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, AreaTriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, TimeToTarget, TimeToTargetScale, "
-    //   11     12          13          14          15          16          17
-        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5 FROM `areatrigger_create_properties`"))
+    //   11     12          13          14          15          16          17          18
+        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ScriptName FROM `areatrigger_create_properties`"))
     {
         do
         {
@@ -234,6 +233,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             createProperties.Shape.Type = static_cast<AreaTriggerTypes>(shape);
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 createProperties.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
+
+            createProperties.ScriptId = sObjectMgr->GetScriptId(fields[18].GetString());
 
             if (shape == AREATRIGGER_TYPE_POLYGON)
                 if (createProperties.Shape.PolygonDatas.Height <= 0.0f)
@@ -306,8 +307,8 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
     // Load area trigger positions (to put them on the server)
     //                                                      0        1              2             3      4     5     6     7            8              9        10
     if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, "
-    //   11     12          13          14          15          16          17
-        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5 FROM `areatrigger`"))
+    //   11     12          13          14          15          16          17          18
+        "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ScriptName FROM `areatrigger`"))
     {
         do
         {
@@ -339,25 +340,26 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
                 continue;
             }
 
-            AreaTriggerSpawn spawn;
-            spawn.SpawnId = spawnId;
+            AreaTriggerSpawn& spawn = _areaTriggerSpawnsBySpawnId[spawnId];
+            spawn.spawnId = spawnId;
+            spawn.mapId = location.GetMapId();
             spawn.Id = areaTriggerid;
-            spawn.Location.WorldRelocate(location);
+            spawn.spawnPoint.Relocate(location);
 
-            spawn.PhaseUseFlags = fields[8].GetUInt8();
-            spawn.PhaseId = fields[9].GetUInt32();
-            spawn.PhaseGroup = fields[10].GetUInt32();
+            spawn.phaseUseFlags = fields[8].GetUInt8();
+            spawn.phaseId = fields[9].GetUInt32();
+            spawn.phaseGroup = fields[10].GetUInt32();
 
             spawn.Shape.Type = static_cast<AreaTriggerTypes>(shape);
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 spawn.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
 
-            // Add the trigger to a map::cell map, which is later used by GridLoader to query
-            CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.Location.GetPositionX(), spawn.Location.GetPositionY());
-            _areaTriggerSpawnsByLocation[{ spawn.Location.GetMapId(), cellCoord.GetId() }].insert(spawnId);
+            spawn.scriptId = sObjectMgr->GetScriptId(fields[18].GetString());
+            spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
-            // add the position to the map
-            _areaTriggerSpawnsBySpawnId[spawnId] = spawn;
+            // Add the trigger to a map::cell map, which is later used by GridLoader to query
+            CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.spawnPoint.GetPositionX(), spawn.spawnPoint.GetPositionY());
+            _areaTriggerSpawnsByLocation[{ spawn.mapId, cellCoord.GetId() }].insert(spawnId);
         } while (templates->NextRow());
     }
 

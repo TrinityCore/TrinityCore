@@ -176,9 +176,9 @@ struct boss_ahune : public BossAI
         me->SetControlled(true, UNIT_STATE_ROOT);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_INITIAL_EMERGE, 4ms);
         events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3s);
     }
@@ -216,7 +216,7 @@ struct boss_ahune : public BossAI
         if (action == ACTION_AHUNE_RETREAT)
         {
             Submerge();
-            events.ScheduleEvent(EVENT_EMERGE, Seconds(35));
+            events.ScheduleEvent(EVENT_EMERGE, 35s);
         }
     }
 
@@ -263,7 +263,6 @@ struct boss_ahune : public BossAI
         if (Creature* frozenCore = instance->GetCreature(DATA_FROZEN_CORE))
             frozenCore->AI()->DoAction(ACTION_AHUNE_RETREAT);
         me->RemoveAurasDueToSpell(SPELL_AHUNES_SHIELD);
-        me->AddUnitFlag(UNIT_FLAG_UNK_31);
         DoCastSelf(SPELL_SUBMERGED, true);
         DoCastSelf(SPELL_AHUNE_SELF_STUN, true);
         DoCastSelf(SPELL_STAY_SUBMERGED, true);
@@ -667,14 +666,14 @@ class spell_summoning_rhyme_aura : public AuraScript
         switch (aurEff->GetTickNumber())
         {
             case 1:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_1, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_1, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
                 player->CastSpell(player, SPELL_SUMMONING_RHYME_BONFIRE, true);
                 break;
             case 2:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_2, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_2, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
                 break;
             case 3:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_3, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_3, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
                 Remove();
                 break;
         }

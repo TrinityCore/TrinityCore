@@ -129,7 +129,10 @@ public:
                 case ARCHIMONDE:
                     Archimonde = creature->GetGUID();
                     if (GetData(DATA_AZGALOREVENT) != DONE)
+                    {
                         creature->SetVisible(false);
+                        creature->SetReactState(REACT_PASSIVE);
+                    }
                     break;
                 case JAINA:
                     JainaProudmoore = creature->GetGUID();
@@ -183,6 +186,7 @@ public:
                         if (Creature* archimonde = instance->GetCreature(Archimonde))
                         {
                             archimonde->SetVisible(true);
+                            archimonde->SetReactState(REACT_AGGRESSIVE);
 
                             if (!ArchiYell)
                             {

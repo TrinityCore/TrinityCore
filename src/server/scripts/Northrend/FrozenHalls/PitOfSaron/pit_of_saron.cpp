@@ -72,8 +72,8 @@ class npc_ymirjar_flamebearer : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_FIREBALL, 4000);
-                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15000);
+                _events.ScheduleEvent(EVENT_FIREBALL, 4s);
+                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -244,7 +244,7 @@ class npc_pit_of_saron_icicle : public CreatureScript
                 me->SetDisplayFromModel(0);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 _summonerGUID = summoner->GetGUID();
 
@@ -318,11 +318,8 @@ class at_pit_cavern_entrance : public AreaTriggerScript
     public:
         at_pit_cavern_entrance() : AreaTriggerScript("at_pit_cavern_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
-            if (!entered)
-                return true;
-
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (instance->GetData(DATA_CAVERN_ACTIVE))
@@ -342,11 +339,8 @@ class at_pit_cavern_end : public AreaTriggerScript
 public:
     at_pit_cavern_end() : AreaTriggerScript("at_pit_cavern_end") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        if (!entered)
-            return true;
-
         if (InstanceScript* instance = player->GetInstanceScript())
         {
             instance->SetData(DATA_CAVERN_ACTIVE, 0);

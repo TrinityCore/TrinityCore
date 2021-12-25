@@ -21,7 +21,7 @@ namespace lfg
 {
 
 LfgPlayerData::LfgPlayerData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
-    m_Team(0), m_Group(), m_Roles(0)
+    m_Team(0), m_Group(), m_Roles(0), m_NumberOfPartyMembersAtJoin(0)
 { }
 
 LfgPlayerData::~LfgPlayerData() { }
@@ -111,6 +111,16 @@ uint8 LfgPlayerData::GetRoles() const
 LfgDungeonSet const& LfgPlayerData::GetSelectedDungeons() const
 {
     return m_SelectedDungeons;
+}
+
+void LfgPlayerData::SetNumberOfPartyMembersAtJoin(uint8 count)
+{
+    m_NumberOfPartyMembersAtJoin = count;
+}
+
+uint8 LfgPlayerData::GetNumberOfPartyMembersAtJoin()
+{
+    return m_NumberOfPartyMembersAtJoin;
 }
 
 } // namespace lfg

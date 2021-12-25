@@ -27,6 +27,7 @@
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "WaypointManager.h"
+#include <sstream>
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
 {
@@ -55,6 +56,10 @@ void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
 {
     if (timer)
     {
+        // Don't try to paused an already paused generator
+        if (HasFlag(MOVEMENTGENERATOR_FLAG_PAUSED))
+            return;
+
         AddFlag(MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
         _nextMoveTime.Reset(timer);
         RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
@@ -116,8 +121,8 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     _nextMoveTime.Reset(1000);
 
     // inform AI
-    if (owner->IsAIEnabled)
-        owner->AI()->WaypointPathStarted(_path->id);
+    if (CreatureAI* AI = owner->AI())
+        AI->WaypointPathStarted(_path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
@@ -138,7 +143,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED) || !_path || _path->nodes.empty())
         return true;
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE | UNIT_STATE_LOST_CONTROL) || owner->IsMovementPreventedByCasting())
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
@@ -255,10 +260,10 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
     }
 
     // inform AI
-    if (owner->IsAIEnabled)
+    if (CreatureAI* AI = owner->AI())
     {
-        owner->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
-        owner->AI()->WaypointReached(waypoint.id, _path->id);
+        AI->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
+        AI->WaypointReached(waypoint.id, _path->id);
     }
 
     owner->UpdateCurrentWaypointInfo(waypoint.id, _path->id);
@@ -285,8 +290,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
 
             // inform AI
-            if (owner->IsAIEnabled)
-                owner->AI()->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
+            if (CreatureAI* AI = owner->AI())
+                AI->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
         }
         else
         {
@@ -313,8 +318,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             owner->UpdateCurrentWaypointInfo(0, 0);
 
             // inform AI
-            if (owner->IsAIEnabled)
-                owner->AI()->WaypointPathEnded(waypoint.id, _path->id);
+            if (CreatureAI* AI = owner->AI())
+                AI->WaypointPathEnded(waypoint.id, _path->id);
             return;
         }
     }
@@ -323,8 +328,8 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
         AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
         // inform AI
-        if (owner->IsAIEnabled)
-            owner->AI()->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
+        if (CreatureAI* AI = owner->AI())
+            AI->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
     }
 
     ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
@@ -388,4 +393,12 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
 
     _currentNode = (_currentNode + 1) % _path->nodes.size();
     return true;
+}
+
+std::string WaypointMovementGenerator<Creature>::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << PathMovementBase::GetDebugInfo() << "\n"
+        << MovementGeneratorMedium::GetDebugInfo();
+    return sstr.str();
 }

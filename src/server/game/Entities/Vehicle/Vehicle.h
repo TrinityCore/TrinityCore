@@ -52,6 +52,7 @@ class TC_GAME_API Vehicle : public TransportBase
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;
         SeatMap::const_iterator GetNextEmptySeat(int8 seatId, bool next) const;
+        VehicleSeatAddon const* GetSeatAddonForSeatOfPassenger(Unit const* passenger) const;
         uint8 GetAvailableSeatCount() const;
 
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
@@ -105,6 +106,8 @@ class TC_GAME_API Vehicle : public TransportBase
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);
+
+        bool HasPendingEventForSeat(int8 seatId) const;
 
     private:
         Unit* _me;                                          ///< The underlying unit with the vehicle kit. Can be player or creature.

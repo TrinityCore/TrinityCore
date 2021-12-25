@@ -47,7 +47,11 @@ enum MotionMasterFlags : uint8
 {
     MOTIONMASTER_FLAG_NONE                          = 0x0,
     MOTIONMASTER_FLAG_UPDATE                        = 0x1, // Update in progress
-    MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING = 0x2
+    MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING = 0x2, // Static movement (MOTION_SLOT_DEFAULT) hasn't been initialized
+    MOTIONMASTER_FLAG_INITIALIZATION_PENDING        = 0x4, // MotionMaster is stalled until signaled
+    MOTIONMASTER_FLAG_INITIALIZING                  = 0x8, // MotionMaster is initializing
+
+    MOTIONMASTER_FLAG_DELAYED = MOTIONMASTER_FLAG_UPDATE | MOTIONMASTER_FLAG_INITIALIZATION_PENDING
 };
 
 enum MotionMasterDelayedActionType : uint8
@@ -82,26 +86,37 @@ struct MovementGeneratorInformation
     std::string TargetName;
 };
 
-class MotionMasterDelayedAction
+static bool EmptyValidator()
 {
-    public:
-        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Type(type) { }
-        ~MotionMasterDelayedAction() { }
-
-        void Resolve() { Action(); }
-
-        std::function<void()> Action;
-        uint8 Type;
-};
+    return true;
+}
 
 class TC_GAME_API MotionMaster
 {
     public:
+        typedef std::function<void()> DelayedActionDefine;
+        typedef std::function<bool()> DelayedActionValidator;
+
+        class DelayedAction
+        {
+            public:
+                explicit DelayedAction(DelayedActionDefine&& action, DelayedActionValidator&& validator, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(std::move(validator)), Type(type) { }
+                explicit DelayedAction(DelayedActionDefine&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(EmptyValidator), Type(type) { }
+                ~DelayedAction() { }
+
+                void Resolve() { if (Validator()) Action(); }
+
+                DelayedActionDefine Action;
+                DelayedActionValidator Validator;
+                uint8 Type;
+        };
+
         explicit MotionMaster(Unit* unit);
         ~MotionMaster();
 
         void Initialize();
         void InitializeDefault();
+        void AddToWorld();
 
         bool Empty() const;
         uint32 Size() const;
@@ -122,7 +137,7 @@ class TC_GAME_API MotionMaster
         // Removes first found movement
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
         void Remove(MovementGeneratorType type, MovementSlot slot = MOTION_SLOT_ACTIVE);
-        // NOTE: NOTE: MOTION_SLOT_DEFAULT wont be affected
+        // NOTE: MOTION_SLOT_DEFAULT wont be affected
         void Clear();
         // Removes all movements for the given MovementSlot
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
@@ -138,10 +153,11 @@ class TC_GAME_API MotionMaster
 
         void MoveIdle();
         void MoveTargetedHome();
-        void MoveRandom(float spawndist = 0.0f);
+        void MoveRandom(float wanderDistance = 0.0f);
         void MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
-        void MoveChase(Unit* target, float dist, float angle = 0.0f) { MoveChase(target, Optional<ChaseRange>(dist), Optional<ChaseAngle>(angle)); }
+        void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
+        void MoveChase(Unit* target, float dist) { MoveChase(target, ChaseRange(dist)); }
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {});
@@ -157,10 +173,11 @@ class TC_GAME_API MotionMaster
         void MoveTakeoff(uint32 id, Position const& pos);
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
-        void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
+        void MoveKnockbackFrom(Position const& origin, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
         void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
+        void MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
@@ -187,6 +204,8 @@ class TC_GAME_API MotionMaster
         bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
         void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
+        void ResolveDelayedActions();
+        void Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform);
         void Pop(bool active, bool movementInform);
         void DirectInitialize();
         void DirectClear();
@@ -204,7 +223,7 @@ class TC_GAME_API MotionMaster
         MovementGeneratorPointer _defaultGenerator;
         MotionMasterContainer _generators;
         MotionMasterUnitStatesContainer _baseUnitStatesMap;
-        std::deque<MotionMasterDelayedAction> _delayedActions;
+        std::deque<DelayedAction> _delayedActions;
         uint8 _flags;
 };
 

@@ -25,6 +25,7 @@
 #include "CinematicMgr.h"
 #include "ClientConfigPackets.h"
 #include "Common.h"
+#include "Conversation.h"
 #include "Corpse.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -317,7 +318,7 @@ void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime(); // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime() + 300; // start toggle-off
     }
     else
     {
@@ -335,7 +336,7 @@ void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime(); // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime() + 300; // start toggle-off
     }
     else
     {
@@ -391,6 +392,17 @@ void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& pa
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet)
 {
+    switch (packet.StandState)
+    {
+        case UNIT_STAND_STATE_STAND:
+        case UNIT_STAND_STATE_SIT:
+        case UNIT_STAND_STATE_SLEEP:
+        case UNIT_STAND_STATE_KNEEL:
+            break;
+        default:
+            return;
+    }
+
     _player->SetStandState(packet.StandState);
 }
 
@@ -484,6 +496,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (player->isDebugAreaTriggers)
         ChatHandler(player->GetSession()).PSendSysMessage(packet.Entered ? LANG_DEBUG_AREATRIGGER_ENTERED : LANG_DEBUG_AREATRIGGER_LEFT, packet.AreaTriggerID);
 
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED, atEntry->ID, player))
+        return;
+
     if (sScriptMgr->OnAreaTrigger(player, atEntry, packet.Entered))
         return;
 
@@ -525,7 +540,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
             }
 
             if (anyObjectiveChangedCompletionState)
-                player->UpdateForQuestWorldObjects();
+                player->UpdateVisibleGameobjectsOrSpellClicks();
         }
     }
 
@@ -652,7 +667,7 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type %u, time " SI64FMTD ", decompressedSize %u",
         packet.DataType, packet.Time.AsUnderlyingType(), packet.Size);
 
-    if (packet.DataType > NUM_ACCOUNT_DATA_TYPES)
+    if (packet.DataType >= NUM_ACCOUNT_DATA_TYPES)
         return;
 
     if (packet.Size == 0)                               // erase
@@ -851,29 +866,6 @@ void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packe
         packet.TitleID = 0;
 
     GetPlayer()->SetChosenTitle(packet.TitleID);
-}
-
-void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet)
-{
-    // Prevent crashing server if queue is empty
-    if (_player->m_timeSyncQueue.empty())
-    {
-        TC_LOG_ERROR("network", "Received CMSG_TIME_SYNC_RESPONSE from player %s without requesting it (hacker?)", _player->GetName().c_str());
-        return;
-    }
-
-    if (packet.SequenceIndex != _player->m_timeSyncQueue.front())
-        TC_LOG_ERROR("network", "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());
-
-    TC_LOG_DEBUG("network", "Time sync received: counter %u, client ticks %u, time since last sync %u", packet.SequenceIndex, packet.ClientTime, packet.ClientTime - _player->m_timeSyncClient);
-
-    uint32 ourTicks = packet.ClientTime + (GameTime::GetGameTimeMS() - _player->m_timeSyncServer);
-
-    // diff should be small
-    TC_LOG_DEBUG("network", "Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - packet.ClientTime, GetLatency());
-
-    _player->m_timeSyncClient = packet.ClientTime;
-    _player->m_timeSyncQueue.pop();
 }
 
 void WorldSession::HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& /*packet*/)
@@ -1160,4 +1152,27 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 {
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
+}
+
+void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted)
+{
+    if (Conversation* convo = ObjectAccessor::GetConversation(*_player, conversationLineStarted.ConversationGUID))
+        sScriptMgr->OnConversationLineStarted(convo, conversationLineStarted.LineID, _player);
+}
+
+void WorldSession::HandleRequestLatestSplashScreen(WorldPackets::Misc::RequestLatestSplashScreen& /*requestLatestSplashScreen*/)
+{
+    UISplashScreenEntry const* splashScreen = nullptr;
+    for (auto itr = sUISplashScreenStore.begin(); itr != sUISplashScreenStore.end(); ++itr)
+    {
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(itr->CharLevelConditionID))
+            if (!ConditionMgr::IsPlayerMeetingCondition(_player, playerCondition))
+                continue;
+
+        splashScreen = *itr;
+    }
+
+    WorldPackets::Misc::SplashScreenShowLatest splashScreenShowLatest;
+    splashScreenShowLatest.UISplashScreenID = splashScreen ? splashScreen->ID : 0;
+    SendPacket(splashScreenShowLatest.Write());
 }

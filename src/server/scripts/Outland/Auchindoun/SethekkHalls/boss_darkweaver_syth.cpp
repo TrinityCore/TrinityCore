@@ -63,6 +63,12 @@ enum Events
     EVENT_CHAIN_LIGHTNING       = 5
 };
 
+enum Lakka
+{
+    NPC_LAKKA         = 18956,
+    SAY_LAKKA_FREE    = 1
+};
+
 class boss_darkweaver_syth : public CreatureScript
 {
 public:
@@ -88,13 +94,13 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
-            events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
-            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
-            events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
-            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8000);
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_FLAME_SHOCK, 2s);
+            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4s);
+            events.ScheduleEvent(EVENT_FROST_SHOCK, 6s);
+            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8s);
             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15000);
 
             Talk(SAY_AGGRO);
@@ -104,6 +110,9 @@ public:
         {
             _JustDied();
             Talk(SAY_DEATH);
+
+            if (Creature* lakka = me->FindNearestCreature(NPC_LAKKA, 500.0f, true))
+                lakka->AI()->Talk(SAY_LAKKA_FREE);
         }
 
         void KilledUnit(Unit* who) override
@@ -161,22 +170,22 @@ public:
                 case EVENT_FLAME_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_FLAME_SHOCK);
-                    events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_FLAME_SHOCK, 10s, 15s);
                     break;
                 case EVENT_ARCANE_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_ARCANE_SHOCK);
-                    events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_ARCANE_SHOCK, 10s, 15s);
                     break;
                 case EVENT_FROST_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_FROST_SHOCK);
-                    events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_FROST_SHOCK, 10s, 15s);
                     break;
                 case EVENT_SHADOW_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_SHADOW_SHOCK);
-                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, 10s, 15s);
                     break;
                 case EVENT_CHAIN_LIGHTNING:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))

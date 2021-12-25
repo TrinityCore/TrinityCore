@@ -402,6 +402,7 @@ class TC_GAME_API SpellInfo
         std::array<uint32, MAX_SPELL_TOTEMS> TotemCategory = {};
         std::array<int32, MAX_SPELL_REAGENTS> Reagent = {};
         std::array<uint32, MAX_SPELL_REAGENTS> ReagentCount = {};
+        std::vector<SpellReagentsCurrencyEntry const*> ReagentsCurrency;
         int32 EquippedItemClass = -1;
         int32 EquippedItemSubClassMask = 0;
         int32 EquippedItemInventoryTypeMask = 0;
@@ -434,8 +435,7 @@ class TC_GAME_API SpellInfo
         uint32 ExplicitTargetMask = 0;
         SpellChainNode const* ChainEntry = nullptr;
 
-        SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data,
-            std::vector<SpellLabelEntry const*> const& labels, SpellVisualVector&& visuals);
+        SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data);
         SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects);
         ~SpellInfo();
 

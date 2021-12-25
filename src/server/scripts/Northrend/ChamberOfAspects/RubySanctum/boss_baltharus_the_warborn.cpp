@@ -107,10 +107,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->InterruptNonMeleeSpells(false);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(13), 0, PHASE_COMBAT);
@@ -137,7 +137,7 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 summons.Summon(summon);
                 summon->SetHealth(me->GetHealth());
-                events.ScheduleEvent(EVENT_SUMMONS_ATTACK, Seconds(2));
+                events.ScheduleEvent(EVENT_SUMMONS_ATTACK, 2s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -256,9 +256,9 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             {
                 DoZoneInCombat();
                 events.Reset();
-                events.ScheduleEvent(EVENT_CLEAVE, Seconds(11));
-                events.ScheduleEvent(EVENT_BLADE_TEMPEST, Seconds(15));
-                events.ScheduleEvent(EVENT_ENERVATING_BRAND, Seconds(10));
+                events.ScheduleEvent(EVENT_CLEAVE, 11s);
+                events.ScheduleEvent(EVENT_BLADE_TEMPEST, 15s);
+                events.ScheduleEvent(EVENT_ENERVATING_BRAND, 10s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }

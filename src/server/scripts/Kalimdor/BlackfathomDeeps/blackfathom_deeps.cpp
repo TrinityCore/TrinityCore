@@ -128,7 +128,7 @@ public:
             Initialize();
         }
 
-        void IsSummonedBy(Unit*) override
+        void IsSummonedBy(WorldObject*) override
         {
             DoZoneInCombat();
         }
@@ -203,7 +203,9 @@ public:
 
     struct npc_morriduneAI : public EscortAI
     {
-        npc_morriduneAI(Creature* creature) : EscortAI(creature)
+        npc_morriduneAI(Creature* creature) : EscortAI(creature) { }
+
+        void Reset() override
         {
             Talk(SAY_MORRIDUNE_1);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);

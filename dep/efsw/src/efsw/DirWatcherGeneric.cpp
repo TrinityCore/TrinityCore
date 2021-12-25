@@ -58,7 +58,7 @@ DirWatcherGeneric::~DirWatcherGeneric()
 
 	DirWatchMap::iterator it = Directories.begin();
 
-	for ( ; it != Directories.end(); it++ )
+	for ( ; it != Directories.end(); ++it )
 	{
 		if ( Deleted )
 		{
@@ -218,7 +218,7 @@ void DirWatcherGeneric::watch( bool reportOwnChange )
 	}
 
 	/// Process the subdirectories looking for changes
-	for ( DirWatchMap::iterator dit = Directories.begin(); dit != Directories.end(); dit++ )
+	for ( DirWatchMap::iterator dit = Directories.begin(); dit != Directories.end(); ++dit )
 	{
 		/// Just watch
 		dit->second->watch();
@@ -293,7 +293,7 @@ DirWatcherGeneric * DirWatcherGeneric::findDirWatcher( std::string dir )
 	{
 		DirWatcherGeneric * watcher = NULL;
 
-		for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); it++ )
+		for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); ++it )
 		{
 			watcher = it->second->findDirWatcher( dir );
 
@@ -437,7 +437,7 @@ bool DirWatcherGeneric::pathInWatches( std::string path )
 		return true;
 	}
 
-	for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); it++ )
+	for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); ++it )
 	{
 		 if ( it->second->pathInWatches( path ) )
 		 {

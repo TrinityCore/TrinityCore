@@ -449,6 +449,8 @@ namespace WorldPackets
                 int32 PvpTierID = 0;
                 int32 Unused3 = 0;
                 int32 WeeklyBestWinPvpTierID = 0;
+                int32 Unused4 = 0;
+                int32 Rank = 0;
                 bool Disqualified = false;
             } Bracket[6];
         };

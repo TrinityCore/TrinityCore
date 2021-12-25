@@ -24,7 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
-go_demon_portal
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -86,10 +85,14 @@ public:
 
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
-                    me->GetThreatManager().ClearAllThreat();
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
+                    
+                    EngagementOver();
+                    
                     me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
                     me->setActive(true);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 }
             }
             else if (spell->Id == SPELL_KODO_KOMBO_GOSSIP)

@@ -19,6 +19,7 @@
 #define BattlePetPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "UnitDefines.h"
@@ -39,7 +40,7 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint32 Species = 0;
             uint32 CreatureID = 0;
-            uint32 CollarID = 0;
+            uint32 DisplayID = 0;
             uint16 Breed = 0;
             uint16 Level = 0;
             uint16 Exp = 0;
@@ -69,7 +70,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint16 Trap = 0;
-            bool HasJournalLock = true;
+            bool HasJournalLock = false;
             std::vector<std::reference_wrapper<BattlePetSlot>> Slots;
             std::vector<std::reference_wrapper<BattlePet>> Pets;
         };
@@ -82,10 +83,26 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
+        class BattlePetJournalLockDenied final : public ServerPacket
+        {
+        public:
+            BattlePetJournalLockDenied() : ServerPacket(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class BattlePetRequestJournal final : public ClientPacket
         {
         public:
             BattlePetRequestJournal(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class BattlePetRequestJournalLock final : public ClientPacket
+        {
+        public:
+            BattlePetRequestJournalLock(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -133,7 +150,35 @@ namespace WorldPackets
 
             ObjectGuid PetGuid;
             std::string Name;
-            DeclinedName Declined;
+            Optional<DeclinedName> DeclinedNames;
+        };
+
+        class QueryBattlePetName final : public ClientPacket
+        {
+        public:
+            QueryBattlePetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_BATTLE_PET_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid BattlePetID;
+            ObjectGuid UnitGUID;
+        };
+
+        class QueryBattlePetNameResponse final : public ServerPacket
+        {
+        public:
+            QueryBattlePetNameResponse() : ServerPacket(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BattlePetID;
+            int32 CreatureID = 0;
+            WorldPackets::Timestamp<> Timestamp;
+            bool Allow = false;
+
+            bool HasDeclined = false;
+            DeclinedName DeclinedNames;
+            std::string Name;
         };
 
         class BattlePetDeletePet final : public ClientPacket
@@ -196,7 +241,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Result = 0;
-            uint32 CreatureID = 0;
+            int32 CreatureID = 0;
         };
 
         class BattlePetSummon final : public ClientPacket

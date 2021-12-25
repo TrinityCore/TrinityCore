@@ -702,7 +702,7 @@ public:
 
         amount = atoi(rankTxt);
         // try to find rank by name
-        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit(rankTxt[0]))
+        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit((unsigned char)rankTxt[0]))
         {
             std::string rankStr = rankTxt;
             std::wstring wrankStr;
@@ -734,7 +734,7 @@ public:
 
             if (rankThresholdItr == end)
             {
-                handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, rankTxt);
+                handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, rankTxt);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -868,7 +868,7 @@ public:
             return false;
         }
 
-        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->getRace(), target->getClass());
+        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->GetRace(), target->GetClass());
         if (!info)
             return false;
 
@@ -879,14 +879,14 @@ public:
 
         if (!strncmp(gender_str, "male", gender_len))            // MALE
         {
-            if (target->getGender() == GENDER_MALE)
+            if (target->GetGender() == GENDER_MALE)
                 return true;
 
             gender = GENDER_MALE;
         }
         else if (!strncmp(gender_str, "female", gender_len))    // FEMALE
         {
-            if (target->getGender() == GENDER_FEMALE)
+            if (target->GetGender() == GENDER_FEMALE)
                 return true;
 
             gender = GENDER_FEMALE;
@@ -900,7 +900,7 @@ public:
 
         // Set gender
         target->SetGender(gender);
-        target->SetNativeSex(gender);
+        target->SetNativeGender(gender);
 
         // Change display ID
         target->InitDisplayIds();
@@ -911,8 +911,8 @@ public:
         // Generate random customizations
         std::vector<UF::ChrCustomizationChoice> customizations;
 
-        Classes playerClass = Classes(target->getClass());
-        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->getRace(), gender);
+        Classes playerClass = Classes(target->GetClass());
+        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->GetRace(), gender);
         WorldSession const* worldSession = target->GetSession();
         for (ChrCustomizationOptionEntry const* option : *options)
         {

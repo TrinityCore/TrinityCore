@@ -30,7 +30,7 @@ class at_nethekurse_exit : public AreaTriggerScript
     public:
         at_nethekurse_exit() : AreaTriggerScript("at_nethekurse_exit") { };
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const*, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const*) override
         {
             if (InstanceScript* is = player->GetInstanceScript())
             {
@@ -149,6 +149,8 @@ class boss_shattered_executioner : public CreatureScript
                             /* fallthrough */
                         case 1:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
+                            /* fallthrough */
+                        default:
                             break;
                     }
                 }

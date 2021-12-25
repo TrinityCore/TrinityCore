@@ -1,0 +1,2 @@
+-- 
+UPDATE `quest_offer_reward` SET `RewardText`="To'gun was here earlier giving me his report. He should have stayed with you to help!$B$BI sent him back out there to assist Grik'tha. I think they make a cute couple.$B$BSo, these are the soul devices that the Shadow Council were using to enhance their summoning power? They look dangerous to me - maybe the Scryers will know what to do with them?$B$BPlease, take one of these as a reward for crippling the Shadow Council's operation in the labyrinth." WHERE `ID`=10091;

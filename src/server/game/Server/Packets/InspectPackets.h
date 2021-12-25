@@ -105,6 +105,8 @@ namespace WorldPackets
             int32 SeasonBestRating = 0;
             int32 PvpTierID        = 0;
             int32 WeeklyBestWinPvpTierID = 0;
+            int32 Unused1          = 0;
+            int32 Unused2          = 0;
             uint8 Bracket          = 0;
             bool Disqualified      = false;
         };

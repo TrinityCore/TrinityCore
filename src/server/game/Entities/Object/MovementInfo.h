@@ -110,6 +110,12 @@ struct MovementInfo
     void OutDebug();
 };
 
+enum class MovementForceType : uint8
+{
+    SingleDirectional   = 0, // always in a single direction
+    Gravity             = 1  // pushes/pulls away from a single point
+};
+
 struct MovementForce
 {
     ObjectGuid ID;
@@ -117,7 +123,7 @@ struct MovementForce
     TaggedPosition<Position::XYZ> Direction;
     uint32 TransportID = 0;
     float Magnitude = 0.0f;
-    uint8 Type = 0;
+    MovementForceType Type = MovementForceType::SingleDirectional;
     int32 Unused910 = 0;
 };
 

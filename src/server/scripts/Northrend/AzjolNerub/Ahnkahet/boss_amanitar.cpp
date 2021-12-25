@@ -89,22 +89,22 @@ struct boss_amanitar : public BossAI
 {
     boss_amanitar(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
-        events.ScheduleEvent(EVENT_ROOT, Seconds(5), Seconds(9));
-        events.ScheduleEvent(EVENT_BASH, Seconds(10), Seconds(14));
-        events.ScheduleEvent(EVENT_BOLT, Seconds(15), Seconds(20));
-        events.ScheduleEvent(EVENT_MINI, Seconds(12), Seconds(18));
-        events.ScheduleEvent(EVENT_SPAWN, Seconds(1));
-        events.ScheduleEvent(EVENT_RESPAWN, Seconds(40), Seconds(60));
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_ROOT, 5s, 9s);
+        events.ScheduleEvent(EVENT_BASH, 10s, 14s);
+        events.ScheduleEvent(EVENT_BOLT, 15s, 20s);
+        events.ScheduleEvent(EVENT_MINI, 12s, 18s);
+        events.ScheduleEvent(EVENT_SPAWN, 1s);
+        events.ScheduleEvent(EVENT_RESPAWN, 40s, 1min);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         summons.DespawnAll();
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI, true, true);
         _DespawnAtEvade();
     }
 
@@ -112,7 +112,7 @@ struct boss_amanitar : public BossAI
     {
         _JustDied();
         DoCastAOE(SPELL_REMOVE_MUSHROOM_POWER);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI, true, true);
     }
 
     void JustSummoned(Creature* summon) override

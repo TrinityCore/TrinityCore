@@ -672,7 +672,7 @@ struct npc_fizzlebang_toc : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         _events.Reset();
-        _events.ScheduleEvent(EVENT_START_MOVE, Seconds(1));
+        _events.ScheduleEvent(EVENT_START_MOVE, 1s);
     }
 
     void MovementInform(uint32 type, uint32 pointId) override

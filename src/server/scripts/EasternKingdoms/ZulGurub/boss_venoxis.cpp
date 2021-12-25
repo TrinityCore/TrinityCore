@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Spell.h"
 #include "zulgurub.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
 
 enum Yells
 {
@@ -55,16 +55,16 @@ class boss_venoxis : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                Talk(SAY_AGGRO);
-            }
-
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+            }
+
+            void JustEngagedWith(Unit* who) override
+            {
+                BossAI::JustEngagedWith(who);
+                Talk(SAY_AGGRO);
             }
 
             void KilledUnit(Unit* victim) override

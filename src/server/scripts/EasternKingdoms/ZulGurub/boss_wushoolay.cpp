@@ -15,10 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "zulgurub.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Yells
 {
@@ -43,16 +42,9 @@ class boss_wushoolay : public CreatureScript
             {
             }
 
-            void Reset() override
+            void JustEngagedWith(Unit* who) override
             {
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
+                BossAI::JustEngagedWith(who);
             }
 
             void UpdateAI(uint32 diff) override

@@ -155,6 +155,7 @@ WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
 WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
 {
     _worldPacket << uint32(CinematicID);
+    _worldPacket << ConversationGuid;
 
     return &_worldPacket;
 }
@@ -719,6 +720,19 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
     _worldPacket << TimeLeft;
     _worldPacket << TotalTime;
     _worldPacket << int32(Type);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ConversationLineStarted::Read()
+{
+    _worldPacket >> ConversationGUID;
+    _worldPacket >> LineID;
+}
+
+WorldPacket const* WorldPackets::Misc::SplashScreenShowLatest::Write()
+{
+    _worldPacket << int32(UISplashScreenID);
 
     return &_worldPacket;
 }

@@ -219,10 +219,10 @@ struct boss_garothi_worldbreaker : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_ID_SURGING_FEL);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
         me->SetReactState(REACT_AGGRESSIVE);
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_MELEE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -465,13 +465,13 @@ struct boss_garothi_worldbreaker : public BossAI
          if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, decimator);
-             decimator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+             decimator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE));
          }
 
          if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, annihilator);
-             annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+             annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE));
          }
      }
 };
@@ -560,7 +560,7 @@ class spell_garothi_fel_bombardment_selector : public SpellScript
     void HandleWarningEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster() ? GetCaster()->ToCreature() : nullptr;
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         Unit* target = GetHitUnit();
@@ -693,7 +693,7 @@ class spell_garothi_decimation_selector : public SpellScript
         {
             caster->CastSpell(GetHitUnit(), SPELL_DECIMATION_WARNING, true);
             if (Creature* decimator = caster->ToCreature())
-                if (decimator->IsAIEnabled)
+                if (decimator->IsAIEnabled())
                     decimator->AI()->Talk(SAY_ANNOUNCE_DECIMATION, GetHitUnit());
         }
     }
@@ -843,7 +843,7 @@ class spell_garothi_cannon_chooser : public SpellScript
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetHitCreature();
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         InstanceScript* instance = caster->GetInstanceScript();

@@ -21,6 +21,7 @@
 #include "MovementTypedefs.h"
 #include "PacketUtilities.h"
 #include "Unit.h"
+#include "Util.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 {
@@ -348,7 +349,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBit(false);                                                   // HasSplineFilter
         data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
-        data.WriteBit(moveSpline.splineflags.parabolic);                        // HasJumpExtraData
+        bool hasJumpExtraData = data.WriteBit(moveSpline.splineflags.parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time));
         data.WriteBit(moveSpline.anim_tier.is_initialized());                   // HasAnimationTierTransition
         data.WriteBit(false);                                                   // HasUnknown901
         data.FlushBits();
@@ -400,7 +401,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             data << float(moveSpline.vertical_acceleration);
         }
 
-        if (moveSpline.splineflags.parabolic)
+        if (hasJumpExtraData)
         {
             data << float(moveSpline.vertical_acceleration);
             data << uint32(moveSpline.effect_start_time);
@@ -438,7 +439,7 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
 {
     data << movementForce.ID;
     data << movementForce.Origin;
-    if (movementForce.Type == 1 && objectPosition) // gravity
+    if (movementForce.Type == MovementForceType::Gravity && objectPosition)
     {
         TaggedPosition<Position::XYZ> direction;
         if (movementForce.Magnitude != 0.0f)
@@ -468,7 +469,7 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
 
     data << uint32(movementForce.TransportID);
     data << float(movementForce.Magnitude);
-    data.WriteBits(movementForce.Type, 2);
+    data.WriteBits(AsUnderlyingType(movementForce.Type), 2);
     data.WriteBit(movementForce.Unused910 != 0);
     data.FlushBits();
 
@@ -499,7 +500,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     movementSpline.MoveTime = moveSpline.Duration();
 
-    if (splineFlags.parabolic)
+    if (splineFlags.parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time))
     {
         movementSpline.JumpExtraData.emplace();
         movementSpline.JumpExtraData->JumpGravity = moveSpline.vertical_acceleration;
@@ -564,6 +565,14 @@ WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
     _worldPacket << MoverGUID;
     _worldPacket << Pos;
     _worldPacket << SplineData;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::FlightSplineSync::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << float(SplineDist);
+
     return &_worldPacket;
 }
 
@@ -696,7 +705,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
     data >> movementForce.Direction;
     data >> movementForce.TransportID;
     data >> movementForce.Magnitude;
-    movementForce.Type = data.ReadBits(2);
+    movementForce.Type = MovementForceType(data.ReadBits(2));
     bool has910 = data.ReadBit();
     if (has910)
         data >> movementForce.Unused910;
@@ -916,6 +925,14 @@ void WorldPackets::Movement::MoveTimeSkipped::Read()
 {
     _worldPacket >> MoverGUID;
     _worldPacket >> TimeSkipped;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSkipTime::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << TimeSkipped;
+
+    return &_worldPacket;
 }
 
 void WorldPackets::Movement::SummonResponse::Read()

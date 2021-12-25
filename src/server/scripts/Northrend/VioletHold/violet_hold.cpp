@@ -473,12 +473,12 @@ class npc_sinclari_vh : public CreatureScript
                             task.Repeat(Seconds(5));
                             break;
                         case 8:
-                            me->SetVisible(false);
+                            _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
                             task.Repeat(Seconds(1));
                             break;
                         case 9:
-                            _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
-                            // [1] GUID: Full: 0xF1300077C202E6DD Type: Creature Entry: 30658 Low: 190173
+                            // We should teleport inside if event is in progress with GOSSIP_MENU_SEND_ME_IN
+                            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             break;
                         default:
                             break;
@@ -586,7 +586,7 @@ class npc_azure_saboteur : public CreatureScript
             {
                 if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
                 {
-                    _scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                    _scheduler.Schedule(0s, [this](TaskContext task)
                     {
                         me->CastSpell(me, SPELL_SHIELD_DISRUPTION, false);
 
@@ -1368,8 +1368,8 @@ class spell_violet_hold_portal_periodic : public SpellScriptLoader
             void PeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                if (GetTarget()->IsAIEnabled)
-                    GetTarget()->GetAI()->SetData(DATA_PORTAL_PERIODIC_TICK, aurEff->GetTickNumber());
+                if (UnitAI* targetAI = GetTarget()->GetAI())
+                    targetAI->SetData(DATA_PORTAL_PERIODIC_TICK, aurEff->GetTickNumber());
             }
 
             void Register() override

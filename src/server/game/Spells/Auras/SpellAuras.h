@@ -20,6 +20,7 @@
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include <typeinfo>
 
 class SpellInfo;
 struct SpellModifier;
@@ -244,6 +245,7 @@ class TC_GAME_API Aura
 
         bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
         void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
+        void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
         void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
@@ -291,17 +293,19 @@ class TC_GAME_API Aura
         DynObjAura const* ToDynObjAura() const { if (GetType() == DYNOBJ_AURA_TYPE) return reinterpret_cast<DynObjAura const*>(this); else return nullptr; }
 
         template <class Script>
-        Script* GetScript(std::string const& scriptName) const
+        Script* GetScript() const
         {
-            return dynamic_cast<Script*>(GetScriptByName(scriptName));
+            return static_cast<Script*>(GetScriptByType(typeid(Script)));
         }
 
         std::vector<AuraScript*> m_loadedScripts;
 
         AuraEffectVector const& GetAuraEffects() const { return _effects; }
 
+        virtual std::string GetDebugInfo() const;
+
     private:
-        AuraScript* GetScriptByName(std::string const& scriptName) const;
+        AuraScript* GetScriptByType(std::type_info const& type) const;
         void _DeleteRemovedApplications();
 
     protected:

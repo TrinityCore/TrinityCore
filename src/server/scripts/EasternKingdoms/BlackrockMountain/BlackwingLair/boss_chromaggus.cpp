@@ -17,6 +17,9 @@
 
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
+#include "InstanceScript.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -191,15 +194,15 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_SHIMMER, 0);
             events.ScheduleEvent(EVENT_BREATH_1, 30000);
             events.ScheduleEvent(EVENT_BREATH_2, 60000);
-            events.ScheduleEvent(EVENT_AFFLICTION, 10000);
-            events.ScheduleEvent(EVENT_FRENZY, 15000);
+            events.ScheduleEvent(EVENT_AFFLICTION, 10s);
+            events.ScheduleEvent(EVENT_FRENZY, 15s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -227,7 +230,7 @@ public:
                             DoCast(me, spell);
                             CurrentVurln_Spell = spell;
                             Talk(EMOTE_SHIMMER);
-                            events.ScheduleEvent(EVENT_SHIMMER, 45000);
+                            events.ScheduleEvent(EVENT_SHIMMER, 45s);
                             break;
                         }
                     case EVENT_BREATH_1:
@@ -259,11 +262,11 @@ public:
                                 }
                             }
                         }
-                        events.ScheduleEvent(EVENT_AFFLICTION, 10000);
+                        events.ScheduleEvent(EVENT_AFFLICTION, 10s);
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_FRENZY, 10s, 15s);
                         break;
                 }
 
@@ -294,7 +297,46 @@ public:
     }
 };
 
+class go_chromaggus_lever : public GameObjectScript
+{
+    public:
+        go_chromaggus_lever() : GameObjectScript("go_chromaggus_lever") { }
+
+        struct go_chromaggus_leverAI : public GameObjectAI
+        {
+            go_chromaggus_leverAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
+
+            bool GossipHello(Player* player) override
+            {
+                if (_instance->GetBossState(DATA_CHROMAGGUS) != DONE && _instance->GetBossState(DATA_CHROMAGGUS) != IN_PROGRESS)
+                {
+                    _instance->SetBossState(DATA_CHROMAGGUS, IN_PROGRESS);
+
+                    if (Creature* creature = _instance->GetCreature(DATA_CHROMAGGUS))
+                        creature->AI()->JustEngagedWith(player);
+
+                    if (GameObject* go = _instance->GetGameObject(DATA_GO_CHROMAGGUS_DOOR))
+                        _instance->HandleGameObject(ObjectGuid::Empty, true, go);
+                }
+
+                me->AddFlag(GameObjectFlags(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE));
+                me->SetGoState(GO_STATE_ACTIVE);
+
+                return true;
+            }
+
+        private:
+            InstanceScript* _instance;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetBlackwingLairAI<go_chromaggus_leverAI>(go);
+        }
+};
+
 void AddSC_boss_chromaggus()
 {
     new boss_chromaggus();
+    new go_chromaggus_lever();
 }

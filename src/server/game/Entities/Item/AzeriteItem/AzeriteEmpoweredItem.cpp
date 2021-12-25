@@ -75,7 +75,7 @@ void AzeriteEmpoweredItem::LoadAzeriteEmpoweredItemData(Player const* owner, Aze
         for (int32 i = MAX_AZERITE_EMPOWERED_TIER; --i >= 0; )
         {
             int32 selection = azeriteEmpoweredItem.SelectedAzeritePowers[i];
-            if (GetTierForAzeritePower(Classes(owner->getClass()), selection) != i)
+            if (GetTierForAzeritePower(Classes(owner->GetClass()), selection) != i)
             {
                 needSave = true;
                 break;

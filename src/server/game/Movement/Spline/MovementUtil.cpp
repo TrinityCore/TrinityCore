@@ -173,7 +173,7 @@ namespace Movement
         STRINGIZE(Parabolic         ), // 0x04000000           // Not Compartible With Fall Movement
         STRINGIZE(FadeObject        ), // 0x08000000
         STRINGIZE(Steering          ), // 0x10000000
-        STRINGIZE(Unknown_0x20000000), // 0x20000000
+        STRINGIZE(UnlimitedSpeed    ), // 0x20000000
         STRINGIZE(Unknown_0x40000000), // 0x40000000
         STRINGIZE(Unknown_0x80000000), // 0x80000000
     };

@@ -32,6 +32,7 @@ EndScriptData */
 #include "ChatPackets.h"
 #include "Conversation.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -43,6 +44,8 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
+#include "PoolMgr.h"
+#include "QuestPools.h"
 #include "RBAC.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -55,6 +58,7 @@ EndScriptData */
 #include <set>
 #include <sstream>
 
+using namespace Trinity::ChatCommands;
 class debug_commandscript : public CommandScript
 {
 public:
@@ -83,6 +87,11 @@ public:
             { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
             { "playerchoice",  rbac::RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE, false, &HandleDebugSendPlayerChoiceCommand,    "" },
+        };
+        static std::vector<ChatCommand> debugAsanCommandTable =
+        {
+            { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
+            { "outofbounds",   rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugOutOfBounds,        "" },
         };
         static std::vector<ChatCommand> debugCommandTable =
         {
@@ -115,6 +124,10 @@ public:
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
             { "worldstate" ,   rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWorldStateCommand,       "" },
             { "wsexpression" , rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWSExpressionCommand,     "" },
+            { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
+            { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
+            { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
+            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -861,7 +874,7 @@ public:
         ThreatManager& mgr = target->GetThreatManager();
         if (!target->IsAlive())
         {
-            handler->PSendSysMessage("%s (%s) is not alive.", target->GetName().c_str(), target->GetGUID().ToString().c_str());
+            handler->PSendSysMessage("%s (%s) is not alive.%s", target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->IsEngaged() ? " (It is, however, engaged. Huh?)" : "");
             return true;
         }
 
@@ -884,7 +897,7 @@ public:
         {
             if (!mgr.IsThreatListEmpty(true))
             {
-                if (mgr.IsEngaged())
+                if (target->IsEngaged())
                     handler->PSendSysMessage("Threat list of %s (%s, SpawnID " UI64FMTD "):", target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
                 else
                     handler->PSendSysMessage("%s (%s, SpawnID " UI64FMTD ") is not engaged, but still has a threat list? Well, here it is:", target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
@@ -925,13 +938,15 @@ public:
                 }
                 handler->SendSysMessage("End of threat list.");
             }
-            else if (!mgr.IsEngaged())
+            else if (!target->IsEngaged())
                 handler->PSendSysMessage("%s (%s, SpawnID " UI64FMTD ") is not currently engaged.", target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
             else
                 handler->PSendSysMessage("%s (%s, SpawnID " UI64FMTD ") seems to be engaged, but does not have a threat list??", target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
         }
+        else if (target->IsEngaged())
+            handler->PSendSysMessage("%s (%s) is currently engaged. (This unit cannot have a threat list.)", target->GetName().c_str(), target->GetGUID().ToString().c_str());
         else
-            handler->PSendSysMessage("%s (%s) cannot have a threat list.", target->GetName().c_str(), target->GetGUID().ToString().c_str());
+            handler->PSendSysMessage("%s (%s) is not currently engaged. (This unit cannot have a threat list.)", target->GetName().c_str(), target->GetGUID().ToString().c_str());
         return true;
     }
 
@@ -1295,7 +1310,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        TC_LOG_INFO("sql.dev", "(@PATH, XX, %.3f, %.3f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        TC_LOG_INFO("sql.dev", "(@PATH, XX, %.3f, %.3f, %.5f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
         handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
         return true;
@@ -1354,10 +1369,8 @@ public:
         if (!player)
             return false;
         Creature* target = handler->getSelectedCreature();
-        if (!target || !target->IsAIEnabled || !target->AI())
-        {
+        if (!target || !target->IsAIEnabled())
             return false;
-        }
 
         char* fill_str = args ? strtok((char*)args, " ") : nullptr;
         char* duration_str = args ? strtok(nullptr, " ") : nullptr;
@@ -1451,6 +1464,42 @@ public:
                     difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         }
+        return true;
+    }
+
+    static bool HandleDebugQuestResetCommand(ChatHandler* handler, std::string arg)
+    {
+        if (!Utf8ToUpperOnlyLatin(arg))
+            return false;
+
+        bool daily = false, weekly = false, monthly = false;
+        if (arg == "ALL")
+            daily = weekly = monthly = true;
+        else if (arg == "DAILY")
+            daily = true;
+        else if (arg == "WEEKLY")
+            weekly = true;
+        else if (arg == "MONTHLY")
+            monthly = true;
+        else
+            return false;
+
+        if (daily)
+        {
+            sWorld->DailyReset();
+            handler->PSendSysMessage("Daily quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_DAILY_QUEST_RESET_TIME)).c_str());
+        }
+        if (weekly)
+        {
+            sWorld->ResetWeeklyQuests();
+            handler->PSendSysMessage("Weekly quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME)).c_str());
+        }
+        if (monthly)
+        {
+            sWorld->ResetMonthlyQuests();
+            handler->PSendSysMessage("Monthly quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME)).c_str());
+        }
+
         return true;
     }
 
@@ -1631,7 +1680,7 @@ public:
             return false;
         }
 
-        return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
+        return Conversation::CreateConversation(conversationEntry, target, *target, target->GetGUID()) != nullptr;
     }
 
     static bool HandleDebugWorldStateCommand(ChatHandler* handler, char const* args)
@@ -1699,6 +1748,61 @@ public:
 
         return true;
     };
+
+    static bool HandleDebugOutOfBounds(ChatHandler* handler, CommandArgs* /*args*/)
+    {
+        uint8 stack_array[10] = {};
+        int size = 10;
+
+        handler->PSendSysMessage("Triggered an array out of bounds read at address %p, value %u", stack_array + size, stack_array[size]);
+        return true;
+    }
+
+    static bool HandleDebugMemoryLeak(ChatHandler* handler, CommandArgs* /*args*/)
+    {
+        uint8* leak = new uint8();
+        handler->PSendSysMessage("Leaked 1 uint8 object at address %p", leak);
+        return true;
+    }
+
+    static bool HandleDebugGuidLimitsCommand(ChatHandler* handler, CommandArgs* args)
+    {
+        auto mapId = args->TryConsume<uint32>();
+        if (mapId)
+        {
+            sMapMgr->DoForAllMapsWithMapId(mapId.get(),
+                [handler](Map* map) -> void
+                {
+                    HandleDebugGuidLimitsMap(handler, map);
+                }
+            );
+        }
+        else
+        {
+            sMapMgr->DoForAllMaps(
+                [handler](Map* map) -> void
+                {
+                    HandleDebugGuidLimitsMap(handler, map);
+                }
+            );
+        }
+
+        handler->PSendSysMessage("Guid Warn Level: %u", sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL));
+        handler->PSendSysMessage("Guid Alert Level: %u", sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL));
+        return true;
+    }
+
+    static void HandleDebugGuidLimitsMap(ChatHandler* handler, Map* map)
+    {
+        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Highest Guid Creature: " UI64FMTD " GameObject: " UI64FMTD,
+            map->GetId(), map->GetMapName(), map->GetInstanceId(), uint64(map->GenerateLowGuid<HighGuid::Creature>()), uint64(map->GetMaxLowGuid<HighGuid::GameObject>()));
+    }
+
+    static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)
+    {
+        handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
+        return true;
+    }
 };
 
 void AddSC_debug_commandscript()

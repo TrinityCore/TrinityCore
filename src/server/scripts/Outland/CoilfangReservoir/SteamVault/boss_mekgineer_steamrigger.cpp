@@ -24,7 +24,6 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "steam_vault.h"
 
@@ -240,7 +239,7 @@ public:
             {
                 if (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MEKGINEER_STEAMRIGGER)))
+                    if (Creature* mekgineer = instance->GetCreature(DATA_MEKGINEER_STEAMRIGGER))
                     {
                         if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {

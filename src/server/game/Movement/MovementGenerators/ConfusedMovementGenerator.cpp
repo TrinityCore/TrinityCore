@@ -92,6 +92,14 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
         float angle = frand(0.0f, 1.0f) * float(M_PI) * 2.0f;
         owner->MovePositionToFirstCollision(destination, distance, angle);
 
+        // Check if the destination is in LOS
+        if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
+        {
+            // Retry later on
+            _timer.Reset(200);
+            return true;
+        }
+
         if (!_path)
         {
             _path = std::make_unique<PathGenerator>(owner);
@@ -99,7 +107,9 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
         }
 
         bool result = _path->CalculatePath(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ());
-        if (!result || (_path->GetPathType() & PATHFIND_NOPATH))
+        if (!result || (_path->GetPathType() & PATHFIND_NOPATH)
+                    || (_path->GetPathType() & PATHFIND_SHORTCUT)
+                    || (_path->GetPathType() & PATHFIND_FARFROMPOLY))
         {
             _timer.Reset(100);
             return true;

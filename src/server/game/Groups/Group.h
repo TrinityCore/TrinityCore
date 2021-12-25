@@ -24,6 +24,7 @@
 #include "Loot.h"
 #include "Object.h"
 #include "SharedDefines.h"
+#include "Timer.h"
 #include <map>
 
 class Battlefield;
@@ -243,31 +244,32 @@ class TC_GAME_API Group
         Group();
         ~Group();
 
+        void Update(uint32 diff);
+
         // group manipulation methods
-        bool   Create(Player* leader);
-        void   LoadGroupFromDB(Field* field);
+        bool Create(Player* leader);
+        void LoadGroupFromDB(Field* field);
         void LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
-        bool   AddInvite(Player* player);
-        void   RemoveInvite(Player* player);
-        void   RemoveAllInvites();
-        bool   AddLeaderInvite(Player* player);
-        bool   AddMember(Player* player);
-        bool   RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
-        void   ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
- static void   ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
-        void   SetLootMethod(LootMethod method);
-        void   SetLooterGuid(ObjectGuid guid);
-        void   SetMasterLooterGuid(ObjectGuid guid);
-        void   UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
-        void   SetLootThreshold(ItemQualities threshold);
-        void   Disband(bool hideDestroy = false);
-        void   SetLfgRoles(ObjectGuid guid, uint8 roles);
-        uint8  GetLfgRoles(ObjectGuid guid);
-        void   SetEveryoneIsAssistant(bool apply);
+        bool AddInvite(Player* player);
+        void RemoveInvite(Player* player);
+        void RemoveAllInvites();
+        bool AddLeaderInvite(Player* player);
+        bool AddMember(Player* player);
+        bool RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
+        void ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
+        static void ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
+        void SetLootMethod(LootMethod method);
+        void SetLooterGuid(ObjectGuid guid);
+        void SetMasterLooterGuid(ObjectGuid guid);
+        void UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
+        void SetLootThreshold(ItemQualities threshold);
+        void Disband(bool hideDestroy = false);
+        void SetLfgRoles(ObjectGuid guid, uint8 roles);
+        uint8 GetLfgRoles(ObjectGuid guid);
+        void SetEveryoneIsAssistant(bool apply);
 
         // Update
-        void   Update(uint32 diff);
-        void   UpdateReadyCheck(uint32 diff);
+        void UpdateReadyCheck(uint32 diff);
 
         // Ready check
         void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration = Milliseconds(READYCHECK_DURATION));
@@ -387,7 +389,7 @@ class TC_GAME_API Group
 
         bool isRollLootActive() const { return !RollId.empty(); }
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const;
-        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
+        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll, bool autoPass = false) const;
         void SendLootRollWon(ObjectGuid winnerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
         void SendLootAllPassed(Roll const& roll) const;
         void SendLootRollsComplete(Roll const& roll) const;
@@ -413,6 +415,10 @@ class TC_GAME_API Group
         InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
         BoundInstancesMap::iterator GetBoundInstances(Difficulty difficulty);
         BoundInstancesMap::iterator GetBoundInstanceEnd();
+
+        void StartLeaderOfflineTimer();
+        void StopLeaderOfflineTimer();
+        void SelectNewPartyOrRaidLeader();
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
@@ -451,6 +457,8 @@ class TC_GAME_API Group
         ObjectGuid          m_guid;
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
+        bool                m_isLeaderOffline;
+        TimeTrackerSmall    m_leaderOfflineTimer;
 
         // Ready Check
         bool                m_readyCheckStarted;

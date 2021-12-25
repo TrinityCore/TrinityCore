@@ -148,6 +148,8 @@ class TC_GAME_API Pet : public Guardian
 
         Player* GetOwner() const;
 
+        std::string GetDebugInfo() const override;
+
     protected:
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
@@ -161,10 +163,6 @@ class TC_GAME_API Pet : public Guardian
 
     private:
         void SaveToDB(uint32, std::vector<Difficulty> const&) override              // override of Creature::SaveToDB     - must not be called
-        {
-            ABORT();
-        }
-        void DeleteFromDB() override                                 // override of Creature::DeleteFromDB - must not be called
         {
             ABORT();
         }

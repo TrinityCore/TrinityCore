@@ -305,9 +305,9 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         {
             CreatureData &data = sObjectMgr->NewOrExistCreatureData(creature->GetSpawnId());
             data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
-            data.spawndist = 5;
+            data.wander_distance = 5;
         }
-        //else spawndist will be 15, so creatures move maximum=10
+        //else wander_distance will be 15, so creatures move maximum=10
         //creature->SetDefaultMovementType(RANDOM_MOTION_TYPE);
         creature->GetMotionMaster()->Initialize();
         creature->setDeathState(JUST_DIED);
@@ -1024,30 +1024,30 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 
 void BattlegroundAV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+    for (uint8 itr = BG_AV_NODES_FIRSTAID_STATION; itr < BG_AV_NODES_MAX; ++itr)
     {
-        uint16 owner = m_Nodes[i].Owner;
-        BG_AV_States state = m_Nodes[i].State;
+        uint16 owner = m_Nodes[itr].Owner;
+        BG_AV_States state = m_Nodes[itr].State;
 
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.AllianceAssault), int32(owner == ALLIANCE && state == POINT_ASSAULTED));
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.AllianceControl), int32(owner == ALLIANCE && state >= POINT_DESTROYED));
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.HordeAssault), int32(owner == HORDE && state == POINT_ASSAULTED));
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.HordeControl), int32(owner == HORDE && state >= POINT_DESTROYED));
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceAssault, (owner == ALLIANCE && state == POINT_ASSAULTED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceControl, (owner == ALLIANCE && state >= POINT_DESTROYED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeAssault, (owner == HORDE && state == POINT_ASSAULTED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeControl, (owner == HORDE && state >= POINT_DESTROYED) ? 1 : 0);
     }
 
-    packet.Worldstates.emplace_back(uint32(AV_SNOWFALL_N), int32(m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM));
+    packet.Worldstates.emplace_back(AV_SNOWFALL_N, (m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM ? 1 : 0));
+    packet.Worldstates.emplace_back(AV_Alliance_Score, m_Team_Scores[0]);
+    packet.Worldstates.emplace_back(AV_Horde_Score, m_Team_Scores[1]);
 
-    packet.Worldstates.emplace_back(uint32(AV_Alliance_Score), int32(m_Team_Scores[0]));
-    packet.Worldstates.emplace_back(uint32(AV_Horde_Score), int32(m_Team_Scores[1]));
-
-    if (GetStatus() == STATUS_IN_PROGRESS){ //only if game started the teamscores are displayed
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_A_SCORE), 1);
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_H_SCORE), 1);
+    // only if game started the teamscores are displayed
+    if (GetStatus() == STATUS_IN_PROGRESS) {
+        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 1);
+        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 1);
     }
     else
     {
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_A_SCORE), 0);
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_H_SCORE), 0);
+        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 0);
+        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 0);
     }
 
     SendMineWorldStates(AV_NORTH_MINE);
@@ -1137,9 +1137,9 @@ bool BattlegroundAV::SetupBattleground()
 {
     // Create starting objects
     if (// alliance gates
-        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0], 0, 0, std::sin(BG_AV_DoorPositons[0].GetOrientation()/2), std::cos(BG_AV_DoorPositons[0].GetOrientation()/2), RESPAWN_IMMEDIATELY)
+        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0], BG_AV_DoorRotation[0].x, BG_AV_DoorRotation[0].y, BG_AV_DoorRotation[0].z, BG_AV_DoorRotation[0].w, RESPAWN_IMMEDIATELY)
         // horde gates
-        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1], 0, 0, std::sin(BG_AV_DoorPositons[1].GetOrientation()/2), std::cos(BG_AV_DoorPositons[1].GetOrientation()/2), RESPAWN_IMMEDIATELY))
+        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1], BG_AV_DoorRotation[1].x, BG_AV_DoorRotation[1].y, BG_AV_DoorRotation[1].z, BG_AV_DoorRotation[1].w, RESPAWN_IMMEDIATELY))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundAV: Failed to spawn some object Battleground not created!1");
         return false;

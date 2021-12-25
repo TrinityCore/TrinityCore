@@ -95,6 +95,9 @@ public:
             return false;
         }
 
+        if (player->IsActiveQuest(entry))
+            return false;
+
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
             player->AddQuestAndCheckCompletion(quest, nullptr);
@@ -162,7 +165,7 @@ public:
         }
         else
         {
-            handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -247,6 +250,12 @@ public:
                 case QUEST_OBJECTIVE_MONEY:
                 {
                     player->ModifyMoney(obj.Amount);
+                    break;
+                }
+                case QUEST_OBJECTIVE_PLAYERKILLS:
+                {
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        player->KilledPlayerCredit(ObjectGuid::Empty);
                     break;
                 }
             }

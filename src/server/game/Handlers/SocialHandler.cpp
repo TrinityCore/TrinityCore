@@ -44,35 +44,35 @@ void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet
         GetPlayerInfo().c_str(), packet.Name.c_str());
 
     FriendsResult friendResult = FRIEND_NOT_FOUND;
-    ObjectGuid friendGuid = sCharacterCache->GetCharacterGuidByName(packet.Name);
-    if (!friendGuid.IsEmpty())
+    ObjectGuid friendGuid;
+
+    if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByName(packet.Name))
     {
-        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(friendGuid))
+        friendGuid = characterInfo->Guid;
+        ObjectGuid friendAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(characterInfo->AccountId);
+        uint32 team = Player::TeamForRace(characterInfo->Race);
+        uint32 friendAccountId = characterInfo->AccountId;
+
+        if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
         {
-            uint32 team = Player::TeamForRace(characterInfo->Race);
-            uint32 friendAccountId = characterInfo->AccountId;
-
-            if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
+            if (friendGuid == GetPlayer()->GetGUID())
+                friendResult = FRIEND_SELF;
+            else if (GetPlayer()->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
+                friendResult = FRIEND_ENEMY;
+            else if (GetPlayer()->GetSocial()->HasFriend(friendGuid))
+                friendResult = FRIEND_ALREADY;
+            else
             {
-                if (friendGuid == GetPlayer()->GetGUID())
-                    friendResult = FRIEND_SELF;
-                else if (GetPlayer()->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
-                    friendResult = FRIEND_ENEMY;
-                else if (GetPlayer()->GetSocial()->HasFriend(friendGuid))
-                    friendResult = FRIEND_ALREADY;
+                Player* playerFriend = ObjectAccessor::FindPlayer(friendGuid);
+                if (playerFriend && playerFriend->IsVisibleGloballyFor(GetPlayer()))
+                    friendResult = FRIEND_ADDED_ONLINE;
                 else
-                {
-                    Player* playerFriend = ObjectAccessor::FindPlayer(friendGuid);
-                    if (playerFriend && playerFriend->IsVisibleGloballyFor(GetPlayer()))
-                        friendResult = FRIEND_ADDED_ONLINE;
-                    else
-                        friendResult = FRIEND_ADDED_OFFLINE;
+                    friendResult = FRIEND_ADDED_OFFLINE;
 
-                    if (GetPlayer()->GetSocial()->AddToSocialList(friendGuid, SOCIAL_FLAG_FRIEND))
-                        GetPlayer()->GetSocial()->SetFriendNote(friendGuid, packet.Notes);
-                    else
-                        friendResult = FRIEND_LIST_FULL;
-                }
+                if (GetPlayer()->GetSocial()->AddToSocialList(friendGuid, friendAccountGuid, SOCIAL_FLAG_FRIEND))
+                    GetPlayer()->GetSocial()->SetFriendNote(friendGuid, packet.Notes);
+                else
+                    friendResult = FRIEND_LIST_FULL;
             }
         }
     }
@@ -98,25 +98,28 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet
     TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: %s asked to Ignore: %s",
         GetPlayer()->GetName().c_str(), packet.Name.c_str());
 
-    ObjectGuid ignoreGuid = sCharacterCache->GetCharacterGuidByName(packet.Name);
+    ObjectGuid ignoreGuid;
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
-    if (!ignoreGuid.IsEmpty())
+
+    if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByName(packet.Name))
     {
+        ignoreGuid = characterInfo->Guid;
+        ObjectGuid ignoreAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(characterInfo->AccountId);
         if (ignoreGuid == GetPlayer()->GetGUID())              //not add yourself
             ignoreResult = FRIEND_IGNORE_SELF;
-        else if (GetPlayer()->GetSocial()->HasIgnore(ignoreGuid))
+        else if (GetPlayer()->GetSocial()->HasIgnore(ignoreGuid, ignoreAccountGuid))
             ignoreResult = FRIEND_IGNORE_ALREADY;
         else
         {
             ignoreResult = FRIEND_IGNORE_ADDED;
 
             // ignore list full
-            if (!GetPlayer()->GetSocial()->AddToSocialList(ignoreGuid, SOCIAL_FLAG_IGNORED))
+            if (!GetPlayer()->GetSocial()->AddToSocialList(ignoreGuid, ignoreAccountGuid, SOCIAL_FLAG_IGNORED))
                 ignoreResult = FRIEND_IGNORE_FULL;
         }
     }
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, ignoreGuid);
+    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, ObjectGuid::Empty);
 }
 
 void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet)

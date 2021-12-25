@@ -73,8 +73,8 @@ class boss_moam : public CreatureScript
                 _Reset();
                 me->SetPower(POWER_MANA, 0);
                 Initialize();
-                events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
-                //events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                events.ScheduleEvent(EVENT_STONE_PHASE, 90s);
+                //events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -93,7 +93,7 @@ class boss_moam : public CreatureScript
                     case ACTION_STONE_PHASE_END:
                     {
                         me->RemoveAurasDueToSpell(SPELL_ENERGIZE);
-                        events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
+                        events.ScheduleEvent(EVENT_STONE_PHASE, 90s);
                         _isStonePhase = false;
                         break;
                     }
@@ -103,7 +103,7 @@ class boss_moam : public CreatureScript
                         DoCast(me, SPELL_SUMMON_MANA_FIEND_2);
                         DoCast(me, SPELL_SUMMON_MANA_FIEND_3);
                         DoCast(me, SPELL_ENERGIZE);
-                        events.ScheduleEvent(EVENT_STONE_PHASE_END, 90000);
+                        events.ScheduleEvent(EVENT_STONE_PHASE_END, 90s);
                         break;
                     }
                     default:
@@ -158,16 +158,16 @@ class boss_moam : public CreatureScript
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);
 
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, urand(5000, 15000));
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, 5s, 15s);
                             break;
                         }/*
                         case EVENT_WIDE_SLASH:
                             DoCast(me, SPELL_WIDE_SLASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
                             break;
                         case EVENT_TRASH:
                             DoCast(me, SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 16000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 15s);
                             break;*/
                         default:
                             break;

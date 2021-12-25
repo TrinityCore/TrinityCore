@@ -138,8 +138,6 @@ public:
     float GetRelativeAngle(Position const& pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
     float GetRelativeAngle(Position const* pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
 
-    void GetSinCos(float x, float y, float &vsin, float &vcos) const;
-
     bool IsInDist2d(float x, float y, float dist) const { return GetExactDist2dSq(x, y) < dist * dist; }
     bool IsInDist2d(Position const* pos, float dist) const { return GetExactDist2dSq(pos) < dist * dist; }
 
@@ -188,6 +186,8 @@ public:
     uint32 GetMapId() const { return m_mapId; }
 
     uint32 m_mapId;
+
+    std::string GetDebugInfo() const;
 };
 
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer);

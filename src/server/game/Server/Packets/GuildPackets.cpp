@@ -649,7 +649,7 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Guild::DepositGuildBankItem::Read()
+void WorldPackets::Guild::AutoGuildBankItem::Read()
 {
     _worldPacket >> Banker;
     _worldPacket >> BankTab;

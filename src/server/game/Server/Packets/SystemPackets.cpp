@@ -102,6 +102,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
+    _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
+    _worldPacket.WriteBit(ChatDisabledByDefault);
+    _worldPacket.WriteBit(ChatDisabledByPlayer);
+    _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
 
     _worldPacket.FlushBits();
 
@@ -149,15 +153,6 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     return &_worldPacket;
 }
-
-WorldPacket const* FeatureSystemStatus2::Write()
-{
-    _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
 
 WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 {

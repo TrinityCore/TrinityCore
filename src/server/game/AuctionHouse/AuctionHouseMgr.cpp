@@ -802,7 +802,7 @@ void AuctionHouseMgr::Update()
                 ++itr;
         }
 
-        _playerThrottleObjectsCleanupTime = now + Hours(1);
+        _playerThrottleObjectsCleanupTime = now + 1h;
     }
 }
 
@@ -1287,7 +1287,7 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
 
         if (filters.HasFlag(AuctionHouseFilterMask::UsableOnly))
         {
-            if (bucketData->RequiredLevel && player->getLevel() < bucketData->RequiredLevel)
+            if (bucketData->RequiredLevel && player->GetLevel() < bucketData->RequiredLevel)
                 continue;
 
             if (player->CanUseItem(sObjectMgr->GetItemTemplate(bucket.first.ItemId), true) != EQUIP_ERR_OK)

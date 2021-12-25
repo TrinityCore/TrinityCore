@@ -93,7 +93,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 chestRestockTime;                        // 2 chestRestockTime, int, Min value: 0, Max value: 1800000, Default value: 0
             uint32 consumable;                              // 3 consumable, enum { false, true, }; Default: false
             uint32 minRestock;                              // 4 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
@@ -126,6 +126,7 @@ struct GameObjectTemplate
             uint32 turnpersonallootsecurityoff;             // 31 turn personal loot security off, enum { false, true, }; Default: false
             uint32 ChestProperties;                         // 32 Chest Properties, References: ChestProperties, NoValue = 0
             uint32 chestPushLoot;                           // 33 chest Push Loot, References: Treasure, NoValue = 0
+            uint32 ForceSingleLooter;                       // 34 Force Single Looter, enum { false, true, }; Default: false
         } chest;
         // 4 GAMEOBJECT_TYPE_BINDER
         struct
@@ -403,7 +404,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 radius;                                  // 0 radius, int, Min value: 0, Max value: 50, Default value: 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 minRestock;                              // 2 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 maxRestock;                              // 3 maxRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 open;                                    // 4 open, References: Lock_, NoValue = 0
@@ -692,7 +693,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 Unused;                                  // 2 Unused, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 notInCombat;                             // 3 notInCombat, enum { false, true, }; Default: false
             uint32 trivialSkillLow;                         // 4 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0
@@ -888,6 +889,22 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_FLAGSTAND:  return flagStand.noDamageImmune != 0;
             case GAMEOBJECT_TYPE_FLAGDROP:   return flagDrop.noDamageImmune != 0;
             default: return true;
+        }
+    }
+
+    // Cannot be used/activated/looted by players under immunity effects (example: Divine Shield)
+    uint32 GetNoDamageImmune() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
+            case GAMEOBJECT_TYPE_CHEST:      return 1;
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagStand.noDamageImmune;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagDrop.noDamageImmune;
+            default: return 0;
         }
     }
 

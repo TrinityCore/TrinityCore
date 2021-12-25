@@ -93,13 +93,13 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Enraged = false;
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_HATEFUL, Seconds(1));
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(6));
+            events.ScheduleEvent(EVENT_HATEFUL, 1s);
+            events.ScheduleEvent(EVENT_BERSERK, 6min);
 
             instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
@@ -122,7 +122,7 @@ public:
                         ThreatReference* secondThreat = nullptr;
                         ThreatReference* thirdThreat = nullptr;
 
-                        ThreatManager const& mgr = me->GetThreatManager();
+                        ThreatManager& mgr = me->GetThreatManager();
                         Unit* currentVictim = mgr.GetCurrentVictim();
                         auto list = mgr.GetModifiableThreatList();
                         auto it = list.begin(), end = list.end();
@@ -165,7 +165,7 @@ public:
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
                         Talk(EMOTE_BERSERK);
-                        events.ScheduleEvent(EVENT_SLIME, Seconds(2));
+                        events.ScheduleEvent(EVENT_SLIME, 2s);
                         break;
                     case EVENT_SLIME:
                         DoCastAOE(SPELL_SLIME_BOLT, true);

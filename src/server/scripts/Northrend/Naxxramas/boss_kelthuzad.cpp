@@ -197,7 +197,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         }
 };
 
-struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
+struct ManaUserTargetSelector
 {
     bool operator()(Unit const* target) const
     {
@@ -980,10 +980,10 @@ class at_kelthuzad_center : public AreaTriggerScript
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/, bool entered) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         InstanceScript* instance = player->GetInstanceScript();
-        if (!instance || instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED || !entered)
+        if (!instance || instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED)
             return true;
 
         if (player->IsGameMaster())

@@ -37,7 +37,7 @@ void ConversationDataStore::LoadConversationTemplates()
     std::unordered_map<uint32, std::vector<ConversationActor>> actorsByConversation;
     std::unordered_map<uint32, std::vector<ObjectGuid::LowType>> actorGuidsByConversation;
 
-    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, StartTime, UiCameraID, ActorIdx, Flags FROM conversation_line_template"))
+    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, UiCameraID, ActorIdx, Flags FROM conversation_line_template"))
     {
         uint32 oldMSTime = getMSTime();
 
@@ -55,10 +55,9 @@ void ConversationDataStore::LoadConversationTemplates()
 
             ConversationLineTemplate& conversationLine = _conversationLineTemplateStore[id];
             conversationLine.Id         = id;
-            conversationLine.StartTime  = fields[1].GetUInt32();
-            conversationLine.UiCameraID = fields[2].GetUInt32();
-            conversationLine.ActorIdx   = fields[3].GetUInt8();
-            conversationLine.Flags      = fields[4].GetUInt8();
+            conversationLine.UiCameraID = fields[1].GetUInt32();
+            conversationLine.ActorIdx   = fields[2].GetUInt8();
+            conversationLine.Flags      = fields[3].GetUInt8();
         }
         while (lineTemplates->NextRow());
 
@@ -132,7 +131,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation actors. DB table `conversation_actors` is empty.");
     }
 
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineEndTime, TextureKitId, ScriptName FROM conversation_template"))
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, TextureKitId, ScriptName FROM conversation_template"))
     {
         uint32 oldMSTime = getMSTime();
 
@@ -143,9 +142,8 @@ void ConversationDataStore::LoadConversationTemplates()
             ConversationTemplate conversationTemplate;
             conversationTemplate.Id                 = fields[0].GetUInt32();
             conversationTemplate.FirstLineId        = fields[1].GetUInt32();
-            conversationTemplate.LastLineEndTime    = fields[2].GetUInt32();
-            conversationTemplate.TextureKitId       = fields[3].GetUInt32();
-            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[4].GetString());
+            conversationTemplate.TextureKitId       = fields[2].GetUInt32();
+            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[3].GetString());
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
             conversationTemplate.ActorGuids = std::move(actorGuidsByConversation[conversationTemplate.Id]);
@@ -182,6 +180,11 @@ void ConversationDataStore::LoadConversationTemplates()
 ConversationTemplate const* ConversationDataStore::GetConversationTemplate(uint32 conversationId) const
 {
     return Trinity::Containers::MapGetValuePtr(_conversationTemplateStore, conversationId);
+}
+
+ConversationLineTemplate const* ConversationDataStore::GetConversationLineTemplate(uint32 conversationLineId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_conversationLineTemplateStore, conversationLineId);
 }
 
 ConversationDataStore* ConversationDataStore::Instance()

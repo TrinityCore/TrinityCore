@@ -569,6 +569,11 @@ WorldPacket const* QuestPushResultResponse::Write()
     _worldPacket << SenderGUID;
     _worldPacket << uint8(Result);
 
+    _worldPacket.WriteBits(QuestTitle.size(), 9);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(QuestTitle);
+
     return &_worldPacket;
 }
 

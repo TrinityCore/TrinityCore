@@ -30,18 +30,18 @@
 
 enum Creatures
 {
-    NPC_EMPEROR             = 9019,
-    NPC_PHALANX             = 9502,
-    NPC_ANGERREL            = 9035,
-    NPC_DOPEREL             = 9040,
-    NPC_HATEREL             = 9034,
-    NPC_VILEREL             = 9036,
-    NPC_SEETHREL            = 9038,
-    NPC_GLOOMREL            = 9037,
-    NPC_DOOMREL             = 9039,
-    NPC_MAGMUS              = 9938,
-    NPC_MOIRA               = 8929,
-    NPC_COREN               = 23872
+    NPC_EMPEROR              = 9019,
+    NPC_PHALANX              = 9502,
+    NPC_ANGERREL             = 9035,
+    NPC_DOPEREL              = 9040,
+    NPC_HATEREL              = 9034,
+    NPC_VILEREL              = 9036,
+    NPC_SEETHREL             = 9038,
+    NPC_GLOOMREL             = 9037,
+    NPC_DOOMREL              = 9039,
+    NPC_MAGMUS               = 9938,
+    NPC_MOIRA                = 8929,
+    NPC_COREN                = 23872,
 };
 
 enum GameObjects
@@ -372,16 +372,9 @@ public:
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
                 {
                     if (!boss->IsAlive())
-                    {//do not call EnterEvadeMode(), it will create infinit loops
                         boss->Respawn();
-                        boss->RemoveAllAuras();
-                        boss->GetThreatManager().ClearAllThreat();
-                        boss->CombatStop(true);
-                        boss->LoadCreaturesAddon();
-                        boss->GetMotionMaster()->MoveTargetedHome();
-                        boss->SetLootRecipient(nullptr);
-                    }
-                    boss->SetFaction(FACTION_FRIENDLY);
+                    else
+                        boss->SetFaction(FACTION_FRIENDLY);
                 }
             }
             GhostKillCount = 0;

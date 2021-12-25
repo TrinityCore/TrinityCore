@@ -857,43 +857,41 @@ bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value
 
 void BattlegroundEY::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(uint32(EY_HORDE_BASE), int32(m_TeamPointsCount[TEAM_HORDE]));
-    packet.Worldstates.emplace_back(uint32(EY_ALLIANCE_BASE), int32(m_TeamPointsCount[TEAM_ALLIANCE]));
-    packet.Worldstates.emplace_back(0xAB6, 0x0);
-    packet.Worldstates.emplace_back(0xAB5, 0x0);
-    packet.Worldstates.emplace_back(0xAB4, 0x0);
-    packet.Worldstates.emplace_back(0xAB3, 0x0);
-    packet.Worldstates.emplace_back(0xAB2, 0x0);
-    packet.Worldstates.emplace_back(0xAB1, 0x0);
-    packet.Worldstates.emplace_back(0xAB0, 0x0);
-    packet.Worldstates.emplace_back(0xAAF, 0x0);
+    packet.Worldstates.emplace_back(EY_HORDE_BASE, m_TeamPointsCount[TEAM_HORDE]);
+    packet.Worldstates.emplace_back(EY_ALLIANCE_BASE, m_TeamPointsCount[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(2742, 0); // Mage Tower - Horde conflict
+    packet.Worldstates.emplace_back(2741, 0); // Mage Tower - Alliance conflict
+    packet.Worldstates.emplace_back(2740, 0); // Fel Reaver - Horde conflict
+    packet.Worldstates.emplace_back(2739, 0); // Fel Reaver - Alliance conflict
+    packet.Worldstates.emplace_back(2738, 0); // Draenei - Alliance conflict
+    packet.Worldstates.emplace_back(2737, 0); // Draenei - Horde conflict
+    packet.Worldstates.emplace_back(2736, 0); // unk (0 at start)
+    packet.Worldstates.emplace_back(2735, 0); // unk (0 at start)
 
-    packet.Worldstates.emplace_back(uint32(DRAENEI_RUINS_HORDE_CONTROL), int32(m_PointOwnedByTeam[DRAENEI_RUINS] == HORDE && m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(DRAENEI_RUINS_ALLIANCE_CONTROL), int32(m_PointOwnedByTeam[DRAENEI_RUINS] == ALLIANCE && m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(DRAENEI_RUINS_UNCONTROL), int32(m_PointState[DRAENEI_RUINS] != EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(MAGE_TOWER_ALLIANCE_CONTROL), int32(m_PointOwnedByTeam[MAGE_TOWER] == ALLIANCE && m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(MAGE_TOWER_HORDE_CONTROL), int32(m_PointOwnedByTeam[MAGE_TOWER] == HORDE && m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(MAGE_TOWER_UNCONTROL), int32(m_PointState[MAGE_TOWER] != EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(FEL_REAVER_HORDE_CONTROL), int32(m_PointOwnedByTeam[FEL_REAVER] == HORDE && m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(FEL_REAVER_ALLIANCE_CONTROL), int32(m_PointOwnedByTeam[FEL_REAVER] == ALLIANCE && m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(FEL_REAVER_UNCONTROL), int32(m_PointState[FEL_REAVER] != EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(BLOOD_ELF_HORDE_CONTROL), int32(m_PointOwnedByTeam[BLOOD_ELF] == HORDE && m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(BLOOD_ELF_ALLIANCE_CONTROL), int32(m_PointOwnedByTeam[BLOOD_ELF] == ALLIANCE && m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(BLOOD_ELF_UNCONTROL), int32(m_PointState[BLOOD_ELF] != EY_POINT_UNDER_CONTROL));
-    packet.Worldstates.emplace_back(uint32(NETHERSTORM_FLAG), int32(m_FlagState == BG_EY_FLAG_STATE_ON_BASE));
+    packet.Worldstates.emplace_back(DRAENEI_RUINS_HORDE_CONTROL, (m_PointOwnedByTeam[DRAENEI_RUINS] == HORDE && m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(DRAENEI_RUINS_ALLIANCE_CONTROL, (m_PointOwnedByTeam[DRAENEI_RUINS] == ALLIANCE && m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(DRAENEI_RUINS_UNCONTROL, (m_PointState[DRAENEI_RUINS] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(MAGE_TOWER_ALLIANCE_CONTROL, (m_PointOwnedByTeam[MAGE_TOWER] == ALLIANCE && m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(MAGE_TOWER_HORDE_CONTROL, (m_PointOwnedByTeam[MAGE_TOWER] == HORDE && m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(MAGE_TOWER_UNCONTROL, (m_PointState[MAGE_TOWER] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(FEL_REAVER_HORDE_CONTROL, (m_PointOwnedByTeam[FEL_REAVER] == HORDE && m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(FEL_REAVER_ALLIANCE_CONTROL, (m_PointOwnedByTeam[FEL_REAVER] == ALLIANCE && m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(FEL_REAVER_UNCONTROL, (m_PointState[FEL_REAVER] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(BLOOD_ELF_HORDE_CONTROL, (m_PointOwnedByTeam[BLOOD_ELF] == HORDE && m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(BLOOD_ELF_ALLIANCE_CONTROL, (m_PointOwnedByTeam[BLOOD_ELF] == ALLIANCE && m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(BLOOD_ELF_UNCONTROL, (m_PointState[BLOOD_ELF] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
+    packet.Worldstates.emplace_back(NETHERSTORM_FLAG, (m_FlagState == BG_EY_FLAG_STATE_ON_BASE) ? 1 : 0);
 
-    packet.Worldstates.emplace_back(0xAD2, 0x1);
-    packet.Worldstates.emplace_back(0xAD1, 0x1);
-
-    packet.Worldstates.emplace_back(int32(EY_HORDE_RESOURCES), int32(GetTeamScore(TEAM_HORDE)));
-    packet.Worldstates.emplace_back(int32(EY_ALLIANCE_RESOURCES), int32(GetTeamScore(TEAM_ALLIANCE)));
-    packet.Worldstates.emplace_back(int32(EY_MAX_RESOURCES), int32(BG_EY_MAX_TEAM_SCORE));
-
-    packet.Worldstates.emplace_back(0xA05, 0x8E);
-    packet.Worldstates.emplace_back(0xAA0, 0x0);
-    packet.Worldstates.emplace_back(0xA9F, 0x0);
-    packet.Worldstates.emplace_back(0xA9E, 0x0);
-    packet.Worldstates.emplace_back(0xC0D, 0x17B);
+    packet.Worldstates.emplace_back(NETHERSTORM_FLAG_STATE_HORDE, 1); // Horde top-stats (1 - show, 0 - hide) // 02 -> horde picked up the flag
+    packet.Worldstates.emplace_back(NETHERSTORM_FLAG_STATE_ALLIANCE, 1); // Alliance top-stats (1 - show, 0 - hide) // 02 -> alliance picked up the flag
+    packet.Worldstates.emplace_back(EY_HORDE_RESOURCES, GetTeamScore(TEAM_HORDE)); // Horde resources
+    packet.Worldstates.emplace_back(EY_ALLIANCE_RESOURCES, GetTeamScore(TEAM_ALLIANCE)); // Alliance resources
+    packet.Worldstates.emplace_back(EY_MAX_RESOURCES, BG_EY_MAX_TEAM_SCORE); // Max resources
+    packet.Worldstates.emplace_back(2565, 142); // unk, constant?
+    packet.Worldstates.emplace_back(PROGRESS_BAR_PERCENT_GREY, 0); // Capturing progress-bar (100 -> empty (only grey), 0 -> blue|red (no grey), default 0)
+    packet.Worldstates.emplace_back(PROGRESS_BAR_STATUS, 0); // Capturing progress-bar (0 - left, 100 - right)
+    packet.Worldstates.emplace_back(PROGRESS_BAR_SHOW, 0); // Capturing progress-bar (1 - show, 0 - hide)
+    packet.Worldstates.emplace_back(3085, 379); // unk, constant?
 
     for (uint8 point = 0; point < EY_POINTS_MAX; ++point)
     {

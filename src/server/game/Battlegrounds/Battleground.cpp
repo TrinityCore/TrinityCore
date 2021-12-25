@@ -65,7 +65,7 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     m_InvitedAlliance   = 0;
     m_InvitedHorde      = 0;
     m_ArenaType         = 0;
-    _winnerTeamId       = BG_TEAM_NEUTRAL;
+    _winnerTeamId       = PVP_TEAM_NEUTRAL;
     m_StartTime         = 0;
     m_CountdownTimer    = 0;
     m_ResetStatTimer    = 0;
@@ -703,7 +703,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
 
-        SetWinner(BG_TEAM_ALLIANCE);
+        SetWinner(PVP_TEAM_ALLIANCE);
     }
     else if (winner == HORDE)
     {
@@ -712,11 +712,11 @@ void Battleground::EndBattleground(uint32 winner)
 
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
 
-        SetWinner(BG_TEAM_HORDE);
+        SetWinner(PVP_TEAM_HORDE);
     }
     else
     {
-        SetWinner(BG_TEAM_NEUTRAL);
+        SetWinner(PVP_TEAM_NEUTRAL);
     }
 
     CharacterDatabasePreparedStatement* stmt = nullptr;
@@ -982,7 +982,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
 // this method is called when no players remains in battleground
 void Battleground::Reset()
 {
-    SetWinner(BG_TEAM_NEUTRAL);
+    SetWinner(PVP_TEAM_NEUTRAL);
     SetStatus(STATUS_WAIT_QUEUE);
     SetElapsedTime(0);
     SetRemainingTime(0);
@@ -1079,7 +1079,7 @@ void Battleground::AddPlayer(Player* player)
         pvpMatchInitialize.Duration = std::chrono::duration_cast<Seconds>(duration);
         pvpMatchInitialize.StartTime = GameTime::GetGameTimeSystemPoint() - duration;
     }
-    pvpMatchInitialize.ArenaFaction = player->GetBGTeam() == HORDE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+    pvpMatchInitialize.ArenaFaction = player->GetBGTeam() == HORDE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
     pvpMatchInitialize.BattlemasterListID = GetTypeID();
     pvpMatchInitialize.Registered = false;
     pvpMatchInitialize.AffectsRating = isRated();
@@ -1311,17 +1311,17 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchSta
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetPrimarySpecialization();
-            playerData.Sex = player->getGender();
-            playerData.Race = player->getRace();
-            playerData.Class = player->getClass();
+            playerData.Sex = player->GetGender();
+            playerData.Race = player->GetRace();
+            playerData.Class = player->GetClass();
             playerData.HonorLevel = player->GetHonorLevel();
         }
 
         pvpLogData.Statistics.push_back(playerData);
     }
 
-    pvpLogData.PlayerCount[BG_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
-    pvpLogData.PlayerCount[BG_TEAM_ALLIANCE] = int8(GetPlayersCountByTeam(ALLIANCE));
+    pvpLogData.PlayerCount[PVP_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
+    pvpLogData.PlayerCount[PVP_TEAM_ALLIANCE] = int8(GetPlayersCountByTeam(ALLIANCE));
 }
 
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
@@ -1527,11 +1527,22 @@ void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
         if (GameObject* obj = map->GetGameObject(BgObjects[type]))
         {
             if (respawntime)
+            {
                 obj->SetLootState(GO_JUST_DEACTIVATED);
-            else
-                if (obj->getLootState() == GO_JUST_DEACTIVATED)
-                    // Change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
-                    obj->SetLootState(GO_READY);
+
+                if (GameObjectOverride const* goOverride = obj->GetGameObjectOverride())
+                    if (goOverride->Flags & GO_FLAG_NODESPAWN)
+                    {
+                        // This function should be called in GameObject::Update() but in case of
+                        // GO_FLAG_NODESPAWN flag the function is never called, so we call it here
+                        obj->SendGameObjectDespawn();
+                    }
+            }
+            else if (obj->getLootState() == GO_JUST_DEACTIVATED)
+            {
+                // Change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
+                obj->SetLootState(GO_READY);
+            }
             obj->SetRespawnTime(respawntime);
             map->AddToMap(obj);
         }

@@ -168,6 +168,17 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Pos;
         };
 
+        class FlightSplineSync final : public ServerPacket
+        {
+        public:
+            FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            float SplineDist = 0.0f;
+        };
+
         class MoveSplineSetSpeed : public ServerPacket
         {
         public:
@@ -541,6 +552,17 @@ namespace WorldPackets
             MoveTimeSkipped(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_TIME_SKIPPED, std::move(packet)) { }
 
             void Read() override;
+
+            ObjectGuid MoverGUID;
+            uint32 TimeSkipped = 0;
+        };
+
+        class MoveSkipTime final : public ServerPacket
+        {
+        public:
+            MoveSkipTime() : ServerPacket(SMSG_MOVE_SKIP_TIME, 16 + 4) { }
+
+            WorldPacket const* Write() override;
 
             ObjectGuid MoverGUID;
             uint32 TimeSkipped = 0;

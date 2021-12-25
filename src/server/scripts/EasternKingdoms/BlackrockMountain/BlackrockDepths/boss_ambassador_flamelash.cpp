@@ -46,8 +46,8 @@ class boss_ambassador_flamelash : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_FIREBLAST, 2000);
-                _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24000);
+                _events.ScheduleEvent(EVENT_FIREBLAST, 2s);
+                _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24s);
             }
 
             void SummonSpirit(Unit* victim)
@@ -69,12 +69,12 @@ class boss_ambassador_flamelash : public CreatureScript
                     {
                         case EVENT_FIREBLAST:
                             DoCastVictim(SPELL_FIREBLAST);
-                            _events.ScheduleEvent(EVENT_FIREBLAST, 7000);
+                            _events.ScheduleEvent(EVENT_FIREBLAST, 7s);
                             break;
                         case EVENT_SUMMON_SPIRITS:
                             for (uint32 i = 0; i < 4; ++i)
                                 SummonSpirit(me->GetVictim());
-                            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30000);
+                            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30s);
                             break;
                         default:
                             break;

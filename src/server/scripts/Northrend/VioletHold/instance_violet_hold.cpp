@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "violet_hold.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
@@ -24,8 +24,8 @@
 #include "MotionMaster.h"
 #include "Player.h"
 #include "TaskScheduler.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
-#include "violet_hold.h"
 #include "WorldStatePackets.h"
 #include <sstream>
 
@@ -293,11 +293,11 @@ class instance_violet_hold : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data.Worldstates.emplace_back(uint32(WORLD_STATE_VH_SHOW), uint32(EventState == IN_PROGRESS ? 1 : 0));
-                data.Worldstates.emplace_back(uint32(WORLD_STATE_VH_PRISON_STATE), uint32(DoorIntegrity));
-                data.Worldstates.emplace_back(uint32(WORLD_STATE_VH_WAVE_COUNT), uint32(WaveCount));
+                packet.Worldstates.emplace_back(WORLD_STATE_VH_SHOW, EventState == IN_PROGRESS ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLD_STATE_VH_PRISON_STATE, DoorIntegrity);
+                packet.Worldstates.emplace_back(WORLD_STATE_VH_WAVE_COUNT, WaveCount);
             }
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
@@ -413,6 +413,12 @@ class instance_violet_hold : public InstanceMapScript
                             for (uint8 i = 0; i < ActivationCrystalCount; ++i)
                                 if (GameObject* crystal = instance->GetGameObject(ActivationCrystalGUIDs[i]))
                                     crystal->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+
+                            Scheduler.Schedule(Seconds(3), [this](TaskContext task)
+                            {
+                                CheckEventState();
+                                task.Repeat(Seconds(3));
+                            });
                         }
                         else if (data == NOT_STARTED)
                         {
@@ -561,7 +567,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* moragg = GetCreature(DATA_MORAGG))
                                     {
                                         moragg->SetImmuneToAll(false);
-                                        moragg->AI()->DoZoneInCombat(moragg, 200.0f);
+                                        moragg->AI()->DoZoneInCombat(moragg);
                                     }
                                 });
                             });
@@ -599,7 +605,7 @@ class instance_violet_hold : public InstanceMapScript
                                         if (Creature* erekem = GetCreature(DATA_EREKEM))
                                         {
                                             erekem->SetImmuneToAll(false);
-                                            erekem->AI()->DoZoneInCombat(erekem, 200.0f);
+                                            erekem->AI()->DoZoneInCombat(erekem);
                                         }
                                     });
                                 });
@@ -622,7 +628,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* ichoron = GetCreature(DATA_ICHORON))
                                     {
                                         ichoron->SetImmuneToAll(false);
-                                        ichoron->AI()->DoZoneInCombat(ichoron, 200.0f);
+                                        ichoron->AI()->DoZoneInCombat(ichoron);
                                     }
                                 });
                             });
@@ -644,7 +650,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* lavanthor = GetCreature(DATA_LAVANTHOR))
                                     {
                                         lavanthor->SetImmuneToAll(false);
-                                        lavanthor->AI()->DoZoneInCombat(lavanthor, 200.0f);
+                                        lavanthor->AI()->DoZoneInCombat(lavanthor);
                                     }
                                 });
                             });
@@ -671,7 +677,7 @@ class instance_violet_hold : public InstanceMapScript
                                         if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                         {
                                             xevozz->SetImmuneToAll(false);
-                                            xevozz->AI()->DoZoneInCombat(xevozz, 200.0f);
+                                            xevozz->AI()->DoZoneInCombat(xevozz);
                                         }
                                     });
                                 });
@@ -697,7 +703,7 @@ class instance_violet_hold : public InstanceMapScript
                                     if (Creature* zuramat = GetCreature(DATA_ZURAMAT))
                                     {
                                         zuramat->SetImmuneToAll(false);
-                                        zuramat->AI()->DoZoneInCombat(zuramat, 200.0f);
+                                        zuramat->AI()->DoZoneInCombat(zuramat);
                                     }
                                 });
                             });
@@ -855,9 +861,29 @@ class instance_violet_hold : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
+                // if we don't have any player in the instance
                 if (!instance->HavePlayers())
+                {
+                    if (EventState == IN_PROGRESS) // if event is in progress, mark as fail
+                    {
+                        EventState = FAIL;
+                        CheckEventState();
+                    }
                     return;
+                }
 
+                Scheduler.Update(diff);
+
+                if (EventState == IN_PROGRESS)
+                {
+                    // if door is destroyed, event is failed
+                    if (!GetData(DATA_DOOR_INTEGRITY))
+                        EventState = FAIL;
+                }
+            }
+
+            void CheckEventState()
+            {
                 // if main event is in progress and players have wiped then reset instance
                 if ((EventState == IN_PROGRESS && CheckWipe()) || EventState == FAIL)
                 {
@@ -874,15 +900,6 @@ class instance_violet_hold : public InstanceMapScript
 
                     if (Creature* sinclari = GetCreature(DATA_SINCLARI))
                         sinclari->AI()->EnterEvadeMode();
-                }
-
-                Scheduler.Update(diff);
-
-                if (EventState == IN_PROGRESS)
-                {
-                    // if door is destroyed, event is failed
-                    if (!GetData(DATA_DOOR_INTEGRITY))
-                        EventState = FAIL;
                 }
             }
 

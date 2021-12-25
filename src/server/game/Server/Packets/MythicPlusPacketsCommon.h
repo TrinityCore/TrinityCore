@@ -29,7 +29,7 @@ namespace WorldPackets
         struct DungeonScoreMapSummary
         {
             int32 ChallengeModeID = 0;
-            int32 MapScore = 0;
+            float MapScore = 0;
             int32 BestRunLevel = 0;
             int32 BestRunDurationMS = 0;
             bool FinishedSuccess = false;
@@ -37,7 +37,7 @@ namespace WorldPackets
 
         struct DungeonScoreSummary
         {
-            int32 CurrentSeasonScore = 0;
+            float CurrentSeasonScore = 0;
             std::vector<DungeonScoreMapSummary> Runs;
         };
 
@@ -66,7 +66,7 @@ namespace WorldPackets
             Timestamp<> CompletionDate;
             int32 Season;
             std::vector<MythicPlusMember> Members;
-            int32 RunScore;
+            float RunScore;
             std::array<int32, 4> KeystoneAffixIDs;
         };
 
@@ -74,14 +74,14 @@ namespace WorldPackets
         {
             int32 KeystoneAffixID = 0;
             MythicPlusRun Run;
-            int32 Score = 0;
+            float Score = 0;
         };
 
         struct DungeonScoreMapData
         {
             int32 MapChallengeModeID = 0;
             std::vector<DungeonScoreBestRunForAffix> BestRuns;
-            int32 OverAllScore = 0;
+            float OverAllScore = 0;
 
         };
 
@@ -89,7 +89,7 @@ namespace WorldPackets
         {
             int32 Season = 0;
             std::vector<DungeonScoreMapData> Maps;
-            int32 SeasonScore = 0;
+            float SeasonScore = 0;
         };
 
         struct DungeonScoreData

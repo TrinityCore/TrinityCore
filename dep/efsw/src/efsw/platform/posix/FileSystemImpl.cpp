@@ -5,6 +5,7 @@
 #include <efsw/FileInfo.hpp>
 #include <efsw/FileSystem.hpp>
 #include <dirent.h>
+#include <unistd.h>
 #include <cstring>
 
 #ifndef _DARWIN_FEATURE_64_BIT_INODE
@@ -17,6 +18,7 @@
 
 #include <sys/stat.h>
 #include <cstdlib>
+#include <climits>
 
 #if EFSW_OS == EFSW_OS_LINUX || EFSW_OS == EFSW_OS_SOLARIS || EFSW_OS == EFSW_OS_ANDROID
 #include <sys/vfs.h>
@@ -49,7 +51,151 @@
 #define S_MAGIC_VMHGFS 0xBACBACBC
 #define S_MAGIC_VXFS 0xA501FCF5
 
+#if EFSW_OS == EFSW_OS_LINUX
+#include <mntent.h>
+#include <cstdio>
+#endif
+
 namespace efsw { namespace Platform {
+
+#if EFSW_OS == EFSW_OS_LINUX
+
+#pragma pack(push, 1)
+struct ntfs_super_block
+{
+	char		jump[3];
+	char		oem_id[8];
+};
+#pragma pack(pop)
+
+bool isNTFS( std::string device )
+{
+	FILE * fd = fopen( device.c_str(), "r" );
+
+	ntfs_super_block ns;
+
+	if ( fd != NULL )
+	{
+		fread( &ns, 1, sizeof(ntfs_super_block), fd );
+		fclose( fd );
+
+		std::string oemId( ns.oem_id );
+
+		return oemId.compare(0, 4, "NTFS") == 0;
+	}
+
+	return false;
+}
+
+std::string findMountPoint( std::string file )
+{
+	std::string cwd = FileSystem::getCurrentWorkingDirectory();
+	struct stat last_stat;
+	struct stat file_stat;
+
+	stat( file.c_str(), &file_stat );
+
+	std::string mp;
+
+	if ( efsw::FileSystem::isDirectory( file ) ) {
+		last_stat = file_stat;
+
+		if ( !FileSystem::changeWorkingDirectory( file ) )
+			return "";
+	} else {
+		std::string dir = efsw::FileSystem::pathRemoveFileName( file );
+
+		if ( !FileSystem::changeWorkingDirectory( dir ) )
+			return "";
+
+		if (stat (".", &last_stat) < 0)
+			return "";
+	}
+
+	while (true)
+	{
+		struct stat st;
+
+		if ( stat("..", &st) < 0 )
+			goto done;
+
+		if ( st.st_dev != last_stat.st_dev || st.st_ino == last_stat.st_ino )
+			break;
+
+		if ( !FileSystem::changeWorkingDirectory("..") )
+		{
+			goto done;
+		}
+
+		last_stat = st;
+	}
+
+	/* Finally reached a mount point, see what it's called.  */
+	mp = FileSystem::getCurrentWorkingDirectory();
+
+done:
+	FileSystem::changeWorkingDirectory( cwd );
+
+	return mp;
+}
+
+std::string findDevicePath( const std::string& directory )
+{
+	struct mntent *ent;
+	FILE *aFile;
+
+	aFile = setmntent("/proc/mounts", "r");
+
+	if ( aFile == NULL )
+		return "";
+
+	while ( NULL != ( ent = getmntent( aFile ) ) )
+	{
+		std::string dirName( ent->mnt_dir );
+
+		if ( dirName == directory )
+		{
+			std::string fsName( ent->mnt_fsname );
+
+			endmntent(aFile);
+
+			return fsName;
+		}
+	}
+
+	endmntent(aFile);
+
+	return "";
+}
+
+bool isLocalFUSEDirectory( std::string directory )
+{
+	efsw::FileSystem::dirRemoveSlashAtEnd( directory );
+
+	directory = findMountPoint( directory );
+
+	if ( !directory.empty() )
+	{
+		std::string devicePath = findDevicePath( directory );
+
+		return ( !devicePath.empty() && isNTFS( devicePath ) );
+	}
+
+	return false;
+}
+
+#endif
+
+bool FileSystem::changeWorkingDirectory( const std::string & path )
+{
+	return -1 != chdir( path.c_str() );
+}
+
+std::string FileSystem::getCurrentWorkingDirectory() {
+	char dir[PATH_MAX + 1];
+	getcwd( dir, PATH_MAX + 1 );
+	return std::string( dir );
+}
 
 FileInfoMap FileSystem::filesInfoFromPath( const std::string& path )
 {
@@ -104,13 +250,18 @@ bool FileSystem::isRemoteFS( const std::string& directory )
 
 	switch ( statfsbuf.f_type | 0UL )
 	{
+		case S_MAGIC_FUSEBLK: /* 0x65735546 remote */
+		{
+			#if EFSW_OS == EFSW_OS_LINUX
+			return !isLocalFUSEDirectory( directory );
+			#endif
+		}
 		case S_MAGIC_AFS: /* 0x5346414F remote */
 		case S_MAGIC_AUFS: /* 0x61756673 remote */
 		case S_MAGIC_CEPH: /* 0x00C36400 remote */
 		case S_MAGIC_CIFS: /* 0xFF534D42 remote */
 		case S_MAGIC_CODA: /* 0x73757245 remote */
 		case S_MAGIC_FHGFS: /* 0x19830326 remote */
-		case S_MAGIC_FUSEBLK: /* 0x65735546 remote */
 		case S_MAGIC_FUSECTL: /* 0x65735543 remote */
 		case S_MAGIC_GFS: /* 0x01161970 remote */
 		case S_MAGIC_GPFS: /* 0x47504653 remote */

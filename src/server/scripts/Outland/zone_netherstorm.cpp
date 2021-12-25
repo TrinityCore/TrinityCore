@@ -317,7 +317,7 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         //if player lost aura or not have at all, we should not try start event.
         if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -730,7 +730,7 @@ public:
         void DoAction(int32 /*action*/) override
         {
             Talk(SAY_FREE);
-            _events.ScheduleEvent(EVENT_TELEPORT, Seconds(5));
+            _events.ScheduleEvent(EVENT_TELEPORT, 5s);
         }
 
         void UpdateAI(uint32 diff) override

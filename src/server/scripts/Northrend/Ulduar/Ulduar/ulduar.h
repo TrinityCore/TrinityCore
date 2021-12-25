@@ -19,6 +19,7 @@
 #define DEF_ULDUAR_H
 
 #include "CreatureAIImpl.h"
+#include "EventProcessor.h"
 
 struct Position;
 
@@ -96,6 +97,7 @@ enum UlduarNPCs
 
     //XT002
     NPC_XS013_SCRAPBOT                      = 33343,
+    NPC_HEART_OF_DECONSTRUCTOR              = 33329,
 
     // Flame Leviathan
     NPC_ULDUAR_COLOSSUS                     = 33237,
@@ -409,6 +411,7 @@ enum UlduarData
     DATA_TOY_PILE_1,
     DATA_TOY_PILE_2,
     DATA_TOY_PILE_3,
+    DATA_XT002_HEART,
 
     // Assembly of Iron
     DATA_STEELBREAKER,
@@ -450,6 +453,8 @@ enum UlduarData
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
+    DATA_GIFT_OF_THE_OBSERVER,
+    DATA_AZEROTH,
 
     // Thorim
     DATA_SIF,
@@ -504,17 +509,14 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-class KeeperDespawnEvent : public BasicEvent
-{
-public:
-    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
+class Creature;
 
-    bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
-    {
-        _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
-        _owner->DespawnOrUnsummon(1000 + _despawnTimer);
-        return true;
-    }
+class UlduarKeeperDespawnEvent : public BasicEvent
+{
+    public:
+        UlduarKeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500);
+
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override;
 
 private:
     Creature* _owner;

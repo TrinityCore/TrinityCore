@@ -133,10 +133,10 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         AccountID     = player->GetSession()->GetAccountGUID();
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
         Name          = player->GetName();
-        Race          = player->getRace();
-        Sex           = player->GetNativeSex();
-        ClassID       = player->getClass();
-        Level         = player->getLevel();
+        Race          = player->GetRace();
+        Sex           = player->GetNativeGender();
+        ClassID       = player->GetClass();
+        Level         = player->GetLevel();
 
         if (DeclinedName const* names = player->GetDeclinedNames())
             DeclinedNames = *names;
@@ -182,6 +182,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << uint8(lookupData.Sex);
     data << uint8(lookupData.ClassID);
     data << uint8(lookupData.Level);
+    data << uint8(lookupData.Unused915);
     data.WriteString(lookupData.Name);
 
     return data;
@@ -203,7 +204,6 @@ void WorldPackets::Query::QueryPageText::Read()
     _worldPacket >> PageTextID;
     _worldPacket >> ItemGUID;
 }
-
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::QueryPageTextResponse::PageTextInfo const& page)
 {

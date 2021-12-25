@@ -523,7 +523,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
 
                 events.ScheduleEvent(EVENT_LOCK_DOOR, 15000);
                 events.ScheduleEvent(EVENT_SUMMON_GUARDIAN_OF_YOGG_SARON, _guardianTimer, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 900000);    // 15 minutes
+                events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 15min);    // 15 minutes
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -539,6 +539,9 @@ class boss_voice_of_yogg_saron : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
+
+                if (!me->GetCombatManager().HasPvECombatWithPlayers())
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 
                 events.Update(diff);
                 // don't summon tentacles when illusion is shattered, delay them
@@ -559,7 +562,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_EXTINGUISH_ALL_LIFE, me);
                                 yogg->CastSpell(nullptr, SPELL_EXTINGUISH_ALL_LIFE, true);
                             }
-                            events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 10000);    // cast it again after a short while, players can survive
+                            events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 10s);    // cast it again after a short while, players can survive
                             break;
                         case EVENT_SUMMON_GUARDIAN_OF_YOGG_SARON:
                             DoCastAOE(SPELL_SUMMON_GUARDIAN_2, { SPELLVALUE_MAX_TARGETS, 1 });
@@ -597,12 +600,12 @@ class boss_voice_of_yogg_saron : public CreatureScript
 
                             if (Creature* brain = instance->GetCreature(DATA_BRAIN_OF_YOGG_SARON))
                                 brain->AI()->DoAction(ACTION_INDUCE_MADNESS);
-                            events.ScheduleEvent(EVENT_ILLUSION, 80000, 0, PHASE_TWO);  // wowwiki says 80 secs, wowhead says something about 90 secs
+                            events.ScheduleEvent(EVENT_ILLUSION, 80s, 0, PHASE_TWO);  // wowwiki says 80 secs, wowhead says something about 90 secs
                             break;
                         }
                         case EVENT_SUMMON_IMMORTAL_GUARDIAN:
                             DoCastAOE(SPELL_IMMORTAL_GUARDIAN);
-                            events.ScheduleEvent(EVENT_SUMMON_IMMORTAL_GUARDIAN, 15000, 0, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_SUMMON_IMMORTAL_GUARDIAN, 15s, 0, PHASE_THREE);
                             break;
                         default:
                             break;
@@ -626,14 +629,14 @@ class boss_voice_of_yogg_saron : public CreatureScript
                         events.ScheduleEvent(EVENT_SUMMON_CORRUPTOR_TENTACLE, 5s, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
                         events.ScheduleEvent(EVENT_SUMMON_CONSTRICTOR_TENTACLE, 7s, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
                         events.ScheduleEvent(EVENT_SUMMON_CRUSHER_TENTACLE, 5s, EVENT_GROUP_SUMMON_TENTACLES, PHASE_TWO);
-                        events.ScheduleEvent(EVENT_ILLUSION, 60000, 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_ILLUSION, 1min, 0, PHASE_TWO);
                         break;
                     case ACTION_TOGGLE_SHATTERED_ILLUSION:
                         _illusionShattered = !_illusionShattered;
                         break;
                     case ACTION_PHASE_THREE:
                         events.SetPhase(PHASE_THREE);
-                        events.ScheduleEvent(EVENT_SUMMON_IMMORTAL_GUARDIAN, 1000, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_SUMMON_IMMORTAL_GUARDIAN, 1s, 0, PHASE_THREE);
                         break;
                     default:
                         break;
@@ -763,9 +766,17 @@ class boss_sara : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_SARA_AGGRO);
-                _events.ScheduleEvent(EVENT_SARAS_FERVOR, 5000, 0, PHASE_ONE);
+                _events.ScheduleEvent(EVENT_SARAS_FERVOR, 5s, 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_SARAS_BLESSING, urand(10000, 30000), 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_SARAS_ANGER, urand(15000, 25000), 0, PHASE_ONE);
+            }
+
+            void JustEnteredCombat(Unit* who) override
+            {
+                if (IsEngaged())
+                    return;
+
+                EngagementStart(who);
             }
 
             void Reset() override
@@ -796,7 +807,7 @@ class boss_sara : public CreatureScript
                     {
                         case EVENT_SARAS_FERVOR:
                             DoCastAOE(SPELL_SARAS_FERVOR_TARGET_SELECTOR, { SPELLVALUE_MAX_TARGETS, 1 });
-                            _events.ScheduleEvent(EVENT_SARAS_FERVOR, 6000, 0, PHASE_ONE);
+                            _events.ScheduleEvent(EVENT_SARAS_FERVOR, 6s, 0, PHASE_ONE);
                             break;
                         case EVENT_SARAS_ANGER:
                             DoCastAOE(SPELL_SARAS_ANGER_TARGET_SELECTOR, { SPELLVALUE_MAX_TARGETS, 1 });
@@ -827,14 +838,14 @@ class boss_sara : public CreatureScript
                                 DoCast(yogg, SPELL_RIDE_YOGG_SARON_VEHICLE);
                             DoCast(me, SPELL_SHADOWY_BARRIER_SARA);
                             _events.SetPhase(PHASE_TWO);
-                            _events.ScheduleEvent(EVENT_DEATH_RAY, 20000, 0, PHASE_TWO);    // almost never cast at scheduled time, why?
-                            _events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, 18000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_DEATH_RAY, 20s, 0, PHASE_TWO);    // almost never cast at scheduled time, why?
+                            _events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, 18s, 0, PHASE_TWO);
                             _events.ScheduleEvent(EVENT_PSYCHOSIS, 1, 0, PHASE_TWO);
-                            _events.ScheduleEvent(EVENT_BRAIN_LINK, 23000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_BRAIN_LINK, 23s, 0, PHASE_TWO);
                             break;
                         case EVENT_DEATH_RAY:
                             DoCast(me, SPELL_DEATH_RAY);
-                            _events.ScheduleEvent(EVENT_DEATH_RAY, 21000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_DEATH_RAY, 21s, 0, PHASE_TWO);
                             break;
                         case EVENT_MALADY_OF_THE_MIND:
                             DoCastAOE(SPELL_MALADY_OF_THE_MIND, { SPELLVALUE_MAX_TARGETS, 1 });
@@ -842,7 +853,7 @@ class boss_sara : public CreatureScript
                             break;
                         case EVENT_PSYCHOSIS:
                             DoCastAOE(SPELL_PSYCHOSIS, { SPELLVALUE_MAX_TARGETS, 1 });
-                            _events.ScheduleEvent(EVENT_PSYCHOSIS, 4000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_PSYCHOSIS, 4s, 0, PHASE_TWO);
                             break;
                         case EVENT_BRAIN_LINK:
                             DoCastAOE(SPELL_BRAIN_LINK, { SPELLVALUE_MAX_TARGETS, 2 });
@@ -920,7 +931,7 @@ class boss_yogg_saron : public CreatureScript
             {
                 _events.Reset();
                 _events.SetPhase(PHASE_TWO);
-                _events.ScheduleEvent(EVENT_YELL_BOW_DOWN, 3000, 0, PHASE_TWO);
+                _events.ScheduleEvent(EVENT_YELL_BOW_DOWN, 3s, 0, PHASE_TWO);
                 DoCast(me, SPELL_SHADOWY_BARRIER_YOGG);
                 DoCast(me, SPELL_KNOCK_AWAY);
 
@@ -984,12 +995,12 @@ class boss_yogg_saron : public CreatureScript
                         case EVENT_SHADOW_BEACON:
                             DoCastAOE(SPELL_SHADOW_BEACON);
                             Talk(EMOTE_YOGG_SARON_EMPOWERING_SHADOWS);
-                            _events.ScheduleEvent(EVENT_SHADOW_BEACON, 45000, 0, PHASE_THREE);
+                            _events.ScheduleEvent(EVENT_SHADOW_BEACON, 45s, 0, PHASE_THREE);
                             break;
                         case EVENT_LUNATIC_GAZE:
                             DoCast(me, SPELL_LUNATIC_GAZE);
                             CreatureTextMgr::SendSound(me, SOUND_LUNATIC_GAZE, CHAT_MSG_MONSTER_YELL);
-                            _events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12000, 0, PHASE_THREE);
+                            _events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12s, 0, PHASE_THREE);
                             break;
                         case EVENT_DEAFENING_ROAR:
                             DoCastAOE(SPELL_DEAFENING_ROAR);
@@ -1009,8 +1020,8 @@ class boss_yogg_saron : public CreatureScript
                 {
                     case ACTION_PHASE_THREE:
                         _events.SetPhase(PHASE_THREE);
-                        _events.ScheduleEvent(EVENT_SHADOW_BEACON, 45000, 0, PHASE_THREE);
-                        _events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12000, 0, PHASE_THREE);
+                        _events.ScheduleEvent(EVENT_SHADOW_BEACON, 45s, 0, PHASE_THREE);
+                        _events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12s, 0, PHASE_THREE);
                         if (me->GetMap()->Is25ManRaid() && _instance->GetData(DATA_KEEPERS_COUNT) < 4)
                             _events.ScheduleEvent(EVENT_DEAFENING_ROAR, urand(20000, 25000), 0, PHASE_THREE);    // timer guessed
                         Talk(SAY_YOGG_SARON_PHASE_3);
@@ -1151,10 +1162,13 @@ class npc_ominous_cloud : public CreatureScript
 
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void DoAction(int32 /*action*/) override
+            void DoAction(int32 action) override
             {
-                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), true, 16);
+                clockwise = bool(action);
+                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), clockwise, 16);
             }
+
+            bool clockwise = false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1180,7 +1194,7 @@ class npc_guardian_of_yogg_saron : public CreatureScript
 
             void Reset() override
             {
-                _events.ScheduleEvent(EVENT_DARK_VOLLEY, urand(10000, 15000));
+                _events.ScheduleEvent(EVENT_DARK_VOLLEY, 10s, 15s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1199,7 +1213,7 @@ class npc_guardian_of_yogg_saron : public CreatureScript
                     {
                         case EVENT_DARK_VOLLEY:
                             DoCastAOE(SPELL_DARK_VOLLEY);
-                            _events.ScheduleEvent(EVENT_DARK_VOLLEY, urand(10000, 15000));
+                            _events.ScheduleEvent(EVENT_DARK_VOLLEY, 10s, 15s);
                             break;
                         default:
                             break;
@@ -1209,7 +1223,7 @@ class npc_guardian_of_yogg_saron : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() != NPC_OMINOUS_CLOUD)
                     return;
@@ -1269,7 +1283,7 @@ class npc_corruptor_tentacle : public CreatureScript
                         case EVENT_CAST_RANDOM_SPELL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, RAND(SPELL_BLACK_PLAGUE, SPELL_CURSE_OF_DOOM, SPELL_APATHY, SPELL_DRAINING_POISON));
-                            _events.ScheduleEvent(EVENT_CAST_RANDOM_SPELL, 3000);
+                            _events.ScheduleEvent(EVENT_CAST_RANDOM_SPELL, 3s);
                             break;
                         default:
                             break;
@@ -1316,7 +1330,7 @@ class npc_constrictor_tentacle : public CreatureScript
                 UpdateVictim();
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 if (Creature* voice = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
                     voice->AI()->JustSummoned(me);
@@ -1352,7 +1366,7 @@ class npc_crusher_tentacle : public CreatureScript
                 DoCast(me, SPELL_FOCUSED_ANGER);
                 DoCastAOE(SPELL_ERUPT);
 
-                _events.ScheduleEvent(EVENT_DIMINISH_POWER, urand(6000, 8000));
+                _events.ScheduleEvent(EVENT_DIMINISH_POWER, 6s, 8s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1373,7 +1387,7 @@ class npc_crusher_tentacle : public CreatureScript
                     {
                         case EVENT_DIMINISH_POWER:
                             DoCast(SPELL_DIMINISH_POWER);
-                            _events.ScheduleEvent(EVENT_DIMINISH_POWER, urand(20000, 30000));
+                            _events.ScheduleEvent(EVENT_DIMINISH_POWER, 20s, 30s);
                             break;
                         default:
                             break;
@@ -1473,7 +1487,7 @@ class npc_immortal_guardian : public CreatureScript
             {
                 DoCast(me, SPELL_EMPOWERED);
                 DoCast(me, SPELL_RECENTLY_SPAWNED);
-                _events.ScheduleEvent(EVENT_DRAIN_LIFE, urand(3000, 13000));
+                _events.ScheduleEvent(EVENT_DRAIN_LIFE, 3s, 13s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -1498,7 +1512,7 @@ class npc_immortal_guardian : public CreatureScript
                     {
                         case EVENT_DRAIN_LIFE:
                             DoCast(SPELL_DRAIN_LIFE);
-                            _events.ScheduleEvent(EVENT_DRAIN_LIFE, urand(20000, 30000));
+                            _events.ScheduleEvent(EVENT_DRAIN_LIFE, 20s, 30s);
                             break;
                         default:
                             break;
@@ -1580,7 +1594,7 @@ class npc_yogg_saron_keeper : public CreatureScript
         {
             npc_yogg_saron_keeperAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 DoCast(SPELL_SIMPLE_TELEPORT_KEEPERS);
             }
@@ -1606,8 +1620,13 @@ class npc_yogg_saron_keeper : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEnteredCombat(Unit* who) override
             {
+                if (IsEngaged())
+                    return;
+
+                EngagementStart(who);
+
                 switch (me->GetEntry())
                 {
                     case NPC_FREYA_YS:
@@ -1679,7 +1698,7 @@ class npc_yogg_saron_keeper : public CreatureScript
                     }
                     case ACTION_FLASH_FREEZE:
                         DoCast(SPELL_FLASH_FREEZE_VISUAL);
-                        _events.ScheduleEvent(EVENT_HODIRS_PROTECTIVE_GAZE, urand(25000, 30000));
+                        _events.ScheduleEvent(EVENT_HODIRS_PROTECTIVE_GAZE, 25s, 30s);
                         break;
                 }
             }
@@ -1703,7 +1722,7 @@ class npc_yogg_saron_illusions : public CreatureScript
         {
             npc_yogg_saron_illusionsAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 switch (_instance->GetData(DATA_ILLUSION))
                 {

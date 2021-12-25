@@ -25,6 +25,27 @@ BattlegroundNA::BattlegroundNA(BattlegroundTemplate const* battlegroundTemplate)
     BgObjects.resize(BG_NA_OBJECT_MAX);
 }
 
+void BattlegroundNA::PostUpdateImpl(uint32 diff)
+{
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    _events.Update(diff);
+
+    while (uint32 eventId = _events.ExecuteEvent())
+    {
+        switch (eventId)
+        {
+            case BG_NA_EVENT_REMOVE_DOORS:
+                for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
+                    DelObject(i);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void BattlegroundNA::StartingEventCloseDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
@@ -35,6 +56,7 @@ void BattlegroundNA::StartingEventOpenDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
+    _events.ScheduleEvent(BG_NA_EVENT_REMOVE_DOORS, BG_NA_REMOVE_DOORS_TIMER);
 
     for (uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
@@ -58,7 +80,8 @@ void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 void BattlegroundNA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(0xa11, 1);
+    packet.Worldstates.emplace_back(2577, 1); // BATTLEGROUND_NAGRAND_ARENA_SHOW
+
     Arena::FillInitialWorldStates(packet);
 }
 

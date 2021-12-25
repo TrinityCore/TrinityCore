@@ -171,9 +171,9 @@ class boss_alar : public CreatureScript
                 me->setActive(false);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 me->SetDisableGravity(true); // after enterevademode will be set walk movement
                 me->setActive(true);
             }
@@ -440,7 +440,7 @@ class boss_alar : public CreatureScript
                                 Summoned->SetObjectScale(Summoned->GetObjectScale() * 2.5f);
                                 Summoned->SetDisplayId(11686);
                                 Summoned->SetFaction(me->GetFaction());
-                                Summoned->SetLevel(me->getLevel());
+                                Summoned->SetLevel(me->GetLevel());
                                 Summoned->CastSpell(Summoned, SPELL_FLAME_PATCH, false);
                             }
                         }

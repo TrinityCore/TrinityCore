@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestPackets.h"
+#include "QuestPools.h"
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -144,7 +145,7 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 
     if (playerConditionId && !sPlayerConditionStore.LookupEntry(playerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition (%u) set for quest %u. Set to 0.", spellId, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition (%u) set for quest %u and spell %u. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
         playerConditionId = 0;
     }
 
@@ -217,17 +218,18 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     _prevQuestID = fields[4].GetInt32();
     _nextQuestID = fields[5].GetUInt32();
     _exclusiveGroup = fields[6].GetInt32();
-    _rewardMailTemplateId = fields[7].GetUInt32();
-    _rewardMailDelay = fields[8].GetUInt32();
-    _requiredSkillId = fields[9].GetUInt16();
-    _requiredSkillPoints = fields[10].GetUInt16();
-    _requiredMinRepFaction = fields[11].GetUInt16();
-    _requiredMaxRepFaction = fields[12].GetUInt16();
-    _requiredMinRepValue = fields[13].GetInt32();
-    _requiredMaxRepValue = fields[14].GetInt32();
-    _sourceItemIdCount = fields[15].GetUInt8();
-    _specialFlags = fields[16].GetUInt8();
-    _scriptId = sObjectMgr->GetScriptId(fields[17].GetString());
+    _breadcrumbForQuestId = fields[7].GetInt32();
+    _rewardMailTemplateId = fields[8].GetUInt32();
+    _rewardMailDelay = fields[9].GetUInt32();
+    _requiredSkillId = fields[10].GetUInt16();
+    _requiredSkillPoints = fields[11].GetUInt16();
+    _requiredMinRepFaction = fields[12].GetUInt16();
+    _requiredMaxRepFaction = fields[13].GetUInt16();
+    _requiredMinRepValue = fields[14].GetInt32();
+    _requiredMaxRepValue = fields[15].GetInt32();
+    _sourceItemIdCount = fields[16].GetUInt8();
+    _specialFlags = fields[17].GetUInt8();
+    _scriptId = sObjectMgr->GetScriptId(fields[18].GetString());
 
     if (_specialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
@@ -283,14 +285,14 @@ uint32 Quest::XPValue(Player const* player) const
         if (!questXp || _rewardXPDifficulty >= 10)
             return 0;
 
-        int32 diffFactor = 2 * (questLevel - player->getLevel()) + 12;
+        int32 diffFactor = 2 * (questLevel - player->GetLevel()) + 12;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
             diffFactor = 10;
 
         uint32 xp = diffFactor * questXp->Difficulty[_rewardXPDifficulty] * _rewardXPMultiplier / 10;
-        if (player->getLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && _expansion < CURRENT_EXPANSION)
+        if (player->GetLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && _expansion < CURRENT_EXPANSION)
             xp = uint32(xp / 9.0f);
 
         xp = RoundXPValue(xp);
@@ -305,6 +307,14 @@ uint32 Quest::XPValue(Player const* player) const
     }
 
     return 0;
+}
+
+/*static*/ bool Quest::IsTakingQuestEnabled(uint32 questId)
+{
+    if (!sQuestPoolMgr->IsQuestActive(questId))
+        return false;
+
+    return true;
 }
 
 uint32 Quest::MoneyValue(Player const* player) const
@@ -594,6 +604,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.TimeAllowed = GetLimitTime();
 
     response.Write();
+    response.ShrinkToFit();
     return response.Move();
 }
 

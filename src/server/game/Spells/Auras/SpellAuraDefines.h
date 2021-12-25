@@ -133,7 +133,7 @@ enum AuraType : uint32
     SPELL_AURA_TRACK_RESOURCES                              = 45,
     SPELL_AURA_46                                           = 46,   // Ignore all Gear test spells
     SPELL_AURA_MOD_PARRY_PERCENT                            = 47,
-    SPELL_AURA_48                                           = 48,   // One periodic spell
+    SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT           = 48,   // One periodic spell
     SPELL_AURA_MOD_DODGE_PERCENT                            = 49,
     SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT                  = 50,
     SPELL_AURA_MOD_BLOCK_PERCENT                            = 51,
@@ -267,7 +267,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_POWER_DISPLAY                            = 179,
     SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS                 = 180,
     SPELL_AURA_MOD_SPELL_CURRENCY_REAGENTS_COUNT_PCT        = 181,  // NYI
-    SPELL_AURA_SUPPRESS_ITEM_PASSIVE_EFFECT_BY_SPELL_LABEL  = 182,  // NYI
+    SPELL_AURA_SUPPRESS_ITEM_PASSIVE_EFFECT_BY_SPELL_LABEL  = 182,
     SPELL_AURA_MOD_CRIT_CHANCE_VERSUS_TARGET_HEALTH         = 183,
     SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE                = 184,
     SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE               = 185,
@@ -303,8 +303,8 @@ enum AuraType : uint32
     SPELL_AURA_ARENA_PREPARATION                            = 215,
     SPELL_AURA_HASTE_SPELLS                                 = 216,
     SPELL_AURA_MOD_MELEE_HASTE_2                            = 217,
-    SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL              = 218,  // NYI
-    SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL             = 219,  // NYI
+    SPELL_AURA_ADD_PCT_MODIFIER_BY_SPELL_LABEL              = 218,
+    SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL             = 219,
     SPELL_AURA_MOD_ABILITY_SCHOOL_MASK                      = 220,  // NYI
     SPELL_AURA_MOD_DETAUNT                                  = 221,
     SPELL_AURA_REMOVE_TRANSMOG_COST                         = 222,
@@ -392,7 +392,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_FAKE_INEBRIATE                           = 304,
     SPELL_AURA_MOD_MINIMUM_SPEED                            = 305,
     SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER                   = 306,
-    SPELL_AURA_CAST_WHILE_WALKING_BY_SPELL_LABEL            = 307,  // NYI
+    SPELL_AURA_CAST_WHILE_WALKING_BY_SPELL_LABEL            = 307,
     SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER_WITH_ABILITIES    = 308,
     SPELL_AURA_MOD_RESILIENCE                               = 309,  // NYI
     SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE            = 310,
@@ -459,10 +459,10 @@ enum AuraType : uint32
     SPELL_AURA_371                                          = 371,
     SPELL_AURA_372                                          = 372,
     SPELL_AURA_MOD_SPEED_NO_CONTROL                         = 373,  // NYI
-    SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,  // NYI
+    SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,
     SPELL_AURA_HIDE_MODEL_AND_EQUIPEMENT_SLOTS              = 375,
     SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE                = 376,  // NYI
-    SPELL_AURA_CAST_WHILE_WALKING_2                         = 377,  // NYI
+    SPELL_AURA_CAST_WHILE_WALKING_ALL                       = 377,  // Enables casting all spells while moving
     SPELL_AURA_MOD_POSSESS_PET                              = 378,
     SPELL_AURA_MOD_MANA_REGEN_PCT                           = 379,
     SPELL_AURA_380                                          = 380,

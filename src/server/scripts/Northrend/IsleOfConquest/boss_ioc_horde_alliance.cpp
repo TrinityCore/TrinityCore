@@ -62,10 +62,10 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
             _events.ScheduleEvent(EVENT_DAGGER_THROW,  7 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_CHECK_RANGE,   1 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 15 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 15s);
         }
 
         void SpellHit(Unit* caster, SpellInfo const* /*spell*/) override
@@ -90,23 +90,23 @@ public:
                 {
                     case EVENT_BRUTAL_STRIKE:
                         DoCastVictim(SPELL_BRUTAL_STRIKE);
-                        _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
                         break;
                     case EVENT_DAGGER_THROW:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             DoCast(target, SPELL_DAGGER_THROW);
-                        _events.ScheduleEvent(EVENT_DAGGER_THROW, 7 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_DAGGER_THROW, 7s);
                         break;
                     case EVENT_CRUSHING_LEAP:
                         DoCastVictim(SPELL_CRUSHING_LEAP);
-                        _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 25 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 25s);
                         break;
                     case EVENT_CHECK_RANGE:
                         if (me->GetDistance(me->GetHomePosition()) > 25.0f)
                             DoCast(me, SPELL_RAGE);
                         else
                             me->RemoveAurasDueToSpell(SPELL_RAGE);
-                        _events.ScheduleEvent(EVENT_CHECK_RANGE, 1 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_CHECK_RANGE, 1s);
                         break;
                     default:
                         break;

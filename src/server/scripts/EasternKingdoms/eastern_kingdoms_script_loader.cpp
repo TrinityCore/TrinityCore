@@ -183,7 +183,7 @@ void AddSC_boss_wushoolay();
 void AddSC_boss_zanzil();
 void AddSC_instance_zulgurub();
 //void AddSC_alterac_mountains();
-void AddSC_arathi_highlands();
+//void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
 void AddSC_burning_steppes();
 void AddSC_dun_morogh();
@@ -193,6 +193,7 @@ void AddSC_duskwood();
 void AddSC_ghostlands();
 void AddSC_goldshire();
 void AddSC_hinterlands();
+void AddSC_isle_of_queldanas();
 void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
@@ -201,7 +202,6 @@ void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
 void AddSC_undercity();
 void AddSC_western_plaguelands();
-void AddSC_wetlands();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -375,7 +375,7 @@ void AddEasternKingdomsScripts()
     AddSC_instance_zulgurub();
 
     //AddSC_alterac_mountains();
-    AddSC_arathi_highlands();
+    //AddSC_arathi_highlands();
     AddSC_blasted_lands();
     AddSC_burning_steppes();
     AddSC_dun_morogh();
@@ -385,6 +385,7 @@ void AddEasternKingdomsScripts()
     AddSC_ghostlands();
     AddSC_goldshire();
     AddSC_hinterlands();
+    AddSC_isle_of_queldanas();
     AddSC_redridge_mountains();
     AddSC_silverpine_forest();
     AddSC_stormwind_city();
@@ -393,5 +394,4 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     AddSC_western_plaguelands();
-    AddSC_wetlands();
 }

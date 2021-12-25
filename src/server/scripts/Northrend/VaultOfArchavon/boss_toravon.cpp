@@ -36,7 +36,10 @@ enum Spells
 
     // Frost Warder
     SPELL_FROST_BLAST       = 72123,    // don't know cd... using 20 secs.
-    SPELL_FROZEN_MALLET_2   = 72122
+    SPELL_FROZEN_MALLET_2   = 72122,
+
+    // Frozen Orb Stalker
+    FROZEN_ORB_STALKER_AURA = 72094
 };
 
 enum Events
@@ -52,15 +55,15 @@ struct boss_toravon : public BossAI
 {
     boss_toravon(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
         DoCastSelf(SPELL_FROZEN_MALLET);
 
-        events.ScheduleEvent(EVENT_FROZEN_ORB, Seconds(12));
-        events.ScheduleEvent(EVENT_WHITEOUT, Seconds(25));
-        events.ScheduleEvent(EVENT_FREEZING_GROUND, Seconds(7));
+        events.ScheduleEvent(EVENT_FROZEN_ORB, 12s);
+        events.ScheduleEvent(EVENT_WHITEOUT, 25s);
+        events.ScheduleEvent(EVENT_FREEZING_GROUND, 7s);
 
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -80,17 +83,17 @@ struct boss_toravon : public BossAI
                 case EVENT_FROZEN_ORB:
                 {
                     me->CastSpell(me, SPELL_FROZEN_ORB, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3)));
-                    events.Repeat(Seconds(32));
+                    events.Repeat(32s);
                     break;
                 }
                 case EVENT_WHITEOUT:
                     DoCastSelf(SPELL_WHITEOUT);
-                    events.Repeat(Seconds(38));
+                    events.Repeat(38s);
                     break;
                 case EVENT_FREEZING_GROUND:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_FREEZING_GROUND);
-                    events.Repeat(Seconds(38));
+                    events.Repeat(38s);
                     break;
                 default:
                     break;
@@ -101,6 +104,16 @@ struct boss_toravon : public BossAI
         }
 
         DoMeleeAttackIfReady();
+    }
+};
+
+struct npc_frozen_orb_stalker : public ScriptedAI
+{
+    npc_frozen_orb_stalker(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        DoCastSelf(FROZEN_ORB_STALKER_AURA);
     }
 };
 
@@ -119,7 +132,7 @@ struct npc_frost_warder : public ScriptedAI
 
         DoCastSelf(SPELL_FROZEN_MALLET_2);
 
-        _events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
+        _events.ScheduleEvent(EVENT_FROST_BLAST, 5s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -135,7 +148,7 @@ struct npc_frost_warder : public ScriptedAI
         if (_events.ExecuteEvent() == EVENT_FROST_BLAST)
         {
             DoCastVictim(SPELL_FROST_BLAST);
-            _events.ScheduleEvent(EVENT_FROST_BLAST, 20000);
+            _events.ScheduleEvent(EVENT_FROST_BLAST, 20s);
         }
 
         DoMeleeAttackIfReady();
@@ -149,7 +162,7 @@ struct npc_frozen_orb : public ScriptedAI
 {
     npc_frozen_orb(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         DoCastSelf(SPELL_FROZEN_ORB_AURA, true);
         DoCastSelf(SPELL_FROZEN_ORB_DMG, true);
@@ -181,13 +194,12 @@ class spell_toravon_random_aggro : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster()->ToCreature();
-        if (!caster->IsAIEnabled)
-            return;
 
         caster->GetThreatManager().ResetAllThreat();
 
-        if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1))
-            caster->GetThreatManager().AddThreat(target, 1000000);
+        if (CreatureAI* ai = caster->AI())
+            if (Unit* target = ai->SelectTarget(SELECT_TARGET_RANDOM, 1))
+                caster->GetThreatManager().AddThreat(target, 1000000);
     }
 
     void Register() override
@@ -200,6 +212,7 @@ void AddSC_boss_toravon()
 {
     RegisterVaultOfArchavonCreatureAI(boss_toravon);
     RegisterVaultOfArchavonCreatureAI(npc_frost_warder);
+    RegisterVaultOfArchavonCreatureAI(npc_frozen_orb_stalker);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb);
     RegisterSpellScript(spell_toravon_random_aggro);
 }

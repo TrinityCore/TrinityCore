@@ -109,6 +109,12 @@ Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
     return nullptr;
 }
 
+void GroupMgr::Update(uint32 diff)
+{
+    for (std::pair<ObjectGuid::LowType const, Group*> const& group : GroupStore)
+        group.second->Update(diff);
+}
+
 void GroupMgr::AddGroup(Group* group)
 {
     GroupStore[group->GetGUID().GetCounter()] = group;
@@ -243,11 +249,4 @@ void GroupMgr::LoadGroups()
 
         TC_LOG_INFO("server.loading", ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
-}
-
-void GroupMgr::Update(uint32 diff)
-{
-    for (GroupContainer::iterator itr = GroupStore.begin(); itr != GroupStore.end(); itr++)
-        if (itr->second)
-            itr->second->Update(diff);
 }

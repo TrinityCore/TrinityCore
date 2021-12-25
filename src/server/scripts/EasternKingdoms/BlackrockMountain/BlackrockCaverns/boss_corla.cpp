@@ -61,9 +61,9 @@ class boss_corla : public CreatureScript
                 events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(YELL_AGGRO);
                 events.Reset();
                 combatPhase = true;

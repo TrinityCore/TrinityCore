@@ -18,6 +18,7 @@
 #ifndef CreatureData_h__
 #define CreatureData_h__
 
+#include "Common.h"
 #include "DBCEnums.h"
 #include "Optional.h"
 #include "SharedDefines.h"
@@ -255,6 +256,7 @@ enum CreatureDifficultyFlags7
     CREATURE_DIFFICULTYFLAGS_7_UNK1         = 0x00000008
 };
 
+// EnumUtils: DESCRIBE THIS
 enum CreatureFlagsExtra : uint32
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND        = 0x00000001,       // creature kill bind instance with killer and killer's group
@@ -293,9 +295,9 @@ enum CreatureFlagsExtra : uint32
     // Masks
     CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_13 | CREATURE_FLAG_EXTRA_UNUSED_16 | CREATURE_FLAG_EXTRA_UNUSED_22 |
                                                 CREATURE_FLAG_EXTRA_UNUSED_23 | CREATURE_FLAG_EXTRA_UNUSED_24 | CREATURE_FLAG_EXTRA_UNUSED_25 |
-                                                CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31),
+                                                CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31), // SKIP
 
-    CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
+    CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS)) // SKIP
 };
 
 enum class CreatureGroundMovementType : uint8
@@ -316,19 +318,43 @@ enum class CreatureFlightMovementType : uint8
     Max
 };
 
+enum class CreatureChaseMovementType : uint8
+{
+    Run,
+    CanWalk,
+    AlwaysWalk,
+
+    Max
+};
+
+enum class CreatureRandomMovementType : uint8
+{
+    Walk,
+    CanRun,
+    AlwaysRun,
+
+    Max
+};
+
 struct TC_GAME_API CreatureMovementData
 {
-    CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false) { }
+    CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run),
+        Random(CreatureRandomMovementType::Walk) { }
 
     CreatureGroundMovementType Ground;
     CreatureFlightMovementType Flight;
     bool Swim;
     bool Rooted;
+    CreatureChaseMovementType Chase;
+    CreatureRandomMovementType Random;
 
     bool IsGroundAllowed() const { return Ground != CreatureGroundMovementType::None; }
     bool IsSwimAllowed() const { return Swim; }
     bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
     bool IsRooted() const { return Rooted; }
+
+    CreatureChaseMovementType GetChase() const { return Chase; }
+    CreatureRandomMovementType GetRandom() const { return Random; }
 
     std::string ToString() const;
 };
@@ -557,7 +583,7 @@ struct CreatureData : public SpawnData
     CreatureData() : SpawnData(SPAWN_TYPE_CREATURE) { }
     uint32 displayid = 0;
     int8 equipmentId = 0;
-    float spawndist = 0.0f;
+    float wander_distance = 0.0f;
     uint32 currentwaypoint = 0;
     uint32 curhealth = 0;
     uint32 curmana = 0;

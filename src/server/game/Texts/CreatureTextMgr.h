@@ -36,7 +36,15 @@ enum CreatureTextRange
     TEXT_RANGE_AREA     = 1,
     TEXT_RANGE_ZONE     = 2,
     TEXT_RANGE_MAP      = 3,
-    TEXT_RANGE_WORLD    = 4
+    TEXT_RANGE_WORLD    = 4,
+    TEXT_RANGE_PERSONAL = 5
+};
+
+enum class SoundKitPlayType : uint8
+{
+    Normal      = 0,
+    ObjectSound = 1,
+    Max         = 2,
 };
 
 struct CreatureTextEntry
@@ -51,6 +59,7 @@ struct CreatureTextEntry
     Emote emote;
     uint32 duration;
     uint32 sound;
+    SoundKitPlayType SoundPlayType;
     uint32 BroadcastTextId;
     CreatureTextRange TextRange;
 };
@@ -93,11 +102,11 @@ class TC_GAME_API CreatureTextMgr
         void LoadCreatureTextLocales();
         CreatureTextMap const& GetTextMap() const { return mTextMap; }
 
-        static void SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget = nullptr, CreatureTextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false, uint32 keyBroadcastTextId = 0);
+        static void SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget = nullptr, CreatureTextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false, uint32 keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType::Normal);
         static void SendEmote(Unit* source, uint32 emote);
 
         //if sent, returns the 'duration' of the text else 0 if error
-        uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = nullptr, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = nullptr);
+        uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = nullptr, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, SoundKitPlayType playType = SoundKitPlayType::Normal, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = nullptr);
         bool TextExist(uint32 sourceEntry, uint8 textGroup) const;
         std::string GetLocalizedChatString(uint32 entry, uint8 gender, uint8 textGroup, uint32 id, LocaleConstant locale) const;
 

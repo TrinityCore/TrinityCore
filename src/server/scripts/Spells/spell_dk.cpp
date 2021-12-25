@@ -88,7 +88,7 @@ class spell_dk_advantage_t10_4p : public AuraScript
         if (Unit* caster = eventInfo.GetActor())
         {
             Player* player = caster->ToPlayer();
-            if (!player  || caster->getClass() != CLASS_DEATH_KNIGHT)
+            if (!player  || caster->GetClass() != CLASS_DEATH_KNIGHT)
                 return false;
 
             for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
@@ -367,7 +367,7 @@ class spell_dk_death_gate : public SpellScript
 
     SpellCastResult CheckClass()
     {
-        if (GetCaster()->getClass() != CLASS_DEATH_KNIGHT)
+        if (GetCaster()->GetClass() != CLASS_DEATH_KNIGHT)
         {
             SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_DEATH_KNIGHT);
             return SPELL_FAILED_CUSTOM_ERROR;
@@ -597,6 +597,46 @@ class spell_dk_ghoul_explode : public SpellScript
     }
 };
 
+// 69961 - Glyph of Scourge Strike
+class spell_dk_glyph_of_scourge_strike_script : public SpellScript
+{
+    PrepareSpellScript(spell_dk_glyph_of_scourge_strike_script);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        Unit::AuraEffectList const& mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+        for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+        {
+            AuraEffect const* aurEff = *i;
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+            // search our Blood Plague and Frost Fever on target
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
+                aurEff->GetCasterGUID() == caster->GetGUID())
+            {
+                uint32 countMin = aurEff->GetBase()->GetMaxDuration();
+                uint32 countMax = spellInfo->GetMaxDuration();
+
+                // this Glyph
+                countMax += 9000;
+
+                if (countMin < countMax)
+                {
+                    aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 3000);
+                    aurEff->GetBase()->SetMaxDuration(countMin + 3000);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_glyph_of_scourge_strike_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 206940 - Mark of Blood
 class spell_dk_mark_of_blood : public AuraScript
 {
@@ -789,6 +829,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterAuraScript(spell_dk_death_strike_enabler);
     RegisterSpellScript(spell_dk_festering_strike);
     RegisterSpellScript(spell_dk_ghoul_explode);
+    RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterAuraScript(spell_dk_mark_of_blood);
     RegisterAuraScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_pet_geist_transform);

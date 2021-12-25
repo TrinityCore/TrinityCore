@@ -114,7 +114,14 @@ enum DoomrelSpells
     SPELL_DEMONARMOR                                       = 13787,
     SPELL_SUMMON_VOIDWALKERS                               = 15092
 };
+enum DoomrelText
+{
+    GOSSIP_SELECT_DOOMREL                                  = 1828,
+    GOSSIP_MENU_ID_CONTINUE                                = 1,
 
+    GOSSIP_MENU_CHALLENGE                                  = 1947,
+    GOSSIP_MENU_ID_CHALLENGE                               = 0
+};
 enum DoomrelEvents
 {
     EVENT_SHADOW_BOLT_VOLLEY                               = 1,
@@ -123,9 +130,6 @@ enum DoomrelEvents
     EVENT_DEMONARMOR                                       = 4,
     EVENT_SUMMON_VOIDWALKERS                               = 5
 };
-
-#define GOSSIP_ITEM_CHALLENGE   "Your bondage is at an end, Doom'rel. I challenge you!"
-#define GOSSIP_SELECT_DOOMREL   "[PH] Continue..."
 
 class boss_doomrel : public CreatureScript
 {
@@ -162,10 +166,10 @@ class boss_doomrel : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 10000);
-                _events.ScheduleEvent(EVENT_IMMOLATE, 18000);
-                _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 5000);
-                _events.ScheduleEvent(EVENT_DEMONARMOR, 16000);
+                _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 10s);
+                _events.ScheduleEvent(EVENT_IMMOLATE, 18s);
+                _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 5s);
+                _events.ScheduleEvent(EVENT_DEMONARMOR, 16s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -202,20 +206,20 @@ class boss_doomrel : public CreatureScript
                     {
                         case EVENT_SHADOW_BOLT_VOLLEY:
                             DoCastVictim(SPELL_SHADOWBOLTVOLLEY);
-                            _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 12000);
+                            _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 12s);
                             break;
                         case EVENT_IMMOLATE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_IMMOLATE);
-                            _events.ScheduleEvent(EVENT_IMMOLATE, 25000);
+                            _events.ScheduleEvent(EVENT_IMMOLATE, 25s);
                             break;
                         case EVENT_CURSE_OF_WEAKNESS:
                             DoCastVictim(SPELL_CURSEOFWEAKNESS);
-                            _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 45000);
+                            _events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 45s);
                             break;
                         case EVENT_DEMONARMOR:
                             DoCast(me, SPELL_DEMONARMOR);
-                            _events.ScheduleEvent(EVENT_DEMONARMOR, 300000);
+                            _events.ScheduleEvent(EVENT_DEMONARMOR, 5min);
                             break;
                         default:
                             break;
@@ -233,7 +237,7 @@ class boss_doomrel : public CreatureScript
                 switch (action)
                 {
                     case GOSSIP_ACTION_INFO_DEF + 1:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_SELECT_DOOMREL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        AddGossipItemFor(player, GOSSIP_SELECT_DOOMREL, GOSSIP_MENU_ID_CONTINUE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                         SendGossipMenuFor(player, 2605, me->GetGUID());
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 2:
@@ -251,7 +255,7 @@ class boss_doomrel : public CreatureScript
 
             bool GossipHello(Player* player) override
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_MENU_CHALLENGE, GOSSIP_MENU_ID_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 2601, me->GetGUID());
 
                 return true;
