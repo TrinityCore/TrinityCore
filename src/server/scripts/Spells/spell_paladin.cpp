@@ -779,15 +779,15 @@ class spell_pal_holy_prism_selector : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (GetSpellInfo()->Id == SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY)
-            targets.sort(Trinity::HealthPctOrderPred());
-
         uint8 const maxTargets = 5;
 
         if (targets.size() > maxTargets)
         {
             if (GetSpellInfo()->Id == SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY)
+            {
+                targets.sort(Trinity::HealthPctOrderPred());
                 targets.resize(maxTargets);
+            }
             else
                 Trinity::Containers::RandomResize(targets, maxTargets);
         }
@@ -809,18 +809,13 @@ class spell_pal_holy_prism_selector : public SpellScript
     void Register() override
     {
         if (m_scriptSpellId == SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY)
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_pal_holy_prism_selector::SaveTargetGuid, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_selector::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
-        }
-
-        if (m_scriptSpellId == SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY)
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_pal_holy_prism_selector::SaveTargetGuid, EFFECT_0, SPELL_EFFECT_HEAL);
+        else if (m_scriptSpellId == SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY)
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_selector::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
-        }
 
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_selector::ShareTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENTRY);
+
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_prism_selector::SaveTargetGuid, EFFECT_0, SPELL_EFFECT_ANY);
         OnEffectHitTarget += SpellEffectFn(spell_pal_holy_prism_selector::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 
