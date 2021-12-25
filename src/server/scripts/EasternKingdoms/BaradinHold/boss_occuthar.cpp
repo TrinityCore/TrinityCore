@@ -66,9 +66,9 @@ class boss_occuthar : public CreatureScript
                 ASSERT(_vehicle);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_SEARING_SHADOWS, 8s);
                 events.ScheduleEvent(EVENT_FOCUSED_FIRE, 15s);

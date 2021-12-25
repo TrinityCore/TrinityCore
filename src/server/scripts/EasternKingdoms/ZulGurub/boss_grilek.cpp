@@ -46,12 +46,13 @@ class boss_grilek : public CreatureScript
             {
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustDied(Unit* /*killer*/) override
             {
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustEngagedWith(Unit* who) override
             {
+                BossAI::JustEngagedWith(who);
             }
 
             void UpdateAI(uint32 diff) override

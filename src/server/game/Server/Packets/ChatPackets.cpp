@@ -55,7 +55,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Chat::ChatAddonMessagePar
     params.IsLogged = data.ReadBit();
     params.Type = ChatMsg(data.read<int32>());
     params.Prefix = data.ReadString(prefixLen);
-    params.Text = data.ReadString(textLen);
+    params.Text = data.ReadString(textLen, false);
 
     return data;
 }

@@ -24,9 +24,15 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "advstd.h"
 
 enum LocaleConstant : uint8;
+
+enum class TimeFormat : uint8
+{
+    FullText,       // 1 Days 2 Hours 3 Minutes 4 Seconds
+    ShortText,      // 1d 2h 3m 4s
+    Numeric         // 1:2:3:4
+};
 
 class TC_COMMON_API Tokenizer
 {
@@ -63,7 +69,7 @@ TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
 TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
 TC_COMMON_API tm TimeBreakdown(time_t t);
 
-TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
+TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat = TimeFormat::FullText, bool hoursOnly = false);
 TC_COMMON_API uint32 TimeStringToSecs(std::string const& timestring);
 TC_COMMON_API std::string TimeToTimestampStr(time_t t);
 TC_COMMON_API std::string TimeToHumanReadable(time_t t);
@@ -336,7 +342,7 @@ TC_COMMON_API uint32 GetPID();
 
 TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
 template <typename Container>
-std::string ByteArrayToHexStr(Container const& c, bool reverse = false) { return ByteArrayToHexStr(advstd::data(c), advstd::size(c), reverse); }
+std::string ByteArrayToHexStr(Container const& c, bool reverse = false) { return ByteArrayToHexStr(std::data(c), std::size(c), reverse); }
 TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 template <size_t Size>
 void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)

@@ -1128,7 +1128,8 @@ void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiff
         data.spawnId = m_spawnId;
     ASSERT(data.spawnId == m_spawnId);
     data.id = GetEntry();
-    data.spawnPoint.WorldRelocate(this);
+    data.mapId = GetMapId();
+    data.spawnPoint.Relocate(this);
     data.rotation = m_localRotation;
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
@@ -1262,7 +1263,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     CharacterDatabaseTransaction charTrans = CharacterDatabase.BeginTransaction();
 
-    sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
+    sMapMgr->DoForAllMapsWithMapId(data->mapId,
         [spawnId, charTrans](Map* map) -> void
         {
             // despawn all active objects, and remove their respawns
@@ -1448,7 +1449,7 @@ uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
     {
         if (Player const* player = target->ToPlayer())
             if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
-                return uint8(advstd::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
+                return uint8(std::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
 
         if (Unit const* targetUnit = target->ToUnit())
             return targetUnit->GetLevel();
@@ -1615,7 +1616,7 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
         RemoveFlag(GO_FLAG_IN_USE);
 
     if (GetGoState() == GO_STATE_READY)                      //if closed -> open
-        SetGoState(alternative ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_ACTIVE);
+        SetGoState(alternative ? GO_STATE_DESTROYED : GO_STATE_ACTIVE);
     else                                                    //if open -> close
         SetGoState(GO_STATE_READY);
 }

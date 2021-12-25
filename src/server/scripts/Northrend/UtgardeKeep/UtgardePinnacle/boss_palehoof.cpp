@@ -219,9 +219,9 @@ public:
                 _orb = summon->GetGUID();
         }
 
-        void JustEngagedWith (Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_ARCING_SMASH, 7s);
             events.ScheduleEvent(EVENT_IMPALE, 11s);

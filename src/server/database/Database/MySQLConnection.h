@@ -71,7 +71,7 @@ class TC_DATABASE_API MySQLConnection
         ResultSet* Query(char const* sql);
         PreparedResultSet* Query(PreparedStatementBase* stmt);
         bool _Query(char const* sql, MySQLResult** pResult, MySQLField** pFields, uint64* pRowCount, uint32* pFieldCount);
-        bool _Query(PreparedStatementBase* stmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount);
+        bool _Query(PreparedStatementBase* stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount);
 
         void BeginTransaction();
         void RollbackTransaction();

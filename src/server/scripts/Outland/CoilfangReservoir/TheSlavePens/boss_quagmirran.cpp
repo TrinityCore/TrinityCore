@@ -61,9 +61,9 @@ class boss_quagmirran : public CreatureScript
                 _JustDied();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_ACID_SPRAY, 25000);
                 events.ScheduleEvent(EVENT_CLEAVE, 9s);
                 events.ScheduleEvent(EVENT_UPPERCUT, 20s);

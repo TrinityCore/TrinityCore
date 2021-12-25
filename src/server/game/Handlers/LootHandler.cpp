@@ -402,7 +402,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         else
         {
             // Only delete item if no loot or money (unlooted loot is saved to db) or if it isn't an openable item
-            if (pItem->loot.isLooted() || !(proto->GetFlags() & ITEM_FLAG_HAS_LOOT))
+            if (pItem->loot.isLooted() || !proto->HasFlag(ITEM_FLAG_HAS_LOOT))
                 player->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
         }
         return;                                             // item can be looted only single player

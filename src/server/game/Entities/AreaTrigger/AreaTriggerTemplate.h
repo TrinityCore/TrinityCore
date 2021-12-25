@@ -21,7 +21,7 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include "Position.h"
+#include "SpawnData.h"
 #include <vector>
 
 #define MAX_AREATRIGGER_ENTITY_DATA 6
@@ -234,18 +234,13 @@ public:
     uint32 ScriptId;
 };
 
-struct AreaTriggerSpawn
+struct AreaTriggerSpawn : SpawnData
 {
-    ObjectGuid::LowType SpawnId = 0;
+    AreaTriggerSpawn() : SpawnData(SPAWN_TYPE_AREATRIGGER) { }
+
     AreaTriggerId Id;
-    WorldLocation Location;
-    uint32 PhaseId = 0;
-    uint32 PhaseGroup = 0;
-    uint8 PhaseUseFlags = 0;
 
     AreaTriggerShapeInfo Shape;
-
-    uint32 ScriptId = 0;
 };
 
 #endif

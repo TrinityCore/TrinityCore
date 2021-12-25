@@ -717,18 +717,21 @@ struct TC_GAME_API CharmInfo
 enum ReactiveType
 {
     REACTIVE_DEFENSE      = 0,
-    REACTIVE_DEFENSE_2    = 1
+    REACTIVE_DEFENSE_2    = 1,
+    MAX_REACTIVE
 };
 
-#define MAX_REACTIVE 2
-#define SUMMON_SLOT_PET     0
-#define SUMMON_SLOT_TOTEM   1
-#define MAX_TOTEM_SLOT      5
-#define SUMMON_SLOT_MINIPET 5
-#define SUMMON_SLOT_QUEST   6
-#define MAX_SUMMON_SLOT     7
+struct PositionUpdateInfo
+{
+    void Reset()
+    {
+        Relocated = false;
+        Turned = false;
+    }
 
-#define MAX_GAMEOBJECT_SLOT 4
+    bool Relocated = false;
+    bool Turned = false;
+};
 
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
@@ -1030,7 +1033,7 @@ class TC_GAME_API Unit : public WorldObject
                                      DamageInfo* damageInfo, HealInfo* healInfo);
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
-        void HandleEmoteCommand(uint32 anim_id, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {});
+        void HandleEmoteCommand(uint32 emoteId, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {});
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
@@ -1185,7 +1188,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin);
         void KnockbackFrom(Position const& origin, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
-        void JumpTo(float speedXY, float speedZ, bool forward = true);
+        void JumpTo(float speedXY, float speedZ, bool forward = true, Optional<Position> dest = {});
         void JumpTo(WorldObject* obj, float speedZ, bool withOrientation = false);
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
@@ -1409,6 +1412,7 @@ class TC_GAME_API Unit : public WorldObject
         bool HasAuraTypeWithMiscvalue(AuraType auraType, int32 miscValue) const;
         bool HasAuraTypeWithAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
         bool HasAuraTypeWithValue(AuraType auraType, int32 value) const;
+        bool HasAuraTypeWithTriggerSpell(AuraType auratype, uint32 triggerSpell) const;
         template <typename InterruptFlags>
         bool HasNegativeAuraWithInterruptFlag(InterruptFlags flag, ObjectGuid guid = ObjectGuid::Empty) const;
         bool HasAuraWithMechanic(uint32 mechanicMask) const;
@@ -1952,6 +1956,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
+        void InterruptMovementBasedAuras();
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
@@ -1970,7 +1975,7 @@ class TC_GAME_API Unit : public WorldObject
     private:
 
         uint32 m_state;                                     // Even derived shouldn't modify
-        TimeTrackerSmall m_movesplineTimer;
+        TimeTrackerSmall m_splineSyncTimer;
 
         Diminishing m_Diminishing;
 
@@ -2005,6 +2010,7 @@ class TC_GAME_API Unit : public WorldObject
         SpellHistory* _spellHistory;
 
         std::unique_ptr<MovementForces> _movementForces;
+        PositionUpdateInfo _positionUpdateInfo;
 };
 
 namespace Trinity

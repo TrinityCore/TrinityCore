@@ -92,9 +92,9 @@ class boss_ozruk : public CreatureScript
                 events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13000);
             }
 
-            void JustEngagedWith(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 Talk(SAY_AGGRO);
             }

@@ -48,8 +48,8 @@ namespace Impl
         template <typename Container>
         static void SplitFromBack(std::vector<uint8>& data, Container& tail)
         {
-            ASSERT(data.size() >= advstd::size(tail));
-            for (size_t i = 1, N = advstd::size(tail); i <= N; ++i)
+            ASSERT(data.size() >= std::size(tail));
+            for (size_t i = 1, N = std::size(tail); i <= N; ++i)
             {
                 tail[N - i] = data.back();
                 data.pop_back();

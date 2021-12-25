@@ -64,11 +64,11 @@ struct boss_herod : public BossAI
         _Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(SAY_AGGRO);
         DoCast(me, SPELL_RUSHINGCHARGE);
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
 
         events.ScheduleEvent(EVENT_CLEAVE, 12s);
         events.ScheduleEvent(EVENT_WHIRLWIND, 1min);

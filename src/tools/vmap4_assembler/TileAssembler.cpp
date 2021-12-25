@@ -171,12 +171,12 @@ namespace VMAP
         exportGameobjectModels();
         // export objects
         std::cout << "\nConverting Model Files" << std::endl;
-        for (std::set<std::string>::iterator mfile = spawnedModelFiles.begin(); mfile != spawnedModelFiles.end(); ++mfile)
+        for (std::string const& spawnedModelFile : spawnedModelFiles)
         {
-            std::cout << "Converting " << *mfile << std::endl;
-            if (!convertRawFile(*mfile))
+            std::cout << "Converting " << spawnedModelFile << std::endl;
+            if (!convertRawFile(spawnedModelFile))
             {
-                std::cout << "error converting " << *mfile << std::endl;
+                std::cout << "error converting " << spawnedModelFile << std::endl;
                 success = false;
                 break;
             }

@@ -24,7 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
-go_demon_portal
 EndContentData */
 
 #include "ScriptMgr.h"

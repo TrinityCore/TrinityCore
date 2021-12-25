@@ -86,9 +86,9 @@ public:
             events.ScheduleEvent(EVENT_ENRAGE, 10min);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
         }
 

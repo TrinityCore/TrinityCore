@@ -394,7 +394,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     {
         UpdateDamagePhysical(BASE_ATTACK);
         if (Item* offhand = GetWeaponForAttack(OFF_ATTACK, true))
-            if (CanDualWield() || offhand->GetTemplate()->GetFlags3() & ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD)
+            if (CanDualWield() || offhand->GetTemplate()->HasFlag(ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD))
                 UpdateDamagePhysical(OFF_ATTACK);
 
         if (HasAuraType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT))

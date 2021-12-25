@@ -692,6 +692,9 @@ void SmartAI::OnCharmed(bool /*isNew*/)
 
     _charmed = charmed;
 
+    if (charmed && !me->isPossessed() && !me->IsVehicle())
+        me->GetMotionMaster()->MoveFollow(me->GetCharmer(), PET_FOLLOW_DIST, me->GetFollowAngle());
+
     if (!charmed && !me->IsInEvadeMode())
     {
         if (_repeatWaypointPath)
@@ -705,6 +708,9 @@ void SmartAI::OnCharmed(bool /*isNew*/)
                 if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
                     me->EngageWithTarget(lastCharmer);
             me->LastCharmerGUID.Clear();
+
+            if (!me->IsInCombat())
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         }
     }
 
@@ -893,12 +899,12 @@ void SmartAI::CheckConditions(uint32 diff)
 
     if (_vehicleConditionsTimer <= diff)
     {
-        if (Vehicle * vehicleKit = me->GetVehicleKit())
+        if (Vehicle* vehicleKit = me->GetVehicleKit())
         {
-            for (SeatMap::iterator itr = vehicleKit->Seats.begin(); itr != vehicleKit->Seats.end(); ++itr)
-                if (Unit * passenger = ObjectAccessor::GetUnit(*me, itr->second.Passenger.Guid))
+            for (std::pair<int8 const, VehicleSeat>& seat : vehicleKit->Seats)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*me, seat.second.Passenger.Guid))
                 {
-                    if (Player * player = passenger->ToPlayer())
+                    if (Player* player = passenger->ToPlayer())
                     {
                         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry(), player, me))
                         {

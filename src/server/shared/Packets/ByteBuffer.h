@@ -36,7 +36,7 @@ public:
     char const* what() const noexcept override { return msg_.c_str(); }
 
 protected:
-    std::string& message() { return msg_; }
+    std::string & message() noexcept { return msg_; }
 
 private:
     std::string msg_;
@@ -50,11 +50,19 @@ public:
     ~ByteBufferPositionException() noexcept = default;
 };
 
+class TC_SHARED_API ByteBufferInvalidValueException : public ByteBufferException
+{
+public:
+    ByteBufferInvalidValueException(char const* type, char const* value);
+
+    ~ByteBufferInvalidValueException() noexcept = default;
+};
+
 class TC_SHARED_API ByteBuffer
 {
     public:
-        static size_t const DEFAULT_SIZE = 0x1000;
-        static uint8 const InitialBitPos = 8;
+        constexpr static size_t DEFAULT_SIZE = 0x1000;
+        constexpr static uint8 InitialBitPos = 8;
 
         // constructor
         ByteBuffer() : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
@@ -366,16 +374,9 @@ class TC_SHARED_API ByteBuffer
         ByteBuffer &operator>>(float &value);
         ByteBuffer &operator>>(double &value);
 
-        ByteBuffer &operator>>(std::string& value)
+        ByteBuffer& operator>>(std::string& value)
         {
-            value.clear();
-            while (rpos() < size())                         // prevent crash at wrong string format in packet
-            {
-                char c = read<char>();
-                if (c == 0)
-                    break;
-                value += c;
-            }
+            value = ReadCString(true);
             return *this;
         }
 
@@ -492,20 +493,6 @@ class TC_SHARED_API ByteBuffer
                     value |= (uint64(read<uint8>()) << (i * 8));
         }
 
-        std::string ReadString(uint32 length)
-        {
-            if (_rpos + length > size())
-                throw ByteBufferPositionException(_rpos, length, size());
-
-            ResetBitPos();
-            if (!length)
-                return std::string();
-
-            std::string str((char const*)&_storage[_rpos], length);
-            _rpos += length;
-            return str;
-        }
-
         //! Method for writing strings that have their length sent separately in packet
         //! without null-terminating the string
         void WriteString(std::string const& str)
@@ -519,6 +506,10 @@ class TC_SHARED_API ByteBuffer
             if (len)
                 append(str, len);
         }
+
+        std::string ReadCString(bool requireValidUtf8 = true);
+
+        std::string ReadString(uint32 length, bool requireValidUtf8 = true);
 
         uint32 ReadPackedTime();
 

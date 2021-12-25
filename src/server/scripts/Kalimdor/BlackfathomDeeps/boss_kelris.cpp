@@ -47,9 +47,9 @@ public:
     {
         boss_kelrisAI(Creature* creature) : BossAI(creature, DATA_KELRIS) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_MIND_BLAST, 2s, 5s);
             events.ScheduleEvent(EVENT_SLEEP, 9s, 12s);

@@ -117,9 +117,9 @@ public:
             instance->SetBossState(BOSS_RAZUVIOUS, DONE);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             me->StopMoving();
             summons.DoZoneInCombat();
             Talk(SAY_AGGRO);

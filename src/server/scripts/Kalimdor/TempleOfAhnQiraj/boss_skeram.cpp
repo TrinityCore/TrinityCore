@@ -135,9 +135,9 @@ class boss_skeram : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6s, 12s);

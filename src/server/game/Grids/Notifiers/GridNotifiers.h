@@ -733,7 +733,7 @@ namespace Trinity
                 if (!go->isSpawned())
                     return false;
 
-                float const dist = go->GetGOInfo()->GetSpellFocusRadius() / 2.f;
+                float const dist = go->GetGOInfo()->GetSpellFocusRadius();
                 return go->IsWithinDistInMap(_caster, dist);
             }
 
@@ -1247,7 +1247,7 @@ namespace Trinity
     class NearestHostileUnitInAggroRangeCheck
     {
         public:
-            explicit NearestHostileUnitInAggroRangeCheck(Creature const* creature, bool useLOS = false) : _me(creature), _useLOS(useLOS) { }
+            explicit NearestHostileUnitInAggroRangeCheck(Creature const* creature, bool useLOS = false, bool ignoreCivilians = false) : _me(creature), _useLOS(useLOS), _ignoreCivilians(ignoreCivilians) { }
 
             bool operator()(Unit* u) const
             {
@@ -1263,12 +1263,19 @@ namespace Trinity
                 if (_useLOS && !u->IsWithinLOSInMap(_me))
                     return false;
 
+                // pets in aggressive do not attack civilians
+                if (_ignoreCivilians)
+                    if (Creature* c = u->ToCreature())
+                        if (c->IsCivilian())
+                            return false;
+
                 return true;
             }
 
         private:
             Creature const* _me;
             bool _useLOS;
+            bool _ignoreCivilians;
             NearestHostileUnitInAggroRangeCheck(NearestHostileUnitInAggroRangeCheck const&) = delete;
     };
 

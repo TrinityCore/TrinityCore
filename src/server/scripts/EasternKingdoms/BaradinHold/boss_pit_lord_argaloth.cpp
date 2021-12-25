@@ -51,9 +51,9 @@ class boss_pit_lord_argaloth : public CreatureScript
         {
             boss_pit_lord_argalothAI(Creature* creature) : BossAI(creature, DATA_ARGALOTH) { }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_METEOR_SLASH, 10s, 20s);
                 events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 20s, 25s);

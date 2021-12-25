@@ -69,9 +69,9 @@ class boss_rokmar_the_crackler : public CreatureScript
                 _JustDied();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 10s);
                 events.ScheduleEvent(EVENT_ENSNARING_MOSS, 20s);
                 events.ScheduleEvent(EVENT_WATER_SPIT, 14s);

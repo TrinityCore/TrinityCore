@@ -93,9 +93,9 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             DoCast(me, SPELL_ESSENCEOFTHERED);
             me->SetHealth(me->CountPctFromMaxHealth(30));

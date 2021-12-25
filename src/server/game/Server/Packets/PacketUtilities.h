@@ -20,11 +20,107 @@
 
 #include "ByteBuffer.h"
 #include "Duration.h"
+#include "Tuples.h"
 #include <boost/container/static_vector.hpp>
 #include <ctime>
 
 namespace WorldPackets
 {
+    class InvalidStringValueException : public ByteBufferInvalidValueException
+    {
+    public:
+        InvalidStringValueException(std::string const& value);
+
+        std::string const& GetInvalidValue() const { return _value; }
+
+    private:
+        std::string _value;
+    };
+
+    class InvalidUtf8ValueException : public InvalidStringValueException
+    {
+    public:
+        InvalidUtf8ValueException(std::string const& value);
+    };
+
+    class InvalidHyperlinkException : public InvalidStringValueException
+    {
+    public:
+        InvalidHyperlinkException(std::string const& value);
+    };
+
+    class IllegalHyperlinkException : public InvalidStringValueException
+    {
+    public:
+        IllegalHyperlinkException(std::string const& value);
+    };
+
+    namespace Strings
+    {
+        struct RawBytes { static bool Validate(std::string const& /*value*/) { return true; } };
+        template<std::size_t MaxBytesWithoutNullTerminator>
+        struct ByteSize { static bool Validate(std::string const& value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
+        struct Utf8 { static bool Validate(std::string const& value); };
+        struct Hyperlinks { static bool Validate(std::string const& value); };
+        struct NoHyperlinks { static bool Validate(std::string const& value); };
+    }
+
+    /**
+     * Utility class for automated prevention of invalid strings in client packets
+     */
+    template<std::size_t MaxBytesWithoutNullTerminator, typename... Validators>
+    class String
+    {
+        using ValidatorList = std::conditional_t<!Trinity::has_type<Strings::RawBytes, std::tuple<Validators...>>::value,
+            std::tuple<Strings::ByteSize<MaxBytesWithoutNullTerminator>, Strings::Utf8, Validators...>,
+            std::tuple<Strings::ByteSize<MaxBytesWithoutNullTerminator>, Validators...>>;
+
+    public:
+        bool empty() const { return _storage.empty(); }
+        char const* c_str() const { return _storage.c_str(); }
+
+        operator std::string&() { return _storage; }
+        operator std::string const&() const { return _storage; }
+
+        std::string&& Move() { return std::move(_storage); }
+
+        friend ByteBuffer& operator>>(ByteBuffer& data, String& value)
+        {
+            std::string string = data.ReadCString(false);
+            Validate(string);
+            value._storage = std::move(string);
+            return data;
+        }
+
+        String& operator=(std::string const& value)
+        {
+            Validate(value);
+            _storage = value;
+            return *this;
+        }
+
+        String& operator=(std::string&& value)
+        {
+            Validate(value);
+            _storage = std::move(value);
+            return *this;
+        }
+
+    private:
+        static bool Validate(std::string const& value)
+        {
+            return ValidateNth(value, std::make_index_sequence<std::tuple_size_v<ValidatorList>>{});
+        }
+
+        template<std::size_t... indexes>
+        static bool ValidateNth(std::string const& value, std::index_sequence<indexes...>)
+        {
+            return (std::tuple_element_t<indexes, ValidatorList>::Validate(value) && ...);
+        }
+
+        std::string _storage;
+    };
+
     class PacketArrayMaxCapacityException : public ByteBufferException
     {
     public:

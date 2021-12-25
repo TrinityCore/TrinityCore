@@ -39,9 +39,9 @@ struct boss_scorn : public BossAI
 {
     boss_scorn(Creature* creature) : BossAI(creature, DATA_SCORN) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_LICH_SLAP, 45s);
         events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 30s);
         events.ScheduleEvent(EVENT_MIND_FLAY, 30s);

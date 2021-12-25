@@ -170,9 +170,9 @@ void PetAI::UpdateAI(uint32 diff)
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
-                    for (GuidSet::const_iterator tar = _allySet.begin(); tar != _allySet.end(); ++tar)
+                    for (ObjectGuid target : _allySet)
                     {
-                        Unit* ally = ObjectAccessor::GetUnit(*me, *tar);
+                        Unit* ally = ObjectAccessor::GetUnit(*me, target);
 
                         //only buff targets that are in combat, unless the spell can only be cast while out of combat
                         if (!ally)
@@ -219,8 +219,8 @@ void PetAI::UpdateAI(uint32 diff)
         }
 
         // deleted cached Spell objects
-        for (TargetSpellList::const_iterator itr = targetSpellStore.begin(); itr != targetSpellStore.end(); ++itr)
-            delete itr->second;
+        for (std::pair<Unit*, Spell*> const& unitspellpair : targetSpellStore)
+            delete unitspellpair.second;
     }
 
     // Update speed as needed to prevent dropping too far behind and despawning
@@ -350,7 +350,7 @@ Unit* PetAI::SelectNextTarget(bool allowAutoSelect) const
     if (me->HasReactState(REACT_AGGRESSIVE) && allowAutoSelect)
     {
         if (!me->GetCharmInfo()->IsReturning() || me->GetCharmInfo()->IsFollowing() || me->GetCharmInfo()->IsAtStay())
-            if (Unit* nearTarget = me->SelectNearestHostileUnitInAggroRange(true))
+            if (Unit* nearTarget = me->SelectNearestHostileUnitInAggroRange(true, true))
                 return nearTarget;
     }
 
@@ -630,6 +630,14 @@ void PetAI::UpdateAllies()
     }
     else // remove group
         _allySet.insert(owner->GetGUID());
+}
+
+void PetAI::OnCharmed(bool isNew)
+{
+    if (me->IsCharmed())
+        me->GetMotionMaster()->MoveFollow(me->GetCharmer(), PET_FOLLOW_DIST, me->GetFollowAngle());
+
+    CreatureAI::OnCharmed(isNew);
 }
 
 void PetAI::ClearCharmInfoFlags()

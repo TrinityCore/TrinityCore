@@ -33,6 +33,11 @@ constexpr char Readme[] =
 #include "Info/readme.txt"
 };
 
+namespace MMAP
+{
+    std::unordered_map<uint32, MapEntry> sMapStore;
+}
+
 using namespace MMAP;
 
 namespace
@@ -323,6 +328,11 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
                 parentMapId = int16(record.GetUInt16("CosmeticParentMapID"));
             if (parentMapId != -1)
                 mapData[parentMapId].push_back(record.GetId());
+
+            MapEntry& map = sMapStore[record.GetId()];
+            map.MapType = record.GetUInt8("MapType");
+            map.InstanceType = record.GetUInt8("InstanceType");
+            map.Flags = record.GetInt32("Flags1");
         }
     }
     catch (std::exception const& e)

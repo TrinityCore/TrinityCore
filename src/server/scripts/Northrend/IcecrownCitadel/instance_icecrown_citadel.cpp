@@ -380,8 +380,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_ZAFOD_BOOMBOX:
                         if (GameObjectTemplate const* go = sObjectMgr->GetGameObjectTemplate(GO_THE_SKYBREAKER_A))
-                            if ((TeamInInstance == ALLIANCE && int32(data->spawnPoint.GetMapId()) == go->moTransport.SpawnMap) ||
-                                (TeamInInstance == HORDE && int32(data->spawnPoint.GetMapId()) != go->moTransport.SpawnMap))
+                            if ((TeamInInstance == ALLIANCE && int32(data->mapId) == go->moTransport.SpawnMap) ||
+                                (TeamInInstance == HORDE && int32(data->mapId) != go->moTransport.SpawnMap))
                                 return entry;
                         return 0;
                     case NPC_IGB_MURADIN_BRONZEBEARD:
@@ -615,14 +615,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_SCIENTIST_AIRLOCK_DOOR_ORANGE:
                         PutricideGateGUIDs[0] = go->GetGUID();
                         if (GetBossState(DATA_FESTERGUT) == DONE && GetBossState(DATA_ROTFACE) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            go->SetGoState(GO_STATE_DESTROYED);
                         else if (GetBossState(DATA_FESTERGUT) == DONE)
                             HandleGameObject(PutricideGateGUIDs[1], false, go);
                         break;
                     case GO_SCIENTIST_AIRLOCK_DOOR_GREEN:
                         PutricideGateGUIDs[1] = go->GetGUID();
                         if (GetBossState(DATA_ROTFACE) == DONE && GetBossState(DATA_FESTERGUT) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            go->SetGoState(GO_STATE_DESTROYED);
                         else if (GetBossState(DATA_ROTFACE) == DONE)
                             HandleGameObject(PutricideGateGUIDs[1], false, go);
                         break;
@@ -932,9 +932,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                             {
                                 HandleGameObject(PutricideCollisionGUID, true);
                                 if (GameObject* go = instance->GetGameObject(PutricideGateGUIDs[0]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                    go->SetGoState(GO_STATE_DESTROYED);
                                 if (GameObject* go = instance->GetGameObject(PutricideGateGUIDs[1]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                    go->SetGoState(GO_STATE_DESTROYED);
                             }
                             else
                                 HandleGameObject(PutricideGateGUIDs[0], false);
@@ -948,9 +948,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                             {
                                 HandleGameObject(PutricideCollisionGUID, true);
                                 if (GameObject* go = instance->GetGameObject(PutricideGateGUIDs[0]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                    go->SetGoState(GO_STATE_DESTROYED);
                                 if (GameObject* go = instance->GetGameObject(PutricideGateGUIDs[1]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                    go->SetGoState(GO_STATE_DESTROYED);
                             }
                             else
                                 HandleGameObject(PutricideGateGUIDs[1], false);

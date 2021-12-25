@@ -437,8 +437,8 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
 
 bool CriteriaDataSet::Meets(Player const* source, WorldObject const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
-    for (CriteriaData const& data : _storage)
-        if (!data.Meets(_criteriaId, source, target, miscValue1, miscValue2))
+    for (CriteriaData const& criteriadata : _storage)
+        if (!criteriadata.Meets(_criteriaId, source, target, miscValue1, miscValue2))
             return false;
 
     return true;
@@ -450,8 +450,8 @@ CriteriaHandler::~CriteriaHandler() { }
 
 void CriteriaHandler::Reset()
 {
-    for (auto iter = _criteriaProgress.begin(); iter != _criteriaProgress.end(); ++iter)
-        SendCriteriaProgressRemoved(iter->first);
+    for (std::pair<uint32 const, CriteriaProgress> const& criteriaprogress : _criteriaProgress)
+        SendCriteriaProgressRemoved(criteriaprogress.first);
 
     _criteriaProgress.clear();
 }
@@ -642,10 +642,10 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
                 {
                     uint32 counter = 0;
 
-                    const RewardedQuestSet& rewQuests = referencePlayer->getRewardedQuests();
-                    for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
+                    RewardedQuestSet const& rewQuests = referencePlayer->getRewardedQuests();
+                    for (uint32 rewQuest : rewQuests)
                     {
-                        Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
+                        Quest const* quest = sObjectMgr->GetQuestTemplate(rewQuest);
                         if (quest && quest->GetZoneOrSort() >= 0 && quest->GetZoneOrSort() == criteria->Entry->Asset.ZoneID)
                             ++counter;
                     }
@@ -686,11 +686,9 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::LearnTradeskillSkillLine:
             {
                 uint32 spellCount = 0;
-                for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
-                    spellIter != referencePlayer->GetSpellMap().end();
-                    ++spellIter)
+                for (std::pair<uint32 const, PlayerSpell*>& spellIter : referencePlayer->GetSpellMap())
                 {
-                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
                         if (skillIter->second->SkillLine == int32(criteria->Entry->Asset.SkillID))
@@ -1514,9 +1512,9 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 break;
 
             bool matchFound = false;
-            for (int j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+            for (uint32 j : worldOverlayEntry->AreaID)
             {
-                AreaTableEntry const* area = sAreaTableStore.LookupEntry(worldOverlayEntry->AreaID[j]);
+                AreaTableEntry const* area = sAreaTableStore.LookupEntry(j);
                 if (!area)
                     break;
 
@@ -4294,14 +4292,14 @@ CriteriaList const& CriteriaMgr::GetPlayerCriteriaByType(CriteriaType type, uint
 //==========================================================
 CriteriaMgr::~CriteriaMgr()
 {
-    for (auto itr = _criteriaTrees.begin(); itr != _criteriaTrees.end(); ++itr)
-        delete itr->second;
+    for (std::pair<uint32 const, CriteriaTree*>& criteriaTree : _criteriaTrees)
+        delete criteriaTree.second;
 
-    for (auto itr = _criteria.begin(); itr != _criteria.end(); ++itr)
-        delete itr->second;
+    for (std::pair<uint32 const, Criteria*>& criteria : _criteria)
+        delete criteria.second;
 
-    for (auto itr = _criteriaModifiers.begin(); itr != _criteriaModifiers.end(); ++itr)
-        delete itr->second;
+    for (std::pair<uint32 const, ModifierTreeNode*>& criteriaModifier : _criteriaModifiers)
+        delete criteriaModifier.second;
 }
 
 void CriteriaMgr::LoadCriteriaModifiersTree()
@@ -4327,9 +4325,9 @@ void CriteriaMgr::LoadCriteriaModifiersTree()
     }
 
     // Build tree
-    for (auto itr = _criteriaModifiers.begin(); itr != _criteriaModifiers.end(); ++itr)
-        if (ModifierTreeNode* parentNode = Trinity::Containers::MapGetValuePtr(_criteriaModifiers, itr->second->Entry->Parent))
-            parentNode->Children.push_back(itr->second);
+    for (std::pair<uint32 const, ModifierTreeNode*>& criteriaModifier : _criteriaModifiers)
+        if (ModifierTreeNode* parentNode = Trinity::Containers::MapGetValuePtr(_criteriaModifiers, criteriaModifier.second->Entry->Parent))
+            parentNode->Children.push_back(criteriaModifier.second);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u criteria modifiers in %u ms", uint32(_criteriaModifiers.size()), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -4405,13 +4403,13 @@ void CriteriaMgr::LoadCriteriaList()
     }
 
     // Build tree
-    for (auto itr = _criteriaTrees.begin(); itr != _criteriaTrees.end(); ++itr)
+    for (std::pair<uint32 const, CriteriaTree*> const& criteriaTree : _criteriaTrees)
     {
-        if (CriteriaTree* parent = Trinity::Containers::MapGetValuePtr(_criteriaTrees, itr->second->Entry->Parent))
-            parent->Children.push_back(itr->second);
+        if (CriteriaTree* parent = Trinity::Containers::MapGetValuePtr(_criteriaTrees, criteriaTree.second->Entry->Parent))
+            parent->Children.push_back(criteriaTree.second);
 
-        if (sCriteriaStore.HasRecord(itr->second->Entry->CriteriaID))
-            _criteriaTreeByCriteria[itr->second->Entry->CriteriaID].push_back(itr->second);
+        if (sCriteriaStore.HasRecord(criteriaTree.second->Entry->CriteriaID))
+            _criteriaTreeByCriteria[criteriaTree.second->Entry->CriteriaID].push_back(criteriaTree.second);
     }
 
     // Load criteria

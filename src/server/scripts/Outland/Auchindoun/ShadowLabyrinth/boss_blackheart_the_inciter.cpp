@@ -79,9 +79,9 @@ struct boss_blackheart_the_inciter : public BossAI
         _Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_INCITE_CHAOS, 20s);
         events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5s);
         events.ScheduleEvent(EVENT_WAR_STOMP, 15000);

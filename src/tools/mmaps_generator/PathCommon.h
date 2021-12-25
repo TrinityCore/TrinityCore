@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #ifndef _WIN32
@@ -121,6 +122,15 @@ namespace MMAP
 
         return LISTFILE_OK;
     }
+
+    struct MapEntry
+    {
+        uint8 MapType = 0;
+        int8 InstanceType = 0;
+        int32 Flags = 0;
+    };
+
+    extern std::unordered_map<uint32, MapEntry> sMapStore;
 }
 
 #endif

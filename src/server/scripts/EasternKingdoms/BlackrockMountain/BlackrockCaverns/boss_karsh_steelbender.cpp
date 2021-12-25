@@ -56,9 +56,9 @@ class boss_karsh_steelbender : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(YELL_AGGRO);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000);
             }

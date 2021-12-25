@@ -136,7 +136,7 @@ enum ScriptCommands
     SCRIPT_COMMAND_MODEL                 = 32,               // source = Creature, datalong = model id
     SCRIPT_COMMAND_CLOSE_GOSSIP          = 33,               // source = Player
     SCRIPT_COMMAND_PLAYMOVIE             = 34,               // source = Player, datalong = movie id
-    SCRIPT_COMMAND_MOVEMENT              = 35,               // source = Creature, datalong = MovementType, datalong2 = MovementDistance (spawndist f.ex.), dataint = pathid
+    SCRIPT_COMMAND_MOVEMENT              = 35,               // source = Creature, datalong = MovementType, datalong2 = MovementDistance (wander_distance f.ex.), dataint = pathid
     SCRIPT_COMMAND_PLAY_ANIMKIT          = 36                // source = Creature, datalong = AnimKit id
 };
 
@@ -510,7 +510,7 @@ typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataCo
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectAddon> GameObjectAddonContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> GameObjectQuestItemMap;
 typedef std::unordered_map<uint32, SpawnGroupTemplateData> SpawnGroupDataContainer;
-typedef std::multimap<uint32, SpawnData const*> SpawnGroupLinkContainer;
+typedef std::multimap<uint32, SpawnMetadata const*> SpawnGroupLinkContainer;
 typedef std::unordered_map<uint16, std::vector<InstanceSpawnGroupInfo>> InstanceSpawnGroupContainer;
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData>> TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
@@ -521,6 +521,7 @@ typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleC
 typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
 typedef std::unordered_map<uint32, QuestRequestItemsLocale> QuestRequestItemsLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
+typedef std::unordered_map<uint32, VehicleSeatAddon> VehicleSeatAddonContainer;
 
 struct GossipMenuItemsLocale
 {
@@ -1083,8 +1084,11 @@ class TC_GAME_API ObjectMgr
         public:
             struct Entry
             {
-                uint32 Id;
-                bool IsScriptDatabaseBound;
+                Entry() = default;
+                Entry(uint32 id, bool isScriptDatabaseBound) : Id(id), IsScriptDatabaseBound(isScriptDatabaseBound) { }
+
+                uint32 Id = 0;
+                bool IsScriptDatabaseBound = false;
             };
 
         private:
@@ -1334,6 +1338,7 @@ class TC_GAME_API ObjectMgr
         void LoadVehicleTemplateAccessories();
         void LoadVehicleTemplate();
         void LoadVehicleAccessories();
+        void LoadVehicleSeatAddon();
 
         void LoadNPCText();
 
@@ -1430,9 +1435,10 @@ class TC_GAME_API ObjectMgr
         ObjectGuid::LowType GenerateGameObjectSpawnId();
 
         SpawnGroupTemplateData const* GetSpawnGroupData(uint32 groupId) const { auto it = _spawnGroupDataStore.find(groupId); return it != _spawnGroupDataStore.end() ? &it->second : nullptr; }
+        SpawnGroupTemplateData const* GetSpawnGroupData(SpawnObjectType type, ObjectGuid::LowType spawnId) const { SpawnMetadata const* data = GetSpawnMetadata(type, spawnId); return data ? data->spawnGroupData : nullptr; }
         SpawnGroupTemplateData const* GetDefaultSpawnGroup() const { return &_spawnGroupDataStore.at(0); }
         SpawnGroupTemplateData const* GetLegacySpawnGroup() const { return &_spawnGroupDataStore.at(1); }
-        Trinity::IteratorPair<SpawnGroupLinkContainer::const_iterator> GetSpawnDataForGroup(uint32 groupId) const { return Trinity::Containers::MapEqualRange(_spawnGroupMapStore, groupId); }
+        Trinity::IteratorPair<SpawnGroupLinkContainer::const_iterator> GetSpawnMetadataForGroup(uint32 groupId) const { return Trinity::Containers::MapEqualRange(_spawnGroupMapStore, groupId); }
         std::vector<InstanceSpawnGroupInfo> const* GetSpawnGroupsForInstance(uint32 instanceId) const { auto it = _instanceSpawnGroupStore.find(instanceId); return it != _instanceSpawnGroupStore.end() ? &it->second : nullptr; }
 
         MailLevelReward const* GetMailLevelReward(uint8 level, uint8 race) const
@@ -1476,29 +1482,28 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        SpawnData const* GetSpawnData(SpawnObjectType type, ObjectGuid::LowType guid)
+        SpawnMetadata const* GetSpawnMetadata(SpawnObjectType type, ObjectGuid::LowType spawnId) const
         {
-            if (type == SPAWN_TYPE_CREATURE)
-                return GetCreatureData(guid);
-            else if (type == SPAWN_TYPE_GAMEOBJECT)
-                return GetGameObjectData(guid);
+            if (SpawnData::TypeHasData(type))
+                return GetSpawnData(type, spawnId);
             else
-                ASSERT(false, "Invalid spawn object type %u", uint32(type));
-            return nullptr;
+                return nullptr;
         }
+
+        SpawnData const* GetSpawnData(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
         void OnDeleteSpawnData(SpawnData const* data);
         CreatureDataContainer const& GetAllCreatureData() const { return _creatureDataStore; }
-        CreatureData const* GetCreatureData(ObjectGuid::LowType guid) const
+        CreatureData const* GetCreatureData(ObjectGuid::LowType spawnId) const
         {
-            CreatureDataContainer::const_iterator itr = _creatureDataStore.find(guid);
+            CreatureDataContainer::const_iterator itr = _creatureDataStore.find(spawnId);
             if (itr == _creatureDataStore.end()) return nullptr;
             return &itr->second;
         }
-        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType guid) { return _creatureDataStore[guid]; }
-        void DeleteCreatureData(ObjectGuid::LowType guid);
-        ObjectGuid GetLinkedRespawnGuid(ObjectGuid guid) const
+        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType spawnId) { return _creatureDataStore[spawnId]; }
+        void DeleteCreatureData(ObjectGuid::LowType spawnId);
+        ObjectGuid GetLinkedRespawnGuid(ObjectGuid spawnId) const
         {
-            LinkedRespawnContainer::const_iterator itr = _linkedRespawnStore.find(guid);
+            LinkedRespawnContainer::const_iterator itr = _linkedRespawnStore.find(spawnId);
             if (itr == _linkedRespawnStore.end()) return ObjectGuid::Empty;
             return itr->second;
         }
@@ -1509,14 +1514,14 @@ class TC_GAME_API ObjectMgr
             return &itr->second;
         }
         GameObjectDataContainer const& GetAllGameObjectData() const { return _gameObjectDataStore; }
-        GameObjectData const* GetGameObjectData(ObjectGuid::LowType guid) const
+        GameObjectData const* GetGameObjectData(ObjectGuid::LowType spawnId) const
         {
-            GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(guid);
+            GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(spawnId);
             if (itr == _gameObjectDataStore.end()) return nullptr;
             return &itr->second;
         }
-        GameObjectData& NewOrExistGameObjectData(ObjectGuid::LowType guid) { return _gameObjectDataStore[guid]; }
-        void DeleteGameObjectData(ObjectGuid::LowType guid);
+        GameObjectData& NewOrExistGameObjectData(ObjectGuid::LowType spawnId) { return _gameObjectDataStore[spawnId]; }
+        void DeleteGameObjectData(ObjectGuid::LowType spawnId);
         GameObjectLocale const* GetGameObjectLocale(uint32 entry) const
         {
             GameObjectLocaleContainer::const_iterator itr = _gameObjectLocaleStore.find(entry);
@@ -1689,6 +1694,15 @@ class TC_GAME_API ObjectMgr
         void LoadFactionChangeTitles();
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
+
+        VehicleSeatAddon const* GetVehicleSeatAddon(uint32 seatId) const
+        {
+            VehicleSeatAddonContainer::const_iterator itr = _vehicleSeatAddonStore.find(seatId);
+            if (itr == _vehicleSeatAddonStore.end())
+                return nullptr;
+
+            return &itr->second;
+        }
 
         void LoadRaceAndClassExpansionRequirements();
         void LoadRealmNames();
@@ -1906,6 +1920,7 @@ class TC_GAME_API ObjectMgr
         PhaseNameContainer _phaseNameStore;
 
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
+        VehicleSeatAddonContainer _vehicleSeatAddonStore;
 };
 
 #define sObjectMgr ObjectMgr::instance()

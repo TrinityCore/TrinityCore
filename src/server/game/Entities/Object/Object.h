@@ -380,7 +380,7 @@ class TC_GAME_API Object
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
 
-        virtual void AddToObjectUpdate() = 0;
+        virtual bool AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;
         void AddToObjectUpdateIfNeeded();
 
@@ -656,7 +656,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void UpdatePositionData();
 
         void BuildUpdate(UpdateDataMapType&) override;
-        void AddToObjectUpdate() override;
+        bool AddToObjectUpdate() override;
         void RemoveFromObjectUpdate() override;
 
         //relocation and visibility system functions

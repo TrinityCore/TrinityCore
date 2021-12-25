@@ -177,7 +177,7 @@ void PoolGroup<Creature>::Despawn1Object(uint64 guid)
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        Map* map = sMapMgr->FindMap(data->spawnPoint.GetMapId(), 0);
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
         if (map && !map->Instanceable())
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(guid);
@@ -202,7 +202,7 @@ void PoolGroup<GameObject>::Despawn1Object(uint64 guid)
     {
         sObjectMgr->RemoveGameobjectFromGrid(guid, data);
 
-        Map* map = sMapMgr->FindMap(data->spawnPoint.GetMapId(), 0);
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
         if (map && !map->Instanceable())
         {
             auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(guid);
@@ -323,7 +323,7 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddCreatureToGrid(obj->guid, data);
 
         // Spawn if necessary (loaded grids only)
-        Map* map = sMapMgr->FindMap(data->spawnPoint.GetMapId(), 0);
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
         // We use spawn coords to spawn
         if (map && !map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
             Creature::CreateCreatureFromDB(obj->guid, map);
@@ -339,7 +339,7 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddGameobjectToGrid(obj->guid, data);
         // Spawn if necessary (loaded grids only)
         // this base map checked as non-instanced and then only existed
-        Map* map = sMapMgr->FindMap(data->spawnPoint.GetMapId(), 0);
+        Map* map = sMapMgr->FindMap(data->mapId, 0);
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
         if (map && !map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
         {
@@ -760,6 +760,8 @@ uint32 PoolMgr::IsPartOfAPool(SpawnObjectType type, ObjectGuid::LowType spawnId)
             return IsPartOfAPool<Creature>(spawnId);
         case SPAWN_TYPE_GAMEOBJECT:
             return IsPartOfAPool<GameObject>(spawnId);
+        case SPAWN_TYPE_AREATRIGGER:
+            return 0;
         default:
             ASSERT(false, "Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId " UI64FMTD ")", uint32(type), spawnId);
             return 0;

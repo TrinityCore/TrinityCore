@@ -971,7 +971,7 @@ public:
             if (stored_script.second->GetName() == script->GetName())
             {
                 // If the script is already assigned -> delete it!
-                TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, "
+                ABORT_MSG("Script '%s' already assigned with the same script name, "
                     "so the script can't work.", script->GetName().c_str());
 
                 // Error that should be fixed ASAP.
@@ -2329,6 +2329,7 @@ void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, Quest
 void ScriptMgr::ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* vehicle, Position& pos)
 {
     FOREACH_SCRIPT(UnitScript)->ModifyVehiclePassengerExitPos(passenger, vehicle, pos);
+    FOREACH_SCRIPT(CreatureScript)->ModifyVehiclePassengerExitPos(passenger, vehicle, pos);
 }
 
 SpellScriptLoader::SpellScriptLoader(char const* name)

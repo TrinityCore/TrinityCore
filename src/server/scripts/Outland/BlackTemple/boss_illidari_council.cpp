@@ -143,12 +143,12 @@ struct boss_illidari_council : public BossAI
         me->SummonCreatureGroup(SUMMON_COUNCIL_GROUP);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
         if (!_inCombat)
         {
             _inCombat = true;
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             DoCastSelf(SPELL_EMPYREAL_BALANCE, true);
             for (uint32 bossData : CouncilData)
             {

@@ -421,12 +421,12 @@ class boss_mimiron : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!me->GetVehicleBase())
                     return;
 
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveAurasDueToSpell(SPELL_WELD);
                 DoCast(me->GetVehicleBase(), SPELL_SEAT_6);
@@ -545,7 +545,7 @@ class boss_mimiron : public CreatureScript
                             break;
                         case EVENT_VX001_ACTIVATION_5:
                             if (GameObject* elevator = instance->GetGameObject(DATA_MIMIRON_ELEVATOR))
-                                elevator->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                elevator->SetGoState(GO_STATE_DESTROYED);
                             if (Creature* vx001 = me->SummonCreature(NPC_VX_001, VX001SummonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                                 vx001->CastSpell(vx001, SPELL_FREEZE_ANIM);
                             events.ScheduleEvent(EVENT_VX001_ACTIVATION_6, 19000);

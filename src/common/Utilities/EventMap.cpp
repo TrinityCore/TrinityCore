@@ -135,18 +135,18 @@ uint32 EventMap::GetNextEventTime(uint32 eventId) const
     if (Empty())
         return 0;
 
-    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
-        if (eventId == (itr->second & 0x0000FFFF))
-            return itr->first;
+    for (std::pair<uint32 const, uint32> const& itr : _eventMap)
+        if (eventId == (itr.second & 0x0000FFFF))
+            return itr.first;
 
     return 0;
 }
 
 uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
 {
-    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
-        if (eventId == (itr->second & 0x0000FFFF))
-            return itr->first - _time;
+    for (std::pair<uint32 const, uint32> const& itr : _eventMap)
+        if (eventId == (itr.second & 0x0000FFFF))
+            return itr.first - _time;
 
     return std::numeric_limits<uint32>::max();
 }

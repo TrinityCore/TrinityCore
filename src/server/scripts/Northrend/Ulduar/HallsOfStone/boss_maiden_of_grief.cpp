@@ -71,9 +71,9 @@ class boss_maiden_of_grief : public CreatureScript
                 instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
 
                 instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOOD_GRIEF_START_EVENT);

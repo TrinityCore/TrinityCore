@@ -570,7 +570,7 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
     // Do not allow to declare war to our own faction. But allow for rival factions (eg Aldor vs Scryer).
-    if (atWar && faction->Flags.HasFlag(ReputationFlags::Peaceful))
+    if (atWar && faction->Flags.HasFlag(ReputationFlags::Peaceful) && GetRank(sFactionStore.AssertEntry(faction->ID)) > REP_HATED)
         return;
 
     // already set

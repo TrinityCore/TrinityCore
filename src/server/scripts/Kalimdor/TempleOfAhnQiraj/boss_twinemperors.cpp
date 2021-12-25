@@ -148,7 +148,7 @@ struct boss_twinemperorsAI : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {

@@ -77,6 +77,9 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     if (packet.Info.Target.empty())
         return;
 
+    if (!ValidateHyperlinksAndMaybeKick(packet.Info.Subject) || !ValidateHyperlinksAndMaybeKick(packet.Info.Body))
+        return;
+
     Player* player = _player;
 
     if (player->GetLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
@@ -195,7 +198,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
         if (Item* item = player->GetItemByGuid(att.ItemGUID))
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if (!itemProto || !(itemProto->GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT))
+            if (!itemProto || !itemProto->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT))
             {
                 accountBound = false;
                 break;
@@ -249,13 +252,13 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
             }
         }
 
-        if (item->GetTemplate()->GetFlags() & ITEM_FLAG_CONJURED || *item->m_itemData->Expiration)
+        if (item->GetTemplate()->HasFlag(ITEM_FLAG_CONJURED) || *item->m_itemData->Expiration)
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
             return;
         }
 
-        if (packet.Info.Cod && item->HasItemFlag(ITEM_FIELD_FLAG_WRAPPED))
+        if (packet.Info.Cod && item->IsWrapped())
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
             return;

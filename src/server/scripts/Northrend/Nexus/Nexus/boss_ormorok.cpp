@@ -84,9 +84,9 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
             events.ScheduleEvent(EVENT_TRAMPLE, 10s);

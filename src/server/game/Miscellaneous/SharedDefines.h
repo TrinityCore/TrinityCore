@@ -726,7 +726,7 @@ enum SpellAttr8 : uint32
     SPELL_ATTR8_RAID_MARKER                      = 0x04000000, // TITLE Skip Is Known Check
     SPELL_ATTR8_UNK27                            = 0x08000000, // TITLE Unknown attribute 27@Attr8
     SPELL_ATTR8_NOT_IN_BG_OR_ARENA               = 0x10000000, // TITLE Not in Battleground
-    SPELL_ATTR8_MASTERY_SPECIALIZATION           = 0x20000000, // TITLE Mastery Affects Points
+    SPELL_ATTR8_MASTERY_AFFECTS_POINTS           = 0x20000000, // TITLE Mastery Affects Points
     SPELL_ATTR8_UNK30                            = 0x40000000, // TITLE Unknown attribute 30@Attr8
     SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG  = 0x80000000  // TITLE Can Attack ImmunePC DESCRIPTION Do not check UNIT_FLAG_IMMUNE_TO_PC in IsValidAttackTarget
 };
@@ -2809,7 +2809,7 @@ enum GOState : uint8
 {
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
-    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_DESTROYED          = 2,                        // show the object in-game as already used and not yet reset (e.g. door opened by a cannon blast)
     GO_STATE_TRANSPORT_ACTIVE   = 24,
     GO_STATE_TRANSPORT_STOPPED  = 25
 };
@@ -5854,6 +5854,23 @@ enum class SummonTitle : int32
     LostMind            = 41,
     ServantOfNZoth      = 44
 };
+
+enum SummonSlot : int32
+{
+    SUMMON_SLOT_ANY_TOTEM           = -1,
+    SUMMON_SLOT_PET                 = 0,
+    SUMMON_SLOT_TOTEM               = 1,
+    SUMMON_SLOT_TOTEM_2             = 2,
+    SUMMON_SLOT_TOTEM_3             = 3,
+    SUMMON_SLOT_TOTEM_4             = 4,
+    SUMMON_SLOT_MINIPET             = 5,
+    SUMMON_SLOT_QUEST               = 6,
+
+    MAX_SUMMON_SLOT
+};
+
+#define MAX_TOTEM_SLOT      5
+#define MAX_GAMEOBJECT_SLOT 4
 
 enum EventId
 {

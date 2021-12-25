@@ -41,7 +41,6 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include <utf8.h>
 #include <algorithm>
 
 inline bool isNasty(uint8 c)
@@ -71,14 +70,6 @@ inline bool ValidateMessage(Player const* player, std::string& msg)
                 player->GetGUID().ToString().c_str(), uint32(c));
             return false;
         }
-    }
-
-    // validate utf8
-    if (!utf8::is_valid(msg.begin(), msg.end()))
-    {
-        TC_LOG_ERROR("network", "Player %s (%s) sent a message containing an invalid UTF8 sequence - blocked", player->GetName().c_str(),
-            player->GetGUID().ToString().c_str());
-        return false;
     }
 
     // collapse multiple spaces into one

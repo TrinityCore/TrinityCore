@@ -1842,7 +1842,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sCharacterCache->UpdateCharacterData(customizeInfo->CharGUID, customizeInfo->CharName, &customizeInfo->SexID);
+    sCharacterCache->UpdateCharacterData(customizeInfo->CharGUID, customizeInfo->CharName, customizeInfo->SexID);
 
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo.get());
 
@@ -2167,7 +2167,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         trans->Append(stmt);
     }
 
-    sCharacterCache->UpdateCharacterData(factionChangeInfo->Guid, factionChangeInfo->Name, &factionChangeInfo->SexID, &factionChangeInfo->RaceID);
+    sCharacterCache->UpdateCharacterData(factionChangeInfo->Guid, factionChangeInfo->Name, factionChangeInfo->SexID, factionChangeInfo->RaceID);
 
     if (oldRace != factionChangeInfo->RaceID)
     {

@@ -29,29 +29,26 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
+#include "string.h"
 
 #define MAX_STACK_SIZE 64
 
+// https://stackoverflow.com/a/4328396
+
 static inline uint32 floatToRawIntBits(float f)
 {
-    union
-    {
-        uint32 ival;
-        float fval;
-    } temp;
-    temp.fval=f;
-    return temp.ival;
+    static_assert(sizeof(float) == sizeof(uint32), "Size of uint32 and float must be equal for this to work");
+    uint32 ret;
+    memcpy(&ret, &f, sizeof(float));
+    return ret;
 }
 
 static inline float intBitsToFloat(uint32 i)
 {
-    union
-    {
-        uint32 ival;
-        float fval;
-    } temp;
-    temp.ival=i;
-    return temp.fval;
+    static_assert(sizeof(float) == sizeof(uint32), "Size of uint32 and float must be equal for this to work");
+    float ret;
+    memcpy(&ret, &i, sizeof(uint32));
+    return ret;
 }
 
 struct AABound

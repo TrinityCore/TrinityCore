@@ -16,6 +16,7 @@
  */
 
 #include "MapBuilder.h"
+#include "Containers.h"
 #include "MapTree.h"
 #include "MMapDefines.h"
 #include "ModelInstance.h"
@@ -876,96 +877,23 @@ namespace MMAP
             return static_cast<uint32>(m_mapid) != mapID;
 
         if (m_skipContinents)
-            switch (mapID)
-            {
-                case 0:
-                case 1:
-                case 530:
-                case 571:
-                case 870:
-                case 1116:
-                case 1220:
-                    return true;
-                default:
-                    break;
-            }
+            if (isContinentMap(mapID))
+                return true;
 
         if (m_skipJunkMaps)
-            switch (mapID)
-            {
-                case 13:    // test.wdt
-                case 25:    // ScottTest.wdt
-                case 29:    // Test.wdt
-                case 42:    // Colin.wdt
-                case 169:   // EmeraldDream.wdt (unused, and very large)
-                case 451:   // development.wdt
-                case 573:   // ExteriorTest.wdt
-                case 597:   // CraigTest.wdt
-                case 605:   // development_nonweighted.wdt
-                case 606:   // QA_DVD.wdt
-                case 651:   // ElevatorSpawnTest.wdt
-                case 1060:  // LevelDesignLand-DevOnly.wdt
-                case 1181:  // PattyMackTestGarrisonBldgMap.wdt
-                case 1264:  // Propland-DevOnly.wdt
-                case 1270:  // devland3.wdt
-                case 1310:  // Expansion5QAModelMap.wdt
-                case 1407:  // GorgrondFinaleScenarioMap.wdt (zzzOld)
-                case 1427:  // PattyMackTestGarrisonBldgMap2.wdt
-                case 1451:  // TanaanLegionTest.wdt
-                case 1454:  // ArtifactAshbringerOrigin.wdt
-                case 1457:  // FXlDesignLand-DevOnly.wdt
-                case 1471:  // 1466.wdt (Dungeon Test Map 1466)
-                case 1499:  // Artifact-Warrior Fury Acquisition.wdt (oldArtifact - Warrior Fury Acquisition)
-                case 1537:  // BoostExperience.wdt (zzOLD - Boost Experience)
-                case 1538:  // Karazhan Scenario.wdt (test)
-                case 1549:  // TechTestSeamlessWorldTransitionA.wdt
-                case 1550:  // TechTestSeamlessWorldTransitionB.wdt
-                case 1555:  // TransportBoostExperienceAllianceGunship.wdt
-                case 1556:  // TransportBoostExperienceHordeGunship.wdt
-                case 1561:  // TechTestCosmeticParentPerformance.wdt
-                case 1582:  // Artifact?DalaranVaultAcquisition.wdt // no, this weird symbol is not an encoding error.
-                case 1584:  // JulienTestLand-DevOnly.wdt
-                case 1586:  // AssualtOnStormwind.wdt (Assault on Stormwind - Dev Map)
-                case 1588:  // DevMapA.wdt
-                case 1589:  // DevMapB.wdt
-                case 1590:  // DevMapC.wdt
-                case 1591:  // DevMapD.wdt
-                case 1592:  // DevMapE.wdt
-                case 1593:  // DevMapF.wdt
-                case 1594:  // DevMapG.wdt
-                case 1603:  // AbyssalMaw_Interior_Scenario.wdt
-                case 1670:  // BrokenshorePristine.wdt
-                    return true;
-                default:
-                    if (isTransportMap(mapID))
-                        return true;
-                    break;
-            }
+        {
+            if (isDevMap(mapID))
+                return true;
+
+            if (isTransportMap(mapID))
+                return true;
+        }
 
         if (m_skipBattlegrounds)
-            switch (mapID)
-            {
-                case 30:    // Alterac Valley
-                case 37:    // ?
-                case 489:   // Warsong Gulch
-                case 529:   // Arathi Basin
-                case 566:   // Eye of the Storm
-                case 607:   // Strand of the Ancients
-                case 628:   // Isle of Conquest
-                case 726:   // Twin Peaks
-                case 727:   // Silvershard Mines
-                case 761:   // The Battle for Gilneas
-                case 968:   // Rated Eye of the Storm
-                case 998:   // Temple of Kotmogu
-                case 1010:  // CTF3
-                case 1105:  // Deepwind Gorge
-                case 1280:  // Southshore vs. Tarren Mill
-                case 1681:  // Arathi Basin Winter
-                case 1803:  // Seething Shore
-                    return true;
-                default:
-                    break;
-            }
+        {
+            if (isBattlegroundMap(mapID))
+                return true;
+        }
 
         return false;
     }
@@ -973,81 +901,42 @@ namespace MMAP
     /**************************************************************************/
     bool MapBuilder::isTransportMap(uint32 mapID)
     {
+        if (MapEntry const* map = Trinity::Containers::MapGetValuePtr(sMapStore, mapID))
+            return map->MapType == 3;
+
+        return false;
+    }
+
+    bool MapBuilder::isDevMap(uint32 mapID)
+    {
+        if (MapEntry const* map = Trinity::Containers::MapGetValuePtr(sMapStore, mapID))
+            return (map->Flags & 0x2) != 0;
+
+        return false;
+    }
+
+    bool MapBuilder::isBattlegroundMap(uint32 mapID)
+    {
+        if (MapEntry const* map = Trinity::Containers::MapGetValuePtr(sMapStore, mapID))
+            return map->InstanceType == 3;
+
+        return false;
+    }
+
+    bool MapBuilder::isContinentMap(uint32 mapID)
+    {
         switch (mapID)
         {
-            // transport maps
-            case 582:
-            case 584:
-            case 586:
-            case 587:
-            case 588:
-            case 589:
-            case 590:
-            case 591:
-            case 592:
-            case 593:
-            case 594:
-            case 596:
-            case 610:
-            case 612:
-            case 613:
-            case 614:
-            case 620:
-            case 621:
-            case 622:
-            case 623:
-            case 641:
-            case 642:
-            case 647:
-            case 662:
-            case 672:
-            case 673:
-            case 674:
-            case 712:
-            case 713:
-            case 718:
-            case 738:
-            case 739:
-            case 740:
-            case 741:
-            case 742:
-            case 743:
-            case 747:
-            case 748:
-            case 749:
-            case 750:
-            case 762:
-            case 763:
-            case 765:
-            case 766:
-            case 767:
-            case 1113:
-            case 1132:
-            case 1133:
-            case 1172:
-            case 1173:
-            case 1192:
-            case 1231:
-            case 1459:
-            case 1476:
-            case 1484:
-            case 1555:
-            case 1556:
-            case 1559:
-            case 1560:
-            case 1628:
-            case 1637:
-            case 1638:
-            case 1639:
-            case 1649:
-            case 1650:
-            case 1711:
-            case 1751:
-            case 1752:
-            case 1856:
-            case 1857:
-            case 1902:
-            case 1903:
+            case 0:
+            case 1:
+            case 530:
+            case 571:
+            case 870:
+            case 1116:
+            case 1220:
+            case 1642:
+            case 1643:
+            case 2222:
                 return true;
             default:
                 return false;
@@ -1108,7 +997,13 @@ namespace MMAP
         {
             // Blade's Edge Arena
             case 562:
+                // This allows to walk on the ropes to the pillars
                 config.walkableRadius = 0;
+                break;
+            // Blackfathom Deeps
+            case 48:
+                // Reduce the chance to have underground levels
+                config.ch *= 2;
                 break;
             default:
                 break;

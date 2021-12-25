@@ -113,9 +113,9 @@ class boss_eregos : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 Talk(SAY_AGGRO);
                 /* Checks for present drakes vehicles from each type and deactivate achievement that corresponds to each found
