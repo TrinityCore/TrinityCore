@@ -82,8 +82,6 @@ void Totem::InitStats(uint32 duration)
             m_type = TOTEM_ACTIVE;
 
     m_duration = duration;
-
-    SetLevel(GetOwner()->GetLevel());
 }
 
 void Totem::InitSummon()

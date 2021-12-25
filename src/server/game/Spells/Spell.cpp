@@ -6009,7 +6009,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
                 if (creature)
                 {
-                    if (!playerCaster->GetSummonedBattlePetGUID() || !creature->GetBattlePetCompanionGUID())
+                    if (playerCaster->GetSummonedBattlePetGUID().IsEmpty() || creature->GetBattlePetCompanionGUID().IsEmpty())
                         return SPELL_FAILED_NO_PET;
 
                     if (playerCaster->GetSummonedBattlePetGUID() != creature->GetBattlePetCompanionGUID())
