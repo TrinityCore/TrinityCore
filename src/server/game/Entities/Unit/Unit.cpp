@@ -7857,13 +7857,11 @@ int64 Unit::GetHealthGain(int64 dVal)
 
 void Unit::TriggerOnHealthChangeAuras(uint64 oldVal, uint64 newVal)
 {
-    AuraEffectList effects = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT);
-
-    for (AuraEffect const* effect : effects)
+    for (AuraEffect const* effect : GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT))
     {
-        uint32 const triggerHealthPct = effect->GetAmount();
-        uint32 const triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
-        uint64 const threshold = CountPctFromMaxHealth(triggerHealthPct);
+        uint32 triggerHealthPct = effect->GetAmount();
+        uint32 triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
+        uint64 threshold = CountPctFromMaxHealth(triggerHealthPct);
 
         switch (AuraTriggerOnHealthChangeDirection(effect->GetMiscValue()))
         {

@@ -3893,8 +3893,8 @@ void AuraEffect::HandleTriggerSpellOnHealthPercent(AuraApplication const* aurApp
         return;
 
     Unit* target = aurApp->GetTarget();
-    int32 const thresholdPct = GetAmount();
-    uint32 const triggerSpell = GetSpellEffectInfo().TriggerSpell;
+    int32 thresholdPct = GetAmount();
+    uint32 triggerSpell = GetSpellEffectInfo().TriggerSpell;
 
     switch (AuraTriggerOnHealthChangeDirection(GetMiscValue()))
     {
