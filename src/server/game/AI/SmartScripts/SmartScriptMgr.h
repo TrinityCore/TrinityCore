@@ -606,8 +606,8 @@ enum SMART_ACTION
     SMART_ACTION_OVERRIDE_LIGHT                     = 138,    // zoneId, overrideLightID, transitionMilliseconds
     SMART_ACTION_OVERRIDE_WEATHER                   = 139,    // zoneId, weatherId, intensity
     SMART_ACTION_CREATE_CONVERSATION                = 143,    // conversation_template.id
-    SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 144,    // varID
-    SMART_ACTION_END                                = 145
+    SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 148,    // varID
+    SMART_ACTION_END                                = 149
 };
 
 enum class SmartActionSummonCreatureFlags

@@ -117,14 +117,10 @@ void SmartScript::StoreTargetList(ObjectVector const& targets, uint32 id)
 
 void SmartScript::AddToStoredTargetList(ObjectVector const& targets, uint32 id)
 {
-    auto itr = _storedTargets.find(id);
-    if (itr != _storedTargets.end())
-    {
+    auto [itr, inserted] = _storedTargets.try_emplace(id, targets);
+    if (!inserted)
         for (WorldObject* obj : targets)
             itr->second.AddGuid(obj->GetGUID());
-    }
-    else
-        _storedTargets.emplace(id, ObjectGuidVector(targets));
 }
 
 ObjectVector const* SmartScript::GetStoredTargetVector(uint32 id, WorldObject const& ref) const
