@@ -2429,6 +2429,11 @@ void Player::GiveLevel(uint8 level)
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
+bool Player::IsMaxLevel() const
+{
+    return GetLevel() >= m_activePlayerData->MaxLevel;
+}
+
 void Player::InitTalentForLevel()
 {
     uint8 level = GetLevel();
@@ -7228,7 +7233,7 @@ void Player::UpdateArea(uint32 newArea)
     else
         RemovePvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
 
-    if (area && IsInFactionFriendlyArea(area))
+    if (area && IsFriendlyArea(area))
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
@@ -15718,9 +15723,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     if (GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         GiveXP(XP, nullptr);
     else
-    {
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
-    }
 
     moneyRew += GetQuestMoneyReward(quest);
 
@@ -28943,11 +28946,6 @@ uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEn
     return limit;
 }
 
-bool Player::IsAtMaxLevel() const
-{
-    return GetLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
-}
-
 template <typename T>
 static bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield, bool canTitanGrip, T callback)
 {
@@ -29081,7 +29079,7 @@ void Player::SetWarModeDesired(bool enabled)
 {
     // Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
     // Also disallow when in combat
-    if ((enabled == IsWarModeDesired()) || IsInCombat() || !IsInRestArea())
+    if ((enabled == IsWarModeDesired()) || IsInCombat() || !HasPlayerFlag(PLAYER_FLAGS_RESTING))
         return;
 
     if (enabled && CanEnableWarModeInArea())
@@ -29107,27 +29105,6 @@ void Player::SetWarModeDesired(bool enabled)
     UpdateWarModeAuras();
 }
 
-bool Player::IsInFactionFriendlyArea() const
-{
-    if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(GetAreaId()))
-        return IsInFactionFriendlyArea();
-    return false;
-}
-
-bool Player::IsInFactionFriendlyArea(AreaTableEntry const* inArea) const
-{
-    ASSERT(inArea != nullptr);
-
-    FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
-    if (!factionTemplate)
-        return false;
-
-    if (!(factionTemplate->FriendGroup & inArea->FactionGroupMask))
-        return false;
-
-    return true;
-}
-
 void Player::SetWarModeLocal(bool enabled)
 {
     if (enabled)
@@ -29139,7 +29116,7 @@ void Player::SetWarModeLocal(bool enabled)
 bool Player::CanEnableWarModeInArea() const
 {
     AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
-    if (!area || !IsInFactionFriendlyArea(area))
+    if (!area || !IsFriendlyArea(area))
         return false;
 
     return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
@@ -29152,7 +29129,7 @@ void Player::UpdateWarModeAuras()
 
     if (IsWarModeDesired())
     {
-        if (IsInFactionFriendlyArea())
+        if (IsInFriendlyArea())
         {
             RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
             RemoveAurasDueToSpell(auraOutside);
