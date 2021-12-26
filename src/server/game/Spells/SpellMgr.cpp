@@ -4681,12 +4681,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Drahga Shadowburner
-    // Flaming Fixate
-    ApplySpellFix({ 82850 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING;
-    });
-
     // Ride Vehicle
     ApplySpellFix({ 43671 }, [](SpellInfo* spellInfo)
     {
@@ -4719,7 +4713,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Shadow Gale
     ApplySpellFix({ 75664, 91086 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx5 &= ~SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING;
+        spellInfo->AttributesEx5 &= ~SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL;
     });
 
     // Gronn Knockback Cosmetic

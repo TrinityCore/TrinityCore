@@ -1453,7 +1453,7 @@ bool SpellInfo::IsChanneled() const
 
 bool SpellInfo::IsMoveAllowedChannel() const
 {
-    return IsChanneled() && ((HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning)));
+    return IsChanneled() && ((HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL) && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning)));
 }
 
 bool SpellInfo::NeedsComboPoints() const
