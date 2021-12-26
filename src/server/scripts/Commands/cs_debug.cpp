@@ -90,7 +90,7 @@ public:
         };
         static std::vector<ChatCommand> debugPvpCommandTable =
         {
-            { "fb",            rbac::RBAC_PERM_COMMAND_DEBUG,                    false, &HandleDebugFactionBalanceCommand,      "" },
+            { "warmode",       rbac::RBAC_PERM_COMMAND_DEBUG,                    false, &HandleDebugWarModeFactionBalanceCommand, "" },
         };
         static std::vector<ChatCommand> debugAsanCommandTable =
         {
@@ -156,61 +156,31 @@ public:
         return true;
     }
 
-    static bool HandleDebugFactionBalanceCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugWarModeFactionBalanceCommand(ChatHandler* handler, Variant<uint32, ExactSequence<'a','l','l','i','a','n','c','e'>, ExactSequence<'h','o','r','d','e'>, ExactSequence<'n','e','u','t','r','a','l'>, ExactSequence<'o','f','f'>> command, Optional<int32> rewardValue)
     {
-        // USAGE: .debug pvp fb <a|alliance|h|horde|n|neutral|o|off> [1|2|3|4]
-        // n|neutral     Sets faction balance off.
-        // a|alliance    Set faction balance to alliance. Reward level 3 (1=10%, 2=15%, 3=20%, 4=overwhelming)
-        // h|horde       Set faction balance to horde. Reward level 3 (1=10%, 2=15%, 3=20%, 4=overwhelming)
-        // o|off         Reset the faction balance and use the calculated value of it
-        if (!*args)
+        // USAGE: .debug pvp fb <alliance|horde|neutral|off> [pct]
+        // neutral     Sets faction balance off.
+        // alliance    Set faction balance to alliance.
+        // horde       Set faction balance to horde.
+        // off         Reset the faction balance and use the calculated value of it
+        switch (command.which())
         {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string sArgs(args);
-        size_t idx = sArgs.find_first_of(' ');
-        std::string strArg1 = (idx == std::string::npos) ? sArgs : sArgs.substr(0, idx);
-        TeamId team;
-        bool isAlliance = false;
-        if ( (isAlliance = ("a" == strArg1 || "alliance" == strArg1)) || ("h" == strArg1 || "horde" == strArg1))
-        {
-            team = isAlliance ? TEAM_ALLIANCE : TEAM_HORDE;
-
-            std::string strReward = (idx == std::string::npos) ? "" : sArgs.substr(idx + 1);
-            if (strReward.empty())
-            {
+            case 0: // workaround for Variant of only ExactSequences not being supported
                 handler->SendSysMessage(LANG_BAD_VALUE);
                 handler->SetSentErrorMessage(true);
                 return false;
-            }
-
-            FactionOutnumberReward reward;
-            uint8 rewardValue = atoul(strReward.c_str());
-            if (rewardValue >= static_cast<uint8>(FactionOutnumberReward::MAX))
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-            reward = static_cast<FactionOutnumberReward>(rewardValue);
-            sWorld->SetFactionBalanceForce(team, reward);
-        }
-        else if ("n" == strArg1 || "neutral" == strArg1)
-        {
-            sWorld->SetFactionBalanceForce(TEAM_NEUTRAL);
-        }
-        else if ("o" == strArg1 || "off" == strArg1)
-        {
-            sWorld->SetFactionBalanceForceOff();
-        }
-        else
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
+            case 1:
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.get_value_or(0));
+                break;
+            case 2:
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.get_value_or(0));
+                break;
+            case 3:
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_NEUTRAL);
+                break;
+            case 4:
+                sWorld->DisableForcedWarModeFactionBalanceState();
+                break;
         }
 
         return true;

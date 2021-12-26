@@ -29082,7 +29082,7 @@ void Player::SetWarModeDesired(bool enabled)
     if ((enabled == IsWarModeDesired()) || IsInCombat() || !HasPlayerFlag(PLAYER_FLAGS_RESTING))
         return;
 
-    if (enabled && CanEnableWarModeInArea())
+    if (enabled && !CanEnableWarModeInArea())
         return;
 
     // Don't allow to chang when aura SPELL_PVP_RULES_ENABLED is on
@@ -29139,12 +29139,7 @@ void Player::UpdateWarModeAuras()
         {
             AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
             RemoveAurasDueToSpell(auraInside);
-
-            TeamId team = sWorld->GetCurrentFactionBalanceTeam();
-            if (GetTeamId() != team)
-                CastSpell(this, auraOutside, true);
-            else
-                CastSpell(this, auraOutside, sWorld->GetCurrentFactionBalanceRewardSpellValues());
+            CastSpell(this, auraOutside, true);
         }
         SetWarModeLocal(true);
         AddPvpFlag(UNIT_BYTE2_FLAG_PVP);

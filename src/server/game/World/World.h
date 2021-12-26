@@ -28,7 +28,6 @@
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include "SpellDefines.h"
 #include "Timer.h"
 
 #include <atomic>
@@ -572,16 +571,6 @@ enum WorldStates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
 };
 
-// The reward an outnumbered faction is currently receiving.
-enum class FactionOutnumberReward
-{
-    None,
-    Percent5,
-    Percent10,
-    Percent20,
-    MAX,
-};
-
 /// Storage class for commands issued for delayed execution
 struct TC_GAME_API CliCommandHolder
 {
@@ -823,19 +812,13 @@ class TC_GAME_API World
         bool IsGuidWarning() { return _guidWarn; }
         bool IsGuidAlert() { return _guidAlert; }
 
-
-        CastSpellExtraArgs const& GetCurrentFactionBalanceRewardSpellValues() { return _currentFactionBalanceRewardSpellValues; }
-        TeamId GetCurrentFactionBalanceTeam() const { return _hasForcedFactionBalance ? _forcedFactionBalance : _currentFactionBalance; }
-        FactionOutnumberReward GetCurrentFactionBalanceReward() const { return _hasForcedFactionBalance ? _forcedFactionBalanceReward : _currentFactionBalanceReward; }
-        bool IsCurrentFactionBalanceRewardIncludeOverwhelming() const { return GetCurrentFactionBalanceReward() == FactionOutnumberReward::Percent10 || GetCurrentFactionBalanceReward() == FactionOutnumberReward::Percent20; }
-
-        void SetFactionBalanceForce(TeamId team, FactionOutnumberReward reward = FactionOutnumberReward::None);
-        void SetFactionBalanceForceOff();
+        // War mode balancing
+        TeamId GetWarModeDominantFaction() const { return _warModeDominantFaction; }
+        int32 GetWarModeOutnumberedFactionReward() const { return _warModeOutnumberedFactionReward; }
+        void SetForcedWarModeFactionBalanceState(TeamId team, int32 reward = 0);
+        void DisableForcedWarModeFactionBalanceState();
 
     protected:
-
-        void UpdateFactionBalance();
-        void UpdateFactionBalanceRewardSpellValues();
 
         void _UpdateGameTime();
 
@@ -856,7 +839,6 @@ class TC_GAME_API World
         void CalendarDeleteOldEvents();
         void ResetGuildCap();
         void ResetCurrencyWeekCap();
-        void InitFactionBalanceQuery();
 
     private:
         World();
@@ -961,13 +943,11 @@ class TC_GAME_API World
         uint32 _warnDiff;
         time_t _warnShutdownTime;
 
-        std::string m_factionBalanceQuery;
-        TeamId _currentFactionBalance; // the team that has higher percentage
-        FactionOutnumberReward _currentFactionBalanceReward;
-        bool _hasForcedFactionBalance;
-        TeamId _forcedFactionBalance;
-        FactionOutnumberReward _forcedFactionBalanceReward;
-        CastSpellExtraArgs _currentFactionBalanceRewardSpellValues;
+        // War mode balancing
+        void UpdateWarModeRewardValues();
+
+        TeamId _warModeDominantFaction; // the team that has higher percentage
+        int32 _warModeOutnumberedFactionReward;
 
     friend class debug_commandscript;
 };
