@@ -29115,11 +29115,23 @@ void Player::SetWarModeLocal(bool enabled)
 
 bool Player::CanEnableWarModeInArea() const
 {
-    AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
-    if (!area || !IsFriendlyArea(area))
+    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetZoneId());
+    if (!zone || !IsFriendlyArea(zone))
         return false;
 
-    return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
+    AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
+    if (!area)
+        area = zone;
+
+    do
+    {
+        if (area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE)
+            return true;
+
+        area = sAreaTableStore.LookupEntry(area->ParentAreaID);
+    } while (area);
+
+    return false;
 }
 
 void Player::UpdateWarModeAuras()
@@ -29129,7 +29141,7 @@ void Player::UpdateWarModeAuras()
 
     if (IsWarModeDesired())
     {
-        if (IsInFriendlyArea())
+        if (CanEnableWarModeInArea())
         {
             RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
             RemoveAurasDueToSpell(auraOutside);
