@@ -36,6 +36,7 @@
 
 enum ShamanSpells
 {
+    SPELL_SHAMAN_AFTERSHOCK_ENERGIZE            = 210712,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE             = 108281,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL        = 114911,
     SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE       = 195897,
@@ -98,6 +99,41 @@ enum MiscSpells
 enum MiscNpcs
 {
     NPC_HEALING_RAIN_INVISIBLE_STALKER          = 73400,
+};
+
+// 273221 - Aftershock
+class spell_sha_aftershock : public AuraScript
+{
+    PrepareAuraScript(spell_sha_aftershock);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_AFTERSHOCK_ENERGIZE });
+    }
+
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        if (Spell const* procSpell = eventInfo.GetProcSpell())
+            if (Optional<int32> cost = procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM))
+                return cost > 0 && roll_chance_i(aurEff->GetAmount());
+
+        return false;
+    }
+
+    void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        int32 energize = *procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM);
+
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_AFTERSHOCK_ENERGIZE, CastSpellExtraArgs(energize)
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, energize));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_aftershock::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_sha_aftershock::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 108281 - Ancestral Guidance
@@ -1317,6 +1353,7 @@ private:
 
 void AddSC_shaman_spell_scripts()
 {
+    RegisterAuraScript(spell_sha_aftershock);
     RegisterAuraScript(spell_sha_ancestral_guidance);
     RegisterSpellScript(spell_sha_ancestral_guidance_heal);
     RegisterSpellScript(spell_sha_bloodlust);

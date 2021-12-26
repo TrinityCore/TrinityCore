@@ -1186,6 +1186,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetXP(uint32 xp);
         void GiveXP(uint32 xp, Unit* victim, float group_rate=1.0f);
         void GiveLevel(uint8 level);
+        bool IsMaxLevel() const;
 
         void InitStatsForLevel(bool reapplyMods = false);
 
@@ -2730,7 +2731,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInFriendlyArea() const;
         bool IsFriendlyArea(AreaTableEntry const* inArea) const;
 
+        void SetWarModeDesired(bool enabled);
+        bool IsWarModeDesired() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED); }
+        bool IsWarModeActive() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE); }
+        bool IsWarModeLocalActive() const { return HasPlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE); }
+        void SetWarModeLocal(bool enabled);
         bool CanEnableWarModeInArea() const;
+        void UpdateWarModeAuras();
 
         std::string GetDebugInfo() const override;
 

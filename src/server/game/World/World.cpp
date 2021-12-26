@@ -156,6 +156,9 @@ World::World()
     _guidAlert = false;
     _warnDiff = 0;
     _warnShutdownTime = GameTime::GetGameTime();
+
+    _warModeDominantFaction = TEAM_NEUTRAL;
+    _warModeOutnumberedFactionReward = 0;
 }
 
 /// World destructor
@@ -1659,6 +1662,12 @@ void World::LoadConfigSettings(bool reload)
     // Whether to use LoS from game objects
     m_bool_configs[CONFIG_CHECK_GOBJECT_LOS] = sConfigMgr->GetBoolDefault("CheckGameObjectLoS", true);
 
+    // FactionBalance
+    m_int_configs[CONFIG_FACTION_BALANCE_LEVEL_CHECK_DIFF] = sConfigMgr->GetIntDefault("Pvp.FactionBalance.LevelCheckDiff", 0);
+    m_float_configs[CONFIG_CALL_TO_ARMS_5_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct5", 0.6f);
+    m_float_configs[CONFIG_CALL_TO_ARMS_10_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct10", 0.7f);
+    m_float_configs[CONFIG_CALL_TO_ARMS_20_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct20", 0.8f);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -2460,6 +2469,17 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
 
     TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
+}
+
+void World::SetForcedWarModeFactionBalanceState(TeamId team, int32 reward)
+{
+    _warModeDominantFaction = team;
+    _warModeOutnumberedFactionReward = reward;
+}
+
+void World::DisableForcedWarModeFactionBalanceState()
+{
+    UpdateWarModeRewardValues();
 }
 
 void World::LoadAutobroadcasts()
@@ -3440,6 +3460,9 @@ void World::ResetWeeklyQuests()
     // reselect pools
     sQuestPoolMgr->ChangeWeeklyQuests();
 
+    // Update faction balance
+    UpdateWarModeRewardValues();
+
     // store next reset time
     time_t now = GameTime::GetGameTime();
     time_t next = GetNextWeeklyResetTime(now);
@@ -3791,6 +3814,63 @@ void World::ReloadRBAC()
 void World::RemoveOldCorpses()
 {
     m_timers[WUPDATE_CORPSES].SetCurrent(m_timers[WUPDATE_CORPSES].GetInterval());
+}
+
+void World::UpdateWarModeRewardValues()
+{
+    std::array<int64, 2> warModeEnabledFaction = { };
+
+    // Search for characters that have war mode enabled and played during the last week
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_WAR_MODE_TUNING);
+    stmt->setUInt32(0, PLAYER_FLAGS_WAR_MODE_DESIRED);
+    stmt->setUInt32(1, PLAYER_FLAGS_WAR_MODE_DESIRED);
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint8 race = fields[0].GetUInt8();
+            if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race))
+            {
+                if (FactionTemplateEntry const* raceFaction = sFactionTemplateStore.AssertEntry(raceEntry->FactionID))
+                {
+                    if (raceFaction->FactionGroup & FACTION_MASK_ALLIANCE)
+                        warModeEnabledFaction[TEAM_ALLIANCE] += fields[1].GetInt64();
+                    else if (raceFaction->FactionGroup & FACTION_MASK_HORDE)
+                        warModeEnabledFaction[TEAM_HORDE] += fields[1].GetInt64();
+                }
+            }
+
+        } while (result->NextRow());
+    }
+
+    _warModeDominantFaction = TEAM_NEUTRAL;
+    _warModeOutnumberedFactionReward = 0;
+
+    if (std::all_of(warModeEnabledFaction.begin(), warModeEnabledFaction.end(), [](int64 val) { return val == 0; }))
+        return;
+
+    int64 dominantFactionCount = warModeEnabledFaction[TEAM_ALLIANCE];
+    TeamId dominantFaction = TEAM_ALLIANCE;
+    if (warModeEnabledFaction[TEAM_ALLIANCE] < warModeEnabledFaction[TEAM_HORDE])
+    {
+        dominantFactionCount = warModeEnabledFaction[TEAM_HORDE];
+        dominantFaction = TEAM_HORDE;
+    }
+
+    double total = warModeEnabledFaction[TEAM_ALLIANCE] + warModeEnabledFaction[TEAM_HORDE];
+    double pct = dominantFactionCount / total;
+
+    if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_20_PCT))
+        _warModeOutnumberedFactionReward = 20;
+    else if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_10_PCT))
+        _warModeOutnumberedFactionReward = 10;
+    else if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_5_PCT))
+        _warModeOutnumberedFactionReward = 5;
+    else
+        return;
+
+    _warModeDominantFaction = dominantFaction;
 }
 
 Realm realm;

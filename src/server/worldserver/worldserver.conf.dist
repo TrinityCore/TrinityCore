@@ -40,6 +40,7 @@
 #    CURRENCIES SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#    PVP SETTINGS
 #
 ###################################################################################################
 
@@ -4283,6 +4284,43 @@ Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
 #
 
 Metric.OverallStatusInterval = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# PVP SETTINGS
+#
+# 
+#    Pvp.FactionBalance.LevelCheckDiff
+#        Description: The amount of levels below the maximum level that accounts people for faction balance.
+#                     That is, if max level is 60 and this has a value of 5, all players that are level 55 and above (including) will be included in the check
+#        Default:     0
+
+Pvp.FactionBalance.LevelCheckDiff = 0
+
+#    Pvp.FactionBalance.Pct5
+#        Description: The percentage at which a faction will receive an extra % percentage on their enlisted buff. Value range: [0...1]
+#                     That is, if value is 0.6, and alliance outnumber horde by 60%, horde will get 15% bonus (5% + base 10%)
+#        Default:     0.6
+
+Pvp.FactionBalance.Pct5 = 0.6
+
+#    Pvp.FactionBalance.Pct10
+#        Description: The percentage at which a faction will receive an extra % percentage on their enlisted buff. Value range: [0...1]
+#                     Does not stack with previous pct. Pct5 will not be checked if faction percentage is higher than this value.
+#                     That is, if value is 0.7, and alliance outnumber horde by 70%, horde will get 20% bonus (10% + base 10%)
+#        Default:     0.7
+
+Pvp.FactionBalance.Pct10 = 0.7
+
+#    Pvp.FactionBalance.Pct20
+#        Description: The percentage at which a faction will receive an extra % percentage on their enlisted buff. Value range: [0...1]
+#                     Does not stack with previous pct. Pct10 will not be checked if faction percentage is higher than this value.
+#                     That is, if value is 0.8, and alliance outnumber horde by 80%, horde will get 30% bonus (20% + base 10%)
+#        Default:     0.8
+
+Pvp.FactionBalance.Pct20 = 0.8
 
 #
 ###################################################################################################
