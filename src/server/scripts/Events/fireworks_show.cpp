@@ -76,7 +76,7 @@ enum FireworksZones
     THUNDERBLUFF       = 1638,
     DUN_MOROGH         = 1,    // Ironforge
     IRONFORGE          = 1537,
-    STORMWIND          = 1519,
+    STORMWIND          = 1519
 };
 
 std::vector<Position> const BootyBayPos =

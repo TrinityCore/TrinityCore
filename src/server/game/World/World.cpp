@@ -101,7 +101,6 @@
 #include "WorldSocket.h"
 
 #include <boost/algorithm/string.hpp>
-#include <numeric>
 
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -3859,7 +3858,7 @@ void World::UpdateWarModeRewardValues()
         dominantFaction = TEAM_HORDE;
     }
 
-    double total = std::accumulate(warModeEnabledFaction.begin(), warModeEnabledFaction.end(), SI64LIT(0));
+    double total = warModeEnabledFaction[TEAM_ALLIANCE] + warModeEnabledFaction[TEAM_HORDE];
     double pct = dominantFactionCount / total;
 
     if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_20_PCT))

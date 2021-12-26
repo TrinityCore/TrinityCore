@@ -7233,7 +7233,8 @@ void Player::UpdateArea(uint32 newArea)
     else
         RemovePvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
 
-    if (area && IsFriendlyArea(area))
+    uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
+    if (area && area->Flags[0] & areaRestFlag)
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);

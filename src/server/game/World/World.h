@@ -819,7 +819,6 @@ class TC_GAME_API World
         void DisableForcedWarModeFactionBalanceState();
 
     protected:
-
         void _UpdateGameTime();
 
         // callback for UpdateRealmCharacters
@@ -839,7 +838,6 @@ class TC_GAME_API World
         void CalendarDeleteOldEvents();
         void ResetGuildCap();
         void ResetCurrencyWeekCap();
-
     private:
         World();
         ~World();
