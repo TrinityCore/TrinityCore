@@ -4499,6 +4499,7 @@ class spell_gen_impatient_mind : public AuraScript
 };
 
 // 269083 - Enlisted
+// 282559 - Enlisted
 class spell_gen_war_mode_enlisted : public AuraScript
 {
     PrepareAuraScript(spell_gen_war_mode_enlisted);
@@ -4517,22 +4518,12 @@ class spell_gen_war_mode_enlisted : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_0, SPELL_AURA_MOD_XP_PCT);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_1, SPELL_AURA_MOD_XP_QUEST_PCT);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_3, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_4, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_5, SPELL_AURA_MOD_MONEY_GAIN);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_6, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_7, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_8, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_9, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_10, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_11, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_12, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_13, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_14, SPELL_AURA_MOD_MONEY_GAIN);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_15, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_16, SPELL_AURA_MOD_ANIMA_GAIN);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_PCT);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_QUEST_PCT);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_MONEY_GAIN);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_ANIMA_GAIN);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_DUMMY);
     }
 };
 
