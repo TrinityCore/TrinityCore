@@ -312,6 +312,49 @@ class spell_sha_crash_lightning : public SpellScript
     size_t _targetsHit = 0;
 };
 
+// 207778 - Downpour
+class spell_sha_downpour : public SpellScript
+{
+    PrepareSpellScript(spell_sha_downpour);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffects().size() > EFFECT_1;
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        uint32 const maxTargets = 6;
+        if (targets.size() > maxTargets)
+        {
+            targets.sort(Trinity::HealthPctOrderPred());
+            targets.resize(maxTargets);
+        }
+    }
+
+    void CountEffectivelyHealedTarget()
+    {
+        // Cooldown increased for each target effectively healed
+        if (GetHitHeal())
+            ++_healedTargets;
+    }
+
+    void HandleCooldown()
+    {
+        SpellHistory::Duration cooldown = Milliseconds(GetSpellInfo()->RecoveryTime) + Seconds(GetEffectInfo(EFFECT_1).CalcValue() * _healedTargets);
+        GetCaster()->GetSpellHistory()->StartCooldown(GetSpellInfo(), 0, GetSpell(), false, cooldown);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_downpour::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        AfterHit += SpellHitFn(spell_sha_downpour::CountEffectivelyHealedTarget);
+        AfterCast += SpellCastFn(spell_sha_downpour::HandleCooldown);
+    }
+
+    int32 _healedTargets = 0;
+};
+
 // 204288 - Earth Shield
 class spell_sha_earth_shield : public AuraScript
 {
@@ -1327,6 +1370,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
+    RegisterSpellScript(spell_sha_downpour);
     RegisterAuraScript(spell_sha_earth_shield);
     RegisterAuraScript(spell_sha_earthen_rage_passive);
     RegisterAuraScript(spell_sha_earthen_rage_proc_aura);
