@@ -4767,6 +4767,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
     });
 
+    // Soul Fragment
+    ApplySpellFix({ 82224 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL;
+    });
+
     // Lockmaw and Augh
     // Dust Flail
     ApplySpellFix({ 81643, 81652 }, [](SpellInfo* spellInfo)
