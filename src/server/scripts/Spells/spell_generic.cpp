@@ -44,6 +44,7 @@
 #include "SpellPackets.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "World.h"
 
 class spell_gen_absorb0_hitlimit1 : public AuraScript
 {
@@ -4497,6 +4498,35 @@ class spell_gen_impatient_mind : public AuraScript
     }
 };
 
+// 269083 - Enlisted
+// 282559 - Enlisted
+class spell_gen_war_mode_enlisted : public AuraScript
+{
+    PrepareAuraScript(spell_gen_war_mode_enlisted);
+
+    void CalcWarModeBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        if (!target)
+            return;
+
+        if (target->GetTeamId() == sWorld->GetWarModeDominantFaction())
+            return;
+
+        amount += sWorld->GetWarModeOutnumberedFactionReward();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_PCT);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_QUEST_PCT);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_MONEY_GAIN);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_ANIMA_GAIN);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_DUMMY);
+    }
+};
+
 enum DefenderOfAzerothData
 {
     SPELL_DEATH_GATE_TELEPORT_STORMWIND = 316999,
@@ -4749,6 +4779,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_azgalor_rain_of_fire_hellfire_citadel);
     RegisterAuraScript(spell_gen_face_rage);
     RegisterAuraScript(spell_gen_impatient_mind);
+    RegisterAuraScript(spell_gen_war_mode_enlisted);
     RegisterSpellScript(spell_defender_of_azeroth_death_gate_selector);
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);
     RegisterSpellScript(spell_summon_battle_pet);
