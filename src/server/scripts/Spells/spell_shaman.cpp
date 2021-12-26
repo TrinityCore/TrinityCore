@@ -415,6 +415,11 @@ class spell_sha_downpour : public SpellScript
 {
     PrepareSpellScript(spell_sha_downpour);
 
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_DOWNPOUR });
+    }
+
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         uint32 const maxTargets = 6;
