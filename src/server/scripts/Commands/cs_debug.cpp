@@ -88,6 +88,10 @@ public:
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
             { "playerchoice",  rbac::RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE, false, &HandleDebugSendPlayerChoiceCommand,    "" },
         };
+        static std::vector<ChatCommand> debugPvpCommandTable =
+        {
+            { "warmode",       rbac::RBAC_PERM_COMMAND_DEBUG,                    false, &HandleDebugWarModeFactionBalanceCommand, "" },
+        };
         static std::vector<ChatCommand> debugAsanCommandTable =
         {
             { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
@@ -124,6 +128,7 @@ public:
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
             { "worldstate" ,   rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWorldStateCommand,       "" },
             { "wsexpression" , rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWSExpressionCommand,     "" },
+            { "pvp",           rbac::RBAC_PERM_COMMAND_DEBUG,               false, nullptr,                             "", debugPvpCommandTable },
             { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
             { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
             { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
@@ -135,6 +140,50 @@ public:
             { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,               false, &HandleWPGPSCommand,                 "" },
         };
         return commandTable;
+    }
+
+    static bool TryExtractTeamId(std::string const &args, TeamId &outFaction)
+    {
+        if ("a" == args || "alliance" == args)
+            outFaction = TEAM_ALLIANCE;
+        else if ("h" == args || "horde" == args)
+            outFaction = TEAM_HORDE;
+        else if ("n" == args || "neutral" == args)
+            outFaction = TEAM_NEUTRAL;
+        else
+            return false;
+
+        return true;
+    }
+
+    static bool HandleDebugWarModeFactionBalanceCommand(ChatHandler* handler, Variant<uint32, ExactSequence<'a','l','l','i','a','n','c','e'>, ExactSequence<'h','o','r','d','e'>, ExactSequence<'n','e','u','t','r','a','l'>, ExactSequence<'o','f','f'>> command, Optional<int32> rewardValue)
+    {
+        // USAGE: .debug pvp fb <alliance|horde|neutral|off> [pct]
+        // neutral     Sets faction balance off.
+        // alliance    Set faction balance to alliance.
+        // horde       Set faction balance to horde.
+        // off         Reset the faction balance and use the calculated value of it
+        switch (command.which())
+        {
+            case 0: // workaround for Variant of only ExactSequences not being supported
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case 1:
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.get_value_or(0));
+                break;
+            case 2:
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.get_value_or(0));
+                break;
+            case 3:
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_NEUTRAL);
+                break;
+            case 4:
+                sWorld->DisableForcedWarModeFactionBalanceState();
+                break;
+        }
+
+        return true;
     }
 
     static bool HandleDebugPlayCinematicCommand(ChatHandler* handler, char const* args)

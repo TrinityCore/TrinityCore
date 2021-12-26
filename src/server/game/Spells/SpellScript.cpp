@@ -406,6 +406,7 @@ bool SpellScript::IsInCheckCastHook() const
 bool SpellScript::IsAfterTargetSelectionPhase() const
 {
     return IsInHitPhase()
+        || IsInEffectHook()
         || m_currentScriptState == SPELL_SCRIPT_HOOK_ON_CAST
         || m_currentScriptState == SPELL_SCRIPT_HOOK_AFTER_CAST
         || m_currentScriptState == SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE;
