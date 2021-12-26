@@ -263,7 +263,6 @@ namespace WorldPackets
         class RequestPlayedTime;
         class SetTitle;
         class SetFactionAtWar;
-        class SetWarMode;
         class SetFactionNotAtWar;
         class SetFactionInactive;
         class SetWatchedFaction;
@@ -510,6 +509,7 @@ namespace WorldPackets
         class OpeningCinematic;
         class TogglePvP;
         class SetPvP;
+        class SetWarMode;
         class MountSpecial;
         class SetTaxiBenchmarkMode;
         class MountSetFavorite;
@@ -1256,6 +1256,7 @@ class TC_GAME_API WorldSession
 
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& packet);
         void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
+        void HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet);
 
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
@@ -1274,7 +1275,6 @@ class TC_GAME_API WorldSession
         void HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet);
         void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
         void HandleSetFactionCheat(WorldPacket& recvData);
-        void HandleSetWarMode(WorldPackets::Character::SetWarMode& packet);
         void HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet);
         void HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet);
         void HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& requestForcedReactions);

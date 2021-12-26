@@ -28945,7 +28945,7 @@ uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEn
 
 bool Player::IsAtMaxLevel() const
 {
-    return getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+    return GetLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 }
 
 template <typename T>
@@ -29077,15 +29077,6 @@ void Player::UpdateAverageItemLevelEquipped()
     SetAverageItemLevelEquipped(totalItemLevel);
 }
 
-bool Player::CanEnableWarModeInArea() const
-{
-    AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
-    if (!area || !IsFriendlyArea(area))
-        return false;
-
-    return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
-}
-
 void Player::SetWarModeDesired(bool enabled)
 {
     // Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
@@ -29136,7 +29127,6 @@ bool Player::IsInFactionFriendlyArea(AreaTableEntry const* inArea) const
 
     return true;
 }
-
 
 void Player::SetWarModeLocal(bool enabled)
 {

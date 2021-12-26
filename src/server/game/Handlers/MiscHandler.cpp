@@ -347,7 +347,7 @@ void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
     }
 }
 
-void WorldSession::HandleSetWarMode(WorldPackets::Character::SetWarMode& packet)
+void WorldSession::HandleSetWarMode(WorldPackets::Misc::SetWarMode& packet)
 {
     _player->SetWarModeDesired(packet.Enable);
 }

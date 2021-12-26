@@ -577,11 +577,6 @@ void SetFactionNotAtWar::Read()
     _worldPacket >> FactionIndex;
 }
 
-void SetWarMode::Read()
-{
-    Enable = _worldPacket.ReadBit();
-}
-
 void SetFactionInactive::Read()
 {
     _worldPacket >> Index;
