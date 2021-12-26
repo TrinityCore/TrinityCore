@@ -77,11 +77,12 @@ enum PaladinSpells
     SPELL_PALADIN_IMPROVED_DEVOTION_AURA                = 63514,
     SPELL_PALADIN_ITEM_HEALING_TRANCE                   = 37706,
     SPELL_PALADIN_ITEM_T11_RETRIBUTION_4P_BONUS         = 90299,
-    SPELL_PALADIN_JUDGEMENT_DAMAGE                      = 54158,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_BOLD                = 89906,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_PASSIVE        = 31878,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE                = 31930,
-    SPELL_PALADIN_JUDGEEMENT_OF_TRUTH                   = 31804,
+    SPELL_PALADIN_JUDGEMENT_OF_TRUTH                    = 31804,
+    SPELL_PALADIN_JUDGEMENT_OF_RIGHTEOUSNESS            = 20187,
+    SPELL_PALADIN_JUDGEMENT_DEFAULT                     = 54158,
     SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS            = 86678,
     SPELL_PALADIN_LONG_ARM_OF_THE_LAW                   = 87173,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT               = 31790,
@@ -654,10 +655,10 @@ class spell_pal_judgement : public SpellScript
     {
         return ValidateSpellInfo(
             {
-                SPELL_PALADIN_JUDGEMENT_DAMAGE,
-                SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS,
-                SPELL_PALADIN_SEAL_OF_TRUTH,
-                SPELL_PALADIN_CENSURE
+                SPELL_PALADIN_JUDGEMENT_DEFAULT,
+                SPELL_PALADIN_JUDGEMENT_OF_TRUTH,
+                SPELL_PALADIN_JUDGEMENT_OF_RIGHTEOUSNESS,
+                SPELL_PALADIN_CENSURE,
             });
     }
 
@@ -668,35 +669,36 @@ class spell_pal_judgement : public SpellScript
             return;
 
         Unit* target = GetHitUnit();
-        uint32 spellId = SPELL_PALADIN_JUDGEMENT_DAMAGE;
-        int32 bp = 0;
+        uint32 spellId = SPELL_PALADIN_JUDGEMENT_DEFAULT;
         float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
         int32 holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
 
-        // some seals have SPELL_AURA_DUMMY in EFFECT_2
-        Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_DUMMY);
-        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+        // Some seals have a dummy aura effect which contains the spell Id of the triggered judgement damage spell
+        for (AuraEffect const* aurEff : caster->GetAuraEffectsByType(SPELL_AURA_DUMMY))
         {
-            if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
-            {
-                if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
-                {
-                    spellId = (*i)->GetAmount();
-                    break;
-                }
-            }
+            if (aurEff->GetSpellInfo()->GetSpellSpecific() != SPELL_SPECIFIC_SEAL || aurEff->GetEffIndex() != EFFECT_2)
+                continue;
+
+            spellId = aurEff->GetAmount();
         }
 
-        if (caster->HasAura(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS))
-            bp = 1 + int32(1 + ap * 0.2f + 0.32f * holy);
-        else if (caster->HasAura(SPELL_PALADIN_SEAL_OF_TRUTH))
+        int32 bp = 0;
+        switch (spellId)
         {
-            bp = 1 + int32(ap * 0.142f + 0.223f * holy);
-            if (Aura const* censure = target->GetAura(SPELL_PALADIN_CENSURE, caster->GetGUID()))
-                AddPct(bp, censure->GetStackAmount() * 20);
+            case SPELL_PALADIN_JUDGEMENT_OF_TRUTH:
+                bp = 1 + (0.223f * holy + 0.142f * ap);
+                if (Aura const* censure = target->GetAura(SPELL_PALADIN_CENSURE, caster->GetGUID()))
+                    AddPct(bp, censure->GetStackAmount() * 20.f);
+                break;
+            case SPELL_PALADIN_JUDGEMENT_OF_RIGHTEOUSNESS:
+                bp = 1 + (0.2f * ap + 0.32f * holy);
+                break;
+            case SPELL_PALADIN_JUDGEMENT_DEFAULT:
+                bp = 1 + (0.25f * holy + ap * 0.16f);
+                break;
+            default:
+                break;
         }
-        else
-            bp = 1 + int32(1 + ap * 0.16f + 0.25f * holy);
 
         caster->CastSpell(target, spellId, CastSpellExtraArgs(true).AddSpellBP0(bp));
     }
