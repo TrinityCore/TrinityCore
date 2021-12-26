@@ -115,6 +115,8 @@ class spell_sha_aftershock : public AuraScript
         if (Spell const* procSpell = eventInfo.GetProcSpell())
             if (Optional<int32> cost = procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM))
                 return cost > 0 && roll_chance_i(aurEff->GetAmount());
+
+        return false;
     }
 
     void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
