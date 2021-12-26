@@ -110,25 +110,25 @@ class spell_sha_aftershock : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_AFTERSHOCK_ENERGIZE });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        Spell const* procSpell = eventInfo.GetProcSpell();
-        return procSpell && procSpell->HasPowerTypeCost(POWER_MAELSTROM);
+        if (Spell const* procSpell = eventInfo.GetProcSpell())
+            if (Optional<int32> cost = procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM))
+                return cost > 0 && roll_chance_i(aurEff->GetAmount());
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Spell const* procSpell = eventInfo.GetProcSpell();
         int32 energize = *procSpell->GetPowerTypeCostAmount(POWER_MAELSTROM);
 
-        if (roll_chance_i(aurEff->GetAmount()))
-            GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_AFTERSHOCK_ENERGIZE, CastSpellExtraArgs(energize)
-                .AddSpellMod(SPELLVALUE_BASE_POINT0, energize));
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_AFTERSHOCK_ENERGIZE, CastSpellExtraArgs(energize)
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, energize));
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_aftershock::CheckProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_aftershock::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_sha_aftershock::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
