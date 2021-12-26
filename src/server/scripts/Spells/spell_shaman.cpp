@@ -56,7 +56,6 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
-    SPELL_SHAMAN_DOWNPOUR                       = 207778,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
     SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM          = 188389,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
@@ -313,6 +312,49 @@ class spell_sha_crash_lightning : public SpellScript
     size_t _targetsHit = 0;
 };
 
+// 207778 - Downpour
+class spell_sha_downpour : public SpellScript
+{
+    PrepareSpellScript(spell_sha_downpour);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffects().size() > EFFECT_1;
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        uint32 const maxTargets = 6;
+        if (targets.size() > maxTargets)
+        {
+            targets.sort(Trinity::HealthPctOrderPred());
+            targets.resize(maxTargets);
+        }
+    }
+
+    void CountEffectivelyHealedTarget()
+    {
+        // Cooldown increased for each target effectively healed
+        if (GetHitHeal())
+            ++_healedTargets;
+    }
+
+    void HandleCooldown()
+    {
+        SpellHistory::Duration cooldown = Milliseconds(GetSpellInfo()->RecoveryTime) + Seconds(GetEffectInfo(EFFECT_1).CalcValue() * _healedTargets);
+        GetCaster()->GetSpellHistory()->StartCooldown(GetSpellInfo(), 0, GetSpell(), false, cooldown);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_downpour::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        AfterHit += SpellHitFn(spell_sha_downpour::CountEffectivelyHealedTarget);
+        AfterCast += SpellCastFn(spell_sha_downpour::HandleCooldown);
+    }
+
+    int32 _healedTargets = 0;
+};
+
 // 204288 - Earth Shield
 class spell_sha_earth_shield : public AuraScript
 {
@@ -443,38 +485,6 @@ class spell_sha_elemental_blast : public SpellScript
     {
         OnEffectLaunch += SpellEffectFn(spell_sha_elemental_blast::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         AfterCast += SpellCastFn(spell_sha_elemental_blast::TriggerBuff);
-    }
-};
-
-// 207778 - Downpour
-class spell_sha_downpour : public SpellScript
-{
-    PrepareSpellScript(spell_sha_downpour);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_DOWNPOUR });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        uint32 const maxTargets = 6;
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
-    }
-
-    void HandleCooldown(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_SHAMAN_DOWNPOUR, Seconds(GetEffectInfo(EFFECT_1).CalcValue()));
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_downpour::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_sha_downpour::HandleCooldown, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
@@ -1360,11 +1370,11 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
+    RegisterSpellScript(spell_sha_downpour);
     RegisterAuraScript(spell_sha_earth_shield);
     RegisterAuraScript(spell_sha_earthen_rage_passive);
     RegisterAuraScript(spell_sha_earthen_rage_proc_aura);
     RegisterSpellScript(spell_sha_elemental_blast);
-    RegisterSpellScript(spell_sha_downpour);
     RegisterSpellScript(spell_sha_flametongue_weapon);
     RegisterAuraScript(spell_sha_flametongue_weapon_aura);
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, spell_sha_healing_rain_aura);
