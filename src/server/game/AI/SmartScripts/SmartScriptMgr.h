@@ -585,8 +585,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
     SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
     SMART_ACTION_ACTIVATE_GAMEOBJECT                = 147,    // GameObjectActions
+    SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 148,    // varID
 
-    SMART_ACTION_END                                = 148
+    SMART_ACTION_END                                = 149
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1168,6 +1169,11 @@ struct SmartAction
             uint32 gameObjectAction;
         } activateGameObject;
 
+        struct
+        {
+            uint32 id;
+        } addToStoredTargets;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1584,6 +1590,8 @@ class ObjectGuidVector
             UpdateObjects(ref);
             return &_objectVector;
         }
+
+        void AddGuid(ObjectGuid const& guid) { _guidVector.push_back(guid); }
 
         ~ObjectGuidVector() { }
 
