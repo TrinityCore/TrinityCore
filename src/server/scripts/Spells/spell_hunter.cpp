@@ -76,7 +76,6 @@ enum HunterSpells
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SIC_EM_R1                          = 83359,
     SPELL_HUNTER_SIC_EM_R2                          = 89388,
-    SPELL_HUNTER_SERPENT_STING                      = 1978,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_TRAP_LAUNCHER_LINKED               = 82946,
@@ -136,6 +135,15 @@ class spell_hun_ancient_hysteria : public SpellScript
     }
 };
 
+// Universal helper to get the serpent sting aura of all variants of it (original and the procced versions of Serpent Spread)
+static Aura* GetSerpentStingAura(Unit* target, ObjectGuid casterGUID)
+{
+    if (AuraEffect* aurff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 0x4000, 0, 0, casterGUID))
+        return aurff->GetBase();
+
+    return nullptr;
+}
+
 // 53209 - Chimera Shot
 class spell_hun_chimera_shot : public SpellScript
 {
@@ -146,11 +154,7 @@ class spell_hun_chimera_shot : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_HUNTER_CHIMERA_SHOT_HEAL,
-                SPELL_HUNTER_SERPENT_STING
-            });
+        return ValidateSpellInfo({ SPELL_HUNTER_CHIMERA_SHOT_HEAL });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -161,7 +165,7 @@ class spell_hun_chimera_shot : public SpellScript
 
         caster->CastSpell(nullptr, SPELL_HUNTER_CHIMERA_SHOT_HEAL, true);
 
-        if (Aura* serpentSting = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, caster->GetGUID()))
+        if (Aura* serpentSting = GetSerpentStingAura(GetHitUnit(), caster->GetGUID()))
             serpentSting->RefreshDuration();
     }
 
@@ -181,11 +185,7 @@ class spell_hun_cobra_shot : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS,
-                SPELL_HUNTER_SERPENT_STING
-            });
+        return ValidateSpellInfo({ SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS });
     }
 
     void HandleLaunch(SpellEffIndex /*effIndex*/)
@@ -203,7 +203,7 @@ class spell_hun_cobra_shot : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        if (Aura* aur = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, GetCaster()->GetGUID()))
+        if (Aura* aur = GetSerpentStingAura(GetHitUnit(), GetCaster()->GetGUID()))
         {
             int32 newDuration = aur->GetDuration() + GetEffectValue() * IN_MILLISECONDS;
             aur->SetDuration(std::min(newDuration, aur->GetMaxDuration()), true);
@@ -1401,6 +1401,33 @@ class spell_hun_sic_em : public AuraScript
     }
 };
 
+// -87934 - Sperpent Spread
+static std::array<uint32, 2> SerpentSpreadSerpentStingSpellIds =
+{
+    88453,
+    88466
+};
+
+class spell_hun_serpent_spread : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(SerpentSpreadSerpentStingSpellIds);
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        uint8 index = GetSpellInfo()->GetRank() - 1;
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SerpentSpreadSerpentStingSpellIds[index], CastSpellExtraArgs(aurEff));
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_hun_serpent_spread::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_hun_ancient_hysteria);
@@ -1434,6 +1461,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_ready_set_aim);
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_serpent_sting);
+    RegisterSpellScript(spell_hun_serpent_spread);
     RegisterSpellScript(spell_hun_sic_em);
     RegisterSpellScript(spell_hun_sniper_training);
     RegisterSpellScript(spell_hun_steady_shot);

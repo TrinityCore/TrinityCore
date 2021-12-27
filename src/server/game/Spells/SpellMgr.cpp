@@ -5947,6 +5947,16 @@ void SpellMgr::LoadSpellInfoCorrections()
             spellInfo->SpellFamilyName = SPELLFAMILY_ROGUE;
     });
 
+    // Serpent Spread
+    ApplySpellFix({
+        87934,
+        87935
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+        spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
