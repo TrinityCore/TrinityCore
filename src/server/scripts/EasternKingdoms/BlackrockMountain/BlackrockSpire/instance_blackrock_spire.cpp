@@ -261,7 +261,7 @@ public:
              return true;
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
         {
             switch (eventId)
             {

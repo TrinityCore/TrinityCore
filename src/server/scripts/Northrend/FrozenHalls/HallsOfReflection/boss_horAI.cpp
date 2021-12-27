@@ -30,7 +30,7 @@ void boss_horAI::Reset()
     me->SetImmuneToAll(true);
     me->SetReactState(REACT_PASSIVE);
     if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-        instance->ProcessEvent(nullptr, EVENT_DO_WIPE);
+        instance->ProcessEvent(nullptr, EVENT_DO_WIPE, nullptr);
 }
 
 void boss_horAI::DoAction(int32 actionId)
