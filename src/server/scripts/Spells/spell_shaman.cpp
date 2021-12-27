@@ -552,6 +552,38 @@ class spell_sha_flametongue_weapon_aura : public AuraScript
     }
 };
 
+// 2645 - Ghost Wolf
+class spell_sha_ghost_wolf : public AuraScript
+{
+    PrepareAuraScript(spell_sha_ghost_wolf);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_SPIRIT_WOLF_TALENT, SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC, SPELL_SHAMAN_SPIRIT_WOLF_AURA });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTarget()->HasAura(SPELL_SHAMAN_SPIRIT_WOLF_TALENT))
+            GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC, true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTarget()->HasAura(SPELL_SHAMAN_SPIRIT_WOLF_TALENT))
+        {
+            GetTarget()->RemoveAurasDueToSpell(SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC);
+            GetTarget()->RemoveAurasDueToSpell(SPELL_SHAMAN_SPIRIT_WOLF_AURA);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_sha_ghost_wolf::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sha_ghost_wolf::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 73920 - Healing Rain (Aura)
 class spell_sha_healing_rain_aura : public AuraScript
 {
@@ -1046,38 +1078,6 @@ class spell_sha_path_of_flames_spread : public SpellScript
     }
 };
 
-// 2645 - Ghost Wolf
-class spell_sha_ghost_wolf : public AuraScript
-{
-    PrepareAuraScript(spell_sha_ghost_wolf);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_SPIRIT_WOLF_TALENT, SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC, SPELL_SHAMAN_SPIRIT_WOLF_AURA });
-    }
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetTarget()->HasAura(SPELL_SHAMAN_SPIRIT_WOLF_TALENT))
-            GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC, true);
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetTarget()->HasAura(SPELL_SHAMAN_SPIRIT_WOLF_TALENT))
-        {
-            GetTarget()->RemoveAurasDueToSpell(SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC);
-            GetTarget()->RemoveAurasDueToSpell(SPELL_SHAMAN_SPIRIT_WOLF_AURA);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_sha_ghost_wolf::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_sha_ghost_wolf::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 // 51564 - Tidal Waves
 class spell_sha_tidal_waves : public AuraScript
 {
@@ -1412,6 +1412,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_flametongue_weapon);
     RegisterAuraScript(spell_sha_flametongue_weapon_aura);
+    RegisterAuraScript(spell_sha_ghost_wolf);
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, spell_sha_healing_rain_aura);
     RegisterSpellScript(spell_sha_healing_stream_totem_heal);
     RegisterSpellScript(spell_sha_heroism);
@@ -1428,7 +1429,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_lightning_bolt_overload);
     RegisterSpellScript(spell_sha_liquid_magma_totem);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
-    RegisterAuraScript(spell_sha_ghost_wolf);
     RegisterAuraScript(spell_sha_tidal_waves);
     RegisterAuraScript(spell_sha_t3_6p_bonus);
     RegisterAuraScript(spell_sha_t3_8p_bonus);
