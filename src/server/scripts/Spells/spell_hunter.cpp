@@ -89,7 +89,8 @@ enum HunterIcons
 {
     HUNTER_ICON_ID_INVIGORATION             = 3487,
     HUNTER_ICON_ID_IMPROVED_SERPPENT_STING  = 536,
-    HUNTER_ICON_ID_TERMINATION              = 2008
+    HUNTER_ICON_ID_TERMINATION              = 2008,
+    HUNTER_ICON_ID_GLYPH_OF_DAZZLED_PREY    = 2109
 };
 
 enum MiscSpells
@@ -194,9 +195,15 @@ class spell_hun_cobra_shot : public SpellScript
         int32 focusAmount = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS)->Effects[EFFECT_0].CalcValue();
 
         if (Unit* target = GetExplTargetUnit())
+        {
             if (AuraEffect const* termination = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_TERMINATION, EFFECT_0))
                 if (target->GetHealthPct() < termination->GetSpellInfo()->Effects[EFFECT_1].CalcValue())
                     focusAmount += termination->GetAmount();
+
+            if (AuraEffect const* dazzledPrey = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_GLYPH_OF_DAZZLED_PREY, EFFECT_0))
+                if (target->HasAuraWithMechanic(1 << MECHANIC_DAZE))
+                    focusAmount += dazzledPrey->GetAmount();
+        }
 
         caster->CastSpell(caster, SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, CastSpellExtraArgs(true).AddSpellBP0(focusAmount));
     }
@@ -681,9 +688,15 @@ class spell_hun_steady_shot : public SpellScript
         int32 focusAmount = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_STEADY_SHOT_FOCUS)->Effects[EFFECT_0].CalcValue();
 
         if (Unit* target = GetExplTargetUnit())
+        {
             if (AuraEffect const* termination = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_TERMINATION, EFFECT_0))
                 if (target->GetHealthPct() < termination->GetSpellInfo()->Effects[EFFECT_1].CalcValue())
                     focusAmount += termination->GetAmount();
+
+            if (AuraEffect const* dazzledPrey = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_GLYPH_OF_DAZZLED_PREY, EFFECT_0))
+                if (target->HasAuraWithMechanic(1 << MECHANIC_DAZE))
+                    focusAmount += dazzledPrey->GetAmount();
+        }
 
         caster->CastSpell(caster, SPELL_HUNTER_STEADY_SHOT_FOCUS, CastSpellExtraArgs(true).AddSpellBP0(focusAmount));
     }
