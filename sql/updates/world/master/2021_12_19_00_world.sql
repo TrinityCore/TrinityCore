@@ -22,6 +22,9 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`
 (2723, 20, 3218, 0),
 (2799, 16, 3314, 0);
 
+ -- 
+ -- PHASE 1
+
 DELETE FROM `conversation_template` WHERE `Id` IN (17368, 17375);
 INSERT INTO `conversation_template` (`Id`, `FirstLineId`, `TextureKitId`, `ScriptName`, `VerifiedBuild`) VALUES 
 (17368, 44215, 0, '', 41079),
@@ -86,7 +89,7 @@ INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`,
 (101311, 1.15358, 4, 1, 41359);
 
 DELETE FROM `creature` WHERE `guid`=@CGUID+0;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+0, 175732, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 225.432, -843.832, 4105.07, 4.05589, 7200, 0, 0, 33925767, 100, 0, 0, 0, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_summon_groups` WHERE `summonerId`=175732;
@@ -383,31 +386,34 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 (@OGUID+10, 0, 0, 0.000000087422776573, 1, 0, 0),
 (@OGUID+11, 0, 0, 0.000000087422776573, 1, 0, 0);
 
-DELETE FROM `areatrigger_template` WHERE `Id` IN (27408, 6197, 27782);
+DELETE FROM `areatrigger_template` WHERE `Id` IN (27408, 27687, 6197, 27461, 27782, 27929, 27928, 27480);
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `VerifiedBuild`) VALUES 
-(27408, 0, 1, 32,  5,   2.5, 3.5, 5, 2.5, 3.5, 41079),
+(27408, 0, 1, 32, 5, 2.5, 3.5, 5, 2.5, 3.5, 41079), -- Rive
+(27687, 0, 0, 36, 4, 4, 0, 0, 0, 0, 41488), -- Calamity - Heroic Mode
 (6197,  0, 0, 0, 1, 1, 0, 0, 0, 0, 41079),
-(27782, 0, 4, 100, 100, 0, 0, 0, 0, 0, 41079);
+(27461, 0, 0, 32, 1, 1, 0, 0, 0, 0, 41488), -- Unknown
+(27782, 0, 4, 100, 100, 0, 0, 0, 0, 0, 41079), -- Blasphemy
+(27929, 0, 1, 34, 1.75, 4, 2, 1.75, 4, 2, 41079), -- Haunting Wave - Normal Mode
+(27928, 0, 1, 34, 1.75, 4, 2, 1.75, 4, 2, 41488), -- Haunting Wave - Heroic Mode
+(27480, 0, 1, 0, 30, 30, 5, 30, 30, 5, 41488); -- Raze
 
-DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (23349, 22400, 23034, 23028, 5428, 23694, 23507, 23506, 23117);
+DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (23349, 23389, 22400, 23034, 23028, 5428, 23694, 23693, 40000, 23507, 23506, 23117);
 INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ScriptName`, `VerifiedBuild`) VALUES 
-(23349, 27663, 0, 0, 0, 0, -1, 0, 0, 0, 15000, 0, 3, 3, 0, 0, 0, 0, 'at_tormented_rack_fragment', 41079), -- Trinket: Tormented Rack Fragment
 (22400, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 5000, 0, 6, 6, 0, 0, 0, 0, 'at_sylvanas_windrunner_disecrating_shot', 41079), -- Desecrating Shot (348626)
+(23389, 27687, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, '', 41488), -- Calamity - Heroic Mode
 (23034, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 2500, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_rive_marker', 41079), -- Rive Marker (353419)
 (23028, 27408, 25793, 0, 0, 0, -1, 0, 0, 2653, 4000, 1, 5, 2.5, 3.5, 5, 2.5, 3.5, 'at_sylvanas_windrunner_rive', 41079), -- Rive (353375)
 (5428, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_bridges', 41079), -- Channel Ice (354476, 354574, 354573) and Call Earth (354577, 354575, 354576)
-(23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave NM (351869)
+(23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave - Normal Mode (351869)
+(23693, 27928, 0, 28658, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Heroic Mode (351869)
+(40000, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 1, 1, 0, 0, 0, 0, '', 41488), -- Unknown, phase 3 related (the spell associated on areatrigger_create_properties is 0, likely a serverside spell)
 (23507, 27783, 0, 0, 0, 0, -1, 0, 0, 0, 7000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357730)
 (23506, 27782, 0, 0, 0, 0, -1, 0, 0, 0, 10000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy_pre', 41079), -- Blasphemy (357729)
 (23117, 27480, 0, 0, 0, 0, -1, 0, 462, 0, 0, 1, 20, 20, 5, 20, 20, 5, 'at_sylvanas_windrunner_raze', 41079); -- Raze (354145)
 
-DELETE FROM `areatrigger_create_properties_spline_point` WHERE `AreaTriggerCreatePropertiesId` IN (23694, 23028);
+DELETE FROM `areatrigger_create_properties_spline_point` WHERE `AreaTriggerCreatePropertiesId` IN (23028, 23694, 23693);
 INSERT INTO `areatrigger_create_properties_spline_point` (`AreaTriggerCreatePropertiesId`, `Idx`, `X`, `Y`, `Z`, `VerifiedBuild`) VALUES
-(23694, 0, 0, 0, 0, 41359),
-(23694, 1, 0, 0, 0, 41079),
-(23694, 2, 100.0000152587890625, -0.00001968324795598, 0, 41079),
-(23694, 3, 100.0000152587890625, -0.00001968324795598, 0, 41079),
-(23028, 0, 0, 0, 0, 41359),
+(23028, 0, 0, 0, 0, 41359), -- Rive
 (23028, 1, 0, 0, 0, 41359),
 (23028, 2, -49.9645919799804687, 1.881691813468933105, 0, 41359), 
 (23028, 3, -64.953948974609375, 2.446214675903320312, 0, 41359), 
@@ -423,7 +429,15 @@ INSERT INTO `areatrigger_create_properties_spline_point` (`AreaTriggerCreateProp
 (23028, 13, -139.900848388671875, 5.268763065338134765, 0, 41359), 
 (23028, 14, -147.3955078125, 5.551046371459960937, 0, 41359), 
 (23028, 15, -154.890213012695312, 5.833285808563232421, 0, 41359), 
-(23028, 16, -154.890213012695312, 5.833285808563232421, 0, 41359);
+(23028, 16, -154.890213012695312, 5.833285808563232421, 0, 41359),
+(23694, 0, 0, 0, 0, 41359), -- Haunting Wave - Normal Mode
+(23694, 1, 0, 0, 0, 41079),
+(23694, 2, 100.0000152587890625, -0.00001968324795598, 0, 41079),
+(23694, 3, 100.0000152587890625, -0.00001968324795598, 0, 41079),
+(23693, 0, 0, 0, 0, 41488), -- Haunting Wave - Heroic Mode
+(23693, 1, 0, 0, 0, 41488),
+(23693, 2, 100.0000076293945312, 0.000041824499930953, 0, 41488),  
+(23693, 3, 100.0000076293945312, 0.000041824499930953, 0, 41488);
 
  -- Highlord Bolvar Fordragon
 DELETE FROM `creature_template` WHERE `entry`=178081;
@@ -451,7 +465,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (178081, 1, 0, 0, 0, 0, 0);
 
 DELETE FROM `creature` WHERE `guid`=@CGUID+1;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+1, 178081, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 239.795, -806.064, 4105.07, 4.77206, 30, 0, 0, 1179100, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
 
  -- Winds of Icecrown
@@ -489,7 +503,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (176533, 1, 0, 0, 0, 0, 0);
 
 DELETE FROM `creature` WHERE `guid`=@CGUID+2;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+2, 176533, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 231.595, -801.5, 4105.07, 5.02181, 30, 0, 0, 2249600, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
 
  -- Frigid Shards
@@ -501,20 +515,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=354938 AND `ScriptName`='spell_sylvanas_windrunner_comet_barrage';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354938, 'spell_sylvanas_windrunner_comet_barrage');
-
- -- Teleport (Master - To Phase 3)
-DELETE FROM `spell_script_names` WHERE `spell_id`=350906 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_master';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(350906, 'spell_sylvanas_windrunner_teleport_to_phase_3_master');
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=350906 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=176533 AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 1, 350906, 0, 0, 31, 0, 3, 176533, 0, 0, 0, 0, '', 'Teleport (Master - To Phase 3) - Target Jaina'); -- TODO: The entry is most likely wrong, we need to find which one uses as target
-
- -- Teleport (Random Position)
-DELETE FROM `spell_script_names` WHERE `spell_id`=357103 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_random_position';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(357103, 'spell_sylvanas_windrunner_teleport_to_phase_3_random_position');
 
  -- Thrall
 DELETE FROM `creature_template` WHERE `entry`=176532;
@@ -542,8 +542,43 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (176532, 1, 0, 0, 0, 0, 0);
 
 DELETE FROM `creature` WHERE `guid`=@CGUID+3;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+3, 176532, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 243.661, -804.615, 4105.07, 4.28529, 30, 0, 0, 4611600, 0, 0, 0, 0, 0, 0, 0, '', 41079);
+
+ --
+ -- PHASE 2
+ 
+ -- Teleport (Master - To Phase 3)
+DELETE FROM `spell_script_names` WHERE `spell_id`=350906 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_master';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(350906, 'spell_sylvanas_windrunner_teleport_to_phase_3_master');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=350906 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=176533 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 350906, 0, 0, 31, 0, 3, 176533, 0, 0, 0, 0, '', 'Teleport (Master - To Phase 3) - Target Jaina'); -- TODO: The entry is most likely wrong, we need to find which one uses as target
+
+ -- Teleport (Random Position)
+DELETE FROM `spell_script_names` WHERE `spell_id`=357103 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_random_position';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357103, 'spell_sylvanas_windrunner_teleport_to_phase_3_random_position');
+
+ --
+ -- PHASE 3
+ 
+ -- Invigorating Field
+DELETE FROM `jump_charge_params` WHERE `id`=566;
+INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES 
+(566, 1.008, 1, 39.3676, 108168, 0, NULL);
+
+ -- Bane Arrows
+DELETE FROM `spell_script_names` WHERE `spell_id`=354011;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354011, 'spell_sylvanas_windrunner_bane_arrows');
+
+ -- Raze
+DELETE FROM `spell_script_names` WHERE `spell_id`=354147;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354147, 'spell_sylvanas_windrunner_raze');
 
  -- The Jailer
 DELETE FROM `creature_template` WHERE `entry`=178079;
@@ -571,7 +606,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 (178079, 179784, 3, 1, 'The Jailer - Soul Leader 3', 6, 30000);
 
 DELETE FROM `creature` WHERE `guid`=@CGUID+4;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+4, 178079, 2450, 13561, 13655, '14', 0, 0, 0, -1, 0, 0, -249.634, -1227.17, 5672.13, 4.67994, 7200, 0, 0, 11248000, 0, 0, 0, 0, 0, 0, 0, '', 41079);
 
  -- Soul Leader 1 (Last Phase - Rides 178079)
@@ -726,7 +761,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (178072, 1, 0, 1, 0, 0, 0);
  
 DELETE FROM `creature` WHERE `guid`=@CGUID+5;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+5, 178072, 2450, 13561, 13655, '14', 0, 0, 0, -1, 0, 1, -249.161, -1271.62, 5667.08, 4.56334, 7200, 0, 0, 23058000, 2568, 0, 0, 0, 0, 0, 0, '', 41079);
 
 DELETE FROM `spell_script_names` WHERE `spell_id`=357729 AND `ScriptName`='spell_sylvanas_windrunner_blasphemy_pre';
@@ -751,7 +786,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (178082, 1, 0, 1, 0, 0, 0);
 
 DELETE FROM `creature` WHERE `guid`=@CGUID+6;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+6, 178082, 2450, 13561, 13655, '14', 0, 0, 0, -1, 0, 0, -250.247, -1385.28, 5640.44, 1.57011, 7200, 0, 0, 11248000, 0, 0, 0, 0, 0, 0, 0, '', 41079);
 
  -- Death Gate
