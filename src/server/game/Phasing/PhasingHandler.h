@@ -73,8 +73,8 @@ public:
     static bool IsPhasePersonal(uint32 phaseId);
 
 private:
-    static void AddPhase(WorldObject* object, uint32 phaseId, WorldObject* personalOwner, bool updateVisibility);
-    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, WorldObject* personalOwner, bool updateVisibility);
+    static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);
+    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, ObjectGuid const& personalGuid, bool updateVisibility);
     static void UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed);
 };
 

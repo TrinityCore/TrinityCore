@@ -2308,69 +2308,48 @@ void ObjectMgr::LoadCreatures()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " creatures in %u ms", _creatureDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-template <bool IsCreature>
-CellGuidSet& ObjectMgr::GetGridCellGuidSetFromCell(CellObjectGuids& cellObjectGuids)
+template<CellGuidSet CellObjectGuids::*guids>
+void ObjectMgr::AddSpawnDataToGrid(SpawnData const* data)
 {
-    return cellObjectGuids.creatures;
-}
-
-template <>
-CellGuidSet& ObjectMgr::GetGridCellGuidSetFromCell<false>(CellObjectGuids& cellObjectGuids)
-{
-    return cellObjectGuids.gameobjects;
-}
-
-CellObjectGuids& ObjectMgr::GetGridCellObjectGuids(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
-{
-    CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-
-    if (!isPhasePersonal)
-        return _mapObjectGuidsStore[MAKE_PAIR32(data->spawnPoint.GetMapId(), difficulty)][cellCoord.GetId()];
+    uint32 cellId = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
+    bool isPersonalPhase = PhasingHandler::IsPhasePersonal(data->phaseId);
+    if (!isPersonalPhase)
+    {
+        for (Difficulty difficulty : data->spawnDifficulties)
+            (_mapObjectGuidsStore[{ data->mapId, difficulty }][cellId].*guids).insert(data->spawnId);
+    }
     else
-        return _mapPersonalObjectGuidsStore[std::make_pair(MAKE_PAIR32(data->spawnPoint.GetMapId(), difficulty), data->phaseId)][cellCoord.GetId()];
-
+    {
+        for (Difficulty difficulty : data->spawnDifficulties)
+            (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId }][cellId].*guids).insert(data->spawnId);
+    }
 }
 
-template <bool IsCreature>
-void ObjectMgr::InsertToGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
+template<CellGuidSet CellObjectGuids::*guids>
+void ObjectMgr::RemoveSpawnDataFromGrid(SpawnData const* data)
 {
-    CellGuidSet& cellGuidSet = GetGridCellGuidSet<IsCreature>(data, isPhasePersonal, difficulty);
-    cellGuidSet.insert(guid);
-}
-
-template <bool IsCreature>
-CellGuidSet& ObjectMgr::GetGridCellGuidSet(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
-{
-    return GetGridCellGuidSetFromCell<IsCreature>(GetGridCellObjectGuids(data, isPhasePersonal, difficulty));
-}
-
-template <bool IsCreature>
-void ObjectMgr::RemoveFromGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
-{
-    CellGuidSet& cellGuidSet = GetGridCellGuidSet<IsCreature>(data, isPhasePersonal, difficulty);
-    cellGuidSet.erase(guid);
+    uint32 cellId = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
+    bool isPersonalPhase = PhasingHandler::IsPhasePersonal(data->phaseId);
+    if (!isPersonalPhase)
+    {
+        for (Difficulty difficulty : data->spawnDifficulties)
+            (_mapObjectGuidsStore[{ data->mapId, difficulty }][cellId].*guids).erase(data->spawnId);
+    }
+    else
+    {
+        for (Difficulty difficulty : data->spawnDifficulties)
+            (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId }][cellId].*guids).erase(data->spawnId);
+    }
 }
 
 void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
-    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
-    for (Difficulty difficulty : data->spawnDifficulties)
-    {
-        CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
-        cell_guids.creatures.insert(guid);
-    }
+    AddSpawnDataToGrid<&CellObjectGuids::creatures>(data);
 }
 
 void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
-    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
-    for (Difficulty difficulty : data->spawnDifficulties)
-    {
-        CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
-        cell_guids.creatures.erase(guid);
-    }
+    RemoveSpawnDataFromGrid<&CellObjectGuids::creatures>(data);
 }
 
 ObjectGuid::LowType ObjectMgr::AddGameObjectData(uint32 entry, uint32 mapId, Position const& pos, QuaternionData const& rot, uint32 spawntimedelay /*= 0*/)
@@ -2933,24 +2912,12 @@ void ObjectMgr::OnDeleteSpawnData(SpawnData const* data)
 
 void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
-    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
-    for (Difficulty difficulty : data->spawnDifficulties)
-    {
-        CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
-        cell_guids.gameobjects.insert(guid);
-    }
+    AddSpawnDataToGrid<&CellObjectGuids::gameobjects>(data);
 }
 
 void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
-    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
-    for (Difficulty difficulty : data->spawnDifficulties)
-    {
-        CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
-        cell_guids.gameobjects.erase(guid);
-    }
+    RemoveSpawnDataFromGrid<&CellObjectGuids::gameobjects>(data);
 }
 
 uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)

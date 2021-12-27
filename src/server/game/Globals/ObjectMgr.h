@@ -487,7 +487,7 @@ struct CellObjectGuids
 };
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, CellObjectGuidsMap> MapObjectGuids;
-typedef std::unordered_map<std::pair<uint32/*(mapid, spawnMode) pair*/, uint32 /*phaseId*/>, CellObjectGuidsMap> MapPersonalObjectGuids;
+typedef std::map<std::tuple<uint32/*mapId*/, Difficulty, uint32 /*phaseId*/>, CellObjectGuidsMap> MapPersonalObjectGuids;
 
 struct TrinityString
 {
@@ -1455,21 +1455,19 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        CellObjectGuids const& GetCellObjectGuids(uint16 mapid, Difficulty spawnMode, uint32 cell_id)
+        CellObjectGuids const& GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id)
         {
             return _mapObjectGuidsStore[{ mapid, spawnMode }][cell_id];
         }
 
-        CellObjectGuidsMap const& GetMapObjectGuids(uint16 mapid, Difficulty spawnMode)
+        CellObjectGuidsMap const& GetMapObjectGuids(uint32 mapid, Difficulty spawnMode)
         {
             return _mapObjectGuidsStore[{ mapid, spawnMode }];
         }
 
-        CellObjectGuids const& GetCellPersonalObjectGuids(uint16 mapid, uint8 spawnMode, uint16 phaseId, uint32 cell_id)
+        CellObjectGuids const& GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id)
         {
-            // TODO if no need for a check, use single line
-            CellObjectGuidsMap& guidsMap = _mapPersonalObjectGuidsStore[std::make_pair(MAKE_PAIR32(mapid, spawnMode), phaseId)];
-            return guidsMap[cell_id];
+            return _mapPersonalObjectGuidsStore[{ mapid, spawnMode, phaseId }][cell_id];
         }
 
         /**
@@ -1847,18 +1845,11 @@ class TC_GAME_API ObjectMgr
         QuestRelationResult GetQuestRelationsFrom(QuestRelations const& map, uint32 key, bool onlyActive) const { return { map.equal_range(key), onlyActive }; }
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
-        template <bool IsCreature> CellGuidSet& GetGridCellGuidSetFromCell(CellObjectGuids& cellObjectGuids);
+        template<CellGuidSet CellObjectGuids::*guids>
+        void AddSpawnDataToGrid(SpawnData const* data);
 
-        template <bool IsCreature> CellGuidSet& GetGridCellGuidSet(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
-
-        CellObjectGuids& GetGridCellObjectGuids(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
-
-        template <bool IsCreature>
-        void InsertToGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
-
-        template <bool IsCreature>
-        void RemoveFromGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
-
+        template<CellGuidSet CellObjectGuids::*guids>
+        void RemoveSpawnDataFromGrid(SpawnData const* data);
 
         MailLevelRewardContainer _mailLevelRewardStore;
 

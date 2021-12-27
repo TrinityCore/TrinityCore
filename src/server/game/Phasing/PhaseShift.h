@@ -27,7 +27,6 @@
 class PhasingHandler;
 struct Condition;
 struct TerrainSwapInfo;
-class WorldObject;
 
 #define DEFAULT_PHASE 169
 
@@ -108,11 +107,6 @@ public:
     bool CanSee(PhaseShift const& other) const;
 
     bool HasPersonalPhase() const;
-
-    ObjectGuid const& GetPersonalGuid() const { return PersonalGuid; }
-
-    void SetPersonalOwner(WorldObject const* personalOwner);
-    void ClearPersonalOwner();
 
 protected:
     friend class PhasingHandler;
