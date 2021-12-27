@@ -78,7 +78,6 @@ enum Spells
     SPELL_DESECRATING_SHOT_JUMP_LEFT                    = 356191,
     SPELL_DESECRATING_SHOT_JUMP_STRAIGHT_ARROW          = 358993,
     SPELL_DESECRATING_SHOT_TRIGGERED                    = 348627,
-    SPELL_DESECRATING_SHOT_DAMAGE                       = 356377,
 
     // Ranger Heartseeker
     SPELL_RANGER_HEARTSEEKER_AURA                       = 352649,
@@ -92,10 +91,6 @@ enum Spells
     SPELL_WAILING_ARROW_POINTER                         = 348064,
     SPELL_WAILING_ARROW                                 = 347609,
     SPELL_WAILING_ARROW_CAST_JUMP                       = 355839,
-    SPELL_WAILING_ARROW_MISSILE                         = 348055,
-    SPELL_WAILING_ARROW_DAMAGE                          = 348056,
-    SPELL_WAILING_ARROW_TARGET_DAMAGE                   = 357617,
-    SPELL_WAILING_ARROW_AOE_DAMAGE                      = 357618,
 
     // Domination Chains
     SPELL_DOMINATION_CHAINS_JUMP                        = 347602,
@@ -103,7 +98,6 @@ enum Spells
     SPELL_DOMINATION_ARROW_SHOT_VISUAL                  = 350426,
     SPELL_DOMINATION_ARROW_FALL                         = 352317, 
     SPELL_DOMINATION_ARROW_FALL_AND_VISUAL              = 352319,
-    SPELL_DOMINATION_ARROW_DAMAGE                       = 352318,
     SPELL_DOMINATION_ARROW_ACTIVATE                     = 356650,
     SPELL_DOMINATION_ARROW_CALAMITY_AREA                = 356769,
     SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER         = 356624,
@@ -116,7 +110,6 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_DESELECT                     = 354366,
     SPELL_VEIL_OF_DARKNESS_SCREEN_FOG                   = 354580,
     SPELL_VEIL_OF_DARKNESS_ABSORB_AURA                  = 347704,
-    SPELL_VEIL_OF_DARKNESS_DAMAGE                       = 350777,
 
     // Veil of Darkness (Phase 1)
     SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE                 = 352470,
@@ -144,8 +137,6 @@ enum Spells
     SPELL_BANSHEE_WAIL                                  = 348094,
     SPELL_BANSHEE_WAIL_TRIGGERED_MISSILE                = 348108,
     SPELL_BANSHEE_WAIL_MISSILE                          = 348133,
-    SPELL_BANSHEE_WAIL_DAMAGE                           = 348109,
-    SPELL_BANSHEE_WAIL_INTERRUPT                        = 351252,
     SPELL_BANSHEE_WAIL_SILENCE                          = 351253,
     SPELL_BANSHEE_WAIL_MARKER                           = 357719,
     SPELL_BANSHEE_WAIL_MASTER                           = 355489,
@@ -2254,8 +2245,8 @@ class spell_sylvanas_windrunner_disappear : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_disappear::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_disappear::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_disappear::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_disappear::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2264,17 +2255,17 @@ class spell_sylvanas_windrunner_withering_fire : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_withering_fire);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_BARBED_ARROW });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex effIndex)
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
             if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                sylvanas->CastSpell(GetHitUnit(), SPELL_BARBED_ARROW, true);
+                sylvanas->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
         }
     }
 
@@ -2289,9 +2280,14 @@ class spell_sylvanas_windrunner_desecrating_shot : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_desecrating_shot);
 
-    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DESECRATING_SHOT_DAMAGE, true);
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -2412,14 +2408,14 @@ class spell_sylvanas_windrunner_domination_arrow : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_domination_arrow);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DOMINATION_ARROW_DAMAGE });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleHit(SpellEffIndex effIndex)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DOMINATION_ARROW_DAMAGE, true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -2509,14 +2505,14 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_wailing_arrow);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_WAILING_ARROW_MISSILE });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void OnCast(SpellEffIndex /*effIndex*/)
+    void OnCast(SpellEffIndex effIndex)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WAILING_ARROW_MISSILE, true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -2530,22 +2526,18 @@ class spell_sylvanas_windrunner_wailing_arrow_damage : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_wailing_arrow_damage);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
         ({
-            SPELL_WAILING_ARROW_TARGET_DAMAGE,
-            SPELL_WAILING_ARROW_AOE_DAMAGE
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell,
+            spellInfo->GetEffect(EFFECT_1).TriggerSpell
         });
     }
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        if (effIndex == 0)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_WAILING_ARROW_TARGET_DAMAGE, true);
-
-        if (effIndex == 1)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_WAILING_ARROW_AOE_DAMAGE, true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
     }
 
     void Register() override
@@ -2581,9 +2573,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
     {
         GetCaster()->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_SCREEN_FOG);
         GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_DARKNESS_DESELECT, true);
-
-        GetCaster()->SetDisableGravity(true);
-        GetCaster()->SetCanFly(true);
     }
 
     void Register() override
@@ -2597,13 +2586,13 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_1);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
         ({
             SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW,
-            SPELL_VEIL_OF_DARKNESS_ABSORB_AURA,
-            SPELL_VEIL_OF_DARKNESS_DAMAGE
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell,
+            spellInfo->GetEffect(EFFECT_1).TriggerSpell
         });
     }
 
@@ -2625,11 +2614,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        if (effIndex == 0)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_VEIL_OF_DARKNESS_ABSORB_AURA, true);
-
-        if (effIndex == 1)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_VEIL_OF_DARKNESS_DAMAGE, true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
     }
 
     void HandleAfterCast()
@@ -2651,12 +2636,12 @@ class spell_sylvanas_windrunner_rive : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_rive);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
         ({
             SPELL_RIVE_CHAIN,
-            SPELL_RIVE_AREATRIGGER
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell
         });
     }
 
@@ -2691,7 +2676,7 @@ class spell_sylvanas_windrunner_rive : public SpellScript
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
-                        sylvanas->CastSpell(shadowCopy->GetPosition(), SPELL_RIVE_AREATRIGGER, true);
+                        sylvanas->CastSpell(shadowCopy->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
                 }
             }
         }
@@ -2708,12 +2693,12 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_rive_fast);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
         ({
             SPELL_RIVE_CHAIN_FAST,
-            SPELL_RIVE_AREATRIGGER
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell
         });
     }
 
@@ -2748,7 +2733,7 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
-                        sylvanas->CastSpell(shadowCopy->GetPosition(), SPELL_RIVE_AREATRIGGER, true);
+                        sylvanas->CastSpell(shadowCopy->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
                 }
             }
         }
@@ -2765,15 +2750,12 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_banshee_wail);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
         ({
             SPELL_BANSHEE_WAIL_MARKER,
-            SPELL_BANSHEE_FORM,
-            SPELL_BANSHEE_SHROUD,
-            SPELL_SYLVANAS_ROOT,
-            SPELL_BANSHEE_WAIL_MISSILE
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell
         });
     }
 
@@ -2782,24 +2764,19 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
         std::list<Player*> targetList;
         GetPlayerListInGrid(targetList, GetCaster(), 250.0f);
 
-        for (auto itr = targetList.begin(); itr != targetList.end(); itr++)
-            GetCaster()->CastSpell(*itr, SPELL_BANSHEE_WAIL_MARKER, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4650));
+        for (Player* target : targetList)
+            GetCaster()->CastSpell(target, SPELL_BANSHEE_WAIL_MARKER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 4650));
 
         return true;
     }
 
     void HandleAfterCast()
     {
-        // HACKFIX: SPELL_AURA_TRIGGER_SPELL_ON_EXPIRE is not implemented, this is a workaround
-        GetCaster()->CastSpell(GetCaster(), SPELL_BANSHEE_FORM, true);
-        GetCaster()->CastSpell(GetCaster(), SPELL_BANSHEE_SHROUD, true);
-        GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, true);
-
         std::list<Player*> targetList;
         GetPlayerListInGrid(targetList, GetCaster(), 200.0f);
 
-        for (auto itr = targetList.begin(); itr != targetList.end(); itr++)
-            GetCaster()->CastSpell(*itr, SPELL_BANSHEE_WAIL_MISSILE, true);
+        for (Player* target : targetList)
+            GetCaster()->CastSpell(target, GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -2829,22 +2806,18 @@ class spell_sylvanas_windrunner_banshee_wail_triggered_missile : public SpellScr
 {
     PrepareSpellScript(spell_sylvanas_windrunner_banshee_wail_triggered_missile);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo
         ({
-            SPELL_BANSHEE_WAIL_DAMAGE,
-            SPELL_BANSHEE_WAIL_INTERRUPT
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell,
+            spellInfo->GetEffect(EFFECT_1).TriggerSpell
         });
     }
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        if (effIndex == 0)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_DAMAGE, true);
-
-        if (effIndex == 1)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_INTERRUPT, true);
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
     }
 
     void Register() override
