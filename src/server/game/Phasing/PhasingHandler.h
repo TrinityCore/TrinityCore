@@ -70,7 +70,7 @@ public:
     static void PrintToChat(ChatHandler* chat, WorldObject const* target);
     static std::string FormatPhases(PhaseShift const& phaseShift);
 
-    static bool IsPhasePersonal(uint32 phaseId);
+    static bool IsPersonalPhase(uint32 phaseId);
 
 private:
     static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);

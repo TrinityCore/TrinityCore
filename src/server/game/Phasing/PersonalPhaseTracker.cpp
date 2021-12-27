@@ -107,8 +107,8 @@ void PersonalPhaseTracker::SetGridLoadedForPhase(uint32 gridId, uint32 phaseId)
 
 void MultiPersonalPhaseTracker::AddPersonalPhaseObject(WorldObject const* phaseOwner, uint32 phaseId, WorldObject* obj)
 {
-    assert(phaseOwner);
-    assert(obj);
+    ASSERT(phaseOwner);
+    ASSERT(obj);
 
     _data[phaseOwner->GetGUID()].AddPersonalPhaseObject(phaseOwner, phaseId, obj);
 }

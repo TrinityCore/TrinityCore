@@ -298,7 +298,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, float orientation);
 
         template<class T, class CONTAINER>
-        void Visit(WorldObject const* obj, Cell const& cell, TypeContainerVisitor<T, CONTAINER>& visitor);
+        void Visit(Cell const& cell, TypeContainerVisitor<T, CONTAINER>& visitor);
 
         bool IsRemovalGrid(float x, float y) const
         {
@@ -658,8 +658,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void EnsureGridCreated(GridCoord const&);
         void EnsureGridCreated_i(GridCoord const&);
         bool EnsureGridLoaded(Cell const&);
-        void EnsureGridLoadedForActiveObject(Cell const&, WorldObject* object);
-        void EnsurePhasedObjectsLoadedForActiveObject(Cell const&, WorldObject const* object);
+        void EnsureGridLoadedForActiveObject(Cell const&, WorldObject const* object);
 
         void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
 
@@ -679,7 +678,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
     protected:
         virtual void LoadGridObjects(NGridType* grid, Cell const& cell);
-        virtual bool LoadPhasedGridObjectsForObject(NGridType* grid, Cell const& cell, Player const* player);
 
         std::mutex _mapLock;
         std::mutex _gridLock;
@@ -968,7 +966,7 @@ class TC_GAME_API BattlegroundMap : public Map
 };
 
 template<class T, class CONTAINER>
-inline void Map::Visit(WorldObject const* obj, Cell const& cell, TypeContainerVisitor<T, CONTAINER>& visitor)
+inline void Map::Visit(Cell const& cell, TypeContainerVisitor<T, CONTAINER>& visitor)
 {
     const uint32 x = cell.GridX();
     const uint32 y = cell.GridY();
@@ -978,7 +976,6 @@ inline void Map::Visit(WorldObject const* obj, Cell const& cell, TypeContainerVi
     if (!cell.NoCreate() || IsGridLoaded(GridCoord(x, y)))
     {
         EnsureGridLoaded(cell);
-        EnsurePhasedObjectsLoadedForActiveObject(cell, obj);
         getNGrid(x, y)->VisitGrid(cell_x, cell_y, visitor);
     }
 }

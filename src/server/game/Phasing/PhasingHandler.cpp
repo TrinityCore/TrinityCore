@@ -70,12 +70,6 @@ inline void ForAllControlled(Unit* unit, Func&& func)
 }
 }
 
-bool PhasingHandler::IsPhasePersonal(uint32 phaseId)
-{
-    PhaseFlags flags = GetPhaseFlags(phaseId);
-    return (flags & PhaseFlags::Personal) == PhaseFlags::Personal;
-}
-
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
 {
     AddPhase(object, phaseId, object->GetGUID(), updateVisibility);
@@ -614,6 +608,14 @@ std::string PhasingHandler::FormatPhases(PhaseShift const& phaseShift)
         phases << phase.Id << ',';
 
     return phases.str();
+}
+
+bool PhasingHandler::IsPersonalPhase(uint32 phaseId)
+{
+    if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
+        return phase->GetFlags().HasFlag(PhaseEntryFlags::Personal) || phase->GetFlags().HasFlag(PhaseEntryFlags::UnshareablePersonal);
+
+    return false;
 }
 
 void PhasingHandler::UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed)

@@ -26,7 +26,6 @@
 #include "CreatureAIFactory.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
-#include "DBCEnums.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
@@ -2312,7 +2311,7 @@ template<CellGuidSet CellObjectGuids::*guids>
 void ObjectMgr::AddSpawnDataToGrid(SpawnData const* data)
 {
     uint32 cellId = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
-    bool isPersonalPhase = PhasingHandler::IsPhasePersonal(data->phaseId);
+    bool isPersonalPhase = PhasingHandler::IsPersonalPhase(data->phaseId);
     if (!isPersonalPhase)
     {
         for (Difficulty difficulty : data->spawnDifficulties)
@@ -2329,7 +2328,7 @@ template<CellGuidSet CellObjectGuids::*guids>
 void ObjectMgr::RemoveSpawnDataFromGrid(SpawnData const* data)
 {
     uint32 cellId = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
-    bool isPersonalPhase = PhasingHandler::IsPhasePersonal(data->phaseId);
+    bool isPersonalPhase = PhasingHandler::IsPersonalPhase(data->phaseId);
     if (!isPersonalPhase)
     {
         for (Difficulty difficulty : data->spawnDifficulties)

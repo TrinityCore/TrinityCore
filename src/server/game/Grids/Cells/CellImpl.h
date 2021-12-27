@@ -64,11 +64,11 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
 {
     //we should increase search radius by object's radius, otherwise
     //we could have problems with huge creatures, which won't attack nearest players etc
-    Visit(standing_cell, visitor, map, &obj, obj.GetPositionX(), obj.GetPositionY(), radius + obj.GetCombatReach());
+    Visit(standing_cell, visitor, map, obj.GetPositionX(), obj.GetPositionY(), radius + obj.GetCombatReach());
 }
 
 template<class T, class CONTAINER>
-inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, CONTAINER>& visitor, Map& map, WorldObject const* obj, float x_off, float y_off, float radius) const
+inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, CONTAINER>& visitor, Map& map, float x_off, float y_off, float radius) const
 {
     if (!standing_cell.IsCoordValid())
         return;
@@ -78,7 +78,7 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     //maybe it is better to just return when radius <= 0.0f?
     if (radius <= 0.0f)
     {
-        map.Visit(obj, *this, visitor);
+        map.Visit(*this, visitor);
         return;
     }
     //lets limit the upper value for search radius
@@ -90,7 +90,7 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     //if radius fits inside standing cell
     if (!area)
     {
-        map.Visit(obj, *this, visitor);
+        map.Visit(*this, visitor);
         return;
     }
 
@@ -100,13 +100,13 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     //there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
     if ((area.high_bound.x_coord > (area.low_bound.x_coord + 4)) && (area.high_bound.y_coord > (area.low_bound.y_coord + 4)))
     {
-        VisitCircle(visitor, map, obj, area.low_bound, area.high_bound);
+        VisitCircle(visitor, map, area.low_bound, area.high_bound);
         return;
     }
 
     //ALWAYS visit standing cell first!!! Since we deal with small radiuses
     //it is very essential to call visitor for standing cell firstly...
-    map.Visit(obj, *this, visitor);
+    map.Visit(*this, visitor);
 
     // loop the cell range
     for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
@@ -119,14 +119,14 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
             {
                 Cell r_zone(cellCoord);
                 r_zone.data.Part.nocreate = this->data.Part.nocreate;
-                map.Visit(obj, r_zone, visitor);
+                map.Visit(r_zone, visitor);
             }
         }
     }
 }
 
 template<class T, class CONTAINER>
-inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& map, WorldObject const* obj, CellCoord const& begin_cell, CellCoord const& end_cell) const
+inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& map, CellCoord const& begin_cell, CellCoord const& end_cell) const
 {
     //here is an algorithm for 'filling' circum-squared octagon
     uint32 x_shift = (uint32)ceilf((end_cell.x_coord - begin_cell.x_coord) * 0.3f - 0.5f);
@@ -142,7 +142,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             CellCoord cellCoord(x, y);
             Cell r_zone(cellCoord);
             r_zone.data.Part.nocreate = this->data.Part.nocreate;
-            map.Visit(obj, r_zone, visitor);
+            map.Visit(r_zone, visitor);
         }
     }
 
@@ -166,13 +166,13 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             CellCoord cellCoord_left(x_start - step, y);
             Cell r_zone_left(cellCoord_left);
             r_zone_left.data.Part.nocreate = this->data.Part.nocreate;
-            map.Visit(obj, r_zone_left, visitor);
+            map.Visit(r_zone_left, visitor);
 
             //right trapezoid cell visit
             CellCoord cellCoord_right(x_end + step, y);
             Cell r_zone_right(cellCoord_right);
             r_zone_right.data.Part.nocreate = this->data.Part.nocreate;
-            map.Visit(obj, r_zone_right, visitor);
+            map.Visit(r_zone_right, visitor);
         }
     }
 }
@@ -216,7 +216,7 @@ inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, flo
 }
 
 template<class T>
-inline void Cell::VisitGridObjects(WorldObject const* obj, float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
@@ -224,11 +224,11 @@ inline void Cell::VisitGridObjects(WorldObject const* obj, float x, float y, Map
         cell.SetNoCreate();
 
     TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
-    cell.Visit(p, gnotifier, *map, obj, x, y, radius);
+    cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 
 template<class T>
-inline void Cell::VisitWorldObjects(WorldObject const* obj, float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
@@ -236,11 +236,11 @@ inline void Cell::VisitWorldObjects(WorldObject const* obj, float x, float y, Ma
         cell.SetNoCreate();
 
     TypeContainerVisitor<T, WorldTypeMapContainer> gnotifier(visitor);
-    cell.Visit(p, gnotifier, *map, obj, x, y, radius);
+    cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 
 template<class T>
-inline void Cell::VisitAllObjects(WorldObject const* obj, float x, float y, Map* map, T& visitor, float radius, bool dont_load)
+inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
@@ -248,9 +248,9 @@ inline void Cell::VisitAllObjects(WorldObject const* obj, float x, float y, Map*
         cell.SetNoCreate();
 
     TypeContainerVisitor<T, WorldTypeMapContainer> wnotifier(visitor);
-    cell.Visit(p, wnotifier, *map, obj, x, y, radius);
+    cell.Visit(p, wnotifier, *map, x, y, radius);
     TypeContainerVisitor<T, GridTypeMapContainer> gnotifier(visitor);
-    cell.Visit(p, gnotifier, *map, obj, x, y, radius);
+    cell.Visit(p, gnotifier, *map, x, y, radius);
 }
 
 #endif
