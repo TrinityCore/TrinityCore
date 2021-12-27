@@ -1119,8 +1119,13 @@ class spell_hun_marked_for_death : public AuraScript
 };
 
 // 82692 - Focus Fire
-class spell_hun_focus_fire : public AuraScript
+class spell_hun_focus_fire: public SpellScript
 {
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1130,41 +1135,61 @@ class spell_hun_focus_fire : public AuraScript
             });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    SpellCastResult CheckCast()
     {
-        Player* player = GetUnitOwner()->ToPlayer();
-        if (Pet* pet = player->GetPet())
-        {
-            if (Aura* frenzy = pet->GetAura(SPELL_HUNTER_FRENZY_EFFECT, pet->GetGUID()))
-            {
-                uint8 stacks = frenzy->GetStackAmount();
-                amount = GetSpellInfo()->Effects[EFFECT_2].CalcValue() * stacks;
-            }
-            else
-                amount = 0;
-        }
-    }
+        Player* player = GetCaster()->ToPlayer();
+        Pet* pet = player->GetPet();
 
-    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-    {
-        Player* player = GetTarget()->ToPlayer();
-        if (Pet* pet = player->GetPet())
-        {
-            if (Aura* frenzy = pet->GetAura(SPELL_HUNTER_FRENZY_EFFECT, pet->GetGUID()))
-            {
-                uint8 stacks = frenzy->GetStackAmount();
-                int32 bp = aurEff->GetAmount() * stacks;
-                player->CastSpell(pet, SPELL_HUNTER_FOCUS_FIRE_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
-                frenzy->Remove();
-            }
-        }
+        if (!pet)
+            return SPELL_FAILED_NO_PET;
+
+        if (!pet->HasAura(SPELL_HUNTER_FRENZY_EFFECT))
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+        return SPELL_CAST_OK;
     }
 
     void Register() override
     {
-        DoEffectCalcAmount.Register(&spell_hun_focus_fire::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RANGED_HASTE);
-        AfterEffectApply.Register(&spell_hun_focus_fire::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnCheckCast.Register(&spell_hun_focus_fire::CheckCast);
     }
+};
+
+class spell_hun_focus_fire_AuraScript : public AuraScript
+{
+    void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Player* player = GetUnitOwner()->ToPlayer();
+        Pet* pet = player->GetPet();
+        if (!pet)
+            return;
+
+        if (Aura* frenzy = pet->GetAura(SPELL_HUNTER_FRENZY_EFFECT, pet->GetGUID()))
+        {
+            _consumedStacks = frenzy->GetStackAmount();
+            frenzy->Remove();
+            amount = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue() * _consumedStacks;
+        }
+        else
+            amount = 0;
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (!_consumedStacks)
+            return;
+
+        int32 bp = _consumedStacks * aurEff->GetAmount();
+        GetTarget()->CastSpell(nullptr, SPELL_HUNTER_FOCUS_FIRE_ENERGIZE,  CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount.Register(&spell_hun_focus_fire_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RANGED_HASTE);
+        AfterEffectApply.Register(&spell_hun_focus_fire_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+private:
+    uint8 _consumedStacks = 0;
 };
 
 // 19615 - Frenzy Effect
@@ -1440,7 +1465,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_disengage);
     RegisterSpellScript(spell_hun_fervor);
     RegisterSpellScript(spell_hun_fire);
-    RegisterSpellScript(spell_hun_focus_fire);
+    RegisterSpellAndAuraScriptPair(spell_hun_focus_fire, spell_hun_focus_fire_AuraScript);
     RegisterSpellScript(spell_hun_frenzy_effect);
     RegisterSpellScript(spell_hun_glyph_of_kill_shot);
     RegisterSpellScript(spell_hun_improved_mend_pet);
