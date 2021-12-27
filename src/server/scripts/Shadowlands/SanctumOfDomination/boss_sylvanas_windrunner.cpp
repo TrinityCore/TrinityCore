@@ -2260,7 +2260,7 @@ class spell_sylvanas_windrunner_withering_fire : public SpellScript
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
@@ -2285,7 +2285,7 @@ class spell_sylvanas_windrunner_desecrating_shot : public SpellScript
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void HandleDummyEffect(SpellEffIndex effIndex)
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
@@ -2413,7 +2413,7 @@ class spell_sylvanas_windrunner_domination_arrow : public SpellScript
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
@@ -2510,7 +2510,7 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void OnCast(SpellEffIndex effIndex)
+    void OnCast(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
