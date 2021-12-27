@@ -486,7 +486,7 @@ struct CellObjectGuids
     CellGuidSet gameobjects;
 };
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
-typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
+typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, CellObjectGuidsMap> MapObjectGuids;
 
 struct TrinityString
 {
@@ -1454,14 +1454,14 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        CellObjectGuids const& GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id)
+        CellObjectGuids const& GetCellObjectGuids(uint16 mapid, Difficulty spawnMode, uint32 cell_id)
         {
-            return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
+            return _mapObjectGuidsStore[{ mapid, spawnMode }][cell_id];
         }
 
-        CellObjectGuidsMap const& GetMapObjectGuids(uint16 mapid, uint8 spawnMode)
+        CellObjectGuidsMap const& GetMapObjectGuids(uint16 mapid, Difficulty spawnMode)
         {
-            return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)];
+            return _mapObjectGuidsStore[{ mapid, spawnMode }];
         }
 
         /**

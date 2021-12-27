@@ -2312,7 +2312,7 @@ void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* 
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(data->mapId, difficulty)][cellCoord.GetId()];
+        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
         cell_guids.creatures.insert(guid);
     }
 }
@@ -2322,7 +2322,7 @@ void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData co
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(data->mapId, difficulty)][cellCoord.GetId()];
+        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
         cell_guids.creatures.erase(guid);
     }
 }
@@ -2890,7 +2890,7 @@ void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData con
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(data->mapId, difficulty)][cellCoord.GetId()];
+        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
         cell_guids.gameobjects.insert(guid);
     }
 }
@@ -2900,7 +2900,7 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
-        CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(data->mapId, difficulty)][cellCoord.GetId()];
+        CellObjectGuids& cell_guids = _mapObjectGuidsStore[{ data->mapId, difficulty }][cellCoord.GetId()];
         cell_guids.gameobjects.erase(guid);
     }
 }
