@@ -16,6 +16,7 @@
  */
 
 #include "InstancePackets.h"
+#include "InstanceScript.h"
 #include "Player.h"
 
 WorldPacket const* WorldPackets::Instance::UpdateLastInstance::Write()
@@ -93,6 +94,39 @@ WorldPacket const* WorldPackets::Instance::RaidGroupOnly::Write()
 {
     _worldPacket << int32(Delay);
     _worldPacket << uint32(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::UpdateInstanceEncounterUnit::Write()
+{
+    _worldPacket << uint32(Type);
+
+    switch (Type)
+    {
+        case ENCOUNTER_FRAME_ENGAGE:
+        case ENCOUNTER_FRAME_DISENGAGE:
+        case ENCOUNTER_FRAME_UPDATE_PRIORITY:
+            _worldPacket << Unit.WriteAsPacked();
+            _worldPacket << uint8(Param1);
+            break;
+        case ENCOUNTER_FRAME_ADD_TIMER:
+        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
+        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
+        case ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT:
+            _worldPacket << uint8(Param1);
+            break;
+        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
+            _worldPacket << uint8(Param1);
+            _worldPacket << uint8(Param2);
+            break;
+        case ENCOUNTER_FRAME_UNK7:
+        case ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT:
+        case ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT:
+            break;
+        default:
+            break;
+    }
 
     return &_worldPacket;
 }

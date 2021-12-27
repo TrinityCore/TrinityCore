@@ -26,6 +26,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "InstancePackets.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -683,9 +684,10 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 
 void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
 {
-    // size of this packet is at most 15 (usually less)
-    WorldPacket data(SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT, 15);
-    data << uint32(type);
+    WorldPackets::Instance::UpdateInstanceEncounterUnit packet;
+    packet.Type = type;
+    packet.Param1 = param1;
+    packet.Param2 = param2;
 
     switch (type)
     {
@@ -694,27 +696,14 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, ui
         case ENCOUNTER_FRAME_UPDATE_PRIORITY:
             if (!unit)
                 return;
-            data.appendPackGUID(unit->GetGUID());
-            data << uint8(param1);
+
+            packet.Unit = unit->GetGUID();
             break;
-        case ENCOUNTER_FRAME_ADD_TIMER:
-        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
-        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
-        case ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT:
-            data << uint8(param1);
-            break;
-        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
-            data << uint8(param1);
-            data << uint8(param2);
-            break;
-        case ENCOUNTER_FRAME_UNK7:
-        case ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT:
-        case ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT:
         default:
             break;
     }
 
-    instance->SendToPlayers(&data);
+    instance->SendToPlayers(packet.Write());
 }
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)

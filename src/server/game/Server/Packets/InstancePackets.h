@@ -116,6 +116,19 @@ namespace WorldPackets
             uint32 Reason = 0;
             int32 Delay = 0;
         };
+
+        class UpdateInstanceEncounterUnit final : public ServerPacket
+        {
+        public:
+            UpdateInstanceEncounterUnit() : ServerPacket(SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT, 4 + 8 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Type = 0;
+            ObjectGuid Unit;
+            uint8 Param1 = 0;
+            uint8 Param2 = 0;
+        };
     }
 }
 
