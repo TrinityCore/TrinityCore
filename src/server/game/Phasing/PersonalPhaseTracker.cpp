@@ -16,137 +16,185 @@
  */
 
 #include "PersonalPhaseTracker.h"
+#include "Containers.h"
+#include "Log.h"
 #include "Map.h"
 #include "Object.h"
+#include "ObjectGridLoader.h"
+#include "ObjectMgr.h"
+#include "PhasingHandler.h"
 
  /*********************************************************/
- /***             PersonalPhaseTracker                  ***/
+ /***            PlayerPersonalPhasesTracker            ***/
  /*********************************************************/
 
-PersonalPhaseTracker::PersonalPhaseTracker() : _phasedGroups() { }
-
-void PersonalPhaseTracker::AddPersonalPhaseObject(WorldObject const* owner, uint32 phaseId, WorldObject* worldObject)
+void PlayerPersonalPhasesTracker::RegisterTrackedObject(uint32 phaseId, WorldObject* object)
 {
-    worldObject->GetPhaseShift().SetPersonalOwner(owner);
-    _phasedGroups[phaseId].objects.insert(worldObject);
+    _spawns[phaseId].Objects.insert(object);
 }
 
-void PersonalPhaseTracker::OnOwnerPhasesChanged(WorldObject const* owner)
+void PlayerPersonalPhasesTracker::UnregisterTrackedObject(WorldObject* object)
+{
+    for (auto& [_, spawns] : _spawns)
+        spawns.Objects.erase(object);
+}
+
+void PlayerPersonalPhasesTracker::OnOwnerPhasesChanged(WorldObject const* owner)
 {
     PhaseShift const& phaseShift = owner->GetPhaseShift();
 
     // Loop over all our tracked phases. If any don't exist - delete them
-    for (auto& iter : _phasedGroups)
-        if (iter.second.deleteAfter == -1 && !phaseShift.HasPhase(iter.first) && iter.second.AnyLoaded())
-            iter.second.deleteAfter = PersonalPhaseTrackerGroup::DELETE_TIME_DEFAULT;
+    for (auto& [phaseId, spawns] : _spawns)
+        if (!spawns.DurationRemaining && !phaseShift.HasPhase(phaseId))
+            spawns.DurationRemaining = PersonalPhaseSpawns::DELETE_TIME_DEFAULT;
 
     // loop over all owner phases. If any exist and marked for deletion - reset delete
     for (PhaseShift::PhaseRef const& phaseRef : phaseShift.GetPhases())
-    {
-        auto iter = _phasedGroups.find(phaseRef.Id);
-        if (iter != _phasedGroups.cend() && iter->second.deleteAfter >= 0)
-            iter->second.deleteAfter = PersonalPhaseTrackerGroup::DELETE_TIME_NEVER;
-    }
+        if (PersonalPhaseSpawns* spawns = Trinity::Containers::MapGetValuePtr(_spawns, phaseRef.Id))
+            spawns->DurationRemaining.reset();
 }
 
-void PersonalPhaseTracker::Update(Map* map, uint32 diff)
+void PlayerPersonalPhasesTracker::MarkAllPhasesForDeletion()
 {
-    for (auto& iter : _phasedGroups)
+    for (auto& [_, spawns] : _spawns)
+        spawns.DurationRemaining = PersonalPhaseSpawns::DELETE_TIME_DEFAULT;
+}
+
+void PlayerPersonalPhasesTracker::Update(Map* map, uint32 diff)
+{
+    for (auto itr = _spawns.begin(); itr != _spawns.end(); )
     {
-        if (iter.second.deleteAfter > 0)
+        if (itr->second.DurationRemaining)
         {
-            if (iter.second.deleteAfter <= int32(diff))
-                DestroyGroup(map, iter.second);
+            itr->second.DurationRemaining = *itr->second.DurationRemaining - Milliseconds(diff);
+            if (itr->second.DurationRemaining <= Milliseconds::zero())
+            {
+                DespawnPhase(map, itr->second);
+                itr = _spawns.erase(itr);
+            }
             else
-                iter.second.deleteAfter -= diff;
+                ++itr;
         }
     }
 }
 
-void PersonalPhaseTracker::DestroyGroup(Map* map, PersonalPhaseTrackerGroup& group)
+bool PlayerPersonalPhasesTracker::IsGridLoadedForPhase(uint32 gridId, uint32 phaseId) const
 {
-    for (WorldObject* obj : group.objects)
+    if (PersonalPhaseSpawns const* spawns = Trinity::Containers::MapGetValuePtr(_spawns, phaseId))
+        return spawns->Grids.find(gridId) != spawns->Grids.cend();
+
+    return false;
+}
+
+void PlayerPersonalPhasesTracker::SetGridLoadedForPhase(uint32 gridId, uint32 phaseId)
+{
+    PersonalPhaseSpawns& group = _spawns[phaseId];
+    group.Grids.insert(gridId);
+}
+
+void PlayerPersonalPhasesTracker::SetGridUnloaded(uint32 gridId)
+{
+    for (auto itr = _spawns.begin(); itr != _spawns.end(); )
+    {
+        itr->second.Grids.erase(gridId);
+        if (itr->second.IsEmpty())
+            itr = _spawns.erase(itr);
+        else
+            ++itr;
+    }
+}
+
+void PlayerPersonalPhasesTracker::DespawnPhase(Map* map, PersonalPhaseSpawns& spawns)
+{
+    for (WorldObject* obj : spawns.Objects)
         map->AddObjectToRemoveList(obj);
 
-    group.objects.clear();
-    group.gridsLoaded.clear();
-    group.deleteAfter = PersonalPhaseTrackerGroup::DELETE_TIME_NEVER;
-}
-
-void PersonalPhaseTracker::CleanAllGroups()
-{
-    for (auto& iter : _phasedGroups)
-        if (iter.second.AnyLoaded())
-            iter.second.deleteAfter = PersonalPhaseTrackerGroup::DELETE_TIME_DEFAULT;
-}
-
-void PersonalPhaseTracker::RemoveObjectFromPhases(WorldObject* object)
-{
-    for (auto& iter : _phasedGroups)
-        iter.second.objects.erase(object);
-}
-
-bool PersonalPhaseTracker::IsGridLoadedForPhase(uint32 gridId, uint32 phaseId) const
-{
-    auto iter = _phasedGroups.find(phaseId);
-    if (iter == _phasedGroups.cend())
-        return false;
-
-    return iter->second.gridsLoaded.find(gridId) != iter->second.gridsLoaded.cend();
-}
-
-void PersonalPhaseTracker::SetGridLoadedForPhase(uint32 gridId, uint32 phaseId)
-{
-    PersonalPhaseTrackerGroup& group = _phasedGroups[phaseId];
-    group.gridsLoaded.insert(gridId);
+    spawns.Objects.clear();
+    spawns.Grids.clear();
 }
 
 /*********************************************************/
-/***           MultiPersonalPhaseTracker               ***/
+/***             MultiPersonalPhaseTracker             ***/
 /*********************************************************/
 
-void MultiPersonalPhaseTracker::AddPersonalPhaseObject(WorldObject const* phaseOwner, uint32 phaseId, WorldObject* obj)
+void MultiPersonalPhaseTracker::LoadGrid(PhaseShift const& phaseShift, NGridType& grid, Map* map, Cell const& cell)
 {
-    ASSERT(phaseOwner);
-    ASSERT(obj);
-
-    _data[phaseOwner->GetGUID()].AddPersonalPhaseObject(phaseOwner, phaseId, obj);
-}
-
-void MultiPersonalPhaseTracker::CleanOwnerGroups(WorldObject const* phaseOwner)
-{
-    auto iter = _data.find(phaseOwner->GetGUID());
-    if (iter == _data.cend())
+    if (!phaseShift.HasPersonalPhase())
         return;
 
-    iter->second.CleanAllGroups();
+    PersonalPhaseGridLoader loader(grid, map, cell, phaseShift.GetPersonalGuid());
+    PlayerPersonalPhasesTracker& playerTracker = _playerData[phaseShift.GetPersonalGuid()];
+
+    for (PhaseShift::PhaseRef const& phaseRef : phaseShift.GetPhases())
+    {
+        if (!phaseRef.IsPersonal())
+            continue;
+
+        if (!sObjectMgr->HasPersonalSpawns(map->GetId(), map->GetDifficultyID(), phaseRef.Id))
+            continue;
+
+        if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Id))
+            continue;
+
+        TC_LOG_DEBUG("maps", "Loading personal phase objects (phase %u) in grid[%u, %u] for map %u instance %u",
+            phaseRef.Id, cell.GridX(), cell.GridY(), map->GetId(), map->GetInstanceId());
+
+        loader.Load(phaseRef.Id);
+
+        playerTracker.SetGridLoadedForPhase(grid.GetGridId(), phaseRef.Id);
+    }
+
+    if (loader.GetLoadedGameObjects())
+        map->Balance();
 }
 
-void MultiPersonalPhaseTracker::RemoveObjectFromPhases(WorldObject* object)
+void MultiPersonalPhaseTracker::UnloadGrid(NGridType& grid)
 {
-    if (!object->GetPhaseShift().HasPersonalPhase())
-        return;
-
-    ObjectGuid const& personalGuid = object->GetPhaseShift().GetPersonalGuid();
-
-    auto iter = _data.find(personalGuid);
-    if (iter == _data.cend())
-        return;
-
-    iter->second.RemoveObjectFromPhases(object);
+    for (auto itr = _playerData.begin(); itr != _playerData.end(); )
+    {
+        itr->second.SetGridUnloaded(grid.GetGridId());
+        if (itr->second.IsEmpty())
+            itr = _playerData.erase(itr);
+        else
+            ++itr;
+    }
 }
 
-void MultiPersonalPhaseTracker::Update(Map* map, uint32 diff)
+void MultiPersonalPhaseTracker::RegisterTrackedObject(uint32 phaseId, ObjectGuid const& phaseOwner, WorldObject* object)
 {
-    for (auto& iter : _data)
-        iter.second.Update(map, diff);
+    ASSERT(phaseId);
+    ASSERT(!phaseOwner.IsEmpty());
+    ASSERT(object);
+
+    _playerData[phaseOwner].RegisterTrackedObject(phaseId, object);
+}
+
+void MultiPersonalPhaseTracker::UnregisterTrackedObject(WorldObject* object)
+{
+    if (PlayerPersonalPhasesTracker* playerTracker = Trinity::Containers::MapGetValuePtr(_playerData, object->GetPhaseShift().GetPersonalGuid()))
+        playerTracker->UnregisterTrackedObject(object);
 }
 
 void MultiPersonalPhaseTracker::OnOwnerPhaseChanged(WorldObject const* phaseOwner)
 {
-    auto iter = _data.find(phaseOwner->GetGUID());
-    if (iter == _data.cend())
-        return;
+    if (PlayerPersonalPhasesTracker* playerTracker = Trinity::Containers::MapGetValuePtr(_playerData, phaseOwner->GetGUID()))
+        playerTracker->OnOwnerPhasesChanged(phaseOwner);
+}
 
-    iter->second.OnOwnerPhasesChanged(phaseOwner);
+void MultiPersonalPhaseTracker::MarkAllPhasesForDeletion(ObjectGuid const& phaseOwner)
+{
+    if (PlayerPersonalPhasesTracker* playerTracker = Trinity::Containers::MapGetValuePtr(_playerData, phaseOwner))
+        playerTracker->MarkAllPhasesForDeletion();
+}
+
+void MultiPersonalPhaseTracker::Update(Map* map, uint32 diff)
+{
+    for (auto itr = _playerData.begin(); itr != _playerData.end(); )
+    {
+        itr->second.Update(map, diff);
+        if (itr->second.IsEmpty())
+            itr = _playerData.erase(itr);
+        else
+            ++itr;
+    }
 }

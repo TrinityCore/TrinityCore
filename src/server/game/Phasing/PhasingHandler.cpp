@@ -496,6 +496,13 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
     phaseShift.Flags = flags;
 }
 
+void PhasingHandler::InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid)
+{
+    ASSERT(phaseShift.IsDbPhaseShift);
+    ASSERT(phaseShift.PersonalReferences);
+    phaseShift.PersonalGuid = personalGuid;
+}
+
 void PhasingHandler::InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId)
 {
     phaseShift.VisibleMapIds.clear();
@@ -557,7 +564,7 @@ void PhasingHandler::PrintToChat(ChatHandler* chat, WorldObject const* target)
 
     std::string phaseOwnerName = "N/A";
     if (phaseShift.HasPersonalPhase())
-        if (WorldObject * personalGuid = ObjectAccessor::GetWorldObject(*target, phaseShift.PersonalGuid))
+        if (WorldObject* personalGuid = ObjectAccessor::GetWorldObject(*target, phaseShift.PersonalGuid))
             phaseOwnerName = personalGuid->GetName();
 
     chat->PSendSysMessage(LANG_PHASESHIFT_STATUS, phaseShift.Flags.AsUnderlyingType(),

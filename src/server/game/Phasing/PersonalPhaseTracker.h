@@ -19,67 +19,67 @@
 #define _PERSONAL_PHASE_TRACKER_H
 
 #include "Common.h"
+#include "Duration.h"
+#include "GridDefines.h"
 #include "ObjectGuid.h"
-#include <unordered_map>
-#include <set>
+#include "Optional.h"
 
 class Map;
+class PhaseShift;
 class WorldObject;
+struct Cell;
 
-struct PersonalPhaseTrackerGroup
+struct PersonalPhaseSpawns
 {
-    static const int32 DELETE_TIME_NEVER = -1;
-    static const int32 DELETE_TIME_DEFAULT = 30 * IN_MILLISECONDS;
+    static constexpr Milliseconds DELETE_TIME_DEFAULT = 1min;
 
-    using TrackedObjectSet = std::set<WorldObject*>;
+    std::unordered_set<WorldObject*> Objects;
+    std::unordered_set<uint16> Grids;
+    Optional<Milliseconds> DurationRemaining;
 
-    TrackedObjectSet objects;
-    int32 deleteAfter; // will be deleted when reaches 0.
-    std::set<uint16> gridsLoaded;
-
-    PersonalPhaseTrackerGroup() : objects(), deleteAfter(DELETE_TIME_NEVER), gridsLoaded() { }
-
-    bool AnyLoaded() const { return objects.size() > 0 || gridsLoaded.size() > 0; }
+    bool IsEmpty() const { return Objects.empty() && Grids.empty(); }
 };
 
 /* Tracks personal phases for a single owner */
-struct PersonalPhaseTracker
+struct PlayerPersonalPhasesTracker
 {
 public:
-    PersonalPhaseTracker();
+    void RegisterTrackedObject(uint32 phaseId, WorldObject* object);
+    void UnregisterTrackedObject(WorldObject* object);
 
-    void AddPersonalPhaseObject(WorldObject const* owner, uint32 phaseId, WorldObject* worldObject);
     void OnOwnerPhasesChanged(WorldObject const* owner);
-    void RemoveObjectFromPhases(WorldObject* object);
-
-    void CleanAllGroups();
+    void MarkAllPhasesForDeletion();
 
     void Update(Map* map, uint32 diff);
 
     bool IsGridLoadedForPhase(uint32 gridId, uint32 phaseId) const;
     void SetGridLoadedForPhase(uint32 gridId, uint32 phaseId);
+    void SetGridUnloaded(uint32 gridId);
+
+    bool IsEmpty() const { return _spawns.empty(); }
 
 private:
-    void DestroyGroup(Map* map, PersonalPhaseTrackerGroup& group);
+    void DespawnPhase(Map* map, PersonalPhaseSpawns& spawns);
 
-    std::unordered_map<uint32 /*phaseId*/, PersonalPhaseTrackerGroup> _phasedGroups;
+    std::unordered_map<uint32 /*phaseId*/, PersonalPhaseSpawns> _spawns;
 };
 
 /* Handles personal phase trackers for all owners */
 struct MultiPersonalPhaseTracker
 {
-    void AddPersonalPhaseObject(WorldObject const* phaseOwner, uint32 phaseId, WorldObject* obj);
-    void CleanOwnerGroups(WorldObject const* phaseOwner);
-    void RemoveObjectFromPhases(WorldObject* object);
+    void LoadGrid(PhaseShift const& phaseShift, NGridType& grid, Map* map, Cell const& cell);
+    void UnloadGrid(NGridType& grid);
+
+    void RegisterTrackedObject(uint32 phaseId, ObjectGuid const& phaseOwner, WorldObject* object);
+    void UnregisterTrackedObject(WorldObject* object);
 
     void OnOwnerPhaseChanged(WorldObject const* phaseOwner);
+    void MarkAllPhasesForDeletion(ObjectGuid const& phaseOwner);
 
     void Update(Map* map, uint32 diff);
 
-    PersonalPhaseTracker& GetPersonalPhaseTracker(ObjectGuid const& guid) { return _data[guid]; }
-
 private:
-    std::unordered_map<ObjectGuid /*owner*/, PersonalPhaseTracker> _data;
+    std::unordered_map<ObjectGuid /*owner*/, PlayerPersonalPhasesTracker> _playerData;
 };
 
 #endif /* _PERSONAL_PHASE_TRACKER_H */

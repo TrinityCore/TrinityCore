@@ -225,7 +225,7 @@ public:
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
             {
                 creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() });
-                sObjectMgr->AddCreatureToGrid(guid, &data);
+                sObjectMgr->AddCreatureToGrid(&data);
             }
             return true;
         }
@@ -248,7 +248,7 @@ public:
         if (!creature)
             return false;
 
-        sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
+        sObjectMgr->AddCreatureToGrid(sObjectMgr->GetCreatureData(db_guid));
         return true;
     }
 
@@ -812,9 +812,9 @@ public:
         }
 
         // update position in memory
-        sObjectMgr->RemoveCreatureFromGrid(lowguid, data);
+        sObjectMgr->RemoveCreatureFromGrid(data);
         const_cast<CreatureData*>(data)->spawnPoint.Relocate(*player);
-        sObjectMgr->AddCreatureToGrid(lowguid, data);
+        sObjectMgr->AddCreatureToGrid(data);
 
         // update position in DB
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);

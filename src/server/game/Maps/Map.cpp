@@ -570,6 +570,9 @@ void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject const* o
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     ASSERT(grid != nullptr);
 
+    if (object->IsPlayer())
+        GetMultiPersonalPhaseTracker().LoadGrid(object->GetPhaseShift(), *grid, this, cell);
+
     // refresh grid state & timer
     if (grid->GetGridState() != GRID_STATE_ACTIVE)
     {
@@ -849,9 +852,6 @@ void Map::Update(uint32 t_diff)
     else
         _respawnCheckTimer -= t_diff;
 
-    // update phase shiftf objects
-    GetMultiPersonalPhaseTracker().Update(this, t_diff);
-
     /// update active cells around players and active objects
     resetMarkedCells();
 
@@ -946,6 +946,9 @@ void Map::Update(uint32 t_diff)
 
         _weatherUpdateTimer.Reset();
     }
+
+    // update phase shift objects
+    GetMultiPersonalPhaseTracker().Update(this, t_diff);
 
     MoveAllCreaturesInMoveList();
     MoveAllGameObjectsInMoveList();
@@ -1052,7 +1055,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
-    GetMultiPersonalPhaseTracker().CleanOwnerGroups(player);
+    GetMultiPersonalPhaseTracker().MarkAllPhasesForDeletion(player->GetGUID());
 
     player->CombatStop();
 
@@ -1080,7 +1083,7 @@ void Map::RemoveFromMap(T *obj, bool remove)
     if (obj->isActiveObject())
         RemoveFromActive(obj);
 
-    GetMultiPersonalPhaseTracker().RemoveObjectFromPhases(obj);
+    GetMultiPersonalPhaseTracker().UnregisterTrackedObject(obj);
 
     if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
         obj->DestroyForNearbyPlayers(); // previous obj->UpdateObjectVisibility(true)
@@ -1746,6 +1749,9 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
         }
 
         RemoveAllObjectsInRemoveList();
+
+        // After removing all objects from the map, purge empty tracked phases
+        GetMultiPersonalPhaseTracker().UnloadGrid(ngrid);
 
         {
             ObjectGridUnloader worker;

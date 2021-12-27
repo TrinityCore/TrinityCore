@@ -1465,10 +1465,8 @@ class TC_GAME_API ObjectMgr
             return _mapObjectGuidsStore[{ mapid, spawnMode }];
         }
 
-        CellObjectGuids const& GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id)
-        {
-            return _mapPersonalObjectGuidsStore[{ mapid, spawnMode, phaseId }][cell_id];
-        }
+        bool HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId) const;
+        CellObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id) const;
 
         /**
          * Gets temp summon data for all creatures of specified group.
@@ -1595,10 +1593,10 @@ class TC_GAME_API ObjectMgr
         void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
 
         // grid objects
-        void AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data);
-        void RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data);
-        void AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data);
-        void RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data);
+        void AddCreatureToGrid(CreatureData const* data);
+        void RemoveCreatureFromGrid(CreatureData const* data);
+        void AddGameobjectToGrid(GameObjectData const* data);
+        void RemoveGameobjectFromGrid(GameObjectData const* data);
         ObjectGuid::LowType AddGameObjectData(uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot, uint32 spawntimedelay = 0);
         ObjectGuid::LowType AddCreatureData(uint32 entry, uint32 map, Position const& pos, uint32 spawntimedelay = 0);
 

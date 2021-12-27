@@ -889,7 +889,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         /*********************************************************/
     public:
         MultiPersonalPhaseTracker& GetMultiPersonalPhaseTracker() { return _multiPersonalPhaseTracker; }
-        MultiPersonalPhaseTracker const& GetMultiPersonalPhaseTracker() const { return _multiPersonalPhaseTracker; }
 
     private:
         MultiPersonalPhaseTracker _multiPersonalPhaseTracker;

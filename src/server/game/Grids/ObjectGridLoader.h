@@ -24,15 +24,41 @@
 #include "GridDefines.h"
 #include "Cell.h"
 
+class ObjectGuid;
 class ObjectWorldLoader;
 
-class TC_GAME_API ObjectGridLoader
+class TC_GAME_API ObjectGridLoaderBase
+{
+    public:
+        ObjectGridLoaderBase(NGridType& grid, Map* map, Cell const& cell)
+            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
+            { }
+
+        template<class T>
+        static void SetObjectCell(T* obj, CellCoord const& cellCoord);
+
+        uint32 GetLoadedCreatures() const { return i_creatures; }
+        uint32 GetLoadedGameObjects() const { return i_gameObjects; }
+        uint32 GetLoadedCorpses() const { return i_corpses; }
+        uint32 GetLoadedAreaTriggers() const { return i_areaTriggers; }
+
+    protected:
+        Cell i_cell;
+        NGridType &i_grid;
+        Map* i_map;
+        uint32 i_gameObjects;
+        uint32 i_creatures;
+        uint32 i_corpses;
+        uint32 i_areaTriggers;
+};
+
+class TC_GAME_API ObjectGridLoader : public ObjectGridLoaderBase
 {
     friend class ObjectWorldLoader;
 
     public:
         ObjectGridLoader(NGridType& grid, Map* map, Cell const& cell)
-            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
+            : ObjectGridLoaderBase(grid, map, cell)
             { }
 
         void Visit(GameObjectMapType &m);
@@ -43,18 +69,29 @@ class TC_GAME_API ObjectGridLoader
         void Visit(SceneObjectMapType&) const { }
         void Visit(ConversationMapType&) const { }
 
-        void LoadN(void);
+        void LoadN();
+};
 
-        template<class T> static void SetObjectCell(T* obj, CellCoord const& cellCoord);
+class TC_GAME_API PersonalPhaseGridLoader : public ObjectGridLoaderBase
+{
+    public:
+        PersonalPhaseGridLoader(NGridType& grid, Map* map, Cell const& cell, ObjectGuid const& phaseOwner)
+            : ObjectGridLoaderBase(grid, map, cell), _phaseId(0), _phaseOwner(phaseOwner)
+            { }
+
+        void Visit(GameObjectMapType &m);
+        void Visit(CreatureMapType &m);
+        void Visit(AreaTriggerMapType&) const { }
+        void Visit(CorpseMapType&) const { }
+        void Visit(DynamicObjectMapType&) const { }
+        void Visit(SceneObjectMapType&) const { }
+        void Visit(ConversationMapType&) const { }
+
+        void Load(uint32 phaseId);
 
     private:
-        Cell i_cell;
-        NGridType &i_grid;
-        Map* i_map;
-        uint32 i_gameObjects;
-        uint32 i_creatures;
-        uint32 i_corpses;
-        uint32 i_areaTriggers;
+        uint32 _phaseId;
+        ObjectGuid const& _phaseOwner;
 };
 
 //Stop the creatures before unloading the NGrid

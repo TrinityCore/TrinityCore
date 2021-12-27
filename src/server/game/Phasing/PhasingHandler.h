@@ -59,6 +59,7 @@ public:
 
     static PhaseShift const& GetEmptyPhaseShift();
     static void InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
+    static void InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid);
     static void InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId);
     static bool InDbPhaseShift(WorldObject const* object, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
 
