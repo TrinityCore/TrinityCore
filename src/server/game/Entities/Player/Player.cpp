@@ -19111,9 +19111,8 @@ void Player::BindToInstance()
     if (!mapSave) //it seems sometimes mapSave is nullptr, but I did not check why
         return;
 
-    WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-    data << uint32(0);
-    SendDirectMessage(&data);
+    WorldPackets::Instance::InstanceSaveCreated instanceSaveCreated;
+    SendDirectMessage(instanceSaveCreated.Write());
     if (!IsGameMaster())
     {
         BindToInstance(mapSave, true, EXTEND_STATE_KEEP);
@@ -19180,7 +19179,6 @@ void Player::SendRaidInfo()
 void Player::SendSavedInstances()
 {
     bool hasBeenSaved = false;
-    WorldPacket data;
 
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
