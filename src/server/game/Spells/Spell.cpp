@@ -1351,6 +1351,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
             break;
         }
         case TARGET_DEST_CASTER_FRONT_LEAP:
+        case TARGET_DEST_CASTER_MOVEMENT_DIRECTION:
         {
             Unit* unitCaster = m_caster->ToUnit();
             if (!unitCaster)
@@ -1358,6 +1359,41 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
 
             float dist = spellEffectInfo.CalcRadius(unitCaster);
             float angle = targetType.CalcDirectionAngle();
+            if (targetType.GetTarget() == TARGET_DEST_CASTER_MOVEMENT_DIRECTION)
+            {
+                angle = [&]()
+                {
+                    switch (m_caster->m_movementInfo.GetMovementFlags() & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT))
+                    {
+                        case MOVEMENTFLAG_NONE:
+                        case MOVEMENTFLAG_FORWARD:
+                        case MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD:
+                        case MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT:
+                        case MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT:
+                        case MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT:
+                            return 0.0f;
+                        case MOVEMENTFLAG_BACKWARD:
+                        case MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT:
+                            return static_cast<float>(M_PI);
+                        case MOVEMENTFLAG_STRAFE_LEFT:
+                        case MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT:
+                            return static_cast<float>(M_PI / 2);
+                        case MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_LEFT:
+                            return static_cast<float>(M_PI / 4);
+                        case MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT:
+                            return static_cast<float>(3 * M_PI / 4);
+                        case MOVEMENTFLAG_STRAFE_RIGHT:
+                        case MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD |  MOVEMENTFLAG_STRAFE_RIGHT:
+                            return static_cast<float>(-M_PI / 2);
+                        case MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_RIGHT:
+                            return static_cast<float>(-M_PI / 4);
+                        case MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_RIGHT:
+                            return static_cast<float>(-3 * M_PI / 4);
+                        default:
+                            return 0.0f;
+                    }
+                }();
+            }
 
             Position pos = dest._position;
 
