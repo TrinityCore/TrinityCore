@@ -679,6 +679,12 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     return true;
 }
 
+void Map::UpdatePersonalPhasesForPlayer(Player const* player)
+{
+    Cell cell(player->GetPositionX(), player->GetPositionY());
+    GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, getNGrid(cell.GridX(), cell.GridY()), this, cell);
+}
+
 template<class T>
 void Map::InitializeObject(T* /*obj*/) { }
 

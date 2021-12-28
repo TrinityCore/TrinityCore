@@ -29176,7 +29176,7 @@ void Player::OnPhaseChange()
 {
     Unit::OnPhaseChange();
 
-    GetMap()->GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(this);
+    GetMap()->UpdatePersonalPhasesForPlayer(this);
 }
 
 std::string Player::GetDebugInfo() const

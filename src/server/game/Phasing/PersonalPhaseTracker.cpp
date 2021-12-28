@@ -71,10 +71,10 @@ void PlayerPersonalPhasesTracker::Update(Map* map, uint32 diff)
             {
                 DespawnPhase(map, itr->second);
                 itr = _spawns.erase(itr);
+                continue;
             }
-            else
-                ++itr;
         }
+        ++itr;
     }
 }
 
@@ -175,10 +175,13 @@ void MultiPersonalPhaseTracker::UnregisterTrackedObject(WorldObject* object)
         playerTracker->UnregisterTrackedObject(object);
 }
 
-void MultiPersonalPhaseTracker::OnOwnerPhaseChanged(WorldObject const* phaseOwner)
+void MultiPersonalPhaseTracker::OnOwnerPhaseChanged(WorldObject const* phaseOwner, NGridType* grid, Map* map, Cell const& cell)
 {
     if (PlayerPersonalPhasesTracker* playerTracker = Trinity::Containers::MapGetValuePtr(_playerData, phaseOwner->GetGUID()))
         playerTracker->OnOwnerPhasesChanged(phaseOwner);
+
+    if (grid)
+        LoadGrid(phaseOwner->GetPhaseShift(), *grid, map, cell);
 }
 
 void MultiPersonalPhaseTracker::MarkAllPhasesForDeletion(ObjectGuid const& phaseOwner)

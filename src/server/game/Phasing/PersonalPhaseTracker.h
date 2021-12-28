@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PERSONAL_PHASE_TRACKER_H
-#define _PERSONAL_PHASE_TRACKER_H
+#ifndef PersonalPhaseTracker_h__
+#define PersonalPhaseTracker_h__
 
 #include "Common.h"
 #include "Duration.h"
@@ -73,7 +73,7 @@ struct MultiPersonalPhaseTracker
     void RegisterTrackedObject(uint32 phaseId, ObjectGuid const& phaseOwner, WorldObject* object);
     void UnregisterTrackedObject(WorldObject* object);
 
-    void OnOwnerPhaseChanged(WorldObject const* phaseOwner);
+    void OnOwnerPhaseChanged(WorldObject const* phaseOwner, NGridType* grid, Map* map, Cell const& cell);
     void MarkAllPhasesForDeletion(ObjectGuid const& phaseOwner);
 
     void Update(Map* map, uint32 diff);
@@ -82,4 +82,4 @@ private:
     std::unordered_map<ObjectGuid /*owner*/, PlayerPersonalPhasesTracker> _playerData;
 };
 
-#endif /* _PERSONAL_PHASE_TRACKER_H */
+#endif // PersonalPhaseTracker_h__

@@ -499,7 +499,7 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
 void PhasingHandler::InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid)
 {
     ASSERT(phaseShift.IsDbPhaseShift);
-    ASSERT(phaseShift.PersonalReferences);
+    ASSERT(phaseShift.HasPersonalPhase());
     phaseShift.PersonalGuid = personalGuid;
 }
 
@@ -620,7 +620,7 @@ std::string PhasingHandler::FormatPhases(PhaseShift const& phaseShift)
 bool PhasingHandler::IsPersonalPhase(uint32 phaseId)
 {
     if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
-        return phase->GetFlags().HasFlag(PhaseEntryFlags::Personal) || phase->GetFlags().HasFlag(PhaseEntryFlags::UnshareablePersonal);
+        return phase->GetFlags().HasFlag(PhaseEntryFlags::Personal);
 
     return false;
 }
