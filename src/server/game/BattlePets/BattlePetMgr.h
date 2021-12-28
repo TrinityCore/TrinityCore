@@ -172,6 +172,7 @@ public:
 
     void CageBattlePet(ObjectGuid guid);
     void ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality quality);
+    void GrantBattlePetExperience(ObjectGuid guid, uint16 xp);
     void HealBattlePetsPct(uint8 pct);
 
     void SummonPet(ObjectGuid guid);
