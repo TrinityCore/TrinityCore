@@ -564,11 +564,14 @@ void Map::EnsureGridCreated_i(GridCoord const& p)
 }
 
 //Load NGrid and make it active
-void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject* object)
+void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject const* object)
 {
     EnsureGridLoaded(cell);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     ASSERT(grid != nullptr);
+
+    if (object->IsPlayer())
+        GetMultiPersonalPhaseTracker().LoadGrid(object->GetPhaseShift(), *grid, this, cell);
 
     // refresh grid state & timer
     if (grid->GetGridState() != GRID_STATE_ACTIVE)
@@ -635,6 +638,11 @@ void Map::LoadGrid(float x, float y)
     EnsureGridLoaded(Cell(x, y));
 }
 
+void Map::LoadGridForActiveObject(float x, float y, WorldObject const* object)
+{
+    EnsureGridLoadedForActiveObject(Cell(x, y), object);
+}
+
 bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     CellCoord cellCoord = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
@@ -669,6 +677,12 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
+}
+
+void Map::UpdatePersonalPhasesForPlayer(Player const* player)
+{
+    Cell cell(player->GetPositionX(), player->GetPositionY());
+    GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, getNGrid(cell.GridX(), cell.GridY()), this, cell);
 }
 
 template<class T>
@@ -939,6 +953,9 @@ void Map::Update(uint32 t_diff)
         _weatherUpdateTimer.Reset();
     }
 
+    // update phase shift objects
+    GetMultiPersonalPhaseTracker().Update(this, t_diff);
+
     MoveAllCreaturesInMoveList();
     MoveAllGameObjectsInMoveList();
     MoveAllAreaTriggersInMoveList();
@@ -1044,6 +1061,8 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
+    GetMultiPersonalPhaseTracker().MarkAllPhasesForDeletion(player->GetGUID());
+
     player->CombatStop();
 
     bool const inWorld = player->IsInWorld();
@@ -1069,6 +1088,8 @@ void Map::RemoveFromMap(T *obj, bool remove)
     obj->RemoveFromWorld();
     if (obj->isActiveObject())
         RemoveFromActive(obj);
+
+    GetMultiPersonalPhaseTracker().UnregisterTrackedObject(obj);
 
     if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
         obj->DestroyForNearbyPlayers(); // previous obj->UpdateObjectVisibility(true)
@@ -1734,6 +1755,9 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
         }
 
         RemoveAllObjectsInRemoveList();
+
+        // After removing all objects from the map, purge empty tracked phases
+        GetMultiPersonalPhaseTracker().UnloadGrid(ngrid);
 
         {
             ObjectGridUnloader worker;

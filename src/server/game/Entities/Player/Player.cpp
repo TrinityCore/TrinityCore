@@ -1239,7 +1239,6 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
-
 }
 
 void Player::setDeathState(DeathState s)
@@ -29171,6 +29170,13 @@ void Player::UpdateWarModeAuras()
         RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
         RemovePvpFlag(UNIT_BYTE2_FLAG_PVP);
     }
+}
+
+void Player::OnPhaseChange()
+{
+    Unit::OnPhaseChange();
+
+    GetMap()->UpdatePersonalPhasesForPlayer(this);
 }
 
 std::string Player::GetDebugInfo() const

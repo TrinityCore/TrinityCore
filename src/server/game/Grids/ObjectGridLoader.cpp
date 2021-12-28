@@ -84,15 +84,16 @@ class ObjectWorldLoader
         uint32& i_corpses;
 };
 
-template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellCoord const& /*cellCoord*/) { }
+template<class T>
+void ObjectGridLoaderBase::SetObjectCell(T* /*obj*/, CellCoord const& /*cellCoord*/) { }
 
-template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellCoord const& cellCoord)
+template<> void ObjectGridLoaderBase::SetObjectCell(Creature* obj, CellCoord const& cellCoord)
 {
     Cell cell(cellCoord);
     obj->SetCurrentCell(cell);
 }
 
-template<> void ObjectGridLoader::SetObjectCell(GameObject* obj, CellCoord const& cellCoord)
+template<> void ObjectGridLoaderBase::SetObjectCell(GameObject* obj, CellCoord const& cellCoord)
 {
     Cell cell(cellCoord);
     obj->SetCurrentCell(cell);
@@ -120,7 +121,7 @@ void AddObjectHelper(CellCoord &cell, CreatureMapType &m, uint32 &count, Map* ma
 }
 
 template <class T>
-void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map)
+void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>& m, uint32& count, Map* map, uint32 phaseId = 0, Optional<ObjectGuid> phaseOwner = {})
 {
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
@@ -131,11 +132,18 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
 
         T* obj = new T;
         //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: " UI64FMTD ") Loading", table, guid);
-        if (!obj->LoadFromDB(guid, map, false, false))
+        if (!obj->LoadFromDB(guid, map, false, phaseOwner.is_initialized() /*allowDuplicate*/))
         {
             delete obj;
             continue;
         }
+
+        if (phaseOwner)
+        {
+            PhasingHandler::InitDbPersonalOwnership(obj->GetPhaseShift(), *phaseOwner);
+            map->GetMultiPersonalPhaseTracker().RegisterTrackedObject(phaseId, *phaseOwner, obj);
+        }
+
         AddObjectHelper(cell, m, count, map, obj);
     }
 }
@@ -206,7 +214,40 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
-    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, %u AreaTrriggers, and %u Corpses/Bones loaded for grid %u on map %u",
+        i_gameObjects, i_creatures, i_areaTriggers, i_corpses, i_grid.GetGridId(), i_map->GetId());
+}
+
+void PersonalPhaseGridLoader::Visit(GameObjectMapType& m)
+{
+    CellCoord cellCoord = i_cell.GetCellCoord();
+    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId()))
+        LoadHelper(cell_guids->gameobjects, cellCoord, m, i_gameObjects, i_map, _phaseId, _phaseOwner);
+}
+
+void PersonalPhaseGridLoader::Visit(CreatureMapType& m)
+{
+    CellCoord cellCoord = i_cell.GetCellCoord();
+    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId()))
+        LoadHelper(cell_guids->creatures, cellCoord, m, i_creatures, i_map, _phaseId, _phaseOwner);
+}
+
+void PersonalPhaseGridLoader::Load(uint32 phaseId)
+{
+    _phaseId = phaseId;
+    i_cell.data.Part.cell_y = 0;
+    for (uint32 x = 0; x < MAX_NUMBER_OF_CELLS; ++x)
+    {
+        i_cell.data.Part.cell_x = x;
+        for (uint32 y = 0; y < MAX_NUMBER_OF_CELLS; ++y)
+        {
+            i_cell.data.Part.cell_y = y;
+
+            //Load creatures and game objects
+            TypeContainerVisitor<PersonalPhaseGridLoader, GridTypeMapContainer> visitor(*this);
+            i_grid.VisitGrid(x, y, visitor);
+        }
+    }
 }
 
 template<class T>
