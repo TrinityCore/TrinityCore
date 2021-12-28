@@ -30,6 +30,7 @@
 #include "MPSCQueue.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "PersonalPhaseTracker.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "Timer.h"
@@ -313,6 +314,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool GetUnloadLock(GridCoord const& p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
         void SetUnloadLock(GridCoord const& p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
+        void LoadGridForActiveObject(float x, float y, WorldObject const* object);
         void LoadAllCells();
         bool UnloadGrid(NGridType& ngrid, bool pForce);
         void GridMarkNoUnload(uint32 x, uint32 y);
@@ -656,7 +658,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void EnsureGridCreated(GridCoord const&);
         void EnsureGridCreated_i(GridCoord const&);
         bool EnsureGridLoaded(Cell const&);
-        void EnsureGridLoadedForActiveObject(Cell const&, WorldObject* object);
+        void EnsureGridLoadedForActiveObject(Cell const&, WorldObject const* object);
 
         void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
 
@@ -881,6 +883,16 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_set<Object*> _updateObjects;
 
         MPSCQueue<FarSpellCallback> _farSpellCallbacks;
+
+        /*********************************************************/
+        /***                   Phasing                         ***/
+        /*********************************************************/
+    public:
+        MultiPersonalPhaseTracker& GetMultiPersonalPhaseTracker() { return _multiPersonalPhaseTracker; }
+        void UpdatePersonalPhasesForPlayer(Player const* player);
+
+    private:
+        MultiPersonalPhaseTracker _multiPersonalPhaseTracker;
 };
 
 enum InstanceResetMethod

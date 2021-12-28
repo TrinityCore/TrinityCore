@@ -188,14 +188,14 @@ void CollectionMgr::LoadAccountHeirlooms(PreparedQueryResult result)
 
         uint32 bonusId = 0;
 
-        if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_120)
-            bonusId = heirloom->UpgradeItemBonusListID[3];
-        else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
-            bonusId = heirloom->UpgradeItemBonusListID[2];
-        else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
-            bonusId = heirloom->UpgradeItemBonusListID[1];
-        else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_90)
-            bonusId = heirloom->UpgradeItemBonusListID[0];
+        for (int32 upgradeLevel = std::size(heirloom->UpgradeItemID) - 1; upgradeLevel >= 0; --upgradeLevel)
+        {
+            if (flags & (1 << upgradeLevel))
+            {
+                bonusId = heirloom->UpgradeItemBonusListID[upgradeLevel];
+                break;
+            }
+        }
 
         _heirlooms[itemId] = HeirloomData(flags, bonusId);
     } while (result->NextRow());
@@ -257,25 +257,13 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
     uint32 flags = itr->second.flags;
     uint32 bonusId = 0;
 
-    if (heirloom->UpgradeItemID[0] == castItem)
+    for (size_t upgradeLevel = 0; upgradeLevel < std::size(heirloom->UpgradeItemID); ++upgradeLevel)
     {
-        flags |= HEIRLOOM_FLAG_BONUS_LEVEL_90;
-        bonusId = heirloom->UpgradeItemBonusListID[0];
-    }
-    if (heirloom->UpgradeItemID[1] == castItem)
-    {
-        flags |= HEIRLOOM_FLAG_BONUS_LEVEL_100;
-        bonusId = heirloom->UpgradeItemBonusListID[1];
-    }
-    if (heirloom->UpgradeItemID[2] == castItem)
-    {
-        flags |= HEIRLOOM_FLAG_BONUS_LEVEL_110;
-        bonusId = heirloom->UpgradeItemBonusListID[2];
-    }
-    if (heirloom->UpgradeItemID[3] == castItem)
-    {
-        flags |= HEIRLOOM_FLAG_BONUS_LEVEL_120;
-        bonusId = heirloom->UpgradeItemBonusListID[3];
+        if (heirloom->UpgradeItemID[upgradeLevel] == castItem)
+        {
+            flags |= 1 << upgradeLevel;
+            bonusId = heirloom->UpgradeItemBonusListID[upgradeLevel];
+        }
     }
 
     for (Item* item : player->GetItemListByEntry(itemId, true))
@@ -348,27 +336,6 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
         if (std::find(bonusListIDs->begin(), bonusListIDs->end(), itr->second.bonusId) == bonusListIDs->end())
             item->AddBonuses(itr->second.bonusId);
     }
-}
-
-bool CollectionMgr::CanApplyHeirloomXpBonus(uint32 itemId, uint32 level)
-{
-    if (!sDB2Manager.GetHeirloomByItemId(itemId))
-        return false;
-
-    HeirloomContainer::iterator itr = _heirlooms.find(itemId);
-    if (itr == _heirlooms.end())
-        return false;
-
-    if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_120)
-        return level <= 120;
-    if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
-        return level <= 110;
-    if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
-        return level <= 100;
-    if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_90)
-        return level <= 90;
-
-    return level <= 60;
 }
 
 void CollectionMgr::LoadMounts()

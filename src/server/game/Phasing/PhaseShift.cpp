@@ -186,3 +186,11 @@ void PhaseShift::UpdatePersonalGuid()
     if (!PersonalReferences)
         PersonalGuid.Clear();
 }
+
+bool PhaseShift::HasPersonalPhase() const
+{
+    for (PhaseRef const& phaseRef : GetPhases())
+        if (phaseRef.IsPersonal())
+            return true;
+    return false;
+}

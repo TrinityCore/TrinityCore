@@ -41,7 +41,7 @@ namespace WorldPackets
 struct ItemSetEffect
 {
     uint32 ItemSetID;
-    uint32 EquippedItemCount;
+    std::unordered_set<Item const*> EquippedItems;
     std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
 };
 

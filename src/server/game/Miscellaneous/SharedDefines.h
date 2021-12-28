@@ -2636,7 +2636,7 @@ enum Targets
     TARGET_UNIT_LINE_CASTER_TO_DEST         = 135,
     TARGET_UNK_136                          = 136,
     TARGET_UNK_137                          = 137,
-    TARGET_UNK_138                          = 138,
+    TARGET_DEST_DEST_GROUND                 = 138,
     TARGET_UNK_139                          = 139,
     TARGET_UNK_140                          = 140,
     TARGET_UNK_141                          = 141,

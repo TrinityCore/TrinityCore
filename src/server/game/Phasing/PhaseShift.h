@@ -65,6 +65,7 @@ public:
         std::vector<Condition*> const* AreaConditions;
         bool operator<(PhaseRef const& right) const { return Id < right.Id; }
         bool operator==(PhaseRef const& right) const { return Id == right.Id; }
+        bool IsPersonal() const { return Flags.HasFlag(PhaseFlags::Personal); }
     };
     struct VisibleMapIdRef
     {
@@ -85,6 +86,8 @@ public:
     using VisibleMapIdContainer = std::map<uint32, VisibleMapIdRef>;
     using UiMapPhaseIdContainer = std::map<uint32, UiMapPhaseIdRef>;
 
+    ObjectGuid GetPersonalGuid() const { return PersonalGuid; }
+
     bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);
     EraseResult<PhaseContainer> RemovePhase(uint32 phaseId);
     bool HasPhase(uint32 phaseId) const { return Phases.find(PhaseRef(phaseId, PhaseFlags::None, nullptr)) != Phases.end(); }
@@ -104,6 +107,8 @@ public:
     void ClearPhases();
 
     bool CanSee(PhaseShift const& other) const;
+
+    bool HasPersonalPhase() const;
 
 protected:
     friend class PhasingHandler;

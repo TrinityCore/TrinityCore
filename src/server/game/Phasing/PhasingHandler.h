@@ -59,6 +59,7 @@ public:
 
     static PhaseShift const& GetEmptyPhaseShift();
     static void InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
+    static void InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid);
     static void InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId);
     static bool InDbPhaseShift(WorldObject const* object, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
 
@@ -67,8 +68,10 @@ public:
     static void SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility);
     static void SetInversed(WorldObject* object, bool apply, bool updateVisibility);
 
-    static void PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift);
+    static void PrintToChat(ChatHandler* chat, WorldObject const* target);
     static std::string FormatPhases(PhaseShift const& phaseShift);
+
+    static bool IsPersonalPhase(uint32 phaseId);
 
 private:
     static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);

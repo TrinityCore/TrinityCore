@@ -35,7 +35,7 @@ enum MapObjectCellMoveState
 class TC_GAME_API MapObject
 {
     friend class Map; //map for moving creatures
-    friend class ObjectGridLoader; //grid loader for loading creatures
+    friend class ObjectGridLoaderBase; //grid loader for loading creatures
 
 protected:
     MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE)

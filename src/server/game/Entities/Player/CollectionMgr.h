@@ -34,10 +34,12 @@ struct ItemModifiedAppearanceEntry;
 enum HeirloomPlayerFlags
 {
     HEIRLOOM_FLAG_NONE                    = 0x00,
-    HEIRLOOM_FLAG_BONUS_LEVEL_90          = 0x01,
-    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02,
-    HEIRLOOM_FLAG_BONUS_LEVEL_110         = 0x04,
-    HEIRLOOM_FLAG_BONUS_LEVEL_120         = 0x08
+    HEIRLOOM_FLAG_UPGRADE_LEVEL_1         = 0x01,
+    HEIRLOOM_FLAG_UPGRADE_LEVEL_2         = 0x02,
+    HEIRLOOM_FLAG_UPGRADE_LEVEL_3         = 0x04,
+    HEIRLOOM_FLAG_UPGRADE_LEVEL_4         = 0x08,
+    HEIRLOOM_FLAG_UPGRADE_LEVEL_5         = 0x10,
+    HEIRLOOM_FLAG_UPGRADE_LEVEL_6         = 0x20,
 };
 
 enum HeirloomItemFlags
@@ -109,7 +111,6 @@ public:
     void CheckHeirloomUpgrades(Item* item);
 
     bool UpdateAccountHeirlooms(uint32 itemId, uint32 flags);
-    bool CanApplyHeirloomXpBonus(uint32 itemId, uint32 level);
     uint32 GetHeirloomBonus(uint32 itemId) const;
     HeirloomContainer const& GetAccountHeirlooms() const { return _heirlooms; }
 
