@@ -804,6 +804,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetAI(UnitAI* newAI);
         UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
         void RefreshAI();
+        UnitAI* GetScheduledChangeAI();
+        bool HasScheduledAIChange() const;
     public:
 
         void AddToWorld() override;
