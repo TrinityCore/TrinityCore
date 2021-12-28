@@ -1137,10 +1137,17 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
 
 void Spell::SelectImplicitConeTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32 effMask)
 {
-    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
+    Position coneSrc(*m_caster);
+    switch (targetType.GetReferenceType())
     {
-        ASSERT(false && "Spell::SelectImplicitConeTargets: received not implemented target reference type");
-        return;
+        case TARGET_REFERENCE_TYPE_CASTER:
+            break;
+        case TARGET_REFERENCE_TYPE_DEST:
+            if (m_caster->GetExactDist2d(m_targets.GetDstPos()) > 0.1f)
+                coneSrc.SetOrientation(m_caster->GetAbsoluteAngle(m_targets.GetDstPos()));
+            break;
+        default:
+            break;
     }
     std::list<WorldObject*> targets;
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
@@ -1150,7 +1157,7 @@ void Spell::SelectImplicitConeTargets(SpellEffectInfo const& spellEffectInfo, Sp
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
     {
-        Trinity::WorldObjectSpellConeTargetCheck check(DegToRad(m_spellInfo->ConeAngle), m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
+        Trinity::WorldObjectSpellConeTargetCheck check(coneSrc, DegToRad(m_spellInfo->ConeAngle), m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
         SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
 
@@ -8499,20 +8506,20 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target) const
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
-WorldObjectSpellConeTargetCheck::WorldObjectSpellConeTargetCheck(float coneAngle, float lineWidth, float range, WorldObject* caster,
+WorldObjectSpellConeTargetCheck::WorldObjectSpellConeTargetCheck(Position const& coneSrc, float coneAngle, float lineWidth, float range, WorldObject* caster,
     SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType)
-    : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList, objectType), _coneAngle(coneAngle), _lineWidth(lineWidth) { }
+    : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList, objectType), _coneSrc(coneSrc), _coneAngle(coneAngle), _lineWidth(lineWidth) { }
 
 bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target) const
 {
     if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_BACK))
     {
-        if (!_caster->isInBack(target, _coneAngle))
+        if (_coneSrc.HasInArc(-std::abs(_coneAngle), target))
             return false;
     }
     else if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_LINE))
     {
-        if (!_caster->HasInLine(target, target->GetCombatReach(), _lineWidth))
+        if (!_coneSrc.HasInLine(target, target->GetCombatReach(), _lineWidth))
             return false;
     }
     else
@@ -8520,7 +8527,7 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target) const
         if (!_caster->IsUnit() || !_caster->ToUnit()->IsWithinBoundaryRadius(target->ToUnit()))
             // ConeAngle > 0 -> select targets in front
             // ConeAngle < 0 -> select targets in back
-            if (_caster->HasInArc(_coneAngle, target) != G3D::fuzzyGe(_coneAngle, 0.f))
+            if (_coneSrc.HasInArc(_coneAngle, target) != G3D::fuzzyGe(_coneAngle, 0.f))
                 return false;
     }
     return WorldObjectSpellAreaTargetCheck::operator ()(target);

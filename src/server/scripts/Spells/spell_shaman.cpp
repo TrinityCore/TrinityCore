@@ -305,7 +305,7 @@ class spell_sha_crash_lightning : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_crash_lightning::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_crash_lightning::CountTargets, EFFECT_0, TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY);
         AfterCast += SpellCastFn(spell_sha_crash_lightning::TriggerCleaveBuff);
     }
 

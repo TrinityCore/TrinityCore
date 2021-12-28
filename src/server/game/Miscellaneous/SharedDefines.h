@@ -2602,7 +2602,7 @@ enum Targets
     TARGET_UNIT_PASSENGER_5                 = 101,
     TARGET_UNIT_PASSENGER_6                 = 102,
     TARGET_UNIT_PASSENGER_7                 = 103,
-    TARGET_UNIT_CONE_ENEMY_104              = 104,
+    TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY   = 104,
     TARGET_UNIT_UNK_105                     = 105, // 1 spell
     TARGET_DEST_CHANNEL_CASTER              = 106,
     TARGET_UNK_DEST_AREA_UNK_107            = 107, // not enough info - only generic spells avalible
