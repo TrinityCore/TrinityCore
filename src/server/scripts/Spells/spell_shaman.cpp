@@ -1007,14 +1007,14 @@ class spell_sha_natures_guardian : public AuraScript
 {
     PrepareAuraScript(spell_sha_natures_guardian);
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetActionTarget()->HealthBelowPct(GetEffect(EFFECT_0)->GetAmount());
+        return eventInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount());
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_natures_guardian::CheckProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_natures_guardian::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
