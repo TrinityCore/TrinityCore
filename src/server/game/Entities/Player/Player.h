@@ -1078,7 +1078,7 @@ private:
 };
 
 uint32 constexpr PLAYER_MAX_HONOR_LEVEL = 500;
-uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 110;
+uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 10;
 uint32 constexpr SPELL_PVP_RULES_ENABLED = 134735;
 
 enum class ZonePVPTypeOverride : uint32
@@ -1821,7 +1821,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         TalentLearnResult LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown);
         bool AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, uint8 slot);
-        void RemovePvpTalent(PvpTalentEntry const* talent);
+        void RemovePvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup);
         void TogglePvpTalents(bool enable);
         bool HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const;
         void EnablePvpRules(bool dueToCombat = false);

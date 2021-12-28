@@ -2393,9 +2393,6 @@ void Player::GiveLevel(uint8 level)
     InitTalentForLevel();
     InitTaxiNodesForLevel();
 
-    if (level < PLAYER_LEVEL_MIN_HONOR)
-        ResetPvpTalents();
-
     UpdateAllStats();
 
     _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
@@ -2456,6 +2453,12 @@ void Player::InitTalentForLevel()
     }
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MaxTalentTiers), talentTiers);
+
+    if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
+        for (uint8 spec = 0; spec < MAX_SPECIALIZATIONS; ++spec)
+            for (size_t slot = sDB2Manager.GetPvpTalentNumSlotsAtLevel(level, Classes(GetClass())); slot < MAX_PVP_TALENT_SLOTS; ++slot)
+                if (PvpTalentEntry const* pvpTalent = sPvpTalentStore.LookupEntry(GetPvpTalentMap(spec)[slot]))
+                    RemovePvpTalent(pvpTalent, spec);
 
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(); // update at client
@@ -3510,19 +3513,10 @@ bool Player::ResetTalents(bool noCost)
 
 void Player::ResetPvpTalents()
 {
-    for (uint32 talentId = 0; talentId < sPvpTalentStore.GetNumRows(); ++talentId)
-    {
-        PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(talentId);
-        if (!talentInfo)
-            continue;
-
-        RemovePvpTalent(talentInfo);
-    }
-
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    _SaveTalents(trans);
-    _SaveSpells(trans);
-    CharacterDatabase.CommitTransaction(trans);
+    for (uint8 spec = 0; spec < MAX_SPECIALIZATIONS; ++spec)
+        for (uint32 talentId : GetPvpTalentMap(spec))
+            if (PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(talentId))
+                RemovePvpTalent(talentInfo, spec);
 }
 
 Mail* Player::GetMail(uint32 id)
@@ -18497,8 +18491,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     InitTalentForLevel();
     LearnDefaultSkills();
     LearnCustomSpells();
-    if (GetLevel() < PLAYER_LEVEL_MIN_HONOR)
-        ResetPvpTalents();
 
     // must be before inventory (some items required reputation check)
     m_reputationMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
@@ -26992,6 +26984,8 @@ void Player::ResetTalentSpecialization()
                 for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(class_, t, c))
                     RemoveTalent(talent);
 
+    ResetPvpTalents();
+
     RemoveSpecializationSpells();
 
     ChrSpecializationEntry const* defaultSpec = ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()));
@@ -27047,7 +27041,7 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spe
             return TALENT_FAILED_CANT_REMOVE_TALENT;
         }
 
-        RemovePvpTalent(talent);
+        RemovePvpTalent(talent, GetActiveTalentGroup());
     }
 
     if (!AddPvpTalent(talentInfo, GetActiveTalentGroup(), slot))
@@ -27084,7 +27078,7 @@ bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup,
     return true;
 }
 
-void Player::RemovePvpTalent(PvpTalentEntry const* talent)
+void Player::RemovePvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE);
     if (!spellInfo)
@@ -27097,8 +27091,8 @@ void Player::RemovePvpTalent(PvpTalentEntry const* talent)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
 
     // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-    auto plrPvpTalent = std::find(GetPvpTalentMap(GetActiveTalentGroup()).begin(), GetPvpTalentMap(GetActiveTalentGroup()).end(), talent->ID);
-    if (plrPvpTalent != GetPvpTalentMap(GetActiveTalentGroup()).end())
+    auto plrPvpTalent = std::find(GetPvpTalentMap(activeTalentGroup).begin(), GetPvpTalentMap(activeTalentGroup).end(), talent->ID);
+    if (plrPvpTalent != GetPvpTalentMap(activeTalentGroup).end())
         *plrPvpTalent = 0;
 }
 
