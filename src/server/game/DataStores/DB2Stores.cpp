@@ -2038,6 +2038,14 @@ CurrencyContainerEntry const* DB2Manager::GetCurrencyContainerForCurrencyQuantit
     return nullptr;
 }
 
+std::pair<float, float> DB2Manager::GetCurveXAxisRange(uint32 curveId) const
+{
+    if (std::vector<CurvePointEntry const*> const* points = Trinity::Containers::MapGetValuePtr(_curvePoints, curveId))
+        return { points->front()->Pos.X, points->back()->Pos.X };
+
+    return { 0.0f, 0.0f };
+}
+
 enum class CurveInterpolationMode : uint8
 {
     Linear = 0,

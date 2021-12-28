@@ -8012,11 +8012,6 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
         if (!spellproto)
             continue;
 
-        if (spellproto->HasAura(SPELL_AURA_MOD_XP_PCT)
-            && !GetSession()->GetCollectionMgr()->CanApplyHeirloomXpBonus(item->GetEntry(), GetLevel())
-            && sDB2Manager.GetHeirloomByItemId(item->GetEntry()))
-            continue;
-
         if (effectData->ChrSpecializationID && effectData->ChrSpecializationID != GetPrimarySpecialization())
             continue;
 
@@ -8553,7 +8548,7 @@ void Player::_RemoveAllItemMods()
 
             // item set bonuses not dependent from item broken state
             if (proto->GetItemSet())
-                RemoveItemsSetItem(this, proto);
+                RemoveItemsSetItem(this, m_items[i]);
 
             if (m_items[i]->IsBroken() || !CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
                 continue;
@@ -8633,6 +8628,15 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
                 continue;
 
             _ApplyItemMods(m_items[i], i, apply);
+
+            // Update item sets for heirlooms
+            if (sDB2Manager.GetHeirloomByItemId(m_items[i]->GetEntry()) && m_items[i]->GetTemplate()->GetItemSet())
+            {
+                if (apply)
+                    AddItemsSetItem(this, m_items[i]);
+                else
+                    RemoveItemsSetItem(this, m_items[i]);
+            }
         }
     }
 }
@@ -12596,7 +12600,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
                 ItemTemplate const* pProto = ASSERT_NOTNULL(pItem->GetTemplate());
                 if (pProto->GetItemSet())
-                    RemoveItemsSetItem(this, pProto);
+                    RemoveItemsSetItem(this, pItem);
 
                 _ApplyItemMods(pItem, slot, false, update);
 
@@ -12736,7 +12740,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             {
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
                 if (pProto->GetItemSet())
-                    RemoveItemsSetItem(this, pProto);
+                    RemoveItemsSetItem(this, pItem);
 
                 _ApplyItemMods(pItem, slot, false);
             }
