@@ -95,11 +95,6 @@ enum MiscSpells
     SPELL_PET_NETHERWINDS_FATIGUED              = 160455
 };
 
-enum MiscNpcs
-{
-    NPC_HEALING_RAIN_INVISIBLE_STALKER          = 73400,
-};
-
 // 273221 - Aftershock
 class spell_sha_aftershock : public AuraScript
 {
@@ -576,6 +571,11 @@ class spell_sha_healing_rain : public SpellScript
 {
     PrepareSpellScript(spell_sha_healing_rain);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_HEALING_RAIN_DYNOBJECT, SPELL_SHAMAN_HEALING_RAIN_HEAL });
+    }
+
     void HandleOnHit()
     {
         if (WorldLocation const* loc = GetExplTargetDest())
@@ -591,6 +591,27 @@ class spell_sha_healing_rain : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_sha_healing_rain::HandleOnHit);
+    }
+};
+
+// 73921 - Healing Rain (Heal)
+class spell_sha_healing_rain_heal : public SpellScript
+{
+    PrepareSpellScript(spell_sha_healing_rain_heal);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        uint32 const maxTargets = 6;
+        if (targets.size() > maxTargets)
+        {
+            targets.sort(Trinity::HealthPctOrderPred());
+            targets.resize(maxTargets);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -1359,6 +1380,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_flametongue_weapon);
     RegisterAuraScript(spell_sha_flametongue_weapon_aura);
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, spell_sha_healing_rain_aura);
+    RegisterSpellScript(spell_sha_healing_rain_heal);
     RegisterSpellScript(spell_sha_healing_stream_totem_heal);
     RegisterSpellScript(spell_sha_heroism);
     RegisterAuraScript(spell_sha_item_lightning_shield);
