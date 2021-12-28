@@ -130,7 +130,6 @@ enum Spells
     SPELL_RIVE_AREATRIGGER                              = 353375,
     SPELL_RIVE_DAMAGE                                   = 348145,
     SPELL_RIVEN_DEBRIS                                  = 353413,
-
     SPELL_RIVE_MYTHIC_COPY                              = 358431,
 
     // Banshee Wail
@@ -141,14 +140,12 @@ enum Spells
     SPELL_BANSHEE_WAIL_MARKER                           = 357719,
     SPELL_BANSHEE_WAIL_MASTER                           = 355489,
 
-    SPELL_TELEPORT_TO_PHASE_TWO_01                      = 350903,
-    SPELL_TELEPORT_TO_PHASE_TWO_02                      = 350904, // This one has a spell trigger, research further
+    SPELL_TELEPORT_TO_PHASE_TWO                         = 350903,
     SPELL_TELEPORT_NO_IDEA                              = 350905, // TARGET_DEST_DB, not sniffed
     SPELL_TELEPORT_TO_PHASE_THREE                       = 350906, // TARGET_DEST_NEARBY_ENTRY
 
     // Banshee Form
     SPELL_BANSHEE_FORM                                  = 348146,
-
     SPELL_BANSHEE_READY_STANCE                          = 357758,
 
 
@@ -258,6 +255,8 @@ enum Actions
     ACTION_ACTIVATE_DOMINATION_ARROW,
     ACTION_WAILING_ARROW,
     ACTION_PREPARE_INTERMISSION,
+    ACTION_PREPARE_PHASE_TWO,
+    ACTION_OPEN_PORTAL_TO_PHASE_TWO,
     ACTION_PREPARE_PHASE_THREE,
     ACTION_OPEN_PORTAL_TO_PHASE_THREE,
     ACTION_INITIATE_PHASE_THREE,
@@ -361,7 +360,7 @@ enum SpellVisualKits
 
     SPELL_VISUAL_KIT_PLAYER_ACTIVATE_FIELDS             = 144754,
 
-    SPELL_VISUAL_KIT_GENERIC_TELEPORT_APPEAR            = 147629,
+    SPELL_VISUAL_KIT_GENERIC_TELEPORT                   = 147629,
 };
 
 enum SpellVisuals
@@ -470,6 +469,11 @@ Position const RiveFinish =            { 235.1163f, -829.90106f, 4105.0386f, 5.4
 
 Position const SylvanasPhase2Pre =     { -14.5625f, -943.441f,   4999.990f,  0.8928f   };
 
+Position const SylvanasWavePos[10] =
+{
+    { 133.5104f, -829.4792f, 4999.968f, 0.4383f },
+};
+
 Position const SylvanasPhase3Pre =     { -258.991f, -1265.9966f, 5667.114f,  0.3118f   };
 
 Position const SylvanasPlaform1Pos =   { -280.646f, -1245.48f,   5672.13f,   2.3046f   };
@@ -506,13 +510,6 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_DUAL_WIELD, true);
         DoCastSelf(SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING, true);
         me->AddAura(SPELL_RANGER_BOW_STANCE, me);
-
-        scheduler.Schedule(3s, [this](TaskContext task)
-        {
-            me->SendPlayOrphanSpellVisual(me->GetPosition(), 109655, 0.5f, true, false);
-
-            task.Repeat(3s);
-        });
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -601,11 +598,15 @@ struct boss_sylvanas_windrunner : public BossAI
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
+        for (uint8 i = 0; i < 4; i++)
+            me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+
+        DoAction(ACTION_PREPARE_PHASE_TWO);
+        /*
         Talk(SAY_AGGRO);
 
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
-
         events.SetPhase(PHASE_ONE);     
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
@@ -622,6 +623,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
         if (me->IsWithinMeleeRange(me->GetVictim()))
             DoCastSelf(SPELL_RANGER_DAGGERS_STANCE, true);
+        */
     }
 
     void DoAction(int32 action) override
@@ -852,6 +854,58 @@ struct boss_sylvanas_windrunner : public BossAI
                 break;
             }
 
+            case ACTION_PREPARE_PHASE_TWO:
+            {
+                DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+
+                DoCastSelf(SPELL_BANSHEE_FORM, true);
+                DoCastSelf(SPELL_BANSHEE_SHROUD, true);
+
+                me->NearTeleportTo(SylvanasPhase2Pre, false);
+
+                if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                {
+                    if (jaina->IsAIEnabled())
+                        jaina->AI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_TWO);
+                }
+
+                scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                {
+                    for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+                    {
+                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                            shadowCopy->NearTeleportTo(me->GetPosition(), false);
+                    }
+                });
+
+                scheduler.Schedule(3s + 450ms, [this](TaskContext /*task*/)
+                {
+                     me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
+                });
+
+                scheduler.Schedule(3s + 500ms, [this](TaskContext /*task*/)
+                {
+                     DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
+                     DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 30750));
+
+                     me->SendPlayOrphanSpellVisual(SylvanasWavePos[0], SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+
+                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                         shadowCopy->CastSpell(SylvanasWavePos[0], SPELL_WINDRUNNER_MOVE, true);
+                });
+
+                scheduler.Schedule(4s, [this](TaskContext /*task*/)
+                {
+                     me->NearTeleportTo(SylvanasWavePos[0], false);
+
+                     me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+
+                     DoCastSelf(SPELL_BANSHEE_READY_STANCE, true);
+                });
+
+                break;
+            }
+
             case ACTION_PREPARE_PHASE_THREE:
             {
                 DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
@@ -863,7 +917,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (jaina->IsAIEnabled())
                         jaina->AI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_THREE);
                 }
-
                 break;
             }
 
@@ -2948,8 +3001,18 @@ enum BolvarActions
 
 enum BolvarTexts
 {
-    SAY_PREPARE_PHASE_THREE = 12
+    SAY_FIRST_CHAIN                                     = 0,
+    SAY_SECOND_CHAIN                                    = 1,
+    SAY_FIRST_RUIN                                      = 2,
+    SAY_WINDS_OF_ICECROWN_01                            = 3,
+    SAY_THIRD_CHAIN_START                               = 4,
+    SAY_THIRD_CHAIN_FINISH                              = 5,
+    SAY_PREPARE_PHASE_THREE                             = 11
 };
+
+Position const BolvarPrePhaseTwoPos = { 209.80556f, -823.7917f, 4999.985f, 4.52320f };
+
+Position const BolvarFirstChainPos = { 205.50174f, -839.9323f, 5000.162f };
 
 Position const BolvarPrePhaseThreePos = { -249.54861f, -1278.5382f, 5667.1157f, 1.5865f };
 
@@ -3079,6 +3142,13 @@ enum ThrallActions
 
 };
 
+Position const ThrallPrePhaseTwoPos = { 204.6475f, -842.7760f, 4999.9956f, 4.52320f };
+
+Position const ThrallFirstChainPos[3] =
+{
+    { 207.5f, -831.4184f, 5000.2036f  },
+};
+
 Position const ThrallPrePhaseThreePos = { -242.277f, -1282.972f, 5667.1157f, 1.53310f };
 
 // Thrall - 176532
@@ -3171,23 +3241,33 @@ private:
 
 enum JainaSpells
 {
-    SPELL_ICE_BOLT = 350002,
-    SPELL_COMET_BARRAGE = 354938,
-    SPELL_FRIGID_SHARDS = 354933,
-    SPELL_CONE_OF_COLD = 350003,
-    SPELL_SEARING_BLAST = 355507,
+    SPELL_ICE_BOLT                                      = 350002,
+    SPELL_COMET_BARRAGE                                 = 354938,
+    SPELL_FRIGID_SHARDS                                 = 354933,
+    SPELL_CONE_OF_COLD                                  = 350003,
+    SPELL_SEARING_BLAST                                 = 355507,
 
-    SPELL_PORTAL_TO_ORIBOS_PHASE_3 = 357102,
-    SPELL_TELEPORT_TO_PHASE_3 = 350906,
-    SPELL_TELEPORT_TO_PHASE_3_RANDOM_POSITION = 357103,
-    SPELL_TELEPORT_TO_PHASE_3_MISSILE = 357101,
-    SPELL_FROZEN_SHELL = 351762,
-    SPELL_BLASPHEMY_STUN = 357728
+    SPELL_TELEPORT_PHASE_TWO_MASTER                     = 351890,
+    SPELL_CHANNEL_ICE                                   = 352843,
+    SPELL_CHANNEL_ICE_AREATRIGGER_01                    = 354476,
+    SPELL_CHANNEL_ICE_AREATRIGGER_02                    = 354573,
+    SPELL_CHANNEL_ICE_AREATRIGGER_03                    = 354574,
+    SPELL_CHANNEL_ICE_BRIDGE_01                         = 348148,
+    SPELL_CHANNEL_ICE_BRIDGE_02                         = 351837,
+    SPELL_CHANNEL_ICE_BRIDGE_03                         = 351838,
+
+    SPELL_TELEPORT_PLAYERS_TO_PHASE_2                   = 355073,
+    SPELL_PORTAL_TO_ORIBOS_PHASE_3                      = 357102,
+    SPELL_TELEPORT_TO_PHASE_3                           = 350906,
+    SPELL_TELEPORT_TO_PHASE_3_RANDOM_POSITION           = 357103,
+    SPELL_TELEPORT_TO_PHASE_3_MISSILE                   = 357101,
+    SPELL_FROZEN_SHELL                                  = 351762,
+    SPELL_BLASPHEMY_STUN                                = 357728
 };
 
 enum JainaEvents
 {
-    EVENT_FRIGID_SHARDS = 1,
+    EVENT_FRIGID_SHARDS                                 = 1,
     EVENT_CONE_OF_COLD,
     EVENT_COMET_BARRAGE
 };
@@ -3199,19 +3279,41 @@ enum JainaActions
 
 enum JainaTexts
 {
-    SAY_PREPARING_PORTAL_TO_PHASE_THREE = 9,
-    SAY_FINISHING_PORTAL_TO_PHASE_THREE,
-    SAY_FINISHED_PORTAL_TO_PHASE_THREE,
-    SAY_FREED_PLAYERS_ON_PHASE_THREE
+    SAY_PREPARE_PHASE_TWO                               = 0,
+    SAY_START_PHASE_TWO                                 = 1,
+    SAY_CALL_FOR_AID                                    = 2,
+    SAY_OVERRUN                                         = 3,
+    SAY_THANKS                                          = 4,
+    SAY_ENCOURAGE_PLAYERS                               = 5,
+    SAY_AID_THRALL                                      = 6,
+    SAY_FIGHTING_SYLVANAS_                              = 7,
+    SAY_ASK_FOR_ANDUIN                                  = 8,
+    SAY_PREPARING_PORTAL_TO_PHASE_THREE                 = 9,
+    SAY_FINISHING_PORTAL_TO_PHASE_THREE                 = 10,
+    SAY_FINISHED_PORTAL_TO_PHASE_THREE                  = 11,
+    SAY_FREED_PLAYERS_ON_PHASE_THREE                    = 12
 };
 
 enum JainaVisuals
 {
-    SPELL_VISUAL_KIT_JAINA_BREAK_BLASPHEMY = 149324,
-    SPELL_VISUAL_KIT_JAINA_TELEPORT_PLAYERS = 149323,
+    SPELL_VISUAL_KIT_JAINA_BREAK_BLASPHEMY              = 149324,
+    SPELL_VISUAL_KIT_JAINA_TELEPORT_PLAYERS             = 149323
 };
 
-Position const JainaPrePhaseThreePos = { -258.666f, -1284.191f, 5667.1157f, 1.58863f };
+Position const JainaPrePhaseTwoPos =    { 216.5781f, -831.4253f, 4999.9917f, 5.26530f };
+
+Position const JainaChannelIceTargetPos[3] =
+{
+    { 158.634f, -832.84f, 4999.5f, 4.3633f },
+};
+
+Position const JainaFirstChainPos[2] =
+{
+    { 216.20746f, -831.7890f, 5000.323f, 2.7889f },
+    { 194.35417f, -846.6875f, 4999.989f, 2.7889f }
+};
+
+Position const JainaPrePhaseThreePos =  { -258.666f, -1284.191f, 5667.1157f, 1.58863f };
 
 Position const PlayerPrePhaseThreePos = { -250.200f, -1292.985f, 5667.1147f, 1.53310f };
 
@@ -3246,10 +3348,9 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.SetPhase(PHASE_THREE);
-        _events.ScheduleEvent(EVENT_FRIGID_SHARDS, 5s, 1, PHASE_THREE);
-        _events.ScheduleEvent(EVENT_CONE_OF_COLD, 8s, 1, PHASE_THREE);
-        _events.ScheduleEvent(EVENT_COMET_BARRAGE, 14s, 1, PHASE_THREE);
+        _events.ScheduleEvent(EVENT_COMET_BARRAGE, 5s, 1);
+        _events.ScheduleEvent(EVENT_FRIGID_SHARDS, 10s, 1);
+        _events.ScheduleEvent(EVENT_CONE_OF_COLD, 14s, 1);
     }
 
     void DoAction(int32 action) override
@@ -3272,6 +3373,108 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
 
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     AttackStart(sylvanas);
+                break;
+            }
+
+            case ACTION_OPEN_PORTAL_TO_PHASE_TWO:
+            {
+                DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 250.0f);
+
+                me->NearTeleportTo(JainaPrePhaseTwoPos, false);
+
+                if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                {
+                    bolvar->NearTeleportTo(BolvarPrePhaseTwoPos, false);
+
+                    if (bolvar->IsAIEnabled())
+                        bolvar->AI()->DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+                }
+
+                if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                {
+                    thrall->NearTeleportTo(ThrallPrePhaseTwoPos, false);
+
+                    if (thrall->IsAIEnabled())
+                        thrall->AI()->DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+                }
+
+                _scheduler.Schedule(50ms, [this, playerList](TaskContext /*task*/)
+                {
+                    for (Player* player : playerList)
+                        player->CastSpell(player, SPELL_TELEPORT_TO_PHASE_TWO, true);
+                });
+
+                _scheduler.Schedule(100ms, [this](TaskContext /*task*/)
+                {
+                    DoCastSelf(SPELL_ANCHOR_HERE, true);
+
+                    me->HandleEmoteCommand(EMOTE_STATE_READY1H_ALLOW_MOVEMENT);
+
+                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        bolvar->CastSpell(bolvar, SPELL_ANCHOR_HERE, true);
+
+                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                        thrall->CastSpell(thrall, SPELL_ANCHOR_HERE, true);
+                });
+
+                _scheduler.Schedule(150ms, [this, playerList](TaskContext /*task*/)
+                {
+                    for (Player* player : playerList)
+                        player->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+
+                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_JAINA_KNEEL_THEN_STAND, 0, 0);
+
+                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+
+                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                    {
+                        thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
+                        thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_THRALL_KNEEL_THEN_STAND, 0, 0);
+                    }
+                });
+
+                _scheduler.Schedule(2s + 750ms, [this](TaskContext /*task*/)
+                {
+                    Talk(SAY_PREPARE_PHASE_TWO);
+                });
+
+                _scheduler.Schedule(5s + 578ms, [this](TaskContext /*task*/)
+                {
+                    me->GetMotionMaster()->MovePoint(0, JainaFirstChainPos[0], false);
+                });
+
+                _scheduler.Schedule(5s + 578ms, [this](TaskContext /*task*/)
+                {
+                    if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
+                        thrall->GetMotionMaster()->MovePoint(0, ThrallFirstChainPos[0], false);
+                });
+
+                _scheduler.Schedule(5s + 578ms, [this](TaskContext /*task*/)
+                {
+                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        bolvar->AI()->Talk(SAY_FIRST_CHAIN);
+                });
+
+                _scheduler.Schedule(6s + 890ms, [this](TaskContext /*task*/)
+                {
+                    if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        bolvar->GetMotionMaster()->MovePoint(0, BolvarFirstChainPos, false);
+                });
+
+                _scheduler.Schedule(8s + 93ms, [this](TaskContext /*task*/)
+                {
+                    me->CastSpell(JainaFirstChainPos[1], SPELL_TELEPORT_PHASE_TWO_MASTER, true);
+                });
+
+                _scheduler.Schedule(8s + 600ms, [this](TaskContext /*task*/)
+                {
+                    FormFrozenBridge(JainaChannelIceTargetPos[0]);
+                });
                 break;
             }
 
@@ -3512,6 +3715,42 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
         DoSpellAttackIfReady(SPELL_ICE_BOLT);
     }
 
+    void FormFrozenBridge(Position bridgePos)
+    {
+        DoCastSelf(SPELL_CHANNEL_ICE, false);
+
+        uint32 bridgeAreaTriggerSpell;
+        uint32 bridgeGameObjectSpell;
+
+        switch (uint8 randomBridge = urand(0, 2))
+        {
+            case 0:
+                bridgeAreaTriggerSpell = SPELL_CHANNEL_ICE_AREATRIGGER_01;
+                bridgeGameObjectSpell = SPELL_CHANNEL_ICE_BRIDGE_01;
+                break;
+            case 1:
+                bridgeAreaTriggerSpell = SPELL_CHANNEL_ICE_AREATRIGGER_02;
+                bridgeGameObjectSpell = SPELL_CHANNEL_ICE_BRIDGE_02;
+                break;
+            case 2:
+                bridgeAreaTriggerSpell = SPELL_CHANNEL_ICE_AREATRIGGER_03;
+                bridgeGameObjectSpell = SPELL_CHANNEL_ICE_BRIDGE_03;
+                break;
+            default:
+                break;
+        }
+
+        _scheduler.Schedule(1s, [this, bridgePos, bridgeAreaTriggerSpell, bridgeGameObjectSpell](TaskContext /*task*/)
+        {
+            me->CastSpell(bridgePos, bridgeAreaTriggerSpell, true);
+        });
+
+        _scheduler.Schedule(5s, [this, bridgePos, bridgeAreaTriggerSpell, bridgeGameObjectSpell](TaskContext /*task*/)
+        {
+            me->CastSpell(bridgePos, bridgeGameObjectSpell, true);
+        });
+    }
+
 private:
     InstanceScript* _instance;
     EventMap _events;
@@ -3560,6 +3799,31 @@ class spell_sylvanas_windrunner_comet_barrage : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_comet_barrage::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// Teleport to Phase Two - 350903
+class spell_sylvanas_windrunner_teleport_to_phase_two : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_teleport_to_phase_two);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        {
+            if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                GetCaster()->CastSpell(jaina->GetRandomPoint(jaina->GetPosition(), frand(2.0f, 8.0f)), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_teleport_to_phase_two::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -4143,7 +4407,6 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
     RegisterSpellScript(spell_sylvanas_windrunner_raze);
 
-    // Generic
     RegisterAuraScript(spell_sylvanas_windrunner_energize_power_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_finish_boss);
@@ -4152,6 +4415,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_jaina);
     RegisterAuraScript(spell_sylvanas_windrunner_frigid_shards);
     RegisterSpellScript(spell_sylvanas_windrunner_comet_barrage);
+    RegisterSpellScript(spell_sylvanas_windrunner_teleport_to_phase_two);
 
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_bolvar);
     RegisterSpellScript(spell_sylvanas_windrunner_winds_of_icecrown);

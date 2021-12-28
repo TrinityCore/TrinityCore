@@ -257,7 +257,7 @@ public:
                                 torghastSpike->SetSpellVisualId(0);
                         }
 
-                        Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 3s);
+                        Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
                     }
 
                     break;

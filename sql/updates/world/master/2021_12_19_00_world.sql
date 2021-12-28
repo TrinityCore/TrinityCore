@@ -4,9 +4,10 @@ SET @OGUID := 650000;
 
 DELETE FROM `access_requirement` WHERE `mapId` IN (2450);
 INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max`, `item`, `item2`, `quest_done_A`, `quest_done_H`, `completed_achievement`, `quest_failed_text`, `comment`) VALUES 
-(2450, 14, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Normal Mode'),
-(2450, 15, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Heroic Mode'),
-(2450, 16, 60, 65, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Mythic Mode');
+(2450, 17, 60, 0, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Looking for Raid Mode'),
+(2450, 14, 60, 0, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Normal Mode'),
+(2450, 15, 60, 0, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Heroic Mode'),
+(2450, 16, 60, 0, 0, 0, 0, 0, 0, NULL, 'Sanctum of Domination - Mythic Mode');
 
 DELETE FROM `instance_template` WHERE `map` IN (2450);
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
@@ -74,7 +75,7 @@ INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `Titl
 
 DELETE FROM `creature_template_addon` WHERE `entry`=175732;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(175732, 0, 0, 0, 1, 0, 0, 0, 0, '');
+(175732, 0, 0, 0, 1, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=175732;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
@@ -82,7 +83,10 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=175732;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(175732, 14, 3, 3, 2104, 41079);
+(175732, 17, 3, 3, 2107, 41079),
+(175732, 14, 3, 3, 2104, 41079),
+(175732, 15, 3, 3, 2105, 41079),
+(175732, 16, 3, 3, 2106, 41079);
 
 DELETE FROM `creature_model_info` WHERE `DisplayID`=101311;
 INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
@@ -326,22 +330,28 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (359431, 'spell_sylvanas_windrunner_activate_finish_boss');
 
  -- Torghast Spike
-DELETE FROM `gameobject_template` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);
+DELETE FROM `gameobject_template` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754, 365171, 368343, 368344, 368345, 368346, 365172);
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `Data8`, `Data9`, `Data10`, `Data11`, `Data12`, `Data13`, `Data14`, `Data15`, `Data16`, `Data17`, `Data18`, `Data19`, `Data20`, `Data21`, `Data22`, `Data23`, `Data24`, `Data25`, `Data26`, `Data27`, `Data28`, `Data29`, `Data30`, `Data31`, `Data32`, `Data33`, `Data34`, `ContentTuningId`, `AIName`, `ScriptName`, `VerifiedBuild`) VALUES 
-(368743, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368744, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368745, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368746, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368747, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368748, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368749, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368750, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368751, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368752, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368753, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
-(368754, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079);
+(368743, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368744, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368745, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368746, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368747, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368748, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368749, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368750, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368751, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368752, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368753, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(368754, 10, 69768, 'Torghast Spike', '', '', '', 0.854589, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41079),
+(365171, 43, 70051, 'Frozen Bridge', '', '', '',  1, 2485, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
+(368343, 43, 70205, 'Frozen Bridge', '', '', '',  1, 2486, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
+(368344, 43, 69874, 'Frozen Bridge', '', '', '',  1, 2487, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
+(368345, 43, 70203, 'Earthen Bridge', '', '', '', 1, 2489, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
+(368346, 43, 70202, 'Earthen Bridge', '', '', '', 1, 2490, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
+(365172, 43, 70052, 'Earthen Bridge', '', '', '', 1, 2488, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359);
 
-DELETE FROM `gameobject_template_addon` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);
+DELETE FROM `gameobject_template_addon` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754, 365171, 368343, 368344, 368345, 368346, 365172);
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `mingold`, `maxgold`, `WorldEffectID`, `AIAnimKitID`) VALUES 
 (368743, 1375, 0, 0, 0, 0, 0),
 (368744, 1375, 0, 0, 0, 0, 0),
@@ -354,7 +364,13 @@ INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `mingold`,
 (368751, 1375, 0, 0, 0, 0, 0),
 (368752, 1375, 0, 0, 0, 0, 0),
 (368753, 1375, 0, 0, 0, 0, 0),
-(368754, 1375, 0, 0, 0, 0, 0);
+(368754, 1375, 0, 0, 0, 0, 0),
+(365171, 2110, 1048608, 0, 0, 0, 0),
+(368343, 2110, 1048608, 0, 0, 0, 0),
+(368344, 2110, 1048608, 0, 0, 0, 0),
+(368345, 2110, 1048608, 0, 0, 0, 0),
+(368346, 2110, 1048608, 0, 0, 0, 0),
+(365172, 2110, 1048608, 0, 0, 0, 0);
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+11;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
@@ -515,6 +531,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=354938 AND `ScriptName`='spell_sylvanas_windrunner_comet_barrage';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354938, 'spell_sylvanas_windrunner_comet_barrage');
+
+ -- Teleport to Phase Two
+DELETE FROM `spell_script_names` WHERE `spell_id`=350903 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_two';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(350903, 'spell_sylvanas_windrunner_teleport_to_phase_two');
 
  -- Thrall
 DELETE FROM `creature_template` WHERE `entry`=176532;
