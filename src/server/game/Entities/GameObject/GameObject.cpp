@@ -811,7 +811,7 @@ void GameObject::Update(uint32 diff)
                                 {
                                     if (Battleground* bg = map->GetBG())
                                     {
-                                        bg->ProcessEvent(this, GetGOInfo()->capturePoint.CaptureEventHorde, nullptr);
+                                        EventInform(GetGOInfo()->capturePoint.CaptureEventHorde);
                                         bg->SendBroadcastText(GetGOInfo()->capturePoint.CaptureBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE);
                                     }
                                 }
@@ -823,7 +823,7 @@ void GameObject::Update(uint32 diff)
                                 {
                                     if (Battleground* bg = map->GetBG())
                                     {
-                                        bg->ProcessEvent(this, GetGOInfo()->capturePoint.CaptureEventAlliance, nullptr);
+                                        EventInform(GetGOInfo()->capturePoint.CaptureEventAlliance);
                                         bg->SendBroadcastText(GetGOInfo()->capturePoint.CaptureBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE);
                                     }
                                 }
@@ -3005,7 +3005,7 @@ void GameObject::AssaultCapturePoint(Player* player)
             m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
             battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
             UpdateCapturePoint();
-            battleground->ProcessEvent(this, GetGOInfo()->capturePoint.DefendedEventHorde, player);
+            EventInform(GetGOInfo()->capturePoint.DefendedEventHorde, player);
             return;
         }
 
@@ -3017,7 +3017,7 @@ void GameObject::AssaultCapturePoint(Player* player)
                 m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde;
                 battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
                 UpdateCapturePoint();
-                battleground->ProcessEvent(this, GetGOInfo()->capturePoint.ContestedEventHorde, player);
+                EventInform(GetGOInfo()->capturePoint.AssaultBroadcastHorde, player);
                 m_goValue.CapturePoint.AssaultTimer = GetGOInfo()->capturePoint.CaptureTime;
                 break;
             default:
@@ -3032,7 +3032,7 @@ void GameObject::AssaultCapturePoint(Player* player)
             m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
             battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
             UpdateCapturePoint();
-            battleground->ProcessEvent(this, GetGOInfo()->capturePoint.DefendedEventAlliance, player);
+            EventInform(GetGOInfo()->capturePoint.DefendedEventAlliance, player);
             return;
         }
 
@@ -3044,7 +3044,7 @@ void GameObject::AssaultCapturePoint(Player* player)
                 m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance;
                 battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
                 UpdateCapturePoint();
-                battleground->ProcessEvent(this, GetGOInfo()->capturePoint.ContestedEventAlliance, player);
+                EventInform(GetGOInfo()->capturePoint.ContestedEventAlliance, player);
                 m_goValue.CapturePoint.AssaultTimer = GetGOInfo()->capturePoint.CaptureTime;
                 break;
             default:
