@@ -2619,7 +2619,7 @@ enum Targets
     TARGET_UNIT_TARGET_ALLY_OR_RAID             = 118, // If target is in your party or raid, all party and raid members will be affected
     TARGET_CORPSE_SRC_AREA_RAID                 = 119,
     TARGET_UNIT_CASTER_AND_SUMMONS              = 120,
-    TARGET_UNK_121                              = 121,
+    TARGET_CORPSE_TARGET_ALLY                   = 121,
     TARGET_UNIT_AREA_THREAT_LIST                = 122, // any unit on threat list
     TARGET_UNIT_AREA_TAP_LIST                   = 123,
     TARGET_UNK_124                              = 124,
