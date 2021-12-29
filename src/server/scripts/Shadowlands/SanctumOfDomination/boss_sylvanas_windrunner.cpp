@@ -2902,6 +2902,67 @@ class spell_sylvanas_windrunner_banshee_wail_interrupt : public SpellScript
     }
 };
 
+class HauntingWaveEvent : public BasicEvent
+{
+    public:
+        HauntingWaveEvent(Unit* owner, Position const hauntingWaveDest, uint32 hauntingWaveAreaTriggerSpell) : _owner(owner),
+            _hauntingWaveDest(hauntingWaveDest), _hauntingWaveAreaTriggerSpell(hauntingWaveAreaTriggerSpell) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->CastSpell(_hauntingWaveDest, _hauntingWaveAreaTriggerSpell, true);
+            return true;
+        }
+
+    private:
+        Unit* _owner;
+        Position _hauntingWaveDest;
+        uint32 _hauntingWaveAreaTriggerSpell;
+};
+
+// Haunting Wave - 352271
+class spell_sylvanas_windrunner_haunting_wave : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_haunting_wave);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        for (uint8 itr = 0; itr < 2; itr++)
+        {
+            for (uint8 i = 0; i < _waveCount; ++i)
+            {
+                float angle;
+
+                if (itr == 1)
+                    angle = _angleOffset * i;
+                else
+                    angle = 3.0f + _angleOffset * i;
+
+                Position dest = { GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), angle };
+
+                if (itr == 1)
+                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(50 * i));
+                else
+                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(1200 + 50 * i));
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_haunting_wave::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+private:
+    uint8 _waveCount = 12;
+    float _angleOffset = float(M_PI * 2) / _waveCount;
+};
+
 class BaneArrowEvent : public BasicEvent
 {
     public:
@@ -3454,7 +3515,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         thrall->GetMotionMaster()->MovePoint(0, ThrallFirstChainPos[0], false);
                 });
 
-                _scheduler.Schedule(5s + 578ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(6s + 200ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         bolvar->AI()->Talk(SAY_FIRST_CHAIN);
@@ -3468,12 +3529,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
 
                 _scheduler.Schedule(8s + 93ms, [this](TaskContext /*task*/)
                 {
-                    me->CastSpell(JainaFirstChainPos[1], SPELL_TELEPORT_PHASE_TWO_MASTER, true);
-                });
-
-                _scheduler.Schedule(8s + 600ms, [this](TaskContext /*task*/)
-                {
-                    FormFrozenBridge(JainaChannelIceTargetPos[0]);
+                    FormFrozenBridge(JainaFirstChainPos[1], JainaChannelIceTargetPos[0], 1);
                 });
                 break;
             }
@@ -3715,7 +3771,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
         DoSpellAttackIfReady(SPELL_ICE_BOLT);
     }
 
-    void FormFrozenBridge(Position bridgePos)
+    void FormFrozenBridge(Position teleportPos, Position bridgePos, uint8 bridgeCount)
     {
         DoCastSelf(SPELL_CHANNEL_ICE, false);
 
@@ -3738,14 +3794,19 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 break;
             default:
                 break;
-        }
+        }                        
 
-        _scheduler.Schedule(1s, [this, bridgePos, bridgeAreaTriggerSpell, bridgeGameObjectSpell](TaskContext /*task*/)
+        _scheduler.Schedule(500ms, [this, teleportPos](TaskContext /*task*/)
+        {
+            me->CastSpell(teleportPos, SPELL_TELEPORT_PHASE_TWO_MASTER, true);
+        });
+
+        _scheduler.Schedule(1s + 500ms, [this, bridgePos, bridgeAreaTriggerSpell](TaskContext /*task*/)
         {
             me->CastSpell(bridgePos, bridgeAreaTriggerSpell, true);
         });
 
-        _scheduler.Schedule(5s, [this, bridgePos, bridgeAreaTriggerSpell, bridgeGameObjectSpell](TaskContext /*task*/)
+        _scheduler.Schedule(5s + 500ms, [this, bridgePos, bridgeGameObjectSpell](TaskContext /*task*/)
         {
             me->CastSpell(bridgePos, bridgeGameObjectSpell, true);
         });
@@ -3793,12 +3854,12 @@ class spell_sylvanas_windrunner_comet_barrage : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_comet_barrage::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_comet_barrage::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -4319,6 +4380,24 @@ private:
     InstanceScript* _instance;
 };
 
+// Frozen Bridge - 5428, Earthen Bridge - 5428
+struct at_sylvanas_windrunner_bridges : AreaTriggerAI
+{
+    at_sylvanas_windrunner_bridges(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
+
+    void OnCreate() override
+    {
+        if (!_instance)
+            return;
+
+        at->SetDuration(-1);
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
 // Blasphemy (Pre-Phase 3) - 23506
 struct at_sylvanas_windrunner_blasphemy_pre : AreaTriggerAI
 {
@@ -4404,6 +4483,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAuraScript(spell_sylvanas_windrunner_banshee_wail_marker);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_triggered_missile);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_interrupt);
+    RegisterSpellScript(spell_sylvanas_windrunner_haunting_wave);
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
     RegisterSpellScript(spell_sylvanas_windrunner_raze);
 
@@ -4431,6 +4511,7 @@ void AddSC_boss_sylvanas_windrunner()
 
     RegisterAreaTriggerAI(at_sylvanas_windrunner_disecrating_shot);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_rive);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_bridges);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy_pre);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_raze);
 }

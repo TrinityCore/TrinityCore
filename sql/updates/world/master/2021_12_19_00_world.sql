@@ -304,6 +304,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=351252 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (351252, 'spell_sylvanas_windrunner_banshee_wail_interrupt');
 
+ -- Haunting Wave
+DELETE FROM `spell_script_names` WHERE `spell_id`=352271 AND `ScriptName`='spell_sylvanas_windrunner_haunting_wave';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(352271, 'spell_sylvanas_windrunner_haunting_wave');
+
  -- Veil of Darkness (Phase 2 - Fade)
 DELETE FROM `spell_script_names` WHERE `spell_id`=353273 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -446,14 +451,12 @@ INSERT INTO `areatrigger_create_properties_spline_point` (`AreaTriggerCreateProp
 (23028, 14, -147.3955078125, 5.551046371459960937, 0, 41359), 
 (23028, 15, -154.890213012695312, 5.833285808563232421, 0, 41359), 
 (23028, 16, -154.890213012695312, 5.833285808563232421, 0, 41359),
-(23694, 0, 0, 0, 0, 41359), -- Haunting Wave - Normal Mode
-(23694, 1, 0, 0, 0, 41079),
+(23694, 0, 0, 0, 0, 41079), -- Haunting Wave - Normal Mode
+(23694, 1, 100.0000152587890625, -0.00001968324795598, 0, 41079),
 (23694, 2, 100.0000152587890625, -0.00001968324795598, 0, 41079),
-(23694, 3, 100.0000152587890625, -0.00001968324795598, 0, 41079),
 (23693, 0, 0, 0, 0, 41488), -- Haunting Wave - Heroic Mode
-(23693, 1, 0, 0, 0, 41488),
-(23693, 2, 100.0000076293945312, 0.000041824499930953, 0, 41488),  
-(23693, 3, 100.0000076293945312, 0.000041824499930953, 0, 41488);
+(23693, 1, 100.0000076293945312, 0.000041824499930953, 0, 41488),  
+(23693, 2, 100.0000076293945312, 0.000041824499930953, 0, 41488);
 
  -- Highlord Bolvar Fordragon
 DELETE FROM `creature_template` WHERE `entry`=178081;
