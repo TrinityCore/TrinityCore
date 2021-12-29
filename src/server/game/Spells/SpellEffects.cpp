@@ -2918,15 +2918,19 @@ void Spell::EffectSummonObjectWild()
     if (!target)
         target = m_caster;
 
-    float x, y, z;
+    float x, y, z, o;
     if (m_targets.HasDst())
-        destTarget->GetPosition(x, y, z);
+        destTarget->GetPosition(x, y, z, o);
     else
+    {
         m_caster->GetClosePoint(x, y, z, DEFAULT_PLAYER_BOUNDING_RADIUS);
+        o = target->GetOrientation();
+    }
+
 
     Map* map = target->GetMap();
-    Position pos = Position(x, y, z, target->GetOrientation());
-    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f);
+    Position pos = Position(x, y, z, o);
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
     GameObject* go = GameObject::CreateGameObject(effectInfo->MiscValue, map, pos, rot, 255, GO_STATE_READY);
     if (!go)
         return;
@@ -3503,17 +3507,20 @@ void Spell::EffectSummonObject()
         unitCaster->m_ObjectSlot[slot].Clear();
     }
 
-    float x, y, z;
+    float x, y, z, o;
     // If dest location if present
     if (m_targets.HasDst())
-        destTarget->GetPosition(x, y, z);
+        destTarget->GetPosition(x, y, z, o);
     // Summon in random point all other units if location present
     else
+    {
         unitCaster->GetClosePoint(x, y, z, DEFAULT_PLAYER_BOUNDING_RADIUS);
+        o = unitCaster->GetOrientation();
+    }
 
     Map* map = m_caster->GetMap();
-    Position pos = Position(x, y, z, m_caster->GetOrientation());
-    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
+    Position pos = Position(x, y, z, o);
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
 
     GameObject* go = GameObject::CreateGameObject(effectInfo->MiscValue, map, pos, rot, 255, GO_STATE_READY);
     if (!go)
@@ -4278,15 +4285,16 @@ void Spell::EffectTransmitted()
         return;
     }
 
-    float fx, fy, fz;
+    float fx, fy, fz, fo;
 
     if (m_targets.HasDst())
-        destTarget->GetPosition(fx, fy, fz);
+        destTarget->GetPosition(fx, fy, fz, fo);
     //FIXME: this can be better check for most objects but still hack
     else if (effectInfo->HasRadius() && m_spellInfo->Speed == 0)
     {
         float dis = effectInfo->CalcRadius(unitCaster);
         unitCaster->GetClosePoint(fx, fy, fz, DEFAULT_PLAYER_BOUNDING_RADIUS, dis);
+        fo = unitCaster->GetOrientation();
     }
     else
     {
@@ -4296,15 +4304,16 @@ void Spell::EffectTransmitted()
         float dis = (float)rand_norm() * (max_dis - min_dis) + min_dis;
 
         unitCaster->GetClosePoint(fx, fy, fz, DEFAULT_PLAYER_BOUNDING_RADIUS, dis);
+        fo = unitCaster->GetOrientation();
     }
 
     Map* cMap = unitCaster->GetMap();
     // if gameobject is summoning object, it should be spawned right on caster's position
     if (goinfo->type == GAMEOBJECT_TYPE_RITUAL)
-        unitCaster->GetPosition(fx, fy, fz);
+        unitCaster->GetPosition(fx, fy, fz, fo);
 
-    Position pos = { fx, fy, fz, unitCaster->GetOrientation() };
-    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(unitCaster->GetOrientation(), 0.f, 0.f);
+    Position pos = { fx, fy, fz, fo };
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(fo, 0.f, 0.f);
 
     GameObject* go = GameObject::CreateGameObject(name_id, cMap, pos, rot, 255, GO_STATE_READY);
     if (!go)
@@ -5068,15 +5077,18 @@ void Spell::EffectSummonPersonalGameObject()
     if (!goId)
         return;
 
-    float x, y, z;
+    float x, y, z, o;
     if (m_targets.HasDst())
-        destTarget->GetPosition(x, y, z);
+        destTarget->GetPosition(x, y, z, o);
     else
+    {
         m_caster->GetClosePoint(x, y, z, DEFAULT_PLAYER_BOUNDING_RADIUS);
+        o = m_caster->GetOrientation();
+    }
 
     Map* map = m_caster->GetMap();
-    Position pos = Position(x, y, z, m_caster->GetOrientation());
-    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
+    Position pos = Position(x, y, z, o);
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
     GameObject* go = GameObject::CreateGameObject(goId, map, pos, rot, 255, GO_STATE_READY);
 
     if (!go)
