@@ -2943,12 +2943,12 @@ class spell_sylvanas_windrunner_haunting_wave : public SpellScript
                 else
                     angle = 3.0f + _angleOffset * i;
 
-                Position dest = { GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), angle };
+                Position dest = { GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ() + 2.0f, angle };
 
                 if (itr == 1)
-                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(50 * i));
+                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(26.8 * i));
                 else
-                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(1200 + 50 * i));
+                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(658 + 26.8 * i));
             }
         }
     }
@@ -3203,11 +3203,12 @@ enum ThrallActions
 
 };
 
-Position const ThrallPrePhaseTwoPos = { 204.6475f, -842.7760f, 4999.9956f, 4.52320f };
+Position const ThrallPrePhaseTwoPos = { 209.80556f, -823.7917f, 4999.985f, 4.52320f };
 
 Position const ThrallFirstChainPos[3] =
 {
-    { 207.5f, -831.4184f, 5000.2036f  },
+    { 207.5f,    -831.4184f, 5000.2036f  },
+    { 198.9548f, -845.8125f, 5000.0386f  }
 };
 
 Position const ThrallPrePhaseThreePos = { -242.277f, -1282.972f, 5667.1157f, 1.53310f };
@@ -3531,6 +3532,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 {
                     FormFrozenBridge(JainaFirstChainPos[1], JainaChannelIceTargetPos[0], 1);
                 });
+
                 break;
             }
 
@@ -4392,6 +4394,25 @@ struct at_sylvanas_windrunner_bridges : AreaTriggerAI
             return;
 
         at->SetDuration(-1);
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
+// Haunting Wave - 22874, 23694, 23693, 23673
+struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
+{
+    at_sylvanas_windrunner_haunting_wave(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!_instance || !unit->IsPlayer())
+            return;
+
+        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            sylvanas->CastSpell(unit, SPELL_RIVE_DAMAGE, true);
     }
 
 private:
