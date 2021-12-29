@@ -1603,6 +1603,10 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffectInfo const& spellEffect
                 if (vehicleBase->IsVehicle())
                     target = vehicleBase->GetVehicleKit()->GetPassenger(targetType.GetTarget() - TARGET_UNIT_PASSENGER_0);
             break;
+        case TARGET_UNIT_TARGET_TAP_LIST:
+            if (Creature* creatureCaster = m_caster->ToCreature())
+                target = creatureCaster->GetLootRecipient();
+            break;
         case TARGET_UNIT_OWN_CRITTER:
             if (Unit const* unitCaster = m_caster->ToUnit())
                 target = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_caster, unitCaster->GetCritterGUID());

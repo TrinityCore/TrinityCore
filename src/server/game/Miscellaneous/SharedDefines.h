@@ -2622,7 +2622,7 @@ enum Targets
     TARGET_CORPSE_TARGET_ALLY                   = 121,
     TARGET_UNIT_AREA_THREAT_LIST                = 122, // any unit on threat list
     TARGET_UNIT_AREA_TAP_LIST                   = 123,
-    TARGET_UNK_124                              = 124,
+    TARGET_UNIT_TARGET_TAP_LIST                 = 124,
     TARGET_DEST_CASTER_GROUND_2                 = 125,
     TARGET_UNK_126                              = 126,
     TARGET_UNK_127                              = 127,
