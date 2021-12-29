@@ -1207,6 +1207,8 @@ void Spell::SelectImplicitAreaTargets(SpellEffectInfo const& spellEffectInfo, Sp
             break;
         case TARGET_REFERENCE_TYPE_LAST:
         {
+            referer = m_caster;
+
             // find last added target for this effect
             for (auto ihit = m_UniqueTargetInfo.rbegin(); ihit != m_UniqueTargetInfo.rend(); ++ihit)
             {
@@ -1273,6 +1275,15 @@ void Spell::SelectImplicitAreaTargets(SpellEffectInfo const& spellEffectInfo, Sp
         default:
             SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), spellEffectInfo.ImplicitTargetConditions);
             break;
+    }
+
+    if (targetType.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST)
+    {
+        SpellDestination dest(*referer);
+
+        CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
+
+        m_targets.ModDst(dest);
     }
 
     CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);

@@ -273,8 +273,11 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
         case TARGET_SELECT_CATEGORY_NEARBY: // BOTH
             return true;
         case TARGET_SELECT_CATEGORY_CONE: // AREA
-        case TARGET_SELECT_CATEGORY_AREA: // AREA
         case TARGET_SELECT_CATEGORY_LINE: // AREA
+            return area;
+        case TARGET_SELECT_CATEGORY_AREA: // AREA
+            if (targetInfo.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST)
+                return area || dest;
             return area;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetInfo.GetObjectType())

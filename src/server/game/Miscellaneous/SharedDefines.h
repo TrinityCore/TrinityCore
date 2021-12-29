@@ -2614,7 +2614,7 @@ enum Targets
     TARGET_UNK_113                              = 113,
     TARGET_UNK_114                              = 114,
     TARGET_UNK_115                              = 115,
-    TARGET_UNK_116                              = 116,
+    TARGET_UNIT_AND_DEST_LAST_ENEMY             = 116,
     TARGET_UNK_117                              = 117,
     TARGET_UNIT_TARGET_ALLY_OR_RAID             = 118, // If target is in your party or raid, all party and raid members will be affected
     TARGET_CORPSE_SRC_AREA_RAID                 = 119,
