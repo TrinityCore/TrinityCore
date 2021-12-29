@@ -2608,7 +2608,7 @@ enum Targets
     TARGET_DEST_NEARBY_ENTRY_2                  = 107,
     TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ENEMY = 108,
     TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ALLY  = 109,
-    TARGET_UNIT_CONE_ENTRY_110                  = 110,
+    TARGET_UNIT_CONE_CASTER_TO_DEST_ENTRY       = 110,
     TARGET_UNK_111                              = 111,
     TARGET_UNK_112                              = 112,
     TARGET_UNK_113                              = 113,
