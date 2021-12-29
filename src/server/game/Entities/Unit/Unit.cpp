@@ -115,30 +115,6 @@ float playerBaseMoveSpeed[MAX_MOVE_TYPE] =
 // Data taken from PaperDollFrame.lua 4.3.4
 #define MAX_LEVEL_DIFFERENCE 4
 
-float MissChanceSpell[MAX_LEVEL_DIFFERENCE] =
-{
-    4.0f,
-    5.0f,
-    6.0f,
-    17.0f
-};
-
-float EnemyDodgeChance[MAX_LEVEL_DIFFERENCE] =
-{
-    5.0f,
-    5.5f,
-    6.0f,
-    6.5f
-};
-
-float EnemyParryChance[MAX_LEVEL_DIFFERENCE] =
-{
-    5.0f,
-    5.5f,
-    6.0f,
-    14.0f
-};
-
 DamageInfo::DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
     : m_attacker(attacker), m_victim(victim), m_damage(damage), m_spellInfo(spellInfo), m_schoolMask(schoolMask), m_damageType(damageType), m_attackType(attackType),
     m_absorb(0), m_resist(0), m_block(0), m_hitMask(0)
@@ -2531,19 +2507,33 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
 
-    int32 highLevelMissChance = victim->IsPlayer() ? 7 : 11;
-    int32 thisLevel = getLevel();
-    if (IsCreature() && ToCreature()->IsTrigger())
+    // PvP - PvE spell misschances per leveldif > 2
+    int32 lchance = victim->IsPlayer() ? 7 : 11;
+    int32 thisLevel = getLevelForTarget(victim);
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsTrigger())
         thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
-    int32 const levelDiff = static_cast<int32>(victim->getLevelForTarget(this)) - thisLevel;
+    int32 leveldif = int32(victim->getLevelForTarget(this)) - thisLevel;
+    int32 levelBasedHitDiff = leveldif;
 
+    // Base hit chance from attacker and victim levels
     int32 modHitChance = 100;
-    if (levelDiff < 0)
-        modHitChance -= MissChanceSpell[0];
-    else if (levelDiff > 3)
-        modHitChance -= MissChanceSpell[3] + highLevelMissChance * (levelDiff - 3);
+    if (levelBasedHitDiff >= 0)
+    {
+        if (victim->IsPlayer())
+        {
+            modHitChance = 94 - 3 * std::min(levelBasedHitDiff, 3);
+            levelBasedHitDiff -= 3;
+        }
+        else
+        {
+            modHitChance = 96 - std::min(levelBasedHitDiff, 2);
+            levelBasedHitDiff -= 2;
+        }
+        if (levelBasedHitDiff > 0)
+            modHitChance -= lchance * std::min(levelBasedHitDiff, 7);
+    }
     else
-        modHitChance -= MissChanceSpell[levelDiff];
+        modHitChance = 97 - levelBasedHitDiff;
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     if (Player* modOwner = GetSpellModOwner())
@@ -2655,29 +2645,28 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, boo
     return SPELL_MISS_NONE;
 }
 
-uint32 Unit::GetUnitMeleeSkill(Unit const* target) const
-{
-    return (target ? getLevelForTarget(target) : getLevel()) * 5;
-}
-
 float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) const
 {
+    int32 attackerSkill = GetMaxSkillValueForLevel(nullptr);
+    int32 defenderSkill = victim->GetMaxSkillValueForLevel(nullptr);
+    int32 skillDifference = defenderSkill - attackerSkill;
+
     float chance = 0.0f;
 
     if (victim->IsPlayer())
+    {
         chance += victim->GetFloatValue(PLAYER_DODGE_PERCENTAGE);
+        chance += skillDifference * 0.04f;
+    }
     else
     {
         if (!victim->IsTotem())
         {
-            int8 levelDifference = victim->getLevel() - getLevel();
-            if (levelDifference < 0)
-                levelDifference = 0;
-            else if (levelDifference > 3)
-                levelDifference = 3;
-
-            chance += EnemyDodgeChance[levelDifference];
             chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
+            if (skillDifference <= 10)
+                chance = 5.f + skillDifference * 0.1f;
+            else
+                chance = 6.f + (skillDifference - 10) * 0.1f;
         }
     }
 
@@ -2686,16 +2675,21 @@ float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) con
 
     // reduce dodge by SPELL_AURA_MOD_ENEMY_DODGE
     chance += GetTotalAuraModifier(SPELL_AURA_MOD_ENEMY_DODGE);
+
     if (IsPlayer())
         chance -= ToPlayer()->GetExpertiseDodgeOrParryReduction(attType);
     else
         chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) / 4.0f;
 
-    return std::max(chance, 0.0f);
+    return std::clamp(chance, 0.f, 100.f);
 }
 
 float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const
 {
+    int32 attackerSkill = GetMaxSkillValueForLevel(nullptr);
+    int32 defenderSkill = victim->GetMaxSkillValueForLevel(nullptr);
+    int32 skillDifference = defenderSkill - attackerSkill;
+
     float chance = 0.0f;
 
     if (Player const* playerVictim = victim->ToPlayer())
@@ -2708,6 +2702,8 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
 
             if (tmpitem)
                 chance = playerVictim->GetFloatValue(PLAYER_PARRY_PERCENTAGE);
+
+            chance += skillDifference * 0.04f;
         }
     }
     else
@@ -2716,14 +2712,11 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
         if (!victim->IsTotem() && (victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0) || victim->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1)) &&
             !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
-            int32 levelDifference = victim->getLevelForTarget(this) - getLevel();
-            if (levelDifference < 0)
-                levelDifference = 0;
-            else if (levelDifference > 3)
-                levelDifference = 3;
-
-            chance += EnemyParryChance[levelDifference];
             chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+            if (skillDifference <= 10)
+                chance = 5.f + skillDifference * 0.1f;
+            else
+                chance = 6.f + (skillDifference - 10) * 0.1f;
         }
     }
 
