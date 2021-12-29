@@ -115,14 +115,6 @@ float playerBaseMoveSpeed[MAX_MOVE_TYPE] =
 // Data taken from PaperDollFrame.lua 4.3.4
 #define MAX_LEVEL_DIFFERENCE 4
 
-float MissChancePhysical[MAX_LEVEL_DIFFERENCE] =
-{
-    5.0f,
-    5.5f,
-    6.0f,
-    8.0f
-};
-
 float MissChanceSpell[MAX_LEVEL_DIFFERENCE] =
 {
     4.0f,
@@ -1625,7 +1617,7 @@ static float GetArmorReduction(float armor, uint8 attackerLevel)
     if (temp > 0.75f)
         return 75.f;
 
-    if (temp < 0)
+    if (temp < 0.f)
         return 0.f;
 
     return temp * 100;
@@ -2743,20 +2735,32 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
     return std::max(chance, 0.0f);
 }
 
-float Unit::GetUnitMissChance(Unit const* victim) const
+float Unit::GetMeleeMissChance(Unit const* victim) const
 {
-    float chance = 0.0f;
+    float chance = 0.f;
 
-    int32 const levelDiff = static_cast<int32>(victim->getLevelForTarget(this)) - getLevel();
+    // As of patch 4.0.1, weapon skills have been deprecated so we can go for plain defense skill values
+    uint16 attackerSkill = GetMaxSkillValueForLevel(nullptr);
+    uint16 defenderSkill = victim->GetMaxSkillValueForLevel(nullptr);
+    int32 skillDifference = defenderSkill - attackerSkill;
 
-    if (levelDiff < 0)
-        chance += MissChancePhysical[0];
-    else if (levelDiff > 3)
-        chance += MissChancePhysical[3] + 2.0f * (levelDiff - 3);
+    if (victim->IsPlayer())
+    {
+        chance = 5.f;
+        if (skillDifference > 0)
+            chance += skillDifference * 0.04f;
+        else if (skillDifference < 0)
+            chance -= skillDifference * 0.02f;
+    }
     else
-        chance += MissChancePhysical[levelDiff];
+    {
+        if (skillDifference <= 10)
+            chance = 5.f + skillDifference * 0.1f;
+        else
+            chance = 6.f + (skillDifference - 10) * 0.4f;
+    }
 
-    return chance;
+    return std::clamp(chance, 0.f, 100.f);
 }
 
 float Unit::GetUnitBlockChance(Unit const* victim) const
@@ -12829,10 +12833,10 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, S
         return 0.f;
 
     // Calculate miss chance
-    float missChance = GetUnitMissChance(victim);
+    float missChance = GetMeleeMissChance(victim);
 
     if (!spellInfo && haveOffhandWeapon())
-        missChance += 19;
+        missChance += 19.f;
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     float resistMissChance = 100.0f;
