@@ -1288,11 +1288,19 @@ void Spell::SelectImplicitAreaTargets(SpellEffectInfo const& spellEffectInfo, Sp
 
     CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
 
+    if (targetType.GetTarget() == TARGET_UNIT_SRC_AREA_FURTHEST_ENEMY)
+        targets.sort(Trinity::ObjectDistanceOrderPred(referer, false));
+
     if (!targets.empty())
     {
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            Trinity::Containers::RandomResize(targets, maxTargets);
+        {
+            if (targetType.GetTarget() != TARGET_UNIT_SRC_AREA_FURTHEST_ENEMY)
+                Trinity::Containers::RandomResize(targets, maxTargets);
+            else if (targets.size() > maxTargets)
+                targets.resize(maxTargets);
+        }
 
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
         {
