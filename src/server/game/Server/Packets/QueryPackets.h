@@ -23,6 +23,7 @@
 #include "GameObjectData.h"
 #include "DB2Stores.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
 
@@ -168,10 +169,24 @@ namespace WorldPackets
             bool Initialize(ObjectGuid const& guid, Player const* player = nullptr);
 
             std::string Name;
+            std::string RealmName;
             uint8 Race = RACE_NONE;
             uint8 Sex = GENDER_NONE;
             uint8 ClassID = CLASS_NONE;
             uint8 Level = 0;
+            Optional<DeclinedName> DeclinedNames;
+        };
+
+        class QueryPlayerNameResponse final : public ServerPacket
+        {
+        public:
+            QueryPlayerNameResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAME_RESPONSE, 8+1+1+1+1+1+10) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            uint8 Result = 0; // 0 - full packet, != 0 - only guid
+            PlayerGuidLookupData Data;
         };
     }
 }

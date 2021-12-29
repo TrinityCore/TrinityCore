@@ -35,34 +35,16 @@
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-    CharacterCacheEntry const* nameData = sCharacterCache->GetCharacterCacheByGuid(guid);
 
-    WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
-    data << guid.WriteAsPacked();
-    if (!nameData)
-    {
-        data << uint8(1);                           // name unknown
-        SendPacket(&data);
-        return;
-    }
+    WorldPackets::Query::QueryPlayerNameResponse response;
+    response.Player = guid;
 
-    data << uint8(0);                               // name known
-    data << nameData->Name;                         // played name
-    data << uint8(0);                               // realm name - only set for cross realm interaction (such as Battlegrounds)
-    data << uint8(nameData->Race);
-    data << uint8(nameData->Sex);
-    data << uint8(nameData->Class);
-
-    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
-    {
-        data << uint8(1);                           // Name is declined
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << names->name[i];
-    }
+    if (response.Data.Initialize(guid, player))
+        response.Result = RESPONSE_SUCCESS; // name known
     else
-        data << uint8(0);                           // Name is not declined
+        response.Result = RESPONSE_FAILURE; // name unknown
 
-    SendPacket(&data);
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)

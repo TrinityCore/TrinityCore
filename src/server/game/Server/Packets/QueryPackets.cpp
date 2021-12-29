@@ -175,6 +175,9 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         Sex = player->getGender();
         ClassID = player->getClass();
         Level = player->getLevel();
+
+        if (DeclinedName const* names = player->GetDeclinedNames())
+            DeclinedNames = *names;
     }
     else
     {
@@ -186,4 +189,31 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
     }
 
     return true;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData)
+{
+    data << lookupData.Name;
+    data << lookupData.RealmName;
+    data << uint8(lookupData.Race);
+    data << uint8(lookupData.Sex);
+    data << uint8(lookupData.ClassID);
+
+    data << bool(lookupData.DeclinedNames.has_value());
+    if (lookupData.DeclinedNames.has_value())
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            data << lookupData.DeclinedNames->name[i];
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+{
+    _worldPacket << Player.WriteAsPacked();
+    _worldPacket << uint8(Result);
+
+    if (Result == RESPONSE_SUCCESS)
+        _worldPacket << Data;
+
+    return &_worldPacket;
 }
