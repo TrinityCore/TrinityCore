@@ -2560,7 +2560,7 @@ enum Targets
     TARGET_UNIT_CONE_ALLY                   = 59,
     TARGET_UNIT_CONE_ENTRY                  = 60,
     TARGET_UNIT_TARGET_AREA_RAID_CLASS      = 61,
-    TARGET_UNK_62                           = 62,
+    TARGET_DEST_CASTER_GROUND               = 62,
     TARGET_DEST_TARGET_ANY                  = 63,
     TARGET_DEST_TARGET_FRONT                = 64,
     TARGET_DEST_TARGET_BACK                 = 65,
@@ -2623,7 +2623,7 @@ enum Targets
     TARGET_UNIT_AREA_THREAT_LIST            = 122, // any unit on threat list
     TARGET_UNIT_AREA_TAP_LIST               = 123,
     TARGET_UNK_124                          = 124,
-    TARGET_DEST_CASTER_GROUND               = 125,
+    TARGET_DEST_CASTER_GROUND_2             = 125,
     TARGET_UNK_126                          = 126,
     TARGET_UNK_127                          = 127,
     TARGET_UNK_128                          = 128,
