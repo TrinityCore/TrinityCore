@@ -124,7 +124,8 @@ bool Position::HasInLine(Position const* pos, float objSize, float width) const
 
     width += objSize;
     float angle = GetRelativeAngle(pos);
-    return std::fabs(std::sin(angle)) * GetExactDist2d(pos->GetPositionX(), pos->GetPositionY()) < width;
+    float xAxisDistance = std::fabs(std::cos(angle)) * GetExactDist2d(pos->GetPositionX(), pos->GetPositionY());
+    return G3D::fuzzyLe(xAxisDistance, (width / 2.0f));
 }
 
 std::string Position::ToString() const
