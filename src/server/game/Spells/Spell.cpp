@@ -1469,8 +1469,9 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             dest.Relocate(pos);
             break;
         }
-        case TARGET_DEST_CASTER_FLOOR:
-            dest._position.m_positionZ = m_caster->GetFloorZ();
+        case TARGET_DEST_CASTER_GROUND:
+        case TARGET_DEST_CASTER_GROUND_2:
+            dest._position.m_positionZ = m_caster->GetMapWaterOrGroundLevel(dest._position.GetPositionX(), dest._position.GetPositionY(), dest._position.GetPositionZ());
             break;
         default:
         {
