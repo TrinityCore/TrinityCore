@@ -678,7 +678,7 @@ void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality
     // _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(qualityValue);
 }
 
-void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp)
+void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource)
 {
     if (!HasJournalLock())
         return;
@@ -687,7 +687,7 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp)
     if (!pet)
         return;
 
-    if (xp <= 0)
+    if (xp <= 0 || xpSource >= BattlePetXpSource::Count)
         return;
 
     if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
@@ -704,7 +704,10 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp)
 
     Player* player = _owner->GetPlayer();
     uint16 nextLevelXp = uint16(GetBattlePetXPPerLevel(xpEntry));
-    // TODO: Calculate XP granted with auras of type SPELL_AURA_MOD_BATTLE_PET_XP_PCT (doesn't affect the experience granted by SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
+
+    if (xpSource == BattlePetXpSource::PetBattle)
+        xp *= player->GetTotalAuraMultiplier(SPELL_AURA_MOD_BATTLE_PET_XP_PCT);
+
     xp += pet->PacketInfo.Exp;
 
     while (xp >= nextLevelXp && level < MAX_BATTLE_PET_LEVEL)
@@ -718,7 +721,8 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp)
         nextLevelXp = uint16(GetBattlePetXPPerLevel(xpEntry));
 
         player->UpdateCriteria(CriteriaType::BattlePetReachLevel, pet->PacketInfo.Species, level);
-        player->UpdateCriteria(CriteriaType::ActivelyEarnPetLevel, pet->PacketInfo.Species, level);
+        if (xpSource == BattlePetXpSource::PetBattle)
+            player->UpdateCriteria(CriteriaType::ActivelyEarnPetLevel, pet->PacketInfo.Species, level);
     }
 
     pet->PacketInfo.Level = level;
