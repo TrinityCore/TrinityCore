@@ -1732,8 +1732,8 @@ enum Targets
     TARGET_UNIT_CASTER_AND_PASSENGERS       = 105,
     TARGET_DEST_CHANNEL_CASTER              = 106,
     TARGET_DEST_NEARBY_ENTRY_2              = 107,
-    TARGET_GAMEOBJECT_CONE_108              = 108,
-    TARGET_GAMEOBJECT_CONE_109              = 109,
+    TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ENEMY = 108,
+    TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ALLY  = 109,
     TARGET_UNIT_CONE_ENTRY_110              = 110, // 1 spell
     TARGET_UNK_111                          = 111,
     TARGET_DEST_TARGET_ANY_2                = 112, // 1 Spell
