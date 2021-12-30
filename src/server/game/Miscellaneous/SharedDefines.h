@@ -1748,7 +1748,7 @@ enum Targets
     TARGET_CORPSE_TARGET_ALLY                   = 121,
     TARGET_UNIT_AREA_THREAT_LIST                = 122,
     TARGET_UNIT_AREA_TAP_LIST                   = 123,
-    TARGET_UNK_124                              = 124,
+    TARGET_UNIT_TARGET_TAP_LIST                 = 124,
     TARGET_DEST_CASTER_GROUND_2                 = 125, // 1 spell in 4.3.4
     TARGET_UNIT_AREA_ENEMY                      = 126, // 1 spell in 4.3.4 (checked up until 8.3.0)
     TARGET_UNK_127                              = 127,
