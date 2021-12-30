@@ -179,7 +179,7 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
             }
             catch (ByteBufferException const& ex)
             {
-                TC_LOG_ERROR("network", "WorldSocket::InitializeHandler ByteBufferException %s occured while parsing initial packet from ",
+                TC_LOG_ERROR("network", "WorldSocket::InitializeHandler ByteBufferException %s occured while parsing initial packet from %s",
                     ex.what(), GetRemoteIpAddress().to_string().c_str());
                 CloseSocket();
                 return;
