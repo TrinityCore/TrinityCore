@@ -1325,55 +1325,41 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
              return;
     }
 
-    std::list<WorldObject*> targets;
+    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
 
+    // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead)
+    if (G3D::fuzzyEq(radius, 0.f))
+        radius = m_spellInfo->GetMaxRange(m_spellInfo->IsPositiveEffect(effIndex), m_caster, this);
+
+    radius *= m_spellValue->RadiusMod;
+    std::list<WorldObject*> targets;
     switch (targetType.GetTarget())
     {
+        case TARGET_UNIT_CASTER_AND_PASSENGERS:
+            targets.push_back(m_caster);
+            if (Unit* unit = m_caster->ToUnit())
+                if (Vehicle const* vehicleKit = unit->GetVehicleKit())
+                    for (int8 seat = 0; seat < MAX_VEHICLE_SEATS; ++seat)
+                        if (Unit* passenger = vehicleKit->GetPassenger(seat))
+                            targets.push_back(passenger);
+            break;
         case TARGET_UNIT_TARGET_ALLY_OR_RAID:
             if (Unit* targetedUnit = m_targets.GetUnitTarget())
             {
                 if (!m_caster->IsInRaidWith(targetedUnit))
-                {
                     targets.push_back(m_targets.GetUnitTarget());
-
-                    CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
-
-                    if (!targets.empty())
-                    {
-                        // Other special target selection goes here
-                        if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-                            Trinity::Containers::RandomResize(targets, maxTargets);
-
-                        for (WorldObject* target : targets)
-                        {
-                            if (Unit* unit = target->ToUnit())
-                                AddUnitTarget(unit, effMask, false, true, center);
-                            else if (GameObject* gObjTarget = target->ToGameObject())
-                                AddGOTarget(gObjTarget, effMask);
-                        }
-                    }
-
-                    return;
-                }
-
-                center = targetedUnit;
+                else
+                    SearchAreaTargets(targets, radius, targetedUnit, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
             }
             break;
         case TARGET_UNIT_CASTER_AND_SUMMONS:
             targets.push_back(m_caster);
+            SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
             break;
         default:
+            SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
             break;
     }
-
-    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
-    // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead) and TARGET_UNIT_AREA_ENEMY (Id 126)
-    if (G3D::fuzzyEq(radius, 0.f) || m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY)
-        radius = m_spellInfo->GetMaxRange(m_spellInfo->IsPositiveEffect(effIndex), m_caster, this);
-
-    radius *= m_spellValue->RadiusMod;
-
-    SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
 
@@ -1622,14 +1608,6 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
         case TARGET_UNIT_PASSENGER_7:
             if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsVehicle())
                 target = m_caster->GetVehicleKit()->GetPassenger(targetType.GetTarget() - TARGET_UNIT_PASSENGER_0);
-            break;
-        case TARGET_UNIT_CASTER_PASSENGERS:
-            target = m_caster;
-            checkIfValid = false;
-            if (Vehicle const* vehicle = m_caster->GetVehicleKit())
-                for (uint8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
-                    if (Unit* passenger = vehicle->GetPassenger(i))
-                        AddUnitTarget(passenger, 1 << effIndex, false);
             break;
         default:
             break;
