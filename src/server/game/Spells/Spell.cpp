@@ -1222,6 +1222,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
 void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
 {
     Position coneSrc(*m_caster);
+    float coneAngle = m_spellInfo->ConeAngle;
     switch (targetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_CASTER:
@@ -1233,6 +1234,17 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
         default:
             break;
     }
+
+    switch (targetType.GetTarget())
+    {
+        case TARGET_UNIT_CONE_180_DEG_ENEMY:
+            if (coneAngle == 0.0f)
+                coneAngle = 180.0f;
+            break;
+        default:
+            break;
+    }
+
     std::list<WorldObject*> targets;
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
@@ -1247,7 +1259,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
     {
-        Trinity::WorldObjectSpellConeTargetCheck check(coneSrc, DegToRad(m_spellInfo->ConeAngle), radius, m_caster, m_spellInfo, selectionType, condList);
+        Trinity::WorldObjectSpellConeTargetCheck check(coneSrc, DegToRad(coneAngle), radius, m_caster, m_spellInfo, selectionType, condList);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
         SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
 

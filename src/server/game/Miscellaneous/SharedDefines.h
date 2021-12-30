@@ -1678,7 +1678,7 @@ enum Targets
     TARGET_GAMEOBJECT_SRC_AREA              = 51,
     TARGET_GAMEOBJECT_DEST_AREA             = 52,
     TARGET_DEST_TARGET_ENEMY                = 53,
-    TARGET_UNIT_CONE_ENEMY_54               = 54,
+    TARGET_UNIT_CONE_180_DEG_ENEMY          = 54, // Defaults to 180 if ConeDegrees is not set
     TARGET_DEST_CASTER_FRONT_LEAP           = 55, // for a leap spell
     TARGET_UNIT_CASTER_AREA_RAID            = 56,
     TARGET_UNIT_TARGET_RAID                 = 57,
