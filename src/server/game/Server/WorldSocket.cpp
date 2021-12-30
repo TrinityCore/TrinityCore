@@ -159,18 +159,28 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
                 return;
             }
 
-            ByteBuffer buffer(std::move(_packetBuffer));
-            std::string initializer = buffer.ReadString(ClientConnectionInitialize.length());
-            if (initializer != ClientConnectionInitialize)
+            try
             {
-                CloseSocket();
-                return;
-            }
+                ByteBuffer buffer(std::move(_packetBuffer));
+                std::string initializer = buffer.ReadString(ClientConnectionInitialize.length());
+                if (initializer != ClientConnectionInitialize)
+                {
+                    CloseSocket();
+                    return;
+                }
 
-            uint8 terminator;
-            buffer >> terminator;
-            if (terminator != '\n')
+                uint8 terminator;
+                buffer >> terminator;
+                if (terminator != '\n')
+                {
+                    CloseSocket();
+                    return;
+                }
+            }
+            catch (ByteBufferException const& ex)
             {
+                TC_LOG_ERROR("network", "WorldSocket::InitializeHandler ByteBufferException %s occured while parsing initial packet from ",
+                    ex.what(), GetRemoteIpAddress().to_string().c_str());
                 CloseSocket();
                 return;
             }
