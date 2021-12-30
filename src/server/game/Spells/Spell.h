@@ -399,6 +399,7 @@ class TC_GAME_API Spell
         void EffectLearnAzeriteEssencePower();
         void EffectCreatePrivateConversation();
         void EffectSendChatMessage();
+        void EffectGrantBattlePetExperience();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 

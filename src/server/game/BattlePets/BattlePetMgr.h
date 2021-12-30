@@ -85,6 +85,14 @@ enum class BattlePetSlot : uint8
     Count
 };
 
+enum class BattlePetXpSource : uint8
+{
+    PetBattle   = 0,
+    SpellEffect = 1,
+
+    Count
+};
+
 // 6.2.4
 enum FlagsControlType
 {
@@ -172,6 +180,7 @@ public:
 
     void CageBattlePet(ObjectGuid guid);
     void ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality quality);
+    void GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource);
     void HealBattlePetsPct(uint8 pct);
 
     void SummonPet(ObjectGuid guid);

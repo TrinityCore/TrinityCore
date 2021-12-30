@@ -487,9 +487,9 @@ enum class CriteriaType : uint8
     AccountObtainPetThroughBattle                  = 157, /*NYI*/ // (Account Only) Obtain a pet through battle
     WinPetBattle                                   = 158, /*NYI*/ // Win a pet battle
     LosePetBattle                                  = 159, /*NYI*/ // Lose a pet battle
-    BattlePetReachLevel                            = 160, /*NYI*/ // (Account Only) Battle pet has reached level {#Level}
+    BattlePetReachLevel                            = 160, // (Account Only) Battle pet has reached level {#Level}
     PlayerObtainPetThroughBattle                   = 161, /*NYI*/ // (Player) Obtain a pet through battle
-    ActivelyEarnPetLevel                           = 162, /*NYI*/ // (Player) Actively earn level {#Level} with a pet by a player
+    ActivelyEarnPetLevel                           = 162, // (Player) Actively earn level {#Level} with a pet by a player
     EnterArea                                      = 163, /*NYI*/ // Enter Map Area "{AreaTable}"
     LeaveArea                                      = 164, /*NYI*/ // Leave Map Area "{AreaTable}"
     DefeatDungeonEncounter                         = 165, /*NYI*/ // Defeat Encounter "{DungeonEncounter}"

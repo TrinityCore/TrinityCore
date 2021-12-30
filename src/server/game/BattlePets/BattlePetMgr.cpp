@@ -20,6 +20,7 @@
 #include "Containers.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
+#include "GameTables.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
@@ -675,6 +676,76 @@ void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality
 
     // UF::PlayerData::CurrentBattlePetBreedQuality isn't updated (Intended)
     // _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(qualityValue);
+}
+
+void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource)
+{
+    if (!HasJournalLock())
+        return;
+
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    if (xp <= 0 || xpSource >= BattlePetXpSource::Count)
+        return;
+
+    if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::CantBattle))
+            return;
+
+    uint16 level = pet->PacketInfo.Level;
+    if (level >= MAX_BATTLE_PET_LEVEL)
+        return;
+
+    GtBattlePetXPEntry const* xpEntry = sBattlePetXPGameTable.GetRow(level);
+    if (!xpEntry)
+        return;
+
+    Player* player = _owner->GetPlayer();
+    uint16 nextLevelXp = uint16(GetBattlePetXPPerLevel(xpEntry));
+
+    if (xpSource == BattlePetXpSource::PetBattle)
+        xp *= player->GetTotalAuraMultiplier(SPELL_AURA_MOD_BATTLE_PET_XP_PCT);
+
+    xp += pet->PacketInfo.Exp;
+
+    while (xp >= nextLevelXp && level < MAX_BATTLE_PET_LEVEL)
+    {
+        xp -= nextLevelXp;
+
+        xpEntry = sBattlePetXPGameTable.GetRow(++level);
+        if (!xpEntry)
+            return;
+
+        nextLevelXp = uint16(GetBattlePetXPPerLevel(xpEntry));
+
+        player->UpdateCriteria(CriteriaType::BattlePetReachLevel, pet->PacketInfo.Species, level);
+        if (xpSource == BattlePetXpSource::PetBattle)
+            player->UpdateCriteria(CriteriaType::ActivelyEarnPetLevel, pet->PacketInfo.Species, level);
+    }
+
+    pet->PacketInfo.Level = level;
+    pet->PacketInfo.Exp = level < MAX_BATTLE_PET_LEVEL ? xp : 0;
+    pet->CalculateStats();
+    pet->PacketInfo.Health = pet->PacketInfo.MaxHealth;
+
+    if (pet->SaveInfo != BATTLE_PET_NEW)
+        pet->SaveInfo = BATTLE_PET_CHANGED;
+
+    std::vector<std::reference_wrapper<BattlePet>> updates;
+    updates.push_back(std::ref(*pet));
+    SendUpdates(std::move(updates), false);
+
+    // Update battle pet related update fields
+    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
+    {
+        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
+        {
+            summonedBattlePet->SetWildBattlePetLevel(pet->PacketInfo.Level);
+            player->SetBattlePetData(pet);
+        }
+    }
 }
 
 void BattlePetMgr::HealBattlePetsPct(uint8 pct)
