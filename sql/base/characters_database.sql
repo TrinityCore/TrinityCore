@@ -567,7 +567,7 @@ DROP TABLE IF EXISTS `character_archaeology_projects`;
 CREATE TABLE `character_archaeology_projects` (
   `guid` int(10) unsigned NOT NULL,
   `branch` tinyint(3) unsigned NOT NULL,
-  `project` mediumint(8) unsigned NOT NULL,
+  `project` int(10) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`branch`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -640,7 +640,7 @@ DROP TABLE IF EXISTS `character_aura`;
 CREATE TABLE `character_aura` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `casterGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0',
   `effectMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculateMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `stackCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
@@ -711,7 +711,7 @@ CREATE TABLE `character_battleground_data` (
   `joinMapId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
   `taxiStart` int(10) unsigned NOT NULL DEFAULT '0',
   `taxiEnd` int(10) unsigned NOT NULL DEFAULT '0',
-  `mountSpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `mountSpell` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1058,7 +1058,7 @@ CREATE TABLE `character_pet` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
   `owner` int(10) unsigned NOT NULL DEFAULT '0',
   `modelid` int(10) unsigned DEFAULT '0',
-  `CreatedBySpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `CreatedBySpell`int(10) unsigned NOT NULL DEFAULT '0',
   `PetType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `level` smallint(5) unsigned NOT NULL DEFAULT '1',
   `exp` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1383,7 +1383,7 @@ DROP TABLE IF EXISTS `character_spell`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `character_spell` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
@@ -1408,7 +1408,7 @@ DROP TABLE IF EXISTS `character_spell_cooldown`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `character_spell_cooldown` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `categoryId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell category Id',
@@ -1485,7 +1485,7 @@ DROP TABLE IF EXISTS `character_talent`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `character_talent` (
   `guid` int(10) unsigned NOT NULL,
-  `spell` mediumint(8) unsigned NOT NULL,
+  `spell` int(10) unsigned NOT NULL,
   `talentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`,`talentGroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1510,7 +1510,7 @@ DROP TABLE IF EXISTS `character_void_storage`;
 CREATE TABLE `character_void_storage` (
   `itemId` bigint(20) unsigned NOT NULL,
   `playerGuid` int(10) unsigned NOT NULL,
-  `itemEntry` mediumint(8) unsigned NOT NULL,
+  `itemEntry` int(10) unsigned NOT NULL,
   `slot` tinyint(3) unsigned NOT NULL,
   `creatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
   `randomPropertyType` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1579,7 +1579,7 @@ CREATE TABLE `characters` (
   `trans_y` float NOT NULL DEFAULT '0',
   `trans_z` float NOT NULL DEFAULT '0',
   `trans_o` float NOT NULL DEFAULT '0',
-  `transguid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `transguid` int(10) unsigned NOT NULL DEFAULT '0',
   `trans_spawn_id` int(11) unsigned NOT NULL DEFAULT '0',
   `extra_flags` smallint(5) unsigned NOT NULL DEFAULT '0',
   `stable_slots` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1599,7 +1599,7 @@ CREATE TABLE `characters` (
   `power3` int(10) unsigned NOT NULL DEFAULT '0',
   `power4` int(10) unsigned NOT NULL DEFAULT '0',
   `power5` int(10) unsigned NOT NULL DEFAULT '0',
-  `latency` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `latency` int(10) unsigned NOT NULL DEFAULT '0',
   `talentGroupsCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `activeTalentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `exploredZones` longtext,
@@ -2340,7 +2340,7 @@ CREATE TABLE `guild_rank` (
   `guildid` int(10) unsigned NOT NULL DEFAULT '0',
   `rid` tinyint(3) unsigned NOT NULL,
   `rname` varchar(20) NOT NULL DEFAULT '',
-  `rights` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `rights` int(10) unsigned NOT NULL DEFAULT '0',
   `BankMoneyPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`rid`),
   KEY `Idx_rid` (`rid`)
@@ -2420,7 +2420,7 @@ DROP TABLE IF EXISTS `item_instance`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_instance` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
-  `itemEntry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `itemEntry` int(10) unsigned NOT NULL DEFAULT '0',
   `owner_guid` int(10) unsigned NOT NULL DEFAULT '0',
   `creatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
   `giftCreatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2677,16 +2677,16 @@ DROP TABLE IF EXISTS `pet_aura`;
 CREATE TABLE `pet_aura` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `casterGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0',
   `effectMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculateMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `stackCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `amount0` mediumint(8) NOT NULL,
-  `amount1` mediumint(8) NOT NULL,
-  `amount2` mediumint(8) NOT NULL,
-  `base_amount0` mediumint(8) NOT NULL,
-  `base_amount1` mediumint(8) NOT NULL,
-  `base_amount2` mediumint(8) NOT NULL,
+  `amount0` int(11) NOT NULL,
+  `amount1` int(11) NOT NULL,
+  `amount2` int(11) NOT NULL,
+  `base_amount0` int(11) NOT NULL,
+  `base_amount1` int(11) NOT NULL,
+  `base_amount2` int(11) NOT NULL,
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2712,7 +2712,7 @@ DROP TABLE IF EXISTS `pet_spell`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pet_spell` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pet System';
@@ -2736,7 +2736,7 @@ DROP TABLE IF EXISTS `pet_spell_cooldown`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pet_spell_cooldown` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `categoryId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell category Id',
   `categoryEnd` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2867,17 +2867,17 @@ CREATE TABLE `pvpstats_players` (
   `battleground_id` bigint(20) unsigned NOT NULL,
   `character_guid` int(10) unsigned NOT NULL,
   `winner` bit(1) NOT NULL,
-  `score_killing_blows` mediumint(8) unsigned NOT NULL,
-  `score_deaths` mediumint(8) unsigned NOT NULL,
-  `score_honorable_kills` mediumint(8) unsigned NOT NULL,
-  `score_bonus_honor` mediumint(8) unsigned NOT NULL,
-  `score_damage_done` mediumint(8) unsigned NOT NULL,
-  `score_healing_done` mediumint(8) unsigned NOT NULL,
-  `attr_1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `attr_5` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `score_killing_blows` int(10) unsigned NOT NULL,
+  `score_deaths` int(10) unsigned NOT NULL,
+  `score_honorable_kills` int(10) unsigned NOT NULL,
+  `score_bonus_honor` int(10) unsigned NOT NULL,
+  `score_damage_done` int(10) unsigned NOT NULL,
+  `score_healing_done` int(10) unsigned NOT NULL,
+  `attr_1` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_2` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_3` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_4` int(10) unsigned NOT NULL DEFAULT '0',
+  `attr_5` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`battleground_id`,`character_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2899,7 +2899,7 @@ DROP TABLE IF EXISTS `quest_tracker`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quest_tracker` (
-  `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `id` int(10) unsigned NOT NULL DEFAULT '0',
   `character_guid` int(10) unsigned NOT NULL DEFAULT '0',
   `quest_accept_time` datetime NOT NULL,
   `quest_complete_time` datetime DEFAULT NULL,
@@ -3057,7 +3057,8 @@ INSERT INTO `updates` VALUES
 ('2021_01_23_00_characters.sql','D265DE655DDBFC13E2FA1EB021A435A21189B6E4','ARCHIVED','2021-01-24 10:35:01',0),
 ('2021_07_06_00_characters.sql','536696C1FA3454CD0BE42FE71782E2C864E41C41','ARCHIVED','2021-07-06 05:02:44',0),
 ('2021_07_29_00_characters.sql.sql','9A8EC41256CF3DD735B6822D25A388107831215C','ARCHIVED','2021-07-29 18:53:10',0),
-('2021_12_31_00_characters.sql','BD631B13BD6166D80E02531031F34FFB80393810','RELEASED','2021-12-31 17:54:20',0);
+('2021_12_31_00_characters.sql','BD631B13BD6166D80E02531031F34FFB80393810','RELEASED','2021-12-31 17:54:20',0),
+('2021_12_31_01_characters.sql','F8E15AA6AF18DAD176ABA9B3EFCE766DF1B0ACB5','RELEASED','2021-12-31 18:28:45',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
