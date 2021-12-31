@@ -633,7 +633,7 @@ CREATE TABLE `character_battleground_data` (
   `joinMapId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
   `taxiStart` int(10) unsigned NOT NULL DEFAULT '0',
   `taxiEnd` int(10) unsigned NOT NULL DEFAULT '0',
-  `mountSpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `mountSpell` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1157,7 +1157,7 @@ CREATE TABLE `character_pet` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
   `owner` bigint(10) unsigned NOT NULL DEFAULT '0',
   `modelid` int(10) unsigned DEFAULT '0',
-  `CreatedBySpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `CreatedBySpell` int(10) unsigned NOT NULL DEFAULT '0',
   `PetType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `level` smallint(5) unsigned NOT NULL DEFAULT '1',
   `exp` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1548,7 +1548,7 @@ DROP TABLE IF EXISTS `character_spell`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `character_spell` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
@@ -1676,7 +1676,7 @@ DROP TABLE IF EXISTS `character_talent`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `character_talent` (
   `guid` bigint(20) unsigned NOT NULL,
-  `talentId` mediumint(8) unsigned NOT NULL,
+  `talentId` int(10) unsigned NOT NULL,
   `talentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`talentId`,`talentGroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1751,7 +1751,7 @@ DROP TABLE IF EXISTS `character_void_storage`;
 CREATE TABLE `character_void_storage` (
   `itemId` bigint(20) unsigned NOT NULL,
   `playerGuid` bigint(20) unsigned NOT NULL,
-  `itemEntry` mediumint(8) unsigned NOT NULL,
+  `itemEntry` int(10) unsigned NOT NULL,
   `slot` tinyint(3) unsigned NOT NULL,
   `creatorGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `randomBonusListId` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1845,7 +1845,7 @@ CREATE TABLE `characters` (
   `power5` int(10) unsigned NOT NULL DEFAULT '0',
   `power6` int(10) unsigned NOT NULL DEFAULT '0',
   `power7` int(10) unsigned NOT NULL DEFAULT '0',
-  `latency` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `latency` int(10) unsigned NOT NULL DEFAULT '0',
   `activeTalentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lootSpecId` int(10) unsigned NOT NULL DEFAULT '0',
   `exploredZones` longtext,
@@ -2559,7 +2559,7 @@ CREATE TABLE `guild_rank` (
   `guildid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `rid` tinyint(3) unsigned NOT NULL,
   `rname` varchar(20) NOT NULL DEFAULT '',
-  `rights` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `rights` int(10) unsigned NOT NULL DEFAULT '0',
   `BankMoneyPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`rid`),
   KEY `Idx_rid` (`rid`)
@@ -2665,14 +2665,14 @@ DROP TABLE IF EXISTS `item_instance`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_instance` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `itemEntry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `itemEntry` int(10) unsigned NOT NULL DEFAULT '0',
   `owner_guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `creatorGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `giftCreatorGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `count` int(10) unsigned NOT NULL DEFAULT '1',
   `duration` int(10) NOT NULL DEFAULT '0',
   `charges` tinytext,
-  `flags` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `enchantments` text NOT NULL,
   `randomBonusListId` int(10) unsigned NOT NULL DEFAULT '0',
   `durability` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -3224,7 +3224,7 @@ DROP TABLE IF EXISTS `pet_spell`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pet_spell` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `spell` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Pet System';
@@ -3434,7 +3434,7 @@ DROP TABLE IF EXISTS `quest_tracker`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quest_tracker` (
-  `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `id` int(10) unsigned NOT NULL DEFAULT '0',
   `character_guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `quest_accept_time` datetime NOT NULL,
   `quest_complete_time` datetime DEFAULT NULL,
@@ -3654,7 +3654,8 @@ INSERT INTO `updates` VALUES
 ('2021_12_16_01_characters_2019_07_16_00_characters.sql','76AE193EFA3129FA1702BF7B6FA7C4127B543BDF','RELEASED','2021-12-16 20:16:25',0),
 ('2021_12_23_00_characters.sql','7F2BD7CA61CD28D74AD9CA9F06FD7E542837ED3F','RELEASED','2021-12-23 19:16:29',0),
 ('2021_12_31_00_characters.sql','7ECEEB66056C46F89E581ACBB5EC222CB2D8A365','RELEASED','2021-12-31 13:53:23',0),
-('2021_12_31_01_characters.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2021-12-31 15:58:32',0);
+('2021_12_31_01_characters.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2021-12-31 15:58:32',0),
+('2021_12_31_02_characters.sql','C66A367F0AD7A9D6837238C21E91298413BD960C','RELEASED','2021-12-31 16:10:30',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
