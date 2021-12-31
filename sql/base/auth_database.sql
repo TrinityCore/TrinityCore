@@ -2281,7 +2281,7 @@ CREATE TABLE `updates` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
   `speed` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2521,7 +2521,8 @@ INSERT INTO `updates` VALUES
 ('2021_12_04_00_auth.sql','00C4A37A60F53A5E893CAADAC882E5A28375A4D2','RELEASED','2021-12-04 12:49:04',0),
 ('2021_12_08_00_auth.sql','9B1A7C86F56159CA50A45B9CB4BC6422A3378231','RELEASED','2021-12-08 00:28:19',0),
 ('2021_12_16_00_auth.sql','EF5050D779CC6CEAAFB4C7E0CFA26824D92B675E','RELEASED','2021-12-16 12:21:11',0),
-('2021_12_31_00_auth.sql','1C79640D7A4626EACE1FCE2192206595ADF34CA0','RELEASED','2021-12-31 13:23:04',0);
+('2021_12_31_00_auth.sql','1C79640D7A4626EACE1FCE2192206595ADF34CA0','RELEASED','2021-12-31 13:23:04',0),
+('2021_12_31_01_auth.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2021-12-31 15:58:32',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2536,7 +2537,7 @@ CREATE TABLE `updates_include` (
   `path` varchar(200) NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
   `state` enum('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
   PRIMARY KEY (`path`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

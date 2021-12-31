@@ -3518,7 +3518,7 @@ CREATE TABLE `updates` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
   `speed` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3653,7 +3653,8 @@ INSERT INTO `updates` VALUES
 ('2021_12_16_00_characters_2019_07_14_00_characters.sql','DC1A3D3311FCF9106B4D91F8D2C5B893AD66C093','RELEASED','2021-12-16 01:06:53',0),
 ('2021_12_16_01_characters_2019_07_16_00_characters.sql','76AE193EFA3129FA1702BF7B6FA7C4127B543BDF','RELEASED','2021-12-16 20:16:25',0),
 ('2021_12_23_00_characters.sql','7F2BD7CA61CD28D74AD9CA9F06FD7E542837ED3F','RELEASED','2021-12-23 19:16:29',0),
-('2021_13_31_00_characters.sql','7ECEEB66056C46F89E581ACBB5EC222CB2D8A365','RELEASED','2021-12-31 13:53:23',0);
+('2021_12_31_00_characters.sql','7ECEEB66056C46F89E581ACBB5EC222CB2D8A365','RELEASED','2021-12-31 13:53:23',0),
+('2021_12_31_01_characters.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2021-12-31 15:58:32',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3668,7 +3669,7 @@ CREATE TABLE `updates_include` (
   `path` varchar(200) NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
   `state` enum('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
   PRIMARY KEY (`path`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
