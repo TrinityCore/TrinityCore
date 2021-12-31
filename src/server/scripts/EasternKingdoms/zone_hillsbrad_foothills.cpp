@@ -1287,7 +1287,7 @@ class spell_brazie_spit : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect.Register(&spell_brazie_spit::FilterTargets, EFFECT_ALL, TARGET_UNIT_CONE_ENEMY_104);
+        OnObjectAreaTargetSelect.Register(&spell_brazie_spit::FilterTargets, EFFECT_ALL, TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY);
     }
 };
 

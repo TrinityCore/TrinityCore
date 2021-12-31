@@ -1554,7 +1554,7 @@ class spell_omnotron_flamethrower : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect.Register(&spell_omnotron_flamethrower::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+        OnObjectAreaTargetSelect.Register(&spell_omnotron_flamethrower::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY);
     }
 };
 

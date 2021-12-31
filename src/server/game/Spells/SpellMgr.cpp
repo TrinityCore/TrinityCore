@@ -5223,17 +5223,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
     });
 
-    // Wind Blast
-    ApplySpellFix({
-        85483,
-        93138,
-        93139,
-        93140
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CONE_ENEMY_104);
-    });
-
     // Al'Akir
 
     // Wind Burst
