@@ -376,6 +376,7 @@ class TC_GAME_API Spell
         void EffectCancelConversation();
         void EffectAddGarrisonFollower();
         void EffectActivateGarrisonBuilding();
+        void EffectGrantBattlePetLevel();
         void EffectHealBattlePetPct();
         void EffectEnableBattlePets();
         void EffectChangeBattlePetQuality();

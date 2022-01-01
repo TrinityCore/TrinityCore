@@ -6066,6 +6066,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 break;
             }
             case SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY:
+            case SPELL_EFFECT_GRANT_BATTLEPET_LEVEL:
             case SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE:
             {
                 Player* playerCaster = m_caster->ToPlayer();
@@ -6112,7 +6113,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                                     return SPELL_FAILED_CANT_UPGRADE_BATTLE_PET;
                             }
 
-                            if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
+                            if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_LEVEL || spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
                                 if (battlePet->PacketInfo.Level >= BattlePets::MAX_BATTLE_PET_LEVEL)
                                     return GRANT_PET_LEVEL_FAIL;
 
