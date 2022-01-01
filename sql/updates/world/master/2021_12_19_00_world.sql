@@ -71,7 +71,7 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
  -- Sylvanas Windrunner
 DELETE FROM `creature_template` WHERE `entry`=175732;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(175732, 'Sylvanas Windrunner', NULL, NULL, NULL, NULL, 0, 63, 63, 8, 0, 0, 16, 0, 1.6, 2, 1, 3, 0, 1000, 1750, 1, 1, 4, 64, 1073741824, 8388610, 0, 0, 0, 0, 4, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1443.76, 1, 1, 1, 1, 1, 1, 0, 183, 204626, 0, 0, 1, 0, 0, 0, 'boss_sylvanas_windrunner', 41079);
+(175732, 'Sylvanas Windrunner', NULL, NULL, NULL, NULL, 0, 63, 63, 8, 0, 0, 16, 0, 1.6, 2, 1, 3, 0, 1000, 1750, 1, 1, 4, 64, 1073741824, 8388610, 0, 0, 0, 0, 4, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1443.76, 1, 1, 1, 1, 1, 1, 0, 183, 204626, 0, 0, 1, 650854271, 0, 0, 'boss_sylvanas_windrunner', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=175732;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -119,10 +119,36 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (175732, 9, 0, '|TInterface\\Icons\\INV_BELT_44.BLP:20|t %s begins to cast |cFFFF0000|Hspell:349458|h[Domination Chains]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Domination Chains warning'),
 (175732, 10, 0, 'The past shackles you!', 14, 0, 100, 0, 0, 181344, 0, 210328, 0, 'Domination Chains'),
 (175732, 11, 0, '|TInterface\\Icons\\Ability_Argus_DeathFog.blp:20|t %s begins to cast |cFFFF0000|Hspell:347704|h[Veil of Darkness]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Veil of Darkness warning'),
-(175732, 12, 0, 'Darkness take you!', 14, 0, 100, 0, 0, 181341, 0, 211262, 0, 'Veil of Darkness'),
+(175732, 12, 0, 'Darkness take you!', 14, 0, 100, 0, 0, 181341, 0, 211262, 0, 'Veil of Darkness 01 (Phase 1)'),
 (175732, 13, 0, 'You are unfit to stand against me!', 14, 0, 100, 0, 0, 181345, 0, 210329, 0, 'Begin Intermission'),
-(175732, 14, 0, 'Your lives end here!', 14, 0, 100, 0, 0, 181337, 0, 210402, 0, 'Finish Intermission'),
-(175732, 25, 0, 'Death bends to my will!', 14, 0, 100, 0, 0, 181343, 0, 210354, 0, 'Phase 3 Start');
+(175732, 14, 0, '|TInterface\\ICONS\\SPELL_SHADOW_SOULLEECH_3.BLP:20|t %s begins to cast |cFFFF0000|Hspell:348109|h[Banshee Wail]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Banshee Wail warning'),
+(175732, 15, 0, 'Your lives end here!', 14, 0, 100, 0, 0, 181337, 0, 210402, 0, 'Finish Intermission'),
+(175732, 16, 0, '|TInterface\\ICONS\\UI_darkshore_warfront_horde_banshee.BLP:20|t %s begins to cast |cFFFF0000|Hspell:351869|h[Haunting Wave]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Haunting Wave warning'),
+(175732, 17, 0, '|TInterface\\ICONS\\Ability_IronMaidens_ConvulsiveShadows.BLP:20|t %s begins to cast |cFFFF0000|Hspell:355540|h[Ruin]|h|r!', 41, 0, 100, 0, 0, 181479, 0, 0, 0, 'Ruin warning'),
+(175732, 18, 0, 'I shattered your throne. Now I\'ll break you!', 14, 0, 100, 0, 0, 181529, 0, 210344, 0, 'Winds of Icecrown 01'),
+(175732, 19, 0, 'All hope is lost!', 14, 0, 100, 0, 0, 181340, 0, 210338, 0, 'Veil of Darkness 01 (Phase 2-3)'),
+(175732, 19, 1, 'Suffer my wrath!', 14, 0, 100, 0, 0, 181339, 0, 210342, 0, 'Veil of Darkness 02 (Phase 2-3)'),
+(175732, 19, 2, 'Nothing escapes my wrath!', 14, 0, 100, 0, 0, 181339, 0, 210336, 0, 'Veil of Darkness 03 (Phase 2-3)'),
+(175732, 19, 3, 'Fall into oblivion!', 14, 0, 100, 0, 0, 181347, 0, 211258, 0, 'Veil of Darkness 04 (Phase 2-3)'),
+(175732, 20, 0, '|TInterface\\ICONS\\ABILITY_WARLOCK_IMPROVEDSOULLEECH.BLP:20|t %s begins to cast |cFFFF0000|Hspell:353955|h[Banshee Scream]|h|r!', 41, 0, 100, 0, 0, 181336, 0, 0, 0, 'Banshee Scream warning'),
+(175732, 21, 0, 'Hear the sound of suffering!', 14, 0, 100, 0, 0, 181338, 0, 211266, 0, 'Banshee Wail and Scream 01'),
+(175732, 21, 1, 'Death awaits you!', 14, 0, 100, 0, 0, 181336, 0, 210401, 0, 'Banshee Wail and Scream 02'),
+(175732, 22, 0, 'You will pay. All of you will pay!', 14, 0, 100, 0, 0, 181530, 0, 210346, 0, 'Winds of Icecrown 02'),
+(175732, 23, 0, 'Death bends to my will!', 14, 0, 100, 0, 0, 181343, 0, 210354, 0, 'Phase 3 Start'),
+(175732, 24, 0, 'Heed the call of the Banshee Queen!', 14, 0, 100, 0, 0, 181334, 0, 210349, 0, 'Banshee\'s Fury 01'),
+(175732, 25, 1, 'Hear my cry and despair!', 14, 0, 100, 0, 0, 181335, 0, 210350, 0, 'Banshee\'s Fury 02'),
+(175732, 26, 0, '|TInterface\\ICONS\\Spell_AnimaMaw_GroundState.blp:20|t %s begins to cast |cFFFF0000|Hspell:354145|h[Raze]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Raze warning');
+
+DELETE FROM `creature_text_locale` WHERE `CreatureID`=175732;
+INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`) VALUES 
+(175732, 3, 0, 'esES', '|TInterface\\\\ICONS\\\\Achievement_Leader_Sylvanas.blp:20|t ¡%s obtiene |cFFFF0000|Hspell:347504|h[[Brisaveloz]]|h|r!'),
+(175732, 9, 0, 'esES', '|TInterface\\\\Icons\\\\INV_BELT_44.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:349458|h[Cadenas de dominación]|h|r!'),
+(175732, 6, 0, 'esES', '|TInterface\\\\Icons\\\\ABILITY_THEBLACKARROW.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:347609|h[Flecha lastimera]|h|r!'),
+(175732, 7, 0, 'esES', '|TInterface\\\\Icons\\\\ABILITY_THEBLACKARROW.BLP:20|t ¡Te han marcado con |cFFFF0000|Hspell:347609|h[Flecha lastimera]|h|r!'),
+(175732, 11, 0, 'esES', '|TInterface\\\\Icons\\\\Ability_Argus_DeathFog.blp:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:347704|h[Velo de oscuridad]|h|r!'),
+(175732, 16, 0, 'esES', '|TInterface\\\\ICONS\\\\UI_darkshore_warfront_horde_banshee.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:351869|h[Oleada inquietante]|h|r!'),
+(175732, 17, 0, 'esES', '|TInterface\\\\ICONS\\\\Ability_IronMaidens_ConvulsiveShadows.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:355540|h[Ruina]|h|r!'),
+(175732, 20, 0, 'esES', '|TInterface\\\\ICONS\\\\ABILITY_WARLOCK_IMPROVEDSOULLEECH.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:353955|h[Alarido de alma en pena]|h|r!');
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=175732;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES 
@@ -309,6 +335,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=352271 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (352271, 'spell_sylvanas_windrunner_haunting_wave');
 
+ -- Ruin
+DELETE FROM `spell_script_names` WHERE `spell_id`=355540 AND `ScriptName`='spell_sylvanas_windrunner_ruin';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(355540, 'spell_sylvanas_windrunner_ruin');
+
  -- Veil of Darkness (Phase 2 - Fade)
 DELETE FROM `spell_script_names` WHERE `spell_id`=353273 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -407,13 +438,14 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 (@OGUID+10, 0, 0, 0.000000087422776573, 1, 0, 0),
 (@OGUID+11, 0, 0, 0.000000087422776573, 1, 0, 0);
 
-DELETE FROM `areatrigger_template` WHERE `Id` IN (27408, 27687, 6197, 27461, 27782, 27929, 27928, 27480);
+DELETE FROM `areatrigger_template` WHERE `Id` IN (27408, 27687, 6197, 27461, 27782, 27783, 27929, 27928, 27480);
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `VerifiedBuild`) VALUES 
 (27408, 0, 1, 32, 5, 2.5, 3.5, 5, 2.5, 3.5, 41079), -- Rive
 (27687, 0, 0, 36, 4, 4, 0, 0, 0, 0, 41488), -- Calamity - Heroic Mode
 (6197,  0, 0, 0, 1, 1, 0, 0, 0, 0, 41079),
 (27461, 0, 0, 32, 1, 1, 0, 0, 0, 0, 41488), -- Unknown
-(27782, 0, 4, 100, 100, 0, 0, 0, 0, 0, 41079), -- Blasphemy
+(27782, 0, 4, 100, 100, 0, 0, 0, 0, 0, 41079), -- Blasphemy (357729)
+(27783, 0, 4, 100, 100, 0, 0, 0, 0, 0, 41488), -- Blasphemy (357730)
 (27929, 0, 1, 34, 1.75, 4, 2, 1.75, 4, 2, 41079), -- Haunting Wave - Normal Mode
 (27928, 0, 1, 34, 1.75, 4, 2, 1.75, 4, 2, 41488), -- Haunting Wave - Heroic Mode
 (27480, 0, 1, 0, 30, 30, 5, 30, 30, 5, 41488); -- Raze
@@ -428,8 +460,8 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId
 (23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave - Normal Mode (351869)
 (23693, 27928, 0, 28658, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Heroic Mode (351869)
 (40000, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 1, 1, 0, 0, 0, 0, '', 41488), -- Unknown, phase 3 related (the spell associated on areatrigger_create_properties is 0, likely a serverside spell)
-(23507, 27783, 0, 0, 0, 0, -1, 0, 0, 0, 7000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357730)
 (23506, 27782, 0, 0, 0, 0, -1, 0, 0, 0, 10000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy_pre', 41079), -- Blasphemy (357729)
+(23507, 27783, 0, 0, 0, 0, -1, 0, 0, 0, 7000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357730)
 (23117, 27480, 0, 0, 0, 0, -1, 0, 462, 0, 0, 1, 20, 20, 5, 20, 20, 5, 'at_sylvanas_windrunner_raze', 41079); -- Raze (354145)
 
 DELETE FROM `areatrigger_create_properties_spline_point` WHERE `AreaTriggerCreatePropertiesId` IN (23028, 23694, 23693);
@@ -483,6 +515,21 @@ DELETE FROM `creature` WHERE `guid`=@CGUID+1;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+1, 178081, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 239.795, -806.064, 4105.07, 4.77206, 30, 0, 0, 1179100, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
 
+DELETE FROM `creature_text` WHERE `CreatureID`=178081;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+(178081, 0, 0, 'Behind our quarry. Heroes, with me!', 14, 0, 100, 0, 0, 181488, 0, 210387, 0, ''),
+(178081, 1, 0, 'By the Light! He\'s expanding the Maw around Oribos!', 14, 0, 100, 0, 0, 181477, 0, 211265, 0, ''),
+(178081, 2, 0, 'The Banshee is aiming at our heads!', 14, 0, 100, 0, 0, 181479, 0, 211259, 0, ''),
+(178081, 3, 0, 'This power is not yours to command!', 14, 0, 100, 0, 0, 181602, 0, 210390, 0, ''),
+(178081, 4, 0, 'Your crusade ends here, Banshee! ', 14, 0, 100, 0, 0, 181523, 0, 211458, 0, ''),
+(178081, 5, 0, 'Thrall, scout ahead. Champions, we\'ll assist the admiral!', 14, 0, 100, 0, 0, 181570, 0, 211261, 0, ''),
+(178081, 6, 0, 'Thrall won\'t last much longer on his own. We need to reach him!', 14, 0, 100, 0, 0, 181578, 0, 211270, 0, ''),
+(178081, 7, 0, 'Sylvanas means to claim our heads! Stop her!', 14, 0, 100, 0, 0, 181480, 0, 211267, 0, ''),
+(178081, 8, 0, 'Press the attack! The Jailer must be stopped.', 14, 0, 100, 0, 0, 181478, 0, 211264, 0, ''),
+(178081, 9, 0, 'We\'re done with your games, Sylvanas!', 14, 0, 100, 0, 0, 181603, 0, 210391, 0, ''),
+(178081, 10, 0, 'This time you\'ll lose, Sylvanas!', 14, 0, 100, 0, 0, 181524, 0, 211459, 0, ''),
+(178081, 11, 0, 'No! The Jailer is going to destroy the Arbiter!', 14, 0, 100, 0, 0, 181604, 0, 211464, 0, '');
+
  -- Winds of Icecrown
 DELETE FROM `spell_script_names` WHERE `spell_id`=356941 AND `ScriptName`='spell_sylvanas_windrunner_winds_of_icecrown';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -491,50 +538,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=356941 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=175732 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 356941, 0, 0, 31, 0, 3, 175732, 0, 0, 0, 0, '', 'Winds of Icecrown - Target Sylvanas Windrunner');
-
- -- Lady Jaina Proudmoore
-DELETE FROM `creature_template` WHERE `entry`=176533;
-INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(176533, 'Lady Jaina Proudmoore', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 2110, 35184372088832, 1.6, 1.14286, 1, 1, 0, 2000, 0, 1, 1, 2, 32832, 1073741828, 65568, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_sylvanas_windrunner_jaina', 41079);
-
-DELETE FROM `creature_template_addon` WHERE `entry`=176533;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(176533, 0, 0, 0, 1, 654, 0, 0, 0, '');
-
-DELETE FROM `creature_equip_template` WHERE `CreatureID` = 176533;
-INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
-(176533, 1, 153575, 0, 0, 0, 0, 0, 0, 0, 0);
-
-DELETE FROM `creature_model_info` WHERE `DisplayID`=101962;
-INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
-(101962, 0.652598, 0, 1, 41359);
-
-DELETE FROM `creature_template_scaling` WHERE `Entry` = 176533;
-INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(176533, 0, 0, 0, 2104, 41079);
-
-DELETE FROM `creature_template_movement` WHERE `CreatureId`=176533;
-INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
-(176533, 1, 0, 0, 0, 0, 0);
-
-DELETE FROM `creature` WHERE `guid`=@CGUID+2;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+2, 176533, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 231.595, -801.5, 4105.07, 5.02181, 30, 0, 0, 2249600, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
-
- -- Frigid Shards
-DELETE FROM `spell_script_names` WHERE `spell_id`=354933 AND `ScriptName`='spell_sylvanas_windrunner_frigid_shards';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(354933, 'spell_sylvanas_windrunner_frigid_shards');
-
- -- Comet Barrage
-DELETE FROM `spell_script_names` WHERE `spell_id`=354938 AND `ScriptName`='spell_sylvanas_windrunner_comet_barrage';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(354938, 'spell_sylvanas_windrunner_comet_barrage');
-
- -- Teleport to Phase Two
-DELETE FROM `spell_script_names` WHERE `spell_id`=350903 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_two';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(350903, 'spell_sylvanas_windrunner_teleport_to_phase_two');
 
  -- Thrall
 DELETE FROM `creature_template` WHERE `entry`=176532;
@@ -565,22 +568,94 @@ DELETE FROM `creature` WHERE `guid`=@CGUID+3;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+3, 176532, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 243.661, -804.615, 4105.07, 4.28529, 30, 0, 0, 4611600, 0, 0, 0, 0, 0, 0, 0, '', 41079);
 
+DELETE FROM `creature_text` WHERE `CreatureID`=176532;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+(176532, 0, 0, 'Blood and thunder!', 14, 0, 100, 0, 0, 181590, 0, 210382, 0, ''),
+(176532, 1, 0, 'I\'ve opened the way! Go! Stop Sylvanas!', 14, 0, 100, 0, 0, 181580, 0, 210371, 0, ''),
+(176532, 2, 0, 'Yield, Sylvanas!', 14, 0, 100, 0, 0, 181527, 0, 211453, 0, ''),
+(176532, 3, 0, 'With me, champions! Jaina needs our strength!', 14, 0, 100, 0, 0, 181579, 0, 210373, 0, ''),
+(176532, 4, 0, 'My defenses falter!', 14, 0, 100, 0, 0, 181577, 0, 210386, 0, ''),
+(176532, 5, 0, 'Is there no end to these creatures?!', 14, 0, 100, 0, 0, 181484, 0, 211450, 0, ''),
+(176532, 6, 0, 'Their forces are numberless!', 14, 0, 100, 0, 0, 181483, 0, 211449, 0, ''),
+(176532, 7, 0, 'I\'m in your debt, Highlord.', 12, 0, 100, 0, 0, 181534, 0, 210383, 0, ''),
+(176532, 8, 0, 'Heroes, to me! Let\'s regroup with Jaina!', 14, 0, 100, 0, 0, 181581, 0, 210375, 0, ''),
+(176532, 9, 0, 'For Saurfang! For the Horde! ', 14, 0, 100, 0, 0, 181528, 0, 211454, 0, ''),
+(176532, 10, 0, 'The Arbiter\'s defenses are weakening! Stop the Jailer while we still can!', 14, 0, 100, 0, 0, 181606, 0, 211463, 0, '');
+
+ -- Lady Jaina Proudmoore
+DELETE FROM `creature_template` WHERE `entry`=176533;
+INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
+(176533, 'Lady Jaina Proudmoore', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 2110, 0, 1.6, 1.14286, 1, 1, 0, 2000, 0, 1, 1, 2, 32832, 1073741824, 65568, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_sylvanas_windrunner_jaina', 41079);
+
+DELETE FROM `creature_template_addon` WHERE `entry`=176533;
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
+(176533, 0, 0, 0, 1, 654, 0, 0, 0, '');
+
+DELETE FROM `creature_equip_template` WHERE `CreatureID` = 176533;
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
+(176533, 1, 153575, 0, 0, 0, 0, 0, 0, 0, 0);
+
+DELETE FROM `creature_model_info` WHERE `DisplayID`=101962;
+INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
+(101962, 0.652598, 0, 1, 41359);
+
+DELETE FROM `creature_template_scaling` WHERE `Entry` = 176533;
+INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
+(176533, 0, 0, 0, 2104, 41079);
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=176533;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
+(176533, 1, 0, 0, 0, 0, 0);
+
+DELETE FROM `creature` WHERE `guid`=@CGUID+2;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+(@CGUID+2, 176533, 2450, 13561, 13653, '14', 0, 0, 0, -1, 0, 1, 231.595, -801.5, 4105.07, 5.02181, 30, 0, 0, 2249600, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
+
+DELETE FROM `creature_text` WHERE `CreatureID`=176533;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+(176533, 0, 0, 'Something is limiting my magic. Where are we?', 12, 0, 100, 0, 0, 181487, 0, 210368, 0, ''),
+(176533, 1, 0, 'Is the Jailer trying to break out of the Maw... or something else?', 12, 0, 100, 0, 0, 181489, 0, 211274, 0, ''),
+(176533, 2, 0, 'Heroes! I need aid!', 14, 0, 100, 0, 0, 181569, 0, 210366, 0, ''),
+(176533, 3, 0, 'There\'s too many of them!', 14, 0, 100, 0, 0, 181482, 0, 211452, 0, ''),
+(176533, 4, 0, 'Thank you, Bolvar.', 12, 0, 100, 0, 0, 181533, 0, 210367, 0, ''),
+(176533, 5, 0, 'Quickly, champions! Stop Sylvanas!', 14, 0, 100, 0, 0, 181584, 0, 210358, 0, ''),
+(176533, 6, 0, 'Hurry! Thrall needs us!', 14, 0, 100, 0, 0, 181583, 0, 210359, 0, ''),
+(176533, 7, 0, 'You don\'t have to do this! Surrender! ', 14, 0, 100, 0, 0, 181526, 0, 211456, 0, ''),
+(176533, 8, 0, 'Sylvanas! Give Anduin to me!', 14, 0, 100, 0, 0, 181525, 0, 211455, 0, ''),
+(176533, 9, 0, 'We\'re out of time! Oribos is being enveloped by the Maw!', 14, 0, 100, 0, 0, 181490, 0, 211271, 0, ''),
+(176533, 10, 0, 'Hold them back a little longer. The portal\'s nearly open!', 14, 0, 100, 0, 0, 181491, 0, 210369, 0, ''),
+(176533, 11, 0, 'It\'s done! Hurry! ', 14, 0, 100, 0, 0, 181492, 0, 210370, 0, ''),
+(176533, 12, 0, 'He\'s done it. The Arbiter falls...', 14, 0, 100, 0, 0, 181499, 0, 211465, 0, '');
+
+ -- Frigid Shards
+DELETE FROM `spell_script_names` WHERE `spell_id`=354933 AND `ScriptName`='spell_sylvanas_windrunner_frigid_shards';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354933, 'spell_sylvanas_windrunner_frigid_shards');
+
+ -- Comet Barrage
+DELETE FROM `spell_script_names` WHERE `spell_id`=354938 AND `ScriptName`='spell_sylvanas_windrunner_comet_barrage';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354938, 'spell_sylvanas_windrunner_comet_barrage');
+
+ -- Teleport to Phase Two
+DELETE FROM `spell_script_names` WHERE `spell_id`=350903 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_two';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(350903, 'spell_sylvanas_windrunner_teleport_to_phase_two');
+
+ -- Teleport to Phase Three
+DELETE FROM `spell_script_names` WHERE `spell_id`=350906 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_three';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(350906, 'spell_sylvanas_windrunner_teleport_to_phase_three');
+
+ -- Teleport 
+DELETE FROM `spell_script_names` WHERE `spell_id`=357103 AND `ScriptName`='spell_sylvanas_windrunner_teleport';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357103, 'spell_sylvanas_windrunner_teleport');
+
  --
  -- PHASE 2
- 
- -- Teleport (Master - To Phase 3)
-DELETE FROM `spell_script_names` WHERE `spell_id`=350906 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_master';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(350906, 'spell_sylvanas_windrunner_teleport_to_phase_3_master');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=350906 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=176533 AND `ConditionValue3`=0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 1, 350906, 0, 0, 31, 0, 3, 176533, 0, 0, 0, 0, '', 'Teleport (Master - To Phase 3) - Target Jaina'); -- TODO: The entry is most likely wrong, we need to find which one uses as target
 
- -- Teleport (Random Position)
-DELETE FROM `spell_script_names` WHERE `spell_id`=357103 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_3_random_position';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(357103, 'spell_sylvanas_windrunner_teleport_to_phase_3_random_position');
 
  --
  -- PHASE 3
@@ -776,18 +851,24 @@ DELETE FROM `creature_template_scaling` WHERE `Entry`=178072;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
 (178072, 14, 0, 0, 2104, 41079);
 
+DELETE FROM `creature_equip_template` WHERE `CreatureID`=178072 AND `ID`=1;
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES 
+(178072, 1, 183938, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=178072;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
-(178072, 1, 0, 1, 0, 0, 0);
+(178072, 1, 0, 0, 0, 0, 0);
  
 DELETE FROM `creature` WHERE `guid`=@CGUID+5;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+5, 178072, 2450, 13561, 13655, '14', 0, 0, 0, -1, 0, 1, -249.161, -1271.62, 5667.08, 4.56334, 7200, 0, 0, 23058000, 2568, 0, 0, 0, 0, 0, 0, '', 41079);
 
+ -- Blasphemy 
 DELETE FROM `spell_script_names` WHERE `spell_id`=357729 AND `ScriptName`='spell_sylvanas_windrunner_blasphemy_pre';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357729, 'spell_sylvanas_windrunner_blasphemy_pre');
 
+ -- Blasphemy
 DELETE FROM `spell_script_names` WHERE `spell_id`=357730 AND `ScriptName`='spell_sylvanas_windrunner_blasphemy';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357730, 'spell_sylvanas_windrunner_blasphemy');
