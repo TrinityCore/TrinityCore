@@ -121,8 +121,33 @@ public:
     }
 };
 
+enum MagnestsHowDoTheyWork
+{
+    SPELL_SCRAPS = 88440
+};
+
+// 88443 - Scrap Master Summon
+class spell_tb_scrap_master_summon : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SCRAPS });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(nullptr, SPELL_SCRAPS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_tb_scrap_master_summon::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_tol_barad()
 {
     new npc_tb_spirit_guide();
     new spell_siege_cannon();
+    RegisterSpellScript(spell_tb_scrap_master_summon);
 }
