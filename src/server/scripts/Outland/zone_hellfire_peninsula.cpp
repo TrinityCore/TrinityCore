@@ -255,7 +255,7 @@ enum WoundedBloodElf
     QUEST_ROAD_TO_FALCON_WATCH  = 9375,
     NPC_HAALESHI_WINDWALKER     = 16966,
     NPC_HAALESHI_TALONGUARD     = 16967,
-  
+
 };
 
 class npc_wounded_blood_elf : public CreatureScript
