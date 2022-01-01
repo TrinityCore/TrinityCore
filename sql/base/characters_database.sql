@@ -2982,7 +2982,7 @@ CREATE TABLE `updates` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
   `speed` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3058,7 +3058,8 @@ INSERT INTO `updates` VALUES
 ('2021_07_06_00_characters.sql','536696C1FA3454CD0BE42FE71782E2C864E41C41','ARCHIVED','2021-07-06 05:02:44',0),
 ('2021_07_29_00_characters.sql.sql','9A8EC41256CF3DD735B6822D25A388107831215C','ARCHIVED','2021-07-29 18:53:10',0),
 ('2021_12_31_00_characters.sql','BD631B13BD6166D80E02531031F34FFB80393810','RELEASED','2021-12-31 17:54:20',0),
-('2021_12_31_01_characters.sql','F8E15AA6AF18DAD176ABA9B3EFCE766DF1B0ACB5','RELEASED','2021-12-31 18:28:45',0);
+('2021_12_31_01_characters.sql','F8E15AA6AF18DAD176ABA9B3EFCE766DF1B0ACB5','RELEASED','2021-12-31 18:28:45',0),
+('2022_01_01_00_characters.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2022-01-01 11:04:58',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3073,7 +3074,7 @@ CREATE TABLE `updates_include` (
   `path` varchar(200) NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
   `state` enum('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
   PRIMARY KEY (`path`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
