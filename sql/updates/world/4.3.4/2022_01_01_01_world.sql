@@ -1,0 +1,41 @@
+ALTER TABLE `achievement_criteria_data` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `areatrigger_scripts` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `battleground_template` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `battleground_template` MODIFY `Comment` varchar(32) NOT NULL;
+ALTER TABLE `conditions` MODIFY `ScriptName` varchar(64) NOT NULL DEFAULT '';
+ALTER TABLE `creature` MODIFY `ScriptName` varchar(64) NULL DEFAULT NULL;
+ALTER TABLE `creature_template` MODIFY `name` varchar(100) NOT NULL;
+ALTER TABLE `creature_template` MODIFY `femaleName` varchar(100) NOT NULL;
+ALTER TABLE `creature_template` MODIFY `subname` varchar(100) NULL DEFAULT NULL;
+ALTER TABLE `creature_template` MODIFY `IconName` varchar(100) NULL DEFAULT NULL;
+ALTER TABLE `creature_template` MODIFY `AIName` varchar(64) NOT NULL;
+ALTER TABLE `creature_template` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `game_weather` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `gameobject` MODIFY `ScriptName` varchar(64) NULL DEFAULT NULL;
+ALTER TABLE `gameobject_template` MODIFY `AIName` varchar(64) NOT NULL;
+ALTER TABLE `outdoorpvp_template` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `spell_script_names` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `transports` MODIFY `ScriptName` varchar(64) NOT NULL;
+ALTER TABLE `updates` MODIFY `hash` varchar(40) NULL DEFAULT NULL;
+
+ALTER TABLE `creature_formations` MODIFY `FollowDistance` float NOT NULL;
+ALTER TABLE `creature_formations` MODIFY `FollowAngle` float NOT NULL;
+ALTER TABLE `creature_movement_info` MODIFY `WalkSpeed` float NULL DEFAULT NULL;
+ALTER TABLE `creature_movement_info` MODIFY `RunSpeed` float NULL DEFAULT NULL;
+ALTER TABLE `creature_text` MODIFY `Probability` float NOT NULL DEFAULT '0';
+ALTER TABLE `item_enchantment_template` MODIFY `chance` float NOT NULL DEFAULT '0';
+ALTER TABLE `item_template_addon` MODIFY `SpellPPMChance` float NOT NULL DEFAULT '0';
+ALTER TABLE `script_spline_chain_meta` MODIFY `velocity` float NULL DEFAULT '0';
+ALTER TABLE `spell_enchant_proc_data` MODIFY `PPMChance` float NOT NULL DEFAULT '0';
+ALTER TABLE `spelleffect_dbc` MODIFY `EffectAmplitude` float NOT NULL DEFAULT '0';
+ALTER TABLE `spelleffect_dbc` MODIFY `EffectBonusCoefficient` float NOT NULL DEFAULT '0';
+ALTER TABLE `spelleffect_dbc` MODIFY `EffectChainAmplitude` float NOT NULL DEFAULT '0';
+ALTER TABLE `spelleffect_dbc` MODIFY `EffectPointsPerResource` float NOT NULL DEFAULT '0';
+ALTER TABLE `spelleffect_dbc` MODIFY `EffectRealPointsPerLevel` float NOT NULL DEFAULT '0';
+
+ALTER TABLE `broadcast_text` MODIFY `Text` text NOT NULL;
+ALTER TABLE `broadcast_text` MODIFY `Text1` text NOT NULL;
+
+ALTER TABLE `command` MODIFY `help` mediumtext NOT NULL;
+ALTER TABLE `creature_text` MODIFY `Text` mediumtext NOT NULL;
+ALTER TABLE `page_text` MODIFY `Text` mediumtext NOT NULL;
