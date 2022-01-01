@@ -260,7 +260,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_MirrorTimerFlags = UNDERWATER_NONE;
     m_MirrorTimerFlagsLast = UNDERWATER_NONE;
-    m_isInWater = false;
     m_hostileReferenceCheckTimer = 0;
     m_drunkTimer = 0;
     m_deathTimer = 0;
@@ -2337,22 +2336,6 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, Gameo
         return nullptr;
 
     return go;
-}
-
-void Player::SetInWater(bool apply)
-{
-    if (m_isInWater == apply)
-        return;
-
-    //define player in water by opcodes
-    //move player's guid into HateOfflineList of those mobs
-    //which can't swim and move guid back into ThreatList when
-    //on surface.
-    /// @todo exist also swimming mobs, and function must be symmetric to enter/leave water
-    m_isInWater = apply;
-
-    // remove auras that need water/land
-    RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 }
 
 bool Player::IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const
@@ -24299,42 +24282,42 @@ void Player::SetOriginalGroup(Group* group, int8 subgroup)
     }
 }
 
-void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
+void Player::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<LiquidData> const& newLiquidData)
 {
     // process liquid auras using generic unit code
-    Unit::ProcessTerrainStatusUpdate(status, liquidData);
+    Unit::ProcessTerrainStatusUpdate(oldLiquidStatus, newLiquidData);
 
     // player specific logic for mirror timers
-    if (status && liquidData)
+    if (GetLiquidStatus() && newLiquidData)
     {
         // Breath bar state (under water in any liquid type)
-        if (liquidData->type_flags & MAP_ALL_LIQUIDS)
+        if (newLiquidData->type_flags & MAP_ALL_LIQUIDS)
         {
-            if (status & LIQUID_MAP_UNDER_WATER)
+            if (GetLiquidStatus() & LIQUID_MAP_UNDER_WATER)
                 m_MirrorTimerFlags |= UNDERWATER_INWATER;
             else
                 m_MirrorTimerFlags &= ~UNDERWATER_INWATER;
         }
 
         // Fatigue bar state (if not on flight path or transport)
-        if ((liquidData->type_flags & MAP_LIQUID_TYPE_DARK_WATER) && !IsInFlight() && !GetTransport())
+        if ((newLiquidData->type_flags & MAP_LIQUID_TYPE_DARK_WATER) && !IsInFlight() && !GetTransport())
             m_MirrorTimerFlags |= UNDERWATER_INDARKWATER;
         else
             m_MirrorTimerFlags &= ~UNDERWATER_INDARKWATER;
 
         // Lava state (any contact)
-        if (liquidData->type_flags & MAP_LIQUID_TYPE_MAGMA)
+        if (newLiquidData->type_flags & MAP_LIQUID_TYPE_MAGMA)
         {
-            if (status & MAP_LIQUID_STATUS_IN_CONTACT)
+            if (GetLiquidStatus() & MAP_LIQUID_STATUS_IN_CONTACT)
                 m_MirrorTimerFlags |= UNDERWATER_INLAVA;
             else
                 m_MirrorTimerFlags &= ~UNDERWATER_INLAVA;
         }
 
         // Slime state (any contact)
-        if (liquidData->type_flags & MAP_LIQUID_TYPE_SLIME)
+        if (newLiquidData->type_flags & MAP_LIQUID_TYPE_SLIME)
         {
-            if (status & MAP_LIQUID_STATUS_IN_CONTACT)
+            if (GetLiquidStatus() & MAP_LIQUID_STATUS_IN_CONTACT)
                 m_MirrorTimerFlags |= UNDERWATER_INSLIME;
             else
                 m_MirrorTimerFlags &= ~UNDERWATER_INSLIME;
