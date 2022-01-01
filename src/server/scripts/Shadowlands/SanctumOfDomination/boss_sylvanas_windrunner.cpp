@@ -348,6 +348,7 @@ enum SpellVisualKits
     SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_3_01     = 148191,
     SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_3_02     = 148193,
     SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_3_03     = 148192,
+    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END          = 148130,
 
     SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_VEIL_OF_DARKNESS2 = 144927, // Same as 17
 
@@ -515,19 +516,19 @@ Position const MaldraxxiPlatformVertex[2] =
     { -308.6874f, -1218.0043f, 5671.6704f }
 };
 
-Position const PlatformNightfaeVertex[2] =
+Position const NightfaePlatformVertex[2] =
 {
     { -271.2889f, -1335.1152f },
     { -308.4179f, -1297.5373f }
 };
 
-Position const PlatformKyrianVertex[2] =
+Position const KyrianPlatformVertex[2] =
 {
     { -191.8095f, -1334.5333f },
     { -228.8465f, -1297.1842f }
 };
 
-Position const PlatformVenthyrVertex[2] =
+Position const VenthyrPlatformVertex[2] =
 {
     { -192.2238f, -1254.8327f },
     { -229.1900f, -1217.7504f }
@@ -539,8 +540,8 @@ static Position GetRandomPointInRect(uint8 rectangleType, Position const& a, Pos
     float y = frand(std::min(a.GetPositionY(), b.GetPositionY()), std::max(a.GetPositionY(), b.GetPositionY()));
     float z = c;
 
-    float newX = x * (std::cos(45.0f * M_PI / 180) - y * (std::sin(45.0f * M_PI / 180)));
-    float newY = x * (std::sin(45.0f * M_PI / 180) + y * (std::cos(45.0f * M_PI / 180)));
+    float newX = x * (std::cos(-45.0f * M_PI / 180) - y * (std::sin(-45.0f * M_PI / 180)));
+    float newY = x * (std::sin(-45.0f * M_PI / 180) + y * (std::cos(-45.0f * M_PI / 180)));
 
     if (rectangleType == DATA_OUTTER_RECTANGLE)
         return Position(x, y, z);
@@ -639,7 +640,6 @@ struct boss_sylvanas_windrunner : public BossAI
                 summon->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
                 summon->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
                 summon->SetUnitFlags2(UNIT_FLAG2_DISABLE_TURN);
-
                 break;
             }
 
@@ -1051,13 +1051,21 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 me->NearTeleportTo(SylvanasPhase3Pre, false);
 
-                for (ObjectGuid const& guid : _shadowCopyGUID)
+                scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                 {
-                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, guid))
-                        shadowCopy->NearTeleportTo(me->GetPosition(), false);
-                }
+                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TELEPORT, 0, 0);
+                });
 
-                DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
+                scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                {
+                    for (ObjectGuid const& guid : _shadowCopyGUID)
+                    {
+                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, guid))
+                            shadowCopy->NearTeleportTo(me->GetPosition(), false);
+                    }
+
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
+                });
                 break;
             }
 
@@ -1082,6 +1090,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(525ms, [this](TaskContext /*task*/)
                 {
                     me->NearTeleportTo(SylvanasPlaform1Pos, false);
+
+                    me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                 });
 
                 scheduler.Schedule(1s, [this](TaskContext /*task*/)
@@ -1092,7 +1102,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     me->RemoveAura(SPELL_BANSHEE_SHROUD);
                 });
-
                 break;
             }
 
@@ -3183,6 +3192,9 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
     }
 };
 
+// Banshee's Fury
+
+
 // Raze - 354147
 class spell_sylvanas_windrunner_raze : public SpellScript
 {
@@ -3210,18 +3222,20 @@ enum BolvarSpells
 {
     SPELL_RUNIC_MARK                                    = 354926,
     SPELL_GLYPH_OF_DESINTEGRATION                       = 354932,
+    SPELL_CHARGE_TOWARDS_SYLVANAS                       = 357046,
     SPELL_WINDS_OF_ICECROWN                             = 356941,
     SPELL_WINDS_OF_ICECROWN_INTERRUPT                   = 356986
 };
 
-enum Bolvarvents
+enum BolvarEvents
 {
-
+    EVENT_RUNIC_MARK                                    = 1,
+    EVENT_GLYPH_OF_DESINTEGRATION
 };
 
 enum BolvarActions
 {
-
+    ACTION_WINDS_OF_ICECROWN                            = 3
 };
 
 enum BolvarTexts
@@ -3232,6 +3246,7 @@ enum BolvarTexts
     SAY_WINDS_OF_ICECROWN_01                            = 3,
     SAY_THIRD_CHAIN_START                               = 4,
     SAY_THIRD_CHAIN_FINISH                              = 5,
+    SAY_WINDS_OF_ICECROWN_02                            = 9,
     SAY_PREPARE_PHASE_THREE                             = 11
 };
 
@@ -3250,7 +3265,7 @@ Position const BolvarPrePhaseThreePos = { -249.54861f, -1278.5382f, 5667.1157f, 
 struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
 {
     npc_sylvanas_windrunner_bolvar(Creature* creature) : ScriptedAI(creature, DATA_BOLVAR_FORDRAGON_PINNACLE),
-        _instance(creature->GetInstanceScript()) { }
+        _instance(creature->GetInstanceScript()), _windsOfIcecrown(0) { }
 
     void JustAppeared() override
     {
@@ -3260,6 +3275,8 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
     void Reset() override
     {
         _events.Reset();
+
+        _windsOfIcecrown = 0;
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -3304,6 +3321,22 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                 break;
             }
 
+            case ACTION_WINDS_OF_ICECROWN:
+            {
+                if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                {
+                    if (_windsOfIcecrown == 0)
+                        Talk(SAY_WINDS_OF_ICECROWN_01);
+                    else
+                        Talk(SAY_WINDS_OF_ICECROWN_02);
+
+                    me->CastSpell(sylvanas, SPELL_CHARGE_TOWARDS_SYLVANAS, false);
+
+                    _windsOfIcecrown++;
+                }
+                break;
+            }
+
             default:
                 break;
         }
@@ -3323,7 +3356,25 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
+            switch (eventId)
+            {
+                case EVENT_RUNIC_MARK:
+                {
+                    DoCastVictim(SPELL_RUNIC_MARK, false);
+                    _events.Repeat(6s, 8s);
+                    break;
+                }
 
+                case EVENT_GLYPH_OF_DESINTEGRATION:
+                {
+                    DoCastVictim(SPELL_GLYPH_OF_DESINTEGRATION, false);
+                    _events.Repeat(10s, 12s);
+                    break;
+                }
+
+                default:
+                    break;
+            }
         }
 
         DoMeleeAttackIfReady();
@@ -3333,6 +3384,49 @@ private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
+    uint8 _windsOfIcecrown;
+};
+
+// Runic Mark (Triggered) - 354928
+class spell_sylvanas_windrunner_runic_mark_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_runic_mark_triggered);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, false);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_sylvanas_windrunner_runic_mark_triggered::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// Charge Towards Sylvanas - 357046
+class spell_sylvanas_windrunner_charge_towards_sylvanas : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_charge_towards_sylvanas);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WINDS_OF_ICECROWN });
+    }
+
+    void HandleCharge(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WINDS_OF_ICECROWN, false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_charge_towards_sylvanas::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+    }
 };
 
 // Winds of Icecrown - 356941
@@ -3815,6 +3909,9 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 _scheduler.Schedule(12s, [this](TaskContext /*task*/)
                 {
                     Talk(SAY_FINISHED_PORTAL_TO_PHASE_THREE);
+
+                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->SetFacingTo(4.8989f);
                 });
 
                 _scheduler.Schedule(12s + 250ms, [this](TaskContext /*task*/)
@@ -3833,9 +3930,6 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         thrall->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_GENERIC_TELEPORT, 0, 0);
                         thrall->NearTeleportTo(ThrallPrePhaseThreePos, false);
                     }
-
-                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                        sylvanas->SetFacingTo(4.8989f);
                 });
 
                 _scheduler.Schedule(12s + 500ms, [this, playerList](TaskContext /*task*/)
@@ -3906,9 +4000,6 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         player->RemoveAura(SPELL_BLASPHEMY_STUN);
                     }
 
-                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                        sylvanas->SetFacingTo(2.3582f);
-
                     if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         bolvar->RemoveAura(SPELL_BLASPHEMY_STUN);
 
@@ -3919,6 +4010,9 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 _scheduler.Schedule(24s, [this, playerList](TaskContext /*task*/)
                 {
                     DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
+
+                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->SetFacingTo(2.3582f);
 
                     if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_CRUCIBLE))
                     {
@@ -3984,7 +4078,6 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 case EVENT_FRIGID_SHARDS:
                 {
                     DoCastVictim(SPELL_FRIGID_SHARDS, false);
-
                     _events.Repeat(6s, 8s);
                     break;
                 }
@@ -3992,7 +4085,6 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 case EVENT_CONE_OF_COLD:
                 {
                     DoCastVictim(SPELL_CONE_OF_COLD, false);
-
                     _events.Repeat(12s, 13s);
                     break;
                 }
@@ -4000,7 +4092,6 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 case EVENT_COMET_BARRAGE:
                 {
                     DoCastVictim(SPELL_COMET_BARRAGE, false);
-
                     _events.Repeat(16s, 18s);
                     break;
                 }
@@ -4786,17 +4877,19 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_activate_finish_boss);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_invigorating_fields);
 
+    RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_bolvar);
+    RegisterSpellScript(spell_sylvanas_windrunner_runic_mark_triggered);
+    RegisterSpellScript(spell_sylvanas_windrunner_charge_towards_sylvanas);
+    RegisterSpellScript(spell_sylvanas_windrunner_winds_of_icecrown);
+
+    RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_thrall);
+
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_jaina);
     RegisterAuraScript(spell_sylvanas_windrunner_frigid_shards);
     RegisterSpellScript(spell_sylvanas_windrunner_comet_barrage);
     RegisterSpellScript(spell_sylvanas_windrunner_teleport_to_phase_two);
     RegisterSpellScript(spell_sylvanas_windrunner_teleport_to_phase_three);
     RegisterSpellScript(spell_sylvanas_windrunner_teleport);
-
-    RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_bolvar);
-    RegisterSpellScript(spell_sylvanas_windrunner_winds_of_icecrown);
-
-    RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_thrall);
 
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_anduin);
     RegisterAuraScript(spell_sylvanas_windrunner_blasphemy_pre);

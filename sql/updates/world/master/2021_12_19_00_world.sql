@@ -530,6 +530,16 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (178081, 10, 0, 'This time you\'ll lose, Sylvanas!', 14, 0, 100, 0, 0, 181524, 0, 211459, 0, ''),
 (178081, 11, 0, 'No! The Jailer is going to destroy the Arbiter!', 14, 0, 100, 0, 0, 181604, 0, 211464, 0, '');
 
+ -- Runic Mark (triggered)
+DELETE FROM `spell_script_names` WHERE `spell_id`=354928 AND `ScriptName`='spell_sylvanas_windrunner_runic_mark_triggered';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354928, 'spell_sylvanas_windrunner_runic_mark_triggered');
+
+ -- Charge Towards Sylvanas
+DELETE FROM `spell_script_names` WHERE `spell_id`=357046 AND `ScriptName`='spell_sylvanas_windrunner_charge_towards_sylvanas';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357046, 'spell_sylvanas_windrunner_charge_towards_sylvanas');
+
  -- Winds of Icecrown
 DELETE FROM `spell_script_names` WHERE `spell_id`=356941 AND `ScriptName`='spell_sylvanas_windrunner_winds_of_icecrown';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
