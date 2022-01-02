@@ -65,6 +65,7 @@ enum Spells
     SPELL_SHADOW_DAGGER                                 = 347670,
     SPELL_SHADOW_DAGGER_AOE                             = 353935,
     SPELL_SHADOW_DAGGER_MISSILE                         = 348089,
+    SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE             = 353935,
 
     // Withering Fire
     SPELL_WITHERING_FIRE_COPY                           = 358981,
@@ -182,6 +183,9 @@ enum Spells
     SPELL_BANSHEE_BLADE_PHYSICAL_DAMAGE                 = 358182,
     SPELL_BANSHEE_BLADE_SHADOW_DAMAGE                   = 358183,
 
+    // Banshee Scream
+    SPELL_BANSHEE_SCREAM                                = 353952,
+
     // Veil of Darkness (Phase 3)
     SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE                 = 354168,
     SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW                 = 354143,
@@ -242,7 +246,11 @@ enum Events
     EVENT_WAILING_ARROW,
     EVENT_VEIL_OF_DARKNESS,
     EVENT_RIVE,
-    EVENT_FINISH_INTERMISSION
+    EVENT_FINISH_INTERMISSION,
+    EVENT_BANE_ARROWS,
+    EVENT_RAZE,
+    EVENT_BANSHEE_SCREAM,
+    EVENT_BANSHEES_FURY
 };
 
 enum Actions
@@ -258,6 +266,7 @@ enum Actions
     ACTION_PREPARE_PHASE_TWO,
     ACTION_OPEN_PORTAL_TO_PHASE_TWO,
     ACTION_HAUNTING_WAVE_SECOND_CHAIN,
+    ACTION_WINDS_OF_ICECROWN_PRE,
     ACTION_PREPARE_PHASE_THREE,
     ACTION_OPEN_PORTAL_TO_PHASE_THREE,
     ACTION_INITIATE_PHASE_THREE,
@@ -286,7 +295,11 @@ enum Texts
     SAY_ANNOUNCE_HAUNTING_WAVE                          = 16,
     SAY_ANNOUNCE_RUIN                                   = 17,
 
-    SAY_START_PHASE_THREE                               = 25
+    SAY_BANSHEE_SCREAM                                  = 21,
+    SAY_WINDS_OF_ICECROWN_AFTER_02                      = 22,
+    SAY_START_PHASE_THREE                               = 23,
+    SAY_BANSHEES_FURY                                   = 24,
+    SAY_ANNOUNCE_RAZE                                   = 25
 };
 
 enum Conversations
@@ -390,37 +403,33 @@ enum SpellVisuals
     SPELL_VISUAL_RIVEN_DEBRIS                           = 107877, // At 1.744643688201904296f - 1.616904616355895996f, dynamic
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_02_03           = 109371, // At 3.0f
     SPELL_VISUAL_BANE_ARROW                             = 108112, // At 3.2f - 2.04f, dynamic
+    SPELL_VISUAL_BANSHEE_FURY                           = 108130, // At 0.100000001490116119f
     SPELL_VISUAL_RAZE                                   = 110336, // At 0.100000001490116119f
     SPELL_VISUAL_RAZE_MISSILE                           = 108154, // At 0.33f - 0.14f
     SPELL_VISUAL_BLASPHEMY                              = 109680, // At 1.0f
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_3_HC            = 105852, // At 3.0f
     SPELL_VISUAL_JAILER_BOLT                            = 107337, // At 90.0f, false as time
 
-    SPELL_VISUAL_UNK01_SYLVANAS                         = 108130, // At 0.100000001490116119f
+
     SPELL_VISUAL_UNK01_PLAYER                           = 108093, // At 0.5f
     SPELL_VISUAL_UNK02_PLAYER                           = 107839, // At 0.349999994039535522f
     SPELL_VISUAL_UNK_02                                 = 108094, // At 1.5f
     SPELL_VISUAL_SHADOW_DAGGER                          = 108096, // At 100.0f, false
     SPELL_VISUAL_MOST_LIKELY_SPREAD_OUT_FOG             = 108092, // At 0.64f - 0.52f
     SPELL_VISUAL_UNK01_177054                           = 107069, // At 1.0f
-    SPELL_VISUAL_BANSHEE_FURY                           = 107476, // At 1.5f
+    SPELL_VISUAL_BANSHEE_FURY_IDK                       = 107476, // At 1.5f
     SPELL_VISUAL_UNK01_177787                           = 107063, // At 1.0f
 };
 
 enum Miscelanea
 {
-    DISPLAYID_SYLVANAS_ELF_MODEL                        = 101311,
-    DISPLAYID_SYLVANAS_BANSHEE_MODEL                    = 100930,
+    DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL                  = 101311,
+    DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL              = 100930,
 
     DATA_AREATRIGGER_DOMINATION_ARROW                   = 27683,
     DATA_AREATRIGGER_RIVE_MARKER                        = 6197,
 
     DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR              = 2,
-
-    DATA_RANGER_STRIKE_01                               = 0,
-    DATA_RANGER_STRIKE_02                               = 1,
-    DATA_RANGER_STRIKE_03                               = 2,
-    DATA_RANGER_STRIKE_04                               = 3,
 
     DATA_DESECRATING_SHOT_PATTERN_STRAIGHT              = 0,
     DATA_DESECRATING_SHOT_PATTERN_SCATTERED             = 1,
@@ -428,15 +437,20 @@ enum Miscelanea
     DATA_DESECRATING_SHOT_PATTERN_SPIRAL                = 3,
     DATA_DESECRATING_SHOT_PATTERN_JAR                   = 4,
 
-    DATA_OUTTER_RECTANGLE                               = 0,
-    DATA_MIDDLE_RECTANGLE                               = 1
+    DATA_OUTTER_PLATFORM                                = 0,
+    DATA_MIDDLE_PLATFORM                                = 1,
+
+    DATA_MIDDLE_POS_OUTTER_PLATFORM                     = 0,
+    DATA_TOP_RIGHT_POS_VERTEX_PLATFORM                  = 1,
+    DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM                = 2,
+    DATA_RANDOM_POS_OUTTER_PLATFORM                     = 3
 };
 
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
 
 constexpr float PLATFORM_RADIUS = 75.0f;
 
-Position const SylvanasIntro[4] =
+Position const SylvanasIntroPos[4] =
 {
     { 231.15799f, -832.816f,   4105.0386f          },
     { 242.00348f, -840.51215f, 4105.0386f          },
@@ -444,7 +458,7 @@ Position const SylvanasIntro[4] =
     { 225.73611f, -844.0746f,  4104.9882f, 1.3613f }
 };
 
-Position const SylvanasVeilOfDarknessPos = { 255.0392f, -824.69995f, 4205.122f };
+Position const SylvanasDarknessPos =  { 255.0392f, -824.69995f, 4205.122f };
 
 Position const DesecratingShotArrowShape[5] =
 {
@@ -484,9 +498,9 @@ Position const RiveThrowPos[8] =
     { 287.948f, -778.238f, 4113.2285f }
 };
 
-Position const RiveFinish =            { 235.1163f, -829.90106f, 4105.0386f, 5.4824f   };
+Position const RiveFinishPos =        { 235.1163f, -829.90106f, 4105.0386f, 5.4824f   };
 
-Position const SylvanasPhase2Pre =     { -14.5625f, -943.441f,   4999.990f,  0.8928f   };
+Position const SylvanasPhase2PrePos = { -14.5625f, -943.441f,   4999.990f,  0.8928f   };
 
 Position const SylvanasWavePos[10] =
 {
@@ -497,41 +511,40 @@ Position const SylvanasWavePos[10] =
     { 19.02257f, -892.4983f, 4999.968f, 0.3612f }
 };
 
-Position const SylvanasPhase3Pre =     { -258.991f, -1265.9966f, 5667.114f,  0.3118f   };
+Position const SylvanasPhase3PrePos = { -258.991f, -1265.9966f, 5667.114f,  0.3118f   };
 
-Position const SylvanasPlaform1Pos =   { -280.646f, -1245.48f,   5672.13f,   2.3046f   };
+Position const SylvanasPhase3Pos =    { -280.646f, -1245.48f,   5672.13f,   2.3046f   };
 
-Position const PlaformsMiddlePos[4] =
+// Top right is 1, bottom left is 2
+Position const PlatformsPos[4][3] =
 {
-    { -289.9608f, -1236.4189f, 5671.9052f, 5.4624f },
-    { 0.f },
-    { 0.f },
-    { 0.f }
-};
+    // Maldraxxi
+    {
+        { -289.9608f, -1236.4189f, 5671.9052f, 0.0f },
+        { -271.2141f, -1255.5200f, 5671.6704f },
+        { -308.6874f, -1218.0043f, 5671.6704f }
+    },
 
-// Top right is 0, bottom left is 1
-Position const MaldraxxiPlatformVertex[2] =
-{
-    { -271.2141f, -1255.5200f, 5671.6704f },
-    { -308.6874f, -1218.0043f, 5671.6704f }
-};
+    // Nightfae
+    {
+        { -290.2621f, -1316.9971f, 5671.9067f, 0.0f },
+        { -271.2889f, -1335.1152f, 5671.6704f },
+        { -308.4179f, -1297.5373f, 5671.6704f }
+    },
 
-Position const NightfaePlatformVertex[2] =
-{
-    { -271.2889f, -1335.1152f },
-    { -308.4179f, -1297.5373f }
-};
+    // Kyrian
+    {
+        { -209.5206f, -1316.5284f, 5671.9052f, 0.0f },
+        { -191.8095f, -1334.5333f, 5671.6704f },
+        { -228.8465f, -1297.1842f, 5671.6704f }
+    },
 
-Position const KyrianPlatformVertex[2] =
-{
-    { -191.8095f, -1334.5333f },
-    { -228.8465f, -1297.1842f }
-};
-
-Position const VenthyrPlatformVertex[2] =
-{
-    { -192.2238f, -1254.8327f },
-    { -229.1900f, -1217.7504f }
+    // Venthyr
+    {
+        { -210.2180f, -1236.2922f, 5671.9067f, 0.0f },
+        { -192.2238f, -1254.8327f, 5671.6704f },
+        { -229.1900f, -1217.7504f, 5671.6704f }
+    }
 };
 
 static Position GetRandomPointInRect(uint8 rectangleType, Position const& a, Position const& b, float c)
@@ -540,16 +553,17 @@ static Position GetRandomPointInRect(uint8 rectangleType, Position const& a, Pos
     float y = frand(std::min(a.GetPositionY(), b.GetPositionY()), std::max(a.GetPositionY(), b.GetPositionY()));
     float z = c;
 
+    // TODO: find out what's wrong with this
     float newX = x * (std::cos(-45.0f * M_PI / 180) - y * (std::sin(-45.0f * M_PI / 180)));
     float newY = x * (std::sin(-45.0f * M_PI / 180) + y * (std::cos(-45.0f * M_PI / 180)));
 
-    if (rectangleType == DATA_OUTTER_RECTANGLE)
+    if (rectangleType == DATA_OUTTER_PLATFORM)
         return Position(x, y, z);
     else
         return Position(newX, newY, z);
 }
 
-Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f   };
+Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f  };
 
 // Sylvanas Windrunner - 175732
 struct boss_sylvanas_windrunner : public BossAI
@@ -604,6 +618,9 @@ struct boss_sylvanas_windrunner : public BossAI
     void Reset() override
     {
         _Reset();
+
+        events.Reset();
+        _specialEvents.Reset();
 
         _windrunnerActive = false;
         _sayDaggersOnCD = false;
@@ -665,11 +682,11 @@ struct boss_sylvanas_windrunner : public BossAI
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
         DoAction(ACTION_PREPARE_PHASE_THREE);
+
+        //DoAction(ACTION_PREPARE_PHASE_THREE);
         /*
         Talk(SAY_AGGRO);
 
-        for (uint8 i = 0; i < 4; i++)
-            me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
         events.SetPhase(PHASE_ONE);     
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
@@ -710,7 +727,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(24s + 968ms, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntro[0], false);
+                    me->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntroPos[0], false);
                 });
 
                 scheduler.Schedule(26s + 468ms, [this](TaskContext /*task*/)
@@ -725,7 +742,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(29s + 828ms, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntro[1], false);
+                    me->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntroPos[1], false);
                 });
 
                 scheduler.Schedule(30s + 297ms, [this](TaskContext /*task*/)
@@ -756,7 +773,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(42s, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntro[2], false);
+                    me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntroPos[2], false);
                 });
 
                 scheduler.Schedule(50s + 484ms, [this](TaskContext /*task*/)
@@ -782,7 +799,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(68s + 172ms, [this](TaskContext /*task*/)
                 {
-                    me->NearTeleportTo(SylvanasIntro[3], false);
+                    me->NearTeleportTo(SylvanasIntroPos[3], false);
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TELEPORT, 0, 0);
                 });
 
@@ -924,7 +941,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 DoCastSelf(SPELL_BANSHEE_FORM, true);
                 DoCastSelf(SPELL_BANSHEE_SHROUD, true);
 
-                me->NearTeleportTo(SylvanasPhase2Pre, false);
+                me->NearTeleportTo(SylvanasPhase2PrePos, false);
 
                 if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
                 {
@@ -1014,12 +1031,12 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(500ms, [this](TaskContext /*task*/)
                     {
-                        me->SendPlayOrphanSpellVisual(SylvanasPhase2Pre, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                        me->SendPlayOrphanSpellVisual(SylvanasPhase2PrePos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
                     });
 
                     scheduler.Schedule(750ms, [this](TaskContext /*task*/)
                     {
-                        me->NearTeleportTo(SylvanasPhase2Pre, false);
+                        me->NearTeleportTo(SylvanasPhase2PrePos, false);
                         me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_02);
                     });
 
@@ -1037,8 +1054,6 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
 
-                DoCastSelf(SPELL_BANSHEE_SHROUD, true);
-
                 if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
                 {
                     if (jaina->IsAIEnabled())
@@ -1049,7 +1064,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_INITIATE_PHASE_THREE:
             {
-                me->NearTeleportTo(SylvanasPhase3Pre, false);
+                me->NearTeleportTo(SylvanasPhase3PrePos, false);
 
                 scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                 {
@@ -1077,9 +1092,9 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
 
-                    shadowCopy->CastSpell(SylvanasPlaform1Pos, SPELL_DOMINATION_CHAINS_JUMP, true);
+                    shadowCopy->CastSpell(SylvanasPhase3Pos, SPELL_DOMINATION_CHAINS_JUMP, true);
 
-                    me->SendPlayOrphanSpellVisual(SylvanasPlaform1Pos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    me->SendPlayOrphanSpellVisual(SylvanasPhase3Pos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
 
                 scheduler.Schedule(250ms, [this](TaskContext /*task*/)
@@ -1089,7 +1104,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 scheduler.Schedule(525ms, [this](TaskContext /*task*/)
                 {
-                    me->NearTeleportTo(SylvanasPlaform1Pos, false);
+                    me->NearTeleportTo(SylvanasPhase3Pos, false);
 
                     me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                 });
@@ -1100,7 +1115,18 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     DoCastSelf(SPELL_WINDRUNNER_SPIN, true);
 
-                    me->RemoveAura(SPELL_BANSHEE_SHROUD);
+                    events.SetPhase(PHASE_THREE);
+                    events.ScheduleEvent(EVENT_BANSHEES_FURY, 1s + 500ms, 1, PHASE_THREE);
+                    events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s, 1, PHASE_THREE);
+                    events.ScheduleEvent(EVENT_BANE_ARROWS, 16s, 1, PHASE_THREE);
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 28s, 1, PHASE_THREE);
+                    events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 32s, 1, PHASE_THREE);
+                    events.ScheduleEvent(EVENT_RAZE, 70s, 1, PHASE_THREE);
+                    events.ScheduleEvent(EVENT_BANSHEE_SCREAM, 80s, 1, PHASE_THREE);
+
+                    // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
+                    _specialEvents.SetPhase(PHASE_THREE);
+                    _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 60s, 1, PHASE_THREE);
                 });
                 break;
             }
@@ -1258,157 +1284,231 @@ struct boss_sylvanas_windrunner : public BossAI
                     uint8 castTimes = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 :
                         std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
 
-                    uint8 randomCopy = urand(0, 3);
-
-                    DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
-
-                    for (uint8 itr = 0; itr < 4; itr++)
+                    if (events.IsInPhase(PHASE_ONE))
                     {
-                        scheduler.Schedule(Milliseconds(100 * itr), [this, castTimes, itr, randomCopy](TaskContext /*task*/)
+                        uint8 randomCopy = urand(0, 3);
+
+                        DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
+
+                        for (uint8 itr = 0; itr < 4; itr++)
                         {
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[itr]))
+                            scheduler.Schedule(Milliseconds(100 * itr), [this, castTimes, itr, randomCopy](TaskContext /*task*/)
                             {
-                                Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
-
-                                if (itr == randomCopy)
-                                    me->SetNameplateAttachToGUID(_shadowCopyGUID[randomCopy]);
-
-                                scheduler.Schedule(50ms, [this, shadowCopy, witheringCastPos](TaskContext /*task*/)
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[itr]))
                                 {
-                                    me->SendPlayOrphanSpellVisual(witheringCastPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
-
-                                    shadowCopy->CastSpell(witheringCastPos, SPELL_WINDRUNNER_MOVE, true);
-                                });
-
-                                scheduler.Schedule(350ms, [this, shadowCopy](TaskContext /*task*/)
-                                {
-                                    shadowCopy->SetFacingToObject(me);
-                                });
-
-                                scheduler.Schedule(400ms, [shadowCopy](TaskContext /*task*/)
-                                {
-                                    shadowCopy->CastSpell(shadowCopy, SPELL_WITHERING_FIRE_COPY, true);
-                                });
-
-                                scheduler.Schedule(850ms, [this, shadowCopy, castTimes, itr, randomCopy](TaskContext /*task*/)
-                                {
-                                    std::list<Player*> targetList;
-                                    GetPlayerListInGrid(targetList, me, 250.0f);
+                                    Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
 
                                     if (itr == randomCopy)
+                                        me->SetNameplateAttachToGUID(_shadowCopyGUID[randomCopy]);
+
+                                    scheduler.Schedule(50ms, [this, shadowCopy, witheringCastPos](TaskContext /*task*/)
                                     {
-                                        if (targetList.size() > castTimes - 3)
-                                            Trinity::Containers::RandomResize(targetList, castTimes - 3);
-                                    }
-                                    else
+                                        me->SendPlayOrphanSpellVisual(witheringCastPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                                        shadowCopy->CastSpell(witheringCastPos, SPELL_WINDRUNNER_MOVE, true);
+                                    });
+
+                                    scheduler.Schedule(350ms, [this, shadowCopy](TaskContext /*task*/)
                                     {
+                                        shadowCopy->SetFacingToObject(me);
+                                    });
+
+                                    scheduler.Schedule(400ms, [shadowCopy](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->CastSpell(shadowCopy, SPELL_WITHERING_FIRE_COPY, true);
+                                    });
+
+                                    scheduler.Schedule(850ms, [this, shadowCopy, castTimes, itr, randomCopy](TaskContext /*task*/)
+                                    {
+                                        std::list<Player*> targetList;
+                                        GetPlayerListInGrid(targetList, me, 250.0f);
+
+                                        if (itr == randomCopy)
+                                        {
+                                            if (targetList.size() > castTimes - 3)
+                                                Trinity::Containers::RandomResize(targetList, castTimes - 3);
+                                        }
+                                        else
+                                        {
+                                            if (targetList.size() > 1)
+                                                Trinity::Containers::RandomResize(targetList, 1);
+                                        }
+
+                                        for (Player* target : targetList)
+                                        {
+                                            shadowCopy->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE, 0, 0, 48.0f, false);
+
+                                            uint32 timeToCast = shadowCopy->GetDistance(target) * 0.0208;
+
+                                            scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext /*task*/)
+                                            {
+                                                me->CastSpell(target, SPELL_WITHERING_FIRE, true);
+                                            });
+                                        }
+                                    });
+
+                                    scheduler.Schedule(1s + 400ms, [this, shadowCopy](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                                        shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
+                                    });
+
+                                    scheduler.Schedule(1s + 650ms, [this, shadowCopy, itr, randomCopy](TaskContext /*task*/)
+                                    {
+                                        DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
+
+                                        if (itr == randomCopy)
+                                            me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+
+                                        shadowCopy->SetOrientation(me->GetOrientation());
+                                    });
+                                }
+                            });
+                        }
+
+                    }
+                    else if (events.IsInPhase(PHASE_TWO))
+                    {
+
+                    }
+                    else
+                    {
+                        for (uint8 itr = 0; itr < 4; itr++)
+                        {
+                            scheduler.Schedule(Milliseconds(100 * itr), [this, castTimes, itr](TaskContext /*task*/)
+                            {
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[itr]))
+                                {
+                                    Position const witheringCastPos = me->GetNearPosition(frand(30.0f, 40.0f), frand(0.0f, 3.5f));
+
+                                    scheduler.Schedule(50ms, [this, shadowCopy, witheringCastPos](TaskContext /*task*/)
+                                    {
+                                        me->SendPlayOrphanSpellVisual(witheringCastPos, SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                                        shadowCopy->CastSpell(witheringCastPos, SPELL_WINDRUNNER_MOVE, true);
+                                    });
+
+                                    scheduler.Schedule(300ms, [this, shadowCopy](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->SetFacingToObject(me);
+                                    });
+
+                                    scheduler.Schedule(450ms, [shadowCopy](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->CastSpell(shadowCopy, SPELL_WITHERING_FIRE_COPY, true);
+                                    });
+
+                                    scheduler.Schedule(850ms, [this, shadowCopy, castTimes](TaskContext /*task*/)
+                                    {
+                                        std::list<Player*> targetList;
+                                        GetPlayerListInGrid(targetList, me, 250.0f);
+
                                         if (targetList.size() > 1)
                                             Trinity::Containers::RandomResize(targetList, 1);
-                                    }
 
-                                    for (Player* target : targetList)
-                                    {
-                                        shadowCopy->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE, 0, 0, 48.0f, false);
-
-                                        uint32 timeToCast = shadowCopy->GetDistance(target) * 0.0208;
-
-                                        scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext /*task*/)
+                                        for (Player* target : targetList)
                                         {
-                                            me->CastSpell(target, SPELL_WITHERING_FIRE, true);
-                                        });
-                                    }
-                                });
+                                            shadowCopy->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE, 0, 0, 48.0f, false);
 
-                                scheduler.Schedule(1s + 400ms, [this, shadowCopy](TaskContext /*task*/)
-                                {
-                                    shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                                            uint32 timeToCast = shadowCopy->GetDistance(target) * 0.0208;
 
-                                    shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
-                                });
+                                            scheduler.Schedule(Seconds(timeToCast), [this, target](TaskContext /*task*/)
+                                            {
+                                                me->CastSpell(target, SPELL_WITHERING_FIRE, true);
+                                            });
+                                        }
+                                    });
 
-                                scheduler.Schedule(1s + 650ms, [this, shadowCopy, itr, randomCopy](TaskContext /*task*/)
-                                {
-                                    DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
+                                    scheduler.Schedule(1s, [this, shadowCopy](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
 
-                                    if (itr == randomCopy)
-                                        me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                                        shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
 
-                                    shadowCopy->SetOrientation(me->GetOrientation());
-                                });
-                            }
-                        });
-                    }
+                                        events.Repeat(5s);
+                                    });
+                                }
+                            });
+                        }
+                    }   
                     break;
                 }
 
                 case EVENT_SHADOW_DAGGERS:
                 {
-                    for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+                    if (events.IsInPhase(PHASE_ONE))
                     {
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
-                            shadowCopy->NearTeleportTo(me->GetPosition(), false);
-                    }
-
-                    if (!_sayDaggersOnCD)
-                    {
-                        _sayDaggersOnCD = true;
-
-                        Talk(SAY_SHADOW_DAGGER);
-                    }
-
-                    DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
-
-                    for (uint8 i = 0; i < 4; i++)
-                    {
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[i]))
+                        for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
                         {
-                            shadowCopy->NearTeleportTo(me->GetPosition(), false);
+                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                                shadowCopy->NearTeleportTo(me->GetPosition(), false);
+                        }
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true, true))
+                        if (!_sayDaggersOnCD)
+                        {
+                            _sayDaggersOnCD = true;
+
+                            Talk(SAY_SHADOW_DAGGER);
+                        }
+
+                        DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
+
+                        for (uint8 i = 0; i < 4; i++)
+                        {
+                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[i]))
                             {
-                                Position targetPos = target->GetNearPosition(frand(1.5f, 2.5f), frand(0.0f, 6.0f));
+                                shadowCopy->NearTeleportTo(me->GetPosition(), false);
 
-                                me->SendPlayOrphanSpellVisual(targetPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-
-                                if (i == 0)
-                                    me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
-
-                                shadowCopy->CastSpell(targetPos, SPELL_WINDRUNNER_MOVE, true);
-
-                                scheduler.Schedule(50ms, [shadowCopy, targetPos](TaskContext /*task*/)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true, true))
                                 {
+                                    Position targetPos = target->GetNearPosition(frand(1.5f, 2.5f), frand(0.0f, 6.0f));
+
+                                    me->SendPlayOrphanSpellVisual(targetPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+
+                                    if (i == 0)
+                                        me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
+
                                     shadowCopy->CastSpell(targetPos, SPELL_WINDRUNNER_MOVE, true);
-                                });
 
-                                scheduler.Schedule(100ms, [shadowCopy, target](TaskContext /*task*/)
-                                {
-                                    shadowCopy->SetFacingToObject(target);
-                                });
+                                    scheduler.Schedule(50ms, [shadowCopy, targetPos](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->CastSpell(targetPos, SPELL_WINDRUNNER_MOVE, true);
+                                    });
 
-                                scheduler.Schedule(250ms, [this, shadowCopy, target](TaskContext /*task*/)
-                                {
-                                    shadowCopy->CastSpell(shadowCopy, SPELL_SHADOW_DAGGER_COPY, true);
+                                    scheduler.Schedule(100ms, [shadowCopy, target](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->SetFacingToObject(target);
+                                    });
 
-                                    me->CastSpell(target, SPELL_SHADOW_DAGGER, true);
-                                });
+                                    scheduler.Schedule(250ms, [this, shadowCopy, target](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->CastSpell(shadowCopy, SPELL_SHADOW_DAGGER_COPY, true);
 
-                                scheduler.Schedule(600ms, [this, shadowCopy](TaskContext /*task*/)
-                                {
-                                    shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                                        me->CastSpell(target, SPELL_SHADOW_DAGGER, true);
+                                    });
 
-                                    shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
-                                });
+                                    scheduler.Schedule(600ms, [this, shadowCopy](TaskContext /*task*/)
+                                    {
+                                        shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
-                                scheduler.Schedule(850ms, [this](TaskContext /*task*/)
-                                {
-                                    DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
+                                        shadowCopy->CastSpell(me->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
+                                    });
 
-                                    me->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                                });
+                                    scheduler.Schedule(850ms, [this](TaskContext /*task*/)
+                                    {
+                                        DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
+
+                                        me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                                    });
+                                }
                             }
                         }
                     }
-
+                    else if (events.IsInPhase(PHASE_TWO))
+                        DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
+                    else
+                        DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
                     break;
                 }
 
@@ -1640,7 +1740,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                         {
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
-                            me->NearTeleportTo(SylvanasVeilOfDarknessPos, false);
+                            me->NearTeleportTo(SylvanasDarknessPos, false);
                         });
 
                         scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
@@ -1790,16 +1890,16 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     DoCastSelf(SPELL_RIVE_DISAPPEAR, true);
 
-                    me->SendPlayOrphanSpellVisual(RiveFinish, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    me->SendPlayOrphanSpellVisual(RiveFinishPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
                     me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
 
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                        shadowCopy->CastSpell(RiveFinish, SPELL_DOMINATION_CHAINS_JUMP, true);
+                        shadowCopy->CastSpell(RiveFinishPos, SPELL_DOMINATION_CHAINS_JUMP, true);
 
                     scheduler.Schedule(600ms, [this](TaskContext /*task*/)
                     {
-                        me->NearTeleportTo(RiveFinish, false);
+                        me->NearTeleportTo(RiveFinishPos, false);
 
                         me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     });
@@ -1828,11 +1928,86 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(9s + 400ms, [this](TaskContext /*task*/)
                     {
-                        me->SendPlayOrphanSpellVisual(SylvanasPhase2Pre, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        me->SendPlayOrphanSpellVisual(SylvanasPhase2PrePos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
-                        me->NearTeleportTo(SylvanasPhase2Pre, false);
+                        me->NearTeleportTo(SylvanasPhase2PrePos, false);
                     });
 
+                    break;
+                }
+
+                case EVENT_BANE_ARROWS:
+                {
+                    DoCastSelf(SPELL_BANE_ARROWS, false);
+                    events.Repeat(76s);
+                    break;
+                }
+
+                case EVENT_RAZE:
+                {
+                    DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+
+                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_DARK_FOG, 0, 0);
+
+                    scheduler.Schedule(50ms, [this](TaskContext /*task*/)
+                    {
+                        me->CastSpell(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), SPELL_RAZE, false);
+                    });
+
+                    break;
+                }
+
+                case EVENT_BANSHEE_SCREAM:
+                {
+                    Talk(SAY_BANSHEE_SCREAM);
+                    DoCastSelf(SPELL_BANSHEE_SCREAM, false);
+                    events.Repeat(80s);
+                    break;
+                }
+
+                case EVENT_BANSHEES_FURY:
+                {
+                    Talk(SAY_BANSHEES_FURY);
+
+                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                        shadowCopy->NearTeleportTo(me->GetPosition(), false);
+
+                    scheduler.Schedule(250ms, [this](TaskContext /*task*/)
+                    {
+                        DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+
+                        DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, true);
+
+                        me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
+                    });
+
+                    scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                    {
+                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                            shadowCopy->CastSpell(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), SPELL_DOMINATION_CHAINS_JUMP, false);
+                    });
+
+                    scheduler.Schedule(1s + 50ms, [this](TaskContext /*task*/)
+                    {
+                        me->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
+
+                        me->NearTeleportTo(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), false);
+
+                        me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_02);
+
+                        me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    });
+
+                    scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                    {
+                        DoCastSelf(SPELL_BANSHEES_FURY, false);
+                        events.Repeat(49s);
+                    });
+
+                    scheduler.Schedule(7s + 500ms, [this](TaskContext /*task*/)
+                    {
+                        DoAction(ACTION_ACTIVATE_ATTACK_FOR_EVENT);
+                    });
                     break;
                 }
 
@@ -2095,6 +2270,20 @@ struct boss_sylvanas_windrunner : public BossAI
     ObjectGuid GetShadowCopyJumperGuid(int32 index)
     {
         return _shadowCopyGUID[index];
+    }
+
+    Position const GetPlatform(int8 posType)
+    {
+        for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
+        {
+            if (me->IsWithinBox(PlatformsPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+            {
+                if (posType == DATA_MIDDLE_POS_OUTTER_PLATFORM)
+                    return PlatformsPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
+                else
+                    return GetRandomPointInRect(DATA_OUTTER_PLATFORM, PlatformsPos[covenentPlaform][DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM], PlatformsPos[covenentPlaform][DATA_TOP_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
+            }
+        }
     }
 
     bool IsAnyEventIncoming()
@@ -2794,7 +2983,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
         GetCaster()->SetPlayHoverAnim(true);
 
-        GetCaster()->SetDisplayId(DISPLAYID_SYLVANAS_BANSHEE_MODEL);
+        GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
 
         GetCaster()->SendPlayOrphanSpellVisual(GetCaster()->GetGUID(), SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC, 5.0f, true);
 
@@ -2812,7 +3001,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
     void HandleAfterCast()
     {
         GetCaster()->SetPlayHoverAnim(false);
-        GetCaster()->SetDisplayId(DISPLAYID_SYLVANAS_ELF_MODEL);
+        GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
     }
 
     void Register() override
@@ -3173,7 +3362,7 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
                 {
                     for (uint8 i = 0; i < 7; i++)
                     {
-                        Position const baneArrowPos = sylvanas->GetRandomNearPosition(30.0f);
+                        Position const baneArrowPos = ai->GetPlatform(DATA_RANDOM_POS_OUTTER_PLATFORM);
 
                         uint32 randomSpeed = urand(2040, 3200);
 
@@ -3192,8 +3381,86 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
     }
 };
 
-// Banshee's Fury
+class BansheesFuryEvent : public BasicEvent
+{
+    public:
+        BansheesFuryEvent(Unit* owner) : _owner(owner) { }
 
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            if (InstanceScript* instance = _owner->GetInstanceScript())
+            {
+                if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                {
+                    if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                    {
+                        if (sylvanas->HasAura(SPELL_BANSHEES_FURY))
+                            sylvanas->SendPlaySpellVisual(ai->GetPlatform(DATA_RANDOM_POS_OUTTER_PLATFORM), 0.0f, SPELL_VISUAL_BANSHEE_FURY, 0, 0, 0.100000001490116119f, true);
+                    }
+                }
+            }
+
+            return true;
+        }
+
+    private:
+        Unit* _owner;
+};
+
+// Banshee's Fury - 354068
+class spell_sylvanas_windrunner_banshee_fury : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_banshee_fury);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (!GetCaster())
+            return;
+
+        GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+        GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END, 0, 0);
+
+        // TODO: check on every player if Banshee's Bane is on; if yes, trigger explode on them
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (!GetCaster())
+            return;
+
+        for (uint8 i = 0; i < 10; i++)
+            GetCaster()->m_Events.AddEvent(new BansheesFuryEvent(GetCaster()), GetCaster()->m_Events.CalculateTime(50 * i));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sylvanas_windrunner_banshee_fury::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_fury::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class RazeEvent : public BasicEvent
+{
+    public:
+        RazeEvent(Unit* owner) : _owner(owner) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            if (InstanceScript* instance = _owner->GetInstanceScript())
+            {
+                if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                {
+                    if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                        sylvanas->SendPlaySpellVisual(ai->GetPlatform(DATA_RANDOM_POS_OUTTER_PLATFORM), 0.0f, SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
+                }
+            }
+
+            return true;
+        }
+
+    private:
+        Unit* _owner;
+};
 
 // Raze - 354147
 class spell_sylvanas_windrunner_raze : public SpellScript
@@ -3202,13 +3469,14 @@ class spell_sylvanas_windrunner_raze : public SpellScript
 
     bool Load() override
     {
-        GetCaster()->SendPlaySpellVisual(GetCaster(), SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
+        for (uint8 i = 0; i < 100; i++)
+            GetCaster()->m_Events.AddEvent(new RazeEvent(GetCaster()), GetCaster()->m_Events.CalculateTime(50 * i));
+
         return true;
     }
 
     void HandleAfterCast()
     {
-        GetCaster()->SendPlaySpellVisual(GetCaster(), SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
         GetCaster()->CastSpell(GetCaster(), SPELL_WINDRUNNER_DISAPPEAR_02, true);
     }
 
@@ -3294,7 +3562,8 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.SetPhase(PHASE_ONE);
+        _events.ScheduleEvent(EVENT_RUNIC_MARK, 1s, 1);
+        _events.ScheduleEvent(EVENT_GLYPH_OF_DESINTEGRATION, 5s, 1);
     }
 
     void DoAction(int32 action) override
@@ -3321,7 +3590,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                 break;
             }
 
-            case ACTION_WINDS_OF_ICECROWN:
+            case ACTION_WINDS_OF_ICECROWN_PRE:
             {
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
@@ -3334,6 +3603,16 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
 
                     _windsOfIcecrown++;
                 }
+                break;
+            }
+
+            case ACTION_WINDS_OF_ICECROWN:
+            {
+                _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                {
+                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        me->CastSpell(sylvanas, SPELL_WINDS_OF_ICECROWN, false);
+                });
                 break;
             }
 
@@ -3371,7 +3650,6 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                     _events.Repeat(10s, 12s);
                     break;
                 }
-
                 default:
                     break;
             }
@@ -3413,14 +3691,16 @@ class spell_sylvanas_windrunner_charge_towards_sylvanas : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_charge_towards_sylvanas);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WINDS_OF_ICECROWN });
-    }
-
     void HandleCharge(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WINDS_OF_ICECROWN, false);
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        {
+            if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+            {
+                if (bolvar->IsAIEnabled())
+                    bolvar->AI()->DoAction(ACTION_WINDS_OF_ICECROWN);
+            }
+        }
     }
 
     void Register() override
@@ -3453,12 +3733,17 @@ class spell_sylvanas_windrunner_winds_of_icecrown : public SpellScript
 enum ThrallSpells
 {
     SPELL_FLAMEAXE                                      = 354898,
-    SPELL_PULVERIZE                                     = 354918
+    SPELL_PULVERIZE                                     = 354918,
+    SPELL_STONECRASH                                    = 357139,
+    SPELL_EARTHEN_GRASP                                 = 354900,
 };
 
 enum ThrallEvents
 {
-
+    EVENT_FLAMEAXE                                      = 1,
+    EVENT_PULVERIZE,
+    EVENT_STONECRASH_PHASE_ONE_AND_THREE,
+    EVENT_EARTHEN_GRASP
 };
 
 enum ThrallActions
@@ -3508,7 +3793,10 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.SetPhase(PHASE_ONE);
+        _events.ScheduleEvent(EVENT_FLAMEAXE, 1s + 300ms, 1);
+        _events.ScheduleEvent(EVENT_PULVERIZE, 7s, 1);
+        //_events.ScheduleEvent(EVENT_STONECRASH_PHASE_ONE_AND_THREE, 8s + 400ms, 1, PHASE_ONE);
+        _events.ScheduleEvent(EVENT_EARTHEN_GRASP, 9s + 800ms, 1);
     }
 
     void DoAction(int32 action) override
@@ -3553,7 +3841,38 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
+            switch (eventId)
+            {
+                case EVENT_FLAMEAXE:
+                {
+                    DoCastSelf(SPELL_FLAMEAXE, false);
+                    _events.Repeat(18s, 20s);
+                    break;
+                }
 
+                case EVENT_PULVERIZE:
+                {
+                    DoCastVictim(SPELL_PULVERIZE, false);
+                    _events.Repeat(9s + 750ms, 15s + 800ms);
+                    break;
+                }
+
+                case EVENT_STONECRASH_PHASE_ONE_AND_THREE:
+                {
+                    DoCastVictim(SPELL_STONECRASH, false);
+                    _events.Repeat(12s, 18s);
+                    break;
+                }
+
+                case EVENT_EARTHEN_GRASP:
+                {
+                    DoCastVictim(SPELL_EARTHEN_GRASP, false);
+                    _events.Repeat(8s, 10s);
+                    break;
+                }
+                default:
+                    break;
+            }
         }
 
         DoMeleeAttackIfReady();
@@ -3563,6 +3882,90 @@ private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
+};
+
+// Pulverize - 354918 
+class spell_sylvanas_windrunner_pulverize : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_pulverize);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_pulverize::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// Pulverize (triggered) - 354923
+class spell_sylvanas_windrunner_pulverize_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_pulverize_triggered);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_pulverize_triggered::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// Stonecrash (Phase 1 and 3) - 357139
+class spell_sylvanas_windrunner_stonecrash_phase_one_and_three : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_stonecrash_phase_one_and_three);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_stonecrash_phase_one_and_three::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// Stonecrash (Phase 2) - 357137 
+class spell_sylvanas_windrunner_stonecrash_phase_two : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_stonecrash_phase_two);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_1).TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_stonecrash_phase_two::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 enum JainaSpells
@@ -3996,7 +4399,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 {
                     for (Player* player : playerList)
                     {
-                        player->CastSpell(PlaformsMiddlePos[0].GetPositionWithOffset(frand(3.0f, 10.0f)), SPELL_TELEPORT_TO_PHASE_3_DEST, true);
+                        player->CastSpell(PlatformsPos[0][0].GetPositionWithOffset(frand(3.0f, 10.0f)), SPELL_TELEPORT_TO_PHASE_3_DEST, true);
                         player->RemoveAura(SPELL_BLASPHEMY_STUN);
                     }
 
@@ -4274,7 +4677,7 @@ enum AnduinSpells
     SPELL_BLASPHEMY_DAMAGE                              = 357731,
     SPELL_CRIPPLING_DEFEAT                              = 354176,
 
-    SPELL_BREAK_PLAYER_TARGETTING                       = 140562,
+    SPELL_BREAK_PLAYER_TARGETTING                       = 140562
 };
 
 enum AnduinEvents
@@ -4468,7 +4871,7 @@ class spell_sylvanas_windrunner_blasphemy_pre : public AuraScript
 
         for (uint8 i = 0; i < 20; i++)
         {
-            Position const blasphemyDestPos = GetRandomPointInRect(DATA_MIDDLE_RECTANGLE, MiddlePlatformVertex[1], MiddlePlatformVertex[0], GetCaster()->GetPositionZ());
+            Position const blasphemyDestPos = GetRandomPointInRect(DATA_MIDDLE_PLATFORM, MiddlePlatformVertex[1], MiddlePlatformVertex[0], GetCaster()->GetPositionZ());
 
             uint32 speedAsTime = urand(800, 1500);
 
@@ -4505,7 +4908,7 @@ class spell_sylvanas_windrunner_blasphemy : public AuraScript
 
         for (uint8 i = 0; i < 20; i++)
         {
-            Position const blasphemyDestPos = GetRandomPointInRect(DATA_MIDDLE_RECTANGLE, MiddlePlatformVertex[2], MiddlePlatformVertex[1], GetCaster()->GetPositionZ());
+            Position const blasphemyDestPos = GetRandomPointInRect(DATA_MIDDLE_PLATFORM, MiddlePlatformVertex[1], MiddlePlatformVertex[0], GetCaster()->GetPositionZ());
 
             uint32 speedAsTime = urand(800, 1500);
 
@@ -4870,6 +5273,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_haunting_wave);
     RegisterAuraScript(spell_sylvanas_windrunner_ruin);
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
+    RegisterAuraScript(spell_sylvanas_windrunner_banshee_fury);
     RegisterSpellScript(spell_sylvanas_windrunner_raze);
 
     RegisterAuraScript(spell_sylvanas_windrunner_energize_power_aura);
@@ -4883,6 +5287,10 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_winds_of_icecrown);
 
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_thrall);
+    RegisterSpellScript(spell_sylvanas_windrunner_pulverize);
+    RegisterSpellScript(spell_sylvanas_windrunner_pulverize_triggered);
+    RegisterSpellScript(spell_sylvanas_windrunner_stonecrash_phase_one_and_three);
+    RegisterSpellScript(spell_sylvanas_windrunner_stonecrash_phase_two);
 
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_jaina);
     RegisterAuraScript(spell_sylvanas_windrunner_frigid_shards);

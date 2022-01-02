@@ -350,6 +350,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=354168 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354168, 'spell_sylvanas_windrunner_veil_of_darkness_fade');
 
+ -- Banshee's Fury
+DELETE FROM `spell_script_names` WHERE `spell_id`=354068 AND `ScriptName`='spell_sylvanas_windrunner_banshee_fury';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354068, 'spell_sylvanas_windrunner_banshee_fury');
+
  -- Energize Power Aura (Sylvanas)
 DELETE FROM `spell_script_names` WHERE `spell_id`=352312 AND `ScriptName`='spell_sylvanas_windrunner_energize_power_aura';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -591,6 +596,35 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (176532, 8, 0, 'Heroes, to me! Let\'s regroup with Jaina!', 14, 0, 100, 0, 0, 181581, 0, 210375, 0, ''),
 (176532, 9, 0, 'For Saurfang! For the Horde! ', 14, 0, 100, 0, 0, 181528, 0, 211454, 0, ''),
 (176532, 10, 0, 'The Arbiter\'s defenses are weakening! Stop the Jailer while we still can!', 14, 0, 100, 0, 0, 181606, 0, 211463, 0, '');
+
+ -- Pulverize
+DELETE FROM `spell_script_names` WHERE `spell_id`=354918 AND `ScriptName`='spell_sylvanas_windrunner_pulverize';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354918, 'spell_sylvanas_windrunner_pulverize');
+
+ -- Pulverize (triggered)
+DELETE FROM `spell_script_names` WHERE `spell_id`=354923 AND `ScriptName`='spell_sylvanas_windrunner_pulverize_triggered';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354923, 'spell_sylvanas_windrunner_pulverize_triggered');
+
+ -- Stonecrash (phase 1 and 3)
+DELETE FROM `spell_script_names` WHERE `spell_id`=357139 AND `ScriptName`='spell_sylvanas_windrunner_stonecrash';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357139, 'spell_sylvanas_windrunner_stonecrash');
+
+ -- Stonecrash (phase 1 and 3 triggered)
+DELETE FROM `jump_charge_params` WHERE `id`=592;
+INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES 
+(592, 0.300, 1, 266.666, 109373, 0, NULL);
+
+ -- Stonecrash (phase 2)
+DELETE FROM `spell_script_names` WHERE `spell_id`=357137 AND `ScriptName`='spell_sylvanas_windrunner_stonecrash_phase_two';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357137, 'spell_sylvanas_windrunner_stonecrash_phase_two');
+
+DELETE FROM `jump_charge_params` WHERE `id`=574;
+INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES 
+(574, 0.04, 1, 5234.23, 108414, 0, NULL);
 
  -- Lady Jaina Proudmoore
 DELETE FROM `creature_template` WHERE `entry`=176533;

@@ -249,6 +249,27 @@ public:
             {
                 case DATA_SYLVANAS_WINDRUNNER:
                 {
+                    if (state == IN_PROGRESS)
+                    {
+                        if (Creature* bolvar = GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        {
+                            if (bolvar->IsAIEnabled())
+                                bolvar->AI()->DoZoneInCombat();
+                        }
+
+                        if (Creature* thrall = GetCreature(DATA_THRALL_PINNACLE))
+                        {
+                            if (thrall->IsAIEnabled())
+                                thrall->AI()->DoZoneInCombat();
+                        }
+
+                        if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                        {
+                            if (jaina->IsAIEnabled())
+                                jaina->AI()->DoZoneInCombat();
+                        }
+                    }
+
                     if (state == FAIL)
                     {
                         for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
