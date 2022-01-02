@@ -3194,25 +3194,26 @@ bool Unit::IsUnderWater() const
 
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
+    ZLiquidStatus oldLiquidStatus = GetLiquidStatus();
     WorldObject::ProcessPositionDataChanged(data);
-    ProcessTerrainStatusUpdate(data.liquidStatus, data.liquidInfo);
+    ProcessTerrainStatusUpdate(oldLiquidStatus, data.liquidInfo);
 }
 
-void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
+void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus /*oldLiquidStatus*/, Optional<LiquidData> const& newLiquidData)
 {
-    if (IsFlying() || (!IsControlledByPlayer()))
+    if (!IsControlledByPlayer())
         return;
 
     // remove appropriate auras if we are swimming/not swimming respectively
-    if (status & MAP_LIQUID_STATUS_SWIMMING)
+    if (IsInWater())
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_ABOVEWATER);
     else
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 
     // liquid aura handling
     LiquidTypeEntry const* curLiquid = nullptr;
-    if ((status & MAP_LIQUID_STATUS_SWIMMING) && liquidData)
-        curLiquid = sLiquidTypeStore.LookupEntry(liquidData->entry);
+    if (IsInWater() && newLiquidData)
+        curLiquid = sLiquidTypeStore.LookupEntry(newLiquidData->entry);
     if (curLiquid != _lastLiquid)
     {
         if (_lastLiquid && _lastLiquid->SpellID)
