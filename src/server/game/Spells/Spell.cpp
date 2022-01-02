@@ -6656,6 +6656,11 @@ SpellCastResult Spell::CheckRange(bool strict) const
     Unit* target = m_targets.GetUnitTarget();
     if (target && target != m_caster)
     {
+        // is this check needed by 236299? - this spell is cast on enemies and hove 0 max range
+        // this is triggered by other spell - possibly we should omit range check in this case?
+        if (m_spellInfo->RangeEntry && m_spellInfo->RangeEntry->ID == 1)
+            return SPELL_CAST_OK;
+
         if (m_caster->GetExactDistSq(target) > maxRange)
             return SPELL_FAILED_OUT_OF_RANGE;
 

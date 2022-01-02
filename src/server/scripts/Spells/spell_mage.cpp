@@ -480,6 +480,24 @@ class spell_mage_conjure_refreshment : public SpellScript
     }
 };
 
+// 235711 - Chrono Shift
+class spell_mage_chrono_shift : public AuraScript
+{
+    PrepareAuraScript(spell_mage_chrono_shift);
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        GetTarget()->CastSpell((GetEffectInfo(aurEff->GetEffIndex())).EffectIndex == EFFECT_1 ? eventInfo.GetActionTarget() : GetTarget(), (GetEffectInfo(aurEff->GetEffIndex())).TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_chrono_shift::HandleProc, EFFECT_ALL, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 112965 - Fingers of Frost
 class spell_mage_fingers_of_frost : public AuraScript
 {
@@ -1154,6 +1172,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_cold_snap);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
+    RegisterAuraScript(spell_mage_chrono_shift);
     RegisterAuraScript(spell_mage_fingers_of_frost);
     RegisterAuraScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
