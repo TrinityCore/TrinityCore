@@ -36,35 +36,11 @@ enum Spells
     SPELL_TREAT                 = 24715
 };
 
-#define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
-#define LOCALE_TRICK_OR_TREAT_1 "트릭 오어 트릿!"
-#define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
-#define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
-#define LOCALE_TRICK_OR_TREAT_4 "不给糖果就捣蛋！"
-#define LOCALE_TRICK_OR_TREAT_5 "不給糖果就搗蛋！"
-#define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
-#define LOCALE_TRICK_OR_TREAT_7 "Truco o trato!"
-#define LOCALE_TRICK_OR_TREAT_8 "Кошелек или жизнь!"
-
-#define LOCALE_INNKEEPER_0 "Make this inn my home."
-#define LOCALE_INNKEEPER_1 "이거 내 집에서 만들어."
-#define LOCALE_INNKEEPER_2 "Faites de cette auberge votre foyer."
-#define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
-#define LOCALE_INNKEEPER_4 "让这个旅馆成为我的家。"
-#define LOCALE_INNKEEPER_5 "讓這個旅館成爲我的家。"
-#define LOCALE_INNKEEPER_6 "Fija tu hogar en esta taberna."
-#define LOCALE_INNKEEPER_7 "Haz esto en mi casa."
-#define LOCALE_INNKEEPER_8 "Сделай это в моем доме."
-
-#define LOCALE_VENDOR_0 "I want to browse your goods."
-#define LOCALE_VENDOR_1 "나는 당신의 상품을 검색하고 싶습니다."
-#define LOCALE_VENDOR_2 "Je voudrais regarder vos articles."
-#define LOCALE_VENDOR_3 "Ich sehe mich nur mal um."
-#define LOCALE_VENDOR_4 "我想浏览一下你的货物。"
-#define LOCALE_VENDOR_5 "我想游覽一下你的貨物。"
-#define LOCALE_VENDOR_6 "Quiero ver tus mercancías."
-#define LOCALE_VENDOR_7 "Quiero navegar por tus productos."
-#define LOCALE_VENDOR_8 "Я хочу просмотреть ваши товары."
+enum Npc
+{
+    NPC_GOSSIP_MENU = 9733,
+    NPC_GOSSIP_MENU_EVENT = 342,
+};
 
 class npc_innkeeper : public CreatureScript
 {
@@ -78,61 +54,16 @@ public:
         bool OnGossipHello(Player* player) override
         {
             if (IsHolidayActive(HOLIDAY_HALLOWS_END) && !player->HasAura(SPELL_TRICK_OR_TREATED))
-            {
-                char const* localizedEntry;
-                switch (player->GetSession()->GetSessionDbcLocale())
-                {
-                    case LOCALE_koKR: localizedEntry = LOCALE_TRICK_OR_TREAT_1; break;
-                    case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
-                    case LOCALE_deDE: localizedEntry = LOCALE_TRICK_OR_TREAT_3; break;
-                    case LOCALE_zhCN: localizedEntry = LOCALE_TRICK_OR_TREAT_4; break;
-                    case LOCALE_zhTW: localizedEntry = LOCALE_TRICK_OR_TREAT_5; break;
-                    case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
-                    case LOCALE_esMX: localizedEntry = LOCALE_TRICK_OR_TREAT_7; break;
-                    case LOCALE_ruRU: localizedEntry = LOCALE_TRICK_OR_TREAT_8; break;
-                    case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
-                }
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            }
+                AddGossipItemFor(player, NPC_GOSSIP_MENU_EVENT, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (me->IsVendor())
-            {
-                char const* localizedEntry;
-                switch (player->GetSession()->GetSessionDbcLocale())
-                {
-                    case LOCALE_koKR: localizedEntry = LOCALE_VENDOR_1; break;
-                    case LOCALE_frFR: localizedEntry = LOCALE_VENDOR_2; break;
-                    case LOCALE_deDE: localizedEntry = LOCALE_VENDOR_3; break;
-                    case LOCALE_zhCN: localizedEntry = LOCALE_VENDOR_4; break;
-                    case LOCALE_zhTW: localizedEntry = LOCALE_VENDOR_5; break;
-                    case LOCALE_esES: localizedEntry = LOCALE_VENDOR_6; break;
-                    case LOCALE_esMX: localizedEntry = LOCALE_VENDOR_7; break;
-                    case LOCALE_ruRU: localizedEntry = LOCALE_VENDOR_8; break;
-                    case LOCALE_enUS: default: localizedEntry = LOCALE_VENDOR_0;
-                }
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            }
+                AddGossipItemFor(player, NPC_GOSSIP_MENU, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
             if (me->IsInnkeeper())
-            {
-                char const* localizedEntry;
-                switch (player->GetSession()->GetSessionDbcLocale())
-                {
-                    case LOCALE_koKR: localizedEntry = LOCALE_INNKEEPER_1; break;
-                    case LOCALE_frFR: localizedEntry = LOCALE_INNKEEPER_2; break;
-                    case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
-                    case LOCALE_zhCN: localizedEntry = LOCALE_INNKEEPER_4; break;
-                    case LOCALE_zhTW: localizedEntry = LOCALE_INNKEEPER_5; break;
-                    case LOCALE_esES: localizedEntry = LOCALE_INNKEEPER_6; break;
-                    case LOCALE_esMX: localizedEntry = LOCALE_INNKEEPER_7; break;
-                    case LOCALE_ruRU: localizedEntry = LOCALE_INNKEEPER_8; break;
-                    case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
-                }
-                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
-            }
+                AddGossipItemFor(player, NPC_GOSSIP_MENU, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
 
             player->TalkedToCreature(me->GetEntry(), me->GetGUID());
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
