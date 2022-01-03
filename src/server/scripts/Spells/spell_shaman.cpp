@@ -324,12 +324,7 @@ class spell_sha_downpour : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        uint32 const maxTargets = 6;
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
+        Trinity::SelectRandomInjuredTargets(targets, 6, true);
     }
 
     void CountEffectivelyHealedTarget()

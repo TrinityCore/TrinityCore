@@ -8613,6 +8613,75 @@ bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
+void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers)
+{
+    if (targets.size() <= maxTargets)
+        return;
+
+    std::vector<WorldObject*> tempTargets(targets.begin(), targets.end());
+
+    auto begin = tempTargets.begin();
+    auto end = tempTargets.end();
+
+    if (prioritizePlayers)
+    {
+        auto playersEnd = std::stable_partition(begin, end, [](WorldObject const* target)
+        {
+            return target->IsPlayer();
+        });
+
+        size_t playerCount = std::distance(begin, playersEnd);
+        if (playerCount < maxTargets)
+        {
+            // not enough players, add nonplayer targets
+            // prioritize injured nonplayers over full health nonplayers
+            auto injuredNonPlayersEnd = std::stable_partition(playersEnd, end, [](WorldObject const* target)
+            {
+                return target->IsUnit() && !target->ToUnit()->IsFullHealth();
+            });
+
+            size_t injuredNonPlayersCount = std::distance(playersEnd, injuredNonPlayersEnd);
+            if (playerCount + injuredNonPlayersCount < maxTargets)
+            {
+                // not enough players + injured nonplayers
+                // fill remainder with random full health nonplayers
+                Containers::RandomShuffle(injuredNonPlayersEnd, end);
+            }
+            else if (playerCount + injuredNonPlayersCount > maxTargets)
+            {
+                // randomize injured nonplayers order
+                // final list will contain all players + random injured nonplayers
+                Containers::RandomShuffle(playersEnd, injuredNonPlayersEnd);
+            }
+
+            targets.assign(tempTargets.begin(), tempTargets.begin() + maxTargets);
+            return;
+        }
+
+        // We have more players than we requested, proceed checking injured targets
+        end = playersEnd;
+    }
+
+    auto injuredUnitsEnd = std::stable_partition(begin, end, [](WorldObject const* target)
+    {
+        return target->IsUnit() && !target->ToUnit()->IsFullHealth();
+    });
+
+    size_t injuredUnitsCount = std::distance(begin, injuredUnitsEnd);
+    if (injuredUnitsCount < maxTargets)
+    {
+        // not enough injured units
+        // fill remainder with full health units
+        Containers::RandomShuffle(injuredUnitsEnd, end);
+    }
+    else if (injuredUnitsCount > maxTargets)
+    {
+        // select random injured units
+        Containers::RandomShuffle(begin, injuredUnitsEnd);
+    }
+
+    targets.assign(tempTargets.begin(), tempTargets.begin() + maxTargets);
+}
 } //namespace Trinity
 
 CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
