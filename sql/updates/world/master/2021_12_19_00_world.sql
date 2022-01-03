@@ -213,6 +213,11 @@ DELETE FROM `creature_template_movement` WHERE `CreatureId`=176920;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (176920, 1, 0, 0, 1, 0, 0);
 
+ -- Dark Sentinel
+DELETE FROM `creature_equip_template` WHERE `CreatureID`=176404;
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
+(176404, 1, 185997, 0, 0, 185997, 0, 0, 0, 0, 41359);
+
  -- Ranger (Bow)
 DELETE FROM `spell_script_names` WHERE `spell_id`=347560 AND `ScriptName`='spell_sylvanas_windrunner_ranger_bow';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
