@@ -25987,7 +25987,7 @@ bool Player::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /
 
     if (IsMovedByClient() && IsInWorld())
         MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_DISABLE_GRAVITY, disable);
-    else if (IsMovedByClient() && !IsInWorld()) // (1)
+    else
         Unit::SetDisableGravity(disable, false, false);
 
     return true;
@@ -26000,7 +26000,7 @@ bool Player::SetCanFly(bool enable, bool /*packetOnly = false*/)
 
     if (IsMovedByClient() && IsInWorld())
         MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG_CAN_FLY, enable);
-    else if (IsMovedByClient() && !IsInWorld()) // (1)
+    else
         Unit::SetCanFly(enable);
 
     return true;
@@ -26013,7 +26013,7 @@ bool Player::SetCanTransitionBetweenSwimAndFly(bool enable)
 
     if (IsMovedByClient() && IsInWorld())
         MovementPacketSender::SendMovementFlagChangeToMover(this, MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS, enable);
-    else if (IsMovedByClient() && !IsInWorld()) // (1)
+    else
         Unit::SetCanTransitionBetweenSwimAndFly(enable);
 
     return true;
