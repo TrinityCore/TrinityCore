@@ -44,7 +44,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
     if (movementInfo.guid != vehicleGUID)
     {
         TC_LOG_ERROR("network", "Player %s tried to dismiss a controlled vehicle (%s) that he has no control over. Possible cheater or malformed packet.",
-            GetPlayer()->GetGUID().GetCounter(), movementInfo.guid.ToString().c_str());
+            GetPlayer()->GetGUID().ToString().c_str(), movementInfo.guid.ToString().c_str());
         return;
     }
 
