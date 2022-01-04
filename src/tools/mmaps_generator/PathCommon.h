@@ -21,6 +21,7 @@
 #include "Common.h"
 
 #include <vector>
+#include <unordered_map>
 
 #ifndef _WIN32
     #include <stddef.h>
