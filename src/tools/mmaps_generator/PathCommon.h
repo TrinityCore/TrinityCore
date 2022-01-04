@@ -35,6 +35,11 @@
     #include <cerrno>
 #endif
 
+namespace VMAP
+{
+    class VMapManager2;
+}
+
 namespace MMAP
 {
     inline bool matchWildcardFilter(char const* filter, char const* str)
@@ -127,10 +132,16 @@ namespace MMAP
     {
         uint8 MapType = 0;
         int8 InstanceType = 0;
+        int16 ParentMapID = -1;
         int32 Flags = 0;
     };
 
     extern std::unordered_map<uint32, MapEntry> sMapStore;
+
+    namespace VMapFactory
+    {
+        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager();
+}
 }
 
 #endif

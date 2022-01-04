@@ -23,7 +23,6 @@
 #include "PathCommon.h"
 #include "Timer.h"
 #include "Util.h"
-#include "VMapFactory.h"
 #include "VMapManager2.h"
 #include <boost/filesystem/operations.hpp>
 #include <unordered_map>
@@ -34,17 +33,33 @@ constexpr char Readme[] =
 #include "Info/readme.txt"
 };
 
-namespace MMAP
-{
-    std::unordered_map<uint32, MapEntry> sMapStore;
-}
-
-using namespace MMAP;
-
 namespace
 {
     std::unordered_map<uint32, uint8> _liquidTypes;
+    std::unordered_map<uint32, std::vector<uint32>> _mapDataForVmapInitialization;
 }
+
+namespace MMAP
+{
+    std::unordered_map<uint32, MapEntry> sMapStore;
+
+    namespace VMapFactory
+    {
+        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager()
+        {
+            std::unique_ptr<VMAP::VMapManager2> vmgr = std::make_unique<VMAP::VMapManager2>();
+            vmgr->InitializeThreadUnsafe(_mapDataForVmapInitialization);
+            vmgr->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
+            {
+                auto itr = _liquidTypes.find(liquidId);
+                return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
+            };
+            return vmgr;
+        }
+    }
+}
+
+using namespace MMAP;
 
 bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 {
@@ -346,6 +361,7 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
             MapEntry& map = sMapStore[record.GetId()];
             map.MapType = record.GetUInt8("MapType");
             map.InstanceType = record.GetUInt8("InstanceType");
+            map.ParentMapID = parentMapId;
             map.Flags = record.GetInt32("Flags1");
         }
     }
@@ -404,14 +420,7 @@ int main(int argc, char** argv)
 
     _liquidTypes = LoadLiquid(dbcLocales[0], silent, -5);
 
-    std::unordered_map<uint32, std::vector<uint32>> mapData = LoadMap(dbcLocales[0], silent, -4);
-
-    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
-    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
-    {
-        auto itr = _liquidTypes.find(liquidId);
-        return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
-    };
+    _mapDataForVmapInitialization = LoadMap(dbcLocales[0], silent, -4);
 
     MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
@@ -425,8 +434,6 @@ int main(int argc, char** argv)
         builder.buildMap(uint32(mapnum));
     else
         builder.buildAllMaps(threads);
-
-    VMAP::VMapFactory::clear();
 
     if (!silent)
         printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());

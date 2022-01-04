@@ -22,8 +22,6 @@
 #include "ModelInstance.h"
 #include "PathCommon.h"
 #include "StringFormat.h"
-#include "VMapFactory.h"
-#include "VMapManager2.h"
 #include <DetourCommon.h>
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
@@ -448,9 +446,13 @@ namespace MMAP
     void MapBuilder::buildNavMesh(uint32 mapID, dtNavMesh* &navMesh)
     {
         // if map has a parent we use that to generate dtNavMeshParams - worldserver will load all missing tiles from that map
-        int32 navMeshParamsMapId = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager())->getParentMapId(mapID);
-        if (navMeshParamsMapId == -1)
-            navMeshParamsMapId = mapID;
+        int32 navMeshParamsMapId = mapID;
+        int32 parentMapId = sMapStore[mapID].ParentMapID;
+        while (parentMapId != -1)
+        {
+            navMeshParamsMapId = parentMapId;
+            parentMapId = sMapStore[parentMapId].ParentMapID;
+        }
 
         std::set<uint32>* tiles = getTileList(navMeshParamsMapId);
 
