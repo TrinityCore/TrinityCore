@@ -567,10 +567,10 @@ static Position GetRandomPointInRect(uint8 rectangleType, Position const& a, Pos
 
 Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f  };
 
-// Sylvanas (Copy Fight) - 176369
-struct npc_sylvanas_windrunner_sylvanas : public ScriptedAI
+// Sylvanas (Fight) - 176369
+struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 {
-    npc_sylvanas_windrunner_sylvanas(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()),
+    npc_sylvanas_windrunner_shadowcopy(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()),
         _onPhaseOne(true), _onChainsOfDomination(false), _onRiveEvent(false) { }
 
     void JustAppeared() override
@@ -846,6 +846,31 @@ private:
     bool _onRiveEvent;
 };
 
+// Sylvanas (Riding) - 176369
+struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
+{
+    npc_sylvanas_windrunner_shadowcopy_riding(Creature* creature) : ScriptedAI(creature),
+        _instance(creature->GetInstanceScript()) { }
+
+    void JustAppeared() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+
+        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    InstanceScript* _instance;
+    TaskScheduler _scheduler;
+};
+
 // Sylvanas Windrunner - 175732
 struct boss_sylvanas_windrunner : public BossAI
 {
@@ -856,18 +881,8 @@ struct boss_sylvanas_windrunner : public BossAI
     {
         scheduler.ClearValidator();
 
-        if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
-        {
-            ridingCopy->SetReactState(REACT_PASSIVE);
-
-            ridingCopy->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
-            ridingCopy->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-            ridingCopy->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
-        }
-
         DoCastSelf(SPELL_DUAL_WIELD, true);
         DoCastSelf(SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING, true);
-        me->AddAura(SPELL_RANGER_BOW_STANCE, me);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -921,6 +936,7 @@ struct boss_sylvanas_windrunner : public BossAI
             case NPC_SYLVANAS_SHADOW_COPY_FIGHTERS:
                 _shadowCopyGUID.push_back(summon->GetGUID());
                 break;
+
             default:
                 break;
         }
@@ -1562,7 +1578,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         {
                             scheduler.Schedule(Milliseconds(100 * itr), [this, itr, randomCopy](TaskContext /*task*/)
                             {
-                                if (npc_sylvanas_windrunner_sylvanas* ai = GetSylvanasCopyAI(itr))
+                                if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(itr))
                                     ai->StartWitheringFireEvent(itr == randomCopy);           
                             });
                         }
@@ -1592,7 +1608,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         {
                             scheduler.Schedule(Milliseconds(100 * itr), [this, itr, randomCopy](TaskContext /*task*/)
                             {
-                                if (npc_sylvanas_windrunner_sylvanas* ai = GetSylvanasCopyAI(itr))
+                                if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(itr))
                                     ai->StartShadowDaggersEvent(itr == randomCopy);
                             });
                         }
@@ -1610,7 +1626,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true, true))
                             {
                                 float orientation = me->GetAbsoluteAngle(target);
 
@@ -1624,7 +1640,6 @@ struct boss_sylvanas_windrunner : public BossAI
                                     DoAction(ACTION_DESECRATING_SHOT_LAUNCH);
                                 });
                             }
-
                             break;
                         }
 
@@ -1636,10 +1651,8 @@ struct boss_sylvanas_windrunner : public BossAI
                             {
                                 DoAction(ACTION_DESECRATING_SHOT_LAUNCH);
                             });
-
                             break;
                         }
-
                         default:
                             break;
                     }
@@ -2406,14 +2419,14 @@ struct boss_sylvanas_windrunner : public BossAI
         return false;
     }
 
-    npc_sylvanas_windrunner_sylvanas* GetSylvanasCopyAI(uint32 index)
+    npc_sylvanas_windrunner_shadowcopy* GetSylvanasCopyAI(uint32 index)
     {
         Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[index]);
 
         if (!shadowCopy)
             return nullptr;
 
-        return CAST_AI(npc_sylvanas_windrunner_sylvanas, shadowCopy->AI());
+        return CAST_AI(npc_sylvanas_windrunner_shadowcopy, shadowCopy->AI());
     }
 
 private:
@@ -5230,7 +5243,8 @@ private:
 void AddSC_boss_sylvanas_windrunner()
 {
     RegisterSanctumOfDominationCreatureAI(boss_sylvanas_windrunner);
-    RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_sylvanas);
+    RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_shadowcopy);
+    RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_shadowcopy_riding);
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_domination_arrow);
 
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_bow);

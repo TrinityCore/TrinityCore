@@ -158,14 +158,14 @@ DELETE FROM `vehicle_template_accessory` WHERE `entry`=175732;
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES 
 (175732, 178355, 0, 0, 'Sylvanas Windrunner on top of Sylvanas', 6, 30000);
 
- -- Sylvanas Copy (Withering and Jump)
+ -- Sylvanas Shadowcopy (Fight)
 DELETE FROM `creature_template` WHERE `entry`=176369;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(176369, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 2099200, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_sylvanas_windrunner_sylvanas', 41079);
+(176369, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 2099200, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_sylvanas_windrunner_shadowcopy', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=176369;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(176369, 0, 0, 0, 1, 0, 0, 0, 0, '');
+(176369, 0, 0, 0, 1, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=176369;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -175,14 +175,14 @@ DELETE FROM `creature_template_movement` WHERE `CreatureId`=176369;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (176369, 1, 0, 1, 0, 0, 0);
 
- -- Sylvanas Copy (Riding)
+ -- Sylvanas Shadowcopy (Riding)
 DELETE FROM `creature_template` WHERE `entry`=178355;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(178355, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 35653664, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', 41079);
+(178355, 'Sylvanas', NULL, NULL, NULL, NULL, 0, 60, 60, 0, 0, 0, 16, 0, 1, 1.14286, 1, 0, 0, 2000, 0, 1, 1, 0, 33554432, 35653664, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_sylvanas_windrunner_shadowcopy_riding', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178355;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(178355, 0, 0, 50331648, 1, 0, 0, 0, 0, '');
+(178355, 0, 0, 50331648, 1, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=178355;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
