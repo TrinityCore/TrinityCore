@@ -115,8 +115,8 @@ enum Points
 
 enum Seats
 {
-    SEAT_FORCE_GRIP_1   = 1,
-    SEAT_FORCE_GRIP_2   = 2
+    SEAT_FORCE_GRIP_PREPARE_SMASH   = 1,
+    SEAT_FORCE_GRIP_SMASH           = 2
 };
 
 enum VehicleIds
@@ -198,36 +198,32 @@ class boss_high_priestess_azil : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
             }
 
-            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
+            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
             {
-                if (spell->Id == SPELL_FORCE_GRIP)
+                if (spell->Id == SPELL_FORCE_GRIP && reason != SPELL_FINISHED_SUCCESSFUL_CAST)
                 {
                     MakeInterruptable(false);
                     SetVehicleId(VEHICLE_ID_DEFAULT);
+                    events.CancelEvent(EVENT_FORCE_GRIP_DAMAGE);
+                    events.CancelEvent(EVENT_FORCE_GRIP_SMASH);
+                    events.CancelEvent(EVENT_REPEAT_FORCE_GRIP_SMASH);
                     _isChannelingForceGrip = false;
                 }
             }
 
             void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
             {
-                if (who->GetTypeId() != TYPEID_PLAYER)
+                if (!who->IsPlayer() || !apply)
                     return;
 
-                if (!apply)
-                    return;
-
-                if (seatId == SEAT_FORCE_GRIP_1)
+                if (seatId == SEAT_FORCE_GRIP_PREPARE_SMASH)
                 {
                     events.ScheduleEvent(EVENT_FORCE_GRIP_SMASH, Milliseconds(800));
                     _isChannelingForceGrip = true;
                 }
-                else if (seatId == SEAT_FORCE_GRIP_2)
-                {
+                else if (seatId == SEAT_FORCE_GRIP_SMASH)
                     if (_isChannelingForceGrip)
                         events.ScheduleEvent(EVENT_FORCE_GRIP_DAMAGE, Milliseconds(800));
-                    else
-                        who->ExitVehicle();
-                }
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -298,18 +294,18 @@ class boss_high_priestess_azil : public CreatureScript
                             break;
                         case EVENT_FORCE_GRIP_SMASH:
                             if (Vehicle* vehicle = me->GetVehicleKit())
-                                if (Unit* passenger = vehicle->GetPassenger(SEAT_FORCE_GRIP_1))
+                                if (Unit* passenger = vehicle->GetPassenger(SEAT_FORCE_GRIP_PREPARE_SMASH))
                                     DoCast(passenger, SPELL_FORCE_GRIP_CHANGE_SEAT, true);
                             break;
                         case EVENT_FORCE_GRIP_DAMAGE:
                             if (Vehicle* vehicle = me->GetVehicleKit())
-                                if (Unit* passenger = vehicle->GetPassenger(SEAT_FORCE_GRIP_2))
+                                if (Unit* passenger = vehicle->GetPassenger(SEAT_FORCE_GRIP_SMASH))
                                     DoCast(passenger, SPELL_FORCE_GRIP_DAMAGE, true);
                             events.ScheduleEvent(EVENT_REPEAT_FORCE_GRIP_SMASH, 400ms, 0, PHASE_ONE);
                             break;
                         case EVENT_REPEAT_FORCE_GRIP_SMASH:
                             if (Vehicle* vehicle = me->GetVehicleKit())
-                                if (Unit* passenger = vehicle->GetPassenger(SEAT_FORCE_GRIP_2))
+                                if (Unit* passenger = vehicle->GetPassenger(SEAT_FORCE_GRIP_SMASH))
                                     if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_FORCE_GRIP_DAMAGE))
                                         if (uint32 spellId = spell->Effects[EFFECT_0].TriggerSpell)
                                             passenger->CastSpell(me, spellId, true);
@@ -742,13 +738,7 @@ class spell_azil_force_grip : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
-        {
-            if (Unit* target = GetHitUnit())
-            {
-                target->SetDisableGravity(true);
-                target->CastSpell(caster, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
-            }
-        }
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
     }
 
     void Register() override
@@ -757,32 +747,12 @@ class spell_azil_force_grip : public SpellScript
     }
 };
 
-class spell_azil_force_grip_AuraScript : public AuraScript
-{
-    void OnAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Unit* target = GetTarget())
-        {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(target, SPELL_FORCE_GRIP_CHANGE_SEAT, true);
-
-            target->SetDisableGravity(false);
-        }
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove.Register(&spell_azil_force_grip_AuraScript::OnAuraRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 class spell_azil_force_grip_change_seat : public SpellScript
 {
     void HandleScript(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
-            if (Unit* target = GetHitUnit())
-                target->CastSpell(caster, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
     }
 
     void Register() override
@@ -805,6 +775,6 @@ void AddSC_boss_high_priestess_azil()
     RegisterSpellScript(spell_azil_gravity_well_pull);
     RegisterSpellScript(spell_azil_seismic_shard_change_seat);
     RegisterSpellScript(spell_azil_seismic_shard);
-    RegisterSpellAndAuraScriptPair(spell_azil_force_grip, spell_azil_force_grip_AuraScript);
+    RegisterSpellScript(spell_azil_force_grip);
     RegisterSpellScript(spell_azil_force_grip_change_seat);
 }
