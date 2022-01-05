@@ -574,13 +574,13 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
             sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_FINISH_QUEST);
             continue;
         }
-        
+
         if (receiver->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE || receiver->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
         {
             sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_HAVE_QUEST);
             continue;
         }
-        
+
         if (!receiver->SatisfyQuestDay(quest, false))
         {
             sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_NOT_ELIGIBLE_TODAY);
