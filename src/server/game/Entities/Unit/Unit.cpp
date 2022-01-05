@@ -6717,8 +6717,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             return uint32(std::max(pdamage * DoneTotalMod, 0.0f));
     }
 
-    spellPowerCoeff = spellProto->CalculateScaledCoefficient(this, spellPowerCoeff);
-    attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
+    if (spellPowerCoeff > 0.f)
+        spellPowerCoeff = spellProto->CalculateScaledCoefficient(this, spellPowerCoeff);
+
+    if (attackPowerCoeff > 0.f)
+        attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
 
     if (attackPowerCoeff > 0.f)
     {
@@ -7975,7 +7978,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
             attackPowerCoeff = bonus->ap_bonus;
 
-        attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
+        if (attackPowerCoeff > 0.f)
+            attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
 
         if (attackPowerCoeff > 0.f)
             DoneFlatBenefit += attackPowerCoeff * GetTotalAttackPowerValue(attType);
