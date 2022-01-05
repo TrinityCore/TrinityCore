@@ -293,10 +293,35 @@ private:
     bool _readyToAttack;
 };
 
+enum DancingRuneWeapon
+{
+    SPELL_COPY_WEAPON_1                 = 63416,
+    SPELL_DANCING_RUNE_WEAPON_VISUAL    = 53160,
+    SPELL_COPY_WEAPON_2                 = 63418
+};
+
+struct npc_pet_dk_rune_weapon : public AggressorAI
+{
+    npc_pet_dk_rune_weapon(Creature* creature) : AggressorAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (!summoner)
+            return;
+
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        for (uint32 spellId : { SPELL_COPY_WEAPON_1, SPELL_COPY_WEAPON_2 })
+            DoCast(summoner, spellId, true);
+
+        DoCastSelf(SPELL_DANCING_RUNE_WEAPON_VISUAL);
+    }
+};
+
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
     new npc_pet_dk_guardian();
     RegisterCreatureAI(npc_pet_dk_army_of_the_dead_ghoul);
     RegisterSpellScript(spell_pet_ghoul_dummy_ability);
+    RegisterCreatureAI(npc_pet_dk_rune_weapon);
 }
