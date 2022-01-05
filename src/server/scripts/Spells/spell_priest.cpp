@@ -998,7 +998,7 @@ class spell_pri_shadow_mend : public SpellScript
                 args.AddSpellBP0(periodicAmount);
                 args.AddSpellMod(SPELLVALUE_BASE_POINT1, damageForAuraRemoveAmount);
                 caster->CastSpell(target, SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY, args);
-            } 
+            }
         }
     }
 
@@ -1026,7 +1026,7 @@ class spell_pri_shadow_mend_periodic_damage : public AuraScript
             args.OriginalCaster = GetCasterGUID();
             args.AddSpellBP0(aurEff->GetAmount());
             GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_SHADOW_MEND_DAMAGE, args);
-        } 
+        }
         else
             Remove();
     }
