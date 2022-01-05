@@ -6630,7 +6630,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         if (Unit* owner = GetOwner())
             return owner->SpellDamageBonusDone(victim, spellProto, pdamage, damagetype, effIndex, stack);
 
-    float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
     float DoneTotalMod = SpellDamagePctDone(victim, spellProto, damagetype);
 
@@ -6693,24 +6692,22 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     }
 
     // Check for table values
-    float coeff = spellProto->Effects[effIndex].BonusMultiplier;
+    float spellPowerCoeff = spellProto->Effects[effIndex].BonusMultiplier;
+    float attackPowerCoeff = spellProto->BonusCoefficient;
+
+    WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+
     if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
     {
-        WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
-        float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
-        APbonus += GetTotalAttackPowerValue(attType);
-
         if (damagetype == DOT)
         {
-            coeff = bonus->dot_damage;
-            if (bonus->ap_dot_bonus > 0)
-                DoneTotal += int32(bonus->ap_dot_bonus * stack * ApCoeffMod * APbonus);
+            spellPowerCoeff = bonus->dot_damage;
+            attackPowerCoeff = bonus->ap_dot_bonus;
         }
         else
         {
-            coeff = bonus->direct_damage;
-            if (bonus->ap_bonus > 0)
-                DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
+            spellPowerCoeff = bonus->direct_damage;
+            attackPowerCoeff = bonus->ap_bonus;
         }
     }
     else
@@ -6720,19 +6717,29 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             return uint32(std::max(pdamage * DoneTotalMod, 0.0f));
     }
 
+    spellPowerCoeff = spellProto->CalculateScaledCoefficient(this, spellPowerCoeff);
+    attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
+
+    if (attackPowerCoeff > 0.f)
+    {
+        float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+        APbonus += GetTotalAttackPowerValue(attType);
+        DoneTotal += int32(attackPowerCoeff * stack * APbonus);
+    }
+
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
-        if (coeff < 0.f)
-            coeff = CalculateDefaultCoefficient(spellProto, damagetype);
+        if (spellPowerCoeff < 0.f)
+            spellPowerCoeff = CalculateDefaultCoefficient(spellProto, damagetype);
 
         if (Player* modOwner = GetSpellModOwner())
         {
-            coeff *= 100.0f;
-            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
-            coeff /= 100.0f;
+            spellPowerCoeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, spellPowerCoeff);
+            spellPowerCoeff /= 100.0f;
         }
-        DoneTotal += int32(DoneAdvertisedBenefit * coeff * stack);
+        DoneTotal += int32(DoneAdvertisedBenefit * spellPowerCoeff * stack);
     }
 
     float tmpDamage = float(int32(pdamage) + DoneTotal) * DoneTotalMod;
@@ -7962,15 +7969,16 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     if (spellProto && useSpellBonusData)
     {
+        float attackPowerCoeff = spellProto->BonusCoefficient;
+
         // Check for table values
         if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
-        {
-            if (bonus->ap_bonus > 0.f)
-            {
-                float APbonus = GetTotalAttackPowerValue(attType);
-                DoneFlatBenefit += int32(bonus->ap_bonus * APbonus);
-            }
-        }
+            attackPowerCoeff = bonus->ap_bonus;
+
+        attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
+
+        if (attackPowerCoeff > 0.f)
+            DoneFlatBenefit += attackPowerCoeff * GetTotalAttackPowerValue(attType);
     }
 
     // Done total percent damage auras

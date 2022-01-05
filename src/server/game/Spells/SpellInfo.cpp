@@ -3303,6 +3303,14 @@ uint32 SpellInfo::GetMechanicImmunityMask(Unit* caster) const
     return mechanicImmunityMask;
 }
 
+float SpellInfo::CalculateScaledCoefficient(Unit const* caster, float coefficient) const
+{
+    if (coefficient == 0.f || !caster || !GetSpellScaling())
+        return coefficient;
+
+    return coefficient *= GetSpellScalingMultiplier(caster, GetSpellScaling());
+}
+
 float SpellInfo::GetMinRange(bool positive) const
 {
     if (!RangeEntry)

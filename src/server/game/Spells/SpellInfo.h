@@ -611,6 +611,8 @@ class TC_GAME_API SpellInfo
 
         uint32 GetMechanicImmunityMask(Unit* caster) const;
 
+        float CalculateScaledCoefficient(Unit const* caster, float coefficient) const;
+
     private:
         // loading helpers
         void _InitializeExplicitTargetMask();
