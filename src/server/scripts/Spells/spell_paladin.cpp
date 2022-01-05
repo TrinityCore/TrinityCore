@@ -97,7 +97,8 @@ enum PaladinSpells
     SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE                  = 42463,
     SPELL_PALADIN_SEAL_OF_JUSTICE                       = 20164,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1                  = 53379,
-    SPELL_PALADIN_TEMPLARS_VERDICT                      = 85256
+    SPELL_PALADIN_TEMPLARS_VERDICT                      = 85256,
+    SPELL_PALADIN_TWO_HANDED_WEAPON_SPECIALIZATION      = 20113
 };
 
 enum MiscSpells
@@ -659,6 +660,7 @@ class spell_pal_judgement : public SpellScript
                 SPELL_PALADIN_JUDGEMENT_OF_TRUTH,
                 SPELL_PALADIN_JUDGEMENT_OF_RIGHTEOUSNESS,
                 SPELL_PALADIN_CENSURE,
+                SPELL_PALADIN_TWO_HANDED_WEAPON_SPECIALIZATION
             });
     }
 
@@ -699,6 +701,10 @@ class spell_pal_judgement : public SpellScript
             default:
                 break;
         }
+
+        // Though it's nowhere stated, Judgement seems to benefit from Two-Handed Weapon Specialization according to logs and many discussions in the web.
+        if (AuraEffect const* twoHandedSpec = caster->GetAuraEffect(SPELL_PALADIN_TWO_HANDED_WEAPON_SPECIALIZATION, EFFECT_0))
+            AddPct(bp, twoHandedSpec->GetAmount());
 
         caster->CastSpell(target, spellId, CastSpellExtraArgs(true).AddSpellBP0(bp));
     }
