@@ -3383,8 +3383,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         38762, // Force of Neltharaku
         51122, // Fierce Lightning Stike
         71848, // Toxic Wasteling Find Target
-        36146, // Chains of Naberius
-        37135  // Domination
+        36146  // Chains of Naberius
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
@@ -3431,7 +3430,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         46008, // Negative Energy
         45641, // Fire Bloom
         55665, // Life Drain - Sapphiron (H)
-        28796  // Poison Bolt Volly - Faerlina
+        28796，// Poison Bolt Volly - Faerlina
+        37135  // Domination  
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 5;
