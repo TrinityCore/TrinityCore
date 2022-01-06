@@ -3544,7 +3544,7 @@ void AuraEffect::HandleModStatBonusArmor(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
-    if (target->IsPlayer() || target->IsPet())
+    if (target->IsPlayer())
         target->HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(GetAmount()), apply);
 }
 
