@@ -704,7 +704,7 @@ namespace Trinity
 
         PlayerWorker(WorldObject const* searcher, Do& _do)
             // @tswow-begin
-            : i_phaseMask(searcher->GetPhaseMask(),searcher->m_phase_id), i_do(_do) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_phase_id(searcher->m_phase_id), i_do(_do) { }
             // @tswow-end
 
         void Visit(PlayerMapType &m)
