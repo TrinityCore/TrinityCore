@@ -3999,6 +3999,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
 
+    // Chrono Shift (enemy slow part)
+    ApplySpellFix({ 236299 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
