@@ -117,7 +117,7 @@ class TC_GAME_API GameObjectAI
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 
         // Called when the capture point gets assaulted by a player. Return true to disable default behaviour.
-        virtual bool OnCapturePointAssaulted(Player* player) { return false; }
+        virtual bool OnCapturePointAssaulted(Player* /*player*/) { return false; }
         // Called when the capture point state gets updated. Return true to disable default behaviour.
         virtual bool OnCapturePointUpdated(WorldPackets::Battleground::BattlegroundCapturePointState /*state*/) { return false; }
 };
