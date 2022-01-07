@@ -82,7 +82,8 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "AreaTrigger",
     "ConversationLine",
     "AreaTrigger Client Triggered",
-    "Trainer Spell"
+    "Trainer Spell",
+    "Spawn"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -954,7 +955,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
             sourceType == CONDITION_SOURCE_TYPE_PHASE ||
             sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER ||
-            sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL);
+            sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL ||
+            sourceType == CONDITION_SOURCE_TYPE_SPAWN);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1091,6 +1093,21 @@ bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint3
         {
             TC_LOG_DEBUG("condition", "GetConditionsForTrainerSpell: found conditions for trainer id %u spell %u", trainerId, spellId);
             return IsObjectMeetToConditions(player, i->second);
+        }
+    }
+    return true;
+}
+
+bool ConditionMgr::IsObjectMeetingSpawnConditions(uint32 objectType, uint32 entry, WorldObject* seer) const
+{
+    ConditionEntriesByCreatureIdMap::const_iterator itr = SpawnConditionContainerStore.find(objectType);
+    if (itr != SpawnConditionContainerStore.end())
+    {
+        ConditionsByEntryMap::const_iterator i = (*itr).second.find(entry);
+        if (i != (*itr).second.end())
+        {
+            TC_LOG_DEBUG("condition", "IsObjectMeetingSpawnConditions: found conditions for objectType %u entry %u", objectType, entry);
+            return IsObjectMeetToConditions(seer, i->second);
         }
     }
     return true;
@@ -1344,6 +1361,13 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_TRAINER_SPELL:
                 {
                     TrainerSpellConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
+                }
+                case CONDITION_SOURCE_TYPE_SPAWN:
+                {
+                    SpawnConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -1992,6 +2016,21 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_SPAWN:
+        {
+            if (cond->SourceGroup <= 0 || cond->SourceGroup >= NUM_CLIENT_OBJECT_TYPES)
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, is no valid object type, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+
+            if (!sObjectMgr->GetCreatureTemplate(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "%s Invalid ConditionSourceType in `condition` table, ignoring.", cond->ToString().c_str());
             return false;
@@ -2584,6 +2623,13 @@ void ConditionMgr::Clean()
                 delete *i;
 
     TrainerSpellConditionContainerStore.clear();
+
+    for (ConditionEntriesByCreatureIdMap::iterator itr = SpawnConditionContainerStore.begin(); itr != SpawnConditionContainerStore.end(); ++itr)
+        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete* i;
+
+    SpawnConditionContainerStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::vector<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
