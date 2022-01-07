@@ -1049,6 +1049,8 @@ class spell_sha_mastery_elemental_overload : public AuraScript
             { SPELL_SHAMAN_CHAIN_LIGHTNING, SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD },
             { SPELL_SHAMAN_LAVA_BEAM, SPELL_SHAMAN_LAVA_BEAM_OVERLOAD }
         };
+
+        return true;
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
