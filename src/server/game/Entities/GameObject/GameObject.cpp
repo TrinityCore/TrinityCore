@@ -1083,6 +1083,12 @@ void GameObject::Delete()
     SetLootState(GO_NOT_READY);
     RemoveFromOwner();
 
+    if (m_goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
+    {
+        WorldPackets::Battleground::CapturePointRemoved packet(GetGUID());
+        SendMessageToSet(packet.Write(), true);
+    }
+
     SendGameObjectDespawn();
 
     SetGoState(GO_STATE_READY);

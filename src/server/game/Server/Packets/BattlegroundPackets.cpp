@@ -390,3 +390,9 @@ WorldPacket const* WorldPackets::Battleground::UpdateCapturePoint::Write()
     _worldPacket << CapturePointInfo;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battleground::CapturePointRemoved::Write()
+{
+    _worldPacket << CapturePointGUID;
+    return &_worldPacket;
+}

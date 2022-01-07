@@ -518,6 +518,17 @@ namespace WorldPackets
 
             BattlegroundCapturePointInfo CapturePointInfo;
         };
+
+        class CapturePointRemoved final : public ServerPacket
+        {
+        public:
+            CapturePointRemoved() : ServerPacket(SMSG_CAPTURE_POINT_REMOVED) { }
+            CapturePointRemoved(ObjectGuid capturePointGUID) : ServerPacket(SMSG_CAPTURE_POINT_REMOVED), CapturePointGUID(capturePointGUID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CapturePointGUID;
+        };
     }
 }
 
