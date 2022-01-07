@@ -3542,12 +3542,7 @@ void AuraEffect::HandleModStatBonusArmor(AuraApplication const* aurApp, uint8 mo
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    target->ToPlayer()->HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(GetAmount()), apply);
+    aurApp->GetTarget()->HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
