@@ -40,6 +40,7 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
     SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
+    SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE               = 205292,
     SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
@@ -302,6 +303,31 @@ class spell_warl_devour_magic : public SpellScriptLoader
         {
             return new spell_warl_devour_magic_SpellScript();
         }
+};
+
+// 198590 - Drain Soul
+class spell_warl_drain_soul : public AuraScript
+{
+    PrepareAuraScript(spell_warl_drain_soul);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE });
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 48181 - Haunt
@@ -999,6 +1025,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_devour_magic();
+    RegisterAuraScript(spell_warl_drain_soul);
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_healthstone_heal();
