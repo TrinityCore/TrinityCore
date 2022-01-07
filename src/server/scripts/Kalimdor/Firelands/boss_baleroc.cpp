@@ -291,9 +291,9 @@ struct npc_shard_of_torment : public NullCreatureAI
         });
     }
 
-    void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id != SPELL_TORMENT)
+        if (spellInfo->Id != SPELL_TORMENT)
             return;
 
         scheduler.CancelAll();

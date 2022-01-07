@@ -130,7 +130,7 @@ class boss_anzu : public CreatureScript
                             events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 25s);
                             break;
                         case EVENT_CYCLONE_OF_FEATHERS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
                             events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21s);
                             break;
@@ -143,7 +143,7 @@ class boss_anzu : public CreatureScript
                             events.ScheduleEvent(EVENT_SPELL_BOMB, 12s);
                             break;
                         case EVENT_SPELL_BOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             {
                                 if (target->GetPowerType() == POWER_MANA)
                                 {

@@ -218,7 +218,7 @@ class boss_ichoron : public CreatureScript
 
                 scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                         DoCast(target, SPELL_WATER_BLAST);
                     task.Repeat(Seconds(6), Seconds(9));
                 });
@@ -248,13 +248,17 @@ class npc_ichor_globule : public CreatureScript
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
+                Unit* unitCaster = caster->ToUnit();
+                if (!unitCaster)
+                    return;
+
                 if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
                 {
                     DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
                     me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                    me->GetMotionMaster()->MoveFollow(caster, 0.0f, 0.0f);
+                    me->GetMotionMaster()->MoveFollow(unitCaster, 0.0f, 0.0f);
                 }
             }
 

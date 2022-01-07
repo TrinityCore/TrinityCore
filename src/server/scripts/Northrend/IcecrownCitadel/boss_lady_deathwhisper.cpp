@@ -303,7 +303,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     })
                     .Schedule(Seconds(17), [this](TaskContext death_and_decay)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                             DoCast(target, SPELL_DEATH_AND_DECAY);
                         death_and_decay.Repeat(Seconds(22), Seconds(30));
                     });
@@ -312,7 +312,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         {
                             Talk(SAY_DOMINATE_MIND);
                             std::list<Unit*> targets;
-                            SelectTargetList(targets, _dominateMindCount, SELECT_TARGET_RANDOM, 0, 0.0f, true, false, -SPELL_DOMINATE_MIND);
+                            SelectTargetList(targets, _dominateMindCount, SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_DOMINATE_MIND);
                             for (Unit* target : targets)
                               DoCast(target, SPELL_DOMINATE_MIND);
                             dominate_mind.Repeat(Seconds(40), Seconds(45));
@@ -326,7 +326,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     })
                     .Schedule(Seconds(2), GROUP_ONE, [this](TaskContext shadow_bolt)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                             DoCast(target, SPELL_SHADOW_BOLT);
                         shadow_bolt.Repeat(Milliseconds(2450), Milliseconds(3600));
                     })
@@ -459,9 +459,9 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_SUMMON_SPIRITS)
+                if (spellInfo->Id == SPELL_SUMMON_SPIRITS)
                     _nextVengefulShadeTargetGUID.push_back(target->GetGUID());
             }
 
@@ -472,7 +472,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     case NPC_DARNAVAN_10:
                     case NPC_DARNAVAN_25:
                         _darnavanGUID = summon->GetGUID();
-                        summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                        summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random));
                         return;
                     case NPC_VENGEFUL_SHADE:
                         if (_nextVengefulShadeTargetGUID.empty())
@@ -483,7 +483,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     case NPC_CULT_ADHERENT:
                     case NPC_CULT_FANATIC:
                         _cultistQueue.push_back(summon->GetGUID());
-                        summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                        summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random));
                         break;
                     default:
                         break;
@@ -628,9 +628,9 @@ class npc_cult_fanatic : public CreatureScript
                     });
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_DARK_TRANSFORMATION_T:
                         me->InterruptNonMeleeSpells(true);
@@ -729,15 +729,15 @@ class npc_cult_adherent : public CreatureScript
                    })
                    .Schedule(Seconds(15), [this](TaskContext curse_of_torpor)
                    {
-                       if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                       if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                            DoCast(target, SPELL_CURSE_OF_TORPOR);
                        curse_of_torpor.Repeat(Seconds(18));
                    });
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_DARK_EMPOWERMENT_T:
                         me->UpdateEntry(NPC_EMPOWERED_ADHERENT);
@@ -828,9 +828,9 @@ class npc_vengeful_shade : public CreatureScript
                 _targetGUID = guid;
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_VENGEFUL_BLAST:
                     case SPELL_VENGEFUL_BLAST_25N:

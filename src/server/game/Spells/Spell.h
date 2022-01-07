@@ -40,6 +40,7 @@ class Aura;
 class AuraEffect;
 class BasicEvent;
 class Corpse;
+class DamageInfo;
 class DynamicObject;
 class DynObjAura;
 class GameObject;
@@ -629,6 +630,7 @@ class TC_GAME_API Spell
         int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
 
         std::string GetDebugInfo() const;
+        void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
 
     protected:
         bool HasGlobalCooldown() const;

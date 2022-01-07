@@ -1408,9 +1408,9 @@ public:
             current = candidate;
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (!_crateRevealed && spell->Id == SPELL_ARCANE_DISRUPTION)
+            if (!_crateRevealed && spellInfo->Id == SPELL_ARCANE_DISRUPTION)
             {
                 _crateRevealed = true;
                 if (InstanceScript* instance = me->GetInstanceScript())

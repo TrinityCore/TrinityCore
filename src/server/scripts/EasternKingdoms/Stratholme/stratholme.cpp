@@ -146,9 +146,9 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (Tagged || spell->Id != SPELL_EGAN_BLASTER)
+            if (Tagged || spellInfo->Id != SPELL_EGAN_BLASTER)
                 return;
 
             Player* player = caster->ToPlayer();
@@ -242,9 +242,9 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
+            if (!Tagged && spellInfo->Id == SPELL_EGAN_BLASTER)
                 Tagged = true;
         }
 
@@ -276,7 +276,7 @@ public:
             //HauntingTimer
             if (HauntingTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_HAUNTING_PHANTOM);
                 HauntingTimer = 11000;
             }
@@ -285,7 +285,7 @@ public:
             //TouchTimer
             if (TouchTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_DEBILITATING_TOUCH);
                 TouchTimer = 7000;
             }

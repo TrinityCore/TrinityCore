@@ -860,6 +860,27 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLo
         }
 };
 
+// 71446, 71478, 71479, 71480 - Twilight Bloodbolt
+class spell_blood_queen_twilight_bloodbolt : public SpellScript
+{
+    PrepareSpellScript(spell_blood_queen_twilight_bloodbolt);
+
+    void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
+    {
+        Unit* caster = damageInfo.GetAttacker();;
+        Unit* target = damageInfo.GetVictim();
+        uint32 damage = damageInfo.GetDamage();
+        uint32 resistedDamage = Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_SHADOW, nullptr);
+        resistedDamage += Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_ARCANE, nullptr);
+        resistAmount = resistedDamage;
+    }
+
+    void Register() override
+    {
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_blood_queen_twilight_bloodbolt::HandleResistance);
+    }
+};
+
 class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
 {
     public:
@@ -902,6 +923,7 @@ void AddSC_boss_blood_queen_lana_thel()
     new spell_blood_queen_pact_of_the_darkfallen();
     new spell_blood_queen_pact_of_the_darkfallen_dmg();
     new spell_blood_queen_pact_of_the_darkfallen_dmg_target();
+    RegisterSpellScript(spell_blood_queen_twilight_bloodbolt);
     new achievement_once_bitten_twice_shy_n();
     new achievement_once_bitten_twice_shy_v();
 }

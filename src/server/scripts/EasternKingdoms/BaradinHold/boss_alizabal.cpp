@@ -161,7 +161,7 @@ class boss_alizabal : public CreatureScript
                                 case 0:
                                     if (!_skewer)
                                     {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+                                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
                                         {
                                             DoCast(target, SPELL_SKEWER, true);
                                             Talk(SAY_SKEWER);
@@ -172,7 +172,7 @@ class boss_alizabal : public CreatureScript
                                     }
                                     else if (!_hate)
                                     {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                         {
                                             DoCast(target, SPELL_SEETHING_HATE, true);
                                             Talk(SAY_HATE);
@@ -193,7 +193,7 @@ class boss_alizabal : public CreatureScript
                                 case 1:
                                     if (!_hate)
                                     {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                         {
                                             DoCast(target, SPELL_SEETHING_HATE, true);
                                             Talk(SAY_HATE);
@@ -203,7 +203,7 @@ class boss_alizabal : public CreatureScript
                                     }
                                     else if (!_skewer)
                                     {
-                                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+                                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
                                         {
                                             DoCast(target, SPELL_SKEWER, true);
                                             Talk(SAY_SKEWER);
@@ -227,7 +227,7 @@ class boss_alizabal : public CreatureScript
                         case EVENT_MOVE_STORM:
                             me->SetSpeedRate(MOVE_RUN, 4.0f);
                             me->SetSpeedRate(MOVE_WALK, 4.0f);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 me->GetMotionMaster()->MovePoint(POINT_STORM, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
                             break;

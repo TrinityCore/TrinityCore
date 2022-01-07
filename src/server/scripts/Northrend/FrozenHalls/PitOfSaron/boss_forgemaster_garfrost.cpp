@@ -171,11 +171,15 @@ class boss_garfrost : public CreatureScript
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5s);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_PERMAFROST_HELPER)
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
+                if (spellInfo->Id == SPELL_PERMAFROST_HELPER)
                 {
-                    if (Aura* aura = target->GetAura(SPELL_PERMAFROST_HELPER))
+                    if (Aura* aura = unitTarget->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
             }
@@ -200,7 +204,7 @@ class boss_garfrost : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_THROW_SARONITE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             {
                                 Talk(SAY_THROW_SARONITE, target);
                                 DoCast(target, SPELL_THROW_SARONITE);
@@ -212,7 +216,7 @@ class boss_garfrost : public CreatureScript
                             events.ScheduleEvent(EVENT_CHILLING_WAVE, 4s, 0, PHASE_TWO);
                             break;
                         case EVENT_DEEP_FREEZE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             {
                                 Talk(SAY_CAST_DEEP_FREEZE, target);
                                 DoCast(target, SPELL_DEEP_FREEZE);

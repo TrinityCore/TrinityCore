@@ -111,9 +111,9 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_INSANITY)
+            if (spellInfo->Id == SPELL_INSANITY)
             {
                 // Not good target or too many players
                 if (target->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
@@ -264,7 +264,7 @@ public:
 
             if (uiShiverTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_SHIVER);
                 uiShiverTimer = 15*IN_MILLISECONDS;
             } else uiShiverTimer -= diff;

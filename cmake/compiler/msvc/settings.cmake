@@ -129,7 +129,7 @@ if(NOT WITH_WARNINGS)
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
-if (BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   # C4251: needs to have dll-interface to be used by clients of class '...'
   # C4275: non dll-interface class ...' used as base for dll-interface class '...'
   target_compile_options(trinity-compile-option-interface

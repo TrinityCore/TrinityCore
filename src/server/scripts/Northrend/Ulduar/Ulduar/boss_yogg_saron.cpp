@@ -428,7 +428,7 @@ class StartAttackEvent : public BasicEvent
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
             if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
-                if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f))
+                if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 300.0f))
                     _owner->AI()->AttackStart(target);
             return true;
         }
@@ -736,12 +736,12 @@ class boss_sara : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
                 if (!roll_chance_i(30) || _events.IsInPhase(PHASE_TRANSFORM))
                     return;
 
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_SARAS_FERVOR:
                         Talk(SAY_SARA_FERVOR_HIT);
@@ -947,10 +947,10 @@ class boss_yogg_saron : public CreatureScript
                     me->AddLootMode(LOOT_MODE_HARD_MODE_1);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 // Val'anyr
-                if (spell->Id == SPELL_IN_THE_MAWS_OF_THE_OLD_GOD)
+                if (spellInfo->Id == SPELL_IN_THE_MAWS_OF_THE_OLD_GOD)
                     me->AddLootMode(32);
             }
 
@@ -1281,7 +1281,7 @@ class npc_corruptor_tentacle : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CAST_RANDOM_SPELL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, RAND(SPELL_BLACK_PLAGUE, SPELL_CURSE_OF_DOOM, SPELL_APATHY, SPELL_DRAINING_POISON));
                             _events.ScheduleEvent(EVENT_CAST_RANDOM_SPELL, 3s);
                             break;

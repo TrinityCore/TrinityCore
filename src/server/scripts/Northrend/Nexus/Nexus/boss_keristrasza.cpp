@@ -187,7 +187,7 @@ class boss_keristrasza : public CreatureScript
                             Talk(SAY_CRYSTAL_NOVA);
                             if (IsHeroic())
                                 DoCast(me, SPELL_CRYSTALLIZE);
-                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_CHAINS);
                             events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30000, 11000));
                             break;

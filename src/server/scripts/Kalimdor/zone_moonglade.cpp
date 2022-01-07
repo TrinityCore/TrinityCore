@@ -84,9 +84,9 @@ public:
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_ELUNE_CANDLE)
+            if (spellInfo->Id == SPELL_ELUNE_CANDLE)
             {
                 if (me->HasAura(SPELL_OMEN_STARFALL))
                     me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);
@@ -109,7 +109,7 @@ public:
                     events.ScheduleEvent(EVENT_CAST_CLEAVE, 8s, 10s);
                     break;
                 case EVENT_CAST_STARFALL:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_OMEN_STARFALL);
                     events.ScheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
                     break;

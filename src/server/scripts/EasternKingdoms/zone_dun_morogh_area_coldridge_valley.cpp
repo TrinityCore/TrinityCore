@@ -57,7 +57,7 @@ public:
             _tapped = false;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (_tapped)
                 return;
@@ -151,7 +151,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(_percentHP));
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (!_hitBySpell)
             {

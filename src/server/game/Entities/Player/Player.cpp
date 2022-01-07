@@ -26,8 +26,6 @@
 #include "Bag.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldTB.h"
-#include "BattlefieldWG.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
@@ -484,7 +482,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetGender(Gender(createInfo->Sex));
     SetPowerType(Powers(powertype), false);
     InitDisplayIds();
-    UpdatePositionData();
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
     {
         AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
@@ -9713,7 +9710,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
                 packet.Worldstates.emplace_back(4882, 0); // WORLD_STATE_HOR_WAVE_COUNT
             }
             break;
-        case 4197: // Wintergrasp
+        case AREA_WINTERGRASP: // Wintergrasp
             if (battlefield && battlefield->GetTypeId() == BATTLEFIELD_WG)
                 battlefield->FillInitialWorldStates(packet);
             break;
@@ -9748,11 +9745,11 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
         case 5389: // Tol Barad Peninsula
             if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
             {
-                packet.Worldstates.emplace_back(5385u, sWorld->getWorldState(5385)); // TB_WS_ALLIANCE_CONTROLS_SHOW
-                packet.Worldstates.emplace_back(5384u, sWorld->getWorldState(5384)); // TB_WS_HORDE_CONTROLS_SHOW
-                packet.Worldstates.emplace_back(5387u, sWorld->getWorldState(5387)); // TB_WS_TIME_NEXT_BATTLE_SHOW
-                packet.Worldstates.emplace_back(5546u, sWorld->getWorldState(5546)); // TB_WS_ALLIANCE_ATTACKING_SHOW
-                packet.Worldstates.emplace_back(5547u, sWorld->getWorldState(5547)); // TB_WS_HORDE_ATTACKING_SHOW
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW));
             }
             break;
         case 5095: // Tol Barad
@@ -9790,9 +9787,9 @@ void Player::SendBattlefieldWorldStates() const
     {
         if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
         {
-            SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, wg->IsWarTime() ? 0 : 1);
+            SendUpdateWorldState(WS_BATTLEFIELD_WG_ACTIVE, wg->IsWarTime() ? 0 : 1);
             uint32 timer = wg->IsWarTime() ? 0 : (wg->GetTimer() / 1000); // 0 - Time to next battle
-            SendUpdateWorldState(ClockWorldState[1], uint32(GameTime::GetGameTime() + timer));
+            SendUpdateWorldState(WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE, uint32(GameTime::GetGameTime() + timer));
         }
     }
 
@@ -9800,10 +9797,10 @@ void Player::SendBattlefieldWorldStates() const
     {
         if (Battlefield* tb = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_TB))
         {
-            SendUpdateWorldState(TB_WS_FACTION_CONTROLLING, uint32(tb->GetDefenderTeam() + 1));
+            SendUpdateWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, uint32(tb->GetDefenderTeam() + 1));
             uint32 timer = tb->GetTimer() / 1000;
-            SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
-            SendUpdateWorldState(TB_WS_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
+            SendUpdateWorldState(WS_BATTLEFIELD_TB_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
+            SendUpdateWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
         }
     }
 }
@@ -21924,14 +21921,19 @@ void Player::ResetContestedPvP()
 
 void Player::UpdatePvPFlag(time_t currTime)
 {
+    if (!IsPvP())
+        return;
+
+    if (!pvpInfo.EndTimer || (currTime < pvpInfo.EndTimer +300) || pvpInfo.IsHostile)
+        return;
+
     if (pvpInfo.EndTimer && pvpInfo.EndTimer <= currTime)
     {
         pvpInfo.EndTimer = 0;
         RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
     }
 
-    if (IsPvP() && !pvpInfo.IsHostile && !HasPlayerFlag(PlayerFlags(PLAYER_FLAGS_IN_PVP | PLAYER_FLAGS_PVP_TIMER)))
-        UpdatePvP(false);
+    UpdatePvP(false);
 }
 
 void Player::UpdateDuelFlag(time_t currTime)
@@ -23639,14 +23641,9 @@ void Player::UpdateHomebindTime(uint32 time)
 
 void Player::InitPvP()
 {
+    // pvp flag should stay after relog
     if (HasPlayerFlag(PLAYER_FLAGS_IN_PVP))
         UpdatePvP(true, true);
-    else if (HasPlayerFlag(PLAYER_FLAGS_PVP_TIMER))
-    {
-        UpdatePvP(true, true);
-        if (!pvpInfo.IsHostile)
-            pvpInfo.EndTimer = GameTime::GetGameTime() + 300;
-    }
 }
 
 void Player::UpdatePvPState(bool onlyFFA)
@@ -23673,7 +23670,7 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (onlyFFA)
         return;
 
-    if (pvpInfo.IsHostile)                               // in hostile area
+    if (pvpInfo.IsHostile)                                  // in hostile area
     {
         if (!IsPvP() || pvpInfo.EndTimer)
             UpdatePvP(true, true);
@@ -23681,7 +23678,7 @@ void Player::UpdatePvPState(bool onlyFFA)
     else                                                    // in friendly area
     {
         if (IsPvP() && !HasPlayerFlag(PLAYER_FLAGS_IN_PVP) && !pvpInfo.EndTimer)
-            pvpInfo.EndTimer = GameTime::GetGameTime() + 300;                  // start toggle-off
+            pvpInfo.EndTimer = GameTime::GetGameTime();     // start toggle-off
     }
 }
 
@@ -23701,7 +23698,7 @@ void Player::UpdatePvP(bool state, bool _override)
     }
     else
     {
-        pvpInfo.EndTimer = GameTime::GetGameTime() + 300;
+        pvpInfo.EndTimer = GameTime::GetGameTime();
         SetPvP(state);
     }
 }

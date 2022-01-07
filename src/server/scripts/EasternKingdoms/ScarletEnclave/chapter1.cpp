@@ -441,7 +441,7 @@ struct npc_eye_of_acherus : public ScriptedAI
             creature->GetCharmInfo()->InitPossessCreateSpells();
     }
 
-    void JustAppeared() override
+    void InitializeAI() override
     {
         DoCastSelf(SPELL_ROOT_SELF);
         DoCastSelf(SPELL_EYE_OF_ACHERUS_VISUAL);
@@ -577,12 +577,12 @@ public:
             me->AddUnitFlag(UNIT_FLAG_SWIMMING);
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
+            if (!m_bIsDuelInProgress && spellInfo->Id == SPELL_DUEL)
             {
-                m_uiDuelerGUID = pCaster->GetGUID();
-                Talk(SAY_DUEL, pCaster);
+                m_uiDuelerGUID = caster->GetGUID();
+                Talk(SAY_DUEL, caster);
                 m_bIsDuelInProgress = true;
             }
         }
@@ -758,9 +758,9 @@ struct npc_dark_rider_of_acherus : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
+        if (spellInfo->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
             if (Creature* creature = target->ToCreature())
                 creature->DespawnOrUnsummon(2s);
     }

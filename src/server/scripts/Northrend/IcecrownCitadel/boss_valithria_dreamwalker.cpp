@@ -378,9 +378,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_DREAM_SLIP)
+                if (spellInfo->Id == SPELL_DREAM_SLIP)
                 {
                     DoCastSelf(SPELL_CLEAR_ALL);
                     DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
@@ -757,12 +757,12 @@ class npc_risen_archmage : public CreatureScript
                             _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 8s, 15s);
                             break;
                         case EVENT_MANA_VOID:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, ValithriaManaVoidSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, ValithriaManaVoidSelector(me)))
                                 DoCast(target, SPELL_MANA_VOID);
                             _events.ScheduleEvent(EVENT_MANA_VOID, 20s, 25s);
                             break;
                         case EVENT_COLUMN_OF_FROST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, -10.0f, true))
                                 DoCast(target, SPELL_COLUMN_OF_FROST);
                             _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, 15s, 25s);
                             break;

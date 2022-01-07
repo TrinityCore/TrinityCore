@@ -224,7 +224,7 @@ class boss_high_priestess_azil : public CreatureScript
                             me->GetMotionMaster()->MoveJump(GroundPos, me->GetSpeed(MOVE_FLIGHT), 1.918408f, POINT_INTRO_MOVE);
                             break;
                         case EVENT_CURSE_OF_BLOOD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CURSE_OF_BLOOD);
                             events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(13000, 15000));
                             break;
@@ -233,7 +233,7 @@ class boss_high_priestess_azil : public CreatureScript
                             events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(13000, 15000));
                             break;
                         case EVENT_SUMMON_GRAVITY_WELL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_SUMMON_GRAVITY_WELL);
                             events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, urand(13000, 15000));
                             break;
@@ -260,7 +260,7 @@ class boss_high_priestess_azil : public CreatureScript
                             events.ScheduleEvent(EVENT_EARTH_FURY_LAUNCH_SHARD, 1800);
                             break;
                         case EVENT_EARTH_FURY_LAUNCH_SHARD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             {
                                 me->SetFacingToObject(target);
                                 DoCast(target, SPELL_SEISMIC_SHARD_TARGETING);

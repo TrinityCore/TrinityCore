@@ -123,9 +123,9 @@ public:
             instance->SetBossState(DATA_PYROGAURD_EMBERSEER, DONE);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_ENCAGE_EMBERSEER)
+            if (spellInfo->Id == SPELL_ENCAGE_EMBERSEER)
             {
                 if (!me->GetAuraCount(SPELL_ENCAGED_EMBERSEER))
                 {
@@ -134,7 +134,7 @@ public:
                 }
             }
 
-            if (spell->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
+            if (spellInfo->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
             {
                 if (me->GetAuraCount(SPELL_EMBERSEER_GROWING_TRIGGER) == 10)
                     Talk(EMOTE_TEN_STACK);
@@ -267,7 +267,7 @@ public:
                         events.Repeat(Seconds(14));
                         break;
                     case EVENT_PYROBLAST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                             DoCast(target, SPELL_PYROBLAST);
                         events.Repeat(Seconds(15));
                         break;
@@ -353,7 +353,7 @@ public:
                         _events.Repeat(Seconds(14), Seconds(23));
                         break;
                     case EVENT_ENCAGE:
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), EVENT_ENCAGE, true);
+                        DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), EVENT_ENCAGE, true);
                         _events.Repeat(Seconds(6), Seconds(12));
                         break;
                     default:

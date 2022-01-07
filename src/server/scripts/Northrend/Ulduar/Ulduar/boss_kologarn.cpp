@@ -305,7 +305,7 @@ class boss_kologarn : public CreatureScript
                             break;
                         }
                         case EVENT_FOCUSED_EYEBEAM:
-                            if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 0, true))
+                            if (Unit* eyebeamTargetUnit = SelectTarget(SelectTargetMethod::MaxDistance, 0, 0, true))
                             {
                                 eyebeamTarget = eyebeamTargetUnit->GetGUID();
                                 DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true);

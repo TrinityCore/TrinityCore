@@ -144,7 +144,7 @@ class boss_doomwalker : public CreatureScript
                             _events.ScheduleEvent(EVENT_QUAKE, 30s, 55s);
                             break;
                         case EVENT_CHAIN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             _events.ScheduleEvent(EVENT_CHAIN, 7s, 27s);
                             break;

@@ -1839,6 +1839,14 @@ Creature.MovingStopTimeForPlayer = 180000
 MonsterSight = 50.000000
 
 #
+#    Creature.RegenHPCannotReachTargetInRaid
+#        Description: Regenerates HP for Creatures in Raids if they cannot reach the target.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Creature.RegenHPCannotReachTargetInRaid = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################

@@ -284,7 +284,7 @@ class boss_drakkari_elemental : public CreatureScript
                     {
                         case EVENT_SURGE:
                             DoCast(SPELL_SURGE_VISUAL);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_SURGE);
                             events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
                             break;
@@ -346,9 +346,9 @@ class boss_drakkari_elemental : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_MERGE)
+                if (spellInfo->Id == SPELL_MERGE)
                 {
                     if (Creature* colossus = target->ToCreature())
                     {

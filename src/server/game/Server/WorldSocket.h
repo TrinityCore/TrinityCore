@@ -24,6 +24,7 @@
 #include "DatabaseEnvFwd.h"
 #include "MessageBuffer.h"
 #include "Socket.h"
+#include "WorldPacket.h"
 #include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
 #include <array>
@@ -37,6 +38,22 @@ class WorldPacket;
 class WorldSession;
 enum ConnectionType : int8;
 enum OpcodeClient : uint16;
+
+class EncryptablePacket : public WorldPacket
+{
+public:
+    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt)
+    {
+        SocketQueueLink.store(nullptr, std::memory_order_relaxed);
+    }
+
+    bool NeedsEncryption() const { return _encrypt; }
+
+    std::atomic<EncryptablePacket*> SocketQueueLink;
+
+private:
+    bool _encrypt;
+};
 
 namespace WorldPackets
 {
@@ -151,7 +168,7 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
-    MPSCQueue<EncryptablePacket> _bufferQueue;
+    MPSCQueue<EncryptablePacket, &EncryptablePacket::SocketQueueLink> _bufferQueue;
     std::size_t _sendBufferSize;
 
     z_stream* _compressionStream;

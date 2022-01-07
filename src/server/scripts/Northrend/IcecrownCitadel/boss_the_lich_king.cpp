@@ -432,7 +432,7 @@ class LichKingStartMovementEvent : public BasicEvent
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
             if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
-                if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(_summoner)))
+                if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(_summoner)))
                     _owner->AI()->AttackStart(target);
             return true;
         }
@@ -727,7 +727,7 @@ class boss_the_lich_king : public CreatureScript
                         break;
                     case NPC_ICE_SPHERE:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         {
                             summon->SetReactState(REACT_PASSIVE);
                             summon->CastSpell(summon, SPELL_ICE_SPHERE, false);
@@ -792,15 +792,12 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_HARVESTED_SOUL && me->IsInCombat() && !IsHeroic())
+                if (spellInfo->Id == SPELL_HARVESTED_SOUL && me->IsInCombat() && !IsHeroic())
                     Talk(SAY_LK_FROSTMOURNE_KILL);
-            }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
-            {
-                if (spell->Id == REMORSELESS_WINTER_1 || spell->Id == REMORSELESS_WINTER_2)
+                if (spellInfo->Id == REMORSELESS_WINTER_1 || spellInfo->Id == REMORSELESS_WINTER_2)
                 {
                     me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SNOWSTORM, 5000);
                     me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
@@ -941,7 +938,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_INFEST, urand(21000, 24000), 0, events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_TWO);
                             break;
                         case EVENT_NECROTIC_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, NecroticPlagueTargetCheck(me, NECROTIC_PLAGUE_LK, NECROTIC_PLAGUE_PLR)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, NecroticPlagueTargetCheck(me, NECROTIC_PLAGUE_LK, NECROTIC_PLAGUE_PLR)))
                             {
                                 Talk(EMOTE_NECROTIC_PLAGUE_WARNING, target);
                                 DoCast(target, SPELL_NECROTIC_PLAGUE);
@@ -949,7 +946,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
                             break;
                         case EVENT_SHADOW_TRAP:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SpellTargetSelector(me, SPELL_SHADOW_TRAP)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SpellTargetSelector(me, SPELL_SHADOW_TRAP)))
                                 DoCast(target, SPELL_SHADOW_TRAP);
                             events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
                             break;
@@ -958,7 +955,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_SOUL_REAPER, urand(33000, 35000), 0, PHASE_TWO_THREE);
                             break;
                         case EVENT_DEFILE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_HARVEST_SOUL_VALKYR))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_HARVEST_SOUL_VALKYR))
                             {
                                 Talk(EMOTE_DEFILE_WARNING);
                                 DoCast(target, SPELL_DEFILE);
@@ -967,12 +964,12 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_HARVEST_SOUL:
                             Talk(SAY_LK_HARVEST_SOUL);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SpellTargetSelector(me, SPELL_HARVEST_SOUL)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SpellTargetSelector(me, SPELL_HARVEST_SOUL)))
                                 DoCast(target, SPELL_HARVEST_SOUL);
                             events.ScheduleEvent(EVENT_HARVEST_SOUL, 75s, 0, PHASE_THREE);
                             break;
                         case EVENT_PAIN_AND_SUFFERING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 me->CastSpell(target, SPELL_PAIN_AND_SUFFERING, TRIGGERED_NONE);
                             events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, urand(1500, 4000), 0, PHASE_TRANSITION);
                             break;
@@ -981,12 +978,12 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, urand(7500, 8500), 0, PHASE_TRANSITION);
                             break;
                         case EVENT_SUMMON_RAGING_SPIRIT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 me->CastSpell(target, SPELL_RAGING_SPIRIT, TRIGGERED_NONE);
                             events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, urand(22000, 23000), 0, PHASE_TRANSITION);
                             break;
                         case EVENT_SUMMON_RAGING_SPIRIT_2:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 me->CastSpell(target, SPELL_RAGING_SPIRIT, TRIGGERED_NONE);
                             events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, 18s, 0, PHASE_TRANSITION);
                             break;
@@ -1205,11 +1202,11 @@ class npc_tirion_fordring_tft : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_ICE_LOCK)
+                if (spellInfo->Id == SPELL_ICE_LOCK)
                     me->SetFacingTo(3.085098f);
-                else if (spell->Id == SPELL_BROKEN_FROSTMOURNE_KNOCK)
+                else if (spellInfo->Id == SPELL_BROKEN_FROSTMOURNE_KNOCK)
                     me->LoadEquipment(1); // remove glow on ashbringer
             }
 
@@ -1600,7 +1597,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
                             break;
                         case EVENT_LIFE_SIPHON:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                 DoCast(target, SPELL_LIFE_SIPHON);
                             _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2500ms);
                             break;

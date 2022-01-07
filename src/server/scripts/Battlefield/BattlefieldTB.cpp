@@ -33,6 +33,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
 #include "World.h"
@@ -77,18 +78,18 @@ bool BattlefieldTB::SetupBattlefield()
     m_updateObjectsTimer = 0;
 
     // Was there a battle going on or time isn't set yet? Then use m_RestartAfterCrash
-    if (sWorld->getWorldState(TB_WS_STATE_BATTLE) == 1 || sWorld->getWorldState(TB_WS_TIME_NEXT_BATTLE) == 0)
-        sWorld->setWorldState(TB_WS_TIME_NEXT_BATTLE, m_RestartAfterCrash);
+    if (sWorld->getWorldState(WS_BATTLEFIELD_TB_STATE_BATTLE) == 1 || sWorld->getWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE) == 0)
+        sWorld->setWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, m_RestartAfterCrash);
 
     // Set timer
-    m_Timer = sWorld->getWorldState(TB_WS_TIME_NEXT_BATTLE);
+    m_Timer = sWorld->getWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE);
 
     // Defending team isn't set yet? Choose randomly.
-    if (sWorld->getWorldState(TB_WS_FACTION_CONTROLLING) == 0)
-        sWorld->setWorldState(TB_WS_FACTION_CONTROLLING, uint32(urand(1, 2)));
+    if (sWorld->getWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING) == 0)
+        sWorld->setWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, uint32(urand(1, 2)));
 
     // Set defender team
-    SetDefenderTeam(TeamId(sWorld->getWorldState(TB_WS_FACTION_CONTROLLING) - 1));
+    SetDefenderTeam(TeamId(sWorld->getWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING) - 1));
 
     // Just to save world states
     SendInitWorldStatesToAll();
@@ -181,7 +182,7 @@ bool BattlefieldTB::Update(uint32 diff)
     if (m_saveTimer <= diff)
     {
         if (!IsWarTime())
-            sWorld->setWorldState(TB_WS_TIME_NEXT_BATTLE, m_Timer);
+            sWorld->setWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, m_Timer);
         m_saveTimer = 60 * IN_MILLISECONDS;
     }
     else
@@ -232,16 +233,16 @@ void BattlefieldTB::RemoveAurasFromPlayer(Player* player)
 // 62 fields, [7]-[68]
 void BattlefieldTB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(uint32(TB_WS_ALLIANCE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_HORDE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_HORDE ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_HORDE ? 1 : 0));
 
     // Not sure if TB
-    //packet.Worldstates.emplace_back(uint32(TB_WS_9_UNKNOWN), int32(1));
+    //packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_9_UNKNOWN), int32(1));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_SOUTH_DAMAGED_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_SOUTH_INTACT_NEUTRAL), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_SOUTH_DAMAGED_NEUTRAL), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_SOUTH_INTACT_NEUTRAL), int32(0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_PROGRESS_SHOW), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_PROGRESS_SHOW), int32(0));
 
     // Buildings/bases
     for (BfCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
@@ -298,26 +299,26 @@ void BattlefieldTB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
         packet.Worldstates.emplace_back(uint32(TBCapturePoints[i].wsControlled[TEAM_HORDE]), int32(team == TEAM_HORDE && controlled ? 1 : 0));
     }
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TOWERS_DESTROYED_SHOW), int32(GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED)));
-    packet.Worldstates.emplace_back(uint32(TB_WS_BUILDINGS_CAPTURED_SHOW), int32(IsWarTime() ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_BUILDINGS_CAPTURED), int32(GetData(BATTLEFIELD_TB_DATA_BUILDINGS_CAPTURED)));
-    packet.Worldstates.emplace_back(uint32(TB_WS_TOWERS_DESTROYED), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_TOWERS_DESTROYED_SHOW), int32(GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED)));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_BUILDINGS_CAPTURED_SHOW), int32(IsWarTime() ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_BUILDINGS_CAPTURED), int32(GetData(BATTLEFIELD_TB_DATA_BUILDINGS_CAPTURED)));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_TOWERS_DESTROYED), int32(0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_BATTLE_END_SHOW), int32(IsWarTime() ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_TIME_BATTLE_END_SHOW), int32(IsWarTime() ? 1 : 0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_STATE_BATTLE), int32(IsWarTime() ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_STATE_PREPARATIONS), int32(GetState() == BATTLEFIELD_WARMUP ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_STATE_BATTLE), int32(IsWarTime() ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_STATE_PREPARATIONS), int32(GetState() == BATTLEFIELD_WARMUP ? 1 : 0));
 
     // Not sure if TB
-    //packet.Worldstates.emplace_back(uint32(TB_WS_35_UNKNOWN), int32(0));
-    //packet.Worldstates.emplace_back(uint32(TB_WS_36_UNKNOWN), int32(0));
-    //packet.Worldstates.emplace_back(uint32(TB_WS_37_UNKNOWN), int32(0));
+    //packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_35_UNKNOWN), int32(0));
+    //packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_36_UNKNOWN), int32(0));
+    //packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_37_UNKNOWN), int32(0));
 
     // Unused tower icons
-    packet.Worldstates.emplace_back(uint32(TB_WS_WEST_DAMAGED_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_WEST_INTACT_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_EAST_DAMAGED_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_EAST_INTACT_NEUTRAL), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_WEST_DAMAGED_NEUTRAL), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_WEST_INTACT_NEUTRAL), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_EAST_DAMAGED_NEUTRAL), int32(0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_EAST_INTACT_NEUTRAL), int32(0));
 
     // Towers/spires
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
@@ -342,44 +343,32 @@ void BattlefieldTB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
         }
     }
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_NEXT_BATTLE_SHOW), int32(!IsWarTime() ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW), int32(!IsWarTime() ? 1 : 0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_ALLIANCE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_HORDE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_BATTLE_END), int32(IsWarTime() ? GameTime::GetGameTime() + (m_Timer / 1000) : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_NEXT_BATTLE), int32(!IsWarTime() ? GameTime::GetGameTime() + (m_Timer / 1000) : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_TIME_BATTLE_END), int32(IsWarTime() ? GameTime::GetGameTime() + (m_Timer / 1000) : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE), int32(!IsWarTime() ? GameTime::GetGameTime() + (m_Timer / 1000) : 0));
 
     // Not sure if TB
-    //packet.Worldstates.emplace_back(uint32(TB_WS_65_UNKNOWN), int32(0));
-    //packet.Worldstates.emplace_back(uint32(TB_WS_66_UNKNOWN), int32(0));
+    //packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_65_UNKNOWN), int32(0));
+    //packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_66_UNKNOWN), int32(0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_KEEP_ALLIANCE), int32(GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_KEEP_HORDE), int32(GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
-}
-
-void BattlefieldTB::SendInitWorldStatesTo(Player* player)
-{
-    WorldPackets::WorldState::InitWorldStates packet;
-    packet.AreaID = m_ZoneId;
-    packet.MapID = m_MapId;
-    packet.SubareaID = 0;
-
-    FillInitialWorldStates(packet);
-
-    player->SendDirectMessage(packet.Write());
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_KEEP_ALLIANCE), int32(GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
+    packet.Worldstates.emplace_back(uint32(WS_BATTLEFIELD_TB_KEEP_HORDE), int32(GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
 }
 
 void BattlefieldTB::SendInitWorldStatesToAll()
 {
     // Save
-    sWorld->setWorldState(TB_WS_STATE_BATTLE, uint32(IsWarTime() ? 1 : 0));
-    sWorld->setWorldState(TB_WS_ALLIANCE_CONTROLS_SHOW, uint32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
-    sWorld->setWorldState(TB_WS_HORDE_CONTROLS_SHOW, uint32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
-    sWorld->setWorldState(TB_WS_ALLIANCE_ATTACKING_SHOW, uint32(IsWarTime() && GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0));
-    sWorld->setWorldState(TB_WS_HORDE_ATTACKING_SHOW, uint32(IsWarTime() && GetAttackerTeam() == TEAM_HORDE ? 1 : 0));
-    sWorld->setWorldState(TB_WS_TIME_NEXT_BATTLE, uint32(!IsWarTime() ? m_Timer : 0));
-    sWorld->setWorldState(TB_WS_TIME_NEXT_BATTLE_SHOW, uint32(!IsWarTime() ? 1 : 0));
+    sWorld->setWorldState(WS_BATTLEFIELD_TB_STATE_BATTLE, uint32(IsWarTime() ? 1 : 0));
+    sWorld->setWorldState(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW, uint32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
+    sWorld->setWorldState(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW, uint32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
+    sWorld->setWorldState(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW, uint32(IsWarTime() && GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0));
+    sWorld->setWorldState(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW, uint32(IsWarTime() && GetAttackerTeam() == TEAM_HORDE ? 1 : 0));
+    sWorld->setWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, uint32(!IsWarTime() ? m_Timer : 0));
+    sWorld->setWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW, uint32(!IsWarTime() ? 1 : 0));
 
     // Tol Barad
     for (uint8 team = 0; team < PVP_TEAMS_COUNT; team++)
@@ -399,7 +388,7 @@ void BattlefieldTB::OnStartGrouping()
 {
     UpdateNPCsAndGameObjects();
 
-    SendUpdateWorldState(TB_WS_STATE_PREPARATIONS, uint32(1));
+    SendUpdateWorldState(WS_BATTLEFIELD_TB_STATE_PREPARATIONS, uint32(1));
 
     // Teleport players out of questing area
     for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
@@ -746,12 +735,12 @@ void BattlefieldTB::TowerDestroyed(TBTowerId tbTowerId)
     // Add 5 minute bonus time
     m_Timer += m_BonusTime;
 
-    SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(GameTime::GetGameTime() + (m_Timer / 1000)));
+    SendUpdateWorldState(WS_BATTLEFIELD_TB_TIME_BATTLE_END, uint32(GameTime::GetGameTime() + (m_Timer / 1000)));
 
     SendWarning(TBTowers[tbTowerId].textDamaged);
 
     SetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED) + 1);
-    SendUpdateWorldState(uint32(TB_WS_TOWERS_DESTROYED), int32(GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED)));
+    SendUpdateWorldState(uint32(WS_BATTLEFIELD_TB_TOWERS_DESTROYED), int32(GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED)));
 
     SendUpdateWorldState(uint32(TBTowers[tbTowerId].wsDamaged[GetDefenderTeam()]), int32(0));
     SendUpdateWorldState(uint32(TBTowers[tbTowerId].wsDestroyed), int32(1));
@@ -774,7 +763,7 @@ void BattlefieldTB::UpdateCapturedBaseCount()
             numCapturedBases += 1;
 
     SetData(BATTLEFIELD_TB_DATA_BUILDINGS_CAPTURED, numCapturedBases);
-    SendUpdateWorldState(TB_WS_BUILDINGS_CAPTURED, uint32(numCapturedBases));
+    SendUpdateWorldState(WS_BATTLEFIELD_TB_BUILDINGS_CAPTURED, uint32(numCapturedBases));
 
     // Check if attackers won
     if (numCapturedBases == TB_BASE_COUNT)
@@ -869,4 +858,20 @@ void TolBaradCapturePoint::ChangeTeam(TeamId /*oldTeam*/)
 
     // Update counter
     m_Bf->ProcessEvent(nullptr, EVENT_COUNT_CAPTURED_BASE, nullptr);
+}
+
+class Battlefield_tol_barad : public BattlefieldScript
+{
+public:
+    Battlefield_tol_barad() : BattlefieldScript("battlefield_tb") { }
+
+    Battlefield* GetBattlefield() const override
+    {
+        return new BattlefieldTB();
+    }
+};
+
+void AddSC_BF_tol_barad()
+{
+    new Battlefield_tol_barad();
 }

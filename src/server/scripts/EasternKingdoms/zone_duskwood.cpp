@@ -112,7 +112,7 @@ public:
                         _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15s, 19s);
                         break;
                     case EVENT_CREATURE_OF_NIGHTMARE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             DoCast(target, SPELL_CREATURE_OF_NIGHTMARE);
                         _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 45000);
                         break;

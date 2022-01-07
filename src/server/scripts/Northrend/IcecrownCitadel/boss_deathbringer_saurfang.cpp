@@ -383,7 +383,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                 {
                     if (target->GetTransport())
                     {
@@ -414,7 +414,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->HandleGameObject(instance->GetGuidData(GO_SAURFANG_S_DOOR), false);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
                 if (target->GetTransport())
                 {
@@ -422,7 +422,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     return;
                 }
 
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_MARK_OF_THE_FALLEN_CHAMPION:
                         Talk(SAY_MARK_OF_THE_FALLEN_CHAMPION);
@@ -443,9 +443,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_BLOOD_LINK_POWER)
+                if (spellInfo->Id == SPELL_BLOOD_LINK_POWER)
                     if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
                         bloodPower->RecalculateAmountOfEffects();
             }
@@ -583,7 +583,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                         {
                             ++_fallenChampionCastCount;
                             DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -715,9 +715,9 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_GRIP_OF_AGONY)
+                if (spellInfo->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
@@ -922,9 +922,9 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_GRIP_OF_AGONY)
+                if (spellInfo->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
@@ -1004,9 +1004,9 @@ class npc_saurfang_event : public CreatureScript
                 _index = data;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_GRIP_OF_AGONY)
+                if (spellInfo->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[_index]);

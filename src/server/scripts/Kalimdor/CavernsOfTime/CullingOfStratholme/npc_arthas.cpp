@@ -898,7 +898,7 @@ public:
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     _exorcismCooldown = 0;
-                else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_EXORCISM);
                     _exorcismCooldown = urandms(7, 14);

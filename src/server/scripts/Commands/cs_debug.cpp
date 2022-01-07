@@ -132,6 +132,7 @@ public:
             { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
             { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
             { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
+            { "objectcount",   rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugObjectCountCommand,      "" },
             { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" }
         };
         static std::vector<ChatCommand> commandTable =
@@ -1845,6 +1846,39 @@ public:
     {
         handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Highest Guid Creature: " UI64FMTD " GameObject: " UI64FMTD,
             map->GetId(), map->GetMapName(), map->GetInstanceId(), uint64(map->GenerateLowGuid<HighGuid::Creature>()), uint64(map->GetMaxLowGuid<HighGuid::GameObject>()));
+    }
+
+    static bool HandleDebugObjectCountCommand(ChatHandler* handler, CommandArgs* args)
+    {
+        auto mapId = args->TryConsume<uint32>();
+        if (mapId)
+        {
+            sMapMgr->DoForAllMapsWithMapId(mapId.get(),
+                [handler](Map* map) -> void
+                {
+                    HandleDebugObjectCountMap(handler, map);
+                }
+            );
+        }
+        else
+        {
+            sMapMgr->DoForAllMaps(
+                [handler](Map* map) -> void
+                {
+                    HandleDebugObjectCountMap(handler, map);
+                }
+            );
+        }
+
+        return true;
+    }
+
+    static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
+    {
+        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD,
+            map->GetId(), map->GetMapName(), map->GetInstanceId(),
+            uint64(map->GetObjectsStore().Size<Creature>()),
+            uint64(map->GetObjectsStore().Size<GameObject>()));
     }
 
     static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)

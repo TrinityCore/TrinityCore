@@ -272,7 +272,7 @@ class boss_urom : public CreatureScript
                             events.ScheduleEvent(EVENT_FROST_BOMB, 5s, 8s);
                             break;
                         case EVENT_TIME_BOMB:
-                            if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* unit = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(unit, SPELL_TIME_BOMB);
                             events.ScheduleEvent(EVENT_TIME_BOMB, 20s, 25s);
                             break;
@@ -296,7 +296,7 @@ class boss_urom : public CreatureScript
                 EngagementOver();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 switch (spellInfo->Id)
                 {

@@ -97,12 +97,12 @@ public:
                         events.Repeat(Seconds(35));
                         break;
                     case EVENT_HOLYFIRE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50, true))
                             DoCast(target, SPELL_HOLYFIRE);
                         events.Repeat(Seconds(8), Seconds(19));
                         break;
                     case EVENT_HOLYWRATH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 80, true))
                             DoCast(target, SPELL_HOLYWRATH);
                         events.Repeat(Seconds(15), Seconds(25));
                         break;

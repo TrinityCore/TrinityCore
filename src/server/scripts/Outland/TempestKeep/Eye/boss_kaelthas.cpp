@@ -357,9 +357,9 @@ struct advisorbase_ai : public ScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_RESSURECTION)
+        if (spellInfo->Id == SPELL_RESSURECTION)
         {
             _hasRessurrected = true;
             me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
@@ -625,7 +625,7 @@ class boss_kaelthas : public CreatureScript
                         me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->RemoveAurasDueToSpell(SPELL_FULLPOWER);
 
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
                             AttackStart(target);
 
                         DoAction(ACTION_SCHEDULE_COMBAT_EVENTS);
@@ -646,7 +646,7 @@ class boss_kaelthas : public CreatureScript
                 // if not phoenix, then it's one of the 7 weapons
                 if (summoned->GetEntry() != NPC_PHOENIX)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         summoned->AI()->AttackStart(target);
 
                     summons.Summon(summoned);
@@ -684,7 +684,7 @@ class boss_kaelthas : public CreatureScript
                             {
                                 advisor->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                     advisor->AI()->AttackStart(target);
                             }
                             ++_advisorCounter;
@@ -714,7 +714,7 @@ class boss_kaelthas : public CreatureScript
 
                             me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED));
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 AttackStart(target);
 
                             DoAction(ACTION_SCHEDULE_COMBAT_EVENTS);
@@ -729,7 +729,7 @@ class boss_kaelthas : public CreatureScript
                             events.ScheduleEvent(EVENT_ARCANE_DISRUPTION, 60000, EVENT_GROUP_COMBAT, PHASE_COMBAT);
                             break;
                         case EVENT_FLAMESTRIKE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_FLAME_STRIKE);
 
                             events.ScheduleEvent(EVENT_FLAMESTRIKE, 30000, EVENT_GROUP_COMBAT, PHASE_COMBAT);
@@ -778,7 +778,7 @@ class boss_kaelthas : public CreatureScript
                         case EVENT_NETHER_BEAM:
                             if (_netherbeamsCast <= 8)
                             {
-                                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* unit = SelectTarget(SelectTargetMethod::Random, 0))
                                     DoCast(unit, SPELL_NETHER_BEAM);
 
                                 _netherbeamsCast++;
@@ -931,7 +931,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 //Gaze_Timer
                 if (Gaze_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         ResetThreatList();
                         AddThreat(target, 5000000.0f);
@@ -1125,7 +1125,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 //Conflagration_Timer
                 if (Conflagration_Timer <= diff)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
 
                     if (target && me->IsWithinDistInMap(target, 30))
                         DoCast(target, SPELL_CONFLAGRATION);
@@ -1232,7 +1232,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                 //RemoteToy_Timer
                 if (RemoteToy_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_REMOTE_TOY);
 
                     RemoteToy_Timer = 10000 + rand32() % 5000;

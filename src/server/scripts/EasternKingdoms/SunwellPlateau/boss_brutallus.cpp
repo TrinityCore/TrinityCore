@@ -321,7 +321,7 @@ public:
 
             if (BurnTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_BURN))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_BURN))
                     target->CastSpell(target, SPELL_BURN, true);
                 BurnTimer = urand(60000, 180000);
             } else BurnTimer -= diff;

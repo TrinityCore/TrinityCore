@@ -188,9 +188,9 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         {
             if (Creature* charmer = GetCharmer())
             {
-                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CharmedPlayerTargetSelectPred()))
+                if (Unit* target = charmer->AI()->SelectTarget(SelectTargetMethod::Random, 0, CharmedPlayerTargetSelectPred()))
                     return target;
-                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_CHAINS))
+                if (Unit* target = charmer->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_CHAINS))
                     return target;
             }
             return nullptr;
@@ -233,8 +233,12 @@ public:
                 _abominationDeathCount = 0;
                 _phaseThree = false;
             }
+
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                if (!me->IsAlive())
+                    return;
+
                 for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
@@ -279,13 +283,13 @@ public:
                     damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_CHAINS_DUMMY)
+                if (spellInfo->Id == SPELL_CHAINS_DUMMY)
                 {
                     Talk(SAY_CHAINS);
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 0, 0.0f, true, false);
+                    SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 0.0f, true, false);
                     for (Unit* target : targets)
                         DoCast(target, SPELL_CHAINS);
                 }
@@ -447,7 +451,7 @@ public:
                             break;
 
                         case EVENT_SHADOW_FISSURE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_SHADOW_FISSURE);
                             events.Repeat(randtime(Seconds(14), Seconds(17)));
                             break;
@@ -455,14 +459,14 @@ public:
                         case EVENT_DETONATE_MANA:
                         {
                             ManaUserTargetSelector pred;
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, pred))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, pred))
                                 DoCast(target, SPELL_DETONATE_MANA);
                             events.Repeat(randtime(Seconds(30), Seconds(40)));
                             break;
                         }
 
                         case EVENT_FROST_BLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_FROST_BLAST);
                             events.Repeat(randtime(Seconds(25), Seconds(45)));
                             break;

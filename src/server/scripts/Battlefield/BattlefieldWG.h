@@ -33,12 +33,6 @@ struct WintergraspObjectPositionData;
 typedef std::vector<BfWGGameObjectBuilding*> GameObjectBuildingVect;
 typedef std::vector<WintergraspWorkshop*> WorkshopVect;
 
-// used in Player.cpp
-extern uint32 const ClockWorldState[];
-
-// used in zone_wintergrasp.cpp
-TC_GAME_API extern uint32 const WintergraspFaction[];
-
 enum WintergraspSpells
 {
     // Wartime auras
@@ -99,7 +93,6 @@ enum WintergraspData
     BATTLEFIELD_WG_DATA_DEF_H,
     BATTLEFIELD_WG_DATA_MAX,
 
-    BATTLEFIELD_WG_ZONEID                        = 4197,             // Wintergrasp
     BATTLEFIELD_WG_MAPID                         = 571               // Northrend
 };
 
@@ -121,33 +114,6 @@ enum WintergraspAchievements
     ACHIEVEMENTS_WG_RANGER                       = 2199, /// @todo: Has to be implemented
     ACHIEVEMENTS_DESTRUCTION_DERBY_H             = 2476, /// @todo: Has to be implemented
     ACHIEVEMENTS_WG_MASTER_H                     = 2776  /// @todo: Has to be implemented
-};
-
-enum WintergraspWorldStates
-{
-    BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H         = 3490,
-    BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H     = 3491,
-    BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A         = 3680,
-    BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A     = 3681,
-    BATTLEFIELD_WG_WORLD_STATE_ACTIVE            = 3801,
-    BATTLEFIELD_WG_WORLD_STATE_DEFENDER          = 3802,
-    BATTLEFIELD_WG_WORLD_STATE_ATTACKER          = 3803,
-    BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE   = 3710,
-    BATTLEFIELD_WG_WORLD_STATE_ATTACKED_H        = 4022,
-    BATTLEFIELD_WG_WORLD_STATE_ATTACKED_A        = 4023,
-    BATTLEFIELD_WG_WORLD_STATE_DEFENDED_H        = 4024,
-    BATTLEFIELD_WG_WORLD_STATE_DEFENDED_A        = 4025
-};
-
-enum WintergraspAreaIds
-{
-    AREA_WINTERGRASP_FORTRESS       = 4575,
-    AREA_THE_SUNKEN_RING            = 4538,
-    AREA_THE_BROKEN_TEMPLATE        = 4539,
-    AREA_WESTPARK_WORKSHOP          = 4611,
-    AREA_EASTPARK_WORKSHOP          = 4612,
-    AREA_WINTERGRASP                = 4197,
-    AREA_THE_CHILLED_QUAGMIRE       = 4589
 };
 
 enum WintergraspQuests
@@ -235,7 +201,7 @@ class WintergraspCapturePoint : public BfCapturePoint
  * WinterGrasp Battlefield   *
  * ######################### */
 
-class TC_GAME_API BattlefieldWG : public Battlefield
+class BattlefieldWG : public Battlefield
 {
     public:
         ~BattlefieldWG();
@@ -363,7 +329,6 @@ class TC_GAME_API BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
-        void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
@@ -443,16 +408,6 @@ enum WintergraspWorkshopIds
     BATTLEFIELD_WG_WORKSHOP_NW,
     BATTLEFIELD_WG_WORKSHOP_KEEP_WEST,
     BATTLEFIELD_WG_WORKSHOP_KEEP_EAST
-};
-
-enum WintergraspWorldstates
-{
-    WORLDSTATE_WORKSHOP_NE      = 3701,
-    WORLDSTATE_WORKSHOP_NW      = 3700,
-    WORLDSTATE_WORKSHOP_SE      = 3703,
-    WORLDSTATE_WORKSHOP_SW      = 3702,
-    WORLDSTATE_WORKSHOP_K_W     = 3698,
-    WORLDSTATE_WORKSHOP_K_E     = 3699
 };
 
 enum WintergraspTeamControl
@@ -537,7 +492,7 @@ enum WintergraspGameObject
 // ********************************************************************
 
 // Structure for different buildings that can be destroyed during battle
-struct TC_GAME_API BfWGGameObjectBuilding
+struct BfWGGameObjectBuilding
 {
 private:
     // WG object
@@ -590,7 +545,7 @@ public:
 };
 
 // Structure for the 6 workshop
-struct TC_GAME_API WintergraspWorkshop
+struct WintergraspWorkshop
 {
 private:
     BattlefieldWG* _wg;                             // Pointer to wintergrasp

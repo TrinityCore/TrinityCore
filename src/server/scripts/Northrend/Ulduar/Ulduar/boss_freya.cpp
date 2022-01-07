@@ -422,7 +422,7 @@ class boss_freya : public CreatureScript
                             DoCast(me, SPELL_ENRAGE);
                             break;
                         case EVENT_SUNBEAM:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_SUNBEAM);
                             events.ScheduleEvent(EVENT_SUNBEAM, 10s, 15s);
                             break;
@@ -431,7 +431,7 @@ class boss_freya : public CreatureScript
                             events.ScheduleEvent(EVENT_NATURE_BOMB, 10s, 12s);
                             break;
                         case EVENT_UNSTABLE_ENERGY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_FREYA_UNSTABLE_SUNBEAM, true);
                             events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, 15s, 20s);
                             break;
@@ -449,7 +449,7 @@ class boss_freya : public CreatureScript
                             break;
                         case EVENT_STRENGTHENED_IRON_ROOTS:
                             Talk(EMOTE_IRON_ROOTS);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_ROOTS_FREYA))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_ROOTS_FREYA))
                                 target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be cast by Target self
                             events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, 12s, 20s);
                             break;
@@ -661,7 +661,7 @@ class boss_freya : public CreatureScript
                 }
 
                 // Need to have it there, or summoned units would do nothing untill attacked
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true))
                 {
                     summoned->AI()->AttackStart(target);
                     AddThreat(target, 250.0f, summoned);
@@ -965,7 +965,7 @@ class boss_elder_ironbranch : public CreatureScript
                             events.ScheduleEvent(EVENT_IMPALE, 15s, 25s);
                             break;
                         case EVENT_IRON_ROOTS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_ROOTS_IRONBRANCH))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_ROOTS_IRONBRANCH))
                                 target->CastSpell(target, SPELL_ROOTS_IRONBRANCH, true);
                             events.ScheduleEvent(EVENT_IRON_ROOTS, 10s, 20s);
                             break;
@@ -1039,7 +1039,7 @@ class npc_detonating_lasher : public CreatureScript
 
                 if (changeTargetTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         // Switching to other target - modify aggro of new target by 20% from current target's aggro
                         AddThreat(target, GetThreat(me->GetVictim()) * 1.2f);
@@ -1098,7 +1098,7 @@ class npc_ancient_water_spirit : public CreatureScript
 
                 if (tidalWaveTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         DoCast(target, SPELL_TIDAL_WAVE);
                         DoCast(target, SPELL_TIDAL_WAVE_EFFECT, true);
@@ -1175,7 +1175,7 @@ class npc_storm_lasher : public CreatureScript
 
                 if (stormboltTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_STORMBOLT);
                     stormboltTimer = urand(8000, 12000);
                 }
@@ -1309,7 +1309,7 @@ class npc_ancient_conservator : public CreatureScript
 
                 if (natureFuryTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_NATURE_FURY))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_NATURE_FURY))
                         DoCast(target, SPELL_NATURE_FURY);
                     me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                     natureFuryTimer = 5000;
@@ -1505,12 +1505,16 @@ class npc_unstable_sun_beam : public CreatureScript
                     despawnTimer -= diff;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (target && spell->Id == SPELL_UNSTABLE_ENERGY)
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
+                if (spellInfo->Id == SPELL_UNSTABLE_ENERGY)
                 {
-                    target->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM);
-                    target->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM_TRIGGERED);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM_TRIGGERED);
                 }
             }
 

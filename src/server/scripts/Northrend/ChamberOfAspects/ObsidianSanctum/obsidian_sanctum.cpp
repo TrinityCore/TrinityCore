@@ -217,7 +217,7 @@ struct dummy_dragonAI : public ScriptedAI
         {
             me->GetMotionMaster()->Clear();
             DoZoneInCombat();
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
             {
                 AddThreat(target, 1.0f);
                 me->Attack(target, true);
@@ -384,7 +384,7 @@ struct dummy_dragonAI : public ScriptedAI
         switch (eventId)
         {
             case EVENT_SHADOW_FISSURE:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     DoCast(target, SPELL_SHADOW_FISSURE);
                 events.ScheduleEvent(eventId, urand(15000, 20000));
                 break;

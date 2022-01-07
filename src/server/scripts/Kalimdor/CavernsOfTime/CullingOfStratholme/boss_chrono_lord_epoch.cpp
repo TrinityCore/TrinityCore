@@ -82,7 +82,7 @@ class boss_epoch : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_CURSE_OF_EXERTION:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             DoCast(target, SPELL_CURSE_OF_EXERTION);
                         events.ScheduleEvent(EVENT_CURSE_OF_EXERTION, 9300);
                         break;
@@ -128,9 +128,9 @@ class boss_epoch : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* info) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (info->Id == SPELL_TIME_STEP_DUMMY && me->IsHostileTo(target))
+                if (spellInfo->Id == SPELL_TIME_STEP_DUMMY && me->IsHostileTo(target))
                 {
                     _stepTargets.push_back(target->GetGUID());
                     events.RescheduleEvent(EVENT_TIME_STEP, Milliseconds(500));

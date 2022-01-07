@@ -745,7 +745,7 @@ struct npc_living_constellation : public CreatureAI
             case ACTION_ACTIVATE_STAR:
                 if (Creature* algalon = _instance->GetCreature(BOSS_ALGALON))
                 {
-                    if (Unit* target = algalon->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(algalon)))
+                    if (Unit* target = algalon->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(algalon)))
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
@@ -765,14 +765,18 @@ struct npc_living_constellation : public CreatureAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (spell->Id != SPELL_CONSTELLATION_PHASE_EFFECT || caster->GetTypeId() != TYPEID_UNIT)
+        Creature* creatureCaster = caster->ToCreature();
+        if (!creatureCaster)
+            return;
+
+        if (spellInfo->Id != SPELL_CONSTELLATION_PHASE_EFFECT)
             return;
 
         _instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, EVENT_ID_SUPERMASSIVE_START);
-        caster->CastSpell(nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
-        DoCast(caster, SPELL_DESPAWN_BLACK_HOLE, TRIGGERED_FULL_MASK);
+        creatureCaster->CastSpell(nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
+        DoCast(creatureCaster, SPELL_DESPAWN_BLACK_HOLE, TRIGGERED_FULL_MASK);
         me->DespawnOrUnsummon(500ms);
     }
 
@@ -825,9 +829,9 @@ struct npc_black_hole : public ScriptedAI
         _summons.Summon(summon);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_DESPAWN_BLACK_HOLE)
+        if (spellInfo->Id == SPELL_DESPAWN_BLACK_HOLE)
         {
             _summons.DespawnAll();
             me->DespawnOrUnsummon(1);
