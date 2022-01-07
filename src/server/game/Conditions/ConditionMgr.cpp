@@ -2024,15 +2024,21 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                 return false;
             }
 
-            if (cond->SourceGroup == TYPEID_UNIT && !sObjectMgr->GetCreatureTemplate(cond->SourceEntry))
+            if (cond->SourceGroup == TYPEID_UNIT)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
-                return false;
+                if (!sObjectMgr->GetCreatureTemplate(cond->SourceEntry))
+                {
+                    TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                    return false;
+                }
             }
-            else if (cond->SourceGroup == TYPEID_GAMEOBJECT && !sObjectMgr->GetGameObjectTemplate(cond->SourceEntry))
+            else if (cond->SourceGroup == TYPEID_GAMEOBJECT)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.", cond->ToString().c_str());
-                return false;
+                if (!sObjectMgr->GetGameObjectTemplate(cond->SourceEntry))
+                {
+                    TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.", cond->ToString().c_str());
+                    return false;
+                }
             }
             else
             {
