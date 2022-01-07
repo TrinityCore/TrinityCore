@@ -2991,6 +2991,10 @@ void GameObject::AssaultCapturePoint(Player* player)
     if (!CanInteractWithCapturePoint(player))
         return;
 
+    if (GameObjectAI* ai = AI())
+        if (ai->OnCapturePointAssaulted(player))
+            return;
+
     // only supported in battlegrounds
     Battleground* battleground = nullptr;
     if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
@@ -3063,6 +3067,10 @@ void GameObject::UpdateCapturePoint()
 {
     if (GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
         return;
+
+    if (GameObjectAI* ai = AI())
+        if (ai->OnCapturePointUpdated(m_goValue.CapturePoint.State))
+            return;
 
     uint32 spellVisualId = 0;
     uint32 customAnim = 0;
