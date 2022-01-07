@@ -1493,8 +1493,6 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     Talk(SAY_ANNOUNCE_WINDRUNNER);
 
-                    TeleportShadowcopiesToMe();
-
                     me->SetSheath(SHEATH_STATE_MELEE);
 
                     _windrunnerActive = true;
@@ -2256,6 +2254,7 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
+    // TODO: synthetize all of it in a single bool.
     bool DrawDesecratingShotStraight(int32 step, float orientation)
     {
         float distance = 7.0f * step;
