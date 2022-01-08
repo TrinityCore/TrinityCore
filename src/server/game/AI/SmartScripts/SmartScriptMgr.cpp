@@ -892,8 +892,6 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SET_HOME_POS: return NO_PARAMS;
             case SMART_ACTION_SET_HEALTH_REGEN: return sizeof(SmartAction::setHealthRegen);
             case SMART_ACTION_SET_ROOT: return sizeof(SmartAction::setRoot);
-            case SMART_ACTION_ADD_GO_FLAG: return sizeof(SmartAction::goFlag);
-            case SMART_ACTION_REMOVE_GO_FLAG: return sizeof(SmartAction::goFlag);
             case SMART_ACTION_SUMMON_CREATURE_GROUP: return sizeof(SmartAction::creatureGroup);
             case SMART_ACTION_SET_POWER: return sizeof(SmartAction::power);
             case SMART_ACTION_ADD_POWER: return sizeof(SmartAction::power);
@@ -2096,8 +2094,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_GO_SET_GO_STATE:
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
         case SMART_ACTION_SET_HOME_POS:
-        case SMART_ACTION_ADD_GO_FLAG:
-        case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
         case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
@@ -2121,6 +2117,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ADD_DYNAMIC_FLAG:
         case SMART_ACTION_REMOVE_DYNAMIC_FLAG:
         case SMART_ACTION_SET_GO_FLAG:
+        case SMART_ACTION_ADD_GO_FLAG:
+        case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SET_CAN_FLY:
         case SMART_ACTION_REMOVE_AURAS_BY_TYPE:
         case SMART_ACTION_SET_SIGHT_DIST:

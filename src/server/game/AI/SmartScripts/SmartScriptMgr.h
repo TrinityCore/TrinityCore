@@ -542,8 +542,8 @@ enum SMART_ACTION
     SMART_ACTION_SET_HEALTH_REGEN                   = 102,    // 0/1
     SMART_ACTION_SET_ROOT                           = 103,    // off/on
     SMART_ACTION_SET_GO_FLAG                        = 104,    // UNUSED, DO NOT REUSE
-    SMART_ACTION_ADD_GO_FLAG                        = 105,    // Flags
-    SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // Flags
+    SMART_ACTION_ADD_GO_FLAG                        = 105,    // UNUSED, DO NOT REUSE
+    SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // UNUSED, DO NOT REUSE
     SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker
     SMART_ACTION_SET_POWER                          = 108,    // PowerType, newPower
     SMART_ACTION_ADD_POWER                          = 109,    // PowerType, newPower
@@ -1013,11 +1013,6 @@ struct SmartAction
         {
             SAIBool root;
         } setRoot;
-
-        struct
-        {
-            uint32 flag;
-        } goFlag;
 
         struct
         {
