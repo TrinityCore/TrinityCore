@@ -2042,7 +2042,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             else
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, uses unchecked type id, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, uses unchecked type id, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
