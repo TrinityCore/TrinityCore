@@ -71,7 +71,7 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
  -- Sylvanas Windrunner
 DELETE FROM `creature_template` WHERE `entry`=175732;
 INSERT INTO `creature_template` (`entry`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `CreatureDifficultyID`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `spell_school_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES 
-(175732, 'Sylvanas Windrunner', NULL, NULL, NULL, NULL, 0, 63, 63, 8, 0, 0, 16, 0, 1.6, 2, 1, 3, 0, 1000, 1750, 1, 1, 4, 64, 1073741824, 8388610, 0, 0, 0, 0, 4, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1443.76, 1, 1, 1, 1, 1, 1, 0, 183, 204626, 0, 0, 1, 650854271, 0, 0, 'boss_sylvanas_windrunner', 41079);
+(175732, 'Sylvanas Windrunner', NULL, NULL, NULL, NULL, 0, 63, 63, 8, 0, 0, 16, 0, 1.6, 2, 1, 3, 0, 1000, 1750, 1, 1, 4, 64, 1073741824, 8388610, 0, 0, 0, 0, 4, 0, 0, 0, 0, 7461, 0, 0, '', 0, 1, 1443.76, 1, 1, 1, 1, 1, 1, 0, 183, 204626, 0, 0, 1, 617299839, 0, 0, 'boss_sylvanas_windrunner', 41079);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=175732;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
@@ -395,7 +395,7 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 (368344, 43, 69874, 'Frozen Bridge', '', '', '',  1, 2487, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
 (368345, 43, 70203, 'Earthen Bridge', '', '', '', 1, 2489, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
 (368346, 43, 70202, 'Earthen Bridge', '', '', '', 1, 2490, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359),
-(365172, 43, 70052, 'Earthen Bridge', '', '', '', 1, 2488, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359);
+(365172, 43, 70204, 'Earthen Bridge', '', '', '', 1, 2488, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 41359);
 
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754, 365171, 368343, 368344, 368345, 368346, 365172);
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `mingold`, `maxgold`, `WorldEffectID`, `AIAnimKitID`) VALUES 
@@ -626,6 +626,10 @@ INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, 
 DELETE FROM `spell_script_names` WHERE `spell_id`=357137 AND `ScriptName`='spell_sylvanas_windrunner_stonecrash_phase_two';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357137, 'spell_sylvanas_windrunner_stonecrash_phase_two');
+
+DELETE FROM `jump_charge_params` WHERE `id`=557;
+INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES 
+(557, 1.251, 1, 19.29110336303710937, 109373, 0, NULL);
 
 DELETE FROM `jump_charge_params` WHERE `id`=574;
 INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES 
