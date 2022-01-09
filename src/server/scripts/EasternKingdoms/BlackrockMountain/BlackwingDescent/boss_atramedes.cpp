@@ -110,8 +110,6 @@ enum Events
     EVENT_SEARING_FLAME,
     EVENT_SONIC_BREATH,
     EVENT_LIFTOFF,
-    EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD,
-    EVENT_DESTROY_SHIELD_AND_RESUME_PLAYER_TRACKING,
     EVENT_LAND,
     EVENT_LANDED,
     EVENT_REENGAGE_PLAYERS,
@@ -123,14 +121,17 @@ enum Events
     // Obnoxious Imp
     EVENT_FOCUS_PLAYER,
     EVENT_CHASE_PLAYER,
-    EVENT_OBNOXIOUS
+    EVENT_OBNOXIOUS,
+
+    // Reverberating Flame
+    EVENT_MOVE_TO_DWARVEN_SHIELD,
+    EVENT_CHECK_TRACKING_TARGET
 };
 
 enum Actions
 {
     // Atramedes
     ACTION_START_INTRO              = 0,
-    ACTION_HALT_REVERBERATING_FLAME = 1,
 
     // Lord Victor Nefarius
     ACTION_DESTROY_SHIELD           = 0,
@@ -144,12 +145,16 @@ enum Actions
 
 enum MovePoints
 {
+    // Atramedes
     POINT_NONE = 0,
     POINT_CAST_ROARING_BREATH,
     POINT_PREPARE_LAND_INTRO,
     POINT_LAND_INTRO,
     POINT_LIFTOFF,
-    POINT_LAND
+    POINT_LAND,
+
+    //Reverberating Flame
+    POINT_DWARVEN_SHIELD
 };
 
 enum Phases
@@ -166,6 +171,7 @@ enum Data
     DATA_ADD_NOISY_PLAYER                   = 1,
     DATA_REMOVE_NOISY_PLAYER                = 2,
     DATA_LAST_SHIELD_USER                   = 3,
+
 
     // Getter
     DATA_IS_IN_AIR                          = 0,
@@ -283,14 +289,7 @@ struct boss_atramedes : public BossAI
                 DoCast(summon, SPELL_SONAR_BOMB, true);
                 break;
             case NPC_REVERBERATING_FLAME:
-                if (Unit* summoner = summon->ToTempSummon()->GetSummoner())
-                {
-                    summon->CastSpell(summon, SPELL_ROARING_FLAME_BREATH_REVERSE_CAST);
-                    summon->CastSpell(summon, SPELL_AGGRO_CREATOR);
-                    summon->CastSpell(summoner, SPELL_TRACKING);
-                    summon->GetMotionMaster()->MoveFollow(summoner, 0.0f, 0.f, false, false, true);
-                    _reverberatingFlameGUID = summon->GetGUID();
-                }
+                _reverberatingFlameGUID = summon->GetGUID();
                 break;
             default:
                 break;
@@ -318,6 +317,9 @@ struct boss_atramedes : public BossAI
         {
             case DATA_LAST_USED_ANCIENT_DWARVEN_SHIELD:
                 _lastUsedAncientDwarvenShieldGUID = guid;
+                if (Creature* flame = ObjectAccessor::GetCreature(*me, _reverberatingFlameGUID))
+                    if (CreatureAI* ai = flame->AI())
+                        ai->SetGUID(guid, DATA_LAST_USED_ANCIENT_DWARVEN_SHIELD);
                 break;
             case DATA_ADD_NOISY_PLAYER:
                 _noisyPlayerGUIDs.insert(guid);
@@ -327,6 +329,9 @@ struct boss_atramedes : public BossAI
                 break;
             case DATA_LAST_SHIELD_USER:
                 _lastShieldUserGUID = guid;
+                if (Creature* flame = ObjectAccessor::GetCreature(*me, _reverberatingFlameGUID))
+                    if (CreatureAI* ai = flame->AI())
+                        ai->SetGUID(guid, DATA_LAST_SHIELD_USER);
                 break;
             default:
                 break;
@@ -397,18 +402,6 @@ struct boss_atramedes : public BossAI
             case ACTION_START_INTRO:
                 me->GetMotionMaster()->MovePoint(POINT_CAST_ROARING_BREATH, IntroFlightPosition1, false);
                 break;
-            case ACTION_HALT_REVERBERATING_FLAME:
-                if (Creature* flame = ObjectAccessor::GetCreature(*me, _reverberatingFlameGUID))
-                {
-                    flame->InterruptNonMeleeSpells(true);
-                    flame->GetMotionMaster()->Clear();
-                    flame->StopMoving();
-
-                    events.CancelEvent(EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD);
-                    events.CancelEvent(EVENT_DESTROY_SHIELD_AND_RESUME_PLAYER_TRACKING);
-                    events.ScheduleEvent(EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD, 2s, 0, PHASE_AIR);
-                }
-                break;
             default:
                 break;
         }
@@ -469,27 +462,6 @@ struct boss_atramedes : public BossAI
                     if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES))
                         if (nefarius->IsAIEnabled())
                             nefarius->AI()->DoAction(ACTION_STOP_SUMMONING_FIENDS);
-                    break;
-                case EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD:
-                    if (Creature* flame = ObjectAccessor::GetCreature(*me, _reverberatingFlameGUID))
-                    {
-                        if (Creature* shield = ObjectAccessor::GetCreature(*me, _lastUsedAncientDwarvenShieldGUID))
-                            flame->GetMotionMaster()->MovePoint(POINT_NONE, shield->GetPosition());
-
-                        if (flame->movespline)
-                            events.ScheduleEvent(EVENT_DESTROY_SHIELD_AND_RESUME_PLAYER_TRACKING, flame->movespline->Duration(), 0, PHASE_AIR);
-                    }
-                    break;
-                case EVENT_DESTROY_SHIELD_AND_RESUME_PLAYER_TRACKING:
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, _lastShieldUserGUID))
-                    {
-                        if (Unit* flame = ObjectAccessor::GetUnit(*me, _reverberatingFlameGUID))
-                        {
-                            flame->CastSpell(flame, SPELL_SONIC_FLAMES);
-                            flame->CastSpell(target, SPELL_TRACKING);
-                            flame->GetMotionMaster()->MoveFollow(target, 0.0f, 0.f, false, false, true);
-                        }
-                    }
                     break;
                 case EVENT_LAND:
                     me->RemoveAurasDueToSpell(SPELL_SONAR_PULSE_PERIODIC_TRIGGER);
@@ -687,6 +659,106 @@ private:
     InstanceScript* _instance;
 };
 
+struct npc_atramedes_reverberating_flame : public NullCreatureAI
+{
+    npc_atramedes_reverberating_flame(Creature* creature) : NullCreatureAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        DoCastSelf(SPELL_ROARING_FLAME_BREATH_REVERSE_CAST);
+        DoCastSelf(SPELL_AGGRO_CREATOR);
+        trackTarget(summoner);
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 type) override
+    {
+        switch (type)
+        {
+            case DATA_LAST_USED_ANCIENT_DWARVEN_SHIELD:
+                _lastUsedDwarvenShieldGUID = guid;
+
+                me->InterruptNonMeleeSpells(true);
+                me->GetMotionMaster()->InitDefault();
+                me->StopMoving();
+                me->SetTarget(ObjectGuid::Empty);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_MOVE_TO_DWARVEN_SHIELD, 2s);
+                break;
+            case DATA_LAST_SHIELD_USER:
+                _lastUsedDwarvenShieldUserGUID = guid;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void MovementInform(uint32 motionType, uint32 pointId) override
+    {
+        if (motionType != POINT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_DWARVEN_SHIELD:
+            {
+                DoCastSelf(SPELL_SONIC_FLAMES);
+                Unit* target = ObjectAccessor::GetUnit(*me, _lastUsedDwarvenShieldUserGUID);
+                if (!target)
+                    target = me->SelectNearestPlayer(100.f);
+
+                if (target)
+                    trackTarget(target);
+
+                _lastUsedDwarvenShieldUserGUID = ObjectGuid::Empty;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MOVE_TO_DWARVEN_SHIELD:
+                    if (Creature* shield = ObjectAccessor::GetCreature(*me, _lastUsedDwarvenShieldGUID))
+                        me->GetMotionMaster()->MovePoint(POINT_DWARVEN_SHIELD, shield->GetPosition());
+                    _lastUsedDwarvenShieldGUID = ObjectGuid::Empty;
+                    break;
+                case EVENT_CHECK_TRACKING_TARGET:
+                    if (!ObjectAccessor::GetUnit(*me, me->GetTarget()))
+                    {
+                        if (Unit* target = me->SelectNearestPlayer(100.f))
+                            trackTarget(target);
+                    }
+                    else
+                        _events.Repeat(500ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _lastUsedDwarvenShieldGUID;
+    ObjectGuid _lastUsedDwarvenShieldUserGUID;
+
+    void trackTarget(Unit* target)
+    {
+        DoCast(target, SPELL_TRACKING);
+        me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.f, false, false, true);
+        me->SetTarget(target->GetGUID());
+        _events.ScheduleEvent(EVENT_CHECK_TRACKING_TARGET, 500ms);
+    }
+};
+
 class spell_atramedes_modulation : public SpellScript
 {
     void ChangeDamage(SpellEffIndex /*effIndex*/)
@@ -785,13 +857,15 @@ class spell_atramedes_resonating_clash_air : public SpellScript
         if (!target || !caster || !target->IsAIEnabled())
             return;
 
-        if (Unit* shield = GetSpell()->GetOriginalCaster())
-            target->AI()->SetGUID(shield->GetGUID(), DATA_LAST_USED_ANCIENT_DWARVEN_SHIELD);
+        if (CreatureAI* ai = target->AI())
+        {
+            if (Unit* shield = GetSpell()->GetOriginalCaster())
+                ai->SetGUID(shield->GetGUID(), DATA_LAST_USED_ANCIENT_DWARVEN_SHIELD);
 
-        target->AI()->SetGUID(caster->GetGUID(), DATA_LAST_SHIELD_USER);
+            ai->SetGUID(caster->GetGUID(), DATA_LAST_SHIELD_USER);
 
-        target->AI()->DoAction(ACTION_HALT_REVERBERATING_FLAME);
-        target->PlayDirectSound(SOUND_ID_ATRAMEDES_VERTIGO);
+            target->PlayDirectSound(SOUND_ID_ATRAMEDES_VERTIGO);
+        }
     }
 
     void Register() override
@@ -1039,6 +1113,7 @@ void AddSC_boss_atramedes()
     RegisterBlackwingDescentCreatureAI(npc_atramedes_ancient_dwarven_shield);
     RegisterBlackwingDescentCreatureAI(npc_atramedes_lord_victor_nefarius);
     RegisterBlackwingDescentCreatureAI(npc_atramedes_obnoxious_fiend);
+    RegisterBlackwingDescentCreatureAI(npc_atramedes_reverberating_flame);
     RegisterSpellScript(spell_atramedes_modulation);
     RegisterSpellScript(spell_atramedes_roaring_flame_breath_reverse_cast);
     RegisterSpellScript(spell_atramedes_roaring_flame_breath);
