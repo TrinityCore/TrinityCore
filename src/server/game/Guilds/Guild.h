@@ -755,6 +755,7 @@ class TC_GAME_API Guild
         void HandleSetMemberRank(WorldSession* session, ObjectGuid guid, ObjectGuid setterGuid, GuildRankOrder rank);
         void HandleAddNewRank(WorldSession* session, std::string const& name);
         void HandleRemoveRank(WorldSession* session, GuildRankOrder rankOrder);
+        void HandleShiftRank(WorldSession* session, GuildRankOrder rankOrder, bool shiftUp);
         void HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow = false);
         bool HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair = false);
         void HandleMemberLogout(WorldSession* session);

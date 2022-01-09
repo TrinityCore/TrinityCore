@@ -166,6 +166,14 @@ void WorldSession::HandleGuildDeleteRank(WorldPackets::Guild::GuildDeleteRank& p
         guild->HandleRemoveRank(this, GuildRankOrder(packet.RankOrder));
 }
 
+void WorldSession::HandleGuildShiftRank(WorldPackets::Guild::GuildShiftRank& shiftRank)
+{
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_SHIFT_RANK [%s]: RankOrder: %u, ShiftUp: %s", GetPlayerInfo().c_str(), shiftRank.RankOrder, shiftRank.ShiftUp ? "true" : "false");
+
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->HandleShiftRank(this, GuildRankOrder(shiftRank.RankOrder), shiftRank.ShiftUp);
+}
+
 void WorldSession::HandleGuildUpdateInfoText(WorldPackets::Guild::GuildUpdateInfoText& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_UPDATE_INFO_TEXT [%s]: %s", GetPlayerInfo().c_str(), packet.InfoText.c_str());
