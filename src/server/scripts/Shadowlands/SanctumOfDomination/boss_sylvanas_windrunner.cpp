@@ -995,7 +995,7 @@ struct boss_sylvanas_windrunner : public BossAI
         //DoAction(ACTION_PREPARE_PHASE_TWO);
 
         //DoAction(ACTION_PREPARE_PHASE_THREE);
-        /*
+        
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);     
@@ -1014,7 +1014,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
         if (me->IsWithinMeleeRange(me->GetVictim()))
             DoCastSelf(SPELL_RANGER_DAGGERS_STANCE, true);
-        */
     }
 
     void DoAction(int32 action) override
@@ -1249,6 +1248,13 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 if (!_rangerShotOnCD)
                     _rangerShotOnCD = true;
+
+                _meleeKitCombo = 0;
+
+                scheduler.Schedule(750ms, [this](TaskContext /*task*/)
+                {
+                    me->resetAttackTimer();
+                });
 
                 scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                 {
@@ -1724,7 +1730,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DESECRATING_SHOT:
                 {
-                    switch (urand(0, 1))
+                    switch (urand(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, DATA_DESECRATING_SHOT_PATTERN_SCATTERED))
                     {
                         case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
                         {
@@ -1758,8 +1764,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         default:
                             break;
                     }
-
-                    events.Repeat(6s);
                     break;
                 }
 
@@ -2238,7 +2242,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
         if (rangerHeartseekerCharge && rangerHeartseekerCharge->GetStackAmount() >= 3)
         {
-            if (me->isAttackReady(RANGED_ATTACK))
+            if (me->isAttackReady(BASE_ATTACK))
             {
                 if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                     DoAction(ACTION_SET_RANGER_STANCE);
@@ -2258,7 +2262,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     });
                 }
 
-                me->resetAttackTimer(RANGED_ATTACK);
+                me->resetAttackTimer(BASE_ATTACK);
             }
         }
         else
@@ -2310,17 +2314,8 @@ struct boss_sylvanas_windrunner : public BossAI
                         }
 
                         case DATA_MELEE_COMBO_FINISH:
-                        {
                             DoAction(ACTION_RANGER_SHOT);
-
-                            scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
-                            {
-                                me->resetAttackTimer();
-                                _meleeKitCombo = 0;
-                            });
                             break;
-                        }
-
                         default:
                             break;
                     }
@@ -2478,16 +2473,16 @@ struct boss_sylvanas_windrunner : public BossAI
     bool IsAnyEventIncoming()
     {
         // Let's avoid cases where Sylvanas could launch any spell just after launching any of the main events
-        if (events.GetTimeUntilEvent(EVENT_WINDRUNNER) <= 1000)
+        if (events.GetTimeUntilEvent(EVENT_WINDRUNNER) <= 1150)
             return true;
 
-        if (events.GetTimeUntilEvent(EVENT_DOMINATION_CHAINS) <= 1000)
+        if (events.GetTimeUntilEvent(EVENT_DOMINATION_CHAINS) <= 1150)
             return true;
 
-        if (events.GetTimeUntilEvent(EVENT_WAILING_ARROW) <= 1000)
+        if (events.GetTimeUntilEvent(EVENT_WAILING_ARROW) <= 1150)
             return true;
 
-        if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 1000)
+        if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 1150)
             return true;
 
         return false;
@@ -3566,6 +3561,7 @@ class spell_sylvanas_windrunner_raze : public SpellScript
 enum BolvarSpells
 {
     SPELL_RUNIC_MARK                                    = 354926,
+    SPELL_RUNIC_MARK_TRIGGERED                          = 354927,
     SPELL_GLYPH_OF_DESINTEGRATION                       = 354932,
     SPELL_CHARGE_TOWARDS_SYLVANAS                       = 357046,
     SPELL_WINDS_OF_ICECROWN                             = 356941,
@@ -3788,7 +3784,11 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
             {
                 case EVENT_RUNIC_MARK:
                 {
-                    DoCastVictim(SPELL_RUNIC_MARK, false);
+                    if (!me->IsWithinMeleeRange(me->GetVictim()))
+                        DoCastVictim(SPELL_RUNIC_MARK, false);
+                    else
+                        DoCastVictim(SPELL_RUNIC_MARK_TRIGGERED, false);
+
                     _events.Repeat(6s, 8s);
                     break;
                 }
@@ -3799,6 +3799,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                     _events.Repeat(10s, 12s);
                     break;
                 }
+
                 default:
                     break;
             }
