@@ -172,7 +172,7 @@ class spell_sha_ancestral_guidance : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_sha_ancestral_guidance::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_guidance::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_guidance::HandleEffectProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -188,7 +188,7 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
 
     void ResizeTargets(std::list<WorldObject*>& targets)
     {
-        Trinity::Containers::RandomResize(targets, 3);
+        Trinity::SelectRandomInjuredTargets(targets, 3, true);
     }
 
     void Register() override
@@ -865,14 +865,13 @@ class spell_sha_lava_burst : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
-            if (Unit* target = GetExplTargetUnit())
-                if (caster->HasAura(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
-                    caster->CastSpell(target, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, true);
+            if (caster->HasAura(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
+                caster->CastSpell(GetHitUnit(), SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, GetSpell());
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst::HandleScript, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
     }
 };
 
