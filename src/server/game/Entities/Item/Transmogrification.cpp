@@ -948,7 +948,9 @@ bool Transmogrification::RevertTransmogrification(Player* player, uint8 slot)
     Item* item;
     if (HasPendingTransmog(player, slot, &item))
     {
-        UpdateItem(player, item);
+        uint32 enchant = player->GetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0);
+        UpdateItem(player, item); // removes pending enchant and transmog
+        player->SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, enchant); // restore pending enchant
         return true;
     }
     return false;
@@ -959,7 +961,9 @@ bool Transmogrification::RevertEnchant(Player* player, uint8 slot)
     Item* item;
     if (HasPendingEnchant(player, slot, &item))
     {
-        UpdateItem(player, item);
+        uint32 transmog = player->GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2));
+        UpdateItem(player, item); // removes pending enchant and transmog
+        player->SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), transmog); // restore pending transmog
         return true;
     }
     return false;
