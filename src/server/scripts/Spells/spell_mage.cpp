@@ -517,7 +517,7 @@ class spell_mage_fingers_of_frost : public AuraScript
     }
 };
 
-// 133 - Fireball 
+// 133 - Fireball
 class spell_mage_fireball : public SpellScript
 {
     PrepareSpellScript(spell_mage_fireball);
@@ -927,7 +927,7 @@ class spell_mage_prismatic_barrier : public AuraScript
     }
 };
 
-// 11366 - Pyroblast 
+// 11366 - Pyroblast
 class spell_mage_pyroblast : public SpellScript
 {
     PrepareSpellScript(spell_mage_pyroblast);
