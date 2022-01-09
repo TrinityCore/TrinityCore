@@ -4193,6 +4193,12 @@ Transmogrification.CopperCost = 0
 #    Transmogrification.IgnoreReqFaction
 #        Description: Ignore alliance only or horde only requirement on items
 #        Default:    0
+#
+#    Transmogrification.IgnoreReqBound
+#        Description: Normally items must be bound for player to get the visual, this setting changes that
+#        Default:    0 - (Require items to be bound)
+#                    1 - (Require items to be bound, but allow items that can never be bound to work)
+#                    2 - (No binding requirements, even items not yet bound will work)
 
 Transmogrification.AllowPoor = 0
 Transmogrification.AllowCommon = 0
@@ -4217,6 +4223,7 @@ Transmogrification.IgnoreReqEvent = 0
 Transmogrification.IgnoreReqStats = 0
 Transmogrification.IgnorePlayerMissingProfiency = 0
 Transmogrification.IgnoreReqFaction = 0
+Transmogrification.IgnoreReqBound = 0
 
 #
 #    SET FEATURE
