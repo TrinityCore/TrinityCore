@@ -512,7 +512,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
                 sScriptMgr->OnQuestStatusChange(_player, quest, oldStatus, QUEST_STATUS_NONE);
         }
 
-
         _player->UpdateCriteria(CriteriaType::AbandonAnyQuest, 1);
     }
 }
