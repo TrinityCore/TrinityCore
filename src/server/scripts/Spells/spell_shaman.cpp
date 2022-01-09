@@ -63,6 +63,7 @@ enum ShamanSpells
     SPELL_SHAMAN_FLAMETONGUE_WEAPON_AURA        = 319778,
     SPELL_SHAMAN_GATHERING_STORMS               = 198299,
     SPELL_SHAMAN_GATHERING_STORMS_BUFF          = 198300,
+    SPELL_SHAMAN_GHOST_WOLF                     = 2645,
     SPELL_SHAMAN_HEALING_RAIN_VISUAL            = 147490,
     SPELL_SHAMAN_HEALING_RAIN_HEAL              = 73921,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
@@ -79,6 +80,9 @@ enum ShamanSpells
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
     SPELL_SHAMAN_SATED                          = 57724,
+    SPELL_SHAMAN_SPIRIT_WOLF_TALENT             = 260878,
+    SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
+    SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_POWER_MP5              = 28824,
     SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER      = 28825,
@@ -1062,6 +1066,37 @@ class spell_sha_path_of_flames_spread : public SpellScript
     }
 };
 
+// 2645 - Ghost Wolf
+// 260878 - Spirit Wolf
+class spell_sha_spirit_wolf : public AuraScript
+{
+    PrepareAuraScript(spell_sha_spirit_wolf);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_GHOST_WOLF, SPELL_SHAMAN_SPIRIT_WOLF_TALENT, SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC, SPELL_SHAMAN_SPIRIT_WOLF_AURA });
+    }
+
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_SHAMAN_SPIRIT_WOLF_TALENT) && target->HasAura(SPELL_SHAMAN_GHOST_WOLF))
+            target->CastSpell(target, SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC, aurEff);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC);
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SHAMAN_SPIRIT_WOLF_AURA);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_sha_spirit_wolf::OnApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sha_spirit_wolf::OnRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 51564 - Tidal Waves
 class spell_sha_tidal_waves : public AuraScript
 {
@@ -1443,6 +1478,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_liquid_magma_totem);
     RegisterAuraScript(spell_sha_natures_guardian);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
+    RegisterAuraScript(spell_sha_spirit_wolf);
     RegisterAuraScript(spell_sha_tidal_waves);
     RegisterAuraScript(spell_sha_t3_6p_bonus);
     RegisterAuraScript(spell_sha_t3_8p_bonus);
