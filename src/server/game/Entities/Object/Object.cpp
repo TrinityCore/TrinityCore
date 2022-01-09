@@ -1840,6 +1840,20 @@ Scenario* WorldObject::GetScenario() const
     return nullptr;
 }
 
+TempSummon* WorldObject::SummonPersonalClone(TempSummonType despawnType, uint32 despawnTime, uint32 vehId, uint32 spellId, ObjectGuid privateObjectOwner)
+{
+    if (Map* map = FindMap())
+    {
+        if (TempSummon* summon = map->SummonCreature(this->GetEntry(), *this, nullptr, despawnTime, this, spellId, vehId, privateObjectOwner))
+        {
+            summon->SetTempSummonType(despawnType);
+            return summon;
+        }
+    }
+
+    return nullptr;
+}
+
 TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
 {
     if (Map* map = FindMap())

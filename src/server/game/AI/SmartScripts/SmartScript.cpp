@@ -2531,7 +2531,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ObjectGuid privateObjectOwner = summoner->GetGUID();
             WorldObject* baseObject = GetBaseObject();
 
-            if (Creature* summon = summoner->SummonCreature(baseObject->GetEntry(), *baseObject, (TempSummonType)e.action.becomePersonalClone.type, e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
+            if (Creature* summon = baseObject->SummonPersonalClone((TempSummonType)e.action.becomePersonalClone.type, e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
             {
                 if (IsSmart(summon))
                     ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, GetLastInvoker(), ++e.event_id);
