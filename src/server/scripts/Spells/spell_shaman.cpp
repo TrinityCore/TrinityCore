@@ -631,15 +631,7 @@ class spell_sha_healing_stream_totem_heal : public SpellScript
 
     void SelectTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([](WorldObject* target)
-        {
-            return !target->ToUnit() || target->ToUnit()->IsFullHealth();
-        });
-
-        Trinity::Containers::RandomResize(targets, 1);
-
-        if (targets.empty())
-            targets.push_back(GetOriginalCaster());
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
     void Register() override
