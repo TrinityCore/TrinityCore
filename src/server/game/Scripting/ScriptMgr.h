@@ -772,7 +772,7 @@ class TC_GAME_API GuildScript : public ScriptObject
     public:
 
         // Called when a member is added to the guild.
-        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
+        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8 /*plRank*/) { }
 
         // Called when a member is removed from the guild.
         virtual void OnRemoveMember(Guild* /*guild*/, ObjectGuid /*guid*/, bool /*isDisbanding*/, bool /*isKicked*/) { }
@@ -1132,7 +1132,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* GuildScript */
 
-        void OnGuildAddMember(Guild* guild, Player* player, uint8& plRank);
+        void OnGuildAddMember(Guild* guild, Player* player, uint8 plRank);
         void OnGuildRemoveMember(Guild* guild, ObjectGuid guid, bool isDisbanding, bool isKicked);
         void OnGuildMOTDChanged(Guild* guild, const std::string& newMotd);
         void OnGuildInfoChanged(Guild* guild, const std::string& newInfo);

@@ -215,7 +215,7 @@ public:
 
         uint8 newRank = uint8(atoi(rankStr));
         CharacterDatabaseTransaction trans(nullptr);
-        return targetGuild->ChangeMemberRank(trans, targetGuid, newRank);
+        return targetGuild->ChangeMemberRank(trans, targetGuid, GuildRankId(newRank));
     }
 
     static bool HandleGuildRenameCommand(ChatHandler* handler, char const* _args)
