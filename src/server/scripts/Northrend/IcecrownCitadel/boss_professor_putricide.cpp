@@ -602,7 +602,7 @@ class boss_professor_putricide : public CreatureScript
                         case EVENT_SLIME_PUDDLE:
                         {
                             std::list<Unit*> targets;
-                            SelectTargetList(targets, 2, SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            SelectTargetList(targets, 2, SelectTargetMethod::Random, 0, 0.0f, true);
                             if (!targets.empty())
                                 for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                     DoCast(*itr, SPELL_SLIME_PUDDLE_TRIGGER);
@@ -631,7 +631,7 @@ class boss_professor_putricide : public CreatureScript
                             if (Is25ManRaid())
                             {
                                 std::list<Unit*> targets;
-                                SelectTargetList(targets, 2, SELECT_TARGET_RANDOM, 0, -7.0f, true);
+                                SelectTargetList(targets, 2, SelectTargetMethod::Random, 0, -7.0f, true);
                                 if (!targets.empty())
                                 {
                                     Talk(EMOTE_MALLEABLE_GOO);
@@ -641,7 +641,7 @@ class boss_professor_putricide : public CreatureScript
                             }
                             else
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -7.0f, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, -7.0f, true))
                                 {
                                     Talk(EMOTE_MALLEABLE_GOO);
                                     DoCast(target, SPELL_MALLEABLE_GOO);
@@ -655,7 +655,7 @@ class boss_professor_putricide : public CreatureScript
                             events.ScheduleEvent(EVENT_CHOKING_GAS_BOMB, 35s, 40s);
                             break;
                         case EVENT_UNBOUND_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                             {
                                 DoCast(target, SPELL_UNBOUND_PLAGUE);
                                 DoCast(target, SPELL_UNBOUND_PLAGUE_SEARCHER);
@@ -726,10 +726,14 @@ class npc_putricide_oozeAI : public ScriptedAI
         npc_putricide_oozeAI(Creature* creature, uint32 auraSpellId, uint32 hitTargetSpellId) : ScriptedAI(creature),
             _auraSpellId(auraSpellId), _hitTargetSpellId(hitTargetSpellId), _newTargetSelectTimer(0), _instance(creature->GetInstanceScript()) { }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
         {
-            if (!_newTargetSelectTimer && spell->Id == _hitTargetSpellId)
+            if (!_newTargetSelectTimer && spellInfo->Id == _hitTargetSpellId)
+            {
                 _newTargetSelectTimer = 1000;
+                // go passive until next target selection
+                me->SetReactState(REACT_PASSIVE);
+            }
         }
 
         void Reset() override
@@ -741,9 +745,9 @@ class npc_putricide_oozeAI : public ScriptedAI
             DoCastAOE(_auraSpellId, true);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_TEAR_GAS_CREATURE)
+            if (spellInfo->Id == SPELL_TEAR_GAS_CREATURE)
                 _newTargetSelectTimer = 1000;
         }
 
@@ -932,6 +936,8 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                 GetCaster()->GetThreatManager().ResetAllThreat();
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
                 GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), 500000000.0f, nullptr, true, true);    // value seen in sniff
+                GetCaster()->GetThreatManager().FixateTarget(GetHitUnit());
+                GetCaster()->ToCreature()->SetReactState(REACT_AGGRESSIVE);
             }
 
             void Register() override
@@ -1659,21 +1665,19 @@ class spell_abomination_mutated_transformation : public SpellScript
 {
     PrepareSpellScript(spell_abomination_mutated_transformation);
 
-    /* Resist system always pick the min resist value for spells with multiple schools.
-       But following some combat logs of retail, this spell is a exception and need get the sum of both schools. */
-    void HandleResistance(SpellEffIndex /*effIndex*/)
+    void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
     {
-        Unit* caster = GetCaster();
-        uint32 damage = GetHitDamage();
-        Unit* target = GetHitUnit();
-        damage -= Unit::CalcSpellResistedDamage(caster, target, GetHitDamage(), SPELL_SCHOOL_MASK_SHADOW, nullptr);
-        damage -= Unit::CalcSpellResistedDamage(caster, target, GetHitDamage(), SPELL_SCHOOL_MASK_NATURE, nullptr);
-        SetHitDamage(damage);
+        Unit* caster = damageInfo.GetAttacker();;
+        Unit* target = damageInfo.GetVictim();
+        uint32 damage = damageInfo.GetDamage();
+        uint32 resistedDamage = Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_SHADOW, nullptr);
+        resistedDamage += Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_NATURE, nullptr);
+        resistAmount = resistedDamage;
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_abomination_mutated_transformation::HandleResistance, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_abomination_mutated_transformation::HandleResistance);
     }
 };
 

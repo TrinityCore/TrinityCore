@@ -240,7 +240,7 @@ class boss_slabhide : public CreatureScript
                             instance->SetData(DATA_SLABHIDE_ROCK_WALL, false);
                             break;
                         case EVENT_LAVA_FISSURE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_LAVA_FISSURE);
                             events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
                             break;

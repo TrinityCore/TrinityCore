@@ -514,7 +514,7 @@ struct npc_earthen_ring_flamecaller : public ScriptedAI
         DoCastSelf(SPELL_FIND_OPENING_CHANNEL);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
         {

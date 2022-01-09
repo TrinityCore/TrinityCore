@@ -34,7 +34,7 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 {
     Tokenizer tokens(infoString, ';');
 
-    if (tokens.size() != 5)
+    if (tokens.size() != 5 && tokens.size() != 6)
         return;
 
     uint8 i = 0;
@@ -44,6 +44,9 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
     user.assign(tokens[i++]);
     password.assign(tokens[i++]);
     database.assign(tokens[i++]);
+
+    if (tokens.size() == 6)
+        ssl.assign(tokens[i++]);
 }
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
@@ -98,7 +101,7 @@ uint32 MySQLConnection::Open()
     char const* unix_socket;
     //unsigned int timeout = 10;
 
-    mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
+    mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8mb4");
     //mysql_options(mysqlInit, MYSQL_OPT_READ_TIMEOUT, (char const*)&timeout);
     #ifdef _WIN32
     if (m_connectionInfo.host == ".")                                           // named pipe use option (Windows)
@@ -129,6 +132,25 @@ uint32 MySQLConnection::Open()
     }
     #endif
 
+    if (m_connectionInfo.ssl != "")
+    {
+#if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
+        mysql_ssl_mode opt_use_ssl = SSL_MODE_DISABLED;
+        if (m_connectionInfo.ssl == "ssl")
+        {
+            opt_use_ssl = SSL_MODE_REQUIRED;
+        }
+        mysql_options(mysqlInit, MYSQL_OPT_SSL_MODE, (char const*)&opt_use_ssl);
+#else
+        MySQLBool opt_use_ssl = MySQLBool(0);
+        if (m_connectionInfo.ssl == "ssl")
+        {
+            opt_use_ssl = MySQLBool(1);
+        }
+        mysql_options(mysqlInit, MYSQL_OPT_SSL_ENFORCE, (char const*)&opt_use_ssl);
+#endif
+    }
+
     m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, m_connectionInfo.host.c_str(), m_connectionInfo.user.c_str(),
         m_connectionInfo.password.c_str(), m_connectionInfo.database.c_str(), port, unix_socket, 0));
 
@@ -148,7 +170,7 @@ uint32 MySQLConnection::Open()
 
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
-        mysql_set_character_set(m_Mysql, "utf8");
+        mysql_set_character_set(m_Mysql, "utf8mb4");
         return 0;
     }
     else

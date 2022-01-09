@@ -22,13 +22,10 @@
 #include "MMapDefines.h"
 #include "ModelInstance.h"
 #include "Util.h"
-#include "VMapFactory.h"
 #include "VMapManager2.h"
 
 namespace MMAP
 {
-    char const* MAP_VERSION_MAGIC = "v1.9";
-
     TerrainBuilder::TerrainBuilder(bool skipLiquid) : m_skipLiquid (skipLiquid){ }
     TerrainBuilder::~TerrainBuilder() { }
 
@@ -86,11 +83,12 @@ namespace MMAP
         FILE* mapFile = fopen(mapFileName, "rb");
         if (!mapFile)
         {
-            int32 parentMapId = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager())->getParentMapId(mapID);
-            if (parentMapId != -1)
+            int32 parentMapId = sMapStore[mapID].ParentMapID;
+            while (!mapFile && parentMapId != -1)
             {
                 sprintf(mapFileName, "maps/%04d_%02u_%02u.map", parentMapId, tileY, tileX);
                 mapFile = fopen(mapFileName, "rb");
+                parentMapId = sMapStore[parentMapId].ParentMapID;
             }
         }
 
@@ -450,10 +448,6 @@ namespace MMAP
                             minTLevel = h;
                     }
 
-                    // terrain under the liquid?
-                    if (minLLevel > maxTLevel)
-                        useTerrain = false;
-
                     //liquid under the terrain?
                     if (minTLevel > maxLLevel)
                         useLiquid = false;
@@ -587,7 +581,7 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
-        VMapManager2* vmapManager = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager());
+        std::unique_ptr<VMapManager2> vmapManager = VMapFactory::CreateVMapManager();
         LoadResult result = vmapManager->loadSingleMap(mapID, "vmaps", tileX, tileY);
         bool retval = false;
 

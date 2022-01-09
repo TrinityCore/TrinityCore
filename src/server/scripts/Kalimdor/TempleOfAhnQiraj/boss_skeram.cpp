@@ -106,7 +106,7 @@ class boss_skeram : public CreatureScript
                 if (_flag & (1 << 7))
                     _flag = 0;
 
-                if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM))
+                if (Unit* Target = SelectTarget(SelectTargetMethod::Random))
                     creature->AI()->AttackStart(Target);
 
                 float ImageHealthPct;
@@ -164,7 +164,7 @@ class boss_skeram : public CreatureScript
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 8s, 18s);
                             break;
                         case EVENT_FULLFILMENT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 45.0f, true))
                                 DoCast(target, SPELL_TRUE_FULFILLMENT);
                             events.ScheduleEvent(EVENT_FULLFILMENT, 20s, 30s);
                             break;
@@ -253,7 +253,7 @@ public:
     class spell_skeram_true_fulfillment_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_skeram_true_fulfillment_SpellScript);
-        
+
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_TRUE_FULFILLMENT_2, SPELL_GENERIC_DISMOUNT });

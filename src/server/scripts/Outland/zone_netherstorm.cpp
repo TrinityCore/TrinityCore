@@ -24,8 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_commander_dawnforge
-npc_bessy
-npc_maxx_a_million
 go_captain_tyralius_prison
 EndContentData */
 
@@ -408,11 +406,6 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        //void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override
-        //{
-        //    DoCast(me, SPELL_DE_MATERIALIZE);
-        //}
-
         void UpdateAI(uint32 diff) override
         {
             if (!Materialize)
@@ -467,197 +460,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-};
-
-/*######
-## npc_bessy
-######*/
-enum BessyData
-{
-    Q_ALMABTRIEB    = 10337,
-    N_THADELL       = 20464,
-    SPAWN_FIRST     = 20512,
-    SPAWN_SECOND    = 19881,
-    SAY_THADELL_1   = 0,
-    SAY_THADELL_2   = 1,
-};
-
-class npc_bessy : public CreatureScript
-{
-public:
-    npc_bessy() : CreatureScript("npc_bessy") { }
-
-    struct npc_bessyAI : public EscortAI
-    {
-        npc_bessyAI(Creature* creature) : EscortAI(creature) { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(Q_ALMABTRIEB);
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 3: //first spawn
-                    me->SummonCreature(SPAWN_FIRST, 2449.67f, 2183.11f, 96.85f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_FIRST, 2449.53f, 2184.43f, 96.36f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_FIRST, 2449.85f, 2186.34f, 97.57f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                case 7:
-                    me->SummonCreature(SPAWN_SECOND, 2309.64f, 2186.24f, 92.25f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_SECOND, 2309.25f, 2183.46f, 91.75f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                case 12:
-                    player->GroupEventHappens(Q_ALMABTRIEB, me);
-                    if (me->FindNearestCreature(N_THADELL, 30))
-                        Talk(SAY_THADELL_1);
-                    break;
-                case 13:
-                    if (me->FindNearestCreature(N_THADELL, 30))
-                        Talk(SAY_THADELL_2, player);
-                    break;
-            }
-        }
-
-        void JustSummoned(Creature* summoned) override
-        {
-            summoned->AI()->AttackStart(me);
-        }
-
-        void Reset() override
-        {
-            me->RestoreFaction();
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == Q_ALMABTRIEB)
-            {
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                Start(true, false, player->GetGUID());
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_bessyAI(creature);
-    }
-};
-
-/*######
-## npc_maxx_a_million
-######*/
-
-enum MaxxAMillion
-{
-    QUEST_MARK_V_IS_ALIVE   = 10191,
-    GO_DRAENEI_MACHINE      = 183771
-};
-
-class npc_maxx_a_million_escort : public CreatureScript
-{
-public:
-    npc_maxx_a_million_escort() : CreatureScript("npc_maxx_a_million_escort") { }
-
-    struct npc_maxx_a_million_escortAI : public EscortAI
-    {
-        npc_maxx_a_million_escortAI(Creature* creature) : EscortAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            bTake = false;
-            uiTakeTimer = 3000;
-        }
-
-        bool bTake;
-        uint32 uiTakeTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 7:
-                case 17:
-                case 29:
-                    //Find Object and "work"
-                    if (GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
-                    {
-                        // take the GO -> animation
-                        me->HandleEmoteCommand(EMOTE_STATE_LOOT);
-                        SetEscortPaused(true);
-                        bTake = true;
-                    }
-                    break;
-                case 36: //return and quest_complete
-                    player->CompleteQuest(QUEST_MARK_V_IS_ALIVE);
-                    break;
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_MARK_V_IS_ALIVE);
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            EscortAI::UpdateAI(uiDiff);
-
-            if (bTake)
-            {
-                if (uiTakeTimer < uiDiff)
-                {
-                    me->HandleEmoteCommand(EMOTE_STATE_NONE);
-                    if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
-                    {
-                        SetEscortPaused(false);
-                        bTake = false;
-                        uiTakeTimer = 3000;
-                        go->Delete();
-                    }
-                }
-                else
-                    uiTakeTimer -= uiDiff;
-            }
-            DoMeleeAttackIfReady();
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
-            {
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                Start(false, false, player->GetGUID());
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_maxx_a_million_escortAI(creature);
-    }
 };
 
 /*######
@@ -759,8 +561,6 @@ void AddSC_netherstorm()
     new npc_commander_dawnforge();
     new at_commander_dawnforge();
     new npc_phase_hunter();
-    new npc_bessy();
-    new npc_maxx_a_million_escort();
     new go_captain_tyralius_prison();
     new npc_captain_tyralius();
 }

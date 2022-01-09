@@ -252,7 +252,7 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_DECAPITATE, me->HasAura(SPELL_FRENZY) ? (17s + 500ms) : 35s);
                             break;
                         case EVENT_BLOODLETTING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 DoCast(target, SPELL_BLOODLETTING, true);
                                 me->ClearUnitState(UNIT_STATE_CASTING);

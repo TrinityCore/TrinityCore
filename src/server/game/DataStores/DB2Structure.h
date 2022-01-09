@@ -1004,6 +1004,8 @@ struct CreatureModelDataEntry
     int8 Unknown820_1;                                              // scale related
     float Unknown820_2;                                             // scale related
     float Unknown820_3[2];                                          // scale related
+
+    EnumFlag<CreatureModelDataFlags> GetFlags() const { return static_cast<CreatureModelDataFlags>(Flags); }
 };
 
 struct CreatureTypeEntry
@@ -3345,6 +3347,8 @@ struct SpellItemEnchantmentEntry
     uint8 ConditionID;
     uint8 MinLevel;
     uint8 MaxLevel;
+
+    EnumFlag<SpellItemEnchantmentFlags> GetFlags() const { return static_cast<SpellItemEnchantmentFlags>(Flags); }
 };
 
 struct SpellItemEnchantmentConditionEntry

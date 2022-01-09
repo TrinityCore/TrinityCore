@@ -60,7 +60,7 @@ Item* NewItemOrBag(ItemTemplate const* proto)
     return new Item();
 }
 
-void AddItemsSetItem(Player* player, Item* item)
+void AddItemsSetItem(Player* player, Item const* item)
 {
     ItemTemplate const* proto = item->GetTemplate();
     uint32 setid = proto->GetItemSet();
@@ -79,6 +79,21 @@ void AddItemsSetItem(Player* player, Item* item)
     if (set->SetFlags & ITEM_SET_FLAG_LEGACY_INACTIVE)
         return;
 
+    // Check player level for heirlooms
+    if (sDB2Manager.GetHeirloomByItemId(item->GetEntry()))
+    {
+        if (item->GetBonus()->PlayerLevelToItemLevelCurveId)
+        {
+            uint32 maxLevel = sDB2Manager.GetCurveXAxisRange(item->GetBonus()->PlayerLevelToItemLevelCurveId).second;
+
+            if (Optional<ContentTuningLevels> contentTuning = sDB2Manager.GetContentTuningData(item->GetBonus()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask, true))
+                maxLevel = std::min<uint32>(maxLevel, contentTuning->MaxLevel);
+
+            if (player->GetLevel() > maxLevel)
+                return;
+        }
+    }
+
     ItemSetEffect* eff = nullptr;
 
     for (size_t x = 0; x < player->ItemSetEff.size(); ++x)
@@ -94,7 +109,6 @@ void AddItemsSetItem(Player* player, Item* item)
     {
         eff = new ItemSetEffect();
         eff->ItemSetID = setid;
-        eff->EquippedItemCount = 0;
 
         size_t x = 0;
         for (; x < player->ItemSetEff.size(); ++x)
@@ -107,14 +121,14 @@ void AddItemsSetItem(Player* player, Item* item)
             player->ItemSetEff.push_back(eff);
     }
 
-    ++eff->EquippedItemCount;
+    eff->EquippedItems.insert(item);
 
     if (std::vector<ItemSetSpellEntry const*> const* itemSetSpells = sDB2Manager.GetItemSetSpells(setid))
     {
         for (ItemSetSpellEntry const* itemSetSpell : *itemSetSpells)
         {
             //not enough for  spell
-            if (itemSetSpell->Threshold > eff->EquippedItemCount)
+            if (itemSetSpell->Threshold > eff->EquippedItems.size())
                 continue;
 
             if (eff->SetBonuses.count(itemSetSpell))
@@ -135,15 +149,15 @@ void AddItemsSetItem(Player* player, Item* item)
     }
 }
 
-void RemoveItemsSetItem(Player* player, ItemTemplate const* proto)
+void RemoveItemsSetItem(Player* player, Item const* item)
 {
-    uint32 setid = proto->GetItemSet();
+    uint32 setid = item->GetTemplate()->GetItemSet();
 
     ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, proto->GetId());
+        TC_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, item->GetEntry());
         return;
     }
 
@@ -162,14 +176,14 @@ void RemoveItemsSetItem(Player* player, ItemTemplate const* proto)
     if (!eff)
         return;
 
-    --eff->EquippedItemCount;
+    eff->EquippedItems.erase(item);
 
     if (std::vector<ItemSetSpellEntry const*> const* itemSetSpells = sDB2Manager.GetItemSetSpells(setid))
     {
         for (ItemSetSpellEntry const* itemSetSpell : *itemSetSpells)
         {
             // enough for spell
-            if (itemSetSpell->Threshold <= eff->EquippedItemCount)
+            if (itemSetSpell->Threshold <= eff->EquippedItems.size())
                 continue;
 
             if (!eff->SetBonuses.count(itemSetSpell))
@@ -180,7 +194,7 @@ void RemoveItemsSetItem(Player* player, ItemTemplate const* proto)
         }
     }
 
-    if (!eff->EquippedItemCount)                                    //all items of a set were removed
+    if (eff->EquippedItems.empty())                                 //all items of a set were removed
     {
         ASSERT(eff == player->ItemSetEff[setindex]);
         delete eff;
@@ -566,9 +580,17 @@ void Item::SaveToDB(CharacterDatabaseTransaction& trans)
             std::ostringstream ssEnchants;
             for (uint8 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
             {
-                ssEnchants << GetEnchantmentId(EnchantmentSlot(i)) << ' ';
-                ssEnchants << GetEnchantmentDuration(EnchantmentSlot(i)) << ' ';
-                ssEnchants << GetEnchantmentCharges(EnchantmentSlot(i)) << ' ';
+                if (SpellItemEnchantmentEntry const* enchantment = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(i)));
+                    enchantment && !enchantment->GetFlags().HasFlag(SpellItemEnchantmentFlags::DoNotSaveToDB))
+                {
+                    ssEnchants << GetEnchantmentId(EnchantmentSlot(i)) << ' ';
+                    ssEnchants << GetEnchantmentDuration(EnchantmentSlot(i)) << ' ';
+                    ssEnchants << GetEnchantmentCharges(EnchantmentSlot(i)) << ' ';
+                }
+                else
+                {
+                    ssEnchants << "0 0 0 ";
+                }
             }
             stmt->setString(++index, ssEnchants.str());
 
@@ -1289,7 +1311,7 @@ bool Item::IsBoundByEnchant() const
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->Flags & ENCHANTMENT_CAN_SOULBOUND)
+                if (enchantEntry->GetFlags().HasFlag(SpellItemEnchantmentFlags::Soulbound))
                     return true;
 
     return false;
@@ -1355,11 +1377,13 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
     Player* owner = GetOwner();
     if (slot < MAX_INSPECTED_ENCHANTMENT_SLOT)
     {
-        if (uint32 oldEnchant = GetEnchantmentId(slot))
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), ObjectGuid::Empty, GetGUID(), GetEntry(), oldEnchant, slot);
+        if (SpellItemEnchantmentEntry const* oldEnchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(slot)))
+            if (!oldEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::DoNotLog))
+                owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), ObjectGuid::Empty, GetGUID(), GetEntry(), oldEnchant->ID, slot);
 
-        if (id)
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, slot);
+        if (SpellItemEnchantmentEntry const* newEnchant = sSpellItemEnchantmentStore.LookupEntry(id))
+            if (!newEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::DoNotLog))
+                owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, slot);
     }
 
     ApplyArtifactPowerEnchantmentBonuses(slot, GetEnchantmentId(slot), false, owner);

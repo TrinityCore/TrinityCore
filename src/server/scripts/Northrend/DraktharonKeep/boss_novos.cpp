@@ -156,7 +156,7 @@ public:
                         events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
                         break;
                     case EVENT_ATTACK:
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* victim = SelectTarget(SelectTargetMethod::Random))
                             DoCast(victim, RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY));
                         events.ScheduleEvent(EVENT_ATTACK, 3s);
                         break;

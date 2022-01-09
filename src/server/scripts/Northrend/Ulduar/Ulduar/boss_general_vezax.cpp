@@ -165,7 +165,7 @@ class boss_general_vezax : public CreatureScript
                         {
                             Unit* target = CheckPlayersInRange(RAID_MODE<uint8>(4, 9), 15.0f, 50.0f);
                             if (!target)
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
+                                target = SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true);
                             if (target)
                                 DoCast(target, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, 8s, 12s);
@@ -179,7 +179,7 @@ class boss_general_vezax : public CreatureScript
                         {
                             Unit* target = CheckPlayersInRange(RAID_MODE<uint8>(4, 9), 15.0f, 50.0f);
                             if (!target)
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
+                                target = SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true);
                             if (target)
                                 DoCast(target, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, 35s, 45s);
@@ -219,9 +219,9 @@ class boss_general_vezax : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* who, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
+                if (target->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_SHADOW_CRASH_HIT)
                     shadowDodger = false;
             }
 

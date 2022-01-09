@@ -92,6 +92,8 @@ class TC_GAME_API AuraApplication
         bool IsNeedClientUpdate() const { return _needClientUpdate; }
         void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
         void ClientUpdate(bool remove = false);
+
+        std::string GetDebugInfo() const;
 };
 
 // Structure representing database aura primary key fields

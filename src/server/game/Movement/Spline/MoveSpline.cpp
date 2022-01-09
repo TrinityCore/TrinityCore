@@ -193,6 +193,8 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     anim_tier = args.animTier;
     splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
 
+    velocity = args.velocity;
+
     // Check if its a stop spline
     if (args.flags.done)
     {
@@ -223,7 +225,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 }
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
-    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0),
+    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0), velocity(0.f),
     onTransport(false), splineIsFacingOnly(false)
 {
     splineflags.done = true;
@@ -233,20 +235,23 @@ MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
 
 bool MoveSplineInitArgs::Validate(Unit* unit) const
 {
-#define CHECK(exp) \
+#define CHECK(exp, verbose) \
     if (!(exp))\
     {\
-        TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for %s Entry: %u", #exp, unit->GetGUID().ToString().c_str(), unit->GetEntry());\
+        if (unit)\
+            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for %s", #exp, (verbose ? unit->GetDebugInfo() : unit->GetGUID().ToString()).c_str());\
+        else\
+            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for cyclic spline continuation", #exp); \
         return false;\
     }
-    CHECK(path.size() > 1);
-    CHECK(velocity >= 0.01f);
-    CHECK(time_perc >= 0.f && time_perc <= 1.f);
-    CHECK(_checkPathLengths());
+    CHECK(path.size() > 1, true);
+    CHECK(velocity >= 0.01f, true);
+    CHECK(time_perc >= 0.f && time_perc <= 1.f, true);
+    CHECK(_checkPathLengths(), false);
     if (spellEffectExtra)
     {
-        CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId));
-        CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId));
+        CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId), true);
+        CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId), true);
     }
     return true;
 #undef CHECK
@@ -261,6 +266,7 @@ bool MoveSplineInitArgs::_checkPathLengths() const
                 return false;
     return true;
 }
+
 MoveSplineInitArgs::MoveSplineInitArgs(size_t path_capacity /*= 16*/) : path_Idx_offset(0), velocity(0.f),
 parabolic_amplitude(0.f), vertical_acceleration(0.0f), time_perc(0.f), splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)

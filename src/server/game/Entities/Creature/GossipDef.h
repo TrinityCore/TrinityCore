@@ -98,9 +98,9 @@ enum class GossipOptionIcon : uint8
     IslandsQueue            = 36,   // White chat bubble
     UIItemInteraction       = 37,   // White chat bubble
     WorldMap                = 38,   // White chat bubble
-    Unk39                   = 39,   // 
+    Unk39                   = 39,   //
     ChromieTime             = 40,   // White chat bubble
-    Unk41                   = 41,   // 
+    Unk41                   = 41,   //
     RuneforgeCrafting       = 42,   // White chat bubble
     GuideRecruiter          = 43,   // White chat bubble
     RuneforgeUpgrading      = 44,   // White chat bubble

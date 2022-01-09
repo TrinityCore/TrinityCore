@@ -712,7 +712,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                     case EVENT_INTRO_LK_9:
                         if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FALRIC)))
                             falric->AI()->Talk(SAY_FALRIC_INTRO_2);
-                        _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES);
+                        _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES, nullptr);
                         _events.ScheduleEvent(EVENT_INTRO_LK_10, 4000);
                         break;
                     case EVENT_INTRO_LK_10:
@@ -1530,17 +1530,17 @@ class npc_ghostly_priest : public CreatureScript
                 switch (_events.ExecuteEvent())
                 {
                     case EVENT_SHADOW_WORD_PAIN:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_SHADOW_WORD_PAIN);
                         _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 6s, 15s);
                         break;
                     case EVENT_CIRCLE_OF_DESTRUCTION:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 10.0f, true))
                             DoCast(target, SPELL_CIRCLE_OF_DESTRUCTION);
                         _events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12s);
                         break;
                     case EVENT_COWER_IN_FEAR:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, true))
                             DoCast(target, SPELL_COWER_IN_FEAR);
                         _events.ScheduleEvent(EVENT_COWER_IN_FEAR, 10s);
                         break;
@@ -1608,22 +1608,22 @@ class npc_phantom_mage : public CreatureScript
                 switch (_events.ExecuteEvent())
                 {
                     case EVENT_FIREBALL:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_FIREBALL);
                         _events.ScheduleEvent(EVENT_FIREBALL, 15s);
                         break;
                     case EVENT_FLAMESTRIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_FLAMESTRIKE);
                         _events.ScheduleEvent(EVENT_FLAMESTRIKE, 15s);
                         break;
                     case EVENT_FROSTBOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_FROSTBOLT);
                         _events.ScheduleEvent(EVENT_FROSTBOLT, 15s);
                         break;
                     case EVENT_CHAINS_OF_ICE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                             DoCast(target, SPELL_CHAINS_OF_ICE);
                         _events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 15s);
                         break;
@@ -1708,7 +1708,7 @@ class npc_shadowy_mercenary : public CreatureScript
                 switch (_events.ExecuteEvent())
                 {
                     case EVENT_SHADOW_STEP:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             DoCast(target, SPELL_SHADOW_STEP);
                         _events.ScheduleEvent(EVENT_SHADOW_STEP, 8s);
                         break;
@@ -1717,7 +1717,7 @@ class npc_shadowy_mercenary : public CreatureScript
                         _events.ScheduleEvent(EVENT_DEADLY_POISON, 10s);
                         break;
                     case EVENT_ENVENOMED_DAGGER_THROW:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_ENVENOMED_DAGGER_THROW);
                         _events.ScheduleEvent(EVENT_ENVENOMED_DAGGER_THROW, 10s);
                         break;
@@ -1823,12 +1823,12 @@ class npc_tortured_rifleman : public CreatureScript
                 switch (_events.ExecuteEvent())
                 {
                     case EVENT_SHOOT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_SHOOT);
                         _events.ScheduleEvent(EVENT_SHOOT, 2s);
                         break;
                     case EVENT_CURSED_ARROW:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_CURSED_ARROW);
                         _events.ScheduleEvent(EVENT_CURSED_ARROW, 10s);
                         break;
@@ -1837,7 +1837,7 @@ class npc_tortured_rifleman : public CreatureScript
                         _events.ScheduleEvent(EVENT_FROST_TRAP, 30s);
                         break;
                     case EVENT_ICE_SHOT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_ICE_SHOT);
                         _events.ScheduleEvent(EVENT_ICE_SHOT, 15s);
                         break;
@@ -1927,12 +1927,12 @@ class npc_frostsworn_general : public CreatureScript
                     switch (event)
                     {
                         case EVENT_SHIELD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                                 DoCast(target, SPELL_SHIELD_THROWN);
                             _events.ScheduleEvent(EVENT_SHIELD, 8s, 12s);
                             break;
                         case EVENT_SPIKE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                                 DoCast(target, SPELL_SPIKE);
                             _events.ScheduleEvent(EVENT_SPIKE, 15s, 20s);
                             break;
@@ -1950,7 +1950,7 @@ class npc_frostsworn_general : public CreatureScript
             void SummonClones()
             {
                 std::list<Unit*> playerList;
-                SelectTargetList(playerList, 5, SELECT_TARGET_MAXTHREAT, 0, 0.0f, true);
+                SelectTargetList(playerList, 5, SelectTargetMethod::MaxThreat, 0, 0.0f, true);
                 for (Unit* target : playerList)
                 {
                     if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
@@ -2011,7 +2011,7 @@ class npc_spiritual_reflection : public CreatureScript
                 switch (_events.ExecuteEvent())
                 {
                     case EVENT_BALEFUL_STRIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 8.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 8.0f, true))
                             DoCast(target, SPELL_BALEFUL_STRIKE);
                         _events.ScheduleEvent(EVENT_BALEFUL_STRIKE, 3s, 8s);
                         break;
@@ -2076,7 +2076,7 @@ class at_hor_waves_restarter : public AreaTriggerScript
 
             if (_instance->GetData(DATA_INTRO_EVENT) == DONE && _instance->GetBossState(DATA_MARWYN) != DONE)
             {
-                _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES);
+                _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES, nullptr);
 
                 if (Creature* falric = ObjectAccessor::GetCreature(*player, _instance->GetGuidData(DATA_FALRIC)))
                 {
@@ -2156,7 +2156,7 @@ class HoRStartMovementEvent : public BasicEvent
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
-            if (Unit* target = _owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+            if (Unit* target = _owner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 _owner->AI()->AttackStart(target);
             return true;
         }
@@ -2303,17 +2303,17 @@ class npc_risen_witch_doctor : public CreatureScript
                 switch (_events.ExecuteEvent())
                 {
                     case EVENT_RISEN_WITCH_DOCTOR_CURSE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                             DoCast(target, SPELL_CURSE_OF_DOOM);
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_CURSE, 10s, 15s);
                         break;
                     case EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 20.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, 20.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT, 2s, 3s);
                         break;
                     case EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT_VOLLEY:
-                        if (SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        if (SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                             DoCastAOE(SPELL_SHADOW_BOLT_VOLLEY);
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT_VOLLEY, 15s, 22s);
                         break;

@@ -79,7 +79,7 @@ class boss_illucia_barov : public CreatureScript
                             events.ScheduleEvent(EVENT_CURSEOFAGONY, 30s);
                             break;
                         case EVENT_SHADOWSHOCK:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOWSHOCK, true);
+                            DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_SHADOWSHOCK, true);
                             events.ScheduleEvent(EVENT_SHADOWSHOCK, 12s);
                             break;
                         case EVENT_SILENCE:

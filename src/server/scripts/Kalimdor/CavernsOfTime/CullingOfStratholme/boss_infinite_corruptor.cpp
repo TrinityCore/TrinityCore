@@ -69,9 +69,9 @@ class boss_infinite_corruptor : public CreatureScript
                 DoCastAOE(SPELL_CORRUPTION_OF_TIME_CHANNEL); // implicitly targets the Guardian
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_CORRUPTION_OF_TIME_CHANNEL)
+                if (spellInfo->Id == SPELL_CORRUPTION_OF_TIME_CHANNEL)
                     target->CastSpell(target, SPELL_CORRUPTION_OF_TIME_TARGET, true);
             }
 
@@ -103,7 +103,7 @@ class boss_infinite_corruptor : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_CORRUPTING_BLIGHT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                             DoCast(target, SPELL_CORRUPTING_BLIGHT);
                         events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 15s);
                         break;

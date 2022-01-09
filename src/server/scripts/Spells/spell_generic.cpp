@@ -1876,6 +1876,80 @@ class spell_gen_increase_stats_buff : public SpellScriptLoader
         }
 };
 
+enum LichPet
+{
+    NPC_LICH_PET = 36979,
+
+    SPELL_LICH_PET_AURA = 69732,
+    SPELL_LICH_PET_AURA_ONKILL = 69731
+};
+
+// 69732 - Lich Pet Aura
+class spell_gen_lich_pet_aura : public AuraScript
+{
+    PrepareAuraScript(spell_gen_lich_pet_aura);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return (eventInfo.GetProcTarget()->GetTypeId() == TYPEID_PLAYER);
+    }
+
+    void HandleProc(AuraEffect* /* aurEff */, ProcEventInfo& /* eventInfo */)
+    {
+        PreventDefaultAction();
+
+        std::list<TempSummon*> minionList;
+        GetUnitOwner()->GetAllMinionsByEntry(minionList, NPC_LICH_PET);
+        for (Creature* minion : minionList)
+            if (minion->IsAIEnabled())
+                minion->AI()->DoCastSelf(SPELL_LICH_PET_AURA_ONKILL);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_gen_lich_pet_aura::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_gen_lich_pet_aura::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 69735 - Lich Pet OnSummon
+class spell_gen_lich_pet_onsummon : public SpellScript
+{
+    PrepareSpellScript(spell_gen_lich_pet_onsummon);
+
+    bool Validate(SpellInfo const* /* spellInfo */) override
+    {
+        return ValidateSpellInfo({ SPELL_LICH_PET_AURA });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_LICH_PET_AURA, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_lich_pet_onsummon::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 69736 - Lich Pet Aura Remove
+class spell_gen_lich_pet_aura_remove : public SpellScript
+{
+    PrepareSpellScript(spell_gen_lich_pet_aura_remove);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_LICH_PET_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_lich_pet_aura_remove::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum GenericLifebloom
 {
     SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL        = 43422,
@@ -4518,12 +4592,25 @@ class spell_gen_war_mode_enlisted : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_PCT);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_QUEST_PCT);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_MONEY_GAIN);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_ANIMA_GAIN);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_DUMMY);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(m_scriptSpellId, DIFFICULTY_NONE);
+
+        if (spellInfo->HasAura(SPELL_AURA_MOD_XP_PCT))
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_PCT);
+
+        if (spellInfo->HasAura(SPELL_AURA_MOD_XP_QUEST_PCT))
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_XP_QUEST_PCT);
+
+        if (spellInfo->HasAura(SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE))
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE);
+
+        if (spellInfo->HasAura(SPELL_AURA_MOD_MONEY_GAIN))
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_MONEY_GAIN);
+
+        if (spellInfo->HasAura(SPELL_AURA_MOD_ANIMA_GAIN))
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_MOD_ANIMA_GAIN);
+
+        if (spellInfo->HasAura(SPELL_AURA_DUMMY))
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_war_mode_enlisted::CalcWarModeBonus, EFFECT_ALL, SPELL_AURA_DUMMY);
     }
 };
 
@@ -4700,6 +4787,9 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_pri_power_word_fortitude");
     new spell_gen_increase_stats_buff("spell_pri_shadow_protection");
     RegisterAuraScript(spell_gen_interrupt);
+    RegisterAuraScript(spell_gen_lich_pet_aura);
+    RegisterSpellScript(spell_gen_lich_pet_onsummon);
+    RegisterSpellScript(spell_gen_lich_pet_aura_remove);
     new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);

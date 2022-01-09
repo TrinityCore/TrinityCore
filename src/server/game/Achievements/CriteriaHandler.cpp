@@ -541,6 +541,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::PVPKillInArea:
             case CriteriaType::WinArena: // This also behaves like CriteriaType::WinAnyRankedArena
             case CriteriaType::Login:
+            case CriteriaType::BattlePetReachLevel:
+            case CriteriaType::ActivelyEarnPetLevel:
             case CriteriaType::PlaceGarrisonBuilding:
             case CriteriaType::ActivateAnyGarrisonBuilding:
             case CriteriaType::HonorLevelIncrease:
@@ -789,9 +791,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::CompleteScenario:
             case CriteriaType::AccountObtainPetThroughBattle:
             case CriteriaType::WinPetBattle:
-            case CriteriaType::BattlePetReachLevel:
             case CriteriaType::PlayerObtainPetThroughBattle:
-            case CriteriaType::ActivelyEarnPetLevel:
             case CriteriaType::EnterArea:
             case CriteriaType::LeaveArea:
             case CriteriaType::DefeatDungeonEncounter:
@@ -1203,6 +1203,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::CurrencyGained:
         case CriteriaType::PlaceGarrisonBuilding:
         case CriteriaType::UniquePetsOwned:
+        case CriteriaType::BattlePetReachLevel:
+        case CriteriaType::ActivelyEarnPetLevel:
         case CriteriaType::LearnAnyTransmogInSlot:
         case CriteriaType::ParagonLevelIncreaseWithFaction:
         case CriteriaType::PlayerHasEarnedHonor:
@@ -1629,9 +1631,15 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (miscValue1 != uint32(criteria->Entry->Asset.TransmogSetGroupID))
                 return false;
             break;
+        case CriteriaType::BattlePetReachLevel:
+        case CriteriaType::ActivelyEarnPetLevel:
+            if (!miscValue1 || !miscValue2 || miscValue2 != uint32(criteria->Entry->Asset.PetLevel))
+                return false;
+            break;
         case CriteriaType::ActivelyReachLevel:
             if (!miscValue1 || miscValue1 != uint32(criteria->Entry->Asset.PlayerLevel))
                 return false;
+            break;
         default:
             break;
     }

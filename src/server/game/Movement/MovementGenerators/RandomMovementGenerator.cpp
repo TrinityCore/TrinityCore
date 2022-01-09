@@ -182,7 +182,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     }
 
     // Call for creature group update
-    owner->SignalFormationMovement(position);
+    owner->SignalFormationMovement();
 }
 
 template<class T>

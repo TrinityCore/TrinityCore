@@ -122,16 +122,16 @@ public:
                 switch (urand(0, 2))
                 {
                     case 0:
-                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                        SummonSpawn(SelectTarget(SelectTargetMethod::Random, 0));
                         break;
                     case 1:
-                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM, 0));
-                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                        SummonSpawn(SelectTarget(SelectTargetMethod::Random, 0));
+                        SummonSpawn(SelectTarget(SelectTargetMethod::Random, 0));
                         break;
                     case 2:
-                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM, 0));
-                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM, 0));
-                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                        SummonSpawn(SelectTarget(SelectTargetMethod::Random, 0));
+                        SummonSpawn(SelectTarget(SelectTargetMethod::Random, 0));
+                        SummonSpawn(SelectTarget(SelectTargetMethod::Random, 0));
                         break;
                 }
                 SpawnSpawns_Timer = urand(30000, 60000);
@@ -143,7 +143,7 @@ public:
             {
                 if (SpawnHatchlings_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     {
                         DoCast(target, SPELL_ROOT);
 

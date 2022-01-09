@@ -90,33 +90,33 @@ enum ScriptTexts
 enum Spells
 {
     // Deathbringer Saurfang
-    SPELL_ZERO_POWER                    = 72242,
-    SPELL_GRIP_OF_AGONY                 = 70572, // Intro
-    SPELL_BLOOD_LINK                    = 72178,
-    SPELL_MARK_OF_THE_FALLEN_CHAMPION_S = 72256,
-    SPELL_RUNE_OF_BLOOD_S               = 72408,
+    SPELL_ZERO_POWER                          = 72242,
+    SPELL_GRIP_OF_AGONY                       = 70572, // Intro
+    SPELL_BLOOD_LINK                          = 72178,
+    SPELL_MARK_OF_THE_FALLEN_CHAMPION_S       = 72256,
+    SPELL_RUNE_OF_BLOOD_S                     = 72408,
 
-    SPELL_SUMMON_BLOOD_BEAST            = 72172,
-    SPELL_SUMMON_BLOOD_BEAST_25_MAN     = 72356, // Additional cast, does not replace
-    SPELL_FRENZY                        = 72737,
-    SPELL_BLOOD_NOVA_TRIGGER            = 72378,
-    SPELL_BLOOD_NOVA                    = 72380,
-    SPELL_BLOOD_POWER                   = 72371,
-    SPELL_BLOOD_LINK_POWER              = 72195,
-    SPELL_BLOOD_LINK_DUMMY              = 72202,
-    SPELL_MARK_OF_THE_FALLEN_CHAMPION   = 72293,
-    SPELL_BOILING_BLOOD                 = 72385,
-    SPELL_RUNE_OF_BLOOD                 = 72410,
+    SPELL_SUMMON_BLOOD_BEAST                  = 72172,
+    SPELL_SUMMON_BLOOD_BEAST_25_MAN           = 72356, // Additional cast, does not replace
+    SPELL_FRENZY                              = 72737,
+    SPELL_BLOOD_NOVA_TRIGGER                  = 72378,
+    SPELL_BLOOD_NOVA                          = 72380,
+    SPELL_BLOOD_POWER                         = 72371,
+    SPELL_BLOOD_LINK_POWER                    = 72195,
+    SPELL_BLOOD_LINK_DUMMY                    = 72202,
+    SPELL_MARK_OF_THE_FALLEN_CHAMPION         = 72293,
+    SPELL_BOILING_BLOOD                       = 72385,
+    SPELL_RUNE_OF_BLOOD                       = 72410,
 
     // Blood Beast
-    SPELL_BLOOD_LINK_BEAST              = 72176,
-    SPELL_RESISTANT_SKIN                = 72723,
-    SPELL_SCENT_OF_BLOOD                = 72769, // Heroic only
+    SPELL_BLOOD_LINK_BEAST                    = 72176,
+    SPELL_RESISTANT_SKIN                      = 72723,
+    SPELL_SCENT_OF_BLOOD                      = 72769, // Heroic only
 
-    SPELL_RIDE_VEHICLE                  = 70640, // Outro
-    SPELL_ACHIEVEMENT                   = 72928,
+    SPELL_RIDE_VEHICLE                        = 70640, // Outro
+    SPELL_ACHIEVEMENT                         = 72928,
     SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION = 72257,
-    SPELL_PERMANENT_FEIGN_DEATH         = 70628,
+    SPELL_PERMANENT_FEIGN_DEATH               = 70628
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
@@ -267,11 +267,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _frenzied = false;
                 _dead = false;
                 me->SetPower(POWER_ENERGY, 0);
-                DoCast(me, SPELL_ZERO_POWER, true);
-                DoCast(me, SPELL_BLOOD_LINK, true);
-                DoCast(me, SPELL_BLOOD_POWER, true);
-                DoCast(me, SPELL_MARK_OF_THE_FALLEN_CHAMPION_S, true);
-                DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
+                DoCastSelf(SPELL_ZERO_POWER, true);
+                DoCastSelf(SPELL_BLOOD_LINK, true);
+                DoCastSelf(SPELL_BLOOD_POWER, true);
+                DoCastSelf(SPELL_MARK_OF_THE_FALLEN_CHAMPION_S, true);
+                DoCastSelf(SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
             }
@@ -297,7 +297,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 me->SetImmuneToPC(false);
                 if (!_introDone)
                 {
-                    DoCast(me, SPELL_GRIP_OF_AGONY);
+                    DoCastSelf(SPELL_GRIP_OF_AGONY);
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SAURFANG_EVENT_NPC)))
                         creature->AI()->DoAction(ACTION_INTERRUPT_INTRO);
                 }
@@ -359,7 +359,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
                 {
                     _frenzied = true;
-                    DoCast(me, SPELL_FRENZY, true);
+                    DoCastSelf(SPELL_FRENZY, true);
                     Talk(SAY_FRENZY);
                 }
 
@@ -370,13 +370,12 @@ class boss_deathbringer_saurfang : public CreatureScript
                     _EnterEvadeMode();
                     me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     me->SetImmuneToPC(true);
-
+                    me->RemoveAurasOnEvade();
                     DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
-                    DoCast(me, SPELL_ACHIEVEMENT, true);
+                    DoCastSelf(SPELL_ACHIEVEMENT, true);
                     Talk(SAY_DEATH);
-
-                    //instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                    DoCast(me, SPELL_PERMANENT_FEIGN_DEATH);
+                    DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
+                    DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SAURFANG_EVENT_NPC)))
                         creature->AI()->DoAction(ACTION_START_OUTRO);
                 }
@@ -384,7 +383,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                 {
                     if (target->GetTransport())
                     {
@@ -415,7 +414,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->HandleGameObject(instance->GetGuidData(GO_SAURFANG_S_DOOR), false);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
                 if (target->GetTransport())
                 {
@@ -423,7 +422,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     return;
                 }
 
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_MARK_OF_THE_FALLEN_CHAMPION:
                         Talk(SAY_MARK_OF_THE_FALLEN_CHAMPION);
@@ -444,9 +443,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_BLOOD_LINK_POWER)
+                if (spellInfo->Id == SPELL_BLOOD_LINK_POWER)
                     if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
                         bloodPower->RecalculateAmountOfEffects();
             }
@@ -476,7 +475,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         case EVENT_INTRO_ALLIANCE_6:
                             Talk(SAY_INTRO_ALLIANCE_6);
                             Talk(SAY_INTRO_ALLIANCE_7);
-                            DoCast(me, SPELL_GRIP_OF_AGONY);
+                            DoCastSelf(SPELL_GRIP_OF_AGONY);
                             break;
                         case EVENT_INTRO_HORDE_2:
                             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
@@ -487,7 +486,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             Talk(SAY_INTRO_HORDE_4);
                             break;
                         case EVENT_INTRO_HORDE_9:
-                            DoCast(me, SPELL_GRIP_OF_AGONY);
+                            DoCastSelf(SPELL_GRIP_OF_AGONY);
                             Talk(SAY_INTRO_HORDE_9);
                             break;
                         case EVENT_INTRO_FINISH:
@@ -497,10 +496,10 @@ class boss_deathbringer_saurfang : public CreatureScript
                             break;
                         case EVENT_SUMMON_BLOOD_BEAST:
                             for (uint32 i10 = 0; i10 < 2; ++i10)
-                                DoCast(me, SPELL_SUMMON_BLOOD_BEAST+i10);
+                                DoCastSelf(SPELL_SUMMON_BLOOD_BEAST+i10);
                             if (Is25ManRaid())
                                 for (uint32 i25 = 0; i25 < 3; ++i25)
-                                    DoCast(me, SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
+                                    DoCastSelf(SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
                             Talk(SAY_BLOOD_BEASTS);
                             events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40s, 0, PHASE_COMBAT);
                             if (IsHeroic())
@@ -515,11 +514,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                             events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, urand(20000, 25000), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BOILING_BLOOD:
-                            DoCast(me, SPELL_BOILING_BLOOD);
+                            DoCastSelf(SPELL_BOILING_BLOOD);
                             events.ScheduleEvent(EVENT_BOILING_BLOOD, urand(15000, 20000), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
+                            DoCastSelf(SPELL_BERSERK);
                             Talk(SAY_BERSERK);
                             break;
                         case EVENT_SCENT_OF_BLOOD:
@@ -584,7 +583,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                         {
                             ++_fallenChampionCastCount;
                             DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -716,9 +715,9 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_GRIP_OF_AGONY)
+                if (spellInfo->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
@@ -923,9 +922,9 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_GRIP_OF_AGONY)
+                if (spellInfo->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
@@ -1005,9 +1004,9 @@ class npc_saurfang_event : public CreatureScript
                 _index = data;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_GRIP_OF_AGONY)
+                if (spellInfo->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[_index]);

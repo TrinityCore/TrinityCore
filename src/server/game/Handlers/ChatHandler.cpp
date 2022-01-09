@@ -66,7 +66,7 @@ inline bool ValidateMessage(Player const* player, std::string& msg)
     {
         if (isNasty(c))
         {
-            TC_LOG_ERROR("network", "Player %s (%s) sent a message containing invalid character %u - blocked", player->GetName().c_str(),
+            TC_LOG_ERROR("network", "Player %s %s sent a message containing invalid character %u - blocked", player->GetName().c_str(),
                 player->GetGUID().ToString().c_str(), uint32(c));
             return false;
         }

@@ -167,6 +167,20 @@ namespace Trinity
         }
 
         /**
+         * @fn void Trinity::Containers::RandomShuffle(Iterator begin, Iterator end)
+         *
+         * @brief Reorder the elements of the iterator range randomly.
+         *
+         * @param begin Beginning of the range to reorder
+         * @param end End of the range to reorder
+         */
+        template<class Iterator>
+        inline void RandomShuffle(Iterator begin, Iterator end)
+        {
+            std::shuffle(begin, end, RandomEngine::Instance());
+        }
+
+        /**
          * @fn void Trinity::Containers::RandomShuffle(C& container)
          *
          * @brief Reorder the elements of the container randomly.
@@ -176,7 +190,7 @@ namespace Trinity
         template<class C>
         inline void RandomShuffle(C& container)
         {
-            std::shuffle(std::begin(container), std::end(container), RandomEngine::Instance());
+            RandomShuffle(std::begin(container), std::end(container));
         }
 
         /**

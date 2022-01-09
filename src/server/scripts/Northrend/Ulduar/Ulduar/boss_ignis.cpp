@@ -225,7 +225,7 @@ class boss_ignis : public CreatureScript
                             events.ScheduleEvent(EVENT_JET, 35s, 40s);
                             break;
                         case EVENT_SLAG_POT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
                             {
                                 Talk(SAY_SLAG_POT);
                                 _slagPotGUID = target->GetGUID();

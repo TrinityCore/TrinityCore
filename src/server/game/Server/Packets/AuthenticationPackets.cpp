@@ -53,7 +53,7 @@ bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
         Read();
         return true;
     }
-    catch (ByteBufferPositionException const& /*ex*/)
+    catch (ByteBufferException const& /*ex*/)
     {
     }
 

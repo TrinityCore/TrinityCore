@@ -51,7 +51,53 @@ if(ASAN)
       -fsanitize-recover=address
       -fsanitize-address-use-after-scope)
 
-  message(STATUS "Clang: Enabled Address Sanitizer")
+  message(STATUS "Clang: Enabled Address Sanitizer ASan")
+endif()
+
+if(MSAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=memory
+      -fsanitize-memory-track-origins
+      -mllvm
+      -msan-keep-going=1)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=memory
+      -fsanitize-memory-track-origins)
+
+  message(STATUS "Clang: Enabled Memory Sanitizer MSan")
+endif()
+
+if(UBSAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=undefined)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=undefined)
+
+  message(STATUS "Clang: Enabled Undefined Behavior Sanitizer UBSan")
+endif()
+
+if(TSAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=thread)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=thread)
+
+  message(STATUS "Clang: Enabled Thread Sanitizer TSan")
 endif()
 
 # -Wno-narrowing needed to suppress a warning in g3d
@@ -62,7 +108,7 @@ target_compile_options(trinity-compile-option-interface
     -Wno-narrowing
     -Wno-deprecated-register)
 
-if (BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   # -fPIC is needed to allow static linking in shared libs.
   # -fvisibility=hidden sets the default visibility to hidden to prevent exporting of all symbols.
   target_compile_options(trinity-compile-option-interface

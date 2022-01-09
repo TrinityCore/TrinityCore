@@ -157,6 +157,8 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
     if (vm.count("update-databases-only"))
         return 0;
 
@@ -166,8 +168,6 @@ int main(int argc, char** argv)
 
     // Load IP Location Database
     sIPLocation->Load();
-
-    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
 

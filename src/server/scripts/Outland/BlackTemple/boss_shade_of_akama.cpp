@@ -236,9 +236,9 @@ struct boss_shade_of_akama : public BossAI
         _DespawnAtEvade();
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_AKAMA_SOUL_CHANNEL)
+        if (spellInfo->Id == SPELL_AKAMA_SOUL_CHANNEL)
         {
             events.ScheduleEvent(EVENT_START_CHANNELERS_AND_SPAWNERS, 1s);
             me->SetEmoteState(EMOTE_STATE_NONE);
@@ -247,7 +247,7 @@ struct boss_shade_of_akama : public BossAI
                 AttackStart(akama);
         }
 
-        if (spell->Id == SPELL_AKAMA_SOUL_RETRIEVE)
+        if (spellInfo->Id == SPELL_AKAMA_SOUL_RETRIEVE)
             DoCastSelf(SPELL_AKAMA_SOUL_EXPEL_CHANNEL);
     }
 
@@ -381,9 +381,9 @@ struct npc_akama_shade : public ScriptedAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override { }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_THREAT && !_isInCombat)
+        if (spellInfo->Id == SPELL_THREAT && !_isInCombat)
         {
             _isInCombat = true;
             me->SetWalk(false);

@@ -496,6 +496,13 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
     phaseShift.Flags = flags;
 }
 
+void PhasingHandler::InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid)
+{
+    ASSERT(phaseShift.IsDbPhaseShift);
+    ASSERT(phaseShift.HasPersonalPhase());
+    phaseShift.PersonalGuid = personalGuid;
+}
+
 void PhasingHandler::InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId)
 {
     phaseShift.VisibleMapIds.clear();
@@ -551,9 +558,18 @@ void PhasingHandler::SetInversed(WorldObject* object, bool apply, bool updateVis
     UpdateVisibilityIfNeeded(object, updateVisibility, true);
 }
 
-void PhasingHandler::PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift)
+void PhasingHandler::PrintToChat(ChatHandler* chat, WorldObject const* target)
 {
-    chat->PSendSysMessage(LANG_PHASESHIFT_STATUS, phaseShift.Flags.AsUnderlyingType(), phaseShift.PersonalGuid.ToString().c_str());
+    PhaseShift const& phaseShift = target->GetPhaseShift();
+
+    std::string phaseOwnerName = "N/A";
+    if (phaseShift.HasPersonalPhase())
+        if (WorldObject* personalGuid = ObjectAccessor::GetWorldObject(*target, phaseShift.PersonalGuid))
+            phaseOwnerName = personalGuid->GetName();
+
+    chat->PSendSysMessage(LANG_PHASESHIFT_STATUS, phaseShift.Flags.AsUnderlyingType(),
+        phaseShift.PersonalGuid.ToString().c_str(), phaseOwnerName.c_str());
+
     if (!phaseShift.Phases.empty())
     {
         std::ostringstream phases;
@@ -599,6 +615,14 @@ std::string PhasingHandler::FormatPhases(PhaseShift const& phaseShift)
         phases << phase.Id << ',';
 
     return phases.str();
+}
+
+bool PhasingHandler::IsPersonalPhase(uint32 phaseId)
+{
+    if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
+        return phase->GetFlags().HasFlag(PhaseEntryFlags::Personal);
+
+    return false;
 }
 
 void PhasingHandler::UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed)

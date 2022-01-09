@@ -198,7 +198,7 @@ public:
 
                     for (uint8 i = 0; i < 10; ++i)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
                                 Murloc->AI()->AttackStart(target);
                     }
@@ -229,7 +229,7 @@ public:
                         Unit* target;
                         do
                         {
-                            target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                            target = SelectTarget(SelectTargetMethod::Random, 1, 50, true);    //target players only
                             if (counter < Playercount)
                                 break;
                             if (target)
@@ -267,7 +267,7 @@ public:
                         Unit* pGlobuleTarget;
                         do
                         {
-                            pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
+                            pGlobuleTarget = SelectTarget(SelectTargetMethod::Random, 0, 50, true);
                             if (pGlobuleTarget)
                                 itr = globules.find(pGlobuleTarget->GetGUID());
                             if (counter > Playercount)

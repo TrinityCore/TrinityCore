@@ -265,5 +265,5 @@ void WardenMac::HandleData(ByteBuffer &buff)
         //found = true;
     }
 
-    _session->KickPlayer();
+    _session->KickPlayer("WardenMac::HandleData");
 }

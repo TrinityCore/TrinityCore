@@ -92,9 +92,9 @@ struct boss_najentus : public BossAI
         Talk(SAY_DEATH);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
+        if (spellInfo->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
         {
             me->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
             DoCastSelf(SPELL_TIDAL_BURST, true);
@@ -151,7 +151,7 @@ struct boss_najentus : public BossAI
                 DoCastSelf(SPELL_BERSERK, true);
                 break;
             case EVENT_SPINE:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 200.0f, true))
                 {
                     DoCast(target, SPELL_IMPALING_SPINE, true);
                     _spineTargetGUID = target->GetGUID();

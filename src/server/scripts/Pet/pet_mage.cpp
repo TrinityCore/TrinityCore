@@ -174,7 +174,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
             bool CanAIAttack(Unit const* who) const override
             {
                 Unit* owner = me->GetOwner();
-                return owner && who->IsAlive() &&
+                return owner && who->IsAlive() && me->IsValidAttackTarget(who) &&
                     !who->HasBreakableByDamageCrowdControlAura() &&
                     who->IsInCombatWith(owner) && ScriptedAI::CanAIAttack(who);
             }

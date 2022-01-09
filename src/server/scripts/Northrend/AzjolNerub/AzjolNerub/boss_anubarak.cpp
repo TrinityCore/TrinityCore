@@ -361,9 +361,9 @@ public:
                 }
         }
 
-        void SpellHit(Unit* /*whose*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_SUBMERGE)
+            if (spellInfo->Id == SPELL_SUBMERGE)
             {
                 me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                 me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);

@@ -75,11 +75,19 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     owner->CombatStopWithPets();
     owner->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT));
 
+    uint32 end = GetPathAtMapEnd();
+    uint32 currentNodeId = GetCurrentNode();
+
+    if (currentNodeId == end)
+    {
+        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. %s", owner->GetDebugInfo().c_str());
+        return;
+    }
+
     Movement::MoveSplineInit init(owner);
     // Providing a starting vertex since the taxi paths do not provide such
     init.Path().push_back(G3D::Vector3(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ()));
-    uint32 end = GetPathAtMapEnd();
-    for (uint32 i = GetCurrentNode(); i != end; ++i)
+    for (uint32 i = currentNodeId; i != end; ++i)
     {
         G3D::Vector3 vertice(_path[i]->Loc.X, _path[i]->Loc.Y, _path[i]->Loc.Z);
         init.Path().push_back(vertice);

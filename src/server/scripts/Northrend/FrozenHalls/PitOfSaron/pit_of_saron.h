@@ -85,8 +85,8 @@ enum POSCreatureIds
     NPC_RESCUED_SLAVE_HORDE                     = 36889,
     NPC_MARTIN_VICTUS_1                         = 37591,
     NPC_MARTIN_VICTUS_2                         = 37580,
-    NPC_GORKUN_IRONSKULL_1                      = 37581,
-    NPC_GORKUN_IRONSKULL_2                      = 37592,
+    NPC_GORKUN_IRONSKULL_1                      = 37592,
+    NPC_GORKUN_IRONSKULL_2                      = 37581,
 
     NPC_FORGEMASTER_STALKER                     = 36495,
     NPC_EXPLODING_ORB                           = 36610,

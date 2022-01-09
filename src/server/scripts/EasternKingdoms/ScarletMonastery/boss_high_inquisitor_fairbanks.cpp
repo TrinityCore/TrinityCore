@@ -133,17 +133,17 @@ struct boss_high_inquisitor_fairbanks : public BossAI
                 events.Repeat(25s);
                 break;
             case EVENT_DIPEL_MAGIC:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, HighInquisitorFairbanksDispelMagicTargetSelector(me)))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, HighInquisitorFairbanksDispelMagicTargetSelector(me)))
                     DoCast(target, SPELL_DISPEL_MAGIC);
                 events.Repeat(30s);
                 break;
             case EVENT_FEAR:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 20.f, true))
                     DoCast(target, SPELL_FEAR);
                 events.Repeat(40s);
                 break;
             case EVENT_SLEEP:
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 30.f, true, false))
+                if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, 30.f, true, false))
                     DoCast(target, SPELL_SLEEP);
                 events.Repeat(30s);
             default:
