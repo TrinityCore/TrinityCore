@@ -279,7 +279,7 @@ TransmogResult Transmogrification::CannotTransmogrifyItemWithItem(Player* player
             return TransmogResult_ArmorTypesDontMatch;
         if (source->Class == ITEM_CLASS_WEAPON && !AllowMixedWeaponTypes)
             return TransmogResult_WeaponTypesDontMatch;
-        if (!IsMeleeWeapon(target)) // Wands and thrown should not be transmogrifiable with other items like swords etc.
+        if (source->Class == ITEM_CLASS_WEAPON && !IsMeleeWeapon(target)) // Wands and thrown should not be transmogrifiable with other items like swords etc.
             return TransmogResult_WeaponTypesDontMatch;
     }
 
