@@ -339,8 +339,8 @@ namespace WorldPackets
 
         struct GuildRecipesData
         {
-            uint32 SkillLineID;
-            std::array<uint8, GUILD_RECIPES_COUNT> SkillLineBitArray;
+            uint32 SkillLineID = 0;
+            std::array<uint8, GUILD_RECIPES_COUNT> SkillLineBitArray = { };
         };
 
         class GuildKnownRecipes final : public ServerPacket

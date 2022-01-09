@@ -407,7 +407,7 @@ private:
         uint64 GetWeekActivity() const { return m_weekActivity; }
         uint32 GetTotalReputation() const { return m_totalReputation; }
         uint32 GetWeekReputation() const { return m_weekReputation; }
-        GuildMemberProfessionData GetProfessionData(uint8 index) const { return m_professions[index]; }
+        GuildMemberProfessionData const& GetProfessionData(uint8 index) const { return m_professions[index]; }
 
         std::set<uint32> GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }

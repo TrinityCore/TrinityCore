@@ -1555,9 +1555,10 @@ void Guild::HandleRoster(WorldSession* session)
 
         for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
         {
-            memberData.Profession[i].DbID = member->GetProfessionData(i).SkillId;
-            memberData.Profession[i].Step = member->GetProfessionData(i).Step;
-            memberData.Profession[i].Rank = member->GetProfessionData(i).Rank;
+            GuildMemberProfessionData const& profData = member->GetProfessionData(i);
+            memberData.Profession[i].DbID = profData.SkillId;
+            memberData.Profession[i].Step = profData.Step;
+            memberData.Profession[i].Rank = profData.Rank;
         }
 
         memberData.VirtualRealmAddress = 0;
@@ -4027,7 +4028,7 @@ void Guild::SendKnownRecipes(Player const* player)
 
         for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
         {
-            GuildMemberProfessionData prof = member->GetProfessionData(i);
+            GuildMemberProfessionData const& prof = member->GetProfessionData(i);
             if (uint32 skillId = prof.SkillId)
             {
                 uniqueProfessions.insert(skillId);
@@ -4039,13 +4040,10 @@ void Guild::SendKnownRecipes(Player const* player)
 
     for (uint32 skill : uniqueProfessions)
     {
-        WorldPackets::Guild::GuildRecipesData data;
-        data.SkillLineBitArray.fill(0);
+        WorldPackets::Guild::GuildRecipesData& data = packet.Recipes.emplace_back();
         data.SkillLineID = skill;
         for (uint16 i = 0; i < data.SkillLineBitArray.max_size(); i++)
             data.SkillLineBitArray[i] = uniqueBitsMap[skill][i];
-
-        packet.Recipes.push_back(data);
     }
 
     player->SendDirectMessage(packet.Write());
@@ -4059,7 +4057,7 @@ void Guild::SendMembersForRecipe(Player const* player, uint32 skillLineId, uint3
         Member* member = itr.second;
         for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
         {
-            GuildMemberProfessionData prof = member->GetProfessionData(i);
+            GuildMemberProfessionData const& prof = member->GetProfessionData(i);
             if (prof.SkillId == skillLineId)
             {
                 uint16 index = uniqueBit / 8;
@@ -4085,7 +4083,7 @@ void Guild::SendRecipesOfMember(Player const* player, uint32 skillLineId, Object
 
     for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
     {
-        GuildMemberProfessionData prof = member->GetProfessionData(i);
+        GuildMemberProfessionData const& prof = member->GetProfessionData(i);
         if (prof.SkillId == skillLineId)
         {
             packet.SkillLineID = skillLineId;
