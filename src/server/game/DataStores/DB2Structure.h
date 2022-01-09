@@ -3347,6 +3347,8 @@ struct SpellItemEnchantmentEntry
     uint8 ConditionID;
     uint8 MinLevel;
     uint8 MaxLevel;
+
+    EnumFlag<SpellItemEnchantmentFlags> GetFlags() const { return static_cast<SpellItemEnchantmentFlags>(Flags); }
 };
 
 struct SpellItemEnchantmentConditionEntry

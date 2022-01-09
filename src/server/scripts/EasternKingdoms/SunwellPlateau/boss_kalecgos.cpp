@@ -473,12 +473,16 @@ struct boss_sathrovarr : public BossAI
             kalecgos->AI()->EnterEvadeMode(why);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_TAP_CHECK_DAMAGE)
+        Unit* unitCaster = caster->ToUnit();
+        if (!unitCaster)
+            return;
+
+        if (spellInfo->Id == SPELL_TAP_CHECK_DAMAGE)
         {
             DoCastSelf(SPELL_TELEPORT_BACK, true);
-            Unit::Kill(caster, me);
+            Unit::Kill(unitCaster, me);
         }
     }
 
@@ -522,7 +526,7 @@ struct boss_sathrovarr : public BossAI
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, CurseAgonySelector(me)))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, CurseAgonySelector(me)))
                     DoCast(target, SPELL_AGONY_CURSE, args);
                 else
                     DoCastVictim(SPELL_AGONY_CURSE, args);

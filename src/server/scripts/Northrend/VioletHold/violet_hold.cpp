@@ -807,8 +807,12 @@ class npc_violet_hold_teleportation_portal_intro : public CreatureScript
 
                 _scheduler.Schedule(Seconds(15), [this](TaskContext task)
                 {
-                    uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
-                    DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                    // Limit the number of current summons
+                    if (_summons.size() < 3)
+                    {
+                        uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
+                        DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                    }
 
                     task.Repeat();
                 });
@@ -1007,7 +1011,7 @@ class npc_azure_binder : public CreatureScript
 
                     _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_ARCANE_BARRAGE);
                         task.Repeat(Seconds(6));
                     });
@@ -1022,7 +1026,7 @@ class npc_azure_binder : public CreatureScript
 
                     _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                             DoCast(target, SPELL_FROSTBOLT);
                         task.Repeat(Seconds(6));
                     });
@@ -1060,7 +1064,7 @@ class npc_azure_mage_slayer : public CreatureScript
                     _scheduler.Schedule(Seconds(5), [this](TaskContext task)
                     {
                         // wrong spellid?
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_SPELL_LOCK);
                         task.Repeat(Seconds(9));
                     });
@@ -1118,12 +1122,12 @@ class npc_azure_stalker : public CreatureScript
             {
                 _scheduler.Schedule(Seconds(8), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                         DoCast(target, SPELL_TACTICAL_BLINK);
 
                     task.Schedule(Milliseconds(1300), [this](TaskContext /*task*/)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 5.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 5.0f))
                             DoCast(target, SPELL_BACKSTAB);
                     });
 
@@ -1153,14 +1157,14 @@ class npc_azure_spellbreaker : public CreatureScript
                 {
                     _scheduler.Schedule(Seconds(5), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_ARCANE_BLAST);
                         task.Repeat(Seconds(6));
                     });
 
                     _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_SLOW);
                         task.Repeat(Seconds(5));
                     });
@@ -1169,7 +1173,7 @@ class npc_azure_spellbreaker : public CreatureScript
                 {
                     _scheduler.Schedule(Seconds(5), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_CHAINS_OF_ICE);
                         task.Repeat(Seconds(7));
                     });
@@ -1233,7 +1237,7 @@ class npc_azure_sorceror : public CreatureScript
             {
                 _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f))
                         DoCast(target, SPELL_ARCANE_STREAM);
                     task.Repeat(Seconds(5), Seconds(10));
                 });

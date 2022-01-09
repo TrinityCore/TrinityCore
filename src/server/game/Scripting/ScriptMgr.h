@@ -28,6 +28,7 @@ class AreaTriggerAI;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
+class Battlefield;
 class Battleground;
 class BattlegroundMap;
 class Channel;
@@ -470,6 +471,17 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
         void ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger);
 };
 
+class TC_GAME_API BattlefieldScript : public ScriptObject
+{
+    protected:
+
+        BattlefieldScript(char const* name);
+
+    public:
+
+        virtual Battlefield* GetBattlefield() const = 0;
+};
+
 class TC_GAME_API BattlegroundScript : public ScriptObject
 {
     protected:
@@ -760,7 +772,7 @@ class TC_GAME_API GuildScript : public ScriptObject
     public:
 
         // Called when a member is added to the guild.
-        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
+        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8 /*plRank*/) { }
 
         // Called when a member is removed from the guild.
         virtual void OnRemoveMember(Guild* /*guild*/, ObjectGuid /*guid*/, bool /*isDisbanding*/, bool /*isKicked*/) { }
@@ -1016,6 +1028,10 @@ class TC_GAME_API ScriptMgr
 
         bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered);
 
+    public: /* BattlefieldScript */
+
+        Battlefield* CreateBattlefield(uint32 scriptId);
+
     public: /* BattlegroundScript */
 
         Battleground* CreateBattleground(BattlegroundTypeId typeId);
@@ -1116,7 +1132,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* GuildScript */
 
-        void OnGuildAddMember(Guild* guild, Player* player, uint8& plRank);
+        void OnGuildAddMember(Guild* guild, Player* player, uint8 plRank);
         void OnGuildRemoveMember(Guild* guild, ObjectGuid guid, bool isDisbanding, bool isKicked);
         void OnGuildMOTDChanged(Guild* guild, const std::string& newMotd);
         void OnGuildInfoChanged(Guild* guild, const std::string& newInfo);

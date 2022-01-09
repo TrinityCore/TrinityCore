@@ -814,10 +814,10 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             Player* player = caster->ToPlayer();
-            if (!player || !me->IsAlive() || spell->Id != 20804)
+            if (!player || !me->IsAlive() || spellInfo->Id != 20804)
                 return;
 
             if (player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
@@ -1020,9 +1020,9 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_LESSER_HEAL_R2 || spell->Id == SPELL_FORTITUDE_R1)
+            if (spellInfo->Id == SPELL_LESSER_HEAL_R2 || spellInfo->Id == SPELL_FORTITUDE_R1)
             {
                 //not while in combat
                 if (me->IsInCombat())
@@ -1036,16 +1036,16 @@ public:
                 {
                     if (quest && player->GetQuestStatus(quest) == QUEST_STATUS_INCOMPLETE)
                     {
-                        if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                        if (IsHealed && !CanRun && spellInfo->Id == SPELL_FORTITUDE_R1)
                         {
-                            Talk(SAY_THANKS, caster);
+                            Talk(SAY_THANKS, player);
                             CanRun = true;
                         }
-                        else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                        else if (!IsHealed && spellInfo->Id == SPELL_LESSER_HEAL_R2)
                         {
-                            CasterGUID = caster->GetGUID();
+                            CasterGUID = player->GetGUID();
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            Talk(SAY_HEALED, caster);
+                            Talk(SAY_HEALED, player);
                             IsHealed = true;
                         }
                     }
@@ -1140,186 +1140,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_guardianAI(creature);
-    }
-};
-
-/*######
-## npc_sayge
-######*/
-
-enum Sayge
-{
-    GOSSIP_MENU_OPTION_ID_ANSWER_1   = 0,
-    GOSSIP_MENU_OPTION_ID_ANSWER_2   = 1,
-    GOSSIP_MENU_OPTION_ID_ANSWER_3   = 2,
-    GOSSIP_MENU_OPTION_ID_ANSWER_4   = 3,
-    GOSSIP_I_AM_READY_TO_DISCOVER    = 6186,
-    GOSSIP_MENU_OPTION_SAYGE1        = 6185,
-    GOSSIP_MENU_OPTION_SAYGE2        = 6185,
-    GOSSIP_MENU_OPTION_SAYGE3        = 6185,
-    GOSSIP_MENU_OPTION_SAYGE4        = 6185,
-    GOSSIP_MENU_OPTION_SAYGE5        = 6187,
-    GOSSIP_MENU_OPTION_SAYGE6        = 6187,
-    GOSSIP_MENU_OPTION_SAYGE7        = 6187,
-    GOSSIP_MENU_OPTION_SAYGE8        = 6208,
-    GOSSIP_MENU_OPTION_SAYGE9        = 6208,
-    GOSSIP_MENU_OPTION_SAYGE10       = 6208,
-    GOSSIP_MENU_OPTION_SAYGE11       = 6209,
-    GOSSIP_MENU_OPTION_SAYGE12       = 6209,
-    GOSSIP_MENU_OPTION_SAYGE13       = 6209,
-    GOSSIP_MENU_OPTION_SAYGE14       = 6210,
-    GOSSIP_MENU_OPTION_SAYGE15       = 6210,
-    GOSSIP_MENU_OPTION_SAYGE16       = 6210,
-    GOSSIP_MENU_OPTION_SAYGE17       = 6211,
-    GOSSIP_MENU_I_HAVE_LONG_KNOWN    = 7339,
-    GOSSIP_MENU_YOU_HAVE_BEEN_TASKED = 7340,
-    GOSSIP_MENU_SWORN_EXECUTIONER    = 7341,
-    GOSSIP_MENU_DIPLOMATIC_MISSION   = 7361,
-    GOSSIP_MENU_YOUR_BROTHER_SEEKS   = 7362,
-    GOSSIP_MENU_A_TERRIBLE_BEAST     = 7363,
-    GOSSIP_MENU_YOUR_FORTUNE_IS_CAST = 7364,
-    GOSSIP_MENU_HERE_IS_YOUR_FORTUNE = 7365,
-    GOSSIP_MENU_CANT_GIVE_YOU_YOUR   = 7393,
-
-    SPELL_STRENGTH                   = 23735, // +10% Strength
-    SPELL_AGILITY                    = 23736, // +10% Agility
-    SPELL_STAMINA                    = 23737, // +10% Stamina
-    SPELL_SPIRIT                     = 23738, // +10% Spirit
-    SPELL_INTELLECT                  = 23766, // +10% Intellect
-    SPELL_ARMOR                      = 23767, // +10% Armor
-    SPELL_DAMAGE                     = 23768, // +10% Damage
-    SPELL_RESISTANCE                 = 23769, // +25 Magic Resistance (All)
-    SPELL_FORTUNE                    = 23765  // Darkmoon Faire Fortune
-};
-
-class npc_sayge : public CreatureScript
-{
-public:
-    npc_sayge() : CreatureScript("npc_sayge") { }
-
-    struct npc_saygeAI : public ScriptedAI
-    {
-        npc_saygeAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            if (player->GetSpellHistory()->HasCooldown(SPELL_STRENGTH) ||
-                player->GetSpellHistory()->HasCooldown(SPELL_AGILITY) ||
-                player->GetSpellHistory()->HasCooldown(SPELL_STAMINA) ||
-                player->GetSpellHistory()->HasCooldown(SPELL_SPIRIT) ||
-                player->GetSpellHistory()->HasCooldown(SPELL_INTELLECT) ||
-                player->GetSpellHistory()->HasCooldown(SPELL_ARMOR) ||
-                player->GetSpellHistory()->HasCooldown(SPELL_DAMAGE) ||
-                player->GetSpellHistory()->HasCooldown(SPELL_RESISTANCE))
-                SendGossipMenuFor(player, GOSSIP_MENU_CANT_GIVE_YOU_YOUR, me->GetGUID());
-            else
-            {
-                AddGossipItemFor(player, GOSSIP_I_AM_READY_TO_DISCOVER, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, GOSSIP_MENU_I_HAVE_LONG_KNOWN, me->GetGUID());
-            }
-
-            return true;
-        }
-
-        void SendAction(Player* player, uint32 action)
-        {
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE1, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE2, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE3, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE4, GOSSIP_MENU_OPTION_ID_ANSWER_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                    SendGossipMenuFor(player, GOSSIP_MENU_YOU_HAVE_BEEN_TASKED, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE5, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 1, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE6, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE7, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 3, GOSSIP_ACTION_INFO_DEF);
-                    SendGossipMenuFor(player, GOSSIP_MENU_SWORN_EXECUTIONER, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE8, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE9, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 5, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE10, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF);
-                    SendGossipMenuFor(player, GOSSIP_MENU_DIPLOMATIC_MISSION, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 4:
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE11, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 6, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE12, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 7, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE13, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 8, GOSSIP_ACTION_INFO_DEF);
-                    SendGossipMenuFor(player, GOSSIP_MENU_YOUR_BROTHER_SEEKS, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 5:
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE14, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 5, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE15, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE16, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 3, GOSSIP_ACTION_INFO_DEF);
-                    SendGossipMenuFor(player, GOSSIP_MENU_A_TERRIBLE_BEAST, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF:
-                    AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE17, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                    SendGossipMenuFor(player, GOSSIP_MENU_YOUR_FORTUNE_IS_CAST, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 6:
-                    DoCast(player, SPELL_FORTUNE, false);
-                    SendGossipMenuFor(player, GOSSIP_MENU_HERE_IS_YOUR_FORTUNE, me->GetGUID());
-                    break;
-            }
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            uint32 spellId = 0;
-            switch (sender)
-            {
-                case GOSSIP_SENDER_MAIN:
-                    SendAction(player, action);
-                    break;
-                case GOSSIP_SENDER_MAIN + 1:
-                    spellId = SPELL_DAMAGE;
-                    break;
-                case GOSSIP_SENDER_MAIN + 2:
-                    spellId = SPELL_RESISTANCE;
-                    break;
-                case GOSSIP_SENDER_MAIN + 3:
-                    spellId = SPELL_ARMOR;
-                    break;
-                case GOSSIP_SENDER_MAIN + 4:
-                    spellId = SPELL_SPIRIT;
-                    break;
-                case GOSSIP_SENDER_MAIN + 5:
-                    spellId = SPELL_INTELLECT;
-                    break;
-                case GOSSIP_SENDER_MAIN + 6:
-                    spellId = SPELL_STAMINA;
-                    break;
-                case GOSSIP_SENDER_MAIN + 7:
-                    spellId = SPELL_STRENGTH;
-                    break;
-                case GOSSIP_SENDER_MAIN + 8:
-                    spellId = SPELL_AGILITY;
-                    break;
-            }
-
-            if (spellId)
-            {
-                DoCast(player, spellId, false);
-                player->GetSpellHistory()->AddCooldown(spellId, 0, std::chrono::hours(2));
-                SendAction(player, action);
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_saygeAI(creature);
     }
 };
 
@@ -2792,7 +2612,6 @@ void AddSC_npcs_special()
     new npc_injured_patient();
     new npc_garments_of_quests();
     new npc_guardian();
-    new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
     new npc_tournament_mount();

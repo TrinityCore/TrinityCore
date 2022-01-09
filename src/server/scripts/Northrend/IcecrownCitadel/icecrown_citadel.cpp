@@ -477,7 +477,7 @@ class npc_rotting_frost_giant : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, DeathPlagueTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, DeathPlagueTargetSelector(me)))
                             {
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
                                 DoCast(target, SPELL_DEATH_PLAGUE_AURA);
@@ -740,9 +740,9 @@ struct npc_icc_orb_controller : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_ORB_CONTROLLER_ACTIVE)
+        if (spellInfo->Id == SPELL_ORB_CONTROLLER_ACTIVE)
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
                 orb->AI()->SetGUID(caster->GetGUID(), DATA_GUID);
     }
@@ -916,7 +916,7 @@ struct npc_darkfallen_noble : public DarkFallenAI
         AttackSpellId = SPELL_SHADOW_BOLT;
         Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false, -SPELL_CHAINS_OF_SHADOW))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_CHAINS_OF_SHADOW))
                 DoCast(target, SPELL_CHAINS_OF_SHADOW);
         })
         .Schedule(11s, [this](TaskContext summonVampiric)
@@ -976,7 +976,7 @@ struct npc_darkfallen_archmage : public DarkFallenAI
         AttackSpellId = SPELL_FIREBALL;
         Scheduler.Schedule(1s, [this](TaskContext amplifyMagic)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_AMPLIFY_MAGIC);
             amplifyMagic.Repeat(15s, 24s);
         })
@@ -987,7 +987,7 @@ struct npc_darkfallen_archmage : public DarkFallenAI
         })
         .Schedule(17s, [this](TaskContext polymorph)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false, -SPELL_POLYMORPH))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_POLYMORPH))
                 DoCast(target, SPELL_POLYMORPH);
             polymorph.Repeat(25s, 35s);
         });
@@ -1027,7 +1027,7 @@ struct npc_darkfallen_tactician : public DarkFallenAI
         })
         .Schedule(10s, [this](TaskContext shadowStep)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, false))
             {
                 DoCast(target, SPELL_SHADOWSTEP);
                 DoCast(target, SPELL_BLOOD_SAP);

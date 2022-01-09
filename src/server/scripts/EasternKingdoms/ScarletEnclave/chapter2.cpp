@@ -106,6 +106,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
 {
     npc_koltira_deathweaver(Creature* creature) : ScriptedAI(creature), _summons(me)
     {
+        _eventGossip = false;
     }
 
     bool GossipHello(Player* player) override

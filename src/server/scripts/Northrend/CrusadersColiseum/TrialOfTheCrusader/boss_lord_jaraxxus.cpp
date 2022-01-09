@@ -208,12 +208,12 @@ struct boss_jaraxxus : public BossAI
                     events.Repeat(11s, 13s);
                     break;
                 case EVENT_FEL_LIGHTNING:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_FEL_LIGHTNING);
                     events.Repeat(10s, 30s);
                     break;
                 case EVENT_INCINERATE_FLESH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                     {
                         Talk(EMOTE_INCINERATE, target);
                         Talk(SAY_INCINERATE);
@@ -230,7 +230,7 @@ struct boss_jaraxxus : public BossAI
                     break;
                 }
                 case EVENT_LEGION_FLAME:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                     {
                         Talk(EMOTE_LEGION_FLAME, target);
                         DoCast(target, SPELL_LEGION_FLAME);
@@ -350,7 +350,7 @@ struct npc_fel_infernal : public ScriptedAI
 
         _scheduler.Schedule(Seconds(2), [this](TaskContext context)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 DoCast(target, SPELL_FEL_STREAK_VISUAL);
             context.Repeat(Seconds(15));
         });
@@ -441,7 +441,7 @@ struct npc_mistress_of_pain : public ScriptedAI
                     _events.Repeat(3s, 10s);
                     return;
                 case EVENT_SPINNING_SPIKE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_SPINNING_SPIKE);
                     _events.Repeat(20s);
                     return;

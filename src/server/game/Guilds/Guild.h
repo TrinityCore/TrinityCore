@@ -21,6 +21,7 @@
 #include "AchievementMgr.h"
 #include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include <unordered_map>
@@ -68,17 +69,12 @@ enum GuildMemberData
     GUILD_MEMBER_DATA_LEVEL,
 };
 
-enum GuildDefaultRanks
+enum class GuildRankId : uint8
 {
-    // These ranks can be modified, but they cannot be deleted
-    GR_GUILDMASTER  = 0,
-    GR_OFFICER      = 1,
-    GR_VETERAN      = 2,
-    GR_MEMBER       = 3,
-    GR_INITIATE     = 4
-    // When promoting member server does: rank--
-    // When demoting member server does: rank++
+    GuildMaster = 0
 };
+
+enum class GuildRankOrder : uint8 { };
 
 enum GuildRankRights
 {
@@ -311,7 +307,7 @@ class TC_GAME_API Guild
         class Member
         {
             public:
-                Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId);
+                Member(ObjectGuid::LowType guildId, ObjectGuid guid, GuildRankId rankId);
 
                 void SetStats(Player* player);
                 void SetStats(std::string const& name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId, uint32 reputation);
@@ -333,7 +329,7 @@ class TC_GAME_API Guild
                 ObjectGuid const& GetGUID() const { return m_guid; }
                 std::string const& GetName() const { return m_name; }
                 uint32 GetAccountId() const { return m_accountId; }
-                uint8 GetRankId() const { return m_rankId; }
+                GuildRankId GetRankId() const { return m_rankId; }
                 uint64 GetLogoutTime() const { return m_logoutTime; }
                 float GetInactiveDays() const;
                 std::string GetPublicNote() const { return m_publicNote; }
@@ -355,11 +351,10 @@ class TC_GAME_API Guild
 
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
-                void ChangeRank(CharacterDatabaseTransaction& trans, uint8 newRank);
+                void ChangeRank(CharacterDatabaseTransaction& trans, GuildRankId newRank);
 
                 inline void UpdateLogoutTime();
-                inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
-                inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
+                inline bool IsRank(GuildRankId rankId) const { return m_rankId == rankId; }
                 inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
 
                 void UpdateBankTabWithdrawValue(CharacterDatabaseTransaction& trans, uint8 tabId, uint32 amount);
@@ -384,7 +379,7 @@ class TC_GAME_API Guild
                 uint64 m_logoutTime;
                 uint32 m_accountId;
                 // Fields from guild_member table
-                uint8 m_rankId;
+                GuildRankId m_rankId;
                 std::string m_publicNote;
                 std::string m_officerNote;
 
@@ -543,15 +538,18 @@ class TC_GAME_API Guild
         class RankInfo
         {
             public:
-                RankInfo(): m_guildId(UI64LIT(0)), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
-                RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
-                RankInfo(ObjectGuid::LowType guildId, uint8 rankId, std::string const& name, uint32 rights, uint32 money) :
-                    m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
+                RankInfo(): m_guildId(UI64LIT(0)), m_rankId(GuildRankId(0xFF)), m_rankOrder(GuildRankOrder(0)), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
+                RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GuildRankId(0xFF)), m_rankOrder(GuildRankOrder(0)), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
+                RankInfo(ObjectGuid::LowType guildId, GuildRankId rankId, GuildRankOrder rankOrder, std::string const& name, uint32 rights, uint32 money) :
+                    m_guildId(guildId), m_rankId(rankId), m_rankOrder(rankOrder), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
 
                 void LoadFromDB(Field* fields);
                 void SaveToDB(CharacterDatabaseTransaction& trans) const;
 
-                uint8 GetId() const { return m_rankId; }
+                GuildRankId GetId() const { return m_rankId; }
+
+                GuildRankOrder GetOrder() const { return m_rankOrder; }
+                void SetOrder(GuildRankOrder rankOrder) { m_rankOrder = rankOrder; }
 
                 std::string const& GetName() const { return m_name; }
                 void SetName(std::string const& name);
@@ -561,7 +559,7 @@ class TC_GAME_API Guild
 
                 uint32 GetBankMoneyPerDay() const
                 {
-                    return m_rankId != GR_GUILDMASTER ? m_bankMoneyPerDay : GUILD_WITHDRAW_MONEY_UNLIMITED;
+                    return m_rankId != GuildRankId::GuildMaster ? m_bankMoneyPerDay : GUILD_WITHDRAW_MONEY_UNLIMITED;
                 }
 
                 void SetBankMoneyPerDay(uint32 money);
@@ -581,7 +579,8 @@ class TC_GAME_API Guild
 
             private:
                 ObjectGuid::LowType m_guildId;
-                uint8  m_rankId;
+                GuildRankId m_rankId;
+                GuildRankOrder m_rankOrder;
                 std::string m_name;
                 uint32 m_rights;
                 uint32 m_bankMoneyPerDay;
@@ -746,16 +745,17 @@ class TC_GAME_API Guild
         void HandleSetNewGuildMaster(WorldSession* session, std::string const& name, bool isSelfPromote);
         void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
         void HandleSetMemberNote(WorldSession* session, std::string const& note, ObjectGuid guid, bool isPublic);
-        void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec const& rightsAndSlots);
+        void HandleSetRankInfo(WorldSession* session, GuildRankId rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec const& rightsAndSlots);
         void HandleBuyBankTab(WorldSession* session, uint8 tabId);
         void HandleInviteMember(WorldSession* session, std::string const& name);
         void HandleAcceptMember(WorldSession* session);
         void HandleLeaveMember(WorldSession* session);
         void HandleRemoveMember(WorldSession* session, ObjectGuid guid);
         void HandleUpdateMemberRank(WorldSession* session, ObjectGuid guid, bool demote);
-        void HandleSetMemberRank(WorldSession* session, ObjectGuid guid, ObjectGuid setterGuid, uint32 rank);
+        void HandleSetMemberRank(WorldSession* session, ObjectGuid guid, ObjectGuid setterGuid, GuildRankOrder rank);
         void HandleAddNewRank(WorldSession* session, std::string const& name);
-        void HandleRemoveRank(WorldSession* session, uint8 rankId);
+        void HandleRemoveRank(WorldSession* session, GuildRankOrder rankOrder);
+        void HandleShiftRank(WorldSession* session, GuildRankOrder rankOrder, bool shiftUp);
         void HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow = false);
         bool HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair = false);
         void HandleMemberLogout(WorldSession* session);
@@ -801,11 +801,11 @@ class TC_GAME_API Guild
         // Broadcasts
         void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, uint32 language = LANG_UNIVERSAL) const;
         void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string const& msg, std::string const& prefix, bool isLogged) const;
-        void BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const;
+        void BroadcastPacketToRank(WorldPacket const* packet, GuildRankId rankId) const;
         void BroadcastPacket(WorldPacket const* packet) const;
         void BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const;
 
-        void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank);
+        void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, GuildRankOrder minRank);
 
         template<class Do>
         void BroadcastWorker(Do& _do, Player* except = nullptr)
@@ -818,9 +818,9 @@ class TC_GAME_API Guild
 
         // Members
         // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
-        bool AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
+        bool AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, Optional<GuildRankId> rankId = {});
         void DeleteMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
-        bool ChangeMemberRank(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 newRank);
+        bool ChangeMemberRank(CharacterDatabaseTransaction& trans, ObjectGuid guid, GuildRankId newRank);
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
 
@@ -869,11 +869,13 @@ class TC_GAME_API Guild
 
     private:
         inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
-        inline RankInfo const* GetRankInfo(uint8 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
-        inline RankInfo* GetRankInfo(uint8 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
+        RankInfo const* GetRankInfo(GuildRankId rankId) const;
+        RankInfo* GetRankInfo(GuildRankId rankId);
+        RankInfo const* GetRankInfo(GuildRankOrder rankOrder) const;
+        RankInfo* GetRankInfo(GuildRankOrder rankOrder);
         bool _HasRankRight(Player const* player, uint32 right) const;
 
-        inline uint8 _GetLowestRankId() const { return uint8(m_ranks.size() - 1); }
+        inline GuildRankId _GetLowestRankId() const { return m_ranks.back().GetId(); }
 
         inline uint8 _GetPurchasedTabsSize() const { return uint8(m_bankTabs.size()); }
         inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : nullptr; }
@@ -917,13 +919,13 @@ class TC_GAME_API Guild
         bool _ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add);
         void _SetLeader(CharacterDatabaseTransaction& trans, Member* leader);
 
-        void _SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay);
-        void _SetRankBankTabRightsAndSlots(uint8 rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true);
-        int8 _GetRankBankTabRights(uint8 rankId, uint8 tabId) const;
-        uint32 _GetRankRights(uint8 rankId) const;
-        uint32 _GetRankBankMoneyPerDay(uint8 rankId) const;
-        int32 _GetRankBankTabSlotsPerDay(uint8 rankId, uint8 tabId) const;
-        std::string _GetRankName(uint8 rankId) const;
+        void _SetRankBankMoneyPerDay(GuildRankId rankId, uint32 moneyPerDay);
+        void _SetRankBankTabRightsAndSlots(GuildRankId rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true);
+        int8 _GetRankBankTabRights(GuildRankId rankId, uint8 tabId) const;
+        uint32 _GetRankRights(GuildRankId rankId) const;
+        uint32 _GetRankBankMoneyPerDay(GuildRankId rankId) const;
+        int32 _GetRankBankTabSlotsPerDay(GuildRankId rankId, uint8 tabId) const;
+        std::string _GetRankName(GuildRankId rankId) const;
 
         int32 _GetMemberRemainingSlots(Member const* member, uint8 tabId) const;
         int64 _GetMemberRemainingMoney(Member const* member) const;
@@ -940,6 +942,6 @@ class TC_GAME_API Guild
 
         void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
         void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
-        void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank);
+        void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, GuildRankId rank);
 };
 #endif

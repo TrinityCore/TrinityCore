@@ -136,6 +136,9 @@ void Metric::SendBatch()
         if (!_realmName.empty())
             batchedData << ",realm=" << _realmName;
 
+        for (MetricTag const& tag : data->Tags)
+            batchedData << "," << tag.first << "=" << tag.second;
+
         batchedData << " ";
 
         switch (data->Type)

@@ -182,7 +182,7 @@ class boss_corborus : public CreatureScript
                             events.ScheduleEvent(EVENT_DAMPENING_WAVE, 15000);
                             break;
                         case EVENT_CRYSTAL_BARRAGE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_BARRAGE);
                             events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 10000);
                             break;
@@ -202,7 +202,7 @@ class boss_corborus : public CreatureScript
                             events.ScheduleEvent(EVENT_TELEPORT, 500);
                             break;
                         case EVENT_TELEPORT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_TRASHING_CHARGE_TELEPORT);
                             countTrashingCharge += 1;
                             if (countTrashingCharge <= 4)

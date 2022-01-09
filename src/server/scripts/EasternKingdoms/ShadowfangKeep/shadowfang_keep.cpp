@@ -249,9 +249,9 @@ class boss_archmage_arugal : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_ARUGAL_CURSE)
+                if (spellInfo->Id == SPELL_ARUGAL_CURSE)
                     Talk(SAY_TRANSFORM);
             }
 
@@ -285,7 +285,7 @@ class boss_archmage_arugal : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CURSE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 30.0f, true))
                                 DoCast(target, SPELL_ARUGAL_CURSE);
                             events.Repeat(Seconds(15));
                             break;

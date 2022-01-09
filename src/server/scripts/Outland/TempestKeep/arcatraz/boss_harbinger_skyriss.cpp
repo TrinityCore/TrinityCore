@@ -129,7 +129,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 else
                     summon->SetHealth(summon->CountPctFromMaxHealth(66));
                 if (me->GetVictim())
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         summon->AI()->AttackStart(target);
 
                 summons.Summon(summon);
@@ -209,7 +209,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
                 if (MindRend_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_MIND_REND);
                     else
                         DoCastVictim(SPELL_MIND_REND);
@@ -226,7 +226,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
                     Talk(SAY_FEAR);
 
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_FEAR);
                     else
                         DoCastVictim(SPELL_FEAR);
@@ -243,7 +243,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
                     Talk(SAY_MIND);
 
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_DOMINATION);
                     else
                         DoCastVictim(SPELL_DOMINATION);
@@ -260,7 +260,7 @@ class boss_harbinger_skyriss : public CreatureScript
                         if (me->IsNonMeleeSpellCast(false))
                             return;
 
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                             DoCast(target, H_SPELL_MANA_BURN);
 
                         ManaBurn_Timer = 16000 + rand32() % 16000;

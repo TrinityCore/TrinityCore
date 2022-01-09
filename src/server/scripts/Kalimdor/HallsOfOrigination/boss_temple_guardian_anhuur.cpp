@@ -224,9 +224,9 @@ public:
                         break;
                     case EVENT_BURNING_LIGHT:
                     {
-                        Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
+                        Unit* unit = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me));
                         if (!unit)
-                            unit = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            unit = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
                         DoCast(unit, SPELL_BURNING_LIGHT);
                         events.ScheduleEvent(EVENT_SEAR, 2000);
                         events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);

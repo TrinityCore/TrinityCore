@@ -46,31 +46,25 @@ enum Spells
 
     /* baron */
     SPELL_BARON_MARK       = 28834,
-    SPELL_UNHOLY_SHADOW    = 28882,
 
     /* thane */
     SPELL_THANE_MARK       = 28832,
-    SPELL_METEOR           = 28884,
 
     /* lady */
-    SPELL_SHADOW_BOLT      = 57374,
     SPELL_LADY_MARK        = 28833,
-    SPELL_VOID_ZONE        = 28863,
     SPELL_UNYIELDING_PAIN  = 57381,
 
     /* sir */
-    SPELL_HOLY_BOLT        = 57376,
     SPELL_SIR_MARK         = 28835,
-    SPELL_HOLY_WRATH       = 28883,
     SPELL_CONDEMNATION     = 57377
 };
 
-#define SPELL_HELPER_UNHOLY_SHADOW RAID_MODE<uint32>(28882, 57369) // Rivendare: Unholy Shadow
-#define SPELL_HELPER_METEOR RAID_MODE<uint32>(28884, 57467) // Korth'azz: Meteor
-#define SPELL_HELPER_SHADOW_BOLT RAID_MODE<uint32>(57374, 57464) // Blaumeux : Shadow Bolt
-#define SPELL_HELPER_VOID_ZONE RAID_MODE<uint32>(28863, 57463) // Blaumeux : Void Zone
-#define SPELL_HELPER_HOLY_BOLT RAID_MODE<uint32>(57376, 57465) // Zeliek : Holy Bolt
-#define SPELL_HELPER_HOLY_WRATH RAID_MODE<uint32>(28883, 57466) // Zeliek: Holy Wrath
+#define SPELL_UNHOLY_SHADOW RAID_MODE<uint32>(28882, 57369) // Rivendare: Unholy Shadow
+#define SPELL_METEOR RAID_MODE<uint32>(28884, 57467) // Korth'azz: Meteor
+#define SPELL_SHADOW_BOLT RAID_MODE<uint32>(57374, 57464) // Blaumeux : Shadow Bolt
+#define SPELL_VOID_ZONE RAID_MODE<uint32>(28863, 57463) // Blaumeux : Void Zone
+#define SPELL_HOLY_BOLT RAID_MODE<uint32>(57376, 57465) // Zeliek : Holy Bolt
+#define SPELL_HOLY_WRATH RAID_MODE<uint32>(28883, 57466) // Zeliek: Holy Wrath
 
 enum Actions
 {
@@ -439,7 +433,7 @@ class boss_four_horsemen_baron : public CreatureScript
                             events.Repeat(Seconds(12));
                             break;
                         case EVENT_UNHOLYSHADOW:
-                            DoCastVictim(SPELL_HELPER_UNHOLY_SHADOW);
+                            DoCastVictim(SPELL_UNHOLY_SHADOW);
                             events.Repeat(randtime(Seconds(10), Seconds(30)));
                             break;
                     }
@@ -450,9 +444,9 @@ class boss_four_horsemen_baron : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_HELPER_UNHOLY_SHADOW)
+                if (spellInfo->Id == SPELL_UNHOLY_SHADOW)
                     Talk(SAY_SPECIAL);
             }
         };
@@ -511,9 +505,9 @@ class boss_four_horsemen_thane : public CreatureScript
                             events.Repeat(Seconds(12));
                             break;
                         case EVENT_METEOR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, true))
                             {
-                                DoCast(target, SPELL_HELPER_METEOR);
+                                DoCast(target, SPELL_METEOR);
                                 _shouldSay = true;
                             }
                             events.Repeat(randtime(Seconds(13), Seconds(17)));
@@ -526,9 +520,9 @@ class boss_four_horsemen_thane : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (_shouldSay && spell->Id == SPELL_HELPER_METEOR)
+                if (_shouldSay && spellInfo->Id == SPELL_METEOR)
                 {
                     Talk(SAY_SPECIAL);
                     _shouldSay = false;
@@ -586,9 +580,9 @@ class boss_four_horsemen_lady : public CreatureScript
                             events.Repeat(Seconds(15));
                             break;
                         case EVENT_VOIDZONE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                             {
-                                DoCast(target, SPELL_HELPER_VOID_ZONE, true);
+                                DoCast(target, SPELL_VOID_ZONE, true);
                                 Talk(SAY_SPECIAL);
                             }
                             events.Repeat(randtime(Seconds(12), Seconds(18)));
@@ -599,8 +593,8 @@ class boss_four_horsemen_lady : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
-                    DoCast(target, SPELL_HELPER_SHADOW_BOLT);
+                if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
+                    DoCast(target, SPELL_SHADOW_BOLT);
                 else
                 {
                     DoCastAOE(SPELL_UNYIELDING_PAIN);
@@ -656,9 +650,9 @@ class boss_four_horsemen_sir : public CreatureScript
                             events.Repeat(Seconds(15));
                             break;
                         case EVENT_HOLYWRATH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
                             {
-                                DoCast(target, SPELL_HELPER_HOLY_WRATH, true);
+                                DoCast(target, SPELL_HOLY_WRATH, true);
                                 _shouldSay = true;
                             }
                             events.Repeat(randtime(Seconds(10), Seconds(18)));
@@ -669,8 +663,8 @@ class boss_four_horsemen_sir : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
-                    DoCast(target, SPELL_HELPER_HOLY_BOLT);
+                if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 45.0f, true))
+                    DoCast(target, SPELL_HOLY_BOLT);
                 else
                 {
                     DoCastAOE(SPELL_CONDEMNATION);
@@ -678,9 +672,9 @@ class boss_four_horsemen_sir : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (_shouldSay && spell->Id == SPELL_HELPER_HOLY_WRATH)
+                if (_shouldSay && spellInfo->Id == SPELL_HOLY_WRATH)
                 {
                     Talk(SAY_SPECIAL);
                     _shouldSay = false;

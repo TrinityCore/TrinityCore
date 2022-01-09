@@ -92,9 +92,9 @@ public:
             Talk(SAY_AGGRO);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_BROKEN_PACT)
+            if (spellInfo->Id == SPELL_BROKEN_PACT)
                 events.ScheduleEvent(EVENT_SUMMON_KILREK, 32s);
         }
 
@@ -117,7 +117,7 @@ public:
             switch (eventId)
             {
                 case EVENT_SACRIFICE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         DoCast(target, SPELL_SACRIFICE, true);
                         target->CastSpell(target, SPELL_SUMMON_DEMONCHAINS, true);
@@ -126,7 +126,7 @@ public:
                     events.Repeat(Seconds(42));
                     break;
                 case EVENT_SHADOWBOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
                         DoCast(target, SPELL_SHADOW_BOLT);
                     events.Repeat(Seconds(4), Seconds(10));
                     break;

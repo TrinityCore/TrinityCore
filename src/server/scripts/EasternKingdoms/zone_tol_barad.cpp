@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldTB.h"
+#include "Battlefield/BattlefieldTB.h"
 #include "DB2Stores.h"
 #include "ObjectMgr.h"
 #include "Player.h"

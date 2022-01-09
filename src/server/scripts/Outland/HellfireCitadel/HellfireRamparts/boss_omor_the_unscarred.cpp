@@ -104,7 +104,7 @@ class boss_omor_the_unscarred : public CreatureScript
             {
                 Talk(SAY_SUMMON);
 
-                if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* random = SelectTarget(SelectTargetMethod::Random, 0))
                     summoned->AI()->AttackStart(random);
 
                 ++SummonedCount;
@@ -160,7 +160,7 @@ class boss_omor_the_unscarred : public CreatureScript
                         Unit* temp = nullptr;
                         if (me->IsWithinMeleeRange(me->GetVictim()))
                             temp = me->GetVictim();
-                        else temp = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        else temp = SelectTarget(SelectTargetMethod::Random, 0);
 
                         if (temp && temp->GetTypeId() == TYPEID_PLAYER)
                         {
@@ -190,7 +190,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 {
                     Talk(SAY_CURSE);
 
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         DoCast(target, SPELL_TREACHEROUS_AURA);
                         Aura_Timer = 8000 + rand32() % 8000;
@@ -201,7 +201,7 @@ class boss_omor_the_unscarred : public CreatureScript
 
                 if (Shadowbolt_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         target = me->GetVictim();
 

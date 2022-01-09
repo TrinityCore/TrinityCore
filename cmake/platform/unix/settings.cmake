@@ -1,13 +1,7 @@
 # set default configuration directory
-if( NOT CONF_DIR )
+if(NOT CONF_DIR)
   set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
   message(STATUS "UNIX: Using default configuration directory")
-endif()
-
-# set default library directory
-if( NOT LIBSDIR )
-  set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
-  message(STATUS "UNIX: Using default library directory")
 endif()
 
 # configure uninstaller
