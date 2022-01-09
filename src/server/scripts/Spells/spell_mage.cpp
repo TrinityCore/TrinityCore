@@ -529,10 +529,9 @@ class spell_mage_fireball : public SpellScript
 
     void HandleCritChance(Unit const* victim, float& critChance)
     {
-        if (Aura* aura = GetCaster()->GetAura(SPELL_MAGE_FIRESTARTER))
-            if (AuraEffect* aurEff = aura->GetEffect(EFFECT_0))
-                if (victim->GetHealthPct() >= aurEff->GetAmount())
-                    critChance = 100.0f;
+        if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_FIRESTARTER, EFFECT_0))
+            if (victim->GetHealthPct() >= aurEff->GetAmount())
+                critChance = 100.0f;
     }
 
     void Register() override
@@ -934,10 +933,10 @@ class spell_mage_pyroblast : public SpellScript
 
     void HandleCritChance(Unit const* victim, float& critChance)
     {
-        if (Aura* aura = GetCaster()->GetAura(SPELL_MAGE_FIRESTARTER))
-            if (AuraEffect* aurEff = aura->GetEffect(EFFECT_0))
-                if (victim->GetHealthPct() >= aurEff->GetAmount())
-                    critChance = 100.0f;
+
+        if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_FIRESTARTER, EFFECT_0))
+            if (victim->GetHealthPct() >= aurEff->GetAmount())
+                critChance = 100.0f;
     }
 
     void Register() override
