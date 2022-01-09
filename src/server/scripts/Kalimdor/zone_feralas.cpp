@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "SpellScript.h"
+#include "Unit.h"
 
 enum GordunniTrapSpells
 {
@@ -35,15 +35,15 @@ class spell_gordunni_trap : public SpellScript
         return ValidateSpellInfo({ SPELL_GORDUNNI_DIRT_MOUND_CHEST, SPELL_GORDUNNI_DIRT_MOUND_JUNK });
     }
 
-    void HandleDummy()
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GameObject* caster = GetGObjCaster();
-        caster->CastSpell(caster, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK);
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK);
     }
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_gordunni_trap::HandleDummy);
+        OnEffectHitTarget += SpellEffectFn(spell_gordunni_trap::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

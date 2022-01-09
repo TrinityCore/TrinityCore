@@ -530,7 +530,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_UNIT_FIELD_BYTES_1             = 90,     // bytes, target
     SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
     SMART_ACTION_INTERRUPT_SPELL                    = 92,
-    SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
+    SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // UNUSED, DO NOT REUSE
     SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // UNUSED, DO NOT REUSE
     SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // UNUSED, DO NOT REUSE
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // UNUSED, DO NOT REUSE
@@ -585,8 +585,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
     SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
     SMART_ACTION_ACTIVATE_GAMEOBJECT                = 147,    // GameObjectActions
+    SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 148,    // varID
 
-    SMART_ACTION_END                                = 148
+    SMART_ACTION_END                                = 149
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -964,11 +965,6 @@ struct SmartAction
 
         struct
         {
-            uint32 anim;
-        } sendGoCustomAnim;
-
-        struct
-        {
             uint32 speedxy;
             uint32 speedz;
         } jump;
@@ -1172,6 +1168,11 @@ struct SmartAction
         {
             uint32 gameObjectAction;
         } activateGameObject;
+
+        struct
+        {
+            uint32 id;
+        } addToStoredTargets;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
@@ -1589,6 +1590,8 @@ class ObjectGuidVector
             UpdateObjects(ref);
             return &_objectVector;
         }
+
+        void AddGuid(ObjectGuid const& guid) { _guidVector.push_back(guid); }
 
         ~ObjectGuidVector() { }
 

@@ -70,11 +70,8 @@ enum Spells
     SPELL_ICE_BOMBARDMENT               = 46396,
 
     // Ice Spear
-    SPELL_SUMMON_ICE_SPEAR_BUNNY        = 46359,
     SPELL_ICE_SPEAR_KNOCKBACK           = 46360,
     SPELL_SUMMON_ICE_SPEAR_GO           = 46369,
-    SPELL_ICE_SPEAR_AURA                = 46371,
-    SPELL_ICE_SPEAR_TARGET_PICKER       = 46372,
     SPELL_ICE_SPEAR_DELAY               = 46878,
     SPELL_ICE_SPEAR_VISUAL              = 75498,
 
@@ -85,9 +82,13 @@ enum Spells
     SPELL_SLIPPERY_FLOOR_YOU_SLIPPED    = 45946,
 
     // Frozen Core
+    SPELL_ICE_SPEAR_CONTROL_AURA        = 46371,
+    SPELL_FROZEN_CORE_GETS_HIT          = 46810,
+    SPELL_IS_DEAD_CHECK                 = 61976,   // NYI
+    SPELL_ICE_SPEAR_TARGET_PICKER       = 46372,
+    SPELL_SUMMON_ICE_SPEAR_BUNNY        = 46359,
     SPELL_SUICIDE                       = 45254,
     SPELL_SUMMON_LOOT_MISSILE           = 45941,
-    SPELL_FROZEN_CORE_GETS_HIT          = 46810,
     SPELL_MINION_DESPAWNER              = 46843,
     SPELL_GHOST_DISGUISE                = 46786
 };
@@ -282,8 +283,9 @@ struct npc_frozen_core : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         me->SetRegenerateHealth(false);
+        DoCastSelf(SPELL_ICE_SPEAR_CONTROL_AURA);
         DoCastSelf(SPELL_FROZEN_CORE_GETS_HIT);
-        DoCastSelf(SPELL_ICE_SPEAR_AURA);
+        DoCastSelf(SPELL_IS_DEAD_CHECK);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -301,13 +303,13 @@ struct npc_frozen_core : public ScriptedAI
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(false);
-            me->RemoveAurasDueToSpell(SPELL_ICE_SPEAR_AURA);
+            me->RemoveAurasDueToSpell(SPELL_ICE_SPEAR_CONTROL_AURA);
             _events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3s, 0, PHASE_TWO);
         }
         else if (action == ACTION_AHUNE_RESURFACE)
         {
             _events.Reset();
-            DoCastSelf(SPELL_ICE_SPEAR_AURA);
+            DoCastSelf(SPELL_ICE_SPEAR_CONTROL_AURA);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
         }
@@ -591,6 +593,53 @@ private:
     uint8 _mySpot;
 };
 
+struct npc_ahune_ice_spear_bunny : public ScriptedAI
+{
+    npc_ahune_ice_spear_bunny(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_SUMMON_ICE_SPEAR_GO);
+        DoCastSelf(SPELL_ICE_SPEAR_VISUAL);
+
+        _scheduler.Schedule(2500ms, [this](TaskContext /*task*/)
+        {
+            DoCastSelf(SPELL_ICE_SPEAR_DELAY);
+            me->DespawnOrUnsummon(3500ms);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+struct go_ahune_ice_spear : public GameObjectAI
+{
+    go_ahune_ice_spear(GameObject* go) : GameObjectAI(go) { }
+
+    void Reset() override
+    {
+        _scheduler.Schedule(2500ms, [this](TaskContext /*context*/)
+        {
+            me->UseDoorOrButton();
+            me->DespawnOrUnsummon(3500ms);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 struct go_ahune_ice_stone : public GameObjectAI
 {
     go_ahune_ice_stone(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
@@ -680,31 +729,14 @@ class spell_summon_ice_spear_delayer : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SUMMON_ICE_SPEAR_GO, SPELL_ICE_SPEAR_KNOCKBACK });
+        return ValidateSpellInfo({ SPELL_ICE_SPEAR_KNOCKBACK });
     }
 
-    void PeriodicTick(AuraEffect const* aurEff)
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
-        if (Unit* tmpCaster = GetCaster())
-            if (Creature* caster = tmpCaster->ToCreature())
-                switch (aurEff->GetTickNumber())
-                {
-                    case 1:
-                        caster->CastSpell(caster, SPELL_SUMMON_ICE_SPEAR_GO);
-                        break;
-                    case 3:
-                        if (GameObject* spike = caster->FindNearestGameObject(GO_ICE_SPEAR, 3.0f))
-                            spike->UseDoorOrButton();
-                        caster->AI()->DoCastAOE(SPELL_ICE_SPEAR_KNOCKBACK, true);
-                        break;
-                    case 5:
-                        if (GameObject* spike = caster->FindNearestGameObject(GO_ICE_SPEAR, 3.0f))
-                            spike->Delete();
-                        caster->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
-                }
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_ICE_SPEAR_KNOCKBACK);
+        Remove();
     }
 
     void Register() override
@@ -859,6 +891,8 @@ void AddSC_boss_ahune()
     RegisterSlavePensCreatureAI(npc_frozen_core);
     RegisterSlavePensCreatureAI(npc_earthen_ring_flamecaller);
     RegisterSlavePensCreatureAI(npc_ahune_bunny);
+    RegisterSlavePensCreatureAI(npc_ahune_ice_spear_bunny);
+    RegisterSlavePensGameObjectAI(go_ahune_ice_spear);
     RegisterSlavePensGameObjectAI(go_ahune_ice_stone);
     RegisterSpellScript(spell_ahune_synch_health);
     RegisterSpellScript(spell_summoning_rhyme_aura);

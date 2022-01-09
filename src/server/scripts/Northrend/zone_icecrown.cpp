@@ -23,6 +23,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 /*######
@@ -780,6 +781,28 @@ class npc_frostbrood_skytalon : public CreatureScript
         }
 };
 
+// 55288 - It's All Fun and Games: The Ocular On Death
+class spell_the_ocular_on_death : public SpellScript
+{
+    PrepareSpellScript(spell_the_ocular_on_death);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* target = GetHitPlayer())
+            target->CastSpell(target, GetEffectInfo().CalcValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_the_ocular_on_death::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     new npc_argent_valiant;
@@ -787,4 +810,5 @@ void AddSC_icecrown()
     new npc_tournament_training_dummy;
     new npc_blessed_banner();
     new npc_frostbrood_skytalon();
+    RegisterSpellScript(spell_the_ocular_on_death);
 }
