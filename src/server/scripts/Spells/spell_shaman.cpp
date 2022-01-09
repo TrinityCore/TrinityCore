@@ -85,6 +85,7 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
+    SPELL_SHAMAN_WINDFURY_ENCHANTMENT           = 334302,
     SPELL_SHAMAN_WIND_RUSH                      = 192082,
 };
 
@@ -1312,10 +1313,39 @@ class spell_sha_t10_restoration_4p_bonus : public AuraScript
     }
 };
 
-// 33757 - Windfury
-class spell_sha_windfury : public AuraScript
+// 33757 - Windfury Weapon
+class spell_sha_windfury_weapon : public SpellScript
 {
-    PrepareAuraScript(spell_sha_windfury);
+    PrepareSpellScript(spell_sha_windfury_weapon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_WINDFURY_ENCHANTMENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        if (Item* mainHand = GetCaster()->ToPlayer()->GetWeaponForAttack(BASE_ATTACK, false))
+            GetCaster()->CastSpell(mainHand, SPELL_SHAMAN_WINDFURY_ENCHANTMENT, GetSpell());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_windfury_weapon::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 319773 - Windfury Weapon (proc)
+class spell_sha_windfury_weapon_proc : public AuraScript
+{
+    PrepareAuraScript(spell_sha_windfury_weapon_proc);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1332,7 +1362,7 @@ class spell_sha_windfury : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_sha_windfury::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_sha_windfury_weapon_proc::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1421,6 +1451,7 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_t9_elemental_4p_bonus);
     RegisterAuraScript(spell_sha_t10_elemental_4p_bonus);
     RegisterAuraScript(spell_sha_t10_restoration_4p_bonus);
-    RegisterAuraScript(spell_sha_windfury);
+    RegisterSpellScript(spell_sha_windfury_weapon);
+    RegisterAuraScript(spell_sha_windfury_weapon_proc);
     RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
 }
