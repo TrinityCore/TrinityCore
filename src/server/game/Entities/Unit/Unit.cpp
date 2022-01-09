@@ -6721,9 +6721,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         spellPowerCoeff = spellProto->CalculateScaledCoefficient(this, spellPowerCoeff);
 
     if (attackPowerCoeff > 0.f)
-        attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
-
-    if (attackPowerCoeff > 0.f)
     {
         float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
         APbonus += GetTotalAttackPowerValue(attType);
@@ -7977,9 +7974,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         // Check for table values
         if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
             attackPowerCoeff = bonus->ap_bonus;
-
-        if (attackPowerCoeff > 0.f)
-            attackPowerCoeff = spellProto->CalculateScaledCoefficient(this, attackPowerCoeff);
 
         if (attackPowerCoeff > 0.f)
             DoneFlatBenefit += attackPowerCoeff * GetTotalAttackPowerValue(attType);
