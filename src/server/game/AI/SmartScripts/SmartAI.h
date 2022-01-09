@@ -71,7 +71,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
         void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
-        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId = 0);
         SmartScript* GetScript() { return &_script; }
 
         // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
