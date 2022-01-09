@@ -2337,6 +2337,8 @@ struct SpellItemEnchantmentEntry
     uint32  RequiredSkillRank;                              // 20
     uint32  MinLevel;                                       // 21
     //uint32 ItemLevel;                                     // 22
+
+    EnumFlag<SpellItemEnchantmentFlags> GetFlags() const { return static_cast<SpellItemEnchantmentFlags>(Flags); }
 };
 
 struct SpellItemEnchantmentConditionEntry

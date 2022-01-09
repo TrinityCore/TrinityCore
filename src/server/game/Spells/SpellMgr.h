@@ -557,7 +557,6 @@ struct PetDefaultSpellsEntry
 typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 
 typedef std::vector<uint32> SpellCustomAttribute;
-typedef std::vector<bool> EnchantCustomAttribute;
 
 typedef std::vector<SpellInfo*> SpellInfoMap;
 
@@ -698,7 +697,6 @@ class TC_GAME_API SpellMgr
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
-        void LoadEnchantCustomAttr();
         void LoadSpellEnchantProcData();
         void LoadSpellLinked();
         void LoadPetLevelupSpellMap();
@@ -732,7 +730,6 @@ class TC_GAME_API SpellMgr
         SpellPetAuraMap            mSpellPetAuraMap;
         SpellLinkedMap             mSpellLinkedMap;
         SpellEnchantProcEventMap   mSpellEnchantProcEventMap;
-        EnchantCustomAttribute     mEnchantCustomAttr;
         SpellAreaMap               mSpellAreaMap;
         SpellAreaForQuestMap       mSpellAreaForQuestMap;
         SpellAreaForQuestMap       mSpellAreaForQuestEndMap;

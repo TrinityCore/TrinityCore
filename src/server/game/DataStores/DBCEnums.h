@@ -515,13 +515,15 @@ DEFINE_ENUM_FLAG(SpellCategoryFlags);
 #define MAX_EFFECT_MASK 7
 #define MAX_SPELL_REAGENTS 8
 
-enum EnchantmentSlotMask
+enum class SpellItemEnchantmentFlags : uint32
 {
-    ENCHANTMENT_CAN_SOULBOUND = 0x01,
-    ENCHANTMENT_UNK1 = 0x02,
-    ENCHANTMENT_UNK2 = 0x04,
-    ENCHANTMENT_UNK3 = 0x08
+    Soulbound           = 0x001,
+    DoNotLog            = 0x002,
+    MainhandOnly        = 0x004,
+    AllowEnteringArena  = 0x008
 };
+
+DEFINE_ENUM_FLAG(SpellItemEnchantmentFlags);
 
 #define MAX_TALENT_RANK 5
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
