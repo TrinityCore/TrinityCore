@@ -933,7 +933,6 @@ class spell_mage_pyroblast : public SpellScript
 
     void HandleCritChance(Unit const* victim, float& critChance)
     {
-
         if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_FIRESTARTER, EFFECT_0))
             if (victim->GetHealthPct() >= aurEff->GetAmount())
                 critChance = 100.0f;
