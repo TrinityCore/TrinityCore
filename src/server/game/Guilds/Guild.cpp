@@ -1994,6 +1994,46 @@ void Guild::HandleRemoveRank(WorldSession* session, GuildRankOrder rankOrder)
     BroadcastPacket(eventPacket.Write());
 }
 
+void Guild::HandleShiftRank(WorldSession* session, GuildRankOrder rankOrder, bool shiftUp)
+{
+    // Only leader can modify ranks
+    if (!_IsLeader(session->GetPlayer()))
+        return;
+
+    GuildRankOrder otherRankOrder = GuildRankOrder(AsUnderlyingType(rankOrder) + (shiftUp ? -1 : 1));
+
+    RankInfo* rankInfo = GetRankInfo(rankOrder);
+    RankInfo* otherRankInfo = GetRankInfo(otherRankOrder);
+    if (!rankInfo || !otherRankInfo)
+        return;
+
+    // can't shift guild master rank (rank id = 0) - there's already a client-side limitation for it so that's just a safe-guard
+    if (rankInfo->GetId() == GuildRankId::GuildMaster || otherRankInfo->GetId() == GuildRankId::GuildMaster)
+        return;
+
+    rankInfo->SetOrder(otherRankOrder);
+    otherRankInfo->SetOrder(rankOrder);
+
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RANK_ORDER);
+    stmt->setUInt8(0, AsUnderlyingType(rankInfo->GetOrder()));
+    stmt->setUInt8(1, AsUnderlyingType(rankInfo->GetId()));
+    stmt->setUInt64(2, m_id);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RANK_ORDER);
+    stmt->setUInt8(0, AsUnderlyingType(otherRankInfo->GetOrder()));
+    stmt->setUInt8(1, AsUnderlyingType(otherRankInfo->GetId()));
+    stmt->setUInt64(2, m_id);
+    trans->Append(stmt);
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    // force client to re-request SMSG_GUILD_RANKS
+    BroadcastPacket(WorldPackets::Guild::GuildEventRanksUpdated().Write());
+}
+
 void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow /*=false*/)
 {
     // guild bank cannot have more than MAX_MONEY_AMOUNT
