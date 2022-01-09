@@ -604,7 +604,7 @@ class spell_sha_healing_rain : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_sha_healing_rain::InitializeVisualStalker);
+        AfterHit += SpellHitFn(spell_sha_healing_rain::InitializeVisualStalker);
     }
 };
 
