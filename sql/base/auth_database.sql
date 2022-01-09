@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 5.7.34, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.26, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	5.7.34
+-- Server version	8.0.26
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,34 +21,34 @@
 
 DROP TABLE IF EXISTS `account`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `account` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
-  `username` varchar(32) NOT NULL DEFAULT '',
-  `sha_pass_hash` varchar(40) NOT NULL DEFAULT '',
-  `sessionkey` varchar(80) NOT NULL DEFAULT '',
-  `v` varchar(64) NOT NULL DEFAULT '',
-  `s` varchar(64) NOT NULL DEFAULT '',
-  `token_key` varchar(100) NOT NULL DEFAULT '',
-  `email` varchar(255) NOT NULL DEFAULT '',
-  `reg_mail` varchar(255) NOT NULL DEFAULT '',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
+  `username` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `sha_pass_hash` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `sessionkey` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `v` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `s` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `token_key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `reg_mail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
-  `last_attempt_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
-  `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
-  `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `lock_country` varchar(2) NOT NULL DEFAULT '00',
+  `last_ip` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `last_attempt_ip` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `failed_logins` int unsigned NOT NULL DEFAULT '0',
+  `locked` tinyint unsigned NOT NULL DEFAULT '0',
+  `lock_country` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '00',
   `last_login` timestamp NULL DEFAULT NULL,
-  `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `expansion` tinyint(3) unsigned NOT NULL DEFAULT '3',
-  `mutetime` bigint(20) NOT NULL DEFAULT '0',
-  `mutereason` varchar(255) NOT NULL DEFAULT '',
-  `muteby` varchar(50) NOT NULL DEFAULT '',
-  `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `os` varchar(5) DEFAULT NULL,
-  `recruiter` int(10) unsigned NOT NULL DEFAULT '0',
-  `battlenet_account` int(10) unsigned DEFAULT NULL,
-  `battlenet_index` tinyint(3) unsigned DEFAULT NULL,
+  `online` tinyint unsigned NOT NULL DEFAULT '0',
+  `expansion` tinyint unsigned NOT NULL DEFAULT '3',
+  `mutetime` bigint NOT NULL DEFAULT '0',
+  `mutereason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `muteby` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `locale` tinyint unsigned NOT NULL DEFAULT '0',
+  `os` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `recruiter` int unsigned NOT NULL DEFAULT '0',
+  `battlenet_account` int unsigned DEFAULT NULL,
+  `battlenet_index` tinyint unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_username` (`username`),
   UNIQUE KEY `uk_bnet_acc` (`battlenet_account`,`battlenet_index`),
@@ -71,11 +71,11 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `account_access`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `account_access` (
-  `id` int(10) unsigned NOT NULL,
-  `gmlevel` tinyint(3) unsigned NOT NULL,
-  `RealmID` int(11) NOT NULL DEFAULT '-1',
+  `id` int unsigned NOT NULL,
+  `gmlevel` tinyint unsigned NOT NULL,
+  `RealmID` int NOT NULL DEFAULT '-1',
   PRIMARY KEY (`id`,`RealmID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -95,14 +95,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `account_banned`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `account_banned` (
-  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Account id',
-  `bandate` int(10) unsigned NOT NULL DEFAULT '0',
-  `unbandate` int(10) unsigned NOT NULL DEFAULT '0',
-  `bannedby` varchar(50) NOT NULL,
-  `banreason` varchar(255) NOT NULL,
-  `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Account id',
+  `bandate` int unsigned NOT NULL DEFAULT '0',
+  `unbandate` int unsigned NOT NULL DEFAULT '0',
+  `bannedby` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `banreason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `active` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`,`bandate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Ban List';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -122,13 +122,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `account_muted`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `account_muted` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `mutedate` int(10) unsigned NOT NULL DEFAULT '0',
-  `mutetime` int(10) unsigned NOT NULL DEFAULT '0',
-  `mutedby` varchar(50) NOT NULL,
-  `mutereason` varchar(255) NOT NULL,
+  `guid` int unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `mutedate` int unsigned NOT NULL DEFAULT '0',
+  `mutetime` int unsigned NOT NULL DEFAULT '0',
+  `mutedby` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mutereason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`guid`,`mutedate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='mute List';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -148,12 +148,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `autobroadcast`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `autobroadcast` (
-  `realmid` int(11) NOT NULL DEFAULT '-1',
-  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
-  `weight` tinyint(3) unsigned DEFAULT '1',
-  `text` longtext NOT NULL,
+  `realmid` int NOT NULL DEFAULT '-1',
+  `id` tinyint unsigned NOT NULL AUTO_INCREMENT,
+  `weight` tinyint unsigned DEFAULT '1',
+  `text` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`realmid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -173,13 +173,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `battlenet_account_bans`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battlenet_account_bans` (
-  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Account id',
-  `bandate` int(10) unsigned NOT NULL DEFAULT '0',
-  `unbandate` int(10) unsigned NOT NULL DEFAULT '0',
-  `bannedby` varchar(50) NOT NULL,
-  `banreason` varchar(255) NOT NULL,
+  `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Account id',
+  `bandate` int unsigned NOT NULL DEFAULT '0',
+  `unbandate` int unsigned NOT NULL DEFAULT '0',
+  `bannedby` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `banreason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`bandate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Ban List';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -199,23 +199,23 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `battlenet_accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battlenet_accounts` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
-  `email` varchar(320) NOT NULL,
-  `sha_pass_hash` varchar(64) NOT NULL DEFAULT '',
-  `v` varchar(256) NOT NULL DEFAULT '',
-  `s` varchar(64) NOT NULL DEFAULT '',
-  `sessionKey` varchar(128) NOT NULL DEFAULT '',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
+  `email` varchar(320) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sha_pass_hash` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `v` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `s` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `sessionKey` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
-  `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
-  `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `lock_country` varchar(2) NOT NULL DEFAULT '00',
+  `last_ip` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `failed_logins` int unsigned NOT NULL DEFAULT '0',
+  `locked` tinyint unsigned NOT NULL DEFAULT '0',
+  `lock_country` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '00',
   `last_login` timestamp NULL DEFAULT NULL,
-  `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `os` varchar(5) DEFAULT NULL,
+  `online` tinyint unsigned NOT NULL DEFAULT '0',
+  `locale` tinyint unsigned NOT NULL DEFAULT '0',
+  `os` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Account System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -235,11 +235,11 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `battlenet_components`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battlenet_components` (
-  `Program` varchar(4) NOT NULL,
-  `Platform` varchar(4) NOT NULL,
-  `Build` int(11) unsigned NOT NULL,
+  `Program` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Platform` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Build` int unsigned NOT NULL,
   PRIMARY KEY (`Program`,`Platform`,`Build`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -288,13 +288,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `battlenet_modules`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battlenet_modules` (
-  `Hash` varchar(64) NOT NULL,
-  `Name` varchar(64) NOT NULL DEFAULT '',
-  `Type` varchar(8) NOT NULL,
-  `System` varchar(8) NOT NULL,
-  `Data` text,
+  `Hash` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `Type` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `System` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Data` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`Name`,`System`),
   UNIQUE KEY `uk_name_type_system` (`Name`,`Type`,`System`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -359,13 +359,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `ip_banned`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ip_banned` (
-  `ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
-  `bandate` int(10) unsigned NOT NULL,
-  `unbandate` int(10) unsigned NOT NULL,
-  `bannedby` varchar(50) NOT NULL DEFAULT '[Console]',
-  `banreason` varchar(255) NOT NULL DEFAULT 'no reason',
+  `ip` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `bandate` int unsigned NOT NULL,
+  `unbandate` int unsigned NOT NULL,
+  `bannedby` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '[Console]',
+  `banreason` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no reason',
   PRIMARY KEY (`ip`,`bandate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Banned IPs';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -385,13 +385,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `logs` (
-  `time` int(10) unsigned NOT NULL,
-  `realm` int(10) unsigned NOT NULL,
-  `type` varchar(250) NOT NULL,
-  `level` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `string` text CHARACTER SET latin1
+  `time` int unsigned NOT NULL,
+  `realm` int unsigned NOT NULL,
+  `type` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `level` tinyint unsigned NOT NULL DEFAULT '0',
+  `string` text CHARACTER SET latin1 COLLATE latin1_swedish_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -410,17 +410,17 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `logs_ip_actions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `logs_ip_actions` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
-  `account_id` int(10) unsigned NOT NULL COMMENT 'Account ID',
-  `character_guid` int(10) unsigned NOT NULL COMMENT 'Character Guid',
-  `type` tinyint(3) unsigned NOT NULL,
-  `ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
-  `systemnote` text COMMENT 'Notes inserted by system',
-  `unixtime` int(10) unsigned NOT NULL COMMENT 'Unixtime',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Identifier',
+  `account_id` int unsigned NOT NULL COMMENT 'Account ID',
+  `character_guid` int unsigned NOT NULL COMMENT 'Character Guid',
+  `type` tinyint unsigned NOT NULL,
+  `ip` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `systemnote` text COLLATE utf8mb4_unicode_ci COMMENT 'Notes inserted by system',
+  `unixtime` int unsigned NOT NULL COMMENT 'Unixtime',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp',
-  `comment` text COMMENT 'Allows users to add a comment',
+  `comment` text COLLATE utf8mb4_unicode_ci COMMENT 'Allows users to add a comment',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Used to log ips of individual actions';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -440,12 +440,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `rbac_account_permissions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rbac_account_permissions` (
-  `accountId` int(10) unsigned NOT NULL COMMENT 'Account id',
-  `permissionId` int(10) unsigned NOT NULL COMMENT 'Permission id',
+  `accountId` int unsigned NOT NULL COMMENT 'Account id',
+  `permissionId` int unsigned NOT NULL COMMENT 'Permission id',
   `granted` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Granted = 1, Denied = 0',
-  `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
+  `realmId` int NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
   PRIMARY KEY (`accountId`,`permissionId`,`realmId`),
   KEY `fk__rbac_account_roles__rbac_permissions` (`permissionId`),
   CONSTRAINT `fk__rbac_account_permissions__account` FOREIGN KEY (`accountId`) REFERENCES `account` (`id`) ON DELETE CASCADE,
@@ -468,11 +468,11 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `rbac_default_permissions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rbac_default_permissions` (
-  `secId` int(10) unsigned NOT NULL COMMENT 'Security Level id',
-  `permissionId` int(10) unsigned NOT NULL COMMENT 'permission id',
-  `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
+  `secId` int unsigned NOT NULL COMMENT 'Security Level id',
+  `permissionId` int unsigned NOT NULL COMMENT 'permission id',
+  `realmId` int NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
   PRIMARY KEY (`secId`,`permissionId`,`realmId`),
   KEY `fk__rbac_default_permissions__rbac_permissions` (`permissionId`),
   CONSTRAINT `fk__rbac_default_permissions__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`)
@@ -499,10 +499,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `rbac_linked_permissions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rbac_linked_permissions` (
-  `id` int(10) unsigned NOT NULL COMMENT 'Permission id',
-  `linkedId` int(10) unsigned NOT NULL COMMENT 'Linked Permission id',
+  `id` int unsigned NOT NULL COMMENT 'Permission id',
+  `linkedId` int unsigned NOT NULL COMMENT 'Linked Permission id',
   PRIMARY KEY (`id`,`linkedId`),
   KEY `fk__rbac_linked_permissions__rbac_permissions1` (`id`),
   KEY `fk__rbac_linked_permissions__rbac_permissions2` (`linkedId`),
@@ -1174,10 +1174,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `rbac_permissions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `rbac_permissions` (
-  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Permission id',
-  `name` varchar(100) NOT NULL COMMENT 'Permission name',
+  `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Permission id',
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Permission name',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Permission List';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1860,11 +1860,11 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `realmcharacters`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `realmcharacters` (
-  `realmid` int(10) unsigned NOT NULL DEFAULT '0',
-  `acctid` int(10) unsigned NOT NULL,
-  `numchars` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `realmid` int unsigned NOT NULL DEFAULT '0',
+  `acctid` int unsigned NOT NULL,
+  `numchars` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`realmid`,`acctid`),
   KEY `acctid` (`acctid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Realm Character Tracker';
@@ -1885,22 +1885,22 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `realmlist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `realmlist` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(32) NOT NULL DEFAULT '',
-  `address` varchar(255) NOT NULL DEFAULT '127.0.0.1',
-  `localAddress` varchar(255) NOT NULL DEFAULT '127.0.0.1',
-  `localSubnetMask` varchar(255) NOT NULL DEFAULT '255.255.255.0',
-  `port` smallint(5) unsigned NOT NULL DEFAULT '8085',
-  `icon` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `flag` tinyint(3) unsigned NOT NULL DEFAULT '2',
-  `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `localAddress` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '127.0.0.1',
+  `localSubnetMask` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '255.255.255.0',
+  `port` smallint unsigned NOT NULL DEFAULT '8085',
+  `icon` tinyint unsigned NOT NULL DEFAULT '0',
+  `flag` tinyint unsigned NOT NULL DEFAULT '2',
+  `timezone` tinyint unsigned NOT NULL DEFAULT '0',
+  `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '15595',
-  `Region` tinyint(3) unsigned NOT NULL DEFAULT '2',
-  `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `gamebuild` int unsigned NOT NULL DEFAULT '15595',
+  `Region` tinyint unsigned NOT NULL DEFAULT '2',
+  `Battlegroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Realm System';
@@ -1923,13 +1923,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `updates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `updates` (
-  `name` varchar(200) NOT NULL COMMENT 'filename with extension of the update.',
-  `hash` char(40) DEFAULT '' COMMENT 'sha1 hash of the sql file.',
-  `state` enum('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'filename with extension of the update.',
+  `hash` char(40) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'sha1 hash of the sql file.',
+  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
-  `speed` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
+  `speed` int unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1941,6 +1941,7 @@ CREATE TABLE `updates` (
 LOCK TABLES `updates` WRITE;
 /*!40000 ALTER TABLE `updates` DISABLE KEYS */;
 INSERT INTO `updates` VALUES
+('2014_10_30_00_auth.sql','A6492096BE82AE9029565012A9CD7B2DC45126D2','ARCHIVED','2019-11-06 00:17:43',0),
 ('2014_11_10_00_auth.sql','0E3CB119442D09DD88E967015319BBC8DAFBBFE0','ARCHIVED','2015-03-21 21:44:12',0),
 ('2014_11_10_01_auth.sql','327E77A1DA3546D5275AB249915DD57EDD6FDD3D','ARCHIVED','2015-03-21 21:44:12',0),
 ('2014_12_10_00_auth.sql','821703A96D80F9080074852B5A46E2909C9562EA','ARCHIVED','2015-03-21 21:44:12',0),
@@ -1948,8 +1949,8 @@ INSERT INTO `updates` VALUES
 ('2015_03_20_00_auth.sql','E8C5B74BB45F0F35DEC182C72BACF435C7066FB0','ARCHIVED','2015-03-21 21:44:12',0),
 ('2015_03_20_01_auth.sql','862961815354DA2746F5F71FBC8155F57CBE75AB','ARCHIVED','2015-03-21 21:44:12',0),
 ('2015_03_20_02_auth.sql','33E4F94086590768EF5D4855DD43D7DE7C06ADA4','ARCHIVED','2015-03-21 21:44:51',0),
-('2016_01_13_00_auth.sql','24615CC69B3CD7BB4699874647C35BA86E8A93FD','ARCHIVED','2016-01-14 23:27:07',0),
 ('2016_01_13_00_auth_434.sql','3E88183E1A85D11BFD74CF9A32A725C44AE02EEC','ARCHIVED','2016-01-13 01:19:16',0),
+('2016_01_13_00_auth.sql','24615CC69B3CD7BB4699874647C35BA86E8A93FD','ARCHIVED','2016-01-14 23:27:07',0),
 ('2016_03_12_00_auth.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-03-12 01:19:16',0),
 ('2016_05_15_00_auth_from_335_was_2016_05_11_00_auth.sql','95B66235B8D67BF1CA216EB09F313C1F8F393B47','ARCHIVED','0000-00-00 00:00:00',0),
 ('2016_08_28_00_auth.sql','FF293BF1F7C182C91E3B1EED2762E645C6BB5C21','ARCHIVED','0000-00-00 00:00:00',0),
@@ -1999,7 +2000,6 @@ INSERT INTO `updates` VALUES
 ('2018_09_02_00_auth_from_335_was_2018_08_30_00_auth.sql','7E6ABD3FF59FC6CC82B227CE074E8E91DE4D1DB2','ARCHIVED','2018-08-17 01:40:04',0),
 ('2018_09_09_00_auth_from_335_was_2018_09_06_00_auth.sql','309D21E0DF82ED8921F77EAFDE741F38AC32BB13','ARCHIVED','2018-09-06 00:00:00',0),
 ('2018_09_15_00_auth.sql','941C5BEF44A004C32746509EA7E1651DB2943BDA','ARCHIVED','2018-09-15 01:40:04',0),
-('2014_10_30_00_auth.sql','A6492096BE82AE9029565012A9CD7B2DC45126D2','ARCHIVED','2019-11-06 00:17:43',0),
 ('2019_02_18_00_auth.sql','624C58A07E0B4DDC4C1347E8BA8EFEEFD5B43DA7','ARCHIVED','2019-11-06 00:17:43',0),
 ('2019_09_29_00_auth.sql','73C820469E1EF2501C3126CA098D6FE7DD4E0D3C','ARCHIVED','2019-11-06 00:17:44',0),
 ('2019_10_03_00_auth.sql','A0D27DAFDE2F7F1F7FAAACF1E13FA104A50D603A','ARCHIVED','2019-11-06 00:17:44',0),
@@ -2010,8 +2010,9 @@ INSERT INTO `updates` VALUES
 ('2020_07_22_00_auth.sql','A5D4EC8FCFAB4F2DCE70EDCAD1ACBFB484FD68D5','ARCHIVED','2020-07-22 17:04:47',0),
 ('2020_09_22_00_auth.sql','A2E29491B54821BCECAA72061AF4D798EC3253B6','ARCHIVED','2020-09-22 00:55:27',0),
 ('2021_07_06_00_auth.sql','D3E1354B64589894890430A8AA009178FC79F4CD','ARCHIVED','2021-07-06 05:02:44',0),
-('2021_12_31_00_auth.sql','D5B6B3800A57163901ACFCE1C25463768F5B82D0','RELEASED','2021-12-31 18:36:14',0),
-('2022_01_01_00_auth.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2022-01-01 11:08:01',0);
+('2021_12_31_00_auth.sql','D5B6B3800A57163901ACFCE1C25463768F5B82D0','ARCHIVED','2021-12-31 18:36:14',0),
+('2022_01_01_00_auth.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','ARCHIVED','2022-01-01 11:08:01',0),
+('2022_01_09_00_auth.sql','3A662EEEC4361A0CA23B78FA01698A3FC2C69CE8','ARCHIVED','2022-01-09 00:12:22',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2021,10 +2022,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `updates_include`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `updates_include` (
-  `path` varchar(200) NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
-  `state` enum('RELEASED','ARCHIVED') NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
+  `path` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
+  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
   PRIMARY KEY (`path`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2036,9 +2037,9 @@ CREATE TABLE `updates_include` (
 LOCK TABLES `updates_include` WRITE;
 /*!40000 ALTER TABLE `updates_include` DISABLE KEYS */;
 INSERT INTO `updates_include` VALUES
-('$/sql/updates/auth','RELEASED'),
 ('$/sql/custom/auth','RELEASED'),
-('$/sql/old/4.3.4/auth','ARCHIVED');
+('$/sql/old/4.3.4/auth','ARCHIVED'),
+('$/sql/updates/auth','RELEASED');
 /*!40000 ALTER TABLE `updates_include` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2048,13 +2049,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `uptime`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `uptime` (
-  `realmid` int(10) unsigned NOT NULL,
-  `starttime` int(10) unsigned NOT NULL DEFAULT '0',
-  `uptime` int(10) unsigned NOT NULL DEFAULT '0',
-  `maxplayers` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `revision` varchar(255) NOT NULL DEFAULT 'Trinitycore',
+  `realmid` int unsigned NOT NULL,
+  `starttime` int unsigned NOT NULL DEFAULT '0',
+  `uptime` int unsigned NOT NULL DEFAULT '0',
+  `maxplayers` smallint unsigned NOT NULL DEFAULT '0',
+  `revision` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Trinitycore',
   PRIMARY KEY (`realmid`,`starttime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Uptime system';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2081,4 +2082,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-06  5:02:49
+-- Dump completed on 2022-01-09  0:15:07
