@@ -64,8 +64,6 @@ public:
     bool IgnoreReqStats;
     bool IgnorePlayerMissingProfiency;
     bool IgnoreReqFaction;
-
-    bool AddRegardlessOfPlayerLimits;
     int IgnoreReqBound;
 
     static const std::unordered_map<uint32, std::string> enchant_visual_to_name; // contains all enchant visuals (not enchants) that should be viewable in menus

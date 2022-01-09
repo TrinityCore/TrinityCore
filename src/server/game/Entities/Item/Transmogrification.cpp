@@ -512,8 +512,6 @@ void Transmogrification::LoadConfig(bool /*reload*/)
     IgnoreReqStats = sConfigMgr->GetBoolDefault("Transmogrification.IgnoreReqStats", false);
     IgnorePlayerMissingProfiency = sConfigMgr->GetBoolDefault("Transmogrification.IgnorePlayerMissingProfiency", false);
     IgnoreReqFaction = sConfigMgr->GetBoolDefault("Transmogrification.IgnoreReqFaction", false);
-
-    AddRegardlessOfPlayerLimits = sConfigMgr->GetBoolDefault("Transmogrification.AddRegardlessOfPlayerLimits", false);
     IgnoreReqBound = sConfigMgr->GetIntDefault("Transmogrification.IgnoreReqBound", 0);
 }
 
@@ -818,7 +816,7 @@ bool Transmogrification::CanAddEnchantToCollection(Player* player, Item* item)
     (void)item;
     //if (!IgnoreReqBound && !IsBound(item))
     //    return false;
-    //if (!AddRegardlessOfPlayerLimits && CannotEquip(player, item->GetTemplate()))
+    //if (CannotEquip(player, item->GetTemplate()))
     //    return false;
     return true;
 }
@@ -827,7 +825,7 @@ bool Transmogrification::CanAddToCollection(Player* player, ItemTemplate const* 
 {
     if (CannotTransmogrify(itemTemplate))
         return false;
-    if (!AddRegardlessOfPlayerLimits && CannotEquip(player, itemTemplate))
+    if (CannotEquip(player, itemTemplate))
         return false;
     return true;
 }
