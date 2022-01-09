@@ -8687,6 +8687,12 @@ CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
     }
 }
 
+CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeringSpell)
+{
+    OriginalCastId = triggeringSpell->m_castId;
+    return *this;
+}
+
 CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* triggeringAura)
 {
     TriggeringAura = triggeringAura;
