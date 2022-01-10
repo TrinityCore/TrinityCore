@@ -285,6 +285,7 @@ struct boss_temple_guardian_anhuur : public BossAI
         me->SetReactState(REACT_PASSIVE);
         me->InterruptNonMeleeSpells(true);
         me->AttackStop();
+        me->StopMoving();
         DoCastSelf(SPELL_TELEPORT);
         me->SetFacingTo(1.5708f, true);
         Talk(SAY_SHIELD);
