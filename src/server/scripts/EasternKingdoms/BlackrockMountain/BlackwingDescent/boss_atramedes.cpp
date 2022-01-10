@@ -735,7 +735,8 @@ struct npc_atramedes_reverberating_flame : public NullCreatureAI
                     Unit* target = ObjectAccessor::GetUnit(*me, me->GetTarget());
                     if (!target || !target->IsAlive())
                     {
-                        if (target = me->SelectNearestPlayer(100.f))
+                        target = me->SelectNearestPlayer(100.f);
+                        if (target)
                             trackTarget(target);
                     }
                     else
