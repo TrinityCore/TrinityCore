@@ -731,14 +731,17 @@ struct npc_atramedes_reverberating_flame : public NullCreatureAI
                     _lastUsedDwarvenShieldGUID = ObjectGuid::Empty;
                     break;
                 case EVENT_CHECK_TRACKING_TARGET:
-                    if (!ObjectAccessor::GetUnit(*me, me->GetTarget()))
+                {
+                    Unit* target = ObjectAccessor::GetUnit(*me, me->GetTarget());
+                    if (!target || !target->IsAlive())
                     {
-                        if (Unit* target = me->SelectNearestPlayer(100.f))
+                        if (target = me->SelectNearestPlayer(100.f))
                             trackTarget(target);
                     }
                     else
                         _events.Repeat(500ms);
                     break;
+                }
                 default:
                     break;
             }
