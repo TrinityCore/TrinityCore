@@ -682,6 +682,7 @@ void Transmogrification::Transmogrify(Player* player, Item* itemTransmogrified, 
     itemTransmogrified->SetOwnerGUID(player->GetGUID());
     itemTransmogrified->SetNotRefundable(player);
     itemTransmogrified->ClearSoulboundTradeable(player);
+    itemTransmogrified->SetBinding(true);
     itemTransmogrified->SetState(ITEM_CHANGED, player);
     UpdateItem(player, itemTransmogrified);
 }
