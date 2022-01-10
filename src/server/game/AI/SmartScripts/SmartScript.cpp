@@ -693,19 +693,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
-        case SMART_ACTION_ADD_AURA:
-        {
-            for (WorldObject* target : targets)
-            {
-                if (IsUnit(target))
-                {
-                    target->ToUnit()->AddAura(e.action.addAura.spell, target->ToUnit());
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ADD_AURA: Adding aura %u to unit %s",
-                        e.action.addAura.spell, target->GetGUID().ToString().c_str());
-                }
-            }
-            break;
-        }
         case SMART_ACTION_ACTIVATE_GOBJECT:
         {
             for (WorldObject* target : targets)
@@ -1918,27 +1905,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
                 if (IsCreature(target))
                     target->ToCreature()->SetControlled(e.action.setRoot.root != 0, UNIT_STATE_ROOT);
-            break;
-        }
-        case SMART_ACTION_SET_GO_FLAG:
-        {
-            for (WorldObject* target : targets)
-                if (IsGameObject(target))
-                    target->ToGameObject()->SetUInt32Value(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
-            break;
-        }
-        case SMART_ACTION_ADD_GO_FLAG:
-        {
-            for (WorldObject* target : targets)
-                if (IsGameObject(target))
-                    target->ToGameObject()->SetFlag(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
-            break;
-        }
-        case SMART_ACTION_REMOVE_GO_FLAG:
-        {
-            for (WorldObject* target : targets)
-                if (IsGameObject(target))
-                    target->ToGameObject()->RemoveFlag(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
             break;
         }
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
