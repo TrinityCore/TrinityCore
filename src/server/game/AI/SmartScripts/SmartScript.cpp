@@ -2527,7 +2527,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             WorldObject* summoner = GetLastInvoker();
             if (!summoner || !summoner->ToPlayer())
                 break;
-            
+
             ObjectGuid privateObjectOwner = summoner->GetGUID();
             WorldObject* baseObject = GetBaseObject();
 
