@@ -602,7 +602,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void SetData(uint32 type, uint32 value) override
@@ -867,7 +866,7 @@ private:
     bool _onRiveEvent;
 };
 
-// Sylvanas Shadowcopy (Riding) - 176369
+// Sylvanas Shadowcopy (Riding) - 178355
 struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
 {
     npc_sylvanas_windrunner_shadowcopy_riding(Creature* creature) : ScriptedAI(creature),
@@ -879,7 +878,8 @@ struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
+
+        me->SetObjectScale(2.5f);
     }
 
     void UpdateAI(uint32 diff) override
@@ -991,11 +991,10 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        //events.SetPhase(PHASE_TWO);
-        //DoAction(ACTION_PREPARE_PHASE_TWO);
+        events.SetPhase(PHASE_ONE);
+        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 3s, 1, PHASE_ONE);
 
-        //DoAction(ACTION_PREPARE_PHASE_THREE);
-        
+        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);     
@@ -1011,9 +1010,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
-
-        if (me->IsWithinMeleeRange(me->GetVictim()))
-            DoCastSelf(SPELL_RANGER_DAGGERS_STANCE, true);
+        */
     }
 
     void DoAction(int32 action) override
@@ -1160,7 +1157,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 me->SetReactState(REACT_AGGRESSIVE);
                 _meleeKitCombo = 0;
 
-                if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, 150.0f, true, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, 250.0f, true, true))
                     AttackStart(target);
 
                 break;
@@ -1168,30 +1165,23 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_WINDRUNNER_MODEL_ACTIVATE:
             {
-                // TODO: apparently, it's either sylvanas or the copy riding her doing the visual stuff here, but I haven't found what's going on here yet
-                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
+                DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, false);
 
-                scheduler.Schedule(350ms, [this](TaskContext /*task*/)
-                {
-                     DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, true);
-                });
-
-                scheduler.Schedule(400ms, [this](TaskContext /*task*/)
-                {
-                     if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
-                         ridingCopy->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_DARKENED_MODEL);
-                });
-
-                scheduler.Schedule(650ms, [this](TaskContext /*task*/)
+                scheduler.Schedule(200ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
+                    {
+                        ridingCopy->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_DARKENED_MODEL);
                         ridingCopy->HandleEmoteCommand(EMOTE_ONESHOT_DODGE);
+                    }
                 });
 
-                scheduler.Schedule(850ms, [this](TaskContext /*task*/)
+                scheduler.Schedule(700ms, [this](TaskContext /*task*/)
                 {
                     if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
                         ridingCopy->HandleEmoteCommand(EMOTE_ONESHOT_PARRY1H);
+
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_PARRY1H);
                 });
                 break;
             }
@@ -1202,11 +1192,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     ridingCopy->SetDisplayId(DATA_DISPLAY_ID_DEFAULT_INVISIBLE_MODEL);
 
                 me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_01);
-
-                scheduler.Schedule(350ms, [this](TaskContext /*task*/)
-                {
-                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
-                });
                 break;
             }
 
@@ -1725,6 +1710,8 @@ struct boss_sylvanas_windrunner : public BossAI
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
                     else
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
+
+                    events.Repeat(5s);
                     break;
                 }
 
@@ -2228,7 +2215,7 @@ struct boss_sylvanas_windrunner : public BossAI
             }
         }
 
-        DoSylvanasAttackIfReady();
+        //DoSylvanasAttackIfReady();
     }
 
     void DoSylvanasAttackIfReady()
@@ -2525,7 +2512,6 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
         me->SetUnitFlags2(UNIT_FLAG2_DISABLE_TURN);
     }
 
@@ -2681,22 +2667,11 @@ class spell_sylvanas_windrunner_disappear : public AuraScript
             GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3300));
         else
             GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3600));
-
-        GetTarget()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
-    }
-
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (!GetCaster())
-            return;
-
-        GetTarget()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
     }
 
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_disappear::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_disappear::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
