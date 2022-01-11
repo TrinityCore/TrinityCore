@@ -165,7 +165,7 @@ void WorldSession::HandleBuyReagentBankOpcode(WorldPackets::Bank::ReagentBank& r
     }
 
     int64 price = 100 * GOLD;
-    _player->ModifyMoney(-int64(price));
+    _player->ModifyMoney(-price);
     _player->UnlockReagentBank();
 }
 

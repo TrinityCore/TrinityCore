@@ -11665,13 +11665,13 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading, bool reagent) const
+InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading, bool isReagent) const
 {
     if (!pItem)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
 
     // different slots range if we're trying to store item in Reagent Bank
-    bool isReagentBankSlot = IsReagentBankPos(bag, slot) || reagent;
+    bool isReagentBankSlot = IsReagentBankPos(bag, slot) || isReagent;
     if (isReagentBankSlot && !IsReagentBankUnlocked())
         return EQUIP_ERR_REAGENT_BANK_LOCKED;
 
