@@ -176,17 +176,8 @@ struct boss_illidari_council : public BossAI
     {
         _inCombat = false;
         events.Reset();
+        
         instance->SetBossState(DATA_ILLIDARI_COUNCIL, DONE);
-
-        for (uint32 bossData : CouncilData)
-        {
-            if (Creature* council = instance->GetCreature(bossData))
-            {
-                // Allow loot
-                council->LowerPlayerDamageReq(council->GetMaxHealth());
-                council->CastSpell(council, SPELL_QUIET_SUICIDE, true);
-            }
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -255,8 +246,17 @@ struct IllidariCouncilBossAI : public BossAI
 
     virtual void ScheduleEvents() = 0;
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
+        for (uint32 bossData : CouncilData)
+        {
+            if (Creature* council = instance->GetCreature(bossData))
+            {
+                council->DealDamage(killer, council, council->GetMaxHealth() + 1);
+                instance->SetBossState(DATA_ILLIDARI_COUNCIL, DONE);
+            }
+        }
+
         Talk(SAY_COUNCIL_DEATH);
     }
 
@@ -268,8 +268,18 @@ struct IllidariCouncilBossAI : public BossAI
 
     void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
-            damage = me->GetHealth() - 1;
+        if (who == me)
+            return;
+
+        for (uint32 bossData : CouncilData)
+        {
+            if (Creature* council = instance->GetCreature(bossData))
+                if (council != me && damage < council->GetHealth())
+                {
+                    council->ModifyHealth(-int32(damage));
+                    council->LowerPlayerDamageReq(damage);
+                }
+        }
     }
 
     void KilledUnit(Unit* victim) override
