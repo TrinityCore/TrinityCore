@@ -46,6 +46,7 @@ class Unit;
 class Vehicle;
 class Map;
 enum class GossipOptionIcon : uint8;
+enum class PlayerCreateMode : int8;
 struct AccessRequirement;
 struct DeclinedName;
 struct DungeonEncounterEntry;
@@ -627,6 +628,7 @@ struct PlayerLevelInfo
 };
 
 typedef std::vector<uint32> PlayerCreateInfoSpells;
+typedef std::unordered_map<PlayerCreateMode, PlayerCreateInfoSpells> PlayerCreateInfoSpellsMap;
 
 struct PlayerCreateInfoAction
 {
@@ -655,7 +657,7 @@ struct PlayerInfo
 
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
-    PlayerCreateInfoSpells castSpells;
+    PlayerCreateInfoSpellsMap castSpells;
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
 

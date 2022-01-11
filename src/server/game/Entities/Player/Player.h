@@ -122,7 +122,9 @@ TC_GAME_API Item* GetItemInBag(Bag const* bag, uint8 slot);
 enum class PlayerCreateMode : int8
 {
     Normal  = 0,
-    NPE     = 1
+    NPE     = 1,
+
+    Max
 };
 
 typedef std::deque<Mail*> PlayerMails;
