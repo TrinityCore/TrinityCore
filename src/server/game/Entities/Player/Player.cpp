@@ -10627,8 +10627,9 @@ InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemP
                 return EQUIP_ERR_WRONG_BAG_TYPE;
 
             // can't store anything else than crafting reagents in Reagent Bank
-            if (IsReagentBankPos(bag, slot) && !pProto->IsCraftingReagent())
-                return EQUIP_ERR_WRONG_BAG_TYPE;
+            if ((slot >= BUYBACK_SLOT_START && slot < BUYBACK_SLOT_END) slot >= PLAYER_SLOT_END)
+                if (IsReagentBankPos(bag, slot) && (!IsReagentBankUnlocked() || !pProto->IsCraftingReagent()))
+                    return EQUIP_ERR_WRONG_BAG_TYPE;
         }
         else
         {
