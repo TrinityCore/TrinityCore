@@ -554,6 +554,8 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
                 continue;
 
             char* recordData = indexTable[indexVal];
+            if (!recordData)
+                continue;
 
             uint32 offset = 0;
             uint32 fieldIndex = 0;
