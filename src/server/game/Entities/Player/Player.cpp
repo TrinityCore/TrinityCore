@@ -20402,7 +20402,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     {
         PlayerInfo::CreatePosition const& createPosition = m_createMode == PlayerCreateMode::NPE && info->createPositionNPE ? info->createPositionNPE.get() : info->createPosition;
 
-        m_homebind.m_mapId = createPosition.Loc.GetMapId();
+        m_homebind.WorldRelocate(createPosition.Loc);
         if (createPosition.TransportGuid)
         {
             if (Transport* transport = HashMapHolder<Transport>::Find(ObjectGuid::Create<HighGuid::Transport>(*createPosition.TransportGuid)))
