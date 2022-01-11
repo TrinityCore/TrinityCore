@@ -10083,7 +10083,7 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
 std::vector<Item*> Player::GetCraftingReagentItems()
 {
     std::vector<Item*> itemList = std::vector<Item*>();
-    ForEachItem(ItemSearchLocation::Equipment | ItemSearchLocation::Inventory, [&itemList](Item* item)
+    ForEachItem(ItemSearchLocation::Inventory, [&itemList](Item* item)
     {
         if (item->GetTemplate()->IsCraftingReagent())
             itemList.push_back(item);

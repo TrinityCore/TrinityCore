@@ -186,29 +186,26 @@ void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBan
     // query all reagents from player's inventory
     std::vector<Item*> items = _player->GetCraftingReagentItems();
 
-    if (!items.empty())
+    for (Item* item : items)
     {
-        for (Item* item : items)
+        ItemPosCountVec dest;
+        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
+        if (msg != EQUIP_ERR_OK)
         {
-            ItemPosCountVec dest;
-            InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
-            if (msg != EQUIP_ERR_OK)
-            {
-                _player->SendEquipError(msg, item, NULL);
-                continue;
-            }
-
-            if (dest.size() == 1 && dest[0].pos == item->GetPos())
-            {
-                _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, NULL);
-                continue;
-            }
-
-            // store reagent
-            _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
-            _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
-            _player->BankItem(dest, item, true);
+            _player->SendEquipError(msg, item, NULL);
+            continue;
         }
+
+        if (dest.size() == 1 && dest[0].pos == item->GetPos())
+        {
+            _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, NULL);
+            continue;
+        }
+
+        // store reagent
+        _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+        _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+        _player->BankItem(dest, item, true);
     }
 }
 
