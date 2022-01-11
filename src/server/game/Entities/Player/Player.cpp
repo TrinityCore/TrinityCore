@@ -10253,15 +10253,6 @@ bool Player::IsInventoryPos(uint8 bag, uint8 slot)
         return true;
     if (bag == INVENTORY_SLOT_BAG_0 && (slot >= CHILD_EQUIPMENT_SLOT_START && slot < CHILD_EQUIPMENT_SLOT_END))
         return true;
-    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END))
-        return true;
-    return false;
-}
-
-bool Player::IsReagentBankPos(uint8 bag, uint8 slot)
-{
-    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END))
-        return true;
     return false;
 }
 
@@ -10281,6 +10272,15 @@ bool Player::IsBankPos(uint8 bag, uint8 slot)
     if (bag == INVENTORY_SLOT_BAG_0 && (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END))
         return true;
     if (bag >= BANK_SLOT_BAG_START && bag < BANK_SLOT_BAG_END)
+        return true;
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END))
+        return true;
+    return false;
+}
+
+bool Player::IsReagentBankPos(uint8 bag, uint8 slot)
+{
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END))
         return true;
     return false;
 }
