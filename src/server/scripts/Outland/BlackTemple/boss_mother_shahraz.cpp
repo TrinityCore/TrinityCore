@@ -38,8 +38,10 @@ enum Spells
 {
     SPELL_FATAL_ATTRACTION_DAMAGE   = 40871,
     SPELL_SILENCING_SHRIEK          = 40823,
+    SPELL_SABER_LASH                = 40810,
     SPELL_SABER_LASH_IMMUNITY       = 43690,
     SPELL_FATAL_ATTRACTION_TELEPORT = 40869,
+    SPELL_FRENZY                    = 40683,
     SPELL_BERSERK                   = 45078,
     SPELL_FATAL_ATTRACTION          = 41001,
     SPELL_SINISTER_PERIODIC         = 40863,
@@ -67,6 +69,7 @@ enum Events
     EVENT_SILENCING_SHRIEK,
     EVENT_TAUNT,
     EVENT_BERSERK
+    EVENT_SPELL_SABER_LASH
 };
 
 uint32 const BeamTriggers[4] =
@@ -95,19 +98,33 @@ uint32 const PrismaticAuras[6]=
     SPELL_PRISMATIC_AURA_HOLY
 };
 
+Position const TeleportPoint[7] =
+{
+    { 959.996f, 212.576f, 193.843f },
+    { 932.537f, 231.813f, 193.838f },
+    { 958.675f, 254.767f, 193.822f },
+    { 946.955f, 201.316f, 192.535f },
+    { 944.294f, 149.676f, 197.551f },
+    { 930.548f, 284.888f, 193.367f },
+    { 965.997f, 278.398f, 195.777f }
+};
+
 struct boss_mother_shahraz : public BossAI
 {
     boss_mother_shahraz(Creature* creature) : BossAI(creature, DATA_MOTHER_SHAHRAZ), _enraged(false) { }
 
     void Reset() override
     {
-        _Reset();
+        BossAI::Reset();
         _enraged = false;
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+        
+        DoCastSelf(SPELL_RANDOM_PERIODIC, true);
+       
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_SILENCING_SHRIEK, 22s);
         events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 15s);
@@ -115,6 +132,7 @@ struct boss_mother_shahraz : public BossAI
         events.ScheduleEvent(EVENT_RANDOM_BEAM, 6s);
         events.ScheduleEvent(EVENT_BERSERK, 10min);
         events.ScheduleEvent(EVENT_TAUNT, 35s);
+        events.ScheduleEvent(EVENT_SPELL_SABER_LASH, 4s);
     }
 
     void KilledUnit(Unit* victim) override
@@ -139,7 +157,7 @@ struct boss_mother_shahraz : public BossAI
         if (!_enraged && me->HealthBelowPctDamaged(10, damage))
         {
             _enraged = true;
-            DoCastSelf(SPELL_RANDOM_PERIODIC, true);
+            DoCastSelf(SPELL_FRENZY, true);
             Talk(EMOTE_ENRAGE, me);
             Talk(SAY_ENRAGE);
         }
@@ -156,6 +174,10 @@ struct boss_mother_shahraz : public BossAI
             case EVENT_PRISMATIC_SHIELD:
                 DoCastSelf(PrismaticAuras[urand(0, 5)]);
                 events.Repeat(Seconds(15));
+                break;
+            case EVENT_SPELL_SABER_LASH:
+                DoCastVictim(SPELL_SABER_LASH, false);
+                events.Repeat(Seconds(30));
                 break;
             case EVENT_FATAL_ATTRACTION:
                 Talk(SAY_SPELL);
@@ -204,7 +226,7 @@ class spell_mother_shahraz_fatal_attraction : public SpellScript
 
     void SetDest(SpellDestination& dest)
     {
-        dest.Relocate(GetCaster()->GetRandomNearPosition(50.0f));
+        dest.Relocate(TeleportPoint[urand(0, 6)]);
     }
 
     void HandleTeleport(SpellEffIndex /*effIndex*/)
