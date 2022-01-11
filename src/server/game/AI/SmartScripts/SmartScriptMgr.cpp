@@ -870,7 +870,6 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_CLOSE_GOSSIP: return NO_PARAMS;
             case SMART_ACTION_TRIGGER_TIMED_EVENT: return sizeof(SmartAction::timeEvent);
             case SMART_ACTION_REMOVE_TIMED_EVENT: return sizeof(SmartAction::timeEvent);
-            case SMART_ACTION_ADD_AURA: return sizeof(SmartAction::addAura);
             case SMART_ACTION_CALL_SCRIPT_RESET: return NO_PARAMS;
             case SMART_ACTION_SET_RANGED_MOVEMENT: return sizeof(SmartAction::setRangedMovement);
             case SMART_ACTION_CALL_TIMED_ACTIONLIST: return sizeof(SmartAction::timedActionList);
@@ -893,9 +892,6 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SET_HOME_POS: return NO_PARAMS;
             case SMART_ACTION_SET_HEALTH_REGEN: return sizeof(SmartAction::setHealthRegen);
             case SMART_ACTION_SET_ROOT: return sizeof(SmartAction::setRoot);
-            case SMART_ACTION_SET_GO_FLAG: return sizeof(SmartAction::goFlag);
-            case SMART_ACTION_ADD_GO_FLAG: return sizeof(SmartAction::goFlag);
-            case SMART_ACTION_REMOVE_GO_FLAG: return sizeof(SmartAction::goFlag);
             case SMART_ACTION_SUMMON_CREATURE_GROUP: return sizeof(SmartAction::creatureGroup);
             case SMART_ACTION_SET_POWER: return sizeof(SmartAction::power);
             case SMART_ACTION_ADD_POWER: return sizeof(SmartAction::power);
@@ -1563,10 +1559,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
             break;
-        case SMART_ACTION_ADD_AURA:
-            if (!IsSpellValid(e, e.action.addAura.spell))
-                return false;
-            break;
         case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
             if (Quest const* qid = sObjectMgr->GetQuestTemplate(e.action.quest.quest))
@@ -2102,9 +2094,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_GO_SET_GO_STATE:
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
         case SMART_ACTION_SET_HOME_POS:
-        case SMART_ACTION_SET_GO_FLAG:
-        case SMART_ACTION_ADD_GO_FLAG:
-        case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
         case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
@@ -2120,12 +2109,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_UNIT_FLAG:
         case SMART_ACTION_INSTALL_AI_TEMPLATE:
         case SMART_ACTION_SET_SWIM:
+        case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT:
         case SMART_ACTION_RESET_SCRIPT_BASE_OBJECT:
         case SMART_ACTION_SEND_GO_CUSTOM_ANIM:
         case SMART_ACTION_SET_DYNAMIC_FLAG:
         case SMART_ACTION_ADD_DYNAMIC_FLAG:
         case SMART_ACTION_REMOVE_DYNAMIC_FLAG:
+        case SMART_ACTION_SET_GO_FLAG:
+        case SMART_ACTION_ADD_GO_FLAG:
+        case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SET_CAN_FLY:
         case SMART_ACTION_REMOVE_AURAS_BY_TYPE:
         case SMART_ACTION_SET_SIGHT_DIST:
@@ -2136,18 +2129,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
             return false;
-    }
-
-    // Additional check for deprecated
-    switch (e.GetActionType())
-    {
-        // Deprecated
-        case SMART_ACTION_ADD_AURA:
-        case SMART_ACTION_SET_GO_FLAG:
-            TC_LOG_WARN("sql.sql.deprecation", "SmartAIMgr: Deprecated action_type(%u), Entry %d SourceType %u Event %u, it might be removed in the future, loaded for now.", e.GetActionType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
-            break;
-        default:
-            break;
     }
 
     if (!CheckUnusedActionParams(e))
