@@ -150,6 +150,152 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& pack
     _player->UpdateCriteria(CriteriaType::BankSlotsPurchased);
 }
 
+void WorldSession::HandleBuyReagentBankOpcode(WorldPackets::Bank::ReagentBank& reagentBank)
+{
+    if (!CanUseBank(reagentBank.Banker))
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleBuyReagentBankOpcode - %s not found or you can't interact with him.", reagentBank.Banker.ToString().c_str());
+        return;
+    }
+
+    if (_player->IsReagentBankUnlocked())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleBuyReagentBankOpcode - Player (%s, name: %s) tried to unlock reagent bank a 2nd time.", _player->GetGUID().ToString().c_str(), _player->GetName().c_str());
+        return;
+    }
+
+    int64 price = 100 * GOLD;
+    _player->ModifyMoney(-int64(price));
+    _player->UnlockReagentBank();
+}
+
+void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBank& reagentBank)
+{
+    if (!CanUseBank(reagentBank.Banker))
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleReagentBankDepositOpcode - %s not found or you can't interact with him.", reagentBank.Banker.ToString().c_str());
+        return;
+    }
+
+    if (!_player->IsReagentBankUnlocked())
+    {
+        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
+        return;
+    }
+
+    // query all reagents from player's inventory
+    std::vector<Item*> items = _player->GetCraftingReagentItems();
+
+    if (!items.empty())
+    {
+        for (Item* item : items)
+        {
+            ItemPosCountVec dest;
+            InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
+            if (msg != EQUIP_ERR_OK)
+            {
+                _player->SendEquipError(msg, item, NULL);
+                continue;
+            }
+
+            if (dest.size() == 1 && dest[0].pos == item->GetPos())
+            {
+                _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, NULL);
+                continue;
+            }
+
+            // store reagent
+            _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+            _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+            _player->BankItem(dest, item, true);
+        }
+    }
+}
+
+void WorldSession::HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReagent& autoBankReagent)
+{
+    if (!CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - %s not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        return;
+    }
+
+    if (!_player->IsReagentBankUnlocked())
+    {
+        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
+        return;
+    }
+
+    Item* item = _player->GetItemByPos(autoBankReagent.PackSlot, autoBankReagent.Slot);
+    if (!item)
+        return;
+
+    ItemPosCountVec dest;
+    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
+    if (msg != EQUIP_ERR_OK)
+    {
+        _player->SendEquipError(msg, item, NULL);
+        return;
+    }
+
+    if (dest.size() == 1 && dest[0].pos == item->GetPos())
+    {
+        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, NULL);
+        return;
+    }
+
+    _player->RemoveItem(autoBankReagent.PackSlot, autoBankReagent.Slot, true);
+    _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+    _player->BankItem(dest, item, true);
+}
+
+void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStoreBankReagent& autoStoreBankReagent)
+{
+    if (!CanUseBank())
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - %s not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        return;
+    }
+
+    if (!_player->IsReagentBankUnlocked())
+    {
+        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
+        return;
+    }
+
+    Item* pItem = _player->GetItemByPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot);
+    if (!pItem)
+        return;
+
+    if (_player->IsReagentBankPos(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot))
+    {
+        ItemPosCountVec dest;
+        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        if (msg != EQUIP_ERR_OK)
+        {
+            _player->SendEquipError(msg, pItem, NULL);
+            return;
+        }
+
+        _player->RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
+        if (Item const* storedItem = _player->StoreItem(dest, pItem, true))
+            _player->ItemAddedQuestCheck(storedItem->GetEntry(), storedItem->GetCount());
+    }
+    else
+    {
+        ItemPosCountVec dest;
+        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false, true, true);
+        if (msg != EQUIP_ERR_OK)
+        {
+            _player->SendEquipError(msg, pItem, NULL);
+            return;
+        }
+
+        _player->RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
+        _player->BankItem(dest, pItem, true);
+    }
+}
+
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
     m_currentBankerGUID = guid;

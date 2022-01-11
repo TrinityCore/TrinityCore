@@ -235,6 +235,8 @@ public:
                     itemPos = "[in inventory]";
                 else if (Player::IsBankPos(itemBag, itemSlot))
                     itemPos = "[in bank]";
+                else if (Player::IsReagentBankPos(itemBag, itemSlot))
+                    itemPos = "[in reagent bank]";
                 else
                     itemPos = "";
 
