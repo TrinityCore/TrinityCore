@@ -145,6 +145,8 @@ struct boss_mother_shahraz : public BossAI
     {
         _JustDied();
         Talk(SAY_DEATH);
+        
+       instance->SetBossState(DATA_MOTHER_SHAHRAZ, DONE);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
