@@ -82,7 +82,8 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "AreaTrigger",
     "ConversationLine",
     "AreaTrigger Client Triggered",
-    "Trainer Spell"
+    "Trainer Spell",
+    "Object Visibility (by ID)"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -954,7 +955,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
             sourceType == CONDITION_SOURCE_TYPE_PHASE ||
             sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER ||
-            sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL);
+            sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL ||
+            sourceType == CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1092,6 +1094,16 @@ bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint3
             TC_LOG_DEBUG("condition", "GetConditionsForTrainerSpell: found conditions for trainer id %u spell %u", trainerId, spellId);
             return IsObjectMeetToConditions(player, i->second);
         }
+    }
+    return true;
+}
+
+bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject* seer) const
+{
+    if (ConditionContainer const* conditions = Trinity::Containers::MapGetValuePtr(ObjectVisibilityConditionStore, { objectType, entry }))
+    {
+        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType %u entry %u", objectType, entry);
+        return IsObjectMeetToConditions(seer, *conditions);
     }
     return true;
 }
@@ -1344,6 +1356,13 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_TRAINER_SPELL:
                 {
                     TrainerSpellConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
+                }
+                case CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY:
+                {
+                    ObjectVisibilityConditionStore[{ cond->SourceGroup, uint32(cond->SourceEntry) }].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -1992,6 +2011,37 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY:
+        {
+            if (cond->SourceGroup <= 0 || cond->SourceGroup >= NUM_CLIENT_OBJECT_TYPES)
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, is no valid object type, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+
+            if (cond->SourceGroup == TYPEID_UNIT)
+            {
+                if (!sObjectMgr->GetCreatureTemplate(cond->SourceEntry))
+                {
+                    TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                    return false;
+                }
+            }
+            else if (cond->SourceGroup == TYPEID_GAMEOBJECT)
+            {
+                if (!sObjectMgr->GetGameObjectTemplate(cond->SourceEntry))
+                {
+                    TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.", cond->ToString().c_str());
+                    return false;
+                }
+            }
+            else
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, uses unchecked type id, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "%s Invalid ConditionSourceType in `condition` table, ignoring.", cond->ToString().c_str());
             return false;
@@ -2584,6 +2634,12 @@ void ConditionMgr::Clean()
                 delete *i;
 
     TrainerSpellConditionContainerStore.clear();
+
+    for (auto&& [_, conditions] : ObjectVisibilityConditionStore)
+        for (Condition* condition : conditions)
+            delete condition;
+
+    ObjectVisibilityConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::vector<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
