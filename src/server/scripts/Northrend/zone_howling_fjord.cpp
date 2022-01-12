@@ -493,6 +493,38 @@ class spell_the_cleansing_on_death_cast_on_master : public SpellScript
     }
 };
 
+/*######
+## Quest 11472: The Way to His Heart...
+######*/
+
+enum TheWayToHisHeart
+{
+    SPELL_CREATE_TASTY_REEF_FISH   = 12602,
+    SPELL_FISHED_UP_REEF_SHARK     = 20713
+};
+
+// 21014 - Anuniaq's Net
+class spell_the_way_to_his_heart_anuniaq_net : public SpellScript
+{
+    PrepareSpellScript(spell_the_way_to_his_heart_anuniaq_net);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_TASTY_REEF_FISH, SPELL_FISHED_UP_REEF_SHARK });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, roll_chance_i(75) ? SPELL_CREATE_TASTY_REEF_FISH : SPELL_FISHED_UP_REEF_SHARK, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_the_way_to_his_heart_anuniaq_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
@@ -504,4 +536,5 @@ void AddSC_howling_fjord()
     RegisterSpellScript(spell_the_cleansing_cleansing_soul);
     RegisterSpellScript(spell_the_cleansing_mirror_image_script_effect);
     RegisterSpellScript(spell_the_cleansing_on_death_cast_on_master);
+    RegisterSpellScript(spell_the_way_to_his_heart_anuniaq_net);
 }
