@@ -83,7 +83,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "ConversationLine",
     "AreaTrigger Client Triggered",
     "Trainer Spell",
-    "Spawn"
+    "Object Visibility (by ID)"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -956,7 +956,7 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_PHASE ||
             sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER ||
             sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL ||
-            sourceType == CONDITION_SOURCE_TYPE_SPAWN);
+            sourceType == CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1098,17 +1098,12 @@ bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint3
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingSpawnConditions(uint32 objectType, uint32 entry, WorldObject* seer) const
+bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject* seer) const
 {
-    ConditionEntriesByCreatureIdMap::const_iterator itr = SpawnConditionContainerStore.find(objectType);
-    if (itr != SpawnConditionContainerStore.end())
+    if (ConditionContainer const* conditions = Trinity::Containers::MapGetValuePtr(ObjectVisibilityConditionStore, { objectType, entry }))
     {
-        ConditionsByEntryMap::const_iterator i = (*itr).second.find(entry);
-        if (i != (*itr).second.end())
-        {
-            TC_LOG_DEBUG("condition", "IsObjectMeetingSpawnConditions: found conditions for objectType %u entry %u", objectType, entry);
-            return IsObjectMeetToConditions(seer, i->second);
-        }
+        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType %u entry %u", objectType, entry);
+        return IsObjectMeetToConditions(seer, *conditions);
     }
     return true;
 }
@@ -1365,9 +1360,9 @@ void ConditionMgr::LoadConditions(bool isReload)
                     ++count;
                     continue;
                 }
-                case CONDITION_SOURCE_TYPE_SPAWN:
+                case CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY:
                 {
-                    SpawnConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    ObjectVisibilityConditionStore[{ cond->SourceGroup, uint32(cond->SourceEntry) }].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -2016,7 +2011,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_SPAWN:
+        case CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY:
         {
             if (cond->SourceGroup <= 0 || cond->SourceGroup >= NUM_CLIENT_OBJECT_TYPES)
             {
@@ -2640,12 +2635,11 @@ void ConditionMgr::Clean()
 
     TrainerSpellConditionContainerStore.clear();
 
-    for (ConditionEntriesByCreatureIdMap::iterator itr = SpawnConditionContainerStore.begin(); itr != SpawnConditionContainerStore.end(); ++itr)
-        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete* i;
+    for (auto&& [_, conditions] : ObjectVisibilityConditionStore)
+        for (Condition* condition : conditions)
+            delete condition;
 
-    SpawnConditionContainerStore.clear();
+    ObjectVisibilityConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::vector<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
