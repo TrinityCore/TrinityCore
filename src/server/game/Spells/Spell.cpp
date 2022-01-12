@@ -6044,6 +6044,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 break;
             }
             case SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY:
+            case SPELL_EFFECT_GRANT_BATTLEPET_LEVEL:
             case SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE:
             {
                 Player* playerCaster = m_caster->ToPlayer();
@@ -6090,7 +6091,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                                     return SPELL_FAILED_CANT_UPGRADE_BATTLE_PET;
                             }
 
-                            if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
+                            if (spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_LEVEL || spellEffectInfo.Effect == SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE)
                                 if (battlePet->PacketInfo.Level >= BattlePets::MAX_BATTLE_PET_LEVEL)
                                     return GRANT_PET_LEVEL_FAIL;
 
@@ -7086,7 +7087,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                 {
                     if (!enchantEntry)
                         return SPELL_FAILED_ERROR;
-                    if (enchantEntry->Flags & ENCHANTMENT_CAN_SOULBOUND)
+                    if (enchantEntry->GetFlags().HasFlag(SpellItemEnchantmentFlags::Soulbound))
                         return SPELL_FAILED_NOT_TRADEABLE;
                 }
                 break;
@@ -7100,10 +7101,10 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                 if (item->GetOwner() != player)
                 {
                     uint32 enchant_id = spellEffectInfo.MiscValue;
-                    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-                    if (!pEnchant)
+                    SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+                    if (!enchantEntry)
                         return SPELL_FAILED_ERROR;
-                    if (pEnchant->Flags & ENCHANTMENT_CAN_SOULBOUND)
+                    if (enchantEntry->GetFlags().HasFlag(SpellItemEnchantmentFlags::Soulbound))
                         return SPELL_FAILED_NOT_TRADEABLE;
                 }
 
@@ -8684,6 +8685,12 @@ CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
             Targets->SetGOTarget(goTarget);
         }
     }
+}
+
+CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeringSpell)
+{
+    OriginalCastId = triggeringSpell->m_castId;
+    return *this;
 }
 
 CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* triggeringAura)

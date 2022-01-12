@@ -30,6 +30,7 @@ class Corpse;
 class GameObject;
 class Item;
 class Player;
+class Spell;
 class Unit;
 class WorldObject;
 enum Difficulty : uint8;
@@ -436,12 +437,14 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs(bool triggered) : TriggerFlags(triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE) {}
     CastSpellExtraArgs(TriggerCastFlags trigger) : TriggerFlags(trigger) {}
     CastSpellExtraArgs(Item* item) : TriggerFlags(TRIGGERED_FULL_MASK), CastItem(item) {}
+    CastSpellExtraArgs(Spell const* triggeringSpell) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringSpell(triggeringSpell); }
     CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) : CastDifficulty(castDifficulty) {}
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); }
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
+    CastSpellExtraArgs& SetTriggeringSpell(Spell const* triggeringSpell);
     CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura);
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }

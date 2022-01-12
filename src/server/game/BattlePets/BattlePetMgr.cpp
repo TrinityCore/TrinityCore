@@ -748,6 +748,57 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePe
     }
 }
 
+void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
+{
+    if (!HasJournalLock())
+        return;
+
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(pet->PacketInfo.Species))
+        if (battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::CantBattle))
+            return;
+
+    uint16 level = pet->PacketInfo.Level;
+    if (level >= MAX_BATTLE_PET_LEVEL)
+        return;
+
+    Player* player = _owner->GetPlayer();
+
+    while (grantedLevels > 0 && level < MAX_BATTLE_PET_LEVEL)
+    {
+        ++level;
+        --grantedLevels;
+
+        player->UpdateCriteria(CriteriaType::BattlePetReachLevel, pet->PacketInfo.Species, level);
+    }
+
+    pet->PacketInfo.Level = level;
+    if (level >= MAX_BATTLE_PET_LEVEL)
+        pet->PacketInfo.Exp = 0;
+    pet->CalculateStats();
+    pet->PacketInfo.Health = pet->PacketInfo.MaxHealth;
+
+    if (pet->SaveInfo != BATTLE_PET_NEW)
+        pet->SaveInfo = BATTLE_PET_CHANGED;
+
+    std::vector<std::reference_wrapper<BattlePet>> updates;
+    updates.push_back(std::ref(*pet));
+    SendUpdates(std::move(updates), false);
+
+    // Update battle pet related update fields
+    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
+    {
+        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
+        {
+            summonedBattlePet->SetWildBattlePetLevel(pet->PacketInfo.Level);
+            player->SetBattlePetData(pet);
+        }
+    }
+}
+
 void BattlePetMgr::HealBattlePetsPct(uint8 pct)
 {
     // TODO: After each Pet Battle, any injured companion will automatically
