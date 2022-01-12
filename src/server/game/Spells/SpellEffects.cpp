@@ -346,16 +346,27 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET && effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET && unitTarget && unitTarget->IsAlive())
+    if (unitTarget && unitTarget->IsAlive())
     {
         bool apply_direct_bonus = true;
         switch (m_spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
             {
+                // Meteor like spells (divided damage to targets)
+                if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_SHARE_DAMAGE))
+                {
+                    uint32 count = 0;
+                    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        if (ihit->effectMask & (1<<effIndex))
+                            ++count;
+
+                    damage /= count;                    // divide to all targets
+                }
+
                 switch (m_spellInfo->Id)                     // better way to check unknown
                 {
                     // Consumption
@@ -423,18 +434,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         }
 
         m_damage += damage;
-    }
-
-    // Some spells, such as meteor spells, share their damage among all potential targets
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH == m_spellInfo->HasAttribute(SPELL_ATTR0_CU_SHARE_DAMAGE))
-    {
-        uint32 count = 0;
-        for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
-            if (targetInfo.effectMask & (1 << effIndex))
-                ++count;
-
-        if (count)
-            damage /= count;
     }
 }
 
