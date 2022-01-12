@@ -266,9 +266,7 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                targets.clear();
-                targets.push_back(target);
+                Trinity::Containers::RandomResize(targets, 1);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
