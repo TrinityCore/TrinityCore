@@ -541,6 +541,29 @@ class spell_mage_firestarter : public SpellScript
     }
 };
 
+// 321712 - Pyroblast
+class spell_mage_firestarter_dots : public AuraScript
+{
+    PrepareAuraScript(spell_mage_firestarter_dots);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FIRESTARTER });
+    }
+
+    void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)
+    {
+        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_FIRESTARTER, EFFECT_0))
+            if (victim->GetHealthPct() >= aurEff->GetAmount())
+                critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcCritChance += AuraEffectCalcCritChanceFn(spell_mage_firestarter_dots::CalcCritChance, EFFECT_ALL, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 // 11426 - Ice Barrier
 class spell_mage_ice_barrier : public AuraScript
 {
@@ -1181,6 +1204,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_conjure_refreshment);
     RegisterAuraScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
+    RegisterAuraScript(spell_mage_firestarter_dots);
     RegisterAuraScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);
