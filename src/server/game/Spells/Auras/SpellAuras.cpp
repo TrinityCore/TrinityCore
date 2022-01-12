@@ -261,18 +261,24 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     if (auraData.Flags & AFLAG_SCALABLE)
     {
         auraData.Points.reserve(aura->GetAuraEffects().size());
-        auraData.EstimatedPoints.reserve(aura->GetAuraEffects().size());
+        bool hasEstimatedAmounts = false;
         for (AuraEffect const* effect : GetBase()->GetAuraEffects())
         {
             if (effect && HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
             {
                 Trinity::Containers::EnsureWritableVectorIndex(auraData.Points, effect->GetEffIndex()) = float(effect->GetAmount());
                 if (effect->GetEstimatedAmount())
-                    Trinity::Containers::EnsureWritableVectorIndex(auraData.EstimatedPoints, effect->GetEffIndex()) = *effect->GetEstimatedAmount();
+                    hasEstimatedAmounts = true;
             }
         }
-        if (!auraData.EstimatedPoints.empty())
-            auraData.EstimatedPoints.resize(auraData.Points.size()); // pad to equal sizes
+        if (hasEstimatedAmounts)
+        {
+            // When sending EstimatedPoints all effects (at least up to the last one that uses GetEstimatedAmount) must have proper value in packet
+            auraData.EstimatedPoints.resize(auraData.Points.size());
+            for (AuraEffect const* effect : GetBase()->GetAuraEffects())
+                if (effect && HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
+                    auraData.EstimatedPoints[effect->GetEffIndex()] = effect->GetEstimatedAmount().value_or(effect->GetAmount());
+        }
     }
 }
 
