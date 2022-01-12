@@ -2792,8 +2792,9 @@ Group::Rolls::iterator Group::GetRoll(ObjectGuid Guid)
 {
     Rolls::iterator iter;
     for (iter=RollId.begin(); iter != RollId.end(); ++iter)
-        if ((*iter)->itemGUID == Guid && (*iter)->isValid())
+        if ((*iter)->isValid() && (*iter)->itemGUID == Guid)
             return iter;
+
     return RollId.end();
 }
 
