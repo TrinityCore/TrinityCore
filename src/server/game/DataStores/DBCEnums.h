@@ -1485,15 +1485,21 @@ DEFINE_ENUM_FLAG(SpellEffectAttributes);
 
 #define MAX_SPELL_AURA_INTERRUPT_FLAGS 2
 
-enum SpellItemEnchantmentFlags
+enum class SpellItemEnchantmentFlags : uint16
 {
-    ENCHANTMENT_CAN_SOULBOUND           = 0x01,
-    ENCHANTMENT_UNK1                    = 0x02,
-    ENCHANTMENT_UNK2                    = 0x04,
-    ENCHANTMENT_UNK3                    = 0x08,
-    ENCHANTMENT_COLLECTABLE             = 0x100,
-    ENCHANTMENT_HIDE_IF_NOT_COLLECTED   = 0x200,
+    Soulbound               = 0x001,
+    DoNotLog                = 0x002,
+    MainhandOnly            = 0x004,
+    AllowEnteringArena      = 0x008,
+    DoNotSaveToDB           = 0x010,
+    ScaleAsAGem             = 0x020,
+    DisableInChallengeModes = 0x040,
+    DisableInProvingGrounds = 0x080,
+    AllowTransmog           = 0x100,
+    HideUntilCollected      = 0x200,
 };
+
+DEFINE_ENUM_FLAG(SpellItemEnchantmentFlags);
 
 enum SpellProcsPerMinuteModType
 {
