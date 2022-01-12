@@ -225,7 +225,7 @@ class spell_occuthar_focused_fire : public SpellScriptLoader
                     return GetCaster()->GetVictim() == target;
                 });
 
-                if (targets.size() > 2)
+                if (targets.size() >= 2)
                     Trinity::Containers::RandomResize(targets, 1);
             }
 
