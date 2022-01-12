@@ -650,7 +650,7 @@ enum SpellAttr8
     SPELL_ATTR8_UNK6                             = 0x00000040, //  6
     SPELL_ATTR8_UNK7                             = 0x00000080, //  7
     SPELL_ATTR8_AFFECT_PARTY_AND_RAID            = 0x00000100, //  8 Nearly all spells have "all party and raid" in description
-    SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER        = 0x00000200, //  9 Periodic auras with this flag keep old periodic timer when refreshing at close to one tick remaining (kind of anti DoT clipping)
+    SPELL_ATTR8_PERIODIC_CAN_CRIT                = 0x00000200, //  9 Periodic Can Crit
     SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM    = 0x00000400, // 10 according to wowhead comments, name changes, title remains
     SPELL_ATTR8_UNK11                            = 0x00000800, // 11
     SPELL_ATTR8_AURA_SEND_AMOUNT                 = 0x00001000, // 12 Aura must have flag AFLAG_ANY_EFFECT_AMOUNT_SENT to send amount

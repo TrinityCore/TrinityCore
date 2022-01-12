@@ -4778,7 +4778,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+        spellInfo->AttributesEx8 |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC;
     });
 
     // Destruction Protocoll
