@@ -53,7 +53,6 @@ enum Spells
     SPELL_GRAVITY_LAPSE_FLY                     = 44227,
     SPELL_GRAVITY_LAPSE_BEAM_VISUAL_PERIODIC    = 44251,
     SPELL_SUMMON_ARCANE_SPHERE                  = 44265,
-    SPELL_POWER_FEEDBACK                        = 44233,
     SPELL_FLAME_STRIKE                          = 46162,
     SPELL_SHOCK_BARRIER                         = 46165,
     SPELL_PYROBLAST                             = 36819,
@@ -85,6 +84,7 @@ uint32 gravityLapseTeleportSpells[] =
     SPELL_GRAVITY_LAPSE_RIGHT_TELEPORT
 };
 
+#define SPELL_POWER_FEEDBACK        DUNGEON_MODE<uint32>(44233, 47109)
 #define SPELL_GRAVITY_LAPSE_DAMAGE  DUNGEON_MODE<uint32>(49887, 44226)
 
 enum Events
