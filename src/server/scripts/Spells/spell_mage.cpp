@@ -551,7 +551,7 @@ class spell_mage_firestarter_dots : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_FIRESTARTER });
     }
 
-    void CalcCritChance(AuraEffect const* aurEff, Unit const* victim, float& critChance)
+    void CalcCritChance(AuraEffect const* /*aurEff*/, Unit const* victim, float& critChance)
     {
         if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_FIRESTARTER, EFFECT_0))
             if (victim->GetHealthPct() >= aurEff->GetAmount())
