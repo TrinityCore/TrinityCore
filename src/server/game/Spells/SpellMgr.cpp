@@ -4771,16 +4771,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
     });
 
-    // Reverberating Hymn
-    ApplySpellFix({
-        75323,
-        90008
-    }, [](SpellInfo* spellInfo)
-    {
-        // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
-        spellInfo->AttributesEx8 |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC;
-    });
-
     // Destruction Protocoll
     ApplySpellFix({ 77437 }, [](SpellInfo* spellInfo)
     {
