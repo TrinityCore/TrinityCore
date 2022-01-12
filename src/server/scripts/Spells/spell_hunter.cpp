@@ -33,6 +33,9 @@
 enum HunterSpells
 {
     SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE           = 131900,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1         = 131637,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2         = 131951,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3         = 131952,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
@@ -63,10 +66,28 @@ class spell_hun_a_murder_of_crows : public AuraScript
 {
     PrepareAuraScript(spell_hun_a_murder_of_crows);
 
-    void HandleDummyTick(AuraEffect const* aurEff)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE, CastSpellExtraArgs(aurEff)
-            .SetOriginalCaster(GetCasterGUID()));
+        return ValidateSpellInfo
+        ({
+            SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE,
+            SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1,
+            SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2,
+            SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3
+        });
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE, true);
+
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1, true);
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2, true);
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3, true);
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3, true); // not a mistake, it is intended to cast twice
     }
 
     void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
