@@ -4076,7 +4076,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (playerCreateMode >= (uint8)PlayerCreateMode::Max)
+                if (playerCreateMode >= AsUnderlyingType(PlayerCreateMode::Max))
                 {
                     TC_LOG_ERROR("sql.sql", "Uses invalid playerCreateMode %u in `playercreateinfo_cast_spell` table, ignoring.", playerCreateMode);
                     continue;

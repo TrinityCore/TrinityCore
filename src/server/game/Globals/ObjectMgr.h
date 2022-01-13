@@ -663,7 +663,7 @@ struct PlayerInfo
 
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
-    PlayerCreateInfoSpells castSpells[(uint8)PlayerCreateMode::Max];
+    PlayerCreateInfoSpells castSpells[size_t(PlayerCreateMode::Max)];
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
 
