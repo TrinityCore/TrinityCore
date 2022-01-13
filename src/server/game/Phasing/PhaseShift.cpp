@@ -123,7 +123,7 @@ bool PhaseShift::CanSee(PhaseShift const& other) const
 
     auto checkInversePhaseShift = [excludePhasesWithFlag](PhaseShift const& phaseShift, PhaseShift const& excludedPhaseShift)
     {
-        if (phaseShift.Flags.HasFlag(PhaseShiftFlags::Unphased) && !excludedPhaseShift.Flags.HasFlag(PhaseShiftFlags::InverseUnphased))
+        if (phaseShift.Flags.HasFlag(PhaseShiftFlags::Unphased) && excludedPhaseShift.Flags.HasFlag(PhaseShiftFlags::InverseUnphased))
             return false;
 
         for (auto itr = phaseShift.Phases.begin(); itr != phaseShift.Phases.end(); ++itr)
