@@ -16,184 +16,189 @@
  */
 
 #include "ScriptMgr.h"
-#include "Map.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "the_botanica.h"
 
-enum Says
+enum Texts
 {
-    SAY_AGGRO                   = 0,
-    SAY_KILL                    = 1,
-    SAY_ARCANE_RESONANCE        = 2,
-    SAY_ARCANE_DEVASTATION      = 3,
-    EMOTE_SUMMON                = 4,
-    SAY_SUMMON                  = 5,
-    SAY_DEATH                   = 6
+    SAY_AGGRO                      = 0,
+    SAY_SLAY                       = 1,
+    SAY_ARCANE_DEVASTATION         = 2,
+    EMOTE_SUMMON                   = 3,
+    SAY_SUMMON                     = 4,
+    SAY_DEATH                      = 5
 };
 
 enum Spells
 {
-    SPELL_ARCANE_RESONANCE      = 34794,
-    SPELL_ARCANE_DEVASTATION    = 34799,
-    SPELL_SUMMON_REINFORCEMENTS = 34803
+    SPELL_ARCANE_RESONANCE         = 34794,
+    SPELL_ARCANE_DEVASTATION       = 34799,
+
+    SPELL_SUMMON_REINFORCEMENTS    = 34803,
+    SPELL_SUMMON_MENDER_1          = 34810,
+    SPELL_SUMMON_RESERVIST_1       = 34817,
+    SPELL_SUMMON_RESERVIST_2       = 34818,
+    SPELL_SUMMON_RESERVIST_3       = 34819
 };
 
 enum Events
 {
-    EVENT_ARCANE_RESONANCE      = 1,
-    EVENT_ARCANE_DEVASTATION    = 2
+    EVENT_ARCANE_DEVASTATION       = 1,
+    EVENT_SUMMON_REINFORCEMENTS
 };
 
-class boss_commander_sarannis : public CreatureScript
+uint32 const SummonReinforcementsSpells[] =
 {
-    public: boss_commander_sarannis() : CreatureScript("boss_commander_sarannis") { }
+    SPELL_SUMMON_MENDER_1, SPELL_SUMMON_RESERVIST_1, SPELL_SUMMON_RESERVIST_2, SPELL_SUMMON_RESERVIST_3
+};
 
-        struct boss_commander_sarannisAI : public BossAI
+struct boss_commander_sarannis : public BossAI
+{
+    boss_commander_sarannis(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS), _summoned(false) { }
+
+    void Reset() override
+    {
+        _Reset();
+        _summoned = false;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+
+        // This is definitely just timed, not scheduled instantly when victim has specific amount of stacks of Arcane Resonance
+        events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, RAND(10s, 15s, 20s, 25s, 30s, 35s));
+        // Timed in heroic (repeatable), on HP PTC in normal (not repeatable)
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 1min);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_summoned && me->HealthBelowPctDamaged(55, damage) && !IsHeroic())
         {
-            boss_commander_sarannisAI(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _phase = true;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700ms);
-                events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200ms);
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                Talk(SAY_KILL);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-
-            void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-            {
-                if (me->HealthBelowPctDamaged(50, damage) && _phase)
-                {
-                    _phase = false;
-                    Talk(EMOTE_SUMMON);
-                    Talk(SAY_SUMMON);
-                    DoCast(me, SPELL_SUMMON_REINFORCEMENTS);
-                }
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                BossAI::JustSummoned(summon);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_ARCANE_RESONANCE:
-                            Talk(SAY_ARCANE_RESONANCE);
-                            DoCastVictim(SPELL_ARCANE_RESONANCE, true);
-                            events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700ms);
-                            break;
-                        case EVENT_ARCANE_DEVASTATION:
-                            Talk(SAY_ARCANE_DEVASTATION);
-                            DoCastVictim(SPELL_ARCANE_DEVASTATION, true);
-                            events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 11s, 19200ms);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            bool _phase;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBotanicaAI<boss_commander_sarannisAI>(creature);
+            _summoned = true;
+            events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 0s);
         }
+    }
+
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    {
+        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && spell->Id == SPELL_SUMMON_REINFORCEMENTS)
+            Talk(SAY_SUMMON);
+    }
+
+    // Do not despawn them
+    void JustSummoned(Creature* summon) override
+    {
+        if (me->IsEngaged())
+            DoZoneInCombat(summon);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ARCANE_DEVASTATION:
+                    // Not always?
+                    Talk(SAY_ARCANE_DEVASTATION);
+                    // She can cast it if victim has only one stack of Arcane Resonance but can she cast it if victim has no stacks?
+                    DoCastVictim(SPELL_ARCANE_DEVASTATION);
+                    events.Repeat(RAND(10s, 15s, 20s, 25s, 30s, 35s));
+                    break;
+                case EVENT_SUMMON_REINFORCEMENTS:
+                    Talk(EMOTE_SUMMON);
+                    DoCastSelf(SPELL_SUMMON_REINFORCEMENTS);
+                    if (IsHeroic())
+                        events.Repeat(1min);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _summoned;
 };
 
-Position const PosSummonReinforcements[4] =
+// 34799 - Arcane Devastation
+class spell_commander_sarannis_arcane_devastation : public AuraScript
 {
-    { 160.4483f, 287.6435f, -3.887904f, 2.3841f },
-    { 153.4406f, 289.9929f, -4.736916f, 2.3841f },
-    { 154.4137f, 292.8956f, -4.683603f, 2.3841f },
-    { 157.1544f, 294.2599f, -4.726504f, 2.3841f }
-};
+    PrepareAuraScript(spell_commander_sarannis_arcane_devastation);
 
-enum Creatures
-{
-    NPC_SUMMONED_BLOODWARDER_MENDER     = 20083,
-    NPC_SUMMONED_BLOODWARDER_RESERVIST  = 20078
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ARCANE_RESONANCE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_ARCANE_RESONANCE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_commander_sarannis_arcane_devastation::AfterApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 34803 - Summon Reinforcements
-class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
+class spell_commander_sarannis_summon_reinforcements : public SpellScript
 {
-    public:
-        spell_commander_sarannis_summon_reinforcements() : SpellScriptLoader("spell_commander_sarannis_summon_reinforcements") { }
+    PrepareSpellScript(spell_commander_sarannis_summon_reinforcements);
 
-        class spell_commander_sarannis_summon_reinforcements_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_commander_sarannis_summon_reinforcements_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(SummonReinforcementsSpells);
+    }
 
-            void HandleCast(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_MENDER, PosSummonReinforcements[0], TEMPSUMMON_CORPSE_DESPAWN);
-                GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[1], TEMPSUMMON_CORPSE_DESPAWN);
-                GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[2], TEMPSUMMON_CORPSE_DESPAWN);
-                if (GetCaster()->GetMap()->IsHeroic())
-                    GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[3], TEMPSUMMON_CORPSE_DESPAWN);
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        for (uint32 spells : SummonReinforcementsSpells)
+            caster->CastSpell(caster, spells, true);
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_commander_sarannis_summon_reinforcements_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_commander_sarannis_summon_reinforcements_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_commander_sarannis_summon_reinforcements::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_boss_commander_sarannis()
 {
-    new boss_commander_sarannis();
-    new spell_commander_sarannis_summon_reinforcements();
+    RegisterBotanicaCreatureAI(boss_commander_sarannis);
+    RegisterSpellScript(spell_commander_sarannis_arcane_devastation);
+    RegisterSpellScript(spell_commander_sarannis_summon_reinforcements);
 }
