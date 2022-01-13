@@ -1295,10 +1295,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
         PlayerInfo const* info = sObjectMgr->GetPlayerInfo(pCurrChar->GetRace(), pCurrChar->GetClass());
-        PlayerCreateInfoSpells const* spells = Trinity::Containers::MapGetValuePtr(info->castSpells, pCurrChar->GetCreateMode());
-        if (spells)
-            for (uint32 spellId : *spells)
-                pCurrChar->CastSpell(pCurrChar, spellId, true);
+        for (uint32 spellId : info->castSpells[(int8)pCurrChar->GetCreateMode()])
+            pCurrChar->CastSpell(pCurrChar, spellId, true);
 
         // start with every map explored
         if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))

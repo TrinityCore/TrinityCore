@@ -46,7 +46,6 @@ class Unit;
 class Vehicle;
 class Map;
 enum class GossipOptionIcon : uint8;
-enum class PlayerCreateMode : int8;
 struct AccessRequirement;
 struct DeclinedName;
 struct DungeonEncounterEntry;
@@ -612,6 +611,14 @@ struct QuestRelationResult
 typedef std::multimap<int32, uint32> ExclusiveQuestGroups; // exclusiveGroupId -> quest
 typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
 
+enum class PlayerCreateMode : int8
+{
+    Normal  = 0,
+    NPE     = 1,
+
+    Max
+};
+
 struct PlayerCreateInfoItem
 {
     PlayerCreateInfoItem(uint32 id, uint32 amount) : item_id(id), item_amount(amount) { }
@@ -628,7 +635,6 @@ struct PlayerLevelInfo
 };
 
 typedef std::vector<uint32> PlayerCreateInfoSpells;
-typedef std::unordered_map<PlayerCreateMode, PlayerCreateInfoSpells> PlayerCreateInfoSpellsMap;
 
 struct PlayerCreateInfoAction
 {
@@ -657,7 +663,7 @@ struct PlayerInfo
 
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
-    PlayerCreateInfoSpellsMap castSpells;
+    PlayerCreateInfoSpells castSpells[(int8)PlayerCreateMode::Max];
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
 
