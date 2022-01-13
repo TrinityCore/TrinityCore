@@ -611,7 +611,7 @@ struct QuestRelationResult
 typedef std::multimap<int32, uint32> ExclusiveQuestGroups; // exclusiveGroupId -> quest
 typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
 
-enum class PlayerCreateMode : int8
+enum class PlayerCreateMode : uint8
 {
     Normal  = 0,
     NPE     = 1,
@@ -663,7 +663,7 @@ struct PlayerInfo
 
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
-    PlayerCreateInfoSpells castSpells[(int8)PlayerCreateMode::Max];
+    PlayerCreateInfoSpells castSpells[(uint8)PlayerCreateMode::Max];
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
 

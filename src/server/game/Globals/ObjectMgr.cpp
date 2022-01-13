@@ -4062,7 +4062,7 @@ void ObjectMgr::LoadPlayerInfo()
                 Trinity::RaceMask<uint64> raceMask = { fields[0].GetUInt64() };
                 uint32 classMask    = fields[1].GetUInt32();
                 uint32 spellId      = fields[2].GetUInt32();
-                int8 playerCreateMode = fields[3].GetInt8();
+                uint8 playerCreateMode = fields[3].GetUInt8();
 
                 if (raceMask && !(raceMask.RawValue & RACEMASK_ALL_PLAYABLE))
                 {
@@ -4076,9 +4076,9 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (playerCreateMode < (int8)PlayerCreateMode::Normal || playerCreateMode >= (int8)PlayerCreateMode::Max)
+                if (playerCreateMode >= (uint8)PlayerCreateMode::Max)
                 {
-                    TC_LOG_ERROR("sql.sql", "Uses invalid playerCreateMode %i in `playercreateinfo_cast_spell` table, ignoring.", (int8)playerCreateMode);
+                    TC_LOG_ERROR("sql.sql", "Uses invalid playerCreateMode %u in `playercreateinfo_cast_spell` table, ignoring.", playerCreateMode);
                     continue;
                 }
 
