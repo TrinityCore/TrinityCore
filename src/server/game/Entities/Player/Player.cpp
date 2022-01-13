@@ -14192,7 +14192,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
                             scalingClass = pEnchant->ScalingClassRestricted;
 
-                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
                         uint8 scalingLevel = GetLevel();
                         uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
 
@@ -14215,7 +14215,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
                             scalingClass = pEnchant->ScalingClassRestricted;
 
-                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
                         uint8 scalingLevel = GetLevel();
                         uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
 
