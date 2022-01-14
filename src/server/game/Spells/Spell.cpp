@@ -8531,7 +8531,7 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_LINE))
     {
-        if (!_coneSrc.HasInLine(target, _caster->GetCombatReach() + target->GetCombatReach()))
+        if (!_coneSrc.HasInLine(target, _caster->GetCombatReach()))
             return false;
     }
     else
