@@ -52,8 +52,8 @@ enum Spells
 
     // Windrunner
     SPELL_WINDRUNNER                                    = 347504,
-    SPELL_WINDRUNNER_DISAPPEAR_01                       = 352303,
-    SPELL_WINDRUNNER_DISAPPEAR_02                       = 358975,
+    SPELL_WINDRUNNER_DISAPPEAR_01                       = 352303, // 2 SpellXSpellVisual
+    SPELL_WINDRUNNER_DISAPPEAR_02                       = 358975, // 2 SpellXSpellVisual
     SPELL_WINDRUNNER_SPIN                               = 351187,
     SPELL_WINDRUNNER_MOVE                               = 347606,
     SPELL_WINDRUNNER_SHOT_01                            = 347604, // Not on the sniff
@@ -64,7 +64,7 @@ enum Spells
     // Shadow Dagger
     SPELL_SHADOW_DAGGER_COPY                            = 358964,
     SPELL_SHADOW_DAGGER                                 = 347670,
-    SPELL_SHADOW_DAGGER_AOE                             = 353935,
+    SPELL_SHADOW_DAGGER_AOE                             = 353935, // 2 SpellXSpellVisual
     SPELL_SHADOW_DAGGER_MISSILE                         = 348089,
     SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE             = 353935,
 
@@ -91,7 +91,7 @@ enum Spells
 
     // Wailing Arrow
     SPELL_WAILING_ARROW_POINTER                         = 348064,
-    SPELL_WAILING_ARROW                                 = 347609,
+    SPELL_WAILING_ARROW                                 = 347609, // 2 SpellXSpellVisual
     SPELL_WAILING_ARROW_CAST_JUMP                       = 355839,
 
     // Domination Chains
@@ -102,7 +102,7 @@ enum Spells
     SPELL_DOMINATION_ARROW_FALL_AND_VISUAL              = 352319,
     SPELL_DOMINATION_ARROW_ACTIVATE                     = 356650,
     SPELL_DOMINATION_ARROW_CALAMITY_AREA                = 356769,
-    SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER         = 356624,
+    SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER         = 356624, // 2 SpellXSpellVisual
     SPELL_DOMINATION_ARROW_CALAMITY_DAMAGE              = 356649,
 
     SPELL_DOMINATION_CHAIN_PLAYER                       = 349451,
@@ -117,7 +117,7 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE                 = 352470,
     SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW                 = 350335,
     SPELL_VEIL_OF_DARKNESS_PHASE_1_AREA                 = 357726,
-    SPELL_VEIL_OF_DARKNESS_PHASE_1                      = 347726,
+    SPELL_VEIL_OF_DARKNESS_PHASE_1                      = 347726, // 4 SpellXSpellVisual
 
     // Banshee Shroud
     SPELL_BANSHEE_SHROUD                                = 350857,
@@ -135,7 +135,7 @@ enum Spells
     SPELL_RIVE_MYTHIC_COPY                              = 358431,
 
     // Banshee Wail
-    SPELL_BANSHEE_WAIL                                  = 348094,
+    SPELL_BANSHEE_WAIL                                  = 348094, // 3 SpellXSpellVisual
     SPELL_BANSHEE_WAIL_TRIGGERED_MISSILE                = 348108,
     SPELL_BANSHEE_WAIL_MISSILE                          = 348133,
     SPELL_BANSHEE_WAIL_SILENCE                          = 351253,
@@ -394,6 +394,7 @@ enum SpellVisuals
     SPELL_VISUAL_RANGER_STRIKE_LEFT                     = 106160, // At 1.0f
     SPELL_VISUAL_RANGER_STRIKE_01                       = 106165, // At 1.0f
     SPELL_VISUAL_RANGER_STRIKE_03                       = 106161, // At 1.0f
+    SPELL_VISUAL_WINDRUNNER_SPIN                        = 105759,
     SPELL_VISUAL_WINDRUNNER_01                          = 107722, // At 0.5f
     SPELL_VISUAL_WINDRUNNER_02                          = 110312, // At 0.25f
     SPELL_VISUAL_WINDRUNNER_03                          = 107920, // At 0.25f
@@ -991,8 +992,7 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        events.SetPhase(PHASE_ONE);
-        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 3s, 1, PHASE_ONE);
+        DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
 
         /*
         Talk(SAY_AGGRO);
@@ -1710,8 +1710,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
                     else
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
-
-                    events.Repeat(5s);
                     break;
                 }
 
@@ -2215,7 +2213,7 @@ struct boss_sylvanas_windrunner : public BossAI
             }
         }
 
-        //DoSylvanasAttackIfReady();
+        DoSylvanasAttackIfReady();
     }
 
     void DoSylvanasAttackIfReady()
