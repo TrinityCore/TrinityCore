@@ -769,7 +769,7 @@ void Aura::RefreshTimers()
 {
     m_maxDuration = CalcMaxDuration();
 
-    bool resetPeriodicTimer = m_spellInfo->HasAttribute(SPELL_ATTR0_CU_RESET_PERIODIC_TIMER);
+    bool resetPeriodicTimer = !m_spellInfo->IsRollingDurationOver();
     if (!resetPeriodicTimer)
     {
         int32 minAmplitude = m_maxDuration;

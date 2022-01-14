@@ -3019,7 +3019,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     if (DynamicObject* dynObj = m_originalCaster->GetDynObject(m_spellInfo->Id))
                         dynObj->SetDuration(duration);
 
-                    if (m_spellInfo->IsChanneled() && refresh && m_spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_RESET_PERIODIC))
+                    if (m_spellInfo->IsChanneled() && refresh && m_spellInfo->IsRollingDurationOver())
                     {
                         SendChannelStart(m_spellAura->GetMaxDuration() - m_spellAura->GetRolledOverDuration());
                         SendChannelUpdate(m_spellAura->GetMaxDuration());

@@ -3311,6 +3311,20 @@ float SpellInfo::CalculateScaledCoefficient(Unit const* caster, float coefficien
     return coefficient *= GetSpellScalingMultiplier(caster, GetSpellScaling());
 }
 
+// As of patch 4.0.1 all DoT and HoT effects roll their ticks over. Since this behavior has also been observed for boss DoTs
+// (Reverberating Hymn at Temple Guardian Anhuur and Burning Wound at Ragnaros etc), we can assume that this is a generic feature of Cataclysm.
+bool SpellInfo::IsRollingDurationOver() const
+{
+    if (HasAttribute(SPELL_ATTR0_CU_RESET_PERIODIC_TIMER))
+        return false;
+
+    if (HasAttribute(SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER))
+        return true;
+
+    // @todo: determine further aura types that behave like this
+    return (HasAura(SPELL_AURA_PERIODIC_DAMAGE)|| HasAura(SPELL_AURA_PERIODIC_HEAL));
+}
+
 float SpellInfo::GetMinRange(bool positive) const
 {
     if (!RangeEntry)
