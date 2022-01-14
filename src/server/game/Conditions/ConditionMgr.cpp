@@ -3562,3 +3562,275 @@ bool ConditionMgr::IsPlayerMeetingExpression(Player const* player, WorldStateExp
 
     return finalResult;
 }
+
+int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitConditionVariable variable, int32 value)
+{
+    switch (variable)
+    {
+        case UnitConditionVariable::Race:
+            return unit->GetRace();
+        case UnitConditionVariable::Class:
+            return unit->GetClass();
+        case UnitConditionVariable::Level:
+            return unit->GetLevel();
+        case UnitConditionVariable::IsSelf:
+            return unit == otherUnit;
+        case UnitConditionVariable::IsMyPet:
+            return otherUnit && unit->GetCharmerOrOwnerGUID() == otherUnit->GetGUID();
+        case UnitConditionVariable::IsMaster:
+            return otherUnit && otherUnit->GetCharmerOrOwnerGUID() == unit->GetGUID();
+        case UnitConditionVariable::IsTarget:
+            return otherUnit && otherUnit->GetTarget() == unit->GetGUID();
+        case UnitConditionVariable::CanAssist:
+            return otherUnit && unit->IsValidAssistTarget(otherUnit);
+        case UnitConditionVariable::CanAttack:
+            return otherUnit && unit->IsValidAttackTarget(otherUnit);
+        case UnitConditionVariable::HasPet:
+            return !unit->GetCharmedGUID().IsEmpty() || !unit->GetMinionGUID().IsEmpty();
+        case UnitConditionVariable::HasWeapon:
+            if (Player const* player = unit->ToPlayer())
+                return player->GetWeaponForAttack(BASE_ATTACK) || player->GetWeaponForAttack(OFF_ATTACK);
+            return unit->GetVirtualItemId(0) || unit->GetVirtualItemId(1);
+        case UnitConditionVariable::HealthPct:
+            return unit->GetHealthPct();
+        case UnitConditionVariable::ManaPct:
+            return unit->GetPowerPct(POWER_MANA);
+        case UnitConditionVariable::RagePct:
+            return unit->GetPowerPct(POWER_RAGE);
+        case UnitConditionVariable::EnergyPct:
+            return unit->GetPowerPct(POWER_ENERGY);
+        case UnitConditionVariable::ComboPoints:
+            return unit->GetPower(POWER_COMBO_POINTS);
+        case UnitConditionVariable::HasHelpfulAuraSpell:
+            return unit->GetAuraApplication(value, [](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0;
+            }) != nullptr ? value : 0;
+        case UnitConditionVariable::HasHelpfulAuraDispelType:
+            return unit->GetAuraApplication([value](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && int32(aurApp->GetBase()->GetSpellInfo()->Dispel) == value;
+            }) != nullptr ? value : 0;
+        case UnitConditionVariable::HasHelpfulAuraMechanic:
+            return unit->GetAuraApplication([value](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+            }) != nullptr ? value : 0;
+        case UnitConditionVariable::HasHarmfulAuraSpell:
+            return unit->GetAuraApplication(value, [](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0;
+            }) != nullptr ? value : 0;
+        case UnitConditionVariable::HasHarmfulAuraDispelType:
+            return unit->GetAuraApplication([value](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && int32(aurApp->GetBase()->GetSpellInfo()->Dispel) == value;
+            }) != nullptr ? value : 0;
+        case UnitConditionVariable::HasHarmfulAuraMechanic:
+            return unit->GetAuraApplication([value](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+            }) != nullptr ? value : 0;
+        case UnitConditionVariable::HasHarmfulAuraSchool:
+            return unit->GetAuraApplication([value](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSchoolMask() & (1 << value)) != 0;
+            }) != nullptr ? value : 0;
+        case UnitConditionVariable::DamagePhysicalPct:
+            break;
+        case UnitConditionVariable::DamageHolyPct:
+            break;
+        case UnitConditionVariable::DamageFirePct:
+            break;
+        case UnitConditionVariable::DamageNaturePct:
+            break;
+        case UnitConditionVariable::DamageFrostPct:
+            break;
+        case UnitConditionVariable::DamageShadowPct:
+            break;
+        case UnitConditionVariable::DamageArcanePct:
+            break;
+        case UnitConditionVariable::InCombat:
+            break;
+        case UnitConditionVariable::IsMoving:
+            break;
+        case UnitConditionVariable::IsCasting:
+            break;
+        case UnitConditionVariable::IsCastingSpell:
+            break;
+        case UnitConditionVariable::IsChanneling:
+            break;
+        case UnitConditionVariable::IsChannelingSpell:
+            break;
+        case UnitConditionVariable::NumberOfMeleeAttackers:
+            break;
+        case UnitConditionVariable::IsAttackingMe:
+            break;
+        case UnitConditionVariable::Range:
+            break;
+        case UnitConditionVariable::InMeleeRange:
+            break;
+        case UnitConditionVariable::PursuitTime:
+            break;
+        case UnitConditionVariable::HasHarmfulAuraCanceledByDamage:
+            break;
+        case UnitConditionVariable::HasHarmfulAuraWithPeriodicDamage:
+            break;
+        case UnitConditionVariable::NumberOfEnemies:
+            break;
+        case UnitConditionVariable::NumberOfFriends:
+            break;
+        case UnitConditionVariable::ThreatPhysicalPct:
+            break;
+        case UnitConditionVariable::ThreatHolyPct:
+            break;
+        case UnitConditionVariable::ThreatFirePct:
+            break;
+        case UnitConditionVariable::ThreatNaturePct:
+            break;
+        case UnitConditionVariable::ThreatFrostPct:
+            break;
+        case UnitConditionVariable::ThreatShadowPct:
+            break;
+        case UnitConditionVariable::ThreatArcanePct:
+            break;
+        case UnitConditionVariable::IsInterruptible:
+            break;
+        case UnitConditionVariable::NumberOfAttackers:
+            break;
+        case UnitConditionVariable::NumberOfRangedAttackers:
+            break;
+        case UnitConditionVariable::CreatureType:
+            break;
+        case UnitConditionVariable::IsMeleeAttacking:
+            break;
+        case UnitConditionVariable::IsRangedAttacking:
+            break;
+        case UnitConditionVariable::Health:
+            break;
+        case UnitConditionVariable::SpellKnown:
+            break;
+        case UnitConditionVariable::HasHarmfulAuraEffect:
+            break;
+        case UnitConditionVariable::IsImmuneToAreaOfEffect:
+            break;
+        case UnitConditionVariable::IsPlayer:
+            break;
+        case UnitConditionVariable::DamageMagicPct:
+            break;
+        case UnitConditionVariable::DamageTotalPct:
+            break;
+        case UnitConditionVariable::ThreatMagicPct:
+            break;
+        case UnitConditionVariable::ThreatTotalPct:
+            break;
+        case UnitConditionVariable::HasCritter:
+            return !unit->GetCritterGUID().IsEmpty();
+        case UnitConditionVariable::HasTotemInSlot1:
+            break;
+        case UnitConditionVariable::HasTotemInSlot2:
+            break;
+        case UnitConditionVariable::HasTotemInSlot3:
+            break;
+        case UnitConditionVariable::HasTotemInSlot4:
+            break;
+        case UnitConditionVariable::HasTotemInSlot5:
+            break;
+        case UnitConditionVariable::Creature:
+            break;
+        case UnitConditionVariable::StringID:
+            break;
+        case UnitConditionVariable::HasAura:
+            break;
+        case UnitConditionVariable::IsEnemy:
+            break;
+        case UnitConditionVariable::IsSpecMelee:
+            break;
+        case UnitConditionVariable::IsSpecTank:
+            break;
+        case UnitConditionVariable::IsSpecRanged:
+            break;
+        case UnitConditionVariable::IsSpecHealer:
+            break;
+        case UnitConditionVariable::IsPlayerControlledNPC:
+            break;
+        case UnitConditionVariable::IsDying:
+            break;
+        case UnitConditionVariable::PathFailCount:
+            break;
+        case UnitConditionVariable::IsMounted:
+            break;
+        case UnitConditionVariable::Label:
+            break;
+        case UnitConditionVariable::IsMySummon:
+            break;
+        case UnitConditionVariable::IsSummoner:
+            break;
+        case UnitConditionVariable::IsMyTarget:
+            break;
+        case UnitConditionVariable::Sex:
+            break;
+        case UnitConditionVariable::LevelWithinContentTuning:
+            break;
+        case UnitConditionVariable::IsFlying:
+            break;
+        case UnitConditionVariable::IsHovering:
+            break;
+        case UnitConditionVariable::HasHelpfulAuraEffect:
+            break;
+        case UnitConditionVariable::HasHelpfulAuraSchool:
+            return unit->GetAuraApplication([value](AuraApplication const* aurApp)
+            {
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSchoolMask() & (1 << value)) != 0;
+            }) != nullptr ? value : 0;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
+bool ConditionMgr::IsUnitMeetingCondition(Unit const* unit, Unit const* otherUnit, UnitConditionEntry const* condition)
+{
+    for (size_t i = 0; i < MAX_UNIT_CONDITION_VALUES; ++i)
+    {
+        if (!condition->Variable[i])
+            break;
+
+        int32 unitValue = GetUnitConditionVariable(unit, otherUnit, UnitConditionVariable(condition->Variable[i]), condition->Value[i]);
+        bool meets = false;
+        switch (UnitConditionOp(condition->Op[i]))
+        {
+            case UnitConditionOp::EqualTo:
+                meets = unitValue == condition->Value[i];
+                break;
+            case UnitConditionOp::NotEqualTo:
+                meets = unitValue != condition->Value[i];
+                break;
+            case UnitConditionOp::LessThan:
+                meets = unitValue < condition->Value[i];
+                break;
+            case UnitConditionOp::LessThanOrEqualTo:
+                meets = unitValue <= condition->Value[i];
+                break;
+            case UnitConditionOp::GreaterThan:
+                meets = unitValue > condition->Value[i];
+                break;
+            case UnitConditionOp::GreaterThanOrEqualTo:
+                meets = unitValue >= condition->Value[i];
+                break;
+            default:
+                break;
+        }
+
+        if (condition->GetFlags().HasFlag(UnitConditionFlags::LogicOr))
+        {
+            if (meets)
+                return true;
+        }
+        else if (!meets)
+            return false;
+    }
+
+    return !condition->GetFlags().HasFlag(UnitConditionFlags::LogicOr);
+}

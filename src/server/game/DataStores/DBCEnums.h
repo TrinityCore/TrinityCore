@@ -1694,6 +1694,124 @@ enum UiMapType : int8
     UI_MAP_TYPE_ORPHAN      = 6,
 };
 
+enum class UnitConditionFlags : uint8
+{
+    LogicOr = 0x1
+};
+
+DEFINE_ENUM_FLAG(UnitConditionFlags);
+
+enum class UnitConditionOp : int8
+{
+    EqualTo                 = 1,
+    NotEqualTo              = 2,
+    LessThan                = 3,
+    LessThanOrEqualTo       = 4,
+    GreaterThan             = 5,
+    GreaterThanOrEqualTo    = 6
+};
+
+enum class UnitConditionVariable : uint8
+{
+    None                                = 0,  // - NONE -
+    Race                                = 1,  // Race {$Is/Is Not} "{ChrRaces}"
+    Class                               = 2,  // Class {$Is/Is Not} "{ChrClasses}"
+    Level                               = 3,  // Level {$Relative Op} "{#Level}"
+    IsSelf                              = 4,  // Is self? {$Yes/No}{=1}
+    IsMyPet                             = 5,  // Is my pet? {$Yes/No}{=1}
+    IsMaster                            = 6,  // Is master? {$Yes/No}{=1}
+    IsTarget                            = 7,  // Is target? {$Yes/No}{=1}
+    CanAssist                           = 8,  // Can assist? {$Yes/No}{=1}
+    CanAttack                           = 9,  // Can attack? {$Yes/No}{=1}
+    HasPet                              = 10, // Has pet? {$Yes/No}{=1}
+    HasWeapon                           = 11, // Has weapon? {$Yes/No}{=1}
+    HealthPct                           = 12, // Health {$Relative Op} {#Health %}%
+    ManaPct                             = 13, // Mana {$Relative Op} {#Mana %}%
+    RagePct                             = 14, // Rage {$Relative Op} {#Rage %}%
+    EnergyPct                           = 15, // Energy {$Relative Op} {#Energy %}%
+    ComboPoints                         = 16, // Combo Points {$Relative Op} {#Points}
+    HasHelpfulAuraSpell                 = 17, // Has helpful aura spell? {$Yes/No} "{Spell}"
+    HasHelpfulAuraDispelType            = 18, // Has helpful aura dispel type? {$Yes/No} "{SpellDispelType}"
+    HasHelpfulAuraMechanic              = 19, // Has helpful aura mechanic? {$Yes/No} "{SpellMechanic}"
+    HasHarmfulAuraSpell                 = 20, // Has harmful aura spell? {$Yes/No} "{Spell}"
+    HasHarmfulAuraDispelType            = 21, // Has harmful aura dispel type? {$Yes/No} "{SpellDispelType}"
+    HasHarmfulAuraMechanic              = 22, // Has harmful aura mechanic? {$Yes/No} "{SpellMechanic}"
+    HasHarmfulAuraSchool                = 23, // Has harmful aura school? {$Yes/No} "{Resistances}"
+    DamagePhysicalPct                   = 24, // NYI Damage (Physical) {$Relative Op} {#Physical Damage %}%
+    DamageHolyPct                       = 25, // NYI Damage (Holy) {$Relative Op} {#Holy Damage %}%
+    DamageFirePct                       = 26, // NYI Damage (Fire) {$Relative Op} {#Fire Damage %}%
+    DamageNaturePct                     = 27, // NYI Damage (Nature) {$Relative Op} {#Nature Damage %}%
+    DamageFrostPct                      = 28, // NYI Damage (Frost) {$Relative Op} {#Frost Damage %}%
+    DamageShadowPct                     = 29, // NYI Damage (Shadow) {$Relative Op} {#Shadow Damage %}%
+    DamageArcanePct                     = 30, // NYI Damage (Arcane) {$Relative Op} {#Arcane Damage %}%
+    InCombat                            = 31, // NYI In combat? {$Yes/No}{=1}
+    IsMoving                            = 32, // NYI Is moving? {$Yes/No}{=1}
+    IsCasting                           = 33, // NYI Is casting? {$Yes/No}{=1}
+    IsCastingSpell                      = 34, // NYI Is casting spell? {$Yes/No}{=1}
+    IsChanneling                        = 35, // NYI Is channeling? {$Yes/No}{=1}
+    IsChannelingSpell                   = 36, // NYI Is channeling spell? {$Yes/No}{=1}
+    NumberOfMeleeAttackers              = 37, // NYI Number of melee attackers {$Relative Op} {#Attackers}
+    IsAttackingMe                       = 38, // NYI Is attacking me? {$Yes/No}{=1}
+    Range                               = 39, // NYI Range {$Relative Op} {#Yards}
+    InMeleeRange                        = 40, // NYI In melee range? {$Yes/No}{=1}
+    PursuitTime                         = 41, // NYI Pursuit time {$Relative Op} {#Seconds}
+    HasHarmfulAuraCanceledByDamage      = 42, // NYI Has harmful aura canceled by damage? {$Yes/No}{=1}
+    HasHarmfulAuraWithPeriodicDamage    = 43, // NYI Has harmful aura with periodic damage? {$Yes/No}{=1}
+    NumberOfEnemies                     = 44, // NYI Number of enemies {$Relative Op} {#Enemies}
+    NumberOfFriends                     = 45, // NYI Number of friends {$Relative Op} {#Friends}
+    ThreatPhysicalPct                   = 46, // NYI Threat (Physical) {$Relative Op} {#Physical Threat %}%
+    ThreatHolyPct                       = 47, // NYI Threat (Holy) {$Relative Op} {#Holy Threat %}%
+    ThreatFirePct                       = 48, // NYI Threat (Fire) {$Relative Op} {#Fire Threat %}%
+    ThreatNaturePct                     = 49, // NYI Threat (Nature) {$Relative Op} {#Nature Threat %}%
+    ThreatFrostPct                      = 50, // NYI Threat (Frost) {$Relative Op} {#Frost Threat %}%
+    ThreatShadowPct                     = 51, // NYI Threat (Shadow) {$Relative Op} {#Shadow Threat %}%
+    ThreatArcanePct                     = 52, // NYI Threat (Arcane) {$Relative Op} {#Arcane Threat %}%
+    IsInterruptible                     = 53, // NYI Is interruptible? {$Yes/No}{=1}
+    NumberOfAttackers                   = 54, // NYI Number of attackers {$Relative Op} {#Attackers}
+    NumberOfRangedAttackers             = 55, // NYI Number of ranged attackers {$Relative Op} {#Ranged Attackers}
+    CreatureType                        = 56, // NYI Creature type {$Is/Is Not} "{CreatureType}"
+    IsMeleeAttacking                    = 57, // NYI Is melee-attacking? {$Yes/No}{=1}
+    IsRangedAttacking                   = 58, // NYI Is ranged-attacking? {$Yes/No}{=1}
+    Health                              = 59, // NYI Health {$Relative Op} {#HP} HP
+    SpellKnown                          = 60, // NYI Spell known? {$Yes/No} "{Spell}"
+    HasHarmfulAuraEffect                = 61, // NYI Has harmful aura effect? {$Yes/No} "{#Spell Aura}"
+    IsImmuneToAreaOfEffect              = 62, // NYI Is immune to area-of-effect? {$Yes/No}{=1}
+    IsPlayer                            = 63, // NYI Is player? {$Yes/No}{=1}
+    DamageMagicPct                      = 64, // NYI Damage (Magic) {$Relative Op} {#Magic Damage %}%
+    DamageTotalPct                      = 65, // NYI Damage (Total) {$Relative Op} {#Damage %}%
+    ThreatMagicPct                      = 66, // NYI Threat (Magic) {$Relative Op} {#Magic Threat %}%
+    ThreatTotalPct                      = 67, // NYI Threat (Total) {$Relative Op} {#Threat %}%
+    HasCritter                          = 68, // NYI Has critter? {$Yes/No}{=1}
+    HasTotemInSlot1                     = 69, // NYI Has totem in slot 1? {$Yes/No}{=1}
+    HasTotemInSlot2                     = 70, // NYI Has totem in slot 2? {$Yes/No}{=1}
+    HasTotemInSlot3                     = 71, // NYI Has totem in slot 3? {$Yes/No}{=1}
+    HasTotemInSlot4                     = 72, // NYI Has totem in slot 4? {$Yes/No}{=1}
+    HasTotemInSlot5                     = 73, // NYI Has totem in slot 5? {$Yes/No}{=1}
+    Creature                            = 74, // NYI Creature {$Is/Is Not} "{Creature}"
+    StringID                            = 75, // NYI String ID {$Is/Is Not} "{StringID}"
+    HasAura                             = 76, // NYI Has aura? {$Yes/No} {Spell}
+    IsEnemy                             = 77, // NYI Is enemy? {$Yes/No}{=1}
+    IsSpecMelee                         = 78, // NYI Is spec - melee? {$Yes/No}{=1}
+    IsSpecTank                          = 79, // NYI Is spec - tank? {$Yes/No}{=1}
+    IsSpecRanged                        = 80, // NYI Is spec - ranged? {$Yes/No}{=1}
+    IsSpecHealer                        = 81, // NYI Is spec - healer? {$Yes/No}{=1}
+    IsPlayerControlledNPC               = 82, // NYI Is player controlled NPC? {$Yes/No}{=1}
+    IsDying                             = 83, // NYI Is dying? {$Yes/No}{=1}
+    PathFailCount                       = 84, // NYI Path fail count {$Relative Op} {#Path Fail Count}
+    IsMounted                           = 85, // NYI Is mounted? {$Yes/No}{=1}
+    Label                               = 86, // NYI Label {$Is/Is Not} "{Label}"
+    IsMySummon                          = 87, // NYI
+    IsSummoner                          = 88, // NYI
+    IsMyTarget                          = 89, // NYI
+    Sex                                 = 90, // NYI Sex {$Is/Is Not} "{UnitSex}"
+    LevelWithinContentTuning            = 91, // NYI Level is within {$Is/Is Not} {ContentTuning}
+
+    IsFlying                            = 93, // NYI Is flying? {$Yes/No}{=1}
+    IsHovering                          = 94, // NYI Is hovering? {$Yes/No}{=1}
+    HasHelpfulAuraEffect                = 95, // NYI Has helpful aura effect? {$Yes/No} "{#Spell Aura}"
+    HasHelpfulAuraSchool                = 96, // Has helpful aura school? {$Yes/No} "{Resistances}"
+};
+
 enum VehicleSeatFlags
 {
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                         = 0x00000001,
