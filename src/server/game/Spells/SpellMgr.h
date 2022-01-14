@@ -272,6 +272,13 @@ enum ProcAttributes
     PROC_ATTR_REDUCE_PROC_60            = 0x0000080  // aura should have a reduced chance to proc if level of proc Actor > 60
 };
 
+#define PROC_ATTR_ALL_ALLOWED (PROC_ATTR_REQ_EXP_OR_HONOR       | \
+                               PROC_ATTR_TRIGGERED_CAN_PROC     | \
+                               PROC_ATTR_REQ_POWER_COST         | \
+                               PROC_ATTR_REQ_SPELLMOD           | \
+                               PROC_ATTR_USE_STACKS_FOR_CHARGES | \
+                               PROC_ATTR_REDUCE_PROC_60)
+
 struct SpellProcEntry
 {
     uint32 SchoolMask;       // if nonzero - bitmask for matching proc condition based on spell's school
