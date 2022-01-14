@@ -3871,6 +3871,15 @@ struct UISplashScreenEntry
     int32 RequiredTimeEventPassed; // serverside TimeEvent table, see ModifierTreeType::HasTimeEventPassed
 };
 
+struct UnitConditionEntry
+{
+    uint32 ID;
+    uint8 Flags;
+    uint8 Variable[8];
+    int8 Op[8];
+    int32 Value[8];
+};
+
 struct UnitPowerBarEntry
 {
     uint32 ID;
