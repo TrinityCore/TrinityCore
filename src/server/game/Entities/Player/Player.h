@@ -97,6 +97,7 @@ enum LootError : uint8;
 enum LootType : uint8;
 enum PlayerRestState : uint8;
 enum RestTypes : uint8;
+enum class PlayerCreateMode : int8;
 
 namespace BattlePets
 {
@@ -118,12 +119,6 @@ namespace WorldPackets
 
 TC_GAME_API uint32 GetBagSize(Bag const* bag);
 TC_GAME_API Item* GetItemInBag(Bag const* bag, uint8 slot);
-
-enum class PlayerCreateMode : int8
-{
-    Normal  = 0,
-    NPE     = 1
-};
 
 typedef std::deque<Mail*> PlayerMails;
 
