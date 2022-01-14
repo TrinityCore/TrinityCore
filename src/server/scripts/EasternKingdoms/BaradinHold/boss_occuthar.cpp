@@ -235,13 +235,16 @@ class spell_occuthar_focused_fire : public SpellScriptLoader
         {
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (targets.empty())
+                if (targets.size() < 2)
                     return;
 
-                targets.remove_if(FocusedFireTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                targets.clear();
-                targets.push_back(target);
+                targets.remove_if([&](WorldObject const* target)
+                {
+                    return GetCaster()->GetVictim() == target;
+                });
+
+                if (targets.size() >= 2)
+                    Trinity::Containers::RandomResize(targets, 1);
             }
 
             void Register() override
@@ -279,9 +282,7 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                targets.clear();
-                targets.push_back(target);
+                Trinity::Containers::RandomResize(targets, 1);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
