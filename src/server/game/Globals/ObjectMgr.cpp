@@ -4048,7 +4048,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.PQuery("SELECT raceMask, classMask, spell, playerCreateMode FROM playercreateinfo_cast_spell");
+        QueryResult result = WorldDatabase.PQuery("SELECT raceMask, classMask, spell, createMode FROM playercreateinfo_cast_spell");
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 player create cast spells. DB table `playercreateinfo_cast_spell` is empty.");
@@ -4062,7 +4062,7 @@ void ObjectMgr::LoadPlayerInfo()
                 Trinity::RaceMask<uint64> raceMask = { fields[0].GetUInt64() };
                 uint32 classMask    = fields[1].GetUInt32();
                 uint32 spellId      = fields[2].GetUInt32();
-                uint8 playerCreateMode = fields[3].GetUInt8();
+                int8 playerCreateMode = fields[3].GetInt8();
 
                 if (raceMask && !(raceMask.RawValue & RACEMASK_ALL_PLAYABLE))
                 {
@@ -4076,9 +4076,9 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (playerCreateMode >= AsUnderlyingType(PlayerCreateMode::Max))
+                if (playerCreateMode < 0 || playerCreateMode >= AsUnderlyingType(PlayerCreateMode::Max))
                 {
-                    TC_LOG_ERROR("sql.sql", "Uses invalid playerCreateMode %u in `playercreateinfo_cast_spell` table, ignoring.", playerCreateMode);
+                    TC_LOG_ERROR("sql.sql", "Uses invalid createMode %u in `playercreateinfo_cast_spell` table, ignoring.", playerCreateMode);
                     continue;
                 }
 

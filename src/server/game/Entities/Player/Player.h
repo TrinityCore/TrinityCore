@@ -97,7 +97,7 @@ enum LootError : uint8;
 enum LootType : uint8;
 enum PlayerRestState : uint8;
 enum RestTypes : uint8;
-enum class PlayerCreateMode : uint8;
+enum class PlayerCreateMode : int8;
 
 namespace BattlePets
 {
