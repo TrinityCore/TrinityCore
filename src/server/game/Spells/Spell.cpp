@@ -3368,8 +3368,19 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     }
 
     // Creatures focus their target when possible
-    if (m_casttime && m_caster->IsCreature() && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
-        m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
+    if (m_casttime > 0 && m_caster->IsCreature()
+        && !m_spellInfo->IsNextMeleeSwingSpell()
+        && !IsAutoRepeat()
+        && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED)
+        && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)
+        && !m_spellInfo->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL))
+    {
+        WorldObject const* focusTarget = m_caster;
+        if (m_spellInfo->NeedsExplicitUnitTarget())
+            focusTarget = m_targets.GetObjectTarget();
+
+        m_caster->ToCreature()->SetSpellFocus(this, focusTarget);
+    }
 
     // set timer base at cast time
     ReSetTimer();
@@ -4898,13 +4909,9 @@ void Spell::SendChannelUpdate(uint32 time)
 
 void Spell::SendChannelStart(uint32 duration)
 {
-    ObjectGuid channelTarget = [&]()
-    {
-        if (m_spellInfo->HasAttribute(SPELL_ATTR1_SELF_CHANNELED))
-            return m_caster->GetGUID();
-
-        return  m_targets.GetObjectTargetGUID();
-    }();
+    ObjectGuid channelTarget = ObjectGuid::Empty;
+    if (m_spellInfo->HasAttribute(SpellAttr1(SPELL_ATTR1_SELF_CHANNELED | SPELL_ATTR1_CHANNEL_TRACK_TARGET)))
+        channelTarget = m_targets.GetObjectTargetGUID();
 
     if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
     {
@@ -4923,7 +4930,7 @@ void Spell::SendChannelStart(uint32 duration)
         }
     }
 
-    // There must always be a caster
+    // There must always be a channel target
     if (!channelTarget)
         channelTarget = m_caster->GetGUID();
 
@@ -7570,7 +7577,8 @@ bool Spell::IsIgnoringCooldowns() const
 
 bool Spell::IsFocusDisabled() const
 {
-    return ((_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING) || (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET)));
+    return ((_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING) != 0
+        || (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SpellAttr1(SPELL_ATTR1_CHANNEL_TRACK_TARGET | SPELL_ATTR1_SELF_CHANNELED))));
 }
 
 bool Spell::IsProcDisabled() const
