@@ -2174,10 +2174,10 @@ CREATE TABLE `creature` (
   `DisplayIDProbability2` float NOT NULL DEFAULT '0',
   `DisplayIDProbability3` float NOT NULL DEFAULT '0',
   `DisplayIDProbability4` float NOT NULL DEFAULT '0',
-  `Name` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `FemaleName` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `SubName` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `FemaleSubName` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `FemaleName` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `SubName` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `FemaleSubName` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Type` mediumint unsigned NOT NULL DEFAULT '0',
   `Family` tinyint unsigned NOT NULL DEFAULT '0',
   `Classification` tinyint unsigned NOT NULL DEFAULT '0',
@@ -9114,6 +9114,45 @@ CREATE TABLE `ui_splash_screen_locale` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `unit_condition`
+--
+
+DROP TABLE IF EXISTS `unit_condition`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `unit_condition` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable1` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable2` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable3` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable4` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable5` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable6` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable7` tinyint unsigned NOT NULL DEFAULT '0',
+  `Variable8` tinyint unsigned NOT NULL DEFAULT '0',
+  `Op1` tinyint NOT NULL DEFAULT '0',
+  `Op2` tinyint NOT NULL DEFAULT '0',
+  `Op3` tinyint NOT NULL DEFAULT '0',
+  `Op4` tinyint NOT NULL DEFAULT '0',
+  `Op5` tinyint NOT NULL DEFAULT '0',
+  `Op6` tinyint NOT NULL DEFAULT '0',
+  `Op7` tinyint NOT NULL DEFAULT '0',
+  `Op8` tinyint NOT NULL DEFAULT '0',
+  `Value1` int NOT NULL DEFAULT '0',
+  `Value2` int NOT NULL DEFAULT '0',
+  `Value3` int NOT NULL DEFAULT '0',
+  `Value4` int NOT NULL DEFAULT '0',
+  `Value5` int NOT NULL DEFAULT '0',
+  `Value6` int NOT NULL DEFAULT '0',
+  `Value7` int NOT NULL DEFAULT '0',
+  `Value8` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `unit_power_bar`
 --
 
@@ -9191,9 +9230,9 @@ DROP TABLE IF EXISTS `updates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `updates` (
-  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'filename with extension of the update.',
-  `hash` char(40) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'sha1 hash of the sql file.',
-  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'filename with extension of the update.',
+  `hash` char(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'sha1 hash of the sql file.',
+  `state` enum('RELEASED','ARCHIVED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if an update is released or archived.',
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
   `speed` int unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
   PRIMARY KEY (`name`)
@@ -9208,8 +9247,8 @@ DROP TABLE IF EXISTS `updates_include`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `updates_include` (
-  `path` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
-  `state` enum('RELEASED','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
+  `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
+  `state` enum('RELEASED','ARCHIVED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
   PRIMARY KEY (`path`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -9466,4 +9505,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-02 21:22:42
+-- Dump completed on 2022-01-15 23:25:07
