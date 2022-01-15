@@ -2524,19 +2524,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
         {
-            WorldObject* summoner = GetLastInvoker();
-            if (!summoner || !summoner->ToPlayer())
-                break;
-
-            ObjectGuid privateObjectOwner = summoner->GetGUID();
-            WorldObject* baseObject = GetBaseObject();
-
-            if (Creature* summon = baseObject->SummonPersonalClone((TempSummonType)e.action.becomePersonalClone.type, e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
+            for (WorldObject* target : targets)
             {
-                if (IsSmart(summon))
-                    ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, GetLastInvoker(), ++e.event_id);
+                if (!IsPlayer(target))
+                    continue;
 
-                Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id >= e.event_id; });
+                ObjectGuid privateObjectOwner = target->GetGUID();
+                if (Creature* summon = GetBaseObject()->SummonPersonalClone((TempSummonType)e.action.becomePersonalClone.type, e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
+                {
+                    if (IsSmart(summon))
+                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, GetLastInvoker(), e.event_id + 1);
+
+                    Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id >= e.event_id; });
+                }
             }
             break;
         }
@@ -3953,17 +3953,20 @@ void SmartScript::OnUpdate(uint32 const diff)
     if (!mTimedActionList.empty())
     {
         isProcessingTimedActionList = true;
-        for (SmartScriptHolder& scriptholder : mTimedActionList)
+
+        for (size_t i = 0; i < mTimedActionList.size(); ++i)
         {
-            if (scriptholder.enableTimed)
+            SmartScriptHolder& scriptHolder = mTimedActionList[i];
+            if (scriptHolder.enableTimed)
             {
-                UpdateTimer(scriptholder, diff);
+                UpdateTimer(scriptHolder, diff);
                 needCleanup = false;
             }
         }
 
         isProcessingTimedActionList = false;
     }
+
     if (needCleanup)
         mTimedActionList.clear();
 
