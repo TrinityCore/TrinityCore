@@ -176,12 +176,12 @@ CREATE TABLE `build_info` (
   `majorVersion` int DEFAULT NULL,
   `minorVersion` int DEFAULT NULL,
   `bugfixVersion` int DEFAULT NULL,
-  `hotfixVersion` char(3) DEFAULT NULL,
-  `winAuthSeed` varchar(32) DEFAULT NULL,
-  `win64AuthSeed` varchar(32) DEFAULT NULL,
-  `mac64AuthSeed` varchar(32) DEFAULT NULL,
-  `winChecksumSeed` varchar(40) DEFAULT NULL,
-  `macChecksumSeed` varchar(40) DEFAULT NULL,
+  `hotfixVersion` char(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `winAuthSeed` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `win64AuthSeed` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mac64AuthSeed` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `winChecksumSeed` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `macChecksumSeed` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`build`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1997,7 +1997,8 @@ INSERT INTO `updates` VALUES
 ('2021_10_15_00_auth.sql','4FFD29A3ED1DB13874E755A84BFD7ABA2DF5C2DB','ARCHIVED','2021-10-15 08:43:41',0),
 ('2021_11_15_00_auth.sql','82D88B06301130C7149E21A991364F62279E219B','ARCHIVED','2021-11-15 16:22:37',0),
 ('2021_12_16_00_auth.sql','A0765C5337833E827B029A5E29F8B7601C81F89E','ARCHIVED','2021-12-16 21:17:10',0),
-('2022_01_01_00_auth.sql','CDC8349AA1135258D66F351141C0D9AD4EE7EB14','RELEASED','2022-01-01 19:35:19',0);
+('2022_01_01_00_auth.sql','CDC8349AA1135258D66F351141C0D9AD4EE7EB14','ARCHIVED','2022-01-01 19:35:19',0),
+('2022_01_15_00_auth.sql','A2123CEC10327ECA4C92A8B2212AEE25B43C457B','ARCHIVED','2022-01-15 18:05:55',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2136,4 +2137,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-16 21:17:13
+-- Dump completed on 2022-01-15 18:05:58
