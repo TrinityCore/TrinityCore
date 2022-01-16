@@ -1626,6 +1626,11 @@ void SpellMgr::LoadSpellProcs()
                     if (!found)
                         TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has Attribute PROC_ATTR_REQ_SPELLMOD, but spell has no spell mods. Proc will not be triggered", spellInfo->Id);
                 }
+                if (procEntry.AttributesMask & ~PROC_ATTR_ALL_ALLOWED)
+                {
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `AttributesMask` value specifying invalid attributes 0x%02X.", spellInfo->Id, procEntry.AttributesMask & ~PROC_ATTR_ALL_ALLOWED);
+                    procEntry.AttributesMask &= PROC_ATTR_ALL_ALLOWED;
+                }
 
                 mSpellProcMap[{ spellInfo->Id, spellInfo->Difficulty }] = procEntry;
 
@@ -2799,7 +2804,7 @@ void SpellMgr::LoadSpellInfoServerside()
         {
             Field* fields = spellsResult->Fetch();
             uint32 spellId = fields[0].GetUInt32();
-            Difficulty difficulty = Difficulty(fields[2].GetUInt32());
+            Difficulty difficulty = Difficulty(fields[1].GetUInt32());
             if (sSpellNameStore.HasRecord(spellId))
             {
                 TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u is already loaded from file. Overriding existing spells is not allowed.",

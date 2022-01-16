@@ -32,6 +32,10 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE           = 131900,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1         = 131637,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2         = 131951,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3         = 131952,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
@@ -55,6 +59,49 @@ enum MiscSpells
     SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
     SPELL_SHAMAN_EXHAUSTION                         = 57723,
     SPELL_SHAMAN_SATED                              = 57724
+};
+
+// 131894 - A Murder of Crows
+class spell_hun_a_murder_of_crows : public AuraScript
+{
+    PrepareAuraScript(spell_hun_a_murder_of_crows);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE,
+            SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1,
+            SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2,
+            SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3
+        });
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE, true);
+
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1, true);
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2, true);
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3, true);
+        target->CastSpell(target, SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_3, true); // not a mistake, it is intended to cast twice
+    }
+
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            if (Unit* caster = GetCaster())
+                caster->GetSpellHistory()->ResetCooldown(GetId(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_a_murder_of_crows::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectRemove += AuraEffectRemoveFn(spell_hun_a_murder_of_crows::RemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 186257 - Aspect of the Cheetah
@@ -655,6 +702,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    RegisterAuraScript(spell_hun_a_murder_of_crows);
     new spell_hun_aspect_cheetah();
     new spell_hun_exhilaration();
     new spell_hun_hunting_party();

@@ -1295,7 +1295,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
         PlayerInfo const* info = sObjectMgr->GetPlayerInfo(pCurrChar->GetRace(), pCurrChar->GetClass());
-        for (uint32 spellId : info->castSpells)
+        for (uint32 spellId : info->castSpells[AsUnderlyingType(pCurrChar->GetCreateMode())])
             pCurrChar->CastSpell(pCurrChar, spellId, true);
 
         // start with every map explored

@@ -14164,7 +14164,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
                             scalingClass = pEnchant->ScalingClassRestricted;
 
-                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
                         uint8 scalingLevel = GetLevel();
                         uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
 
@@ -14187,7 +14187,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         if ((*m_unitData->MinItemLevel || *m_unitData->MaxItemLevel) && pEnchant->ScalingClassRestricted)
                             scalingClass = pEnchant->ScalingClassRestricted;
 
-                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 minLevel = pEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::ScaleAsAGem) ? 1 : 60;
                         uint8 scalingLevel = GetLevel();
                         uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
 
@@ -17125,6 +17125,8 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
 
     if (anyObjectiveChangedCompletionState)
         UpdateVisibleGameobjectsOrSpellClicks();
+
+    PhasingHandler::OnConditionChange(this);
 }
 
 bool Player::HasQuestForItem(uint32 itemid) const
@@ -20374,7 +20376,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     {
         PlayerInfo::CreatePosition const& createPosition = m_createMode == PlayerCreateMode::NPE && info->createPositionNPE ? info->createPositionNPE.get() : info->createPosition;
 
-        m_homebind.m_mapId = createPosition.Loc.GetMapId();
+        m_homebind.WorldRelocate(createPosition.Loc);
         if (createPosition.TransportGuid)
         {
             if (Transport* transport = HashMapHolder<Transport>::Find(ObjectGuid::Create<HighGuid::Transport>(*createPosition.TransportGuid)))
