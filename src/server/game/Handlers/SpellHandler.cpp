@@ -21,6 +21,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameClient.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Guild.h"
@@ -263,8 +264,8 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 {
     // ignore for remote control state (for player case)
-    Unit* mover = _player->GetCharmedOrSelf();
-    if (mover != _player && mover->IsPlayer())
+    Unit* mover = GetGameClient()->GetActivelyMovedUnit();
+    if (!mover || mover != _player && mover->IsPlayer())
         return;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID);
@@ -401,9 +402,10 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     if (spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
         return;
 
+    Unit* mover = GetGameClient()->GetActivelyMovedUnit();
+
     // ignore for remote control state (for player case)
-    Unit* mover = _player->GetCharmedOrSelf();
-    if (_player->GetCharmed() && _player->GetCharmed()->GetTypeId() == TYPEID_PLAYER)
+    if (!mover)
         return;
 
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
