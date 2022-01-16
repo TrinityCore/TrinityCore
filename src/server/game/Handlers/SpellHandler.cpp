@@ -265,7 +265,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 {
     // ignore for remote control state (for player case)
     Unit* mover = GetGameClient()->GetActivelyMovedUnit();
-    if (!mover || mover != _player && mover->IsPlayer())
+    if (!mover || (mover != _player && mover->IsPlayer()))
         return;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID);
