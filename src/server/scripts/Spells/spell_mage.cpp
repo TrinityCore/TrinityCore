@@ -564,6 +564,23 @@ class spell_mage_firestarter_dots : public AuraScript
     }
 };
 
+// 205029 - Flame On
+class spell_mage_flame_on : public AuraScript
+{
+   PrepareAuraScript(spell_mage_flame_on);
+
+   void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+   {
+       canBeRecalculated = false;
+       amount = -16;
+   }
+
+   void Register() override
+   {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flame_on::CalculateAmount, EFFECT_1, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
+   }
+};
+
 // 11426 - Ice Barrier
 class spell_mage_ice_barrier : public AuraScript
 {
@@ -1205,6 +1222,7 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
     RegisterAuraScript(spell_mage_firestarter_dots);
+    RegisterAuraScript(spell_mage_flame_on);
     RegisterAuraScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);
