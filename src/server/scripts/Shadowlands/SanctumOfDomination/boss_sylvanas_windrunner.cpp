@@ -17,6 +17,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "DB2Stores.h"
 #include "CellImpl.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -595,6 +596,22 @@ static Position GetRandomPointInRect(uint8 rectangleType, Position const& a, Pos
 
 Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f  };
 
+class SylvanasNonMeleeSelector
+{
+    public:
+        SylvanasNonMeleeSelector(Unit const* obj) : _sourceObj(obj) { }
+
+        bool operator()(Unit* unit) const
+        {
+            if (sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE)
+                return false;
+            return true;
+        }
+
+    private:
+        Unit const* _sourceObj;
+};
+
 // Sylvanas Shadowcopy (Fight) - 176369
 struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 {
@@ -623,11 +640,11 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
     void SetData(uint32 type, uint32 value) override
     {
-        if (type == 1)
+        if (type == DATA_EVENT_TYPE_SHADOWCOPY)
         {
             switch (value)
             {
-                case 1:
+                case DATA_EVENT_SHADOWCOPY_NO_EVENT:
                 {
                     _onPhaseOne = true;
                     _onChainsOfDomination = false;
@@ -635,7 +652,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
                 }
 
-                case 2:
+                case DATA_EVENT_SHADOWCOPY_DOMINATION_CHAIN_EVENT:
                 {
                     _onPhaseOne = false;
                     _onChainsOfDomination = true;
@@ -643,7 +660,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
                 }
 
-                case 3:
+                case DATA_EVENT_SHADOWCOPY_RIVE_EVENT:
                 {
                     _onPhaseOne = false;
                     _onChainsOfDomination = false;
@@ -651,7 +668,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
                 }
 
-                case 4:
+                case DATA_EVENT_SHADOWCOPY_FINISH_INTERMISSION_EVENT:
                 {
                     _onPhaseOne = false;
                     _onChainsOfDomination = false;
@@ -1554,31 +1571,22 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 case EVENT_WAILING_ARROW_MARKER:
                 {
-                    if (_windrunnerActive)
-                        return;
+                    std::list<Unit*> everyPlayerButCurrentTank;
+                    GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
 
-                    std::list<WorldObject*> everyPlayerButCurrentVictim;
-
-                    if (WorldObject* currentTank = me->GetVictim())
-                        everyPlayerButCurrentVictim.remove(currentTank);
-
-                    for (auto itr = everyPlayerButCurrentVictim.begin(); itr != everyPlayerButCurrentVictim.end(); itr++)
-                        Talk(SAY_ANNOUNCE_WAILING_ARROW, *itr);
-
-                    if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 250.0f, true, true))
+                    if (Unit* currentTank = me->GetVictim())
                     {
                         Talk(SAY_ANNOUNCE_WAILING_ARROW_TANK, currentTank);
 
                         me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
+
+                        everyPlayerButCurrentTank.remove(currentTank);
                     }
 
-                    scheduler.Schedule(4s, [this](TaskContext /*task*/)
-                    {
-                        if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                            DoAction(ACTION_SET_RANGER_STANCE);
-                    });
+                    for (Unit* nonTank : everyPlayerButCurrentTank)
+                        Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
 
-                    events.ScheduleEvent(EVENT_WAILING_ARROW, 5s + 500ms, 1, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_WAILING_ARROW, 4s + 500ms, 1, PHASE_ONE);
                     break;
                 }
 
@@ -1918,20 +1926,25 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_WAILING_ARROW:
                 {
-                    Talk(SAY_WAILING_ARROW);
+                    DoAction(ACTION_SET_RANGER_STANCE);
 
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true, SPELL_WAILING_ARROW_POINTER))
-                        me->CastSpell(target, SPELL_WAILING_ARROW, false);
+                    scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                    {
+                        Talk(SAY_WAILING_ARROW);
 
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true, SPELL_WAILING_ARROW_POINTER))
+                            me->CastSpell(target, SPELL_WAILING_ARROW, false);
 
-                    scheduler.Schedule(1s + 300ms, [this](TaskContext /*task*/)
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
+                    });
+
+                    scheduler.Schedule(2s + 300ms, [this](TaskContext /*task*/)
                     {
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_JUMP, 0, 0);
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_EFFECT, 0, 0);
                     });
 
-                    scheduler.Schedule(3s + 500ms, [this](TaskContext /*task*/)
+                    scheduler.Schedule(4s + 500ms, [this](TaskContext /*task*/)
                     {
                         DoAction(ACTION_ACTIVATE_ATTACK_AFTER_EVENT);
 
@@ -1947,14 +1960,9 @@ struct boss_sylvanas_windrunner : public BossAI
                         return;
 
                     DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
+                    DoAction(ACTION_SET_RANGER_STANCE);
 
-                    if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                    {
-                        DoAction(ACTION_SET_RANGER_STANCE);
-
-                        events.Repeat(1s + 750ms);
-                    }
-                    else
+                    scheduler.Schedule(1s, [this](TaskContext /*task*/)
                     {
                         me->SetPower(me->GetPowerType(), 0);
 
@@ -1969,10 +1977,23 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                         {
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
-                                me->NearTeleportTo(target->GetPosition(), false);
+                            if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                            {
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SylvanasNonMeleeSelector(me)))
+                                    me->NearTeleportTo(target->GetPosition(), false);
+                            }
+                            else
+                            {
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
+                                    me->NearTeleportTo(target->GetPosition(), false);
+                            }
 
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
+                        });
+
+                        scheduler.Schedule(2s, [this](TaskContext /*task*/)
+                        {
+                            TeleportShadowcopiesToMe();
                         });
 
                         scheduler.Schedule(9s, [this](TaskContext /*task*/)
@@ -1981,8 +2002,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         });
 
                         events.Repeat(48s);
-                    }
-
+                    });
                     break;
                 }
 
