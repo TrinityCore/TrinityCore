@@ -34,6 +34,7 @@
 #include "Log.h"
 #include "LootMgr.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
@@ -42,7 +43,9 @@
 #include "Realm.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -3651,33 +3654,44 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::DamageArcanePct:
             break;
         case UnitConditionVariable::InCombat:
-            break;
+            return unit->IsInCombat();
         case UnitConditionVariable::IsMoving:
-            break;
+            return unit->HasUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
         case UnitConditionVariable::IsCasting:
-            break;
-        case UnitConditionVariable::IsCastingSpell:
-            break;
+        case UnitConditionVariable::IsCastingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
+            return unit->GetCurrentSpell(CURRENT_GENERIC_SPELL) != nullptr;
         case UnitConditionVariable::IsChanneling:
-            break;
-        case UnitConditionVariable::IsChannelingSpell:
-            break;
+        case UnitConditionVariable::IsChannelingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
+            return unit->GetChannelSpellId() != 0;
         case UnitConditionVariable::NumberOfMeleeAttackers:
-            break;
+            return std::count_if(unit->getAttackers().begin(), unit->getAttackers().end(), [unit](Unit* attacker)
+            {
+                float distance = std::max(unit->GetCombatReach() + attacker->GetCombatReach() + 1.3333334f, 5.0f);
+                if (unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || attacker->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+                    distance += 1.0f;
+                return unit->GetExactDistSq(attacker) < distance * distance;
+            });
         case UnitConditionVariable::IsAttackingMe:
-            break;
+            return otherUnit && unit->GetTarget() == otherUnit->GetGUID();
         case UnitConditionVariable::Range:
-            break;
+            return otherUnit ? int32(unit->GetExactDist(otherUnit)) : 0;
         case UnitConditionVariable::InMeleeRange:
-            break;
+            if (otherUnit)
+            {
+                float distance = std::max(unit->GetCombatReach() + otherUnit->GetCombatReach() + 1.3333334f, 5.0f);
+                if (unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || otherUnit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+                    distance += 1.0f;
+                return unit->GetExactDistSq(otherUnit) < distance * distance;
+            }
+            return 0;
         case UnitConditionVariable::PursuitTime:
             break;
         case UnitConditionVariable::HasHarmfulAuraCanceledByDamage:
-            break;
+            return unit->HasNegativeAuraWithInterruptFlag(SpellAuraInterruptFlags::Damage);
         case UnitConditionVariable::HasHarmfulAuraWithPeriodicDamage:
-            break;
+            return unit->HasAuraType(SPELL_AURA_PERIODIC_DAMAGE);
         case UnitConditionVariable::NumberOfEnemies:
-            break;
+            return unit->GetThreatManager().GetThreatListSize();
         case UnitConditionVariable::NumberOfFriends:
             break;
         case UnitConditionVariable::ThreatPhysicalPct:
@@ -3697,25 +3711,48 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsInterruptible:
             break;
         case UnitConditionVariable::NumberOfAttackers:
-            break;
+            return unit->getAttackers().size();
         case UnitConditionVariable::NumberOfRangedAttackers:
-            break;
+            return std::count_if(unit->getAttackers().begin(), unit->getAttackers().end(), [unit](Unit* attacker)
+            {
+                float distance = std::max(unit->GetCombatReach() + attacker->GetCombatReach() + 1.3333334f, 5.0f);
+                if (unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || attacker->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+                    distance += 1.0f;
+                return unit->GetExactDistSq(attacker) >= distance * distance;
+            });
         case UnitConditionVariable::CreatureType:
-            break;
+            return unit->GetCreatureType();
         case UnitConditionVariable::IsMeleeAttacking:
-            break;
+            if (Unit const* target = ObjectAccessor::GetUnit(*unit, unit->GetTarget()))
+            {
+                float distance = std::max(unit->GetCombatReach() + target->GetCombatReach() + 1.3333334f, 5.0f);
+                if (unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+                    distance += 1.0f;
+                return unit->GetExactDistSq(target) < distance * distance;
+            }
+            return 0;
         case UnitConditionVariable::IsRangedAttacking:
-            break;
+            if (Unit const* target = ObjectAccessor::GetUnit(*unit, unit->GetTarget()))
+            {
+                float distance = std::max(unit->GetCombatReach() + target->GetCombatReach() + 1.3333334f, 5.0f);
+                if (unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) || target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
+                    distance += 1.0f;
+                return unit->GetExactDistSq(target) >= distance * distance;
+            }
+            return 0;
         case UnitConditionVariable::Health:
-            break;
+            return unit->GetHealth();
         case UnitConditionVariable::SpellKnown:
-            break;
+            return unit->HasSpell(value) ? value : 0;
         case UnitConditionVariable::HasHarmfulAuraEffect:
-            break;
+            return value >= 0 && value < int32(TOTAL_AURAS) && std::find_if(unit->GetAuraEffectsByType(AuraType(value)).begin(), unit->GetAuraEffectsByType(AuraType(value)).end(), [unit](AuraEffect const* aurEff)
+            {
+                return (aurEff->GetBase()->GetApplicationOfTarget(unit->GetGUID())->GetFlags() & AFLAG_NEGATIVE) != 0;
+            }) != unit->GetAuraEffectsByType(AuraType(value)).end();
         case UnitConditionVariable::IsImmuneToAreaOfEffect:
             break;
         case UnitConditionVariable::IsPlayer:
-            break;
+            return unit->IsPlayer();
         case UnitConditionVariable::DamageMagicPct:
             break;
         case UnitConditionVariable::DamageTotalPct:
@@ -3727,57 +3764,62 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::HasCritter:
             return !unit->GetCritterGUID().IsEmpty();
         case UnitConditionVariable::HasTotemInSlot1:
-            break;
+            return !unit->m_SummonSlot[SUMMON_SLOT_TOTEM].IsEmpty();
         case UnitConditionVariable::HasTotemInSlot2:
-            break;
+            return !unit->m_SummonSlot[SUMMON_SLOT_TOTEM_2].IsEmpty();
         case UnitConditionVariable::HasTotemInSlot3:
-            break;
+            return !unit->m_SummonSlot[SUMMON_SLOT_TOTEM_3].IsEmpty();
         case UnitConditionVariable::HasTotemInSlot4:
-            break;
+            return !unit->m_SummonSlot[SUMMON_SLOT_TOTEM_4].IsEmpty();
         case UnitConditionVariable::HasTotemInSlot5:
             break;
         case UnitConditionVariable::Creature:
-            break;
+            return unit->GetEntry();
         case UnitConditionVariable::StringID:
             break;
         case UnitConditionVariable::HasAura:
-            break;
+            return unit->HasAura(value) ? value : 0;
         case UnitConditionVariable::IsEnemy:
-            break;
+            return otherUnit && unit->GetReactionTo(otherUnit) <= REP_HOSTILE;
         case UnitConditionVariable::IsSpecMelee:
-            break;
+            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
         case UnitConditionVariable::IsSpecTank:
-            break;
+            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
         case UnitConditionVariable::IsSpecRanged:
-            break;
+            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
         case UnitConditionVariable::IsSpecHealer:
-            break;
+            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
         case UnitConditionVariable::IsPlayerControlledNPC:
-            break;
+            return unit->IsCreature() && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
         case UnitConditionVariable::IsDying:
-            break;
+            return unit->GetHealth() == 0;
         case UnitConditionVariable::PathFailCount:
             break;
         case UnitConditionVariable::IsMounted:
-            break;
+            return unit->GetMountDisplayId() != 0;
         case UnitConditionVariable::Label:
             break;
         case UnitConditionVariable::IsMySummon:
-            break;
+            return otherUnit && (otherUnit->GetCharmerGUID() == unit->GetGUID() || otherUnit->GetCreatorGUID() == unit->GetGUID());
         case UnitConditionVariable::IsSummoner:
-            break;
+            return otherUnit && (unit->GetCharmerGUID() == otherUnit->GetGUID() || unit->GetCreatorGUID() == otherUnit->GetGUID());
         case UnitConditionVariable::IsMyTarget:
-            break;
+            return otherUnit && unit->GetTarget() == otherUnit->GetGUID();
         case UnitConditionVariable::Sex:
-            break;
+            return unit->GetGender();
         case UnitConditionVariable::LevelWithinContentTuning:
-            break;
+            if (Optional<ContentTuningLevels> levelRange = sDB2Manager.GetContentTuningData(value, 0))
+                return unit->GetLevel() >= levelRange->MinLevel && unit->GetLevel() <= levelRange->MaxLevel ? value : 0;
+            return 0;
         case UnitConditionVariable::IsFlying:
-            break;
+            return unit->IsFlying();
         case UnitConditionVariable::IsHovering:
-            break;
+            return unit->IsHovering();
         case UnitConditionVariable::HasHelpfulAuraEffect:
-            break;
+            return value >= 0 && value < int32(TOTAL_AURAS) && std::find_if(unit->GetAuraEffectsByType(AuraType(value)).begin(), unit->GetAuraEffectsByType(AuraType(value)).end(), [unit](AuraEffect const* aurEff)
+            {
+                return (aurEff->GetBase()->GetApplicationOfTarget(unit->GetGUID())->GetFlags() & AFLAG_NEGATIVE) == 0;
+            }) != unit->GetAuraEffectsByType(AuraType(value)).end();
         case UnitConditionVariable::HasHelpfulAuraSchool:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {
