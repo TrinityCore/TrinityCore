@@ -522,7 +522,7 @@ class spell_hun_pet_scaling_01 : public AuraScript
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
             if (Player* owner = pet->GetOwner())
-                amount = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.425f;
+                amount = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
     }
 
     void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
