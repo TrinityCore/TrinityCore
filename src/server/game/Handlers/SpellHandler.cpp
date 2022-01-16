@@ -338,7 +338,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // ignore for remote control state (for player case)
     Unit* mover = GetGameClient()->GetActivelyMovedUnit();
-    if (!mover || mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+    if (!mover || (mover != _player && mover->GetTypeId() == TYPEID_PLAYER))
     {
         recvPacket.rfinish(); // prevent spam at ignore packet
         return;
