@@ -1571,10 +1571,10 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 case EVENT_WAILING_ARROW_MARKER:
                 {
-                    std::list<Unit*> everyPlayerButCurrentTank;
+                    std::list<Player*> everyPlayerButCurrentTank;
                     GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
 
-                    if (Unit* currentTank = me->GetVictim())
+                    if (Player* currentTank = me->GetVictim()->ToPlayer())
                     {
                         Talk(SAY_ANNOUNCE_WAILING_ARROW_TANK, currentTank);
 
