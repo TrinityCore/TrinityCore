@@ -14,19 +14,16 @@ target_include_directories(rapidjson
   INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(rapidjson_compile_definitions_arch "")
-
-if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "(x86_64)|(AMD64|amd64)|(^i.86$)")
-    set(rapidjson_compile_definitions_arch "-DRAPIDJSON_SSE2")
-elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "^arm")
-    set(rapidjson_compile_definitions_arch "-DRAPIDJSON_NEON") 
-elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "^aarch64")
-    set(rapidjson_compile_definitions_arch "-DRAPIDJSON_NEON") 
-endif()
-
 target_compile_definitions(rapidjson
   INTERFACE
     -DRAPIDJSON_HAS_STDSTRING
-    ${rapidjson_compile_definitions_arch}
     -DRAPIDJSON_48BITPOINTER_OPTIMIZATION=0
     -DRAPIDJSON_ASSERT=WPAssert)
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64)|(AMD64|amd64)|(^i.86$)")
+  target_compile_definitions(rapidjson INTERFACE -DRAPIDJSON_SSE2)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
+  target_compile_definitions(rapidjson INTERFACE -RAPIDJSON_NEON)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
+  target_compile_definitions(rapidjson INTERFACE -RAPIDJSON_NEON)
+endif()
