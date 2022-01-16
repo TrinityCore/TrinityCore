@@ -1,0 +1,12 @@
+diff --git a/dep/g3dlite/include/G3D/Vector3.h b/dep/g3dlite/include/G3D/Vector3.h
+index 1c42513b45..05d9b11ed5 100644
+--- a/dep/g3dlite/include/G3D/Vector3.h
++++ b/dep/g3dlite/include/G3D/Vector3.h
+@@ -128,7 +128,6 @@ public:
+     Axis primaryAxis() const;
+ 
+     // assignment and comparison
+-    Vector3& operator=(const Vector3& rkVector) = default;
+     Vector3& operator=(const Any& a);
+     bool operator== (const Vector3& rkVector) const;
+     bool operator!= (const Vector3& rkVector) const;
