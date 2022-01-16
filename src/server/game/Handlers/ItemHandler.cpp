@@ -94,22 +94,15 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swap
         return;
     }
 
-    if ((_player->IsBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot1) || _player->IsReagentBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot1)) && !CanUseBank())
+    if (_player->IsBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot1) && !CanUseBank())
     {
         TC_LOG_DEBUG("network", "HandleSwapInvItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
         return;
     }
 
-    if ((_player->IsBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot2) || _player->IsReagentBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot2)) && !CanUseBank())
+    if (_player->IsBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot2) && !CanUseBank())
     {
         TC_LOG_DEBUG("network", "HandleSwapInvItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
-        return;
-    }
-
-    if ((_player->IsReagentBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot1) || _player->IsReagentBankPos(INVENTORY_SLOT_BAG_0, swapInvItem.Slot2)) && !_player->IsReagentBankUnlocked())
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleUseContainerOpcode - Player (%s, name: %s) queried reagent bank without unlocking it.", _player->GetGUID().ToString().c_str(), _player->GetName().c_str());
-        _player->SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED);
         return;
     }
 

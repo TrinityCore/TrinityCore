@@ -10080,7 +10080,7 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
     return count;
 }
 
-std::vector<Item*> Player::GetCraftingReagentItems()
+std::vector<Item*> Player::GetCraftingReagentItemsToDeposit()
 {
     std::vector<Item*> itemList = std::vector<Item*>();
     ForEachItem(ItemSearchLocation::Inventory, [&itemList](Item* item)
@@ -11664,18 +11664,22 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading, bool isReagent) const
+InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading /*= true*/, bool reagentBankOnly /*= false*/) const
 {
     if (!pItem)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
 
     // different slots range if we're trying to store item in Reagent Bank
-    bool isReagentBankSlot = IsReagentBankPos(bag, slot) || isReagent;
-    if (isReagentBankSlot && !IsReagentBankUnlocked())
+    if (reagentBankOnly)
+    {
+        ASSERT(bag == NULL_BAG && slot == NULL_SLOT); // when reagentBankOnly is true then bag & slot must be hardcoded constants, not client input
+    }
+
+    if ((IsReagentBankPos(bag, slot) || reagentBankOnly) && !IsReagentBankUnlocked())
         return EQUIP_ERR_REAGENT_BANK_LOCKED;
 
-    uint8 slotStart = isReagentBankSlot ? uint8(REAGENT_SLOT_START) : uint8(BANK_SLOT_ITEM_START);
-    uint8 slotEnd = isReagentBankSlot ? uint8(REAGENT_SLOT_END) : uint8(BANK_SLOT_ITEM_END);
+    uint8 slotStart = reagentBankOnly ? uint8(REAGENT_SLOT_START) : uint8(BANK_SLOT_ITEM_START);
+    uint8 slotEnd = reagentBankOnly ? uint8(REAGENT_SLOT_END) : uint8(BANK_SLOT_ITEM_END);
 
     uint32 count = pItem->GetCount();
 
@@ -11751,10 +11755,6 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
             }
             else
             {
-                // incorrect pos, Reagent Bank only has INVENTORY_SLOT_BAG_0
-                if (isReagentBankSlot)
-                    return EQUIP_ERR_WRONG_BAG_TYPE;
-
                 res = CanStoreItem_InBag(bag, dest, pProto, count, true, false, pItem, NULL_BAG, slot);
                 if (res != EQUIP_ERR_OK)
                     res = CanStoreItem_InBag(bag, dest, pProto, count, true, true, pItem, NULL_BAG, slot);
@@ -11779,10 +11779,6 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         }
         else
         {
-            // incorrect pos, Reagent Bank only has INVENTORY_SLOT_BAG_0
-            if (isReagentBankSlot)
-                return EQUIP_ERR_WRONG_BAG_TYPE;
-
             res = CanStoreItem_InBag(bag, dest, pProto, count, false, false, pItem, NULL_BAG, slot);
             if (res != EQUIP_ERR_OK)
                 res = CanStoreItem_InBag(bag, dest, pProto, count, false, true, pItem, NULL_BAG, slot);
@@ -11809,7 +11805,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
             return EQUIP_ERR_OK;
 
         // don't try to store reagents anywhere else than in Reagent Bank if we're on it
-        if (!isReagentBankSlot)
+        if (!reagentBankOnly)
         {
             // in special bags
             if (pProto->GetBagFamily())
@@ -11839,7 +11835,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     }
 
     // search free space in special bags (don't try to store reagents anywhere else than in Reagent Bank if we're on it)
-    if (pProto->GetBagFamily() && !isReagentBankSlot)
+    if (!reagentBankOnly && pProto->GetBagFamily())
     {
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
         {
@@ -11861,7 +11857,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         return EQUIP_ERR_OK;
 
     // search free space in regular bags (don't try to store reagents anywhere else than in Reagent Bank if we're on it)
-    if (!isReagentBankSlot)
+    if (!reagentBankOnly)
     {
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
         {
@@ -11874,7 +11870,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         }
     }
 
-    return isReagentBankSlot ? EQUIP_ERR_REAGENT_BANK_FULL : EQUIP_ERR_BANK_FULL;
+    return reagentBankOnly ? EQUIP_ERR_REAGENT_BANK_FULL : EQUIP_ERR_BANK_FULL;
 }
 
 InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
@@ -13368,6 +13364,12 @@ void Player::SwapItem(uint16 src, uint16 dst)
         }
     }
 
+    if (IsReagentBankPos(dst) && !IsReagentBankUnlocked())
+    {
+        SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED, pSrcItem, pDstItem);
+        return;
+    }
+
     // NOW this is or item move (swap with empty), or swap with another item (including bags in bag possitions)
     // or swap empty bag with another empty or not empty bag (with items exchange)
 
@@ -13401,7 +13403,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
-            ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
+            if (!IsReagentBankPos(dst))
+                ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
         }
         else if (IsEquipmentPos(dst))
         {

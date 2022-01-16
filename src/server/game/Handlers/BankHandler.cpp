@@ -164,7 +164,14 @@ void WorldSession::HandleBuyReagentBankOpcode(WorldPackets::Bank::ReagentBank& r
         return;
     }
 
-    int64 price = 100 * GOLD;
+    constexpr int64 price = 100 * GOLD;
+
+    if (!_player->HasEnoughMoney(price))
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleBuyReagentBankOpcode - Player (%s, name: %s) without enough gold.", _player->GetGUID().ToString().c_str(), _player->GetName().c_str());
+        return;
+    }
+
     _player->ModifyMoney(-price);
     _player->UnlockReagentBank();
 }
@@ -184,16 +191,16 @@ void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBan
     }
 
     // query all reagents from player's inventory
-    std::vector<Item*> items = _player->GetCraftingReagentItems();
-
-    for (Item* item : items)
+    bool anyDeposited = false;
+    for (Item* item : _player->GetCraftingReagentItemsToDeposit())
     {
         ItemPosCountVec dest;
         InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, item, NULL);
-            continue;
+            if (msg != EQUIP_ERR_REAGENT_BANK_FULL || !anyDeposited)
+                _player->SendEquipError(msg, item, NULL);
+            break;
         }
 
         if (dest.size() == 1 && dest[0].pos == item->GetPos())
@@ -204,8 +211,8 @@ void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBan
 
         // store reagent
         _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
-        _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
         _player->BankItem(dest, item, true);
+        anyDeposited = true;
     }
 }
 
@@ -242,7 +249,6 @@ void WorldSession::HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReage
     }
 
     _player->RemoveItem(autoBankReagent.PackSlot, autoBankReagent.Slot, true);
-    _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
     _player->BankItem(dest, item, true);
 }
 
@@ -275,8 +281,7 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
         }
 
         _player->RemoveItem(autoStoreBankReagent.Slot, autoStoreBankReagent.PackSlot, true);
-        if (Item const* storedItem = _player->StoreItem(dest, pItem, true))
-            _player->ItemAddedQuestCheck(storedItem->GetEntry(), storedItem->GetCount());
+        _player->StoreItem(dest, pItem, true);
     }
     else
     {

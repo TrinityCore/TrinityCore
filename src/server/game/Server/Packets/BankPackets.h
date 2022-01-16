@@ -68,8 +68,8 @@ namespace WorldPackets
             void Read() override;
 
             WorldPackets::Item::InvUpdate Inv;
-            uint8 Slot;
-            uint8 PackSlot;
+            uint8 Slot = 0;
+            uint8 PackSlot = 0;
         };
 
         class AutoStoreBankReagent final : public ClientPacket
@@ -80,8 +80,8 @@ namespace WorldPackets
             void Read() override;
 
             WorldPackets::Item::InvUpdate Inv;
-            uint8 Slot;
-            uint8 PackSlot;
+            uint8 Slot = 0;
+            uint8 PackSlot = 0;
         };
 
         // CMSG_BUY_REAGENT_BANK
