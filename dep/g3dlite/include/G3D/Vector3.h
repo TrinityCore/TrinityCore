@@ -128,7 +128,6 @@ public:
     Axis primaryAxis() const;
 
     // assignment and comparison
-    Vector3& operator=(const Vector3& rkVector) = default;
     Vector3& operator=(const Any& a);
     bool operator== (const Vector3& rkVector) const;
     bool operator!= (const Vector3& rkVector) const;
