@@ -121,12 +121,18 @@ class spell_warl_chaos_bolt : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        SetHitDamage((GetHitDamage() * 2) + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage));
+        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage));
+    }
+
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
+    {
+        critChance = 100.0f;
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_warl_chaos_bolt::CalcCritChance);
     }
 };
 
