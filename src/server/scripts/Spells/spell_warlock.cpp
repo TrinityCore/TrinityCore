@@ -459,12 +459,12 @@ class spell_warl_immolate : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_WARLOCK_IMMOLATE_PERIODIC});
+        return ValidateSpellInfo({ SPELL_WARLOCK_IMMOLATE_PERIODIC});
     }
 
     void HandleOnEffectHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARLOCK_IMMOLATE_PERIODIC, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARLOCK_IMMOLATE_PERIODIC, GetSpell());
     }
 
     void Register() override
