@@ -97,6 +97,22 @@ bool MovementInfo::HasTransportTime2() const
     return HasTransportData() && transport.time2 != 0;
 }
 
+// Returns the angle of the current movement direction based on movement flags (forward, strafe left etc)
+float MovementInfo::GetMovementDirection() const
+{
+    float direction = 0.f;
+    if (HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT))
+        direction = HasMovementFlag(MOVEMENTFLAG_FORWARD) ? float(M_PI_4) : float(M_PI_2);
+
+    if (HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
+        direction = HasMovementFlag(MOVEMENTFLAG_FORWARD) ? -float(M_PI_4) : -float(M_PI_2);
+
+    if (HasMovementFlag(MOVEMENTFLAG_BACKWARD))
+        direction += float(M_PI);
+
+    return direction;
+}
+
 void MovementInfo::OutDebug()
 {
     TC_LOG_DEBUG("misc", "MOVEMENT INFO");
