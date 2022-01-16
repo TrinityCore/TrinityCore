@@ -548,7 +548,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK12                            = 0x00001000, // 12 Cleave related?
     SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC     = 0x00002000, // 13 Spell Haste Affects Periodic
     SPELL_ATTR5_NOT_USABLE_WHILE_CHARMED         = 0x00004000, // 14 Charmed units cannot cast this spell
-    SPELL_ATTR5_INCLUDE_MELEE_RANGE              = 0x00008000, // 15 Area target selection includes the combat reach of caster and potential target
+    SPELL_ATTR5_TREAT_AS_AREA_EFFECT             = 0x00008000, // 15 Treat As Area Effect
     SPELL_ATTR5_UNK16                            = 0x00010000, // 16
     SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
     SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused

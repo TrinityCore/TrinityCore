@@ -1229,6 +1229,9 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
 
 bool SpellInfo::IsAffectingArea() const
 {
+    if (HasAttribute(SPELL_ATTR5_TREAT_AS_AREA_EFFECT))
+        return true;
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (Effects[i].IsEffect() && (Effects[i].IsTargetingArea() || Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || Effects[i].IsAreaAuraEffect()))
             return true;
