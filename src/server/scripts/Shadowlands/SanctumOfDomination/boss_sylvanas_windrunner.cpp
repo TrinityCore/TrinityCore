@@ -263,7 +263,6 @@ enum Actions
     ACTION_SET_RANGER_STANCE,
     ACTION_SET_DAGGER_STANCE,
     ACTION_RANGER_SHOT,
-    ACTION_DESECRATING_SHOT_LAUNCH,
     ACTION_ACTIVATE_DOMINATION_ARROW,
     ACTION_WAILING_ARROW,
     ACTION_PREPARE_INTERMISSION,
@@ -593,7 +592,7 @@ Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3
 struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 {
     npc_sylvanas_windrunner_shadowcopy(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()),
-        _onPhaseOne(true), _onChainsOfDomination(false), _onRiveEvent(false) { }
+        _onPhaseOne(true), _onChainsOfDomination(false), _onRiveEvent(false), _sayDaggers(0), _sayDesecrating(0) { }
 
     void JustAppeared() override
     {
@@ -603,6 +602,16 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
+    }
+
+    void Reset() override
+    {
+        _onPhaseOne = true;
+        _onChainsOfDomination = false;
+        _onRiveEvent = false;
+        _sayDaggers = 0;
+        _sayDesecrating = 0;
     }
 
     void SetData(uint32 type, uint32 value) override
@@ -788,14 +797,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 me->CastSpell(sylvanas->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
             });
 
-            _scheduler.Schedule(1s + 100ms, [this, sylvanas, chooseMe](TaskContext /*task*/)
+            _scheduler.Schedule(2s + 62ms, [this, sylvanas, chooseMe](TaskContext /*task*/)
             {
                 if (chooseMe)
                 {
                     if (sylvanas->IsAIEnabled())
                         sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
-
-                    sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
                 }
             });
         }
@@ -813,6 +820,19 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 if (chooseMe)
                 {
+                    if (_sayDaggers == 0)
+                    {
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->AI()->Talk(SAY_SHADOW_DAGGER);
+
+                        _sayDaggers = 1;
+
+                        _scheduler.Schedule(20s, [this](TaskContext /*task*/)
+                        {
+                             _sayDaggers = 0;
+                        });
+                    }
+
                     me->CastSpell(shadowdaggerPos, SPELL_WINDRUNNER_MOVE, false);
 
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
@@ -845,17 +865,63 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                         me->NearTeleportTo(sylvanas->GetPosition(), false);
                 });
 
-                _scheduler.Schedule(752ms, [this, sylvanas, chooseMe](TaskContext /*task*/)
+                _scheduler.Schedule(1s + 500ms, [this, sylvanas, chooseMe](TaskContext /*task*/)
                 {
                     if (chooseMe)
                     {
                         if (sylvanas->IsAIEnabled())
                             sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
-
-                        sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     }
                 });
             }
+        }
+    }
+
+    void StartDesecratingShotEvent()
+    {
+        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        {
+            me->NearTeleportTo(sylvanas->GetNearPosition(5.0f, float(M_PI)), false);
+
+            _scheduler.Schedule(50ms, [this](TaskContext /*task*/)
+            {
+                me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 5.0f, me->GetOrientation(), false);
+            });
+
+            _scheduler.Schedule(100ms, [this, sylvanas](TaskContext /*task*/)
+            {
+                if (sylvanas->IsAIEnabled())
+                {
+                    sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
+
+                    if (_sayDesecrating == 0)
+                    {
+                        sylvanas->AI()->Talk(SAY_DESECRATING_SHOT);
+
+                        _sayDesecrating = 1;
+
+                        _scheduler.Schedule(20s, [this](TaskContext /*task*/)
+                        {
+                             _sayDesecrating = 0;
+                        });
+                    }
+                }
+
+                sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+
+                DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_FRONT, false);
+            });
+
+            _scheduler.Schedule(550ms, [this, sylvanas](TaskContext /*task*/)
+            {
+                me->CastSpell(sylvanas->GetPosition(), SPELL_WINDRUNNER_MOVE, false);
+            });
+
+            _scheduler.Schedule(797ms, [sylvanas](TaskContext /*task*/)
+            {
+                if (sylvanas->IsAIEnabled())
+                    sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
+            });
         }
     }
 
@@ -865,6 +931,8 @@ private:
     bool _onPhaseOne;
     bool _onChainsOfDomination;
     bool _onRiveEvent;
+    uint8 _sayDaggers;
+    uint8 _sayDesecrating;
 };
 
 // Sylvanas Shadowcopy (Riding) - 178355
@@ -879,8 +947,7 @@ struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-
-        me->SetObjectScale(2.5f);
+        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -897,7 +964,7 @@ private:
 struct boss_sylvanas_windrunner : public BossAI
 {
     boss_sylvanas_windrunner(Creature* creature) : BossAI(creature, DATA_SYLVANAS_WINDRUNNER), _windrunnerActive(false), _rangerShotOnCD(false),
-        _sayDaggersOnCD(false), _sayDesecratingOnCD(false), _meleeKitCombo(0), _windrunnerCastTimes(0), _riveCastTimes(0), _hauntingWaveTimes(0) { }
+        _meleeKitCombo(0), _windrunnerCastTimes(0), _riveCastTimes(0), _hauntingWaveTimes(0) { }
 
     void JustAppeared() override
     {
@@ -942,8 +1009,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
         _windrunnerActive = false;
         _rangerShotOnCD = false;
-        _sayDaggersOnCD = false;
-        _sayDesecratingOnCD = false;
         _meleeKitCombo = 0;
         _windrunnerCastTimes = 0;
         _riveCastTimes = 0;
@@ -992,12 +1057,9 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
-
-        /*
         Talk(SAY_AGGRO);
 
-        events.SetPhase(PHASE_ONE);     
+        events.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 45s, 1, PHASE_ONE);
@@ -1005,12 +1067,11 @@ struct boss_sylvanas_windrunner : public BossAI
         // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
         _specialEvents.SetPhase(PHASE_ONE);
         _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, 1, PHASE_ONE);
-
+        
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
-        */
     }
 
     void DoAction(int32 action) override
@@ -1165,32 +1226,15 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_WINDRUNNER_MODEL_ACTIVATE:
             {
+                DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
                 DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, false);
-
-                scheduler.Schedule(200ms, [this](TaskContext /*task*/)
-                {
-                    if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
-                    {
-                        ridingCopy->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_DARKENED_MODEL);
-                        ridingCopy->HandleEmoteCommand(EMOTE_ONESHOT_DODGE);
-                    }
-                });
-
-                scheduler.Schedule(700ms, [this](TaskContext /*task*/)
-                {
-                    if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
-                        ridingCopy->HandleEmoteCommand(EMOTE_ONESHOT_PARRY1H);
-
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_PARRY1H);
-                });
                 break;
             }
 
             case ACTION_WINDRUNNER_MODEL_DEACTIVATE:
             {
-                if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
-                    ridingCopy->SetDisplayId(DATA_DISPLAY_ID_DEFAULT_INVISIBLE_MODEL);
-
+                DoAction(ACTION_ACTIVATE_ATTACK_AFTER_EVENT);
+                me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                 me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_01);
                 break;
             }
@@ -1248,49 +1292,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     else
                         _rangerShotOnCD = false;
                 });
-                break;
-            }
-
-            case ACTION_DESECRATING_SHOT_LAUNCH:
-            {
-                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                {
-                    shadowCopy->NearTeleportTo(me->GetNearPosition(5.0f, float(M_PI)), false);
-
-                    scheduler.Schedule(50ms, [shadowCopy](TaskContext /*task*/)
-                    {
-                         shadowCopy->NearTeleportTo(shadowCopy->GetPositionX(), shadowCopy->GetPositionY(), shadowCopy->GetPositionZ() + 5.0f, shadowCopy->GetOrientation(), false);
-                    });
-
-                    scheduler.Schedule(200ms, [this, shadowCopy](TaskContext /*task*/)
-                    {
-                         if (!_sayDesecratingOnCD)
-                         {
-                             _sayDesecratingOnCD = true;
-
-                             Talk(SAY_DESECRATING_SHOT);
-                         }
-
-                         DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
-
-                         me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
-
-                         shadowCopy->CastSpell(shadowCopy, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
-                    });
-
-                    scheduler.Schedule(450ms, [this, shadowCopy](TaskContext /*task*/)
-                    {
-                         shadowCopy->NearTeleportTo(me->GetPosition(), false);
-                    });
-
-                    scheduler.Schedule(650ms, [this](TaskContext /*task*/)
-                    {
-                         DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
-
-                         me->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                    });
-                }
-
                 break;
             }
 
@@ -1567,26 +1568,24 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->SetSheath(SHEATH_STATE_MELEE);
 
                     _windrunnerActive = true;
-                    _sayDaggersOnCD = false;
-                    _sayDesecratingOnCD = false;
 
                     if (_windrunnerCastTimes == 0)
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 11000));
 
-                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 500ms, 2, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 1s + 500ms, 2, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 2s, 2, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 6s, 2, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 7s, 2, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 7s + 500ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 1ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 3s + 141ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s + 141ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 7s + 750ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 9s + 281ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s + 281ms, 2, PHASE_ONE);
 
-                        scheduler.Schedule(11s + 500ms, [this](TaskContext /*task*/)
+                        scheduler.Schedule(11s + 250ms, [this](TaskContext /*task*/)
                         {
                             _windrunnerActive = false;
                         });
                     }
-                    else if (_windrunnerCastTimes == 1)
+                    else if (_windrunnerCastTimes == 1) // TODO: fix timers
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 13000));
 
@@ -1596,12 +1595,12 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 7s, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s, 2, PHASE_ONE);
 
-                        scheduler.Schedule(13s + 500ms, [this](TaskContext /*task*/)
+                        scheduler.Schedule(13s + 250ms, [this](TaskContext /*task*/)
                         {
                             _windrunnerActive = false;
                         });
                     }
-                    else if (_windrunnerCastTimes == 2)
+                    else if (_windrunnerCastTimes == 2) // TODO: fix timers
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 15000));
 
@@ -1612,12 +1611,12 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s, 2, PHASE_ONE);
 
-                        scheduler.Schedule(15s + 500ms, [this](TaskContext /*task*/)
+                        scheduler.Schedule(15s + 250ms, [this](TaskContext /*task*/)
                         {
                             _windrunnerActive = false;
                         });
                     }
-                    else
+                    else // TODO: fix timers
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 17000));
 
@@ -1641,7 +1640,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
 
-                        uint8 randomCopy = urand(0, 3);
+                        uint8 randomCopy = urand(0, 4);
 
                         for (uint8 itr = 0; itr < 4; itr++)
                         {
@@ -1686,16 +1685,9 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         TeleportShadowcopiesToMe();
 
-                        if (!_sayDaggersOnCD)
-                        {
-                            _sayDaggersOnCD = true;
-
-                            Talk(SAY_SHADOW_DAGGER);
-                        }
-
                         DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
 
-                        uint8 randomCopy = urand(0, 3);
+                        uint8 randomCopy = urand(0, 4);
 
                         for (uint8 itr = 0; itr < 4; itr++)
                         {
@@ -1728,9 +1720,10 @@ struct boss_sylvanas_windrunner : public BossAI
                                 while (DrawDesecratingShotStraight(step, orientation))
                                     ++step;
 
-                                scheduler.Schedule(2s + 750ms, [this](TaskContext /*task*/)
+                                scheduler.Schedule(2s + 300ms, [this](TaskContext /*task*/)
                                 {
-                                    DoAction(ACTION_DESECRATING_SHOT_LAUNCH);
+                                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
+                                        ai->StartDesecratingShotEvent();
                                 });
                             }
                             break;
@@ -1740,9 +1733,10 @@ struct boss_sylvanas_windrunner : public BossAI
                         {
                             DrawDesecratingShotScattered();
 
-                            scheduler.Schedule(2s + 750ms, [this](TaskContext /*task*/)
+                            scheduler.Schedule(2s + 300ms, [this](TaskContext /*task*/)
                             {
-                                DoAction(ACTION_DESECRATING_SHOT_LAUNCH);
+                                if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
+                                    ai->StartDesecratingShotEvent();
                             });
                             break;
                         }
@@ -2488,8 +2482,6 @@ private:
     std::vector<ObjectGuid> _shadowCopyGUID;
     bool _windrunnerActive;
     bool _rangerShotOnCD;
-    bool _sayDaggersOnCD;
-    bool _sayDesecratingOnCD;
     uint8 _meleeKitCombo;
     uint8 _windrunnerCastTimes;
     uint8 _riveCastTimes;
@@ -5303,7 +5295,7 @@ struct at_sylvanas_windrunner_disecrating_shot : AreaTriggerAI
 
         _updateDiff += diff;
 
-        if (_updateDiff >= 3150)
+        if (_updateDiff >= 2500)
         {
             if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             {
