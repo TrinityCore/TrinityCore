@@ -304,6 +304,7 @@ struct TC_GAME_API SpellDestination
     SpellDestination();
     SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
     SpellDestination(Position const& pos);
+    SpellDestination(WorldLocation const& loc);
     SpellDestination(WorldObject const& wObj);
 
     void Relocate(Position const& pos);
