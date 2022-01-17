@@ -302,7 +302,7 @@ struct boss_chogall final : public BossAI
         instance->instance->SetWorldState(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU, 0);
         DoCastSelf(SPELL_CORRUPTED_BLOOD);
         events.SetPhase(PHASE_1);
-        events.ScheduleEvent(EVENT_FURY_OF_CHOGALL, 57s + 800ms);
+        events.ScheduleEvent(EVENT_FURY_OF_CHOGALL, 33s);
         events.ScheduleEvent(EVENT_FLAMES_ORDER, 6s + 100ms, 0, PHASE_1);
         events.ScheduleEvent(EVENT_SHADOWS_ORDERS, 20s + 800ms, 0, PHASE_1);
         events.ScheduleEvent(EVENT_SUMMON_CORRUPTING_ADHERENT, 39s, 0, PHASE_1);
@@ -475,7 +475,7 @@ struct boss_chogall final : public BossAI
             {
                 case EVENT_FURY_OF_CHOGALL:
                     DoCastVictim(SPELL_FURY_OF_CHOGALL);
-                    events.Repeat(47s + 500ms);
+                    events.Repeat(47s);
                     break;
                 case EVENT_FLAMES_ORDER:
                     DoCastSelf(SPELL_FLAMES_ORDERS);
