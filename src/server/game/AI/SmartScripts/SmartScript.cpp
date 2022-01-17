@@ -2535,7 +2535,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (IsSmart(summon))
                         ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, GetLastInvoker(), e.event_id + 1);
 
-                    Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id >= e.event_id; });
+                    Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id > e.event_id; });
                 }
             }
             break;
