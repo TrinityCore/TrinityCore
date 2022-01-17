@@ -40,7 +40,6 @@ enum ShamanSpells
     SPELL_SHAMAN_AFTERSHOCK_ENERGIZE            = 210712,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE             = 108281,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL        = 114911,
-    SPELL_SHAMAN_BOTTLE_OF_SWIRLING_MAELSTROM   = 329580,
     SPELL_SHAMAN_CHAIN_LIGHTNING                = 188443,
     SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE       = 195897,
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD       = 45297,
@@ -62,7 +61,6 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY        = 173184,
     SPELL_SHAMAN_ELEMENTAL_BLAST_OVERLOAD       = 120588,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
-    SPELL_SHAMAN_ELEMENTAL_SHAMAN               = 137040,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
@@ -500,10 +498,13 @@ class spell_sha_earthquake_aura : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        std::vector<AreaTrigger*> areaTriggers = GetCaster()->GetAreaTriggers(SPELL_SHAMAN_EARTHQUAKE);
+        if (Unit* caster = GetCaster())
+        {
+            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_SHAMAN_EARTHQUAKE);
 
-        for (AreaTrigger* at : areaTriggers)
-            GetTarget()->CastSpell(at->GetPosition(), SPELL_SHAMAN_EARTHQUAKE_TICK, true);
+            for (AreaTrigger* at : areaTriggers)
+                caster->CastSpell(at->GetPosition(), SPELL_SHAMAN_EARTHQUAKE_TICK, true);
+        }
     }
 
     void Register() override
@@ -517,39 +518,12 @@ class spell_sha_earthquake_tick : public SpellScript
 {
     PrepareSpellScript(spell_sha_earthquake_tick);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_SHAMAN_ELEMENTAL_SHAMAN,
-            SPELL_SHAMAN_BOTTLE_OF_SWIRLING_MAELSTROM,
-            SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN
-        });
-    }
+        if (!spellInfo->GetEffects().empty())
+            const_cast<SpellEffectInfo*>(&spellInfo->GetEffect(EFFECT_0))->BonusCoefficient = 0.391f;
 
-    void CalcDamage(SpellEffIndex /*effIndex*/)
-    {
-        const Player* player = GetCaster()->ToPlayer();
-        float versaDmgMod = 1.0f;
-        // $mawPower = ${ 1 + ($329580m5 / 100) }
-        // $damage = ${ $SPN * 0.391 * $d / $t2 * (1 + $@versadmg) * (($137040s1 + 100) / 100) * $<mawPower> }
-        AddPct(versaDmgMod, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + float(player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY)));
-
-        uint32 dmg = player->m_activePlayerData->ModDamageDonePos[SPELL_SCHOOL_NATURE] * 0.391f * versaDmgMod;
-
-        if (AuraEffect* aurEff = player->GetAuraEffect(SPELL_SHAMAN_ELEMENTAL_SHAMAN, EFFECT_0))
-        {
-            float dmgMod = 1.0f;
-            dmg *= AddPct(dmgMod, aurEff->GetAmount());
-        }
-
-        if (AuraEffect* aurEff = player->GetAuraEffect(SPELL_SHAMAN_BOTTLE_OF_SWIRLING_MAELSTROM, EFFECT_4))
-        {
-            float mawPower = 1.0f;
-            dmg *= AddPct(mawPower, aurEff->GetAmount());
-        }
-
-        SetHitDamage(dmg);
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN });
     }
 
     void HandleOnHit()
@@ -561,7 +535,6 @@ class spell_sha_earthquake_tick : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_earthquake_tick::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnHit += SpellHitFn(spell_sha_earthquake_tick::HandleOnHit);
     }
 };
