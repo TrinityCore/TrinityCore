@@ -752,6 +752,9 @@ struct npc_magmaw_blazing_bone_construct : public ScriptedAI
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
+        // The movementId of this creature uses a speed value of 7 which is correct for most creatures that use the Id.
+        // However, according to sniffs, this creature uses a speed of 10 so we have to manually set the speed until we know more about how movementIds select their speed
+        me->SetSpeed(MOVE_RUN, 10.f);
         if (_instance->GetBossState(DATA_MAGMAW) == IN_PROGRESS)
         {
             for (uint8 i = 0; i < 20; i++)
