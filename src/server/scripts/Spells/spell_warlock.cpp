@@ -110,6 +110,33 @@ class spell_warl_banish : public SpellScriptLoader
         }
 };
 
+// 116858 - Chaos Bolt
+class spell_warl_chaos_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_warl_chaos_bolt);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage));
+    }
+
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
+    {
+        critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_warl_chaos_bolt::CalcCritChance);
+    }
+};
+
 // 77220 - Mastery: Chaotic Energies
 class spell_warl_chaotic_energies : public AuraScript
 {
@@ -1042,6 +1069,7 @@ public:
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_banish();
+    RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterAuraScript(spell_warl_chaotic_energies);
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
