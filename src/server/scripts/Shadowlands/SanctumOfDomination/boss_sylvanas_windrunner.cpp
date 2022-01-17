@@ -141,7 +141,7 @@ enum Spells
     SPELL_BANSHEE_WAIL_MISSILE                          = 348133,
     SPELL_BANSHEE_WAIL_SILENCE                          = 351253,
     SPELL_BANSHEE_WAIL_MARKER                           = 357719,
-    SPELL_BANSHEE_WAIL_MASTER                           = 355489,
+    SPELL_BANSHEE_WAIL_EXPIRE                           = 355489,
 
     SPELL_TELEPORT_TO_PHASE_TWO                         = 350903,
     SPELL_TELEPORT_NO_IDEA                              = 350905, // TARGET_DEST_DB, not sniffed
@@ -216,6 +216,7 @@ enum Spells
     SPELL_SYLVANAS_POWER_ENERGIZE_AURA                  = 352312,
     SPELL_CHAMPIONS_MOD_FACTION                         = 355537,
 
+    SPELL_INTERMISSION_STUN                             = 355488,
     SPELL_INTERMISSION_SCENE                            = 359062,
     SPELL_PLATFORMS_SCENE                               = 350943,
     SPELL_FINAL_SCENE                                   = 358806,
@@ -263,6 +264,7 @@ enum Actions
     ACTION_WINDRUNNER_MODEL_DEACTIVATE,
     ACTION_SET_RANGER_STANCE,
     ACTION_SET_DAGGER_STANCE,
+    ACTION_RESET_MELEE_KIT,
     ACTION_RANGER_SHOT,
     ACTION_ACTIVATE_DOMINATION_ARROW,
     ACTION_RANGER_HEARTSEEKER,
@@ -1151,6 +1153,9 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
+        DoAction(ACTION_PREPARE_INTERMISSION);
+
+        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1166,6 +1171,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
+        */
     }
 
     void DoAction(int32 action) override
@@ -1362,6 +1368,12 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     me->SetSheath(SHEATH_STATE_MELEE);
                 });
+                break;
+            }
+
+            case ACTION_RESET_MELEE_KIT:
+            {
+                _meleeKitCombo = 0;
                 break;
             }
 
@@ -1977,6 +1989,8 @@ struct boss_sylvanas_windrunner : public BossAI
                                 }
                             }
 
+                            DoAction(ACTION_RESET_MELEE_KIT);
+
                             if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2500)
                                 events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s + 500ms, 1, PHASE_ONE);
                         }
@@ -2077,6 +2091,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         scheduler.Schedule(9s, [this](TaskContext /*task*/)
                         {
                             DoAction(ACTION_ACTIVATE_ATTACK_AFTER_EVENT);
+                            DoAction(ACTION_RESET_MELEE_KIT);
                         });
 
                         events.Repeat(48s);
@@ -2210,7 +2225,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_FINISH_INTERMISSION:
                 {
-                    DoCastSelf(SPELL_RIVE_DISAPPEAR, true);
+                    DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1000));
 
                     me->SendPlayOrphanSpellVisual(RiveFinishPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
@@ -2224,11 +2239,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->NearTeleportTo(RiveFinishPos, false);
 
                         me->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                    });
-
-                    scheduler.Schedule(1s + 100ms, [this](TaskContext /*task*/)
-                    {
-                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
                     });
 
                     scheduler.Schedule(1s + 700ms, [this](TaskContext /*task*/)
@@ -2246,6 +2256,12 @@ struct boss_sylvanas_windrunner : public BossAI
                     scheduler.Schedule(6s + 400ms, [this](TaskContext /*task*/)
                     {
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TRANSFORM_INTO_BANSHEE, 0, 0);
+                    });
+
+                    scheduler.Schedule(8s, [this](TaskContext /*task*/)
+                    {
+                        me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_STUN);
+                        me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_SCENE);
                     });
 
                     scheduler.Schedule(9s + 400ms, [this](TaskContext /*task*/)
@@ -2440,7 +2456,7 @@ struct boss_sylvanas_windrunner : public BossAI
         Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
         Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
 
-        scheduler.Schedule(Milliseconds(step * 25), [this, arrowInnerLeft, arrowInnerRight](TaskContext /*task*/)
+        scheduler.Schedule(Milliseconds(step * 50), [this, arrowInnerLeft, arrowInnerRight](TaskContext /*task*/)
         {
             me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
             me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
@@ -2449,7 +2465,7 @@ struct boss_sylvanas_windrunner : public BossAI
         Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
         Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
 
-        scheduler.Schedule(Milliseconds(step * 10 + 50), [this, arrowOuterLeft, arrowOuterRight](TaskContext /*task*/)
+        scheduler.Schedule(Milliseconds(step * 100), [this, arrowOuterLeft, arrowOuterRight](TaskContext /*task*/)
         {
             me->CastSpell(arrowOuterLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
             me->CastSpell(arrowOuterRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
@@ -3264,6 +3280,7 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
     {
         return ValidateSpellInfo
         ({
+            SPELL_BANSHEE_WAIL_EXPIRE,
             SPELL_BANSHEE_WAIL_MARKER,
             spellInfo->GetEffect(EFFECT_0).TriggerSpell
         });
@@ -3271,6 +3288,8 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
 
     bool Load() override
     {
+        GetCaster()->CastSpell(GetCaster(), SPELL_BANSHEE_WAIL_EXPIRE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 5000));
+
         std::list<Player*> targetList;
         GetPlayerListInGrid(targetList, GetCaster(), 250.0f);
 
