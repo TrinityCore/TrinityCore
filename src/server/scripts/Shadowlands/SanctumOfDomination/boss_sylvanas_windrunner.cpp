@@ -266,6 +266,7 @@ enum Actions
     ACTION_RANGER_SHOT,
     ACTION_ACTIVATE_DOMINATION_ARROW,
     ACTION_RANGER_HEARTSEEKER,
+    ACTION_CALCULATE_ARROWS,
     ACTION_WAILING_ARROW,
     ACTION_PREPARE_INTERMISSION,
     ACTION_PREPARE_PHASE_TWO,
@@ -444,10 +445,11 @@ enum Miscelanea
     DATA_MELEE_COMBO_FINISH                             = 4,
 
     DATA_EVENT_TYPE_SHADOWCOPY                          = 1,
-    DATA_EVENT_SHADOWCOPY_NO_EVENT                      = 1,
-    DATA_EVENT_SHADOWCOPY_DOMINATION_CHAIN_EVENT        = 2,
-    DATA_EVENT_SHADOWCOPY_RIVE_EVENT                    = 3,
-    DATA_EVENT_SHADOWCOPY_FINISH_INTERMISSION_EVENT     = 4,
+    DATA_EVENT_COPY_NO_EVENT                            = 1,
+    DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT              = 2,
+    DATA_EVENT_COPY_RIVE_EVENT                          = 3,
+    DATA_EVENT_COPY_FINISH_INTERMISSION_EVENT           = 4,
+    DATA_EVENT_COPY_DOMINATION_CHAIN_BEFORE_RIVE_EVENT  = 5,
 
     DATA_AREATRIGGER_DOMINATION_ARROW                   = 27683,
     DATA_AREATRIGGER_RIVE_MARKER                        = 6197,
@@ -603,7 +605,7 @@ class SylvanasNonMeleeSelector
 
         bool operator()(Unit* unit) const
         {
-            if (sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE)
+            if (!unit->ToPlayer()->IsPlayer() || sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE)
                 return false;
             return true;
         }
@@ -616,7 +618,8 @@ class SylvanasNonMeleeSelector
 struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 {
     npc_sylvanas_windrunner_shadowcopy(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()),
-        _onPhaseOne(true), _onChainsOfDomination(false), _onRiveEvent(false), _sayDaggers(0), _sayDesecrating(0) { }
+        _onPhaseOne(true), _onDominationChains(false), _onDominationChainsBeforeRive(false), _onRiveEvent(false), _sayDaggers(0),
+        _sayDesecrating(0), _jumpCount(0) { }
 
     void JustAppeared() override
     {
@@ -632,10 +635,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     void Reset() override
     {
         _onPhaseOne = true;
-        _onChainsOfDomination = false;
+        _onDominationChains = false;
+        _onDominationChainsBeforeRive = false;
         _onRiveEvent = false;
         _sayDaggers = 0;
         _sayDesecrating = 0;
+        _jumpCount = 0;
     }
 
     void SetData(uint32 type, uint32 value) override
@@ -644,34 +649,44 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         {
             switch (value)
             {
-                case DATA_EVENT_SHADOWCOPY_NO_EVENT:
+                case DATA_EVENT_COPY_NO_EVENT:
                 {
                     _onPhaseOne = true;
-                    _onChainsOfDomination = false;
+                    _onDominationChains = false;
+                    _onDominationChainsBeforeRive = false;
                     _onRiveEvent = false;
                     break;
                 }
 
-                case DATA_EVENT_SHADOWCOPY_DOMINATION_CHAIN_EVENT:
+                case DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT:
                 {
                     _onPhaseOne = false;
-                    _onChainsOfDomination = true;
+                    _onDominationChains = true;
+                    _onDominationChainsBeforeRive = false;
                     _onRiveEvent = false;
                     break;
                 }
 
-                case DATA_EVENT_SHADOWCOPY_RIVE_EVENT:
+                case DATA_EVENT_COPY_DOMINATION_CHAIN_BEFORE_RIVE_EVENT:
+                {
+                    _onDominationChainsBeforeRive = true;
+                    break;
+                }
+
+                case DATA_EVENT_COPY_RIVE_EVENT:
                 {
                     _onPhaseOne = false;
-                    _onChainsOfDomination = false;
+                    _onDominationChains = false;
+                    _onDominationChainsBeforeRive = false;
                     _onRiveEvent = true;
                     break;
                 }
 
-                case DATA_EVENT_SHADOWCOPY_FINISH_INTERMISSION_EVENT:
+                case DATA_EVENT_COPY_FINISH_INTERMISSION_EVENT:
                 {
                     _onPhaseOne = false;
-                    _onChainsOfDomination = false;
+                    _onDominationChains = false;
+                    _onDominationChainsBeforeRive = false;
                     _onRiveEvent = false;
                     break;
                 }
@@ -702,7 +717,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     });
                 }
 
-                if (_onChainsOfDomination)
+                if (_onDominationChains)
                 {
                     _scheduler.Schedule(150ms, [this](TaskContext /*task*/)
                     {
@@ -727,20 +742,28 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                                 });
                             }
 
-                            // Number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10
-                            for (uint8 arrowsToSpawn = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3)) / 3.0f; arrowsToSpawn > 0; arrowsToSpawn--)
+                            if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
                             {
-                                Position const arrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
-
-                                if (Creature* dominationArrow = sylvanas->SummonCreature(NPC_DOMINATION_ARROW, arrowPos, TEMPSUMMON_MANUAL_DESPAWN))
+                                // TODO: on mythic, there are 4 spots on which arrows fall on
+                            }
+                            else
+                            {
+                                for (uint32 i = 0; i < _selectedArrowCountsPerJump[_jumpCount]; ++i)
                                 {
-                                    me->SendPlaySpellVisual(dominationArrow, SPELL_VISUAL_DOMINATION_ARROW_SPAWN, 0, 0, 2.5f, true);
+                                    Position const arrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
 
-                                    _scheduler.Schedule(2s + 500ms, [sylvanas, dominationArrow](TaskContext /*task*/)
+                                    if (Creature* dominationArrow = sylvanas->SummonCreature(NPC_DOMINATION_ARROW, arrowPos, TEMPSUMMON_MANUAL_DESPAWN))
                                     {
-                                        sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
-                                    });
+                                        me->SendPlaySpellVisual(dominationArrow, SPELL_VISUAL_DOMINATION_ARROW_SPAWN, 0, 0, 2.5f, true);
+
+                                        _scheduler.Schedule(2s + 500ms, [sylvanas, dominationArrow](TaskContext /*task*/)
+                                        {
+                                            sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
+                                        });
+                                    }
                                 }
+
+                                ++_jumpCount;
                             }
                         }
                     });
@@ -749,6 +772,31 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 if (_onRiveEvent)
                     DoCastSelf(SPELL_ANCHOR_HERE, true);
             }
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_CALCULATE_ARROWS:
+            {
+                uint8 arrowsToSpawn;
+
+                // Number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive)
+                if (_onDominationChainsBeforeRive)
+                    arrowsToSpawn = me->GetMap()->GetPlayersCountExceptGMs();
+                else
+                    arrowsToSpawn = std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3.0f)), 4), 10);
+
+                _selectedArrowCountsPerJump = SplitArrowCasts(arrowsToSpawn);
+
+                _jumpCount = 0;
+                break;
+            }
+
+            default:
+                break;
         }
     }
 
@@ -950,14 +998,35 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         }
     }
 
+    std::array<uint32, 3> SplitArrowCasts(uint32 totalArrows)
+    {
+        std::array<uint32, 3> arrowsPerWave{ };
+
+        uint32 baseArrowsPerWave = totalArrows / 3;
+
+        arrowsPerWave.fill(baseArrowsPerWave);
+
+        uint32 remainder = totalArrows - baseArrowsPerWave * 3;
+
+        for (uint32 i = 0; i < remainder; ++i)
+            ++arrowsPerWave[i];
+
+        Trinity::Containers::RandomShuffle(arrowsPerWave);
+
+        return arrowsPerWave;
+    }
+
 private:
     InstanceScript* _instance;
     TaskScheduler _scheduler;
     bool _onPhaseOne;
-    bool _onChainsOfDomination;
+    bool _onDominationChains;
+    bool _onDominationChainsBeforeRive;
     bool _onRiveEvent;
     uint8 _sayDaggers;
     uint8 _sayDesecrating;
+    std::array<uint32, 3> _selectedArrowCountsPerJump;
+    uint8 _jumpCount;
 };
 
 // Sylvanas Shadowcopy (Riding) - 178355
@@ -1572,15 +1641,16 @@ struct boss_sylvanas_windrunner : public BossAI
                 case EVENT_WAILING_ARROW_MARKER:
                 {
                     std::list<Player*> everyPlayerButCurrentTank;
-                    GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
+                    GetPlayerListInGrid(everyPlayerButCurrentTank, me, 250.0f);
 
-                    if (Player* currentTank = me->GetVictim()->ToPlayer())
+                    if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 250.0f, true, true))
                     {
                         Talk(SAY_ANNOUNCE_WAILING_ARROW_TANK, currentTank);
 
                         me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
 
-                        everyPlayerButCurrentTank.remove(currentTank);
+                        if (Player* currentTankToPlayer = currentTank->ToPlayer())
+                            everyPlayerButCurrentTank.remove(currentTankToPlayer);
                     }
 
                     for (Unit* nonTank : everyPlayerButCurrentTank)
@@ -1802,7 +1872,14 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                     {
                         if (shadowCopy->IsAIEnabled())
-                            shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_SHADOWCOPY_DOMINATION_CHAIN_EVENT);
+                        {
+                            shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT);
+
+                            shadowCopy->AI()->DoAction(ACTION_CALCULATE_ARROWS);
+
+                            if (events.GetPhaseMask() == PHASE_INTERMISSION)
+                                shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_DOMINATION_CHAIN_BEFORE_RIVE_EVENT);
+                        }
 
                         shadowCopy->NearTeleportTo(me->GetPosition(), false);
                     }
@@ -1896,7 +1973,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
                                 {
                                     if (shadowCopy->IsAIEnabled())
-                                        shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_SHADOWCOPY_NO_EVENT);
+                                        shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
                                 }
                             }
 
@@ -1910,7 +1987,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
                                 {
                                     if (shadowCopy->IsAIEnabled())
-                                        shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_SHADOWCOPY_RIVE_EVENT);
+                                        shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_RIVE_EVENT);
                                 }
                             }
 
@@ -1926,6 +2003,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_WAILING_ARROW:
                 {
+                    DoAction(ACTION_PAUSE_ATTACK_FOR_EVENT);
                     DoAction(ACTION_SET_RANGER_STANCE);
 
                     scheduler.Schedule(1s, [this](TaskContext /*task*/)
@@ -1938,7 +2016,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
                     });
 
-                    scheduler.Schedule(2s + 300ms, [this](TaskContext /*task*/)
+                    scheduler.Schedule(2s + 600ms, [this](TaskContext /*task*/)
                     {
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_JUMP, 0, 0);
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_EFFECT, 0, 0);
@@ -2120,7 +2198,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy->NearTeleportTo(me->GetPosition(), false);
 
                                 if (shadowCopy->IsAIEnabled())
-                                    shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_SHADOWCOPY_FINISH_INTERMISSION_EVENT);
+                                    shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_FINISH_INTERMISSION_EVENT);
                             }
                         }
 
