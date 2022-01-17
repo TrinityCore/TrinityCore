@@ -471,6 +471,9 @@ enum Miscelanea
     DATA_BRIDGE_PHASE_TWO_COUNT_1                       = 1,
     DATA_BRIDGE_PHASE_TWO_COUNT_2                       = 2,
     DATA_BRIDGE_PHASE_TWO_COUNT_3                       = 3,
+    DATA_BRIDGE_PHASE_TWO_COUNT_4                       = 4,
+    DATA_BRIDGE_PHASE_TWO_COUNT_5                       = 5,
+    DATA_BRIDGE_PHASE_TWO_COUNT_6                       = 6,
 
     DATA_OUTTER_PLATFORM                                = 0,
     DATA_MIDDLE_PLATFORM                                = 1,
@@ -2258,7 +2261,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TRANSFORM_INTO_BANSHEE, 0, 0);
                     });
 
-                    scheduler.Schedule(8s, [this](TaskContext /*task*/)
+                    scheduler.Schedule(8s + 500ms, [this](TaskContext /*task*/)
                     {
                         me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_STUN);
                         me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_SCENE);
@@ -2269,6 +2272,15 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->SendPlayOrphanSpellVisual(SylvanasPhase2PrePos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
                         me->NearTeleportTo(SylvanasPhase2PrePos, false);
+                    });
+
+                    scheduler.Schedule(38s + 400ms, [this](TaskContext /*task*/)
+                    {
+                        if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                        {
+                            if (jaina->IsAIEnabled())
+                                jaina->AI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_TWO);
+                        }
                     });
 
                     break;
@@ -4081,7 +4093,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
 
             case ACTION_PREPARE_EARTH_BRIDGE_1:
             {
-                FormEarthBridge(ThrallPhaseTwoPos[4], ThrallCallEarthTargetPos[0], DATA_BRIDGE_PHASE_TWO_COUNT_1);
+                FormEarthBridge(ThrallPhaseTwoPos[4], ThrallCallEarthTargetPos[0], DATA_BRIDGE_PHASE_TWO_COUNT_2);
 
                 _scheduler.Schedule(4s + 281ms, [this](TaskContext /*task*/)
                 {

@@ -53,7 +53,7 @@ enum SanctumOfDominationDataTypes
     DATA_JAINA_PROUDMOORE_PINNACLE,
     DATA_THRALL_PINNACLE,
     DATA_ANDUIN_CRUCIBLE,
-    DATA_DOMINATION_ARROW,
+    DATA_DOMINATION_ARROW
 };
 
 enum SanctumOfDominationCreatureIds
@@ -96,12 +96,13 @@ enum SanctumOfDominationGameObjectIds
     GAMEOBJECT_TORGHAST_SPIKE_09                    = 368751,
     GAMEOBJECT_TORGHAST_SPIKE_10                    = 368752,
     GAMEOBJECT_TORGHAST_SPIKE_11                    = 368753,
-    GAMEOBJECT_TORGHAST_SPIKE_12                    = 368754
+    GAMEOBJECT_TORGHAST_SPIKE_12                    = 368754,
+    GAMEOBJECT_INVISIBLE_WALL_PHASE_2               = 369242
 };
 
 enum SanctumOfDominationEvents
 {
-    EVENT_RESET_PLAYERS_ON_SYLVANAS                 = 1,
+    EVENT_RESET_PLAYERS_ON_SYLVANAS                 = 1
 };
 
 enum SanctumOfDominationActions

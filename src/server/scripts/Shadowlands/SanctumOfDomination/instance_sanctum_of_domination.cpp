@@ -156,7 +156,6 @@ public:
 
                     if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                         sylvanas->AI()->JustSummoned(creature);
-
                     break;
                 }
 
@@ -191,6 +190,14 @@ public:
                 case GAMEOBJECT_TORGHAST_SPIKE_11:
                 case GAMEOBJECT_TORGHAST_SPIKE_12:
                     TorghastSpikeGUID.push_back(go->GetGUID());
+                    break;
+
+                case GAMEOBJECT_INVISIBLE_WALL_PHASE_2:
+                    InvisibleWallPhaseTwoGUID.push_back(go->GetGUID());
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -200,6 +207,7 @@ public:
             {
                 case DATA_SYLVANAS_INTRO:
                     return SylvanasIntro;
+                    break;
 
                 default:
                     break;
@@ -233,6 +241,7 @@ public:
                     return KelthuzadGUID;*/
                 case DATA_SYLVANAS_WINDRUNNER:
                     return SylvanasGUID;
+                    break;
                 default:
                     break;
             }
@@ -278,6 +287,12 @@ public:
                                 torghastSpike->SetSpellVisualId(0);
                         }
 
+                        for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
+                        {
+                            if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
+                                invisibleWall->Respawn();
+                        }
+
                         Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
                     }
 
@@ -312,7 +327,6 @@ public:
                                     sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 4.0f);
                                 }
                             }
-
                             break;
                         }
 
@@ -329,15 +343,14 @@ public:
                                     sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 14.0f);
                                 }
                             }
-
                             break;
                         }
 
                         default:
                             break;
                     }
+                    break;
                 }
-
                 default:
                     break;
             }
@@ -389,6 +402,7 @@ public:
             ObjectGuid JainaPinnacleGUID;
             ObjectGuid ThrallPinnacleGUID;
             std::vector<ObjectGuid> TorghastSpikeGUID;
+            std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
             uint32 SylvanasIntro;
     };
 
