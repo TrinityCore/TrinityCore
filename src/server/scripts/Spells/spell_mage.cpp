@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
@@ -51,6 +52,7 @@ enum MageSpells
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
     SPELL_MAGE_EVERWARM_SOCKS                    = 320913,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
+    SPELL_MAGE_FIRE_BLAST                        = 108853,
     SPELL_MAGE_FIRESTARTER                       = 205026,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
@@ -569,10 +571,17 @@ class spell_mage_flame_on : public AuraScript
 {
    PrepareAuraScript(spell_mage_flame_on);
 
+   bool Validate(SpellInfo const* spellInfo) override
+   {
+       return ValidateSpellInfo({ SPELL_MAGE_FIRE_BLAST })
+           && sSpellCategoryStore.HasRecord(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)
+           && spellInfo->GetEffects().size() > EFFECT_2;
+   }
+
    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
    {
        canBeRecalculated = false;
-       amount = -16;
+       amount = -GetPctOf(GetEffectInfo(EFFECT_2).CalcValue() * IN_MILLISECONDS, sSpellCategoryStore.AssertEntry(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)->ChargeRecoveryTime);
    }
 
    void Register() override
