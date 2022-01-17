@@ -56,11 +56,11 @@ class TC_COMMON_API BasicEvent
 
         // Aborts the event at the next update tick
         void ScheduleAbort();
+        bool IsAbortScheduled() const { return (m_abortState == AbortState::STATE_ABORT_SCHEDULED); }
 
     private:
         void SetAborted();
         bool IsRunning() const { return (m_abortState == AbortState::STATE_RUNNING); }
-        bool IsAbortScheduled() const { return (m_abortState == AbortState::STATE_ABORT_SCHEDULED); }
         bool IsAborted() const { return (m_abortState == AbortState::STATE_ABORTED); }
 
         AbortState m_abortState;                            // set by externals when the event is aborted, aborted events don't execute

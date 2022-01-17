@@ -12789,8 +12789,11 @@ void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
         {
             if (spell->GetSpellInfo()->Id == spellId)
             {
-                itr.second->ScheduleAbort();
-                hasMissile = true;
+                if (!itr.second->IsAbortScheduled())
+                {
+                    itr.second->ScheduleAbort();
+                    hasMissile = true;
+                }
             }
         }
     }
