@@ -7887,7 +7887,11 @@ int64 Unit::GetHealthGain(int64 dVal)
 
 void Unit::TriggerOnHealthChangeAuras(uint64 oldVal, uint64 newVal)
 {
-    for (AuraEffect const* effect : GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT))
+    if (!HasAuraType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT))
+        return;
+
+    AuraEffectList effects = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT);
+    for (AuraEffect const* effect : effects)
     {
         uint32 triggerHealthPct = effect->GetAmount();
         uint32 triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
