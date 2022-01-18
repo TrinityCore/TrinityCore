@@ -1866,6 +1866,20 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, 0, privateObjectOwner);
 }
 
+TempSummon* WorldObject::SummonPersonalClone(TempSummonType despawnType, uint32 despawnTime, uint32 vehId, uint32 spellId, ObjectGuid privateObjectOwner)
+{
+    if (Map* map = FindMap())
+    {
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), GetPosition(), nullptr, despawnTime, this, spellId, vehId, privateObjectOwner))
+        {
+            summon->SetTempSummonType(despawnType);
+            return summon;
+        }
+    }
+
+    return nullptr;
+}
+
 GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime, GOSummonType summonType)
 {
     if (!IsInWorld())

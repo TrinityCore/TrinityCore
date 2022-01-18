@@ -2522,6 +2522,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (!IsPlayer(target))
+                    continue;
+
+                ObjectGuid privateObjectOwner = target->GetGUID();
+                if (Creature* summon = GetBaseObject()->SummonPersonalClone((TempSummonType)e.action.becomePersonalClone.type, e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
+                {
+                    if (IsSmart(summon))
+                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, target->ToUnit(), e.event_id + 1);
+
+                }
+            }
+
+            // action list will continue on personal clones
+            Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id > e.event_id; });
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
@@ -3936,17 +3956,20 @@ void SmartScript::OnUpdate(uint32 const diff)
     if (!mTimedActionList.empty())
     {
         isProcessingTimedActionList = true;
-        for (SmartScriptHolder& scriptholder : mTimedActionList)
+
+        for (size_t i = 0; i < mTimedActionList.size(); ++i)
         {
-            if (scriptholder.enableTimed)
+            SmartScriptHolder& scriptHolder = mTimedActionList[i];
+            if (scriptHolder.enableTimed)
             {
-                UpdateTimer(scriptholder, diff);
+                UpdateTimer(scriptHolder, diff);
                 needCleanup = false;
             }
         }
 
         isProcessingTimedActionList = false;
     }
+
     if (needCleanup)
         mTimedActionList.clear();
 
@@ -4188,7 +4211,7 @@ Unit* SmartScript::DoFindClosestFriendlyInRange(float range, bool playerOnly) co
     return unit;
 }
 
-void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
+void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId)
 {
     //do NOT clear mTimedActionList if it's being iterated because it will invalidate the iterator and delete
     // any SmartScriptHolder contained like the "e" parameter passed to this function
@@ -4206,6 +4229,9 @@ void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* i
     mTimedActionList = sSmartScriptMgr->GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
     if (mTimedActionList.empty())
         return;
+
+    Trinity::Containers::EraseIf(mTimedActionList, [startFromEventId](SmartScriptHolder const& script) { return script.event_id < startFromEventId; });
+
     mTimedActionListInvoker = invoker ? invoker->GetGUID() : ObjectGuid::Empty;
     for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
     {
