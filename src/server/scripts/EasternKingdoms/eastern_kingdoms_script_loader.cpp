@@ -230,7 +230,6 @@ void AddSC_duskwood();
 //void AddSC_eastern_plaguelands();
 void AddSC_elwynn_forest();
 void AddSC_ghostlands();
-void AddSC_goldshire();
 void AddSC_hillsbrad_foothills();
 void AddSC_hinterlands();
 void AddSC_redridge_mountains();
@@ -463,7 +462,6 @@ void AddEasternKingdomsScripts()
     //AddSC_eastern_plaguelands();
     AddSC_elwynn_forest();
     AddSC_ghostlands();
-    AddSC_goldshire();
     AddSC_hillsbrad_foothills();
     AddSC_hinterlands();
     AddSC_redridge_mountains();
