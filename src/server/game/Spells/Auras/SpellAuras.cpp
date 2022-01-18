@@ -526,6 +526,7 @@ WorldObject* Aura::GetWorldObjectCaster() const
 {
     if (GetCasterGUID().IsUnit())
         return GetCaster();
+
     return ObjectAccessor::GetWorldObject(*GetOwner(), GetCasterGUID());
 }
 
