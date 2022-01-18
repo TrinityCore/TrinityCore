@@ -249,7 +249,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
     auraData.Applications = aura->IsUsingStacks() ? aura->GetStackAmount() : aura->GetCharges();
-    if (aura->GetCasterGUID().IsGameObject())
+    if (!aura->GetCasterGUID().IsUnit())
         auraData.CastUnit = ObjectGuid::Empty; // optional data is filled in, but cast unit contains empty guid in packet
     else if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
@@ -394,7 +394,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
     // try to get caster of aura
     if (!createInfo.CasterGUID.IsEmpty())
     {
-        if (!createInfo.CasterGUID.IsGameObject())
+        if (createInfo.CasterGUID.IsUnit())
         {
             if (createInfo._owner->GetGUID() == createInfo.CasterGUID)
                 createInfo.Caster = createInfo._owner->ToUnit();
@@ -524,6 +524,8 @@ Unit* Aura::GetCaster() const
 
 WorldObject* Aura::GetWorldObjectCaster() const
 {
+    if (GetCasterGUID().IsUnit())
+        return GetCaster();
     return ObjectAccessor::GetWorldObject(*GetOwner(), GetCasterGUID());
 }
 
