@@ -2627,6 +2627,11 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_bow);
 
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
+    }
+
     void OnCast(SpellMissInfo /*missInfo*/)
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1600));
@@ -2655,6 +2660,11 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_dagger);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
+    }
 
     void OnCast(SpellMissInfo /*missInfo*/)
     {
@@ -2685,20 +2695,14 @@ class spell_sylvanas_windrunner_ranger_shot : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_shot);
 
-    bool Load() override
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
+    }
+
+    void OnPrecast() override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2500));
-        return true;
-    }
-
-    void OnCast(SpellMissInfo /*missInfo*/)
-    {
-
-    }
-
-    void Register() override
-    {
-        BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_ranger_shot::OnCast);
     }
 };
 
@@ -2726,6 +2730,11 @@ class spell_sylvanas_windrunner_ranger_strike : public SpellScript
 class spell_sylvanas_windrunner_disappear : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_disappear);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
+    }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -2816,19 +2825,22 @@ class RangerHeartseekerMissileEvent : public BasicEvent
 };
 
 // Ranger's Heartseeker - 352663
-class spell_sylvanas_windrunner_ranger_heartseeker : public AuraScript
+class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
 {
-    PrepareAuraScript(spell_sylvanas_windrunner_ranger_heartseeker);
+    PrepareSpellScript(spell_sylvanas_windrunner_ranger_heartseeker);
 
-    bool Load() override
+    void OnPrecast() override
     {
         GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_SHEATHE_UNARMED), GetCaster()->m_Events.CalculateTime(16));
         GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_SHEATHE_BOW), GetCaster()->m_Events.CalculateTime(328));
         GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_COPY), GetCaster()->m_Events.CalculateTime(343));
         GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_SYLVANAS), GetCaster()->m_Events.CalculateTime(2000));
-
-        return true;
     }
+};
+
+class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_ranger_heartseeker_aura);
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -2842,7 +2854,7 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_ranger_heartseeker::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_ranger_heartseeker_aura::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2853,12 +2865,19 @@ class spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage : public SpellS
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_BANSHEE_MARK });
+        return ValidateSpellInfo
+        ({
+            SPELL_BANSHEE_MARK,
+            SPELL_BANSHEES_BANE
+        });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_MARK, true);
+        if (GetCaster()->GetAreaId() != AREA_THE_CRUCIBLE)
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_MARK, true);
+        else
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEES_BANE, true);
     }
 
     void Register() override
@@ -3057,15 +3076,15 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
     {
         return ValidateSpellInfo
         ({
+            SPELL_SYLVANAS_ROOT,
             SPELL_VEIL_OF_DARKNESS_DESELECT,
             SPELL_VEIL_OF_DARKNESS_SCREEN_FOG
         });
     }
 
-    bool Load() override
+    void OnPrecast() override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 9750));
-        return true;
     }
 
     void OnCast(SpellMissInfo /*missInfo*/)
@@ -3095,7 +3114,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
         });
     }
 
-    bool Load() override
+    void OnPrecast() override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
 
@@ -3108,7 +3127,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
         // TODO: Set AnimTier 3 when it gets implemented
 
         GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS, 0, 0);
-        return true;
     }
 
     void HandleDummyEffect(SpellEffIndex effIndex)
@@ -3144,7 +3162,7 @@ class spell_sylvanas_windrunner_rive : public SpellScript
         });
     }
 
-    bool Load() override
+    void OnPrecast() override
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
@@ -3162,8 +3180,6 @@ class spell_sylvanas_windrunner_rive : public SpellScript
                 }
             }
         }
-
-        return true;
     }
 
     void HandleAfterCast()
@@ -3201,7 +3217,7 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
         });
     }
 
-    bool Load() override
+    void OnPrecast() override
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
         {
@@ -3219,8 +3235,6 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
                 }
             }
         }
-
-        return true;
     }
 
     void HandleAfterCast()
@@ -3259,7 +3273,7 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
         });
     }
 
-    bool Load() override
+    void OnPrecast() override
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_BANSHEE_WAIL_EXPIRE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 5000));
 
@@ -3268,8 +3282,6 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
 
         for (Player* target : targetList)
             GetCaster()->CastSpell(target, SPELL_BANSHEE_WAIL_MARKER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 4650));
-
-        return true;
     }
 
     void HandleAfterCast()
@@ -3467,10 +3479,9 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_bane_arrows);
 
-    bool Load() override
+    void OnPrecast() override
     {
         GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_BANE_ARROWS, 0, 0);
-        return true;
     }
 
     void HandleAfterCast()
@@ -3588,12 +3599,10 @@ class spell_sylvanas_windrunner_raze : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_raze);
 
-    bool Load() override
+    void OnPrecast() override
     {
         for (uint8 i = 0; i < 100; i++)
             GetCaster()->m_Events.AddEvent(new RazeEvent(GetCaster()), GetCaster()->m_Events.CalculateTime(50 * i));
-
-        return true;
     }
 
     void HandleAfterCast()
@@ -5545,7 +5554,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAuraScript(spell_sylvanas_windrunner_disappear);
     RegisterSpellScript(spell_sylvanas_windrunner_withering_fire);
     RegisterSpellScript(spell_sylvanas_windrunner_desecrating_shot);
-    RegisterAuraScript(spell_sylvanas_windrunner_ranger_heartseeker);
+    RegisterSpellAndAuraScriptPair(spell_sylvanas_windrunner_ranger_heartseeker, spell_sylvanas_windrunner_ranger_heartseeker_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_domination_chains);
     RegisterSpellScript(spell_sylvanas_windrunner_domination_arrow);
