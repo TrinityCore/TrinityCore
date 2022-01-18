@@ -29,22 +29,23 @@ enum MovementGeneratorType : uint8
     IDLE_MOTION_TYPE                = 0,     // IdleMovementGenerator.h
     RANDOM_MOTION_TYPE              = 1,     // RandomMovementGenerator.h
     WAYPOINT_MOTION_TYPE            = 2,     // WaypointMovementGenerator.h
-    MAX_DB_MOTION_TYPE              = 3,     // Below motion types can't be set in DB.
-    CONFUSED_MOTION_TYPE            = 4,     // ConfusedMovementGenerator.h
-    CHASE_MOTION_TYPE               = 5,     // ChaseMovementGenerator.h
-    HOME_MOTION_TYPE                = 6,     // HomeMovementGenerator.h
-    FLIGHT_MOTION_TYPE              = 7,     // FlightPathMovementGenerator.h
-    POINT_MOTION_TYPE               = 8,     // PointMovementGenerator.h
-    FLEEING_MOTION_TYPE             = 9,     // FleeingMovementGenerator.h
-    DISTRACT_MOTION_TYPE            = 10,    // IdleMovementGenerator.h
-    ASSISTANCE_MOTION_TYPE          = 11,    // PointMovementGenerator.h
-    ASSISTANCE_DISTRACT_MOTION_TYPE = 12,    // IdleMovementGenerator.h
-    TIMED_FLEEING_MOTION_TYPE       = 13,    // FleeingMovementGenerator.h
-    FOLLOW_MOTION_TYPE              = 14,    // FollowMovementGenerator.h
-    ROTATE_MOTION_TYPE              = 15,    // IdleMovementGenerator.h
-    EFFECT_MOTION_TYPE              = 16,
-    SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
-    FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
+    CYCLIC_SPLINE_MOTION_TYPE       = 3,     // CyclicMovementGenerator.h
+    MAX_DB_MOTION_TYPE              = 4,     // Below motion types can't be set in DB.
+    CONFUSED_MOTION_TYPE            = 5,     // ConfusedMovementGenerator.h
+    CHASE_MOTION_TYPE               = 6,     // ChaseMovementGenerator.h
+    HOME_MOTION_TYPE                = 7,     // HomeMovementGenerator.h
+    FLIGHT_MOTION_TYPE              = 8,     // FlightPathMovementGenerator.h
+    POINT_MOTION_TYPE               = 9,     // PointMovementGenerator.h
+    FLEEING_MOTION_TYPE             = 10,     // FleeingMovementGenerator.h
+    DISTRACT_MOTION_TYPE            = 11,    // IdleMovementGenerator.h
+    ASSISTANCE_MOTION_TYPE          = 12,    // PointMovementGenerator.h
+    ASSISTANCE_DISTRACT_MOTION_TYPE = 13,    // IdleMovementGenerator.h
+    TIMED_FLEEING_MOTION_TYPE       = 14,    // FleeingMovementGenerator.h
+    FOLLOW_MOTION_TYPE              = 15,    // FollowMovementGenerator.h
+    ROTATE_MOTION_TYPE              = 16,    // IdleMovementGenerator.h
+    EFFECT_MOTION_TYPE              = 17,
+    SPLINE_CHAIN_MOTION_TYPE        = 18,    // SplineChainMovementGenerator.h
+    FORMATION_MOTION_TYPE           = 19,    // FormationMovementGenerator.h
     MAX_MOTION_TYPE                          // limit
 };
 

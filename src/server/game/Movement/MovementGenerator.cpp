@@ -17,6 +17,7 @@
 
 #include "MovementGenerator.h"
 #include "Creature.h"
+#include "CyclicMovementGenerator.h"
 #include "IdleMovementGenerator.h"
 #include "MovementDefines.h"
 #include "PathGenerator.h"
@@ -58,6 +59,13 @@ WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WA
 MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
 {
     return new WaypointMovementGenerator<Creature>();
+}
+
+CyclicMovementFactory::CyclicMovementFactory() : MovementGeneratorCreator(CYCLIC_SPLINE_MOTION_TYPE) { }
+
+MovementGenerator* CyclicMovementFactory::Create(Unit* /*object*/) const
+{
+    return new CyclicMovementGenerator<Creature>();
 }
 
 void MovementGenerator::NotifyAIOnFinalize(Unit* object)

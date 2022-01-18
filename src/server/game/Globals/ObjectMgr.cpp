@@ -641,8 +641,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0       1       2      3       4       5        6             7              8                  9              10
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
+    //                                                 0    1               2                   3      4       5       6      7          8                9             10                      11
+    QueryResult result = WorldDatabase.Query("SELECT entry, waypointPathId, cyclicSplinePathId, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
 
     if (!result)
     {
@@ -665,17 +665,18 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         CreatureAddon& creatureAddon = _creatureTemplateAddonStore[entry];
 
-        creatureAddon.path_id                   = fields[1].GetUInt32();
-        creatureAddon.mount                     = fields[2].GetUInt32();
-        creatureAddon.bytes1                    = fields[3].GetUInt32();
-        creatureAddon.bytes2                    = fields[4].GetUInt32();
-        creatureAddon.emote                     = fields[5].GetUInt32();
-        creatureAddon.aiAnimKit                 = fields[6].GetUInt16();
-        creatureAddon.movementAnimKit           = fields[7].GetUInt16();
-        creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        creatureAddon.waypointPathId            = fields[1].GetUInt32();
+        creatureAddon.cyclicSplinePathId        = fields[2].GetUInt32();
+        creatureAddon.mount                     = fields[3].GetUInt32();
+        creatureAddon.bytes1                    = fields[4].GetUInt32();
+        creatureAddon.bytes2                    = fields[5].GetUInt32();
+        creatureAddon.emote                     = fields[6].GetUInt32();
+        creatureAddon.aiAnimKit                 = fields[7].GetUInt16();
+        creatureAddon.movementAnimKit           = fields[8].GetUInt16();
+        creatureAddon.meleeAnimKit              = fields[9].GetUInt16();
+        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[10].GetUInt8());
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
+        Tokenizer tokens(fields[11].GetString(), ' ');
         creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
@@ -1179,8 +1180,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5        6             7              8                  9              10
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
+    //                                               0     1               2                   3      4       5       6      7          8                9             10                      11
+    QueryResult result = WorldDatabase.Query("SELECT guid, waypointPathId, cyclicSplinePathId, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
 
     if (!result)
     {
@@ -1204,23 +1205,45 @@ void ObjectMgr::LoadCreatureAddons()
 
         CreatureAddon& creatureAddon = _creatureAddonStore[guid];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
+        creatureAddon.waypointPathId        = fields[1].GetUInt32();
+        creatureAddon.cyclicSplinePathId    = fields[2].GetUInt32();
+
+        if (creatureAddon.waypointPathId && creatureAddon.cyclicSplinePathId)
+        {
+            if (creData->movementType == WAYPOINT_MOTION_TYPE)
+            {
+                creatureAddon.cyclicSplinePathId = 0;
+                TC_LOG_ERROR("sql.sql", "Creature (GUID %u) has a waypoint and cyclic spline path at the same time but uses WAYPOINT_MOTION_TYPE. Prefered waypoint path", guid);
+            }
+            else if (creData->movementType == CYCLIC_SPLINE_MOTION_TYPE)
+            {
+                creatureAddon.waypointPathId = 0;
+                TC_LOG_ERROR("sql.sql", "Creature (GUID %u) has a waypoint and cyclic spline path at the same time but uses CYCLIC_SPLINE_MOTION_TYPE. Prefered cyclic spline path", guid);
+            }
+        }
+
+        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.waypointPathId)
         {
             const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
             TC_LOG_ERROR("sql.sql", "Creature (GUID " UI64FMTD ") has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
         }
 
-        creatureAddon.mount                     = fields[2].GetUInt32();
-        creatureAddon.bytes1                    = fields[3].GetUInt32();
-        creatureAddon.bytes2                    = fields[4].GetUInt32();
-        creatureAddon.emote                     = fields[5].GetUInt32();
-        creatureAddon.aiAnimKit                 = fields[6].GetUInt16();
-        creatureAddon.movementAnimKit           = fields[7].GetUInt16();
-        creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        if (creData->movementType == CYCLIC_SPLINE_MOTION_TYPE && !creatureAddon.cyclicSplinePathId)
+        {
+            const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
+            TC_LOG_ERROR("sql.sql", "Creature (GUID %u) has movement type set to CYCLIC_SPLINE_MOTION_TYPE but no path assigned", guid);
+        }
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
+        creatureAddon.mount                     = fields[3].GetUInt32();
+        creatureAddon.bytes1                    = fields[4].GetUInt32();
+        creatureAddon.bytes2                    = fields[5].GetUInt32();
+        creatureAddon.emote                     = fields[6].GetUInt32();
+        creatureAddon.aiAnimKit                 = fields[7].GetUInt16();
+        creatureAddon.movementAnimKit           = fields[8].GetUInt16();
+        creatureAddon.meleeAnimKit              = fields[9].GetUInt16();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[10].GetUInt8());
+
+        Tokenizer tokens(fields[11].GetString(), ' ');
         creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {

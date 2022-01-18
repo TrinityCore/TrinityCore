@@ -313,6 +313,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetWaypointPath() const { return _waypointPathId; }
         void LoadPath(uint32 pathid) { _waypointPathId = pathid; }
 
+        uint32 GetCyclicSplinePathId() const { return _cyclicSplinePathId; }
+
         // nodeId, pathId
         std::pair<uint32, uint32> GetCurrentWaypointInfo() const { return _currentWaypointNodeInfo; }
         void UpdateCurrentWaypointInfo(uint32 nodeId, uint32 pathId) { _currentWaypointNodeInfo = { nodeId, pathId }; }
@@ -431,6 +433,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Waypoint path
         uint32 _waypointPathId;
         std::pair<uint32/*nodeId*/, uint32/*pathId*/> _currentWaypointNodeInfo;
+
+        // Cyclic spline path
+        uint32 _cyclicSplinePathId;
 
         // Formation var
         CreatureGroup* m_formation;

@@ -147,6 +147,13 @@ struct WaypointMovementFactory : public MovementGeneratorCreator
     MovementGenerator* Create(Unit* object) const override;
 };
 
+struct CyclicMovementFactory : public MovementGeneratorCreator
+{
+    CyclicMovementFactory();
+
+    MovementGenerator* Create(Unit* object) const override;
+};
+
 typedef MovementGeneratorCreator::FactoryHolderRegistry MovementGeneratorRegistry;
 
 #define sMovementGeneratorRegistry MovementGeneratorRegistry::instance()

@@ -618,7 +618,8 @@ enum InhabitTypeValues
 // `creature_addon` table
 struct CreatureAddon
 {
-    uint32 path_id;
+    uint32 waypointPathId;
+    uint32 cyclicSplinePathId;
     uint32 mount;
     uint32 bytes1;
     uint32 bytes2;

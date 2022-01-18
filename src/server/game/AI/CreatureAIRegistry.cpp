@@ -27,6 +27,7 @@
 #include "TotemAI.h"
 #include "ObjectMgr.h"
 
+#include "CyclicMovementGenerator.h"
 #include "MovementGenerator.h"
 
 namespace AIRegistry
@@ -56,6 +57,7 @@ namespace AIRegistry
         (new IdleMovementFactory())->RegisterSelf();
         (new RandomMovementFactory())->RegisterSelf();
         (new WaypointMovementFactory())->RegisterSelf();
+        (new CyclicMovementFactory())->RegisterSelf();
 
         (void)sObjectMgr->GetScriptId("NullAreaTriggerAI", false);
     }

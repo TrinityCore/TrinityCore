@@ -19,6 +19,7 @@
 #include "AbstractFollower.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
+#include "CyclicMovementGenerator.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Errors.h"
@@ -49,6 +50,7 @@
 #include "RandomMovementGenerator.h"
 #include "SplineChainMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
+#include "WaypointManager.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()
 {
@@ -889,7 +891,35 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         init.SetCyclic();
     }
 
-    Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, 0));
+    Add(new GenericMovementGenerator(std::move(init), CYCLIC_SPLINE_MOTION_TYPE, 0), MOTION_SLOT_ACTIVE);
+}
+
+void MotionMaster::MoveCyclicPath(Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/, float velocity /*= 0.0f*/)
+{
+    Movement::MoveSplineInit init(_owner);
+    Movement::PointsArray path;
+    path.reserve(pathSize);
+    std::transform(pathPoints, pathPoints + pathSize, std::back_inserter(path), [](Position const& point)
+    {
+        return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
+    });
+
+    if (fly)
+    {
+        init.SetFly();
+        init.SetUncompressed();
+    }
+
+    if (velocity > 0.0f)
+        init.SetVelocity(velocity);
+
+    init.MovebyPath(path);
+    init.SetSmooth();
+    init.SetWalk(walk);
+    init.SetCyclic();
+    init.Launch();
+
+    Add(new GenericMovementGenerator(std::move(init), CYCLIC_SPLINE_MOTION_TYPE, 0), MOTION_SLOT_DEFAULT);
 }
 
 void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk, bool fly)
@@ -914,7 +944,13 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     // This code is not correct
     // GenericMovementGenerator does not affect UNIT_STATE_ROAMING_MOVE
     // need to call PointMovementGenerator with various pointIds
-    Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, pointId));
+    Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, pointId), MOTION_SLOT_ACTIVE);
+}
+
+void MotionMaster::MoveCyclicPath(uint32 pathId)
+{
+    if (WaypointPath const* splinePath = sWaypointMgr->GetPath(pathId))
+        Add(new CyclicMovementGenerator<Creature>(splinePath), MOTION_SLOT_DEFAULT);
 }
 
 void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
