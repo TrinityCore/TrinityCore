@@ -191,7 +191,8 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_ON_CAST,
     SPELL_SCRIPT_HOOK_ON_RESIST_ABSORB_CALCULATION,
     SPELL_SCRIPT_HOOK_AFTER_CAST,
-    SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE
+    SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE,
+    SPELL_SCRIPT_HOOK_ON_PRECAST,
 };
 
 #define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT_HIT
@@ -355,6 +356,10 @@ class TC_GAME_API SpellScript : public _SpellScript
     public:
         //
         // SpellScript interface
+        //
+        // example: void OnPrecast override { }
+        virtual void OnPrecast() { }
+        //
         // hooks to which you can attach your functions
         //
         // example: BeforeCast += SpellCastFn(class::function);
@@ -417,22 +422,23 @@ class TC_GAME_API SpellScript : public _SpellScript
         #define SpellDestinationTargetSelectFn(F, I, N) DestinationTargetSelectHandlerFunction(&F, I, N)
 
         // hooks are executed in following order, at specified event of spell:
-        // 1. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
-        // 2. OnCheckCast - allows to override result of CheckCast function
-        // 3a. OnObjectAreaTargetSelect - executed just before adding selected targets to final target list (for area targets)
-        // 3b. OnObjectTargetSelect - executed just before adding selected target to final target list (for single unit targets)
-        // 3c. OnDestinationTargetSelect - executed just before adding selected target to final target list (for destination targets)
-        // 4. OnCast - executed just before spell is launched (creates missile) or executed
-        // 5. AfterCast - executed after spell missile is launched and immediate spell actions are done
-        // 6. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
-        // 7. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
-        // 8. OnCalcCritChance - executed just after specified effect handler call - when spell missile is launched - called for each target from spell target map
-        // 9. OnCalculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
-        // 10. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
-        // 11. BeforeHit - executed just before spell hits a target - called for each target from spell target map
-        // 12. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
-        // 13. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
-        // 14. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
+        // 1. OnPrecast - executed during spell preparation (before cast bar starts)
+        // 2. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
+        // 3. OnCheckCast - allows to override result of CheckCast function
+        // 4a. OnObjectAreaTargetSelect - executed just before adding selected targets to final target list (for area targets)
+        // 4b. OnObjectTargetSelect - executed just before adding selected target to final target list (for single unit targets)
+        // 4c. OnDestinationTargetSelect - executed just before adding selected target to final target list (for destination targets)
+        // 5. OnCast - executed just before spell is launched (creates missile) or executed
+        // 6. AfterCast - executed after spell missile is launched and immediate spell actions are done
+        // 7. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
+        // 8. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
+        // 9. OnCalcCritChance - executed just after specified effect handler call - when spell missile is launched - called for each target from spell target map
+        // 10. OnCalculateResistAbsorb - executed when damage resist/absorbs is calculated - before spell hit target
+        // 11. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
+        // 12. BeforeHit - executed just before spell hits a target - called for each target from spell target map
+        // 13. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
+        // 14. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
+        // 15. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
 
         // this hook is only executed after a successful dispel of any aura
         // OnEffectSuccessfulDispel - executed just after effect successfully dispelled aura(s)
