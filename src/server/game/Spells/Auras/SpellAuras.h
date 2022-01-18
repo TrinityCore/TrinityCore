@@ -145,6 +145,7 @@ class TC_GAME_API Aura
         int32 GetCastItemLevel() const { return m_castItemLevel; }
         SpellCastVisual GetSpellVisual() const { return m_spellVisual; }
         Unit* GetCaster() const;
+        WorldObject* GetWorldObjectCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return m_owner->ToUnit(); }
         DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return m_owner->ToDynObject(); }
