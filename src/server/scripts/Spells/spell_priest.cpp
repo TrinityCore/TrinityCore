@@ -57,12 +57,14 @@ enum PriestSpells
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
+    SPELL_PRIEST_MASTERY_GRACE                      = 271534,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
+    SPELL_PRIEST_RAPTURE                            = 47536,
     SPELL_PRIEST_RENEW                              = 139,
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
@@ -749,7 +751,9 @@ public:
                 SPELL_PRIEST_ATONEMENT_TRIGGERED,
                 SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY,
                 SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE,
-                SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE
+                SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE,
+                SPELL_PRIEST_RAPTURE,
+                SPELL_PRIEST_MASTERY_GRACE
             });
         }
 
@@ -757,14 +761,23 @@ public:
         {
             canBeRecalculated = false;
 
-            if (Player* player = GetCaster()->ToPlayer())
+            if (Unit* caster = GetCaster())
             {
-                int32 playerMastery = player->GetRatingBonusValue(CR_MASTERY);
-                int32 playerSpellPower = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-                int32 playerVersatileDamage = player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+                float amountF = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 1.65f;
 
-                //Formula taken from SpellWork
-                amount = (int32)((playerSpellPower * 5.5f) + playerMastery) * (1 + playerVersatileDamage);
+                if (Player* player = caster->ToPlayer())
+                {
+                    AddPct(amountF, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+                    if (AuraEffect const* mastery = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
+                        if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED) || GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY))
+                            AddPct(amountF, mastery->GetAmount());
+                }
+
+                if (AuraEffect const* rapture = caster->GetAuraEffect(SPELL_PRIEST_RAPTURE, EFFECT_1))
+                    AddPct(amountF, rapture->GetAmount());
+
+                amount = amountF;
             }
         }
 
