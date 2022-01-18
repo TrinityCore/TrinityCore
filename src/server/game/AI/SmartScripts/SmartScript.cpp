@@ -2533,7 +2533,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* summon = GetBaseObject()->SummonPersonalClone((TempSummonType)e.action.becomePersonalClone.type, e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
                 {
                     if (IsSmart(summon))
-                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, GetLastInvoker(), e.event_id + 1);
+                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, target, e.event_id + 1);
 
                     Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id > e.event_id; });
                 }
