@@ -3228,6 +3228,8 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     // set timer base at cast time
     ReSetTimer();
 
+    CallScriptOnPrecastHandler();
+
     TC_LOG_DEBUG("spells", "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR12_START_COOLDOWN_ON_CAST_START))
@@ -8009,6 +8011,16 @@ void Spell::LoadScripts()
     {
         TC_LOG_DEBUG("spells", "Spell::LoadScripts: Script `%s` for spell `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
         (*itr)->Register();
+    }
+}
+
+void Spell::CallScriptOnPrecastHandler()
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_PRECAST);
+        (*scritr)->OnPrecast();
+        (*scritr)->_FinishScriptCall();
     }
 }
 
