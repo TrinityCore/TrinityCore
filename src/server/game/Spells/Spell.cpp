@@ -84,6 +84,13 @@ SpellDestination::SpellDestination(Position const& pos)
     _transportOffset.Relocate(0, 0, 0, 0);
 }
 
+SpellDestination::SpellDestination(WorldLocation const& loc)
+{
+    _position.WorldRelocate(loc);
+    _transportGUID.Clear();
+    _transportOffset.Relocate(0, 0, 0, 0);
+}
+
 SpellDestination::SpellDestination(WorldObject const& wObj)
 {
     _transportGUID = wObj.GetTransGUID();

@@ -178,8 +178,9 @@ enum SMART_EVENT
     SMART_EVENT_SCENE_TRIGGER            = 79,      // param_string : triggerName
     SMART_EVENT_SCENE_CANCEL             = 80,      // none
     SMART_EVENT_SCENE_COMPLETE           = 81,      // none
+    SMART_EVENT_SUMMONED_UNIT_DIES       = 82,      // CreatureId(0 all), CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 82
+    SMART_EVENT_END                      = 83
 };
 
 struct SmartEvent
@@ -1579,7 +1580,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_SCENE_START,               SMART_SCRIPT_TYPE_MASK_SCENE },
     {SMART_EVENT_SCENE_TRIGGER,             SMART_SCRIPT_TYPE_MASK_SCENE },
     {SMART_EVENT_SCENE_CANCEL,              SMART_SCRIPT_TYPE_MASK_SCENE },
-    {SMART_EVENT_SCENE_COMPLETE,            SMART_SCRIPT_TYPE_MASK_SCENE }
+    {SMART_EVENT_SCENE_COMPLETE,            SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_EVENT_SUMMONED_UNIT_DIES,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
 };
 
 enum SmartEventFlags

@@ -18111,7 +18111,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     SetRaidDifficultyID(CheckLoadedRaidDifficultyID(fields.raidDifficulty));
     SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(fields.legacyRaidDifficulty));
 
-#define RelocateToHomebind(){ instanceId = 0; WorldRelocate(m_homebind); }
+#define RelocateToHomebind(){ mapId = m_homebind.GetMapId(); instanceId = 0; WorldRelocate(m_homebind); }
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GROUP));
 
@@ -25658,7 +25658,7 @@ bool Player::isHonorOrXPTarget(Unit const* victim) const
 
     if (Creature const* const creature = victim->ToCreature())
     {
-        if (!creature->CanGiveExperience())
+        if (creature->IsCritter() || creature->IsTotem())
             return false;
     }
     return true;
