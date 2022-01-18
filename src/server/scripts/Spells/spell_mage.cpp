@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
@@ -51,6 +52,8 @@ enum MageSpells
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
     SPELL_MAGE_EVERWARM_SOCKS                    = 320913,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
+    SPELL_MAGE_FIRE_BLAST                        = 108853,
+    SPELL_MAGE_FIRESTARTER                       = 205026,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
@@ -514,6 +517,77 @@ class spell_mage_fingers_of_frost : public AuraScript
         AfterEffectProc += AuraEffectProcFn(spell_mage_fingers_of_frost::Trigger, EFFECT_0, SPELL_AURA_DUMMY);
         AfterEffectProc += AuraEffectProcFn(spell_mage_fingers_of_frost::Trigger, EFFECT_1, SPELL_AURA_DUMMY);
     }
+};
+
+// 133 - Fireball
+// 11366 - Pyroblast
+class spell_mage_firestarter : public SpellScript
+{
+    PrepareSpellScript(spell_mage_firestarter);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FIRESTARTER });
+    }
+
+    void CalcCritChance(Unit const* victim, float& critChance)
+    {
+        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_FIRESTARTER, EFFECT_0))
+            if (victim->GetHealthPct() >= aurEff->GetAmount())
+                critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_firestarter::CalcCritChance);
+    }
+};
+
+// 321712 - Pyroblast
+class spell_mage_firestarter_dots : public AuraScript
+{
+    PrepareAuraScript(spell_mage_firestarter_dots);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FIRESTARTER });
+    }
+
+    void CalcCritChance(AuraEffect const* /*aurEff*/, Unit const* victim, float& critChance)
+    {
+        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_FIRESTARTER, EFFECT_0))
+            if (victim->GetHealthPct() >= aurEff->GetAmount())
+                critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcCritChance += AuraEffectCalcCritChanceFn(spell_mage_firestarter_dots::CalcCritChance, EFFECT_ALL, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// 205029 - Flame On
+class spell_mage_flame_on : public AuraScript
+{
+   PrepareAuraScript(spell_mage_flame_on);
+
+   bool Validate(SpellInfo const* spellInfo) override
+   {
+       return ValidateSpellInfo({ SPELL_MAGE_FIRE_BLAST })
+           && sSpellCategoryStore.HasRecord(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)
+           && spellInfo->GetEffects().size() > EFFECT_2;
+   }
+
+   void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+   {
+       canBeRecalculated = false;
+       amount = -GetPctOf(GetEffectInfo(EFFECT_2).CalcValue() * IN_MILLISECONDS, sSpellCategoryStore.AssertEntry(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)->ChargeRecoveryTime);
+   }
+
+   void Register() override
+   {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flame_on::CalculateAmount, EFFECT_1, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
+   }
 };
 
 // 11426 - Ice Barrier
@@ -1155,6 +1229,9 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
     RegisterAuraScript(spell_mage_fingers_of_frost);
+    RegisterSpellScript(spell_mage_firestarter);
+    RegisterAuraScript(spell_mage_firestarter_dots);
+    RegisterAuraScript(spell_mage_flame_on);
     RegisterAuraScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);

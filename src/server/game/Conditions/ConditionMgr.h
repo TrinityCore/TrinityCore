@@ -33,6 +33,7 @@ class WorldObject;
 class LootTemplate;
 struct Condition;
 struct PlayerConditionEntry;
+struct UnitConditionEntry;
 struct WorldStateExpressionEntry;
 enum class PlayerConditionLfgStatus : uint8;
 
@@ -174,7 +175,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29,
     CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30,
     CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31,
-    CONDITION_SOURCE_TYPE_MAX                            = 32  // MAX
+    CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32,
+    CONDITION_SOURCE_TYPE_MAX                            = 33  // MAX
 };
 
 enum RelationType
@@ -298,10 +300,12 @@ class TC_GAME_API ConditionMgr
 
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
         bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
+        bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject* seer) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
         static bool IsPlayerMeetingExpression(Player const* player, WorldStateExpressionEntry const* expression);
+        static bool IsUnitMeetingCondition(Unit const* unit, Unit const* otherUnit, UnitConditionEntry const* condition);
 
         struct ConditionTypeInfo
         {
@@ -337,6 +341,7 @@ class TC_GAME_API ConditionMgr
         std::unordered_set<uint32> SpellsUsedInSpellClickConditions;
         ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
         ConditionEntriesByCreatureIdMap TrainerSpellConditionContainerStore;
+        std::unordered_map<std::pair<uint32 /*object type*/, uint32 /*object id*/>, ConditionContainer> ObjectVisibilityConditionStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()

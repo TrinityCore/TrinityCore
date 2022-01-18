@@ -1678,6 +1678,106 @@ class spell_midsummer_ribbon_pole_periodic_visual : public AuraScript
     }
 };
 
+enum JugglingTorch
+{
+    SPELL_JUGGLE_TORCH_SLOW          = 45792,
+    SPELL_JUGGLE_TORCH_MEDIUM        = 45806,
+    SPELL_JUGGLE_TORCH_FAST          = 45816,
+    SPELL_JUGGLE_TORCH_SELF          = 45638,
+
+    SPELL_JUGGLE_TORCH_SHADOW_SLOW   = 46120,
+    SPELL_JUGGLE_TORCH_SHADOW_MEDIUM = 46118,
+    SPELL_JUGGLE_TORCH_SHADOW_FAST   = 46117,
+    SPELL_JUGGLE_TORCH_SHADOW_SELF   = 46121,
+
+    SPELL_GIVE_TORCH                 = 45280,
+    QUEST_TORCH_CATCHING_A           = 11657,
+    QUEST_TORCH_CATCHING_H           = 11923
+};
+
+// 45819 - Throw Torch
+class spell_midsummer_juggle_torch : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_juggle_torch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            SPELL_JUGGLE_TORCH_SLOW, SPELL_JUGGLE_TORCH_MEDIUM, SPELL_JUGGLE_TORCH_FAST,
+            SPELL_JUGGLE_TORCH_SELF, SPELL_JUGGLE_TORCH_SHADOW_SLOW, SPELL_JUGGLE_TORCH_SHADOW_MEDIUM,
+            SPELL_JUGGLE_TORCH_SHADOW_FAST, SPELL_JUGGLE_TORCH_SHADOW_SELF
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetExplTargetDest())
+            return;
+
+        Position spellDest = *GetExplTargetDest();
+        float distance = GetCaster()->GetExactDist2d(spellDest.GetPositionX(), spellDest.GetPositionY());
+
+        uint32 torchSpellID = 0;
+        uint32 torchShadowSpellID = 0;
+
+        if (distance <= 1.5f)
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_SELF;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_SELF;
+            spellDest = GetCaster()->GetPosition();
+        }
+        else if (distance <= 10.0f)
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_SLOW;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_SLOW;
+        }
+        else if (distance <= 20.0f)
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_MEDIUM;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_MEDIUM;
+        }
+        else
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_FAST;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_FAST;
+        }
+
+        GetCaster()->CastSpell(spellDest, torchSpellID);
+        GetCaster()->CastSpell(spellDest, torchShadowSpellID);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_midsummer_juggle_torch::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 45644 - Juggle Torch (Catch)
+class spell_midsummer_torch_catch : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_torch_catch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GIVE_TORCH });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetHitPlayer();
+        if (!player)
+            return;
+
+        if (player->GetQuestStatus(QUEST_TORCH_CATCHING_A) == QUEST_STATUS_REWARDED || player->GetQuestStatus(QUEST_TORCH_CATCHING_H) == QUEST_STATUS_REWARDED)
+            player->CastSpell(player, SPELL_GIVE_TORCH);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_torch_catch::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -1731,4 +1831,6 @@ void AddSC_holiday_spell_scripts()
     RegisterSpellScript(spell_midsummer_torch_toss_land);
     RegisterAuraScript(spell_midsummer_test_ribbon_pole_channel);
     RegisterAuraScript(spell_midsummer_ribbon_pole_periodic_visual);
+    RegisterSpellScript(spell_midsummer_juggle_torch);
+    RegisterSpellScript(spell_midsummer_torch_catch);
 }

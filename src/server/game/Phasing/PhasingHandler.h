@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include <string>
+#include <vector>
 
 class ChatHandler;
 class Map;
@@ -74,8 +75,15 @@ public:
     static bool IsPersonalPhase(uint32 phaseId);
 
 private:
-    static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);
-    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, ObjectGuid const& personalGuid, bool updateVisibility);
+    class ControlledUnitVisitor;
+    friend ControlledUnitVisitor;
+
+    static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility, ControlledUnitVisitor& visitor);
+    static void RemovePhase(WorldObject* object, uint32 phaseId, bool updateVisibility, ControlledUnitVisitor& visitor);
+    static void AddPhaseGroup(WorldObject* object, std::vector<uint32> const* phasesInGroup, ObjectGuid const& personalGuid, bool updateVisibility, ControlledUnitVisitor& visitor);
+    static void RemovePhaseGroup(WorldObject* object, std::vector<uint32> const* phasesInGroup, bool updateVisibility, ControlledUnitVisitor& visitor);
+    static void AddVisibleMapId(WorldObject* object, uint32 visibleMapId, ControlledUnitVisitor& visitor);
+    static void RemoveVisibleMapId(WorldObject* object, uint32 visibleMapId, ControlledUnitVisitor& visitor);
     static void UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed);
 };
 

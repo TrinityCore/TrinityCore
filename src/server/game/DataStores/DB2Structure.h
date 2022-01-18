@@ -3347,6 +3347,8 @@ struct SpellItemEnchantmentEntry
     uint8 ConditionID;
     uint8 MinLevel;
     uint8 MaxLevel;
+
+    EnumFlag<SpellItemEnchantmentFlags> GetFlags() const { return static_cast<SpellItemEnchantmentFlags>(Flags); }
 };
 
 struct SpellItemEnchantmentConditionEntry
@@ -3867,6 +3869,19 @@ struct UISplashScreenEntry
     int32 PlayerConditionID;
     int32 CharLevelConditionID;
     int32 RequiredTimeEventPassed; // serverside TimeEvent table, see ModifierTreeType::HasTimeEventPassed
+};
+
+#define MAX_UNIT_CONDITION_VALUES 8
+
+struct UnitConditionEntry
+{
+    uint32 ID;
+    uint8 Flags;
+    uint8 Variable[MAX_UNIT_CONDITION_VALUES];
+    int8 Op[MAX_UNIT_CONDITION_VALUES];
+    int32 Value[MAX_UNIT_CONDITION_VALUES];
+
+    EnumFlag<UnitConditionFlags> GetFlags() const { return static_cast<UnitConditionFlags>(Flags); }
 };
 
 struct UnitPowerBarEntry

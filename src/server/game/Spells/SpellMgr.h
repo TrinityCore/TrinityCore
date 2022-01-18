@@ -272,6 +272,13 @@ enum ProcAttributes
     PROC_ATTR_REDUCE_PROC_60            = 0x0000080  // aura should have a reduced chance to proc if level of proc Actor > 60
 };
 
+#define PROC_ATTR_ALL_ALLOWED (PROC_ATTR_REQ_EXP_OR_HONOR       | \
+                               PROC_ATTR_TRIGGERED_CAN_PROC     | \
+                               PROC_ATTR_REQ_POWER_COST         | \
+                               PROC_ATTR_REQ_SPELLMOD           | \
+                               PROC_ATTR_USE_STACKS_FOR_CHARGES | \
+                               PROC_ATTR_REDUCE_PROC_60)
+
 struct SpellProcEntry
 {
     uint32 SchoolMask;       // if nonzero - bitmask for matching proc condition based on spell's school
@@ -578,8 +585,6 @@ struct PetDefaultSpellsEntry
 // < 0 for petspelldata id, > 0 for creature_id
 typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 
-typedef std::vector<bool> EnchantCustomAttribute;
-
 typedef std::unordered_map<int32, std::vector<int32>> SpellLinkedMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
@@ -739,7 +744,6 @@ class TC_GAME_API SpellMgr
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
-        void LoadEnchantCustomAttr();
         void LoadSpellEnchantProcData();
         void LoadSpellLinked();
         void LoadPetLevelupSpellMap();
@@ -772,7 +776,6 @@ class TC_GAME_API SpellMgr
         SpellPetAuraMap            mSpellPetAuraMap;
         SpellLinkedMap             mSpellLinkedMap;
         SpellEnchantProcEventMap   mSpellEnchantProcEventMap;
-        EnchantCustomAttribute     mEnchantCustomAttr;
         SpellAreaMap               mSpellAreaMap;
         SpellAreaForQuestMap       mSpellAreaForQuestMap;
         SpellAreaForQuestMap       mSpellAreaForQuestEndMap;
