@@ -522,12 +522,9 @@ Unit* Aura::GetCaster() const
     return ObjectAccessor::GetUnit(*GetOwner(), GetCasterGUID());
 }
 
-GameObject* Aura::GetGameObjectCaster() const
+WorldObject* Aura::GetWorldObjectCaster() const
 {
-    if (!GetCasterGUID().IsGameObject())
-        return nullptr;
-
-    return ObjectAccessor::GetGameObject(*GetOwner(), GetCasterGUID());
+    return ObjectAccessor::GetWorldObject(*GetOwner(), GetCasterGUID());
 }
 
 AuraEffect* Aura::GetEffect(uint32 index) const
