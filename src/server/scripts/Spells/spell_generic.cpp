@@ -2726,6 +2726,28 @@ class spell_gen_prevent_emotes : public AuraScript
     }
 };
 
+class spell_gen_player_say : public SpellScript
+{
+    PrepareSpellScript(spell_gen_player_say);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return sObjectMgr->GetBroadcastText(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        // Note: target here is always player; caster here is gameobject, creature or player (self cast)
+        if (Unit* target = GetHitUnit())
+            target->Unit::Say(uint32(GetEffectValue()), target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_player_say::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 class spell_gen_proc_below_pct_damaged : public AuraScript
 {
     PrepareAuraScript(spell_gen_proc_below_pct_damaged);
@@ -4553,6 +4575,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_orc_disguise);
     RegisterSpellScript(spell_gen_paralytic_poison);
     RegisterSpellScript(spell_gen_prevent_emotes);
+    RegisterSpellScript(spell_gen_player_say);
     RegisterSpellScriptWithArgs(spell_gen_proc_below_pct_damaged, "spell_item_soul_harvesters_charm");
     RegisterSpellScriptWithArgs(spell_gen_proc_below_pct_damaged, "spell_item_commendation_of_kaelthas");
     RegisterSpellScriptWithArgs(spell_gen_proc_below_pct_damaged, "spell_item_corpse_tongue_coin");
