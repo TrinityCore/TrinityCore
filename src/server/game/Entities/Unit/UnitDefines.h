@@ -181,7 +181,7 @@ enum UnitFlags2 : uint32
 // EnumUtils: DESCRIBE THIS
 enum UnitFlags3 : uint32
 {
-    UNIT_FLAG3_UNK1                         = 0x00000001,
+    UNIT_FLAG3_ONLY_ATTACKABLE_BY_CREATOR   = 0x00000001,
 };
 
 /// Non Player Character flags

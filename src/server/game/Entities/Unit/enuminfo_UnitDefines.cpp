@@ -185,7 +185,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags3>::ToString(UnitFlags3 value)
 {
     switch (value)
     {
-        case UNIT_FLAG3_UNK1: return { "UNIT_FLAG3_UNK1", "UNIT_FLAG3_UNK1", "" };
+        case UNIT_FLAG3_ONLY_ATTACKABLE_BY_CREATOR: return { "UNIT_FLAG3_ONLY_ATTACKABLE_BY_CREATOR", "UNIT_FLAG3_ONLY_ATTACKABLE_BY_CREATOR", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -198,7 +198,7 @@ TC_API_EXPORT UnitFlags3 EnumUtils<UnitFlags3>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return UNIT_FLAG3_UNK1;
+        case 0: return UNIT_FLAG3_ONLY_ATTACKABLE_BY_CREATOR;
         default: throw std::out_of_range("index");
     }
 }

@@ -2829,7 +2829,8 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     // PvP, PvC, CvP case
     // can't attack friendly targets
     if (IsFriendlyTo(target) || target->IsFriendlyTo(this))
-        return false;
+        if (!target->ToUnit()->HasUnitFlag3(UNIT_FLAG3_ONLY_ATTACKABLE_BY_CREATOR))
+            return false;
 
     Player const* playerAffectingAttacker = unit && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? GetAffectingPlayer() : ToGameObject() ? GetAffectingPlayer() : nullptr;
     Player const* playerAffectingTarget = unitTarget && unitTarget->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) ? target->GetAffectingPlayer() : nullptr;
