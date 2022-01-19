@@ -1668,7 +1668,7 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_earthen_rage_passive);
     RegisterAuraScript(spell_sha_earthen_rage_proc_aura);
     RegisterAreaTriggerAI(areatrigger_sha_earthquake);
-    RegisterSpellScript(spell_sha_earthquake_tick);    
+    RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_flametongue_weapon);
     RegisterAuraScript(spell_sha_flametongue_weapon_aura);
