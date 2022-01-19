@@ -501,7 +501,7 @@ class spell_sha_earthquake_tick : public SpellScript
     void HandleDamageCalc(SpellEffIndex effIndex)
     {
         SetEffectValue(GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.391f);
-    } 
+    }
 
     void HandleOnHit()
     {
