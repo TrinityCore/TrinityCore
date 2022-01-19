@@ -2704,6 +2704,8 @@ class spell_sylvanas_windrunner_ranger_shot : public SpellScript
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2500));
     }
+
+    void Register() override { }
 };
 
 // Ranger Strike - 348299
@@ -2836,6 +2838,8 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
         GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_COPY), GetCaster()->m_Events.CalculateTime(343));
         GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_SYLVANAS), GetCaster()->m_Events.CalculateTime(2000));
     }
+
+    void Register() override { }
 };
 
 class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
