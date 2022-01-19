@@ -96,7 +96,7 @@ bool CyclicMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff
         if (_moveTimer.Passed())
         {
             _moveTimer.Reset(0);
-            StartMovement(creature); 
+            StartMovement(creature);
         }
     }
 
