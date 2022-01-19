@@ -175,7 +175,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
     UNIT_FLAG2_NO_ACTIONS                   = 0x00800000,
-    UNIT_FLAG2_SELECTION_DISABLED           = 0x04000000    // Unit cannot be selected by players (even in GM mode), but it still offers tooltip bar
+    UNIT_FLAG2_UNTARGETABLE_BY_CLIENT       = 0x04000000    // Unit cannot be targeted by client (even in GM mode)
 };
 
 // Value masks for UNIT_FIELD_FLAGS_3
