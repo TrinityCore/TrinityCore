@@ -1866,11 +1866,11 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, 0, privateObjectOwner);
 }
 
-TempSummon* WorldObject::SummonPersonalClone(TempSummonType despawnType, uint32 despawnTime, uint32 vehId, uint32 spellId, ObjectGuid privateObjectOwner)
+TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType, uint32 despawnTime, uint32 vehId, uint32 spellId, ObjectGuid privateObjectOwner)
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(GetEntry(), GetPosition(), nullptr, despawnTime, this, spellId, vehId, privateObjectOwner))
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime, this, spellId, vehId, privateObjectOwner))
         {
             summon->SetTempSummonType(despawnType);
             return summon;

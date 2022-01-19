@@ -2524,18 +2524,28 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
         {
-            for (WorldObject* target : targets)
+            WorldObject* baseObject = GetBaseObject();
+
+            auto doCreatePersonalClone = [&](Position const& position, Unit* owner)
             {
-                if (!IsPlayer(target))
-                    continue;
-
-                ObjectGuid privateObjectOwner = target->GetGUID();
-                if (Creature* summon = GetBaseObject()->SummonPersonalClone((TempSummonType)e.action.becomePersonalClone.type, e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
-                {
+                ObjectGuid privateObjectOwner = owner->GetGUID();
+                if (Creature* summon = GetBaseObject()->SummonPersonalClone(position, TempSummonType(e.action.becomePersonalClone.type), e.action.becomePersonalClone.duration, 0, 0, privateObjectOwner))
                     if (IsSmart(summon))
-                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, target->ToUnit(), e.event_id + 1);
+                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, owner, e.event_id + 1);
+            };
 
-                }
+
+            // if target is position then targets container was empty
+            if (e.GetTargetType() != SMART_TARGET_POSITION)
+            {
+                for (WorldObject* target : targets)
+                    if (Player* playerTarget = Object::ToPlayer(target))
+                        doCreatePersonalClone(baseObject->GetPosition(), playerTarget);
+            }
+            else
+            {
+                if (Player* invoker = Object::ToPlayer(GetLastInvoker()))
+                    doCreatePersonalClone({ e.target.x, e.target.y, e.target.z, e.target.o }, invoker);
             }
 
             // action list will continue on personal clones
@@ -4222,7 +4232,7 @@ void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* i
     }
 
     // Do NOT allow to start a new actionlist if a previous one is already running, unless explicitly allowed. We need to always finish the current actionlist
-    if (!e.action.timedActionList.allowOverride && !mTimedActionList.empty())
+    if (e.GetActionType() == SMART_ACTION_CALL_TIMED_ACTIONLIST && !e.action.timedActionList.allowOverride && !mTimedActionList.empty())
         return;
 
     mTimedActionList.clear();
