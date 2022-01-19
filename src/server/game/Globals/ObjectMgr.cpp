@@ -1213,12 +1213,12 @@ void ObjectMgr::LoadCreatureAddons()
             if (creData->movementType == WAYPOINT_MOTION_TYPE)
             {
                 creatureAddon.cyclicSplinePathId = 0;
-                TC_LOG_ERROR("sql.sql", "Creature (GUID %u) has a waypoint and cyclic spline path at the same time but uses WAYPOINT_MOTION_TYPE. Prefered waypoint path", guid);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID " UI64FMTD ") has a waypoint and cyclic spline path at the same time but uses WAYPOINT_MOTION_TYPE. Prefered waypoint path", guid);
             }
             else if (creData->movementType == CYCLIC_SPLINE_MOTION_TYPE)
             {
                 creatureAddon.waypointPathId = 0;
-                TC_LOG_ERROR("sql.sql", "Creature (GUID %u) has a waypoint and cyclic spline path at the same time but uses CYCLIC_SPLINE_MOTION_TYPE. Prefered cyclic spline path", guid);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID " UI64FMTD ") has a waypoint and cyclic spline path at the same time but uses CYCLIC_SPLINE_MOTION_TYPE. Prefered cyclic spline path", guid);
             }
         }
 
@@ -1231,7 +1231,7 @@ void ObjectMgr::LoadCreatureAddons()
         if (creData->movementType == CYCLIC_SPLINE_MOTION_TYPE && !creatureAddon.cyclicSplinePathId)
         {
             const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
-            TC_LOG_ERROR("sql.sql", "Creature (GUID %u) has movement type set to CYCLIC_SPLINE_MOTION_TYPE but no path assigned", guid);
+            TC_LOG_ERROR("sql.sql", "Creature (GUID " UI64FMTD ") has movement type set to CYCLIC_SPLINE_MOTION_TYPE but no path assigned", guid);
         }
 
         creatureAddon.mount                     = fields[3].GetUInt32();
