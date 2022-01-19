@@ -6,7 +6,7 @@ FROM
   `creature` c
   INNER JOIN (
   SELECT
-    ctm.CreatureDisplayID AS CreatureDisplayID,
+    SUM(ctm.CreatureDisplayID) AS CreatureDisplayID, -- SUM works around GROUP BY requirementof sql_mode=ONLY_FULL_GROUP_BY, we can do this because we are selecting only 1 row
     ctm.CreatureID AS CreatureID 
   FROM
     creature_template_model ctm 
