@@ -4733,9 +4733,9 @@ class spell_summon_battle_pet : public SpellScript
 };
 
 // 45313 - Anchor Here
-class spell_anchor_here : public SpellScript
+class spell_gen_anchor_here : public SpellScript
 {
-    PrepareSpellScript(spell_anchor_here);
+    PrepareSpellScript(spell_gen_anchor_here);
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
@@ -4745,7 +4745,7 @@ class spell_anchor_here : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_anchor_here::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_gen_anchor_here::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -4890,5 +4890,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_defender_of_azeroth_death_gate_selector);
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);
     RegisterSpellScript(spell_summon_battle_pet);
-    RegisterSpellScript(spell_anchor_here);
+    RegisterSpellScript(spell_gen_anchor_here);
 }
