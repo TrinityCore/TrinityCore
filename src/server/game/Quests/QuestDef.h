@@ -492,6 +492,8 @@ class TC_GAME_API Quest
 
         uint32 XPValue(Player const* player) const;
         uint32 MoneyValue(Player const* player) const;
+        uint32 MaxMoneyValue() const;
+        uint32 GetMaxMoneyReward() const;
         Optional<QuestTagType> GetQuestTag() const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
@@ -553,7 +555,6 @@ class TC_GAME_API Quest
         std::string const& GetPortraitTurnInText() const { return _portraitTurnInText; }
         std::string const& GetPortraitTurnInName() const { return _portraitTurnInName; }
         QuestObjectives const& GetObjectives() const { return Objectives; }
-        uint32 GetRewMoney() const { return _rewardMoney; }
         uint32 GetRewMoneyDifficulty() const { return _rewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return _rewardHonor; }
         uint32 GetRewKillHonor() const { return _rewardKillHonor; }
@@ -637,7 +638,7 @@ class TC_GAME_API Quest
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
 
         void InitializeQueryData();
-        WorldPacket BuildQueryData(LocaleConstant loc) const;
+        WorldPacket BuildQueryData(LocaleConstant loc, Player* player) const;
 
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
@@ -662,7 +663,6 @@ class TC_GAME_API Quest
         uint32 _nextQuestInChain = 0;
         uint32 _rewardXPDifficulty = 0;
         float _rewardXPMultiplier = 0.f;
-        int32 _rewardMoney = 0;
         uint32 _rewardMoneyDifficulty = 0;
         float _rewardMoneyMultiplier = 0.f;
         uint32 _rewardBonusMoney = 0;

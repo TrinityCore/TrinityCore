@@ -766,7 +766,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
-            ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
+            ABORT_MSG("Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
     }
     return mask;

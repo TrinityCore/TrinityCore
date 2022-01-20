@@ -91,7 +91,7 @@ class TC_GAME_API SmartScript
         void OnReset();
         void ResetBaseObject();
 
-        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId = 0);
         Unit* GetLastInvoker(Unit* invoker = nullptr) const;
         ObjectGuid mLastInvoker;
         typedef std::unordered_map<uint32, uint32> CounterMap;

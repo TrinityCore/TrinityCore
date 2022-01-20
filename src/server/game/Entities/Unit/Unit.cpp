@@ -3064,14 +3064,6 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
     if (!createInfo.CasterGUID && !createInfo.GetSpellInfo()->IsStackableOnOneSlotWithDifferentCasters())
         createInfo.CasterGUID = createInfo.Caster->GetGUID();
 
-    // world gameobjects can't own auras and they send empty casterguid
-    // checked on sniffs with spell 22247
-    if (createInfo.CasterGUID.IsGameObject())
-    {
-        createInfo.Caster = nullptr;
-        createInfo.CasterGUID.Clear();
-    }
-
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
     if (!createInfo.GetSpellInfo()->IsMultiSlotAura())
     {
@@ -8709,7 +8701,7 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
 
         default:
-            ASSERT(false, "Not implemented UnitMod %u", unitMod);
+            ABORT_MSG("Not implemented UnitMod %u", unitMod);
             break;
     }
 }

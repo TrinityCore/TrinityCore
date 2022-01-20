@@ -167,7 +167,7 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                        ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                             _loadInfo->TypesString[f], _storageName.c_str(), _loadInfo->Fields[f].Name);
                         break;
                 }
@@ -274,7 +274,7 @@ void DB2DatabaseLoader::LoadStrings(bool custom, LocaleConstant locale, uint32 r
                             offset += sizeof(char*);
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _storageName.c_str(), _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }

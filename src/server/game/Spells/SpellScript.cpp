@@ -561,6 +561,17 @@ int64 SpellScript::GetItemTargetCountForEffect(SpellEffIndex effect) const
     return m_spell->GetItemTargetCountForEffect(effect);
 }
 
+int64 SpellScript::GetCorpseTargetCountForEffect(SpellEffIndex effect) const
+{
+    if (!IsAfterTargetSelectionPhase())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetCorpseTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
+            m_scriptName->c_str(), m_scriptSpellId);
+        return 0;
+    }
+    return m_spell->GetCorpseTargetCountForEffect(effect);
+}
+
 Unit* SpellScript::GetHitUnit() const
 {
     if (!IsInTargetHook())
@@ -1125,7 +1136,7 @@ bool AuraScript::_IsDefaultActionPrevented() const
         case AURA_SCRIPT_HOOK_EFFECT_PROC:
             return m_defaultActionPrevented;
         default:
-            ASSERT(false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
+            ABORT_MSG("AuraScript::_IsDefaultActionPrevented is called in a wrong place");
             return false;
     }
 }

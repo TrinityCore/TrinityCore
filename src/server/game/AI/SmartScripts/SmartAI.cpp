@@ -869,9 +869,9 @@ void SmartAI::StopFollow(bool complete)
     GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED, player);
 }
 
-void SmartAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
+void SmartAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId)
 {
-    GetScript()->SetTimedActionList(e, entry, invoker);
+    GetScript()->SetTimedActionList(e, entry, invoker, startFromEventId);
 }
 
 void SmartAI::OnGameEvent(bool start, uint16 eventId)

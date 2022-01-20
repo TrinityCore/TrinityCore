@@ -17096,7 +17096,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                         objectiveIsNowComplete = IsQuestObjectiveProgressBarComplete(logSlot, quest);
                         break;
                     default:
-                        ASSERT(false, "Unhandled quest objective type %u", uint32(objectiveType));
+                        ABORT_MSG("Unhandled quest objective type %u", uint32(objectiveType));
                         break;
                 }
             }
