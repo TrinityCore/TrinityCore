@@ -6,7 +6,7 @@
 SET @ID := 4452;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ID;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ID AND `source_type`=0 and `id` =3;
-INSERT INTO `trinity_world`.`smart_scripts`(`entryorguid`, `id`, `event_type`, `event_chance`, `event_param1`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+INSERT INTO `smart_scripts`(`entryorguid`, `id`, `event_type`, `event_chance`, `event_param1`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
 (@ID, 3, 20, 100, 1117, 80, @ID*100+2, 1, 'Kravel Koalbeard - On Quest \'Rumors for Kravel\' Finished - Run Script');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ID*100+2 AND `source_type`=9;
