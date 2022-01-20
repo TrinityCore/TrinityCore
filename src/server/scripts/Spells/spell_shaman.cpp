@@ -498,7 +498,7 @@ class spell_sha_earthquake_tick : public SpellScript
         return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN }) && spellInfo->GetEffects().size() > EFFECT_1;
     }
 
-    void HandleDamageCalc(SpellEffIndex effIndex)
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
         SetEffectValue(GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.391f);
     }
