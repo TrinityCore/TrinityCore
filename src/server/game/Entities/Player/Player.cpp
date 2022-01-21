@@ -7563,6 +7563,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_ARCANE_RESISTANCE:
                 HandleStatFlatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), apply);
                 break;
+            case ITEM_MOD_EXTRA_ARMOR:
+                HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), apply);
+                break;
         }
     }
 
@@ -13286,6 +13289,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, -int32(removeValue), apply);
             break;
+        case ITEM_MOD_EXTRA_ARMOR:
+            HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, -removeValue, apply);
+            break;
     }
 
     switch (reforge->Target_stat)
@@ -13398,6 +13404,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             break;
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, int32(addValue), apply);
+            break;
+        case ITEM_MOD_EXTRA_ARMOR:
+            HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, addValue, apply);
             break;
     }
 }
@@ -13738,6 +13747,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_MASTERY_RATING:
                             ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
+                            break;
+                        case ITEM_MOD_EXTRA_ARMOR:
+                            HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(enchant_amount), apply);
+                            TC_LOG_DEBUG("entities.player.items", "+ %u EXTRA_ARMOR", enchant_amount);
                             break;
                         default:
                             break;
