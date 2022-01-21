@@ -1544,7 +1544,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_START_PHASE_THREE:
             {
-                DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
+                DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 650));
+                DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1750));
 
                 if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                 {
@@ -1570,8 +1571,6 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
                     me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
-
-                    DoCastSelf(SPELL_WINDRUNNER_SPIN, true);
 
                     events.SetPhase(PHASE_THREE);
                     events.ScheduleEvent(EVENT_BANSHEES_FURY, 1s + 500ms, 1, PHASE_THREE);
@@ -2275,39 +2274,51 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
                         shadowCopy->NearTeleportTo(me->GetPosition(), false);
 
+                    me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1));
+
                     scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                     {
-                        me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1));
+                        DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
 
-                        DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, true);
+                        me->SendPlayOrphanSpellVisual(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
-                        me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
-                    });
+                        me->m_Events.AddEvent(new SetSheatheStateOrNameplate(me, DATA_CHANGE_SHEATHE_UNARMED), me->m_Events.CalculateTime(16));
 
-                    scheduler.Schedule(500ms, [this](TaskContext /*task*/)
-                    {
                         if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                        {
+                            me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
+
                             shadowCopy->CastSpell(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), SPELL_DOMINATION_CHAINS_JUMP, false);
+                        }
                     });
 
-                    scheduler.Schedule(1s + 50ms, [this](TaskContext /*task*/)
+                    scheduler.Schedule(750ms, [this](TaskContext /*task*/)
                     {
                         me->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
 
                         me->NearTeleportTo(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), false);
 
-                        me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_02);
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_TELEPORT, 0, 0);
 
                         me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     });
 
-                    scheduler.Schedule(1s + 500ms, [this](TaskContext /*task*/)
+                    scheduler.Schedule(800ms, [this](TaskContext /*task*/)
                     {
+                        if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
+                            me->SetNameplateAttachToGUID(ridingCopy->GetGUID());
+                    });
+
+                    scheduler.Schedule(850ms, [this](TaskContext /*task*/)
+                    {
+                        DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 5000));
+
                         DoCastSelf(SPELL_BANSHEES_FURY, false);
+
                         events.Repeat(49s);
                     });
 
-                    scheduler.Schedule(7s + 500ms, [this](TaskContext /*task*/)
+                    scheduler.Schedule(7s, [this](TaskContext /*task*/)
                     {
                         me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
                     });
@@ -3559,6 +3570,7 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
         if (!GetCaster())
             return;
 
+        GetCaster()->SetNameplateAttachToGUID(ObjectGuid::Empty);
         GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
         GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END, 0, 0);
 
@@ -4247,6 +4259,7 @@ enum JainaSpells
     SPELL_CONE_OF_COLD                                  = 350003,
     SPELL_SEARING_BLAST                                 = 355507,
 
+    SPELL_TELEPORT_TO_PHASE_2                           = 355073,
     SPELL_TELEPORT_PHASE_TWO_MASTER                     = 351890,
     SPELL_CHANNEL_ICE                                   = 352843,
     SPELL_CHANNEL_ICE_AREATRIGGER_01                    = 354476,
@@ -4255,8 +4268,6 @@ enum JainaSpells
     SPELL_CHANNEL_ICE_BRIDGE_01                         = 348148,
     SPELL_CHANNEL_ICE_BRIDGE_02                         = 351837,
     SPELL_CHANNEL_ICE_BRIDGE_03                         = 351838,
-
-    SPELL_TELEPORT_TO_PHASE_2                           = 355073,
     SPELL_PORTAL_TO_ORIBOS_PHASE_3                      = 357102,
     SPELL_TELEPORT_TO_PHASE_3                           = 350906,
     SPELL_TELEPORT_TO_PHASE_3_DEST                      = 357103,
