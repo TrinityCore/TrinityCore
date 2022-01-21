@@ -29,12 +29,11 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`
  
 DELETE FROM `conversation_template` WHERE `Id`=17368;
 INSERT INTO `conversation_template` (`Id`, `FirstLineId`, `TextureKitId`, `ScriptName`, `VerifiedBuild`) VALUES 
-(17368, 44215, 0, '', 41079);
+(17368, 44215, 0, 'conversation_sylvanas_windrunner_introduction', 41079);
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=17368;
 INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `ConversationActorGuid`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `VerifiedBuild`) VALUES 
-(17368, 80339, 1200000, 0, 0, 0, 41079),
-(17368, 81173, 1200001, 1, 0, 0, 41079);
+(17368, 80339, 1200000, 0, 0, 0, 41079);
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (44219, 44218, 44217, 44216, 44215);
 INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `VerifiedBuild`) VALUES
@@ -48,11 +47,11 @@ INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags
  -- Phase 1
 
  -- Throne of the Damned
-UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=190, `npcflag`=16777216, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `unit_flags3`=1 WHERE `entry`=180803;
+UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=190, `npcflag`=16777216, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `unit_flags3`=1, `CreatureDifficultyID`=204469 WHERE `entry`=180803;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=180803;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(180803, 0, 0, 0, 1, 0, 0, 0, 0, 0, '355809');
+(180803, 0, 0, 0, 1, 0, 0, 0, 4, 0, '355809');
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=180803;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -152,6 +151,13 @@ DELETE FROM `vehicle_template_accessory` WHERE `entry`=175732;
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES 
 (175732, 178355, 0, 0, 'Sylvanas Windrunner - Shadowcopy', 6, 30000);
 
+DELETE FROM `creature_summon_groups` WHERE `summonerId`=175732;
+INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`, `Comment`) VALUES 
+(175732, 0, 0, 176532, 243.661, -804.615, 4105.07, 4.28529, 8, 0, 'Thrall - Sylvanas Windrunner Encounter'),
+(175732, 0, 0, 176533, 231.595, -801.5, 4105.07, 5.02181, 8, 0, 'Jaina - Sylvanas Windrunner Encounter'),
+(175732, 0, 0, 178081, 239.795, -806.064, 4105.07, 4.77206, 8, 0, 'Bolvar - Sylvanas Windrunner Encounter'),
+(175732, 0, 0, 178072, -249.161, -1271.62, 5667.08, 4.56334, 8, 0, 'Anduin - Sylvanas Windrunner Encounter');
+
  -- Sylvanas Shadowcopy (Fight)
 UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2099200, `unit_flags3`=1, `CreatureDifficultyID`=199018, `ScriptName`='npc_sylvanas_windrunner_shadowcopy' WHERE `entry`=176369;
 
@@ -174,8 +180,8 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=35653664, `unit_flags3`=1, `CreatureDifficultyID`=201696, `ScriptName`='npc_sylvanas_windrunner_shadowcopy_riding' WHERE `entry`=178355;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178355;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(178355, 0, 0, 0, 1, 0, 0, 0, 4, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(178355, 0, 0, 0, 1, 0, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=178355;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -192,8 +198,8 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=4194304, `unit_flags3`=1, `CreatureDifficultyID`=204760, `ScriptName`='npc_sylvanas_windrunner_domination_arrow' WHERE `entry`=176920;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=176920;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
-(176920, 0, 0, 0, 1, 0, 0, 0, 0, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(176920, 0, 0, 0, 1, 0, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_model_info` WHERE `DisplayID`=100416;
 INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
@@ -507,10 +513,6 @@ DELETE FROM `creature_template_movement` WHERE `CreatureId`=178081;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (178081, 1, 0, 0, 0, 0, 0);
 
-DELETE FROM `creature` WHERE `guid`=@CGUID+1;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+1, 178081, 2450, 13561, 13653, '14,15,16,17', 0, 0, 0, -1, 0, 1, 239.795, -806.064, 4105.07, 4.77206, 30, 0, 0, 1179100, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
-
 DELETE FROM `creature_text` WHERE `CreatureID`=178081;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
 (178081, 0, 0, 'Behind our quarry. Heroes, with me!', 14, 0, 100, 0, 0, 181488, 0, 210387, 0, ''),
@@ -570,10 +572,6 @@ INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingD
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=176532;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (176532, 1, 0, 0, 0, 0, 0);
-
-DELETE FROM `creature` WHERE `guid`=@CGUID+3;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+3, 176532, 2450, 13561, 13653, '14,15,16,17', 0, 0, 0, -1, 0, 1, 243.661, -804.615, 4105.07, 4.28529, 30, 0, 0, 4611600, 0, 0, 0, 0, 0, 0, 0, '', 41079);
 
 DELETE FROM `creature_text` WHERE `CreatureID`=176532;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
@@ -648,10 +646,6 @@ DELETE FROM `creature_model_info` WHERE `DisplayID`=101962;
 INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
 (101962, 0.652598, 0, 1, 41359);
 
-DELETE FROM `creature` WHERE `guid`=@CGUID+2;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+2, 176533, 2450, 13561, 13653, '14,15,16,17', 0, 0, 0, -1, 0, 1, 231.595, -801.5, 4105.07, 5.02181, 30, 0, 0, 2249600, 2434, 0, 0, 0, 0, 0, 0, '', 41079);
-
 DELETE FROM `creature_text` WHERE `CreatureID`=176533;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
 (176533, 0, 0, 'Something is limiting my magic. Where are we?', 12, 0, 100, 0, 0, 181487, 0, 210368, 0, ''),
@@ -682,6 +676,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=350903 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_two';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (350903, 'spell_sylvanas_windrunner_teleport_to_phase_two');
+
+ -- Raid Portal: Oribos
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=2 AND `SourceEntry`=357102 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 2, 357102, 0, 0, 31, 0, 3, 0, 0, 0, 0, 0, '', 'Raid Portal: Oribos - Target Units');
 
  -- Teleport to Phase Three
 DELETE FROM `spell_script_names` WHERE `spell_id`=350906 AND `ScriptName`='spell_sylvanas_windrunner_teleport_to_phase_three';
@@ -1022,10 +1021,10 @@ INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`,
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=178072;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
-(178072, 14, 0, 0, 2104, 41079),
-(178072, 15, 0, 0, 2105, 41079),
-(178072, 16, 0, 0, 2106, 41079),
-(178072, 17, 0, 0, 2107, 41079);
+(178072, 14, 2, 2, 2104, 41079),
+(178072, 15, 2, 2, 2105, 41079),
+(178072, 16, 2, 2, 2106, 41079),
+(178072, 17, 2, 2, 2107, 41079);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=178072 AND `ID`=1;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES 
@@ -1034,10 +1033,6 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `Appearanc
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=178072;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (178072, 1, 0, 0, 0, 0, 0);
- 
-DELETE FROM `creature` WHERE `guid`=@CGUID+5;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+5, 178072, 2450, 13561, 13655, '14,15,16,17', 0, 0, 0, -1, 0, 1, -249.161, -1271.62, 5667.08, 4.56334, 7200, 0, 0, 23058000, 2568, 0, 0, 0, 0, 0, 0, '', 41079);
 
  -- Blasphemy 
 DELETE FROM `spell_script_names` WHERE `spell_id`=357729 AND `ScriptName`='spell_sylvanas_windrunner_blasphemy_pre';

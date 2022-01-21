@@ -315,6 +315,11 @@ enum Conversations
     CONVERSATION_INTRO                                  = 17368
 };
 
+enum SpawnGroups
+{
+    SPAWN_GROUP_INITIAL                                 = 0
+};
+
 enum Points
 {
     POINT_INTRO_01                                      = 1,
@@ -1171,12 +1176,17 @@ struct boss_sylvanas_windrunner : public BossAI
         if (Creature* thrall = instance->GetCreature(DATA_THRALL_PINNACLE))
             thrall->DespawnOrUnsummon();
 
+        if (Creature* anduin = instance->GetCreature(DATA_ANDUIN_CRUCIBLE))
+            anduin->DespawnOrUnsummon();
+
         _DespawnAtEvade();
     }
 
     void Reset() override
     {
         _Reset();
+
+        me->SummonCreatureGroup(SPAWN_GROUP_INITIAL);
 
         events.Reset();
         _specialEvents.Reset();
@@ -2573,8 +2583,6 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
 
         me->SetReactState(REACT_PASSIVE);
 
-        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
         me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
     }
 
@@ -2584,8 +2592,6 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
         {
             case ACTION_ACTIVATE_DOMINATION_ARROW:
             {
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 DoCastSelf(SPELL_DOMINATION_ARROW_ACTIVATE, true);
@@ -4755,6 +4761,9 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
 
                         if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                             bolvar->m_Events.AddEvent(new PauseAttackState(bolvar, false), bolvar->m_Events.CalculateTime(1));
+
+                        if (anduin->IsAIEnabled())
+                            anduin->AI()->AttackStart(me);
                     }
                 });
 
@@ -5016,6 +5025,8 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
     void JustAppeared() override
     {
         _scheduler.ClearValidator();
+
+        me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1));
     }
 
     void Reset() override
@@ -5036,26 +5047,28 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
         damage = 0;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _events.SetPhase(PHASE_THREE);
-    }
-
     void DoAction(int32 action) override
     {
         switch (action)
         {
             case ACTION_INITIATE_PHASE_THREE:
             {
-                me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1));
+                _events.SetPhase(PHASE_THREE);
+
+                me->RemoveUnitFlag2(UNIT_FLAG2_SELECTION_DISABLED);
 
                 DoCastSelf(SPELL_BLASPHEMY_PRE, false);
 
+                _scheduler.Schedule(11s + 800ms, [this](TaskContext /*task*/)
+                {
+                    DoCastSelf(SPELL_BREAK_PLAYER_TARGETTING, true);
+                });
+
                 _scheduler.Schedule(12s, [this](TaskContext /*task*/)
                 {
-                    me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
+                    me->AddUnitFlag2(UNIT_FLAG2_SELECTION_DISABLED);
 
-                    DoCastSelf(SPELL_BREAK_PLAYER_TARGETTING, true);
+                    me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
 
                     _events.ScheduleEvent(EVENT_LIGHT_BLAST, 8s, 12s, PHASE_THREE);
                     _events.ScheduleEvent(EVENT_BLASPHEMY, 18s, 20s, PHASE_THREE);

@@ -77,61 +77,6 @@ public:
 
             switch (creature->GetEntry())
             {
-                /*
-                case BOSS_THE_TERRAGRUE:
-                {
-                    TerragrueGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_THE_EYE_OF_THE_JAILER:
-                {
-                    EyeoftheJailerGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_SKYJA:
-                {
-                    SkyjaGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_REMNANT_OF_NERZHUL:
-                {
-                    RemnantofNerzhulGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_SOULRENDER_DORMAZAIN:
-                {
-                    SoulrenderDormazainGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_PAINSMITH_RAZNAL:
-                {
-                    PainsmithRaznalGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_GUARDIAN_OF_THE_FIRST_ONES:
-                {
-                    GuardianoftheFirstOnesGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_FATESCRIBE_ROHKALO:
-                {
-                    FatescribeRohkaloGUID = creature->GetGUID();
-                    break;
-                }
-
-                case BOSS_KELTHUZAD:
-                {
-                    KelthuzadGUID = creature->GetGUID();
-                    break;
-                }*/
-
                 case BOSS_SYLVANAS_WINDRUNNER:
                 {
                     SylvanasGUID = creature->GetGUID();
@@ -141,32 +86,21 @@ public:
                     break;
                 }
 
-                case DATA_BOLVAR_FORDRAGON_PINNACLE:
-                {
+                case NPC_BOLVAR_FORDRAGON_PINNACLE:
                     BolvarPinnacleGUID = creature->GetGUID();
-
-                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                        sylvanas->AI()->JustSummoned(creature);
                     break;
-                }
 
                 case NPC_JAINA_PROUDMOORE_PINNACLE:
-                {
                     JainaPinnacleGUID = creature->GetGUID();
-
-                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                        sylvanas->AI()->JustSummoned(creature);
                     break;
-                }
 
-                case DATA_THRALL_PINNACLE:
-                {
+                case NPC_THRALL_PINNACLE:
                     ThrallPinnacleGUID = creature->GetGUID();
-
-                    if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                        sylvanas->AI()->JustSummoned(creature);
                     break;
-                }
+
+                case NPC_ANDUIN_CRUCIBLE:
+                    AnduinCrucibleGUID = creature->GetGUID();
+                    break;
 
                 default:
                     break;
@@ -207,8 +141,6 @@ public:
             {
                 case DATA_SYLVANAS_INTRO:
                     return SylvanasIntro;
-                    break;
-
                 default:
                     break;
             }
@@ -220,28 +152,16 @@ public:
         {
             switch (type)
             {
-                /*
-                case DATA_THE_TERRAGRUE:
-                    return TerragrueGUID;
-                case DATA_THE_EYE_OF_THE_JAILER:
-                    return EyeoftheJailerGUID;
-                case DATA_THE_NINE:
-                    return SkyjaGUID;
-                case DATA_REMNANT_OF_NERZHUL:
-                    return RemnantofNerzhulGUID;
-                case DATA_SOULRENDER_DORMAZAIN:
-                    return SoulrenderDormazainGUID;
-                case DATA_PAINSMITH_RAZNAL:
-                    return PainsmithRaznalGUID;
-                case DATA_GUARDIAN_OF_THE_FIRST_ONES:
-                    return GuardianoftheFirstOnesGUID;
-                case DATA_FATESCRIBE_ROHKALO:
-                    return FatescribeRohkaloGUID;
-                case DATA_KELTHUZAD:
-                    return KelthuzadGUID;*/
                 case DATA_SYLVANAS_WINDRUNNER:
                     return SylvanasGUID;
-                    break;
+                case DATA_BOLVAR_FORDRAGON_PINNACLE:
+                    return BolvarPinnacleGUID;
+                case DATA_JAINA_PROUDMOORE_PINNACLE:
+                    return JainaPinnacleGUID;
+                case DATA_THRALL_PINNACLE:
+                    return ThrallPinnacleGUID;
+                case DATA_ANDUIN_CRUCIBLE:
+                    return AnduinCrucibleGUID;
                 default:
                     break;
             }
@@ -401,6 +321,7 @@ public:
             ObjectGuid BolvarPinnacleGUID;
             ObjectGuid JainaPinnacleGUID;
             ObjectGuid ThrallPinnacleGUID;
+            ObjectGuid AnduinCrucibleGUID;
             std::vector<ObjectGuid> TorghastSpikeGUID;
             std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
             uint32 SylvanasIntro;
