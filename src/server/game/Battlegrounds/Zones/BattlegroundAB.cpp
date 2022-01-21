@@ -432,7 +432,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
     TeamId teamIndex = GetTeamIndexByTeamId(source->GetTeam());
 
     // Check if player really could use this banner, not cheated
-    if (!(m_Nodes[node] == 0 || teamIndex == m_Nodes[node]%2))
+    if (!(m_Nodes[node] == 0 || teamIndex == uint8(m_Nodes[node] % 2)))
         return;
 
     source->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);

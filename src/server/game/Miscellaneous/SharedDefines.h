@@ -263,7 +263,7 @@ enum SpellSchools
     MAX_SPELL_SCHOOL                    = 7
 };
 
-enum SpellSchoolMask
+enum SpellSchoolMask : uint32
 {
     SPELL_SCHOOL_MASK_NONE    = 0x00,                       // not exist
     SPELL_SCHOOL_MASK_NORMAL  = (1 << SPELL_SCHOOL_NORMAL), // PHYSICAL (Armor)
@@ -881,7 +881,7 @@ enum Language
 
 #define LANGUAGES_COUNT   21
 
-enum TeamId
+enum TeamId : uint32
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,
@@ -1543,7 +1543,7 @@ enum AuraStateType
     (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
 
 // Spell mechanics
-enum Mechanics
+enum Mechanics : uint32
 {
     MECHANIC_NONE             = 0,
     MECHANIC_CHARM            = 1,
@@ -3179,7 +3179,7 @@ enum CreatureEliteType
 };
 
 // values based at Holidays.dbc
-enum HolidayIds
+enum HolidayIds : uint32
 {
     HOLIDAY_NONE                     = 0,
 

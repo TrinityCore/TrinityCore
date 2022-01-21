@@ -74,7 +74,7 @@ class TC_SHARED_API ByteBuffer
             _storage.reserve(reserve);
         }
 
-        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+        ByteBuffer(ByteBuffer&& buf) noexcept : _rpos(buf._rpos), _wpos(buf._wpos),
             _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage))
         {
             buf._rpos = 0;
@@ -100,7 +100,7 @@ class TC_SHARED_API ByteBuffer
             return *this;
         }
 
-        ByteBuffer& operator=(ByteBuffer&& right)
+        ByteBuffer& operator=(ByteBuffer&& right) noexcept
         {
             if (this != &right)
             {
@@ -586,10 +586,9 @@ class TC_SHARED_API ByteBuffer
 
         void appendPackGUID(uint64 guid)
         {
-            uint8 packGUID[8+1];
-            packGUID[0] = 0;
+            uint8 packGUID[8 + 1] = { };
             size_t size = 1;
-            for (uint8 i = 0;guid != 0;++i)
+            for (uint8 i = 0; guid != 0; ++i)
             {
                 if (guid & 0xFF)
                 {

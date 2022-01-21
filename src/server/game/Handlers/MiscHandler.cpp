@@ -261,7 +261,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 
         if (!whoRequest.Request.Areas.empty())
         {
-            if (std::find(whoRequest.Request.Areas.begin(), whoRequest.Request.Areas.end(), target.GetZoneId()) == whoRequest.Request.Areas.end())
+            if (std::find(whoRequest.Request.Areas.begin(), whoRequest.Request.Areas.end(), int32(target.GetZoneId())) == whoRequest.Request.Areas.end())
                 continue;
         }
 
