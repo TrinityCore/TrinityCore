@@ -111,37 +111,40 @@ target_compile_definitions(trinity-compile-option-interface
 message(STATUS "MSVC: Disabled POSIX warnings")
 
 # Ignore specific warnings
-# C4351: new behavior: elements of array 'x' will be default initialized
-# C4091: 'typedef ': ignored on left of '' when no variable is declared
 target_compile_options(trinity-compile-option-interface
   INTERFACE
-    /wd4351
-    /wd4091)
+    /wd4351  # C4351: new behavior: elements of array 'x' will be default initialized
+    /wd4091) # C4091: 'typedef ': ignored on left of '' when no variable is declared
 
 if(NOT WITH_WARNINGS)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      /wd4996
-      /wd4355
-      /wd4244
-      /wd4985
-      /wd4267
-      /wd4619
-      /wd4512)
+      /wd4996  # C4996 deprecation
+      /wd4985  # C4985 'symbol-name': attributes not present on previous declaration.
+      /wd4244  # C4244 'argument' : conversion from 'type1' to 'type2', possible loss of data
+      /wd4267  # C4267 'var' : conversion from 'size_t' to 'type', possible loss of data
+      /wd4619  # C4619 #pragma warning : there is no warning number 'number'
+      /wd4512) # C4512 'class' : assignment operator could not be generated
 
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
 if(BUILD_SHARED_LIBS)
-  # C4251: needs to have dll-interface to be used by clients of class '...'
-  # C4275: non dll-interface class ...' used as base for dll-interface class '...'
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      /wd4251
-      /wd4275)
+      /wd4251  # C4251: needs to have dll-interface to be used by clients of class '...'
+      /wd4275) # C4275: non dll-interface class ...' used as base for dll-interface class '...'
 
   message(STATUS "MSVC: Enabled shared linking")
 endif()
+
+# Move some warnings that are enabled for other compilers from level 4 to level 3
+target_compile_options(trinity-compile-option-interface
+  INTERFACE
+    /w34100  # C4100 'identifier' : unreferenced formal parameter
+    /w34101  # C4101: 'identifier' : unreferenced local variable
+    /w34189  # C4189: 'identifier' : local variable is initialized but not referenced
+    /w34389) # C4189: 'equality-operator' : signed/unsigned mismatch
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function
