@@ -476,7 +476,7 @@ void BattlegroundAV::EndBattleground(uint32 winner)
             }
     }
 
-    for (int i = TEAM_ALLIANCE; i <= TEAM_HORDE; ++i)
+    for (uint8 i = TEAM_ALLIANCE; i <= TEAM_HORDE; ++i)
     {
         if (m_CaptainAlive[i])
         {
