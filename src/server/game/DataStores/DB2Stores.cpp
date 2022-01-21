@@ -99,7 +99,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     std::string db2Path = dataPath + "dbc/";
 
     DB2StoreProblemList bad_db2_files;
-    uint32 availableDb2Locales = 0xFF;
+    uint32 availableDb2Locales = 0xFFFFFFFF;
 
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemStore,                db2Path, defaultLocale);
     LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemCurrencyCostStore,    db2Path, defaultLocale);
