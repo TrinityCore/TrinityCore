@@ -1225,6 +1225,7 @@ struct boss_sylvanas_windrunner : public BossAI
     {
         if (spell->Id == SPELL_RUIN)
         {
+            // TODO: change this since she's interrupted 5 times
             if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
             {
                 if (bolvar->IsAIEnabled())
@@ -3487,6 +3488,7 @@ class BaneArrowEvent : public BasicEvent
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _owner->CastSpell(_arrowDestPos, SPELL_BANE_ARROWS_DAMAGE, true);
+            _owner->CastSpell(_arrowDestPos, SPELL_BANSHEES_BANE_AREATRIGGER, true);
             return true;
         }
 
