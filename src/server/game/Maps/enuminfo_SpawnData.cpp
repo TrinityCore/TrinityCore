@@ -41,7 +41,7 @@ TC_API_EXPORT EnumText EnumUtils<SpawnObjectType>::ToString(SpawnObjectType valu
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<SpawnObjectType>::Count() { return 2; }
+TC_API_EXPORT size_t EnumUtils<SpawnObjectType>::Count() { return 3; }
 
 template <>
 TC_API_EXPORT SpawnObjectType EnumUtils<SpawnObjectType>::FromIndex(size_t index)

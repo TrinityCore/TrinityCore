@@ -574,7 +574,7 @@ public:
 
             me->RestoreFaction();
             CombatAI::Reset();
-            me->AddUnitFlag(UNIT_FLAG_SWIMMING);
+            me->AddUnitFlag(UNIT_FLAG_CAN_SWIM);
         }
 
         void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -666,7 +666,7 @@ public:
                     return true;
 
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_SWIMMING);
+                me->RemoveUnitFlag(UNIT_FLAG_CAN_SWIM);
 
                 player->CastSpell(me, SPELL_DUEL, false);
                 player->CastSpell(player, SPELL_DUEL_FLAG, true);
