@@ -510,25 +510,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         return;
     }
 
-    /* the client data has been verified. let's do the actual change now */
-    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
-
-    mover->m_movementInfo = movementInfo;
-    mover->UpdatePosition(movementInfo.pos);
-
-    float newSpeedRate = speedSent / (mover->IsControlledByPlayer() ? playerBaseMoveSpeed[move_type] : baseMoveSpeed[move_type]);
-    mover->SetSpeedRateReal(move_type, newSpeedRate);
     MovementPacketSender::SendSpeedChangeToObservers(mover, move_type, speedSent);
-
     mover->ClearPendingMovementChangeForType(changeType);
 }
 
@@ -680,25 +662,6 @@ void WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& r
     if (!pendingChange || pendingChange->movementCounter != movementInfo.movementCounter)
         return;
 
-    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
-
-    mover->m_movementInfo = movementInfo;
-    mover->UpdatePosition(movementInfo.pos);
-
-    if (pendingChange->apply)
-        mover->AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
-    else
-        mover->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
-
     MovementPacketSender::SendMovementFlagChangeToObservers(mover);
     mover->ClearPendingMovementChangeForType(MovementChangeType::SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY);
 }
@@ -727,33 +690,6 @@ void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
             _player->GetName().c_str(), _player->GetSession()->GetAccountId());
         _player->GetSession()->KickPlayer();
         return;
-    }
-
-    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
-
-    mover->m_movementInfo = movementInfo;
-    mover->UpdatePosition(movementInfo.pos);
-
-    if (disable)
-    {
-        mover->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
-        mover->SetFall(false);
-    }
-    else
-    {
-        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-        if (!mover->HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
-            mover->SetFall(true);
     }
 
     MovementPacketSender::SendMovementFlagChangeToObservers(mover);
@@ -790,9 +726,6 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvData)
         return;
     }
 
-    mover->m_movementInfo = movementInfo;
-    mover->UpdatePosition(movementInfo.pos);
-
     MovementPacketSender::SendHeightChangeToObservers(mover, pendingChange->newValue);
 }
 
@@ -822,22 +755,6 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
     else
     {
         movementInfo.time = (uint32)movementTime;
-    }
-
-    mover->m_movementInfo = movementInfo;
-    mover->UpdatePosition(movementInfo.pos);
-
-    if (pendingChange->apply)
-    {
-        mover->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
-        mover->SetFall(false);
-    }
-    else
-    {
-        if (mover->IsFlying() && !mover->IsGravityDisabled())
-            mover->SetFall(true);
-        mover->RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
     }
 
     MovementPacketSender::SendMovementFlagChangeToObservers(mover);
