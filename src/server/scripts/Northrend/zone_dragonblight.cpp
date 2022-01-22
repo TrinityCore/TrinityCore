@@ -27,6 +27,8 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "CreatureAIImpl.h"
+#include "DB2Stores.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -687,6 +689,49 @@ class npc_torturer_lecraft : public CreatureScript
         }
 };
 
+/*######
+## Quest 12053: The Might of the Horde
+######*/
+
+enum WarsongBattleStandard
+{
+    TEXT_TAUNT_1    = 25888,
+    TEXT_TAUNT_2    = 25889,
+    TEXT_TAUNT_3    = 25890,
+    TEXT_TAUNT_4    = 25891,
+    TEXT_TAUNT_5    = 25892,
+    TEXT_TAUNT_6    = 25893,
+    TEXT_TAUNT_7    = 25894
+};
+
+// 47304 - Warsong Battle Standard
+class spell_warsong_battle_standard : public SpellScript
+{
+    PrepareSpellScript(spell_warsong_battle_standard);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sBroadcastTextStore.HasRecord(TEXT_TAUNT_1) &&
+            sBroadcastTextStore.HasRecord(TEXT_TAUNT_2) &&
+            sBroadcastTextStore.HasRecord(TEXT_TAUNT_3) &&
+            sBroadcastTextStore.HasRecord(TEXT_TAUNT_4) &&
+            sBroadcastTextStore.HasRecord(TEXT_TAUNT_5) &&
+            sBroadcastTextStore.HasRecord(TEXT_TAUNT_6) &&
+            sBroadcastTextStore.HasRecord(TEXT_TAUNT_7);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->Unit::Say(RAND(TEXT_TAUNT_1, TEXT_TAUNT_2, TEXT_TAUNT_3, TEXT_TAUNT_4, TEXT_TAUNT_5, TEXT_TAUNT_6, TEXT_TAUNT_7), caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warsong_battle_standard::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_commander_eligor_dawnbringer();
@@ -694,4 +739,5 @@ void AddSC_dragonblight()
     new spell_q12096_q12092_bark();
     new npc_wyrmrest_defender();
     new npc_torturer_lecraft();
+    RegisterSpellScript(spell_warsong_battle_standard);
 }
