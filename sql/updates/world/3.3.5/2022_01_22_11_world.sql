@@ -3,6 +3,8 @@ DELETE FROM `spell_script_names` WHERE `spell_id` = 31696 AND `ScriptName` = 'sp
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (31696,'spell_gen_player_say');
 
+DELETE FROM `creature_text` WHERE `CreatureID` = 29919 AND `GroupID` = 1;
+
 -- 13048 Where Time Went Wrong
 DELETE FROM `spell_script_names` WHERE (
 `spell_id` = 56796 AND `ScriptName` = 'spell_gen_player_say' OR
