@@ -4739,7 +4739,7 @@ class spell_gen_anchor_here : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Creature* creature = GetHitUnit()->ToCreature())
+        if (Creature* creature = GetHitCreature())
             creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
     }
 
