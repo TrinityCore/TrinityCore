@@ -301,7 +301,7 @@ enum Texts
     SAY_ANNOUNCE_HAUNTING_WAVE                          = 16,
     SAY_ANNOUNCE_RUIN                                   = 17,
     SAY_WINDS_OF_ICECROWN_AFTER_01                      = 18,
-    SAY_VEIL_OF_DARKNESS_PHASE_TWO                      = 19,
+    SAY_VEIL_OF_DARKNESS_PHASE_TWO_AND_THREE            = 19,
     SAY_ANNOUNCE_BANSHEE_SCREAM                         = 20,
     SAY_BANSHEE_SCREAM                                  = 21,
     SAY_WINDS_OF_ICECROWN_AFTER_02                      = 22,
@@ -424,9 +424,8 @@ enum SpellVisuals
     SPELL_VISUAL_BLASPHEMY                              = 109680, // At 1.0f
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_3_HC            = 105852, // At 3.0f
     SPELL_VISUAL_JAILER_BOLT                            = 107337, // At 90.0f, false as time
+    SPELL_VISUAL_BANSHEES_BANE                          = 108093, // At 0.5f
 
-
-    SPELL_VISUAL_UNK01_PLAYER                           = 108093, // At 0.5f
     SPELL_VISUAL_UNK02_PLAYER                           = 107839, // At 0.349999994039535522f
     SPELL_VISUAL_UNK_02                                 = 108094, // At 1.5f
     SPELL_VISUAL_SHADOW_DAGGER                          = 108096, // At 100.0f, false
@@ -2078,7 +2077,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             me->SetPower(me->GetPowerType(), 0);
 
                             Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
-                            Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
+                            Talk(SAY_VEIL_OF_DARKNESS_PHASE_TWO_AND_THREE);
 
                             scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                             {
@@ -2394,8 +2393,6 @@ struct boss_sylvanas_windrunner : public BossAI
         if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_WINDRUNNER))
             return;
 
-        Unit* victim = me->GetVictim();
-
         Aura* rangerHeartseekerCharge = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
 
         if (rangerHeartseekerCharge && rangerHeartseekerCharge->GetStackAmount() >= 3)
@@ -2667,6 +2664,8 @@ struct boss_sylvanas_windrunner : public BossAI
             if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
                 return GetRandomPointInCovenantPlatform(CovenantPlatformPos[covenentPlaform][DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM], CovenantPlatformPos[covenentPlaform][DATA_TOP_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
         }
+
+        return { };
     }
 
     Position const GetRandomPointInNonDesecratedPlatform(int8 index)
@@ -2682,6 +2681,8 @@ struct boss_sylvanas_windrunner : public BossAI
             default:
                 break;
         }
+
+        return { };
     }
 
     npc_sylvanas_windrunner_shadowcopy* GetSylvanasCopyAI(int32 index)
@@ -2771,7 +2772,7 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_bow);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
     }
@@ -2805,7 +2806,7 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_dagger);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
     }
@@ -2839,7 +2840,7 @@ class spell_sylvanas_windrunner_ranger_shot : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_shot);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
     }
@@ -2877,7 +2878,7 @@ class spell_sylvanas_windrunner_disappear : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_disappear);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
     }
@@ -3668,6 +3669,60 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
     }
 };
 
+class BansheeBaneEvent : public BasicEvent
+{
+    public:
+        BansheeBaneEvent(Unit* owner, Position const bansheeBanePos) : _owner(owner), _bansheeBanePos(bansheeBanePos) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->CastSpell(_bansheeBanePos, SPELL_BANSHEES_BANE_AREATRIGGER, true);
+            return true;
+        }
+
+    private:
+        Unit* _owner;
+        Position _bansheeBanePos;
+};
+
+// Banshee's Bane - 353929
+class spell_sylvanas_windrunner_banshee_bane : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_banshee_bane);
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (!GetCaster())
+            return;
+
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+
+        if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL)
+            return;
+
+        // TODO: this should use a dynamic target handling to verify if the destination is free
+        // to send the visual on it and cast the Banshee's Bane patch in 0.5s; it's random around the target,
+        // but at the same time, it should verify that such random point is not already taken by another patch, 
+        // always having preference to closest points, RelocatePolarPoint function would fit
+        // Sylvanas must be the caster, but the visual should come from the target to a given destination
+
+        Position bansheeBanePos = GetTarget()->GetRandomNearPosition(3.6f);
+
+        GetTarget()->SendPlaySpellVisual(bansheeBanePos, SPELL_VISUAL_BANSHEES_BANE, 0, 0, 0.5f, true);
+
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        {
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBanePos), sylvanas->m_Events.CalculateTime(500));
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_bane::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class BansheesFuryEvent : public BasicEvent
 {
     public:
@@ -3858,7 +3913,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
         _windsOfIcecrown = 0;
     }
 
-    void MovementInform(uint32 type, uint32 id) override
+    void MovementInform(uint32 /*type*/, uint32 id) override
     {
         if (id == POINT_JUMP_SECOND_CHAIN)
             me->GetMotionMaster()->MovePoint(0, BolvarPhaseTwoPos[4], false);
@@ -4035,7 +4090,7 @@ class spell_sylvanas_windrunner_runic_mark_triggered : public SpellScript
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
-    void HandleDummyEffect(SpellEffIndex effIndex)
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, false);
     }
@@ -4163,7 +4218,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
         _events.Reset();
     }
 
-    void MovementInform(uint32 type, uint32 id) override
+    void MovementInform(uint32 /*type*/, uint32 id) override
     {
         if (id == POINT_JUMP_SECOND_CHAIN)
             me->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[3], false);
@@ -4196,7 +4251,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
         {
             case ACTION_PREPARE_EARTH_BRIDGE_1:
             {
-                FormEarthBridge(ThrallPhaseTwoPos[4], ThrallCallEarthTargetPos[0], DATA_BRIDGE_PHASE_TWO_COUNT_2);
+                FormEarthBridge(ThrallPhaseTwoPos[4], ThrallCallEarthTargetPos[0]);
 
                 _scheduler.Schedule(4s + 281ms, [this](TaskContext /*task*/)
                 {
@@ -4270,7 +4325,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void FormEarthBridge(Position jumpPos, Position bridgePos, uint8 bridgeCount)
+    void FormEarthBridge(Position jumpPos, Position bridgePos)
     {
         me->CastSpell(jumpPos, SPELL_JUMP_PHASE_TWO_MASTER, false);
 
@@ -4679,7 +4734,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
 
             case ACTION_PREPARE_ICE_BRIDGE_1:
             {
-                FormFrozenBridge(JainaPhaseTwoPos[2], JainaChannelIceTargetPos[0], DATA_BRIDGE_PHASE_TWO_COUNT_1);
+                FormFrozenBridge(JainaPhaseTwoPos[2], JainaChannelIceTargetPos[0]);
 
                 _scheduler.Schedule(493ms, [this](TaskContext /*task*/)
                 {
@@ -4992,7 +5047,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
         DoSpellAttackIfReady(SPELL_ICE_BOLT);
     }
 
-    void FormFrozenBridge(Position teleportPos, Position bridgePos, uint8 bridgeCount)
+    void FormFrozenBridge(Position teleportPos, Position bridgePos)
     {
         me->CastSpell(teleportPos, SPELL_TELEPORT_PHASE_TWO_MASTER, false);
 
@@ -5216,7 +5271,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
             {
                 _events.SetPhase(PHASE_THREE);
 
-                me->RemoveUnitFlag2(UNIT_FLAG2_SELECTION_DISABLED);
+                me->RemoveUnitFlag2(UNIT_FLAG2_UNTARGETABLE_BY_CLIENT);
 
                 DoCastSelf(SPELL_BLASPHEMY_PRE, false);
 
@@ -5227,7 +5282,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
 
                 _scheduler.Schedule(12s, [this](TaskContext /*task*/)
                 {
-                    me->AddUnitFlag2(UNIT_FLAG2_SELECTION_DISABLED);
+                    me->AddUnitFlag2(UNIT_FLAG2_UNTARGETABLE_BY_CLIENT);
 
                     me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
 
@@ -5690,6 +5745,40 @@ private:
     InstanceScript* _instance;
 };
 
+// Banshee's Bane - 27461
+struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
+{
+    at_sylvanas_windrunner_banshee_bane(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()), _readyToPick(false) { }
+
+    void OnUpdate(uint32 diff) override
+    {
+        if (!_instance)
+            return;
+
+        _updateDiff += diff;
+
+        if (_updateDiff >= 1000)
+            _readyToPick = true;            
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!_instance || !unit->IsPlayer() || !_readyToPick)
+            return;
+
+        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            sylvanas->CastSpell(unit, SPELL_BANSHEES_BANE, true);
+
+        at->Remove();
+    }
+
+private:
+    InstanceScript* _instance;
+    bool _readyToPick;
+    uint32 _updateDiff;
+};
+
 // Raze - 23117
 struct at_sylvanas_windrunner_raze : AreaTriggerAI
 {
@@ -5751,6 +5840,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_haunting_wave);
     RegisterAuraScript(spell_sylvanas_windrunner_ruin);
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
+    RegisterAuraScript(spell_sylvanas_windrunner_banshee_bane);
     RegisterAuraScript(spell_sylvanas_windrunner_banshee_fury);
     RegisterSpellScript(spell_sylvanas_windrunner_raze);
 
@@ -5785,5 +5875,6 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAreaTriggerAI(at_sylvanas_windrunner_rive);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_bridges);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy_pre);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_banshee_bane);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_raze);
 }
