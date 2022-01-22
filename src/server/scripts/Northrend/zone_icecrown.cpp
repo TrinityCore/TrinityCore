@@ -780,6 +780,10 @@ class npc_frostbrood_skytalon : public CreatureScript
         }
 };
 
+/*######
+## Quest 12887, 12892: It's All Fun and Games
+######*/
+
 // 55288 - It's All Fun and Games: The Ocular On Death
 class spell_the_ocular_on_death : public SpellScript
 {
@@ -802,6 +806,27 @@ class spell_the_ocular_on_death : public SpellScript
     }
 };
 
+/*######
+## Quest 14077, 14144: The Light's Mercy
+######*/
+
+// 66411 - Summon Tualiq Proxy
+class spell_summon_tualiq_proxy : public SpellScript
+{
+    PrepareSpellScript(spell_summon_tualiq_proxy);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Position const offset = { 0.0f, 0.0f, 30.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_tualiq_proxy::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+    }
+};
+
 void AddSC_icecrown()
 {
     new npc_argent_valiant;
@@ -810,4 +835,5 @@ void AddSC_icecrown()
     new npc_blessed_banner();
     new npc_frostbrood_skytalon();
     RegisterSpellScript(spell_the_ocular_on_death);
+    RegisterSpellScript(spell_summon_tualiq_proxy);
 }
