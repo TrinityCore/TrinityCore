@@ -696,7 +696,6 @@ class npc_torturer_lecraft : public CreatureScript
 
 enum WarsongBattleStandard
 {
-    /// @todo: add them to npc_text when support will be added
     TEXT_TAUNT_1    = 25888,
     TEXT_TAUNT_2    = 25889,
     TEXT_TAUNT_3    = 25890,
