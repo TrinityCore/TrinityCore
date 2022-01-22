@@ -1762,6 +1762,10 @@ struct boss_sylvanas_windrunner : public BossAI
                             }
                         });
                     }
+                    else if (events.IsInPhase(PHASE_THREE))
+                    {
+
+                    }
                     break;
                 }
 
@@ -1787,7 +1791,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else if (events.IsInPhase(PHASE_TWO))
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
-                    else
+                    else if (events.IsInPhase(PHASE_THREE))
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
                     break;
                 }
@@ -2009,54 +2013,94 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_VEIL_OF_DARKNESS:
                 {
-                    if (_windrunnerActive)
-                        return;
-
-                    me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1));
-                    DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-
-                    scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                    if (events.IsInPhase(PHASE_ONE))
                     {
-                        me->SetPower(me->GetPowerType(), 0);
+                        if (_windrunnerActive)
+                            return;
 
-                        Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
-                        Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
+                        me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1));
+                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
 
-                        scheduler.Schedule(250ms, [this](TaskContext /*task*/)
+                        scheduler.Schedule(1s, [this](TaskContext /*task*/)
                         {
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
-                            me->NearTeleportTo(SylvanasDarknessPos, false);
-                        });
+                            me->SetPower(me->GetPowerType(), 0);
 
-                        scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
-                        {
-                            if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                            Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
+                            Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
+
+                            scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                             {
-                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SylvanasNonMeleeSelector(me)))
-                                    me->NearTeleportTo(target->GetPosition(), false);
-                            }
-                            else
+                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
+                                me->NearTeleportTo(SylvanasDarknessPos, false);
+                            });
+
+                            scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
+                            {
+                                if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                                {
+                                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SylvanasNonMeleeSelector(me)))
+                                        me->NearTeleportTo(target->GetPosition(), false);
+                                }
+                                else
+                                {
+                                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
+                                        me->NearTeleportTo(target->GetPosition(), false);
+                                }
+
+                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
+                            });
+
+                            scheduler.Schedule(2s, [this](TaskContext /*task*/)
+                            {
+                                TeleportShadowcopiesToMe();
+                            });
+
+                            scheduler.Schedule(9s, [this](TaskContext /*task*/)
+                            {
+                                me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
+                                DoAction(ACTION_RESET_MELEE_KIT);
+                            });
+
+                            events.Repeat(48s);
+                        });
+                    }
+                    else if (events.IsInPhase(PHASE_TWO))
+                    {
+
+                    }
+                    else if (events.IsInPhase(PHASE_THREE))
+                    {
+                        me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1));
+                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+
+                        scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                        {
+                            me->SetPower(me->GetPowerType(), 0);
+
+                            Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
+                            Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
+
+                            scheduler.Schedule(250ms, [this](TaskContext /*task*/)
+                            {
+                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE, true);
+                                me->NearTeleportTo(SylvanasDarknessPos, false);
+                            });
+
+                            scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                             {
                                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
                                     me->NearTeleportTo(target->GetPosition(), false);
-                            }
+                            });
 
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
+                            scheduler.Schedule(5s, [this](TaskContext /*task*/)
+                            {
+                                me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
+                                DoAction(ACTION_RESET_MELEE_KIT);
+                            });
+
+                            events.Repeat(48s);
                         });
-
-                        scheduler.Schedule(2s, [this](TaskContext /*task*/)
-                        {
-                            TeleportShadowcopiesToMe();
-                        });
-
-                        scheduler.Schedule(9s, [this](TaskContext /*task*/)
-                        {
-                            me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1));
-                            DoAction(ACTION_RESET_MELEE_KIT);
-                        });
-
-                        events.Repeat(48s);
-                    });
+                    }
                     break;
                 }
 
