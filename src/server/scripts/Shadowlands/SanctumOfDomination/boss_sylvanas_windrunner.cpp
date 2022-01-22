@@ -2262,6 +2262,12 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(GetMiddlePointInCurrentPlatform(), SPELL_RAZE, false);
                     });
 
+                    for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
+                    {
+                        if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+                            DesecrateCurrentPlatform(covenentPlaform);
+                    }
+
                     break;
                 }
 
@@ -2573,6 +2579,31 @@ struct boss_sylvanas_windrunner : public BossAI
 
         return true;
     }
+
+    void DesecrateCurrentPlatform(int8 index)
+    {
+        switch (index)
+        {
+            case DATA_MALDRAXXI_PLATFORM:
+                _maldraxxiDesecrated = true;
+                break;
+
+            case DATA_NIGHTFAE_PLATFORM:
+                _nightfaeDesecrated = true;
+                break;
+
+            case DATA_KYRIAN_PLATFORM:
+                _kyrianDesecrated = true;
+                break;
+
+            case DATA_VENTHYR_PLATFORM:
+                _venthyrDesecrated = true;
+                break;
+
+            default:
+                break;
+        }
+    }
     
     Position const GetMiddlePointInCurrentPlatform()
     {
@@ -2583,6 +2614,15 @@ struct boss_sylvanas_windrunner : public BossAI
         }
 
         return { };
+    }
+
+    Position const GeRandomPointInCurrentPlatform()
+    {
+        for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
+        {
+            if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+                return GetRandomPointInCovenantPlatform(CovenantPlatformPos[covenentPlaform][DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM], CovenantPlatformPos[covenentPlaform][DATA_TOP_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
+        }
     }
 
     Position const GetRandomPointInNonDesecratedPlatform(int8 index)
@@ -3671,7 +3711,7 @@ class RazeEvent : public BasicEvent
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
                     if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                        sylvanas->SendPlaySpellVisual(ai->GetMiddlePointInCurrentPlatform(), 0.0f, SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
+                        sylvanas->SendPlaySpellVisual(ai->GeRandomPointInCurrentPlatform(), 0.0f, SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
                 }
             }
 
