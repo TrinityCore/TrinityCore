@@ -370,9 +370,9 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=354068 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354068, 'spell_sylvanas_windrunner_banshee_fury');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=354068 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=4 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=357527 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=4 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 1, 354068, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', 'Banshee\'s Fury - Target Players');
+(13, 1, 357527, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', 'Banshee\'s Fury - Target Players');
 
  -- Energize Power Aura (Sylvanas)
 DELETE FROM `spell_script_names` WHERE `spell_id`=352312 AND `ScriptName`='spell_sylvanas_windrunner_energize_power_aura';
@@ -448,7 +448,7 @@ INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data
 (27408, 0, 1, 32, 5, 2.5, 3.5, 5, 2.5, 3.5, 41079), -- Rive
 (27687, 0, 0, 36, 4, 4, 0, 0, 0, 0, 41488), -- Calamity - Heroic Mode
 (6197,  0, 0, 0, 1, 1, 0, 0, 0, 0, 41079),
-(27461, 0, 0, 32, 1, 1, 0, 0, 0, 0, 41488), -- Unknown
+(27461, 0, 0, 32, 1, 1, 0, 0, 0, 0, 41488), -- Banshee's Bane
 (27782, 0, 4, 100, 100, 0, 0, 0, 0, 0, 41079), -- Blasphemy (357729)
 (27783, 0, 4, 100, 100, 0, 0, 0, 0, 0, 41488), -- Blasphemy (357730)
 (27929, 0, 1, 34, 1.75, 4, 2, 1.75, 4, 2, 41079), -- Haunting Wave - Normal Mode
@@ -464,7 +464,7 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId
 (5428, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_bridges', 41079), -- Channel Ice (354476, 354574, 354573) and Call Earth (354577, 354575, 354576)
 (23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave - Normal Mode (351869)
 (23693, 27928, 0, 28658, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Heroic Mode (351869)
-(40000, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 1, 1, 0, 0, 0, 0, '', 41488), -- Unknown, phase 3 related (the spell associated on areatrigger_create_properties is 0, likely a serverside spell)
+(23096, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_bane', 41488), -- Bane (the spell associated on areatrigger_create_properties is 0, likely a serverside spell)
 (23506, 27782, 0, 0, 0, 0, -1, 0, 0, 0, 10000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy_pre', 41079), -- Blasphemy (357729)
 (23507, 27783, 0, 0, 0, 0, -1, 0, 0, 0, 7000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357730)
 (23117, 27480, 0, 0, 0, 0, -1, 0, 462, 0, 0, 1, 20, 20, 5, 20, 20, 5, 'at_sylvanas_windrunner_raze', 41079); -- Raze (354145)
