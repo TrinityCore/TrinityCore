@@ -126,7 +126,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags2>::ToString(UnitFlags2 value)
         case UNIT_FLAG2_IGNORE_REPUTATION: return { "UNIT_FLAG2_IGNORE_REPUTATION", "UNIT_FLAG2_IGNORE_REPUTATION", "" };
         case UNIT_FLAG2_COMPREHEND_LANG: return { "UNIT_FLAG2_COMPREHEND_LANG", "UNIT_FLAG2_COMPREHEND_LANG", "" };
         case UNIT_FLAG2_MIRROR_IMAGE: return { "UNIT_FLAG2_MIRROR_IMAGE", "UNIT_FLAG2_MIRROR_IMAGE", "" };
-        case UNIT_FLAG2_INSTANTLY_DONT_FADE_IN: return { "UNIT_FLAG2_INSTANTLY_DONT_FADE_IN", "Don't Fade In", "Unit model instantly appears when summoned (does not fade in)" };
+        case UNIT_FLAG2_DONT_FADE_IN: return { "UNIT_FLAG2_DONT_FADE_IN", "Don't Fade In", "Unit model instantly appears when summoned (does not fade in)" };
         case UNIT_FLAG2_FORCE_MOVEMENT: return { "UNIT_FLAG2_FORCE_MOVEMENT", "UNIT_FLAG2_FORCE_MOVEMENT", "" };
         case UNIT_FLAG2_DISARM_OFFHAND: return { "UNIT_FLAG2_DISARM_OFFHAND", "UNIT_FLAG2_DISARM_OFFHAND", "" };
         case UNIT_FLAG2_DISABLE_PRED_STATS: return { "UNIT_FLAG2_DISABLE_PRED_STATS", "UNIT_FLAG2_DISABLE_PRED_STATS", "Player has disabled predicted stats (Used by raid frames)" };
@@ -168,7 +168,7 @@ TC_API_EXPORT UnitFlags2 EnumUtils<UnitFlags2>::FromIndex(size_t index)
         case 2: return UNIT_FLAG2_IGNORE_REPUTATION;
         case 3: return UNIT_FLAG2_COMPREHEND_LANG;
         case 4: return UNIT_FLAG2_MIRROR_IMAGE;
-        case 5: return UNIT_FLAG2_INSTANTLY_DONT_FADE_IN;
+        case 5: return UNIT_FLAG2_DONT_FADE_IN;
         case 6: return UNIT_FLAG2_FORCE_MOVEMENT;
         case 7: return UNIT_FLAG2_DISARM_OFFHAND;
         case 8: return UNIT_FLAG2_DISABLE_PRED_STATS;

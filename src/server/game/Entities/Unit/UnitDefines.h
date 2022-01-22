@@ -160,7 +160,7 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_IGNORE_REPUTATION                                = 0x00000004,
     UNIT_FLAG2_COMPREHEND_LANG                                  = 0x00000008,
     UNIT_FLAG2_MIRROR_IMAGE                                     = 0x00000010,
-    UNIT_FLAG2_INSTANTLY_DONT_FADE_IN                           = 0x00000020,   // TITLE Don't Fade In DESCRIPTION Unit model instantly appears when summoned (does not fade in)
+    UNIT_FLAG2_DONT_FADE_IN                                     = 0x00000020,   // TITLE Don't Fade In DESCRIPTION Unit model instantly appears when summoned (does not fade in)
     UNIT_FLAG2_FORCE_MOVEMENT                                   = 0x00000040,
     UNIT_FLAG2_DISARM_OFFHAND                                   = 0x00000080,
     UNIT_FLAG2_DISABLE_PRED_STATS                               = 0x00000100,   // Player has disabled predicted stats (Used by raid frames)
