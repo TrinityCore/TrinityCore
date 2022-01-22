@@ -482,13 +482,14 @@ enum Miscellanea
     DATA_BRIDGE_PHASE_TWO_COUNT_5                       = 5,
     DATA_BRIDGE_PHASE_TWO_COUNT_6                       = 6,
 
-    DATA_OUTTER_PLATFORM                                = 0,
-    DATA_MIDDLE_PLATFORM                                = 1,
+    DATA_MALDRAXXI_PLATFORM                             = 0,
+    DATA_NIGHTFAE_PLATFORM                              = 1,
+    DATA_KYRIAN_PLATFORM                                = 2,
+    DATA_VENTHYR_PLATFORM                               = 3,
 
     DATA_MIDDLE_POS_OUTTER_PLATFORM                     = 0,
     DATA_TOP_RIGHT_POS_VERTEX_PLATFORM                  = 1,
-    DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM                = 2,
-    DATA_RANDOM_POS_OUTTER_PLATFORM                     = 3
+    DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM                = 2
 };
 
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
@@ -1142,8 +1143,8 @@ private:
 // Sylvanas Windrunner - 175732
 struct boss_sylvanas_windrunner : public BossAI
 {
-    boss_sylvanas_windrunner(Creature* creature) : BossAI(creature, DATA_SYLVANAS_WINDRUNNER), _windrunnerActive(false), _rangerShotOnCD(false),
-        _meleeKitCombo(0), _windrunnerCastTimes(0), _riveCastTimes(0), _hauntingWaveTimes(0) { }
+    boss_sylvanas_windrunner(Creature* creature) : BossAI(creature, DATA_SYLVANAS_WINDRUNNER), _windrunnerActive(false), _rangerShotOnCD(false), _maldraxxiDesecrated(false),
+        _nightfaeDesecrated(false), _kyrianDesecrated(false), _venthyrDesecrated(false), _meleeKitCombo(0), _windrunnerCastTimes(0), _riveCastTimes(0), _hauntingWaveTimes(0) { }
 
     void JustAppeared() override
     {
@@ -1193,6 +1194,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
         _windrunnerActive = false;
         _rangerShotOnCD = false;
+        _maldraxxiDesecrated = false;
+        _nightfaeDesecrated = false;
+        _kyrianDesecrated = false;
+        _venthyrDesecrated = false;
         _meleeKitCombo = 0;
         _windrunnerCastTimes = 0;
         _riveCastTimes = 0;
@@ -2254,7 +2259,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(50ms, [this](TaskContext /*task*/)
                     {
-                        me->CastSpell(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), SPELL_RAZE, false);
+                        me->CastSpell(GetMiddlePointInCurrentPlatform(), SPELL_RAZE, false);
                     });
 
                     break;
@@ -2281,7 +2286,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
 
-                        me->SendPlayOrphanSpellVisual(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        me->SendPlayOrphanSpellVisual(GetMiddlePointInCurrentPlatform(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
                         me->m_Events.AddEvent(new SetSheatheStateOrNameplate(me, DATA_CHANGE_SHEATHE_UNARMED), me->m_Events.CalculateTime(16));
 
@@ -2289,7 +2294,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         {
                             me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
 
-                            shadowCopy->CastSpell(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), SPELL_DOMINATION_CHAINS_JUMP, false);
+                            shadowCopy->CastSpell(GetMiddlePointInCurrentPlatform(), SPELL_DOMINATION_CHAINS_JUMP, false);
                         }
                     });
 
@@ -2297,7 +2302,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         me->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
 
-                        me->NearTeleportTo(GetPlatform(DATA_MIDDLE_POS_OUTTER_PLATFORM), false);
+                        me->NearTeleportTo(GetMiddlePointInCurrentPlatform(), false);
 
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_TELEPORT, 0, 0);
 
@@ -2546,23 +2551,56 @@ struct boss_sylvanas_windrunner : public BossAI
         return _shadowCopyGUID[index];
     }
 
-    Position const GetPlatform(int8 posType)
+    bool IsPlatformDesecrated(int8 index)
+    {
+        switch (index)
+        {
+            case DATA_MALDRAXXI_PLATFORM:
+                return _maldraxxiDesecrated;
+
+            case DATA_NIGHTFAE_PLATFORM:
+                return _nightfaeDesecrated;
+
+            case DATA_KYRIAN_PLATFORM:
+                return _kyrianDesecrated;
+
+            case DATA_VENTHYR_PLATFORM:
+                return _venthyrDesecrated;
+                
+            default:
+                break;
+        }
+
+        return true;
+    }
+    
+    Position const GetMiddlePointInCurrentPlatform()
     {
         for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
         {
             if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
-            {
-                if (posType == DATA_MIDDLE_POS_OUTTER_PLATFORM)
-                    return CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
-                else
-                    return GetRandomPointInCovenantPlatform(CovenantPlatformPos[covenentPlaform][DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM], CovenantPlatformPos[covenentPlaform][DATA_TOP_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
-            }
+                return CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
         }
 
         return { };
     }
 
-    npc_sylvanas_windrunner_shadowcopy* GetSylvanasCopyAI(uint32 index)
+    Position const GetRandomPointInNonDesecratedPlatform(int8 index)
+    {
+        switch (index)
+        {
+            case DATA_MALDRAXXI_PLATFORM:
+            case DATA_NIGHTFAE_PLATFORM:
+            case DATA_KYRIAN_PLATFORM:
+            case DATA_VENTHYR_PLATFORM:
+                return GetRandomPointInCovenantPlatform(CovenantPlatformPos[index][DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM], CovenantPlatformPos[index][DATA_TOP_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
+                break;
+            default:
+                break;
+        }
+    }
+
+    npc_sylvanas_windrunner_shadowcopy* GetSylvanasCopyAI(int32 index)
     {
         Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[index]);
 
@@ -2577,6 +2615,10 @@ private:
     std::vector<ObjectGuid> _shadowCopyGUID;
     bool _windrunnerActive;
     bool _rangerShotOnCD;
+    bool _maldraxxiDesecrated;
+    bool _nightfaeDesecrated;
+    bool _kyrianDesecrated;
+    bool _venthyrDesecrated;
     uint8 _meleeKitCombo;
     uint8 _windrunnerCastTimes;
     uint8 _riveCastTimes;
@@ -3515,15 +3557,21 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
             {
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    for (uint8 i = 0; i < 7; i++)
+                    for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
                     {
-                        Position const baneArrowPos = ai->GetPlatform(DATA_RANDOM_POS_OUTTER_PLATFORM);
+                        if (!ai->IsPlatformDesecrated(covenantPlatform))
+                        {
+                            for (uint8 i = 0; i < 7; i++)
+                            {
+                                Position const baneArrowPos = ai->GetRandomPointInNonDesecratedPlatform(covenantPlatform);
 
-                        uint32 randomSpeed = urand(2040, 3200);
+                                uint32 randomSpeed = urand(2040, 3200);
 
-                        sylvanas->SendPlaySpellVisual(baneArrowPos, 0.0f, SPELL_VISUAL_BANE_ARROW, 0, 0, float(randomSpeed / 1000), true);
+                                sylvanas->SendPlaySpellVisual(baneArrowPos, 0.0f, SPELL_VISUAL_BANE_ARROW, 0, 0, float(randomSpeed / 1000), true);
 
-                        sylvanas->m_Events.AddEvent(new BaneArrowEvent(sylvanas, baneArrowPos), sylvanas->m_Events.CalculateTime(randomSpeed));
+                                sylvanas->m_Events.AddEvent(new BaneArrowEvent(sylvanas, baneArrowPos), sylvanas->m_Events.CalculateTime(randomSpeed));
+                            }
+                        }
                     }
                 }
             }
@@ -3539,7 +3587,7 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
 class BansheesFuryEvent : public BasicEvent
 {
     public:
-        BansheesFuryEvent(Unit* owner) : _owner(owner) { }
+        BansheesFuryEvent(Unit* owner, uint8 covenantPlatform) : _owner(owner), _covenantPlatform(covenantPlatform) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
@@ -3550,7 +3598,7 @@ class BansheesFuryEvent : public BasicEvent
                     if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                     {
                         if (sylvanas->HasAura(SPELL_BANSHEES_FURY))
-                            sylvanas->SendPlaySpellVisual(ai->GetPlatform(DATA_RANDOM_POS_OUTTER_PLATFORM), 0.0f, SPELL_VISUAL_BANSHEE_FURY, 0, 0, 0.100000001490116119f, true);
+                            sylvanas->SendPlaySpellVisual(ai->GetRandomPointInNonDesecratedPlatform(_covenantPlatform), 0.0f, SPELL_VISUAL_BANSHEE_FURY, 0, 0, 0.100000001490116119f, true);
                     }
                 }
             }
@@ -3560,6 +3608,7 @@ class BansheesFuryEvent : public BasicEvent
 
     private:
         Unit* _owner;
+        uint8 _covenantPlatform;
 };
 
 // Banshee's Fury - 354068
@@ -3584,8 +3633,23 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
         if (!GetCaster())
             return;
 
-        for (uint8 i = 0; i < 10; i++)
-            GetCaster()->m_Events.AddEvent(new BansheesFuryEvent(GetCaster()), GetCaster()->m_Events.CalculateTime(50 * i));
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        {
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            {
+                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                {
+                    for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
+                    {
+                        if (!ai->IsPlatformDesecrated(covenantPlatform))
+                        {
+                            for (uint8 i = 0; i < 10; i++)
+                                GetCaster()->m_Events.AddEvent(new BansheesFuryEvent(GetCaster(), covenantPlatform), GetCaster()->m_Events.CalculateTime(50 * i));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void Register() override
@@ -3607,7 +3671,7 @@ class RazeEvent : public BasicEvent
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
                     if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                        sylvanas->SendPlaySpellVisual(ai->GetPlatform(DATA_RANDOM_POS_OUTTER_PLATFORM), 0.0f, SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
+                        sylvanas->SendPlaySpellVisual(ai->GetMiddlePointInCurrentPlatform(), 0.0f, SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
                 }
             }
 
