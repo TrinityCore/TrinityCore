@@ -176,6 +176,11 @@ enum ProcFlags
     PROC_FLAG_ENTER_COMBAT                    = 0x08000000,    // 27 Entered combat
     PROC_FLAG_ENCOUNTER_START                 = 0x10000000,    // 28 Encounter started
 
+    PROC_FLAG_CAST_ENDED                      = 0x20000000,    // 29 Cast Ended
+    PROC_FLAG_LOOTED                          = 0x40000000,    // 30 Looted (took from loot, not opened loot window)
+
+    PROC_FLAG_TAKE_HELPFUL_PERIODIC           = 0x80000000,    // 31 Take Helpful Periodic
+
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
                                                 | PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK,
