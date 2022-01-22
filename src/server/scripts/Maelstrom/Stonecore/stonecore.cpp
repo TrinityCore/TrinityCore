@@ -297,34 +297,6 @@ class spell_force_of_earth : public SpellScriptLoader
         }
 };
 
-// 45313 - Anchor Here
-class spell_sc_anchor_here : public SpellScriptLoader
-{
-public:
-    spell_sc_anchor_here() : SpellScriptLoader("spell_sc_anchor_here") { }
-
-    class spell_sc_anchor_here_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sc_anchor_here_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            if (Creature* creature = GetHitUnit()->ToCreature())
-                creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_sc_anchor_here_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sc_anchor_here_SpellScript();
-    }
-};
-
 // 93167 - Twilight Documents
 class spell_sc_twilight_documents : public SpellScriptLoader
 {
@@ -429,7 +401,6 @@ void AddSC_stonecore()
 {
     new npc_sc_millhouse_manastorm();
     new spell_force_of_earth();
-    new spell_sc_anchor_here();
     new spell_sc_twilight_documents();
     new spell_sc_quake();
     new at_sc_corborus_intro();
