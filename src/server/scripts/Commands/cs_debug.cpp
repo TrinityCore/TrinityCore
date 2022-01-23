@@ -171,10 +171,10 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             case 1:
-                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.get_value_or(0));
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.value_or(0));
                 break;
             case 2:
-                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.get_value_or(0));
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.value_or(0));
                 break;
             case 3:
                 sWorld->SetForcedWarModeFactionBalanceState(TEAM_NEUTRAL);

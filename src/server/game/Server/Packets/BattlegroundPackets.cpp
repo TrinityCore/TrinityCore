@@ -92,11 +92,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
 
     data.WriteBit(playerData.Faction != 0);
     data.WriteBit(playerData.IsInWorld);
-    data.WriteBit(playerData.Honor.is_initialized());
-    data.WriteBit(playerData.PreMatchRating.is_initialized());
-    data.WriteBit(playerData.RatingChange.is_initialized());
-    data.WriteBit(playerData.PreMatchMMR.is_initialized());
-    data.WriteBit(playerData.MmrChange.is_initialized());
+    data.WriteBit(playerData.Honor.has_value());
+    data.WriteBit(playerData.PreMatchRating.has_value());
+    data.WriteBit(playerData.RatingChange.has_value());
+    data.WriteBit(playerData.PreMatchMMR.has_value());
+    data.WriteBit(playerData.MmrChange.has_value());
     data.FlushBits();
 
     if (playerData.Honor)
@@ -119,11 +119,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics const& pvpLogData)
 {
-    data.WriteBit(pvpLogData.Ratings.is_initialized());
+    data.WriteBit(pvpLogData.Ratings.has_value());
     data << uint32(pvpLogData.Statistics.size());
     data.append(pvpLogData.PlayerCount.data(), pvpLogData.PlayerCount.size());
 
-    if (pvpLogData.Ratings.is_initialized())
+    if (pvpLogData.Ratings.has_value())
         data << *pvpLogData.Ratings;
 
     for (WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics const& player : pvpLogData.Statistics)
@@ -361,7 +361,7 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchComplete::Write()
 {
     _worldPacket << uint8(Winner);
     _worldPacket << Duration;
-    _worldPacket.WriteBit(LogData.is_initialized());
+    _worldPacket.WriteBit(LogData.has_value());
     _worldPacket.FlushBits();
 
     if (LogData)

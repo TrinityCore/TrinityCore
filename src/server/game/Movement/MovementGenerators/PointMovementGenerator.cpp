@@ -31,12 +31,15 @@ template<class T>
 PointMovementGenerator<T>::PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed /*= 0.0f*/, Optional<float> finalOrient /*= {}*/,
     Unit const* faceTarget /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
     : _movementId(id), _destination(x, y, z), _speed(speed), _generatePath(generatePath), _finalOrient(finalOrient),
-    i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData)
+    i_faceTarget(faceTarget)
 {
     this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
+
+    if (spellEffectExtraData)
+        this->i_spellEffectExtra = std::make_unique<Movement::SpellEffectExtraData>(*spellEffectExtraData);
 }
 
 template<class T>

@@ -124,8 +124,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
     data << float(entry.DaysLeft);
     data << int32(entry.MailTemplateID);
     data << uint32(entry.Attachments.size());
-    data.WriteBit(entry.SenderCharacter.is_initialized());
-    data.WriteBit(entry.AltSenderID.is_initialized());
+    data.WriteBit(entry.SenderCharacter.has_value());
+    data.WriteBit(entry.AltSenderID.has_value());
     data.WriteBits(entry.Subject.size(), 8);
     data.WriteBits(entry.Body.size(), 13);
     data.FlushBits();

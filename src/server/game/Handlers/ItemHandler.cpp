@@ -679,7 +679,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             item.Item.ItemID = vendorItem->item;
             if (!vendorItem->BonusListIDs.empty())
             {
-                item.Item.ItemBonus = boost::in_place();
+                item.Item.ItemBonus.emplace();
                 item.Item.ItemBonus->BonusListIDs = vendorItem->BonusListIDs;
             }
         }

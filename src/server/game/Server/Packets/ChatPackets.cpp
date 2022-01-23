@@ -181,8 +181,8 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(_ChatFlags, 14);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
-    _worldPacket.WriteBit(Unused_801.is_initialized());
-    _worldPacket.WriteBit(ChannelGUID.is_initialized());
+    _worldPacket.WriteBit(Unused_801.has_value());
+    _worldPacket.WriteBit(ChannelGUID.has_value());
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(SenderName);

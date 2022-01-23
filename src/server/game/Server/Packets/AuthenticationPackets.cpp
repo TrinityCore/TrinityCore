@@ -112,8 +112,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const&
 WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
     _worldPacket << uint32(Result);
-    _worldPacket.WriteBit(SuccessInfo.is_initialized());
-    _worldPacket.WriteBit(WaitInfo.is_initialized());
+    _worldPacket.WriteBit(SuccessInfo.has_value());
+    _worldPacket.WriteBit(WaitInfo.has_value());
     _worldPacket.FlushBits();
 
     if (SuccessInfo)
@@ -144,9 +144,9 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 
         _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);
         _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
-        _worldPacket.WriteBit(SuccessInfo->ExpansionTrialExpiration.is_initialized());
+        _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.has_value());
+        _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.has_value());
+        _worldPacket.WriteBit(SuccessInfo->ExpansionTrialExpiration.has_value());
         _worldPacket.FlushBits();
 
         {

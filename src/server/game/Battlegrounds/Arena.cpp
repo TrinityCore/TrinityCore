@@ -101,7 +101,7 @@ void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics
 
     if (isRated())
     {
-        pvpLogData.Ratings = boost::in_place();
+        pvpLogData.Ratings.emplace();
 
         for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
         {
