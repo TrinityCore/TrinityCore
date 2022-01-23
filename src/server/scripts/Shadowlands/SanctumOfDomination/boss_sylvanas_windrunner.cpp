@@ -503,7 +503,7 @@ Position const SylvanasIntroPos[4] =
     { 225.73611f, -844.0746f,  4104.9882f, 1.3613f }
 };
 
-Position const SylvanasDarknessPos =  { 255.0392f, -824.69995f, 4205.122f };
+Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
 
 Position const DesecratingShotArrowShape[5] =
 {
@@ -543,7 +543,7 @@ Position const RiveThrowPos[8] =
     { 287.948f, -778.238f, 4113.2285f }
 };
 
-Position const RiveFinishPos =        { 235.1163f, -829.90106f, 4105.0386f, 5.4824f   };
+Position const RiveFinishPos =        { 235.1163f, -829.901f,  4105.0386f, 5.4824f   };
 
 Position const SylvanasPhase2PrePos = { -14.5625f, -943.441f,   4999.990f,  0.8928f   };
 
@@ -556,7 +556,7 @@ Position const SylvanasWavePos[10] =
     { 19.02257f, -892.4983f, 4999.968f, 0.3612f }
 };
 
-Position const SylvanasPhase3PrePos = { -258.991f, -1265.9966f, 5667.114f,  0.3118f   };
+Position const SylvanasPhase3PrePos = { -258.991f, -1265.996f,  5667.114f,  0.3118f   };
 
 Position const SylvanasPhase3Pos =    { -280.646f, -1245.48f,   5672.13f,   2.3046f   };
 
@@ -601,7 +601,9 @@ static Position GetRandomPointInCovenantPlatform(Position const& a, Position con
     return Position(x, y, z);
 }
 
-Position const SylvanasUnconciousPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f  };
+Position const SylvanasVeilThreePos = { -286.978f, -1245.2378f, 5772.0347f, 0.0f       };
+
+Position const SylvanasEndPos =       { -249.876f, -1252.4791f, 5667.1157f, 3.3742f    };
 
 class SylvanasNonMeleeSelector
 {
@@ -2030,7 +2032,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                             {
                                 DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
-                                me->NearTeleportTo(SylvanasDarknessPos, false);
+                                me->NearTeleportTo(SylvanasVeilOnePos, false);
                             });
 
                             scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
@@ -2082,7 +2084,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                             {
                                 DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE, true);
-                                me->NearTeleportTo(SylvanasDarknessPos, false);
+                                me->NearTeleportTo(SylvanasVeilThreePos, false);
                             });
 
                             scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
@@ -3690,23 +3692,20 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_banshee_bane);
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (Aura* bansheeBaneAura = GetTarget()->GetAura(SPELL_BANSHEES_BANE))
+        uint8 stackAmount = GetStackAmount();
+
+        float angleOffset = float(M_PI * 2) / stackAmount;
+
+        for (uint8 i = 0; i < stackAmount; ++i)
         {
-            uint8 stackAmount = bansheeBaneAura->GetStackAmount();
+            Position bansheeBaneDest = GetTarget()->GetNearPosition(3.6f, angleOffset * i);
 
-            float angleOffset = float(M_PI * 2) / stackAmount;
-
-            for (uint8 i = 0; i < stackAmount; ++i)
+            if (InstanceScript* instance = GetTarget()->GetInstanceScript())
             {
-                Position bansheeBaneDest = GetTarget()->GetNearPosition(3.6f, angleOffset * i);
-
-                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                {
-                    if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                        sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500));
-                }
+                if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                    sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500));
             }
         }
     }
