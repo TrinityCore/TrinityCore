@@ -111,8 +111,8 @@ public:
             _Reset();
             CleanStalkers();
             me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
-            events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
-            events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
+            events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 12s);
+            events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -220,7 +220,7 @@ public:
                 {
                     case EVENT_DIVINE_RECKONING:
                         DoCastVictim(SPELL_DIVINE_RECKONING);
-                        events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
+                        events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 12s);
                         break;
                     case EVENT_BURNING_LIGHT:
                     {
@@ -228,8 +228,8 @@ public:
                         if (!unit)
                             unit = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
                         DoCast(unit, SPELL_BURNING_LIGHT);
-                        events.ScheduleEvent(EVENT_SEAR, 2000);
-                        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
+                        events.ScheduleEvent(EVENT_SEAR, 2s);
+                        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s);
                         break;
                     }
                     case EVENT_SEAR:
