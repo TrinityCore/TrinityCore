@@ -3690,36 +3690,30 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_banshee_bane);
 
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
-            return;
-
-        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-
-        if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL)
-            return;
-
-        // TODO: this should use a dynamic target handling to verify if the destination is free
-        // to send the visual on it and cast the Banshee's Bane patch in 0.5s; it's random around the target,
-        // but at the same time, it should verify that such random point is not already taken by another patch, 
-        // always having preference to closest points, RelocatePolarPoint function would fit
-        // Sylvanas must be the caster, but the visual should come from the target to a given destination
-
-        Position bansheeBanePos = GetTarget()->GetRandomNearPosition(3.6f);
-
-        GetTarget()->SendPlaySpellVisual(bansheeBanePos, SPELL_VISUAL_BANSHEES_BANE, 0, 0, 0.5f, true);
-
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        if (Aura* bansheeBaneAura = GetTarget()->GetAura(SPELL_BANSHEES_BANE))
         {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBanePos), sylvanas->m_Events.CalculateTime(500));
+            uint8 stackAmount = bansheeBaneAura->GetStackAmount();
+
+            float angleOffset = float(M_PI * 2) / stackAmount;
+
+            for (uint8 i = 0; i < stackAmount; ++i)
+            {
+                Position bansheeBaneDest = GetTarget()->GetNearPosition(3.6f, angleOffset * i);
+
+                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                {
+                    if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                        sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500));
+                }
+            }
         }
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_bane::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_bane::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5749,7 +5743,7 @@ private:
 struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
 {
     at_sylvanas_windrunner_banshee_bane(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
-        _instance(at->GetInstanceScript()), _readyToPick(false) { }
+        _instance(at->GetInstanceScript()), _readyToPick(false), _updateDiff(0) { }
 
     void OnUpdate(uint32 diff) override
     {
@@ -5758,8 +5752,8 @@ struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
 
         _updateDiff += diff;
 
-        if (_updateDiff >= 1000)
-            _readyToPick = true;            
+        if (_updateDiff >= 1000 && !_readyToPick)
+            _readyToPick = true;
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -5769,6 +5763,8 @@ struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
 
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             sylvanas->CastSpell(unit, SPELL_BANSHEES_BANE, true);
+
+        unit->SendPlaySpellVisual(at->GetPosition(), 0.0f, SPELL_VISUAL_BANSHEES_BANE, 0, 0, 0.5f, true);
 
         at->Remove();
     }

@@ -469,7 +469,7 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId
 (5428, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_bridges', 41079), -- Channel Ice (354476, 354574, 354573) and Call Earth (354577, 354575, 354576)
 (23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave - Normal Mode (351869)
 (23693, 27928, 0, 28658, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Heroic Mode (351869)
-(23096, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_banshee_bane', 41488), -- Banshee's Bane (the spell associated on areatrigger_create_properties is 0, likely a serverside spell)
+(23096, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 3.6, 3.6, 0, 0, 0, 0, 'at_sylvanas_windrunner_banshee_bane', 41488), -- Banshee's Bane (the spell associated on areatrigger_create_properties is 0, likely a serverside spell)
 (23506, 27782, 0, 0, 0, 0, -1, 0, 0, 0, 10000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy_pre', 41079), -- Blasphemy (357729)
 (23507, 27783, 0, 0, 0, 0, -1, 0, 0, 0, 7000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357730)
 (23117, 27480, 0, 0, 0, 0, -1, 0, 462, 0, 0, 1, 20, 20, 5, 20, 20, 5, 'at_sylvanas_windrunner_raze', 41079); -- Raze (354145)
