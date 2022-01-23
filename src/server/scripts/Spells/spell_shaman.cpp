@@ -876,7 +876,24 @@ class spell_sha_lava_burst : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD });
+        return ValidateSpellInfo({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, SPELL_SHAMAN_LAVA_SURGE });
+    }
+
+    void HandleLavaSurge(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->HasAura(SPELL_SHAMAN_LAVA_SURGE))
+        {
+            uint32 chargeCategoryId = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Id, GetCastDifficulty())->ChargeCategoryId;
+
+            // if aura has already proced then remove it
+            if (GetSpell()->GetCastTime() == 0)
+                caster->RemoveAurasDueToSpell(SPELL_SHAMAN_LAVA_SURGE);
+            // if aura proced during cast then do not put spell on cooldown after end of cast
+            else if (!caster->GetSpellHistory()->HasCharge(chargeCategoryId))
+                caster->GetSpellHistory()->RestoreCharge(chargeCategoryId);
+        }
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -888,6 +905,7 @@ class spell_sha_lava_burst : public SpellScript
 
     void Register() override
     {
+        OnEffectHit += SpellEffectFn(spell_sha_lava_burst::HandleLavaSurge, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
         OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst::HandleScript, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
     }
 };
