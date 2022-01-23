@@ -59,7 +59,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_MANA_TAP, 30000);
+                events.ScheduleEvent(EVENT_MANA_TAP, 30s);
                 Talk(YELL_AGGRO);
             }
 
@@ -91,7 +91,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                     {
                         case EVENT_MANA_TAP:
                             DoCastVictim(SPELL_MANA_TAP, true);
-                            events.ScheduleEvent(EVENT_MANA_TAP, urand(14000, 22000));
+                            events.ScheduleEvent(EVENT_MANA_TAP, 14s, 22s);
                             break;
                     }
                 }

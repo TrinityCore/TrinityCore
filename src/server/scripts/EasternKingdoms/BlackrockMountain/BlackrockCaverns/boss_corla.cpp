@@ -58,7 +58,7 @@ class boss_corla : public CreatureScript
             {
                 _Reset();
                 combatPhase = false;
-                events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
+                events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2s);
             }
 
             void JustEngagedWith(Unit* who) override
@@ -93,15 +93,15 @@ class boss_corla : public CreatureScript
                         {
                             case EVENT_DRAIN_ESSENSE:
                                 DoCast(me, SPELL_DRAIN_ESSENSE);
-                                events.ScheduleEvent(EVENT_STOP_DRAIN_ESSENSE, 15000);
+                                events.ScheduleEvent(EVENT_STOP_DRAIN_ESSENSE, 15s);
                                 break;
                             case EVENT_STOP_DRAIN_ESSENSE:
                                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                                events.ScheduleEvent(EVENT_EVOLUTION, 2000);
+                                events.ScheduleEvent(EVENT_EVOLUTION, 2s);
                                 break;
                             case EVENT_EVOLUTION:
                                 DoCast(me, SPELL_EVOLUTION);
-                                events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2000);
+                                events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 2s);
                                 break;
                             default:
                                 break;

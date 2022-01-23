@@ -44,7 +44,7 @@ class npc_fire_cyclone : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 100);
+                _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 100ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -57,7 +57,7 @@ class npc_fire_cyclone : public CreatureScript
                     {
                         case EVENT_FIRE_CYCLONE_AURA:
                             DoCast(me, SPELL_FIRE_CYCLONE_AURA, true);
-                            _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 4000);
+                            _events.ScheduleEvent(EVENT_FIRE_CYCLONE_AURA, 4s);
                             break;
                         default:
                             break;
@@ -139,7 +139,7 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
                     me->SummonCreature(NPC_FIRE_CYCLONE, SummonPos[5], TEMPSUMMON_CORPSE_DESPAWN, 0);
                 }
 
-                _events.ScheduleEvent(EVENT_CHANNEL, 100);
+                _events.ScheduleEvent(EVENT_CHANNEL, 100ms);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -156,8 +156,8 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
             {
                 _events.Reset();
                 _combatPhase = true;
-                _events.ScheduleEvent(EVENT_BLAST_WAVE, urand(8000, 10000));
-                _events.ScheduleEvent(EVENT_CALL_FLAMES,  urand(10000, 14000));
+                _events.ScheduleEvent(EVENT_BLAST_WAVE, 8s, 10s);
+                _events.ScheduleEvent(EVENT_CALL_FLAMES,  10s, 14s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -175,7 +175,7 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
                                     DoCast(me, SPELL_FIRE_CHANNELING_1);
                                 if (me->GetGUID() == _flamecaller2GUID)
                                     DoCast(me, SPELL_FIRE_CHANNELING_2);
-                                _events.ScheduleEvent(EVENT_CHANNEL, 12000);
+                                _events.ScheduleEvent(EVENT_CHANNEL, 12s);
                                 break;
                             default:
                                 break;
@@ -193,11 +193,11 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
                     {
                         case EVENT_BLAST_WAVE:
                             DoCast(me, SPELL_BLAST_WAVE);
-                            _events.ScheduleEvent(EVENT_BLAST_WAVE, 16000, 20000);
+                            _events.ScheduleEvent(EVENT_BLAST_WAVE, 16s, 20s);
                             break;
                         case EVENT_CALL_FLAMES:
                             DoCast(me, SPELL_CALL_FLAMES);
-                            _events.ScheduleEvent(EVENT_CALL_FLAMES, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_CALL_FLAMES, 12s, 15s);
                             break;
                         default:
                             break;
@@ -258,16 +258,16 @@ class npc_twilight_torturer : public CreatureScript
             {
                 Initialize();
                 if (!me->GetWaypointPath())
-                    _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(6000, 18000));
+                    _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, 6s, 18s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _combatPhase = true;
-                _events.ScheduleEvent(EVENT_RED_HOT_POKER, 9000);
-                _events.ScheduleEvent(EVENT_SHACKLES, 13000);
-                _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 17000);
+                _events.ScheduleEvent(EVENT_RED_HOT_POKER, 9s);
+                _events.ScheduleEvent(EVENT_SHACKLES, 13s);
+                _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 17s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -282,7 +282,7 @@ class npc_twilight_torturer : public CreatureScript
                         {
                             case EVENT_INFLICT_PAIN_TT:
                                 DoCast(me, SPELL_INFLICT_PAIN);
-                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, urand(25000, 32000));
+                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, 25s, 32s);
                                 break;
                             default:
                                 break;
@@ -300,15 +300,15 @@ class npc_twilight_torturer : public CreatureScript
                     {
                         case EVENT_RED_HOT_POKER:
                             DoCast(me, SPELL_RED_HOT_POKER);
-                            _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16000, 20000);
+                            _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16s, 20s);
                             break;
                         case EVENT_SHACKLES:
                             DoCast(me, SPELL_SHACKLES);
-                            _events.ScheduleEvent(EVENT_SHACKLES, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_SHACKLES, 12s, 15s);
                             break;
                         case EVENT_WILD_BEATDOWN:
                             DoCast(me, SPELL_WILD_BEATDOWN);
-                            _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12s, 15s);
                             break;
                         default:
                             break;
@@ -358,17 +358,17 @@ class npc_twilight_sadist : public CreatureScript
             {
                 _combatPhase = false;
                 if (!me->GetWaypointPath())
-                    _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(6000, 18000));
+                    _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 6s, 18s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
                 _combatPhase = true;
-                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 9000);
-                _events.ScheduleEvent(EVENT_HEAT_SEEKER_BLADE,  13000);
-                _events.ScheduleEvent(EVENT_SHORT_THROW, 17000);
-                _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 17000);
+                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 9s);
+                _events.ScheduleEvent(EVENT_HEAT_SEEKER_BLADE,  13s);
+                _events.ScheduleEvent(EVENT_SHORT_THROW, 17s);
+                _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 17s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -383,7 +383,7 @@ class npc_twilight_sadist : public CreatureScript
                         {
                             case EVENT_INFLICT_PAIN_TS:
                                 DoCast(me, SPELL_INFLICT_PAIN);
-                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, urand(25000, 32000));
+                                _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 25s, 32s);
                                 break;
                             default:
                                 break;
@@ -401,15 +401,15 @@ class npc_twilight_sadist : public CreatureScript
                     {
                         case EVENT_RED_HOT_POKER:
                             DoCast(me, SPELL_RED_HOT_POKER);
-                            _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16000, 20000);
+                            _events.ScheduleEvent(EVENT_RED_HOT_POKER, 16s, 20s);
                             break;
                         case EVENT_SHACKLES:
                             DoCast(me, SPELL_SHACKLES);
-                            _events.ScheduleEvent(EVENT_SHACKLES, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_SHACKLES, 12s, 15s);
                             break;
                         case EVENT_WILD_BEATDOWN:
                             DoCast(me, SPELL_WILD_BEATDOWN);
-                            _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_WILD_BEATDOWN, 12s, 15s);
                             break;
                         default:
                             break;
@@ -458,9 +458,9 @@ class npc_mad_prisoner : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_HEAD_CRACK, 9000);
-                _events.ScheduleEvent(EVENT_INFECTED_WOUND,  13000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 17000);
+                _events.ScheduleEvent(EVENT_HEAD_CRACK, 9s);
+                _events.ScheduleEvent(EVENT_INFECTED_WOUND,  13s);
+                _events.ScheduleEvent(EVENT_ENRAGE, 17s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -476,15 +476,15 @@ class npc_mad_prisoner : public CreatureScript
                     {
                         case EVENT_HEAD_CRACK:
                             DoCast(me, SPELL_HEAD_CRACK);
-                            _events.ScheduleEvent(EVENT_HEAD_CRACK, 16000, 20000);
+                            _events.ScheduleEvent(EVENT_HEAD_CRACK, 16s, 20s);
                             break;
                         case EVENT_INFECTED_WOUND:
                             DoCast(me, SPELL_INFECTED_WOUND);
-                            _events.ScheduleEvent(EVENT_INFECTED_WOUND, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_INFECTED_WOUND, 12s, 15s);
                             break;
                         case EVENT_ENRAGE:
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_ENRAGE, 12s, 15s);
                             break;
                         default:
                             break;
@@ -528,9 +528,9 @@ class npc_crazed_mage : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_HEAD_CRACK2, 9000);
-                _events.ScheduleEvent(EVENT_INFECTED_WOUND2,  13000);
-                _events.ScheduleEvent(EVENT_ENRAGE2, 17000);
+                _events.ScheduleEvent(EVENT_HEAD_CRACK2, 9s);
+                _events.ScheduleEvent(EVENT_INFECTED_WOUND2,  13s);
+                _events.ScheduleEvent(EVENT_ENRAGE2, 17s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -546,15 +546,15 @@ class npc_crazed_mage : public CreatureScript
                     {
                         case EVENT_HEAD_CRACK2:
                             DoCast(me, SPELL_HEAD_CRACK);
-                            _events.ScheduleEvent(EVENT_HEAD_CRACK2, 16000, 20000);
+                            _events.ScheduleEvent(EVENT_HEAD_CRACK2, 16s, 20s);
                             break;
                         case EVENT_INFECTED_WOUND2:
                             DoCast(me, SPELL_INFECTED_WOUND);
-                            _events.ScheduleEvent(EVENT_INFECTED_WOUND2, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_INFECTED_WOUND2, 12s, 15s);
                             break;
                         case EVENT_ENRAGE2:
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE2, 12000, 15000);
+                            _events.ScheduleEvent(EVENT_ENRAGE2, 12s, 15s);
                             break;
                         default:
                             break;
@@ -607,7 +607,7 @@ class npc_raz_the_crazed : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
+                _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500ms);
             }
 
             void IsSummonedBy(WorldObject* summoner) override
@@ -616,7 +616,7 @@ class npc_raz_the_crazed : public CreatureScript
                 {
                     me->SetDisableGravity(true);
                     DoCast(me, SPELL_SHADOW_PRISON);
-                    _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1000);
+                    _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1s);
                 }
             }
 
@@ -627,7 +627,7 @@ class npc_raz_the_crazed : public CreatureScript
                     me->RemoveAura(SPELL_SHADOW_PRISON);
                     me->SetDisableGravity(false);
                     DoCast(me, SPELL_LEAP_FROM_CAGE);
-                    _events.ScheduleEvent(EVENT_START_FIRST_PATH, 3000);
+                    _events.ScheduleEvent(EVENT_START_FIRST_PATH, 3s);
                 }
             }
 
@@ -641,14 +641,14 @@ class npc_raz_the_crazed : public CreatureScript
                     {
                         case EVENT_AGGO_NEARBY_TARGETS:
                             DoCast(me, SPELL_AGGRO_NEARBY_TARGETS);
-                            _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1500);
+                            _events.ScheduleEvent(EVENT_AGGO_NEARBY_TARGETS, 1500ms);
                             break;
                         case EVENT_START_FIRST_PATH:
                             Talk(SAY_SMASH);
                             break;
                         case EVENT_FURIOUS_SWIPE:
                             DoCastVictim(SPELL_FURIOUS_SWIPE, true);
-                            _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500);
+                            _events.ScheduleEvent(SPELL_FURIOUS_SWIPE, 500ms);
                             break;
                         default:
                             break;
