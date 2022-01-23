@@ -1896,6 +1896,69 @@ class spell_dispel_freed_soldier_debuff : public SpellScript
     }
 };
 
+/*######
+## Quest 11690: Bring 'Em Back Alive
+######*/
+
+enum BringEmBackAlive
+{
+    SPELL_KODO_DELIVERED   = 48203,
+
+    TEXT_DELIVERED_1       = 24881,
+    TEXT_DELIVERED_2       = 24882,
+    TEXT_DELIVERED_3       = 26284,
+    TEXT_DELIVERED_4       = 26285,
+    TEXT_DELIVERED_5       = 26286
+};
+
+// 45877 - Deliver Kodo
+class spell_deliver_kodo : public SpellScript
+{
+    PrepareSpellScript(spell_deliver_kodo);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KODO_DELIVERED });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_KODO_DELIVERED, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_deliver_kodo::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 48204 - Kodo Delivered
+class spell_kodo_delivered : public SpellScript
+{
+    PrepareSpellScript(spell_kodo_delivered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_DELIVERED_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_2) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_3) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_4) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_5);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->Unit::Say(RAND(TEXT_DELIVERED_1, TEXT_DELIVERED_2, TEXT_DELIVERED_3, TEXT_DELIVERED_4, TEXT_DELIVERED_5), caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_kodo_delivered::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_corastrasza();
@@ -1920,4 +1983,6 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest_dummy);
     RegisterSpellScript(spell_nerubar_web_random_unit_on_quest_dummy);
     RegisterSpellScript(spell_dispel_freed_soldier_debuff);
+    RegisterSpellScript(spell_deliver_kodo);
+    RegisterSpellScript(spell_kodo_delivered);
 }
