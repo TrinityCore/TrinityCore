@@ -69,7 +69,7 @@ public:
             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             me->CastSpell(me, SPELL_STAND);
             me->GetMotionMaster()->MoveRandom(8.0f);
-            events.ScheduleEvent(EVENT_CHECK_OOC, 20000);
+            events.ScheduleEvent(EVENT_CHECK_OOC, 20s);
             lasherClicked = true;
 
             if (Player* player = clicker->ToPlayer())
@@ -91,7 +91,7 @@ public:
                     if (!me->IsInCombat())
                         me->DespawnOrUnsummon();
                     else
-                        events.ScheduleEvent(EVENT_CHECK_OOC, 5000);
+                        events.ScheduleEvent(EVENT_CHECK_OOC, 5s);
                     break;
                 }
             }

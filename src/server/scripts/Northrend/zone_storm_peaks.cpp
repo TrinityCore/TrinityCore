@@ -1037,7 +1037,7 @@ public:
                 {
                     case EVENT_KROLMIR_1:
                         Talk(SAY_JOKKUM_2);
-                        events.ScheduleEvent(EVENT_KROLMIR_2, 4000);
+                        events.ScheduleEvent(EVENT_KROLMIR_2, 4s);
                         break;
                 }
             }
