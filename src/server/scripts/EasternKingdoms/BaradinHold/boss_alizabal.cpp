@@ -97,7 +97,7 @@ class boss_alizabal : public CreatureScript
                 BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_RANDOM_CAST, 10000);
+                events.ScheduleEvent(EVENT_RANDOM_CAST, 10s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -139,7 +139,7 @@ class boss_alizabal : public CreatureScript
                 switch (pointId)
                 {
                     case POINT_STORM:
-                        events.ScheduleEvent(EVENT_CAST_STORM, 1);
+                        events.ScheduleEvent(EVENT_CAST_STORM, 1ms);
                         break;
                 }
             }
@@ -168,7 +168,7 @@ class boss_alizabal : public CreatureScript
                                             Talk(SAY_SKEWER_ANNOUNCE, target);
                                         }
                                         _skewer = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
+                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 7s, 10s);
                                     }
                                     else if (!_hate)
                                     {
@@ -178,16 +178,16 @@ class boss_alizabal : public CreatureScript
                                             Talk(SAY_HATE);
                                         }
                                         _hate = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
+                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 7s, 10s);
                                     }
                                     else if (_hate && _skewer)
                                     {
                                         Talk(SAY_BLADE_STORM);
                                         DoCastAOE(SPELL_BLADE_DANCE_DUMMY);
                                         DoCastAOE(SPELL_BLADE_DANCE);
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 21000);
-                                        events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
-                                        events.ScheduleEvent(EVENT_STOP_STORM, 13000);
+                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 21s);
+                                        events.ScheduleEvent(EVENT_MOVE_STORM, 4050ms);
+                                        events.ScheduleEvent(EVENT_STOP_STORM, 13s);
                                     }
                                     break;
                                 case 1:
@@ -199,7 +199,7 @@ class boss_alizabal : public CreatureScript
                                             Talk(SAY_HATE);
                                         }
                                         _hate = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
+                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 7s, 10s);
                                     }
                                     else if (!_skewer)
                                     {
@@ -210,16 +210,16 @@ class boss_alizabal : public CreatureScript
                                             Talk(SAY_SKEWER_ANNOUNCE, target);
                                         }
                                         _skewer = true;
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));
+                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 7s, 10s);
                                     }
                                     else if (_hate && _skewer)
                                     {
                                         Talk(SAY_BLADE_STORM);
                                         DoCastAOE(SPELL_BLADE_DANCE_DUMMY);
                                         DoCastAOE(SPELL_BLADE_DANCE);
-                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 21000);
-                                        events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
-                                        events.ScheduleEvent(EVENT_STOP_STORM, 13000);
+                                        events.ScheduleEvent(EVENT_RANDOM_CAST, 21s);
+                                        events.ScheduleEvent(EVENT_MOVE_STORM, 4050ms);
+                                        events.ScheduleEvent(EVENT_STOP_STORM, 13s);
                                     }
                                     break;
                             }
@@ -229,7 +229,7 @@ class boss_alizabal : public CreatureScript
                             me->SetSpeedRate(MOVE_WALK, 4.0f);
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me)))
                                 me->GetMotionMaster()->MovePoint(POINT_STORM, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-                            events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
+                            events.ScheduleEvent(EVENT_MOVE_STORM, 4050ms);
                             break;
                         case EVENT_STOP_STORM:
                             me->RemoveAura(SPELL_BLADE_DANCE);

@@ -176,7 +176,7 @@ class npc_eyestalk : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_FOCUSED_FIRE_FIRST_DAMAGE, 0);
+                _events.ScheduleEvent(EVENT_FOCUSED_FIRE_FIRST_DAMAGE, 0s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -187,7 +187,7 @@ class npc_eyestalk : public CreatureScript
                 {
                     DoCastAOE(SPELL_FOCUSED_FIRE_FIRST_DAMAGE);
                     if (++_damageCount < 2)
-                        _events.ScheduleEvent(EVENT_FOCUSED_FIRE_FIRST_DAMAGE, 1 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_FOCUSED_FIRE_FIRST_DAMAGE, 1s);
                 }
             }
 
