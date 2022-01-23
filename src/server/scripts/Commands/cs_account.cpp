@@ -27,6 +27,7 @@ EndScriptData */
 #include "Base32.h"
 #include "Chat.h"
 #include "CryptoGenerics.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
 #include "IPLocation.h"
@@ -39,7 +40,6 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 #include <unordered_map>
-#include <openssl/rand.h>
 
 using namespace Trinity::ChatCommands;
 
@@ -131,7 +131,7 @@ public:
         static std::unordered_map<uint32, Trinity::Crypto::TOTP::Secret> suggestions;
         auto pair = suggestions.emplace(std::piecewise_construct, std::make_tuple(accountId), std::make_tuple(Trinity::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH)); // std::vector 1-argument size_t constructor invokes resize
         if (pair.second) // no suggestion yet, generate random secret
-            RAND_bytes(pair.first->second.data(), pair.first->second.size());
+            Trinity::Crypto::GetRandomBytes(pair.first->second);
 
         if (!pair.second && token) // suggestion already existed and token specified - validate
         {
