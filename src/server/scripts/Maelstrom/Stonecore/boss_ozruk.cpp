@@ -87,9 +87,9 @@ class boss_ozruk : public CreatureScript
 
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 5000);
-                events.ScheduleEvent(EVENT_GROUND_SLAM, 10000);
-                events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13000);
+                events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 5s);
+                events.ScheduleEvent(EVENT_GROUND_SLAM, 10s);
+                events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13s);
             }
 
             void JustEngagedWith(Unit* who) override
@@ -148,23 +148,23 @@ class boss_ozruk : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             DoCast(me, SPELL_GROUND_SLAM);
-                            events.ScheduleEvent(EVENT_START_ATTACK, 4600);
+                            events.ScheduleEvent(EVENT_START_ATTACK, 4600ms);
                             break;
                         case EVENT_ELEMENTIUM_SPIKE_SHIELD:
                             DoCast(me, SPELL_ELEMENTIUM_SPIKE_SHIELD);
                             Talk(SAY_ELEMENTIUM_SPIKE_SHIELD);
-                            events.ScheduleEvent(EVENT_SHATTER, 10000);
+                            events.ScheduleEvent(EVENT_SHATTER, 10s);
                             break;
                         case EVENT_SHATTER:
                             summons.DespawnEntry(NPC_BOUNCER_SPIKE);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             DoCast(me, SPELL_SHATTER);
-                            events.ScheduleEvent(EVENT_START_ATTACK, 4600);
+                            events.ScheduleEvent(EVENT_START_ATTACK, 4600ms);
                             // Spells are cast in same order everytime after Shatter, so we schedule them here
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, urand(3000,4000));
-                            events.ScheduleEvent(EVENT_GROUND_SLAM, urand(7000,9000));
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, urand(10000,12000));
+                            events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 3s, 4s);
+                            events.ScheduleEvent(EVENT_GROUND_SLAM, 7s, 9s);
+                            events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 10s, 12s);
                             break;
                         case EVENT_START_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);

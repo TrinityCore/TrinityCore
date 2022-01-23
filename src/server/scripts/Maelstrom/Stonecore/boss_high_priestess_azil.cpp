@@ -141,13 +141,13 @@ class boss_high_priestess_azil : public CreatureScript
                 me->SetDisableGravity(false);
                 me->SetReactState(REACT_PASSIVE);
 
-                events.ScheduleEvent(EVENT_INTRO_MOVE, 2000);
-                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 6000);
-                events.ScheduleEvent(EVENT_FORCE_GRIP, urand(8000,10000));
-                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 16000);
-                events.ScheduleEvent(EVENT_ENERGY_SHIELD, urand(35000,36000));
-                events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, 0);
-                events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 40000);
+                events.ScheduleEvent(EVENT_INTRO_MOVE, 2s);
+                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 6s);
+                events.ScheduleEvent(EVENT_FORCE_GRIP, 8s, 10s);
+                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 16s);
+                events.ScheduleEvent(EVENT_ENERGY_SHIELD, 35s, 36s);
+                events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, 0s);
+                events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 40s);
             }
 
             void JustEngagedWith(Unit* who) override
@@ -180,7 +180,7 @@ class boss_high_priestess_azil : public CreatureScript
                     case POINT_FLY_UP:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        events.ScheduleEvent(EVENT_EARTH_FURY_FLY_ABOVE_PLATFORM, 1000);
+                        events.ScheduleEvent(EVENT_EARTH_FURY_FLY_ABOVE_PLATFORM, 1s);
                         break;
                     case POINT_ABOVE_PLATFORM:
                         me->SetFacingTo(5.218534f);
@@ -188,7 +188,7 @@ class boss_high_priestess_azil : public CreatureScript
                         DoCast(me, SPELL_SEISMIC_SHARD_SUMMON_1);
                         DoCast(me, SPELL_SEISMIC_SHARD_SUMMON_2);
                         DoCast(me, SPELL_SEISMIC_SHARD_SUMMON_3);
-                        events.ScheduleEvent(EVENT_EARTH_FURY_PREPARE_SHARD, 6700);
+                        events.ScheduleEvent(EVENT_EARTH_FURY_PREPARE_SHARD, 6700ms);
                         break;
                     case POINT_GROUND:
                         DoCast(me, SPELL_EJECT_ALL_PASSENGERS);
@@ -197,9 +197,9 @@ class boss_high_priestess_azil : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoStartMovement(me->GetVictim());
                         // Find more sniffs to correct these timers, this was copied from Reset() void.
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 6000);
-                        events.ScheduleEvent(EVENT_FORCE_GRIP, urand(8000, 10000));
-                        events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 16000);
+                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 6s);
+                        events.ScheduleEvent(EVENT_FORCE_GRIP, 8s, 10s);
+                        events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 16s);
                         break;
                     default:
                         break;
@@ -226,27 +226,27 @@ class boss_high_priestess_azil : public CreatureScript
                         case EVENT_CURSE_OF_BLOOD:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CURSE_OF_BLOOD);
-                            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(13000, 15000));
+                            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 13s, 15s);
                             break;
                         case EVENT_FORCE_GRIP:
                             DoCastVictim(SPELL_FORCE_GRIP);
-                            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(13000, 15000));
+                            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 13s, 15s);
                             break;
                         case EVENT_SUMMON_GRAVITY_WELL:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_SUMMON_GRAVITY_WELL);
-                            events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, urand(13000, 15000));
+                            events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 13s, 15);
                             break;
                         case EVENT_ENERGY_SHIELD:
                             events.Reset();
                             DoCast(me, SPELL_EARTH_FURY_ENERGY_SHIELD);
-                            events.ScheduleEvent(EVENT_EARTH_FURY, 0);
+                            events.ScheduleEvent(EVENT_EARTH_FURY, 0s);
                             break;
                         case EVENT_EARTH_FURY:
                             countSeismicShard = 3;
                             me->SetReactState(REACT_PASSIVE);
                             me->SetFacingTo(5.862942f);
-                            events.ScheduleEvent(EVENT_EARTH_FURY_FLY_UP, 1600);
+                            events.ScheduleEvent(EVENT_EARTH_FURY_FLY_UP, 1600ms);
                             break;
                         case EVENT_EARTH_FURY_FLY_UP:
                             Talk(SAY_PHASE_TWO);
@@ -257,7 +257,7 @@ class boss_high_priestess_azil : public CreatureScript
                             break;
                         case EVENT_EARTH_FURY_PREPARE_SHARD:
                             DoCast(me, SPELL_SEISMIC_SHARD_PREPARE);
-                            events.ScheduleEvent(EVENT_EARTH_FURY_LAUNCH_SHARD, 1800);
+                            events.ScheduleEvent(EVENT_EARTH_FURY_LAUNCH_SHARD, 1800ms);
                             break;
                         case EVENT_EARTH_FURY_LAUNCH_SHARD:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
@@ -267,7 +267,7 @@ class boss_high_priestess_azil : public CreatureScript
                                 DoCast(me, SPELL_SEISMIC_SHARD_LAUNCH);
                                 countSeismicShard -= 1;
                             }
-                            events.ScheduleEvent(countSeismicShard > 0 ? EVENT_EARTH_FURY_PREPARE_SHARD : EVENT_EARTH_FURY_FLY_DOWN, 4800);
+                            events.ScheduleEvent(countSeismicShard > 0 ? EVENT_EARTH_FURY_PREPARE_SHARD : EVENT_EARTH_FURY_FLY_DOWN, 4800ms);
                             break;
                         case EVENT_EARTH_FURY_FLY_DOWN:
                         {
@@ -281,12 +281,12 @@ class boss_high_priestess_azil : public CreatureScript
                         case EVENT_SUMMON_WAVE_SOUTH:
                             if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
                                 worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_SOUTH);
-                            events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, 12000);
+                            events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, 12s);
                             break;
                         case EVENT_SUMMON_WAVE_WEST:
                             if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
                                 worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_WEST);
-                            events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 20000);
+                            events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, 20s);
                             break;
                         default:
                             break;
@@ -351,8 +351,8 @@ public:
         npc_gravity_wellAI(Creature* creature) : ScriptedAI(creature)
         {
             DoCast(me, SPELL_GRAVITY_WELL_VISUAL);
-            events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_DAMAGE, 3200);
-            events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_PULL, 4500);
+            events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_DAMAGE, 3200ms);
+            events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_PULL, 4500ms);
             if (!IsHeroic())
                 me->DespawnOrUnsummon(23200);
         }
@@ -417,7 +417,7 @@ public:
             init.SetFly();
             init.Launch();
 
-            events.ScheduleEvent(EVENT_SEISMIC_SHARD_MOUNT, 2400);
+            events.ScheduleEvent(EVENT_SEISMIC_SHARD_MOUNT, 2400ms);
         }
 
         void UpdateAI(uint32 diff) override
