@@ -78,7 +78,7 @@ void ItemInstance::Initialize(UF::SocketedGem const* gem)
 
 void ItemInstance::Initialize(::LootItem const& lootItem)
 {
-    ItemID               = lootItem.itemid;
+    ItemID = lootItem.itemid;
 
     if (!lootItem.BonusListIDs.empty() || lootItem.randomBonusListId)
     {

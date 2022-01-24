@@ -354,6 +354,35 @@ enum UnitTypeMask
     UNIT_MASK_ACCESSORY             = 0x00000200
 };
 
+enum class ToastType : uint8
+{
+    Item     = 0,
+    Currency = 1,
+    Money    = 2
+};
+
+enum class DisplayToastMethod : uint8
+{
+    DoNotDisplay            = 0,
+    Loot                    = 1,
+    PetBattle               = 2,
+    PersonalLoot            = 3,
+    GarrisonMissionLoot     = 4,
+    QuestUpgrade            = 5,
+    QuestUpgradeEpic        = 6,
+    Shipment                = 7,
+    GarrisonMissionSalvage  = 8,
+    PvPFactionReward        = 9,
+    GarrisonCurrency        = 10,
+    LessAwesomeLoot         = 11,
+    UpgradedLoot            = 12,
+    LegendaryLoot           = 13,
+    InvasionLoot            = 14,
+    Default                 = 15,
+    QuestComplete           = 16,
+    RatedPvPReward          = 17
+};
+
 struct DiminishingReturn
 {
     DiminishingReturn() : stack(0), hitTime(0), hitCount(DIMINISHING_LEVEL_1) { }
@@ -1511,6 +1540,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
         uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const override;
+        void SendDisplayToast(uint32 entry, ToastType displayToastMethod, bool isBonusRoll, uint32 count, DisplayToastMethod type, uint32 questID = 0, Item* item = nullptr);
 
         virtual bool HasSpellFocus(Spell const* /*focusSpell*/ = nullptr) const { return false; }
         virtual bool IsMovementPreventedByCasting() const;

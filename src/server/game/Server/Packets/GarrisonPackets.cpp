@@ -453,5 +453,30 @@ WorldPacket const* GarrisonBuildingActivated::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Garrison::DisplayToast::Write()
+{
+    _worldPacket << uint64(Quantity);
+    _worldPacket << AsUnderlyingType(ToastMethod);
+    _worldPacket << uint32(QuestID);
+    _worldPacket.WriteBit(Mailed);
+    _worldPacket.WriteBits(AsUnderlyingType(Type), 2);
+    _worldPacket.FlushBits();
+
+    if (Type == ToastType::Item)
+    {
+        _worldPacket.WriteBit(BonusRoll);
+        _worldPacket.FlushBits();
+    
+        _worldPacket << Item;
+        _worldPacket << int32(SpecializationID);
+        _worldPacket << int32(ItemQuantity);
+    }
+
+    if (Type == ToastType::Currency)
+        _worldPacket << int32(CurrencyID);
+
+    return &_worldPacket;
+}
 }
 }
