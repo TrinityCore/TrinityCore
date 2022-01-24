@@ -166,7 +166,7 @@ struct AchievementCriteriaEntry
         uint32 GuildChallengeType;
     } Asset;
 
-    uint32 Amount;
+    uint64 Amount;
 
     struct
     {
