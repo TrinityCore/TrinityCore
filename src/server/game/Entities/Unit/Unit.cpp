@@ -13333,7 +13333,7 @@ void Unit::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uin
     WorldPackets::Garrison::DisplayToast data;
     data.Quantity = quantity;
     data.ToastMethod = method;
-    data.QuestID = questID; 
+    data.QuestID = questID;
     data.Type = type;
 
     switch (type)

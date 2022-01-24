@@ -468,7 +468,7 @@ WorldPacket const* WorldPackets::Garrison::DisplayToast::Write()
     {
         _worldPacket.WriteBit(BonusRoll);
         _worldPacket.FlushBits();
-    
+
         _worldPacket << Item;
         _worldPacket << int32(SpecializationID);
         _worldPacket << int32(ItemQuantity);
