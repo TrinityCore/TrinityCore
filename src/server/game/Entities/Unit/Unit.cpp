@@ -13331,21 +13331,24 @@ void Unit::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uin
         return;
 
     WorldPackets::Garrison::DisplayToast data;
-    data.QuestID = questID;
     data.Quantity = quantity;
     data.ToastMethod = method;
+    data.QuestID = questID; 
     data.Type = type;
-    data.BonusRoll = isBonusRoll;
 
     switch (type)
     {
         case RewardType::Item:
+        {
             if (!item)
                 return;
+
+            data.BonusRoll = isBonusRoll;
             data.Item.Initialize(item);
             data.SpecializationID = 0;
-            data.Quantity = 0;
+            data.ItemQuantity = 0;
             break;
+        }
         case RewardType::Currency:
             data.CurrencyID = entry;
             break;

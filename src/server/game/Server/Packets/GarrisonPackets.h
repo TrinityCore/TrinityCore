@@ -430,20 +430,15 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            // RewardType::Money if only quantity is filled 
             uint64 Quantity = 0;
             DisplayToastMethod ToastMethod = DisplayToastMethod::DoNotDisplay;
             uint32 QuestID = 0;
             bool Mailed = false;
             RewardType Type = RewardType::Money;
-
-            // RewardType::Item
             bool BonusRoll = false;
-            Item::ItemInstance Item;
+            WorldPackets::Item::ItemInstance Item;
             int32 SpecializationID = 0;
             int32 ItemQuantity = 0;
-
-            // RewardType::Currency
             int32 CurrencyID = 0;
         };
     }
