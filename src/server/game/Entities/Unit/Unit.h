@@ -354,7 +354,7 @@ enum UnitTypeMask
     UNIT_MASK_ACCESSORY             = 0x00000200
 };
 
-enum class ToastType : uint8
+enum class RewardType : uint8
 {
     Item     = 0,
     Currency = 1,
@@ -1540,7 +1540,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
         uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const override;
-        void SendDisplayToast(uint32 entry, ToastType displayToastMethod, bool isBonusRoll, uint32 count, DisplayToastMethod type, uint32 questID = 0, Item* item = nullptr);
+        void SendDisplayToast(uint32 entry, RewardType displayToastMethod, bool isBonusRoll, uint32 quantity, DisplayToastMethod type, uint32 questID = 0, Item* item = nullptr);
 
         virtual bool HasSpellFocus(Spell const* /*focusSpell*/ = nullptr) const { return false; }
         virtual bool IsMovementPreventedByCasting() const;

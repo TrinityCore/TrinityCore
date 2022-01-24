@@ -459,11 +459,12 @@ WorldPacket const* WorldPackets::Garrison::DisplayToast::Write()
     _worldPacket << uint64(Quantity);
     _worldPacket << AsUnderlyingType(ToastMethod);
     _worldPacket << uint32(QuestID);
+
     _worldPacket.WriteBit(Mailed);
     _worldPacket.WriteBits(AsUnderlyingType(Type), 2);
     _worldPacket.FlushBits();
 
-    if (Type == ToastType::Item)
+    if (Type == RewardType::Item)
     {
         _worldPacket.WriteBit(BonusRoll);
         _worldPacket.FlushBits();
@@ -473,7 +474,7 @@ WorldPacket const* WorldPackets::Garrison::DisplayToast::Write()
         _worldPacket << int32(ItemQuantity);
     }
 
-    if (Type == ToastType::Currency)
+    if (Type == RewardType::Currency)
         _worldPacket << int32(CurrencyID);
 
     return &_worldPacket;

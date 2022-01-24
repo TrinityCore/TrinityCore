@@ -15738,6 +15738,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
         if (moneyRew > 0)
             UpdateCriteria(CriteriaType::MoneyEarnedFromQuesting, uint32(moneyRew));
+
+        SendDisplayToast(0, RewardType::Money, false, moneyRew, DisplayToastMethod::QuestComplete, quest_id);
     }
 
     // honor reward

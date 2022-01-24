@@ -39,6 +39,7 @@
 #include "DB2Stores.h"
 #include "Formulas.h"
 #include "GameObjectAI.h"
+#include "GarrisonPackets.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -13322,4 +13323,35 @@ std::string Unit::GetDebugInfo() const
         << " Class: " << std::to_string(GetClass()) << "\n"
         << " " << (movespline ? movespline->ToString() : "Movespline: <none>");
     return sstr.str();
+}
+
+void Unit::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questID, Item* item /*= nullptr*/)
+{
+    if (!IsPlayer())
+        return;
+
+    WorldPackets::Garrison::DisplayToast data;
+    data.QuestID = questID;
+    data.Quantity = quantity;
+    data.ToastMethod = method;
+    data.Type = type;
+    data.BonusRoll = isBonusRoll;
+
+    switch (type)
+    {
+        case RewardType::Item:
+            if (!item)
+                return;
+            data.Item.Initialize(item);
+            data.SpecializationID = 0;
+            data.Quantity = 0;
+            break;
+        case RewardType::Currency:
+            data.CurrencyID = entry;
+            break;
+        default:
+            break;
+    }
+
+    ToPlayer()->SendDirectMessage(data.Write());
 }
