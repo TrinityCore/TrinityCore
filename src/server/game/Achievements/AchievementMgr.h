@@ -290,7 +290,7 @@ class TC_GAME_API AchievementMgr
         bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);
         bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer, GameObject* go = nullptr);
-        void SendPacket(WorldPacket* data) const;
+        void SendPacket(WorldPacket const* data) const;
 
         bool ConditionsSatisfied(AchievementCriteriaEntry const* criteria, Player* referencePlayer) const;
         bool RequirementsSatisfied(AchievementCriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer, GameObject* go = nullptr) const;

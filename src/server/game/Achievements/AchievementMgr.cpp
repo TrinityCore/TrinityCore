@@ -16,6 +16,7 @@
  */
 
 #include "AchievementMgr.h"
+#include "AchievementPackets.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
@@ -406,16 +407,16 @@ template<class T>
 AchievementMgr<T>::~AchievementMgr() { }
 
 template<class T>
-void AchievementMgr<T>::SendPacket(WorldPacket* /*data*/) const { }
+void AchievementMgr<T>::SendPacket(WorldPacket const* /*data*/) const { }
 
 template<>
-void AchievementMgr<Guild>::SendPacket(WorldPacket* data) const
+void AchievementMgr<Guild>::SendPacket(WorldPacket const* data) const
 {
     GetOwner()->BroadcastPacket(data);
 }
 
 template<>
-void AchievementMgr<Player>::SendPacket(WorldPacket* data) const
+void AchievementMgr<Player>::SendPacket(WorldPacket const* data) const
 {
     GetOwner()->SendDirectMessage(data);
 }
@@ -935,21 +936,19 @@ void AchievementMgr<T>::SendCriteriaUpdate(AchievementCriteriaEntry const* /*ent
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
-    WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 8);
-    data << uint32(entry->ID);
+    WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
+    criteriaUpdate.CriteriaID = entry->ID;
+    criteriaUpdate.Quantity = progress->counter;
+    criteriaUpdate.PlayerGUID = GetOwner()->GetGUID();
+    criteriaUpdate.Flags = 0;
+    if (entry->StartTimer)
+        criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
-    // the counter is packed like a packed Guid
-    data.appendPackGUID(progress->counter);
+    criteriaUpdate.CurrentTime = progress->date;
+    criteriaUpdate.ElapsedTime = timeElapsed;
+    criteriaUpdate.CreationTime = 0;
 
-    data << GetOwner()->GetPackGUID();
-    if (!entry->StartTimer)
-        data << uint32(0);
-    else
-        data << uint32(timedCompleted ? 1 : 0); // this are some flags, 1 is for keeping the counter at 0 in client
-    data.AppendPackedTime(progress->date);
-    data << uint32(timeElapsed);    // time elapsed in seconds
-    data << uint32(0);              // unk
-    SendPacket(&data);
+    SendPacket(criteriaUpdate.Write());
 }
 
 template<>
