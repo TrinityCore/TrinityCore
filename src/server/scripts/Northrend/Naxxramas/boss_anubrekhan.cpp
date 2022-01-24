@@ -186,7 +186,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_IMPALE:
-                        if (events.GetTimeUntilEvent(EVENT_LOCUST) < 5 * IN_MILLISECONDS) break; // don't chain impale tank -> locust swarm
+                        if (events.GetTimeUntilEvent(EVENT_LOCUST) < 5s)
+                            break; // don't chain impale tank -> locust swarm
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_IMPALE);
                         else

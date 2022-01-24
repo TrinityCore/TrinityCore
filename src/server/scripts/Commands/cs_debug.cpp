@@ -171,10 +171,10 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             case 1:
-                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.get_value_or(0));
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.value_or(0));
                 break;
             case 2:
-                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.get_value_or(0));
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.value_or(0));
                 break;
             case 3:
                 sWorld->SetForcedWarModeFactionBalanceState(TEAM_NEUTRAL);
@@ -1425,9 +1425,9 @@ public:
         char* fill_str = args ? strtok((char*)args, " ") : nullptr;
         char* duration_str = args ? strtok(nullptr, " ") : nullptr;
 
-        int duration = duration_str ? atoi(duration_str) : -1;
-        if (duration <= 0 || duration >= 30 * MINUTE) // arbitary upper limit
-            duration = 3 * MINUTE;
+        Seconds duration = duration_str ? Seconds(atoi(duration_str)) : 0s;
+        if (duration <= 0s || duration >= 30min) // arbitary upper limit
+            duration = 3min;
 
         bool doFill = fill_str ? (stricmp(fill_str, "FILL") == 0) : false;
 
@@ -1472,8 +1472,7 @@ public:
         }
         if (!mEntry->IsDungeon())
         {
-            handler->PSendSysMessage("'%s' is not a dungeon map.",
-                    mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->MapName[handler->GetSessionDbcLocale()]);
             return true;
         }
         int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
@@ -1484,34 +1483,29 @@ public:
         }
         if (difficulty >= 0 && !sDB2Manager.GetMapDifficultyData(mEntry->ID, Difficulty(difficulty)))
         {
-            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.",
-                    difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             return true;
         }
 
         if (difficulty == -1)
         {
-            handler->PSendSysMessage("Resetting all difficulties for '%s'.",
-                    mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->MapName[handler->GetSessionDbcLocale()]);
             for (DifficultyEntry const* diff : sDifficultyStore)
             {
                 if (sDB2Manager.GetMapDifficultyData(map, Difficulty(diff->ID)))
                 {
-                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.",
-                            diff->ID, mEntry->MapName[handler->GetSessionDbcLocale()]);
+                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff->ID, mEntry->MapName[handler->GetSessionDbcLocale()]);
                     sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(diff->ID));
                 }
             }
         }
         else if (mEntry->IsNonRaidDungeon() && difficulty == DIFFICULTY_NORMAL)
         {
-            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.",
-                    mEntry->MapName[handler->GetSessionDbcLocale()], difficulty);
+            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.", mEntry->MapName[handler->GetSessionDbcLocale()], difficulty);
         }
         else
         {
-            handler->PSendSysMessage("Resetting difficulty %d for '%s'.",
-                    difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         }
         return true;
@@ -1820,7 +1814,7 @@ public:
         auto mapId = args->TryConsume<uint32>();
         if (mapId)
         {
-            sMapMgr->DoForAllMapsWithMapId(mapId.get(),
+            sMapMgr->DoForAllMapsWithMapId(mapId.value(),
                 [handler](Map* map) -> void
                 {
                     HandleDebugGuidLimitsMap(handler, map);
@@ -1853,7 +1847,7 @@ public:
         auto mapId = args->TryConsume<uint32>();
         if (mapId)
         {
-            sMapMgr->DoForAllMapsWithMapId(mapId.get(),
+            sMapMgr->DoForAllMapsWithMapId(mapId.value(),
                 [handler](Map* map) -> void
                 {
                     HandleDebugObjectCountMap(handler, map);

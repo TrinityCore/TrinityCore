@@ -67,7 +67,7 @@ class boss_doomwalker : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_ENRAGE, 0);
+                _events.ScheduleEvent(EVENT_ENRAGE, 0s);
                 _events.ScheduleEvent(EVENT_ARMOR, 5s, 13s);
                 _events.ScheduleEvent(EVENT_CHAIN, 10s, 30s);
                 _events.ScheduleEvent(EVENT_QUAKE, 25s, 35s);

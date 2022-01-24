@@ -349,7 +349,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        if (Creature* Summoned = caster->SummonCreature(NPC_RISEN_GUARDIAN, SummonPos[pos_to_summon++], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+                        if (Creature* Summoned = caster->SummonCreature(NPC_RISEN_GUARDIAN, SummonPos[pos_to_summon++], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2min))
                         {
                             Summoned->GetMotionMaster()->MoveRandom(5);
                             Summoned->AI()->SetData(0, phase_to_set);

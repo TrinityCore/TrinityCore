@@ -375,7 +375,7 @@ bool BlackMarketTemplate::LoadFromDB(Field* fields)
 
     if (!bonusListIDs.empty())
     {
-        Item.ItemBonus = boost::in_place();
+        Item.ItemBonus.emplace();
         Item.ItemBonus->BonusListIDs = bonusListIDs;
     }
 

@@ -41,10 +41,10 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
         uint32 _originalEntry;
         uint32 _newEntry;
         bool _shouldAttack;
-        uint32 _despawnTime;
+        Milliseconds _despawnTime;
 
     public:
-        spell_generic_quest_update_entry_SpellScript(uint16 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) :
+        spell_generic_quest_update_entry_SpellScript(uint16 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, Milliseconds despawnTime = 0s) :
             SpellScript(), _spellEffect(spellEffect), _effIndex(effIndex), _originalEntry(originalEntry),
             _newEntry(newEntry), _shouldAttack(shouldAttack), _despawnTime(despawnTime) { }
 
@@ -57,7 +57,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
                     if (_shouldAttack)
                         creatureTarget->EngageWithTarget(GetCaster());
 
-                    if (_despawnTime)
+                    if (_despawnTime != 0s)
                         creatureTarget->DespawnOrUnsummon(_despawnTime);
                 }
         }
@@ -209,8 +209,9 @@ enum Quests6124_6129Data
     NPC_CURED_GAZELLE   = 12297,
     NPC_SICKLY_DEER     = 12298,
     NPC_CURED_DEER      = 12299,
-    DESPAWN_TIME        = 30000
 };
+
+constexpr Milliseconds Quest6124_6129_DESPAWN_TIME = 30s;
 
 class spell_q6124_6129_apply_salve : public SpellScriptLoader
 {
@@ -247,7 +248,7 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
                         if (newEntry)
                         {
                             creatureTarget->UpdateEntry(newEntry);
-                            creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
+                            creatureTarget->DespawnOrUnsummon(Quest6124_6129_DESPAWN_TIME);
                             caster->KilledMonsterCredit(newEntry);
                         }
                     }
@@ -961,7 +962,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
                     {
                         caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);
-                        target->DespawnOrUnsummon(60000);
+                        target->DespawnOrUnsummon(60s);
                     }
             }
 
@@ -1005,7 +1006,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
                 {
                     caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
                     target->CastSpell(target, uint32(GetEffectValue()), true);
-                    target->DespawnOrUnsummon(2000);
+                    target->DespawnOrUnsummon(2s);
                 }
             }
 
@@ -2234,7 +2235,7 @@ class spell_q12690_burst_at_the_seams_52510 : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->ToCreature()->DespawnOrUnsummon(2 * IN_MILLISECONDS);
+        GetCaster()->ToCreature()->DespawnOrUnsummon(2s);
     }
 
     void Register() override
@@ -3009,15 +3010,15 @@ class spell_q14386_call_attack_mastiffs : public SpellScript
     void HandleEffect(SpellEffIndex /*eff*/)
     {
         Unit* caster = GetCaster();
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1944.573f, 2657.402f, 0.994939f, 1.691919f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -2005.65f, 2663.526f, -2.086935f, 0.5942355f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1996.506f, 2651.347f, -1.011707f, 0.8185352f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1972.352f, 2640.07f, 1.080288f, 1.217854f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1949.322f, 2642.76f, 1.242482f, 1.58074f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1993.94f, 2672.535f, -2.322549f, 0.5766209f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1982.724f, 2662.8f, -1.773986f, 0.8628055f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1973.301f, 2655.475f, -0.7831049f, 1.098415f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1956.509f, 2650.655f, 1.350571f, 1.441473f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1944.573f, 2657.402f, 0.994939f, 1.691919f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -2005.65f, 2663.526f, -2.086935f, 0.5942355f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1996.506f, 2651.347f, -1.011707f, 0.8185352f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1972.352f, 2640.07f, 1.080288f, 1.217854f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1949.322f, 2642.76f, 1.242482f, 1.58074f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1993.94f, 2672.535f, -2.322549f, 0.5766209f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1982.724f, 2662.8f, -1.773986f, 0.8628055f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1973.301f, 2655.475f, -0.7831049f, 1.098415f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1956.509f, 2650.655f, 1.350571f, 1.441473f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
     }
 
     void Register() override

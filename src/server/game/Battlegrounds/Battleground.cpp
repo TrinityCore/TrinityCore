@@ -1077,7 +1077,7 @@ void Battleground::AddPlayer(Player* player)
     {
         Milliseconds duration(GetElapsedTime() - BG_START_DELAY_2M);
         pvpMatchInitialize.Duration = std::chrono::duration_cast<Seconds>(duration);
-        pvpMatchInitialize.StartTime = GameTime::GetGameTimeSystemPoint() - duration;
+        pvpMatchInitialize.StartTime = GameTime::GetSystemTime() - duration;
     }
     pvpMatchInitialize.ArenaFaction = player->GetBGTeam() == HORDE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
     pvpMatchInitialize.BattlemasterListID = GetTypeID();

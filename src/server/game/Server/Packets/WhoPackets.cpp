@@ -42,7 +42,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoWord& word)
 
 ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Who::WhoRequestServerInfo>& serverInfo)
 {
-    serverInfo = boost::in_place();
+    serverInfo.emplace();
 
     data >> serverInfo->FactionGroup;
     data >> serverInfo->Locale;

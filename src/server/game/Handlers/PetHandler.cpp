@@ -278,7 +278,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             {
                 case REACT_PASSIVE: // passive
                     pet->AttackStop();
-                    /* fallthrough */
+                    [[fallthrough]];
                 case REACT_DEFENSIVE: // recovery
                 case REACT_AGGRESSIVE: // activete
                     if (pet->GetTypeId() == TYPEID_UNIT)
@@ -530,7 +530,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
     ObjectGuid petguid = packet.RenameData.PetGUID;
 
     std::string name = packet.RenameData.NewName;
-    DeclinedName* declinedname = packet.RenameData.DeclinedNames.get_ptr();
+    Optional<DeclinedName> const& declinedname = packet.RenameData.DeclinedNames;
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
@@ -542,13 +542,13 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
     PetNameInvalidReason res = ObjectMgr::CheckPetName(name);
     if (res != PET_NAME_SUCCESS)
     {
-        SendPetNameInvalid(res, name, nullptr);
+        SendPetNameInvalid(res, name, {});
         return;
     }
 
     if (sObjectMgr->IsReservedName(name))
     {
-        SendPetNameInvalid(PET_NAME_RESERVED, name, nullptr);
+        SendPetNameInvalid(PET_NAME_RESERVED, name, {});
         return;
     }
 
@@ -751,13 +751,12 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     }
 }
 
-void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
+void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Optional<DeclinedName> const& declinedName)
 {
     WorldPackets::Pet::PetNameInvalid petNameInvalid;
     petNameInvalid.Result = error;
     petNameInvalid.RenameData.NewName = name;
-    if (declinedName)
-        petNameInvalid.RenameData.DeclinedNames = *declinedName;
+    petNameInvalid.RenameData.DeclinedNames = declinedName;
 
     SendPacket(petNameInvalid.Write());
 }

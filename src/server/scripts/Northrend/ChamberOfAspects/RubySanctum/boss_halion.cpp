@@ -636,7 +636,7 @@ class npc_halion_controller : public CreatureScript
                 _instance->SetBossState(DATA_HALION, FAIL);
                 _summons.DespawnAll();
 
-                me->DespawnOrUnsummon(0, 30s);
+                me->DespawnOrUnsummon(0s, 30s);
             }
 
             void DoAction(int32 action) override
@@ -1042,7 +1042,7 @@ class npc_meteor_strike_initial : public CreatureScript
                         angle[i] = Position::NormalizeOrientation(angle[i]);
                         me->SetOrientation(angle[i]);
                         Position newPos = me->GetNearPosition(10.0f, 0.0f); // Exact distance
-                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30s))
                             _meteorList.push_back(meteor);
                     }
                 }
@@ -1112,7 +1112,7 @@ class npc_meteor_strike : public CreatureScript
                 if (_events.ExecuteEvent() == EVENT_SPAWN_METEOR_FLAME)
                 {
                     Position pos = me->GetNearPosition(5.0f, frand(-static_cast<float>(M_PI / 6.0f), static_cast<float>(M_PI / 6.0f)));
-                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25s))
                         flame->AI()->SetGUID(me->GetGUID());
                 }
             }
@@ -1172,7 +1172,7 @@ class npc_meteor_strike_flame : public CreatureScript
                     return;
 
                 Position pos = me->GetNearPosition(5.0f, frand(-static_cast<float>(M_PI / 6.0f), static_cast<float>(M_PI / 6.0f)));
-                if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25s))
                     flame->AI()->SetGUID(_rootOwnerGuid);
             }
 
@@ -1297,7 +1297,7 @@ class npc_living_inferno : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1334,7 +1334,7 @@ class npc_living_ember : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
         };
 

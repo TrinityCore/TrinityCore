@@ -109,7 +109,7 @@ class boss_rotface : public CreatureScript
             boss_rotfaceAI(Creature* creature) : BossAI(creature, DATA_ROTFACE)
             {
                 infectionStage = 0;
-                infectionCooldown = 14000;
+                infectionCooldown = 14s;
             }
 
             void Reset() override
@@ -122,7 +122,7 @@ class boss_rotface : public CreatureScript
                     events.ScheduleEvent(EVENT_VILE_GAS, 22s, 27s);
 
                 infectionStage = 0;
-                infectionCooldown = 14000;
+                infectionCooldown = 14s;
             }
 
             void JustEngagedWith(Unit* who) override
@@ -204,7 +204,7 @@ class boss_rotface : public CreatureScript
                         case EVENT_SLIME_SPRAY:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
-                                DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN);
+                                DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8s, TEMPSUMMON_TIMED_DESPAWN);
                                 Talk(EMOTE_SLIME_SPRAY);
                                 DoCast(me, SPELL_SLIME_SPRAY);
                             }
@@ -213,7 +213,7 @@ class boss_rotface : public CreatureScript
                         case EVENT_HASTEN_INFECTIONS:
                             if (infectionStage++ < 4)
                             {
-                                infectionCooldown -= 2000;
+                                infectionCooldown -= 2s;
                                 events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90s);
                             }
                             break;
@@ -237,7 +237,7 @@ class boss_rotface : public CreatureScript
             }
 
         private:
-            uint32 infectionCooldown;
+            Milliseconds infectionCooldown;
             uint32 infectionStage;
         };
 
@@ -352,6 +352,7 @@ class npc_big_ooze : public CreatureScript
                         case EVENT_STICKY_OOZE:
                             DoCastVictim(SPELL_STICKY_OOZE);
                             events.ScheduleEvent(EVENT_STICKY_OOZE, 15s);
+                            break;
                         default:
                             break;
                     }
@@ -433,7 +434,7 @@ class npc_precious_icc : public CreatureScript
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s, 12500ms);
                             break;
                         case EVENT_SUMMON_ZOMBIES:
                             Talk(EMOTE_PRECIOUS_ZOMBIES);
@@ -770,7 +771,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
 
                 float x, y, z;
                 GetHitUnit()->GetPosition(x, y, z);
-                Creature* dummy = GetCaster()->SummonCreature(NPC_UNSTABLE_EXPLOSION_STALKER, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                Creature* dummy = GetCaster()->SummonCreature(NPC_UNSTABLE_EXPLOSION_STALKER, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1min);
                 GetCaster()->CastSpell(dummy, SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER, true);
             }
 
@@ -840,7 +841,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
 
                 target->RemoveAllAuras();
                 target->SetVisible(false);
-                target->ToCreature()->DespawnOrUnsummon(60000);
+                target->ToCreature()->DespawnOrUnsummon(60s);
             }
 
             void Register() override

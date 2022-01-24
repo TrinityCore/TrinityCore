@@ -252,36 +252,36 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                             return;
 
                         Talk(SAY_TIRION_INTRO_1);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_1, 35000);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_2, 58000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_3, 74000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_4, 86000);
-                        _events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100000);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_5, 108000);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_1, 35s);
+                        _events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_2, 58s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_3, 74s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_4, 86s);
+                        _events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100s);
+                        _events.ScheduleEvent(EVENT_LK_INTRO_5, 108s);
 
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_1, 120000);
-                            _events.ScheduleEvent(EVENT_TIRION_INTRO_H_7, 129000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_2, 139000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_3, 150000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_4, 162000);
-                            _events.ScheduleEvent(EVENT_SAURFANG_RUN, 170000);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_1, 120s);
+                            _events.ScheduleEvent(EVENT_TIRION_INTRO_H_7, 129s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_2, 139s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_3, 150s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_4, 162s);
+                            _events.ScheduleEvent(EVENT_SAURFANG_RUN, 170s);
                         }
                         else
                         {
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_1, 120000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_2, 124000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_3, 127000);
-                            _events.ScheduleEvent(EVENT_TIRION_INTRO_A_7, 136000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_4, 144000);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_5, 151000);
-                            _events.ScheduleEvent(EVENT_MURADIN_RUN, 157000);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_1, 120s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_2, 124s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_3, 127s);
+                            _events.ScheduleEvent(EVENT_TIRION_INTRO_A_7, 136s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_4, 144s);
+                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_5, 151s);
+                            _events.ScheduleEvent(EVENT_MURADIN_RUN, 157s);
                         }
                     }
                 }
@@ -528,7 +528,7 @@ class npc_frost_freeze_trap : public CreatureScript
                 {
                     case 1000:
                     case 11000:
-                        _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, uint32(action));
+                        _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, Milliseconds(action));
                         break;
                     default:
                         break;

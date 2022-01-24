@@ -158,7 +158,7 @@ public:
             }
             _guardianTrigger = (*summoned.begin())->GetGUID();
 
-            if (Creature* trigger = DoSummon(NPC_WORLD_TRIGGER, me->GetPosition(), 0u, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* trigger = DoSummon(NPC_WORLD_TRIGGER, me->GetPosition(), 0s, TEMPSUMMON_MANUAL_DESPAWN))
                 _assassinTrigger = trigger->GetGUID();
             else
             {
@@ -356,7 +356,7 @@ public:
                 if (_nextSubmerge && me->HealthBelowPctDamaged(_nextSubmerge, damage))
                 {
                     events.CancelEvent(EVENT_SUBMERGE);
-                    events.ScheduleEvent(EVENT_SUBMERGE, 0, 0, PHASE_EMERGE);
+                    events.ScheduleEvent(EVENT_SUBMERGE, 0s, 0, PHASE_EMERGE);
                     _nextSubmerge = _nextSubmerge-25;
                 }
         }

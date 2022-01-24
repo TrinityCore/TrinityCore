@@ -110,9 +110,9 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             // ### TODO Check combat timing ###
-            events.ScheduleEvent(EVENT_FIRENOVA,    6000);
+            events.ScheduleEvent(EVENT_FIRENOVA, 6s);
             events.ScheduleEvent(EVENT_FLAMEBUFFET, 3s);
-            events.ScheduleEvent(EVENT_PYROBLAST,  14000);
+            events.ScheduleEvent(EVENT_PYROBLAST, 14s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -202,7 +202,7 @@ public:
                                 }
                             }
                             me->RemoveAura(SPELL_ENCAGED_EMBERSEER);
-                            events.ScheduleEvent(EVENT_PRE_FIGHT_2, 32000);
+                            events.ScheduleEvent(EVENT_PRE_FIGHT_2, 32s);
                             break;
                         }
                         case EVENT_PRE_FIGHT_2:
@@ -230,7 +230,7 @@ public:
 
                             if (_hasAura)
                             {
-                                events.ScheduleEvent(EVENT_PRE_FIGHT_1, 1000);
+                                events.ScheduleEvent(EVENT_PRE_FIGHT_1, 1s);
                                 instance->SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
                             }
                             break;
@@ -353,7 +353,7 @@ public:
                         _events.Repeat(Seconds(14), Seconds(23));
                         break;
                     case EVENT_ENCAGE:
-                        DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), EVENT_ENCAGE, true);
+                        DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_ENCAGE, true);
                         _events.Repeat(Seconds(6), Seconds(12));
                         break;
                     default:

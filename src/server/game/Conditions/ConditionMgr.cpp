@@ -2155,7 +2155,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
-            /* fallthrough */
+            [[fallthrough]];
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
@@ -2274,7 +2274,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_OBJECT_ENTRY_GUID_LEGACY:
             cond->ConditionType = CONDITION_OBJECT_ENTRY_GUID;
             cond->ConditionValue1 = Trinity::Legacy::ConvertLegacyTypeID(Trinity::Legacy::TypeID(cond->ConditionValue1));
-            /* fallthrough */
+            [[fallthrough]];
         case CONDITION_OBJECT_ENTRY_GUID:
         {
             switch (cond->ConditionValue1)
@@ -2341,7 +2341,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_TYPE_MASK_LEGACY:
             cond->ConditionType = CONDITION_TYPE_MASK;
             cond->ConditionValue1 = Trinity::Legacy::ConvertLegacyTypeMask(cond->ConditionValue1);
-            /* fallthrough */
+            [[fallthrough]];
         case CONDITION_TYPE_MASK:
         {
             if (!cond->ConditionValue1 || (cond->ConditionValue1 & ~(TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_GAMEOBJECT | TYPEMASK_CORPSE)))
@@ -3474,6 +3474,7 @@ int32 EvalSingleValue(ByteBuffer& buffer, Player const* player)
                 return 0;
 
             value = WorldStateExpressionFunctions[functionType](player, arg1, arg2);
+            break;
         }
         default:
             break;

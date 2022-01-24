@@ -63,8 +63,8 @@ void firelands_bossAI::JustDied(Unit* killer)
 {
     BossAI::JustDied(killer);
     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    me->m_Events.AddEvent(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_1, false), me->m_Events.CalculateTime(2 * IN_MILLISECONDS));
-    me->m_Events.AddEvent(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_2, false), me->m_Events.CalculateTime(2 * IN_MILLISECONDS));
+    me->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_1, false), 2s);
+    me->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_2, false), 2s);
 }
 
 void firelands_bossAI::EnterEvadeMode(EvadeReason why)

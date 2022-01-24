@@ -40,36 +40,36 @@ namespace WorldPackets
             ObjectGuid GuildGuid;
         };
 
+        struct GuildInfo
+        {
+            ObjectGuid GuildGUID;
+
+            uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
+
+            std::string GuildName;
+
+            struct GuildInfoRank
+            {
+                GuildInfoRank(uint32 id, uint32 order, std::string const& name)
+                    : RankID(id), RankOrder(order), RankName(name) { }
+
+                uint32 RankID;
+                uint32 RankOrder;
+                std::string RankName;
+            };
+
+            std::vector<GuildInfoRank> Ranks;
+
+            uint32 EmblemStyle = 0;
+            uint32 EmblemColor = 0;
+            uint32 BorderStyle = 0;
+            uint32 BorderColor = 0;
+            uint32 BackgroundColor = 0;
+        };
+
         class QueryGuildInfoResponse final : public ServerPacket
         {
         public:
-            struct GuildInfo
-            {
-                ObjectGuid GuildGUID;
-
-                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
-
-                std::string GuildName;
-
-                struct GuildInfoRank
-                {
-                    GuildInfoRank(uint32 id, uint32 order, std::string const& name)
-                        : RankID(id), RankOrder(order), RankName(name) { }
-
-                    uint32 RankID;
-                    uint32 RankOrder;
-                    std::string RankName;
-                };
-
-                std::vector<GuildInfoRank> Ranks;
-
-                uint32 EmblemStyle = 0;
-                uint32 EmblemColor = 0;
-                uint32 BorderStyle = 0;
-                uint32 BorderColor = 0;
-                uint32 BackgroundColor = 0;
-            };
-
             QueryGuildInfoResponse();
 
             WorldPacket const* Write() override;

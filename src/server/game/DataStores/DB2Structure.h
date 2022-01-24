@@ -1530,6 +1530,13 @@ struct FriendshipReputationEntry
     EnumFlag<FriendshipReputationFlags> GetFlags() const { return static_cast<FriendshipReputationFlags>(Flags); }
 };
 
+struct GameObjectArtKitEntry
+{
+    uint32 ID;
+    int32 AttachModelFileID;
+    int32 TextureVariationFileID[3];
+};
+
 struct GameObjectDisplayInfoEntry
 {
     uint32 ID;

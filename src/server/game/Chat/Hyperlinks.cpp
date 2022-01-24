@@ -495,9 +495,9 @@ struct LinkValidator<LinkTags::outfit>
 template <>
 struct LinkValidator<LinkTags::pvptal>
 {
-    static bool IsTextValid(PvpTalentEntry const* mawPower, char const* pos, size_t len)
+    static bool IsTextValid(PvpTalentEntry const* pvpTalent, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(mawPower->SpellID, DIFFICULTY_NONE))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(pvpTalent->SpellID, DIFFICULTY_NONE))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }
@@ -511,9 +511,9 @@ struct LinkValidator<LinkTags::pvptal>
 template <>
 struct LinkValidator<LinkTags::talent>
 {
-    static bool IsTextValid(TalentEntry const* mawPower, char const* pos, size_t len)
+    static bool IsTextValid(TalentEntry const* talent, char const* pos, size_t len)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(mawPower->SpellID, DIFFICULTY_NONE))
+        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(talent->SpellID, DIFFICULTY_NONE))
             return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
         return false;
     }

@@ -1078,7 +1078,7 @@ class spell_pal_righteous_protector : public AuraScript
         else
             _baseHolyPowerCost.reset();
 
-        return _baseHolyPowerCost.is_initialized();
+        return _baseHolyPowerCost.has_value();
     }
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)

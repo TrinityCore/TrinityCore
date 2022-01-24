@@ -229,7 +229,7 @@ public:
                 //Phase 4 Pathaleon spawns up to phase 9
             case 4:
                 //spawn pathaleon's image
-                me->SummonCreature(CreatureEntry[2], 2325.851563f, 2799.534668f, 133.084229f, 6.038996f, TEMPSUMMON_TIMED_DESPAWN, 90000);
+                me->SummonCreature(CreatureEntry[2], 2325.851563f, 2799.534668f, 133.084229f, 6.038996f, TEMPSUMMON_TIMED_DESPAWN, 90s);
                 ++Phase;
                 Phase_Timer = 500;
                 break;
@@ -503,7 +503,7 @@ class go_captain_tyralius_prison : public GameObjectScript
                 }
 
                 if (Creature* prisoner = me->FindNearestCreature(NPC_ETHEREUM_PRISONER, 1.0f))
-                    prisoner->DespawnOrUnsummon(0);
+                    prisoner->DespawnOrUnsummon();
 
                 return true;
             }

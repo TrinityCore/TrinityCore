@@ -19,9 +19,9 @@
 #define TRINITY_TIMER_H
 
 #include "Define.h"
-#include <chrono>
+#include "Duration.h"
 
-inline std::chrono::steady_clock::time_point GetApplicationStartTime()
+inline TimePoint GetApplicationStartTime()
 {
     using namespace std::chrono;
 
@@ -46,7 +46,7 @@ inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
         return newMSTime - oldMSTime;
 }
 
-inline uint32 getMSTimeDiff(uint32 oldMSTime, std::chrono::steady_clock::time_point newTime)
+inline uint32 getMSTimeDiff(uint32 oldMSTime, TimePoint newTime)
 {
     using namespace std::chrono;
 

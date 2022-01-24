@@ -259,21 +259,21 @@ struct dummy_dragonAI : public ScriptedAI
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
                 }
                 else
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
                 }
                 break;
             }
             case NPC_SHADRON:
             {
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28s);
                 else
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28s);
 
                 break;
             }
@@ -281,7 +281,7 @@ struct dummy_dragonAI : public ScriptedAI
             {
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -290,7 +290,7 @@ struct dummy_dragonAI : public ScriptedAI
                 }
                 else
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -386,12 +386,12 @@ struct dummy_dragonAI : public ScriptedAI
             case EVENT_SHADOW_FISSURE:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     DoCast(target, SPELL_SHADOW_FISSURE);
-                events.ScheduleEvent(eventId, urand(15000, 20000));
+                events.ScheduleEvent(eventId, 15s, 20s);
                 break;
             case EVENT_SHADOW_BREATH:
                 Talk(SAY_BREATH);
                 DoCastVictim(SPELL_SHADOW_BREATH);
-                events.ScheduleEvent(eventId, urand(20000, 25000));
+                events.ScheduleEvent(eventId, 20s, 25s);
                 break;
             default:
                 break;
@@ -631,7 +631,7 @@ class npc_acolyte_of_shadron : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28000);
+                me->DespawnOrUnsummon(28s);
 
                 //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
@@ -717,7 +717,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28000);
+                me->DespawnOrUnsummon(28s);
 
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
@@ -812,9 +812,9 @@ public:
             me->RemoveAllAuras();
 
             if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
             else
-                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
             me->KillSelf();
         }
 

@@ -3106,7 +3106,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                                 spellEffectInfo.ApplyAuraName == SPELL_AURA_PERIODIC_HEALTH_FUNNEL ||
                                 spellEffectInfo.ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
                                 break;
-                        /* fallthrough */
+                            [[fallthrough]];
                         default:
                         {
                             // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
@@ -3566,6 +3566,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         58552, // Return to Orgrimmar
         58533, // Return to Stormwind
         21855, // Challenge Flag
+        38762, // Force of Neltharaku
         51122, // Fierce Lightning Stike
         71848  // Toxic Wasteling Find Target
     }, [](SpellInfo* spellInfo)

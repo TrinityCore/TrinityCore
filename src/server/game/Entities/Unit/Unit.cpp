@@ -5250,7 +5250,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     int32 overkill = damageInfo->Damage - damageInfo->Target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    packet.SubDmg = boost::in_place();
+    packet.SubDmg.emplace();
     packet.SubDmg->SchoolMask = damageInfo->DamageSchoolMask;   // School of sub damage
     packet.SubDmg->FDamage = damageInfo->Damage;                // sub damage
     packet.SubDmg->Damage = damageInfo->Damage;                 // Sub Damage
@@ -6743,7 +6743,6 @@ float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect co
         }
         case SPELL_DAMAGE_CLASS_MELEE:
 
-        /* fallthrough - Calculate critical strike chance for both Ranged and Melee spells*/
         case SPELL_DAMAGE_CLASS_RANGED:
             if (caster)
                 crit_chance = GetUnitCriticalChanceTaken(caster, attackType, crit_chance);
@@ -9719,7 +9718,7 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
 
 void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo)
 {
-    std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
+    TimePoint now = GameTime::Now();
 
     // use provided list of auras which can proc
     if (procAuras)
@@ -11699,6 +11698,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
             {
                 if (HasAura(58135)) // Glyph of Spectral Wolf
                     return 60247;
+                break;
             }
             default:
                 break;
@@ -12272,7 +12272,7 @@ void Unit::SendClearTarget()
 
 int32 Unit::GetResistance(SpellSchoolMask mask) const
 {
-    Optional<int32> resist = boost::make_optional(false, 0);
+    Optional<int32> resist;
     for (int32 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
     {
         int32 schoolResistance = GetResistance(SpellSchools(i));
@@ -12280,7 +12280,7 @@ int32 Unit::GetResistance(SpellSchoolMask mask) const
             resist = schoolResistance;
     }
 
-    return resist ? *resist : 0;
+    return resist.value_or(0);
 }
 
 void CharmInfo::SetIsCommandAttack(bool val)

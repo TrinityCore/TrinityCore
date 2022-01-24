@@ -132,7 +132,7 @@ class boss_buru : public CreatureScript
             {
                 ChaseNewVictim();
                 Eggs.push_back(EggGUID);
-                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100000);
+                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100s);
             }
 
             void UpdateAI(uint32 diff) override

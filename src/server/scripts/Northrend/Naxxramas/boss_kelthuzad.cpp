@@ -351,7 +351,7 @@ public:
                             else
                             {
                                 // retail uses server-side spell 28421 for this
-                                Creature* summon = me->SummonCreature(NPC_SKELETON1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
+                                Creature* summon = me->SummonCreature(NPC_SKELETON1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
                                 summon->AI()->DoZoneInCombat();
                             }
 
@@ -376,7 +376,7 @@ public:
                         {
                             ++_bansheeCount;
                             // retail uses server-side spell 28423 for this
-                            Creature* summon = me->SummonCreature(NPC_BANSHEE1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
+                            Creature* summon = me->SummonCreature(NPC_BANSHEE1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
                             summon->AI()->DoZoneInCombat();
 
                             uint8 nextTime = 0;
@@ -396,7 +396,7 @@ public:
                         {
                             ++_abominationCount;
                             // retail uses server-side spell 28422 for this
-                            Creature* summon = me->SummonCreature(NPC_ABOMINATION1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
+                            Creature* summon = me->SummonCreature(NPC_ABOMINATION1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
                             summon->AI()->DoZoneInCombat();
 
                             uint8 nextTime = 0;
@@ -813,8 +813,9 @@ public:
                         me->CombatStop();
                         me->StopMoving();
                         me->SetImmuneToPC(true);
-                        me->DespawnOrUnsummon(30 * IN_MILLISECONDS); // just in case anything interrupts the movement
+                        me->DespawnOrUnsummon(30s); // just in case anything interrupts the movement
                         me->GetMotionMaster()->MoveTargetedHome();
+                        break;
                     default:
                         break;
                 }

@@ -3331,23 +3331,6 @@ ShowMuteInWorld = 0
 ShowBanInWorld = 0
 
 #
-#     RecordUpdateTimeDiffInterval
-#        Description: Time (in milliseconds) update time diff is written to the log file.
-#                     Update diff can be used as a performance indicator. Diff < 300: good
-#                     performance. Diff > 600 bad performance, may be caused by high CPU usage.
-#        Default:     60000 - (Enabled, 1 minute)
-#                     0     - (Disabled)
-
-RecordUpdateTimeDiffInterval = 60000
-
-#
-#     MinRecordUpdateTimeDiff
-#        Description: Only record update time diff which is greater than this value.
-#        Default:     100
-
-MinRecordUpdateTimeDiff = 100
-
-#
 #     PlayerStart.String
 #        Description: String to be displayed at first login of newly created characters.
 #         Default:    "" - (Disabled)
@@ -4281,6 +4264,20 @@ Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
 #
 
 Metric.OverallStatusInterval = 1
+
+#
+#  Metric threshold values: Given a metric "name"
+#    Metric.Threshold.name
+#        Description: Skips sending statistics with a value lower than the config value.
+#                     If the threshold is commented out, the metric will be ignored.
+#                     Only metrics logged with TC_METRIC_DETAILED_TIMER in the sources are affected.
+#                     Disabled by default. Requires WITH_DETAILED_METRICS CMake flag.
+#
+#        Format:      Value as integer
+#
+
+#Metric.Threshold.world_update_sessions_time = 100
+#Metric.Threshold.worldsession_update_opcode_time = 50
 
 #
 ###################################################################################################

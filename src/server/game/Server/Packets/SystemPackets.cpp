@@ -71,14 +71,14 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << uint32(HiddenUIClubsPresenceUpdateTimer);
 
     _worldPacket.WriteBit(VoiceEnabled);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
     _worldPacket.WriteBit(BpayStoreEnabled);
     _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
     _worldPacket.WriteBit(BrowserEnabled);
-    _worldPacket.WriteBit(SessionAlert.is_initialized());
+    _worldPacket.WriteBit(SessionAlert.has_value());
     _worldPacket.WriteBit(RAFSystem.Enabled);
     _worldPacket.WriteBit(RAFSystem.RecruitingEnabled);
     _worldPacket.WriteBit(CharUndeleteEnabled);
@@ -173,7 +173,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
     _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
     _worldPacket.FlushBits();
 
     if (EuropaTicketSystemStatus)

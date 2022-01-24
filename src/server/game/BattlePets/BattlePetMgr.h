@@ -162,7 +162,7 @@ public:
     void AddPet(uint32 species, uint32 display, uint16 breed, BattlePetBreedQuality quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
-    void ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName);
+    void ModifyName(ObjectGuid guid, std::string const& name, std::unique_ptr<DeclinedName> declinedName);
     bool IsPetInSlot(ObjectGuid guid);
 
     uint8 GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;

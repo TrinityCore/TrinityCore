@@ -110,7 +110,7 @@ public:
                 phase = PHASE_INTRO;
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
-                events.ScheduleEvent(EVENT_INTRO_1, 1000);
+                events.ScheduleEvent(EVENT_INTRO_1, 1s);
             }
             return false;
         }
@@ -124,27 +124,27 @@ public:
                 {
                     case EVENT_INTRO_1:
                         Talk(SAY_SYLVANAS_INTRO_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 11500);
+                        events.ScheduleEvent(EVENT_INTRO_2, 11500ms);
                         break;
 
                     case EVENT_INTRO_2:
                         Talk(SAY_SYLVANAS_INTRO_2);
-                        events.ScheduleEvent(EVENT_INTRO_3, 10500);
+                        events.ScheduleEvent(EVENT_INTRO_3, 10500ms);
                         break;
 
                     case EVENT_INTRO_3:
                         Talk(SAY_SYLVANAS_INTRO_3);
-                        events.ScheduleEvent(EVENT_INTRO_4, 9500);
+                        events.ScheduleEvent(EVENT_INTRO_4, 9500ms);
                         break;
 
                     case EVENT_INTRO_4:
                         Talk(SAY_SYLVANAS_INTRO_4);
-                        events.ScheduleEvent(EVENT_INTRO_5, 10500);
+                        events.ScheduleEvent(EVENT_INTRO_5, 10500ms);
                         break;
 
                     case EVENT_INTRO_5:
                         Talk(SAY_SYLVANAS_INTRO_5);
-                        events.ScheduleEvent(EVENT_INTRO_6, 9500);
+                        events.ScheduleEvent(EVENT_INTRO_6, 9500ms);
                         break;
 
                     case EVENT_INTRO_6:
@@ -205,7 +205,7 @@ public:
                 phase = PHASE_INTRO;
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
-                events.ScheduleEvent(EVENT_INTRO_1, 1000);
+                events.ScheduleEvent(EVENT_INTRO_1, 1s);
             }
             return false;
         }
@@ -219,37 +219,37 @@ public:
                 {
                     case EVENT_INTRO_1:
                         Talk(SAY_JAINA_INTRO_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 8000);
+                        events.ScheduleEvent(EVENT_INTRO_2, 8s);
                         break;
 
                     case EVENT_INTRO_2:
                         Talk(SAY_JAINA_INTRO_2);
-                        events.ScheduleEvent(EVENT_INTRO_3, 8500);
+                        events.ScheduleEvent(EVENT_INTRO_3, 8500ms);
                         break;
 
                     case EVENT_INTRO_3:
                         Talk(SAY_JAINA_INTRO_3);
-                        events.ScheduleEvent(EVENT_INTRO_4, 8000);
+                        events.ScheduleEvent(EVENT_INTRO_4, 8s);
                         break;
 
                     case EVENT_INTRO_4:
                         Talk(SAY_JAINA_INTRO_4);
-                        events.ScheduleEvent(EVENT_INTRO_5, 10000);
+                        events.ScheduleEvent(EVENT_INTRO_5, 10s);
                         break;
 
                     case EVENT_INTRO_5:
                         Talk(SAY_JAINA_INTRO_5);
-                        events.ScheduleEvent(EVENT_INTRO_6, 8000);
+                        events.ScheduleEvent(EVENT_INTRO_6, 8s);
                         break;
 
                     case EVENT_INTRO_6:
                         Talk(SAY_JAINA_INTRO_6);
-                        events.ScheduleEvent(EVENT_INTRO_7, 12000);
+                        events.ScheduleEvent(EVENT_INTRO_7, 12s);
                         break;
 
                     case EVENT_INTRO_7:
                         Talk(SAY_JAINA_INTRO_7);
-                        events.ScheduleEvent(EVENT_INTRO_8, 8000);
+                        events.ScheduleEvent(EVENT_INTRO_8, 8s);
                         break;
 
                     case EVENT_INTRO_8:

@@ -20,6 +20,7 @@
 
 #include "Cryptography/BigNumber.h"
 #include <map>
+#include <shared_mutex>
 
 enum WardenActions
 {
@@ -27,11 +28,6 @@ enum WardenActions
     WARDEN_ACTION_KICK,
     WARDEN_ACTION_BAN
 };
-
-namespace boost
-{
-    class shared_mutex;
-}
 
 struct WardenCheck
 {
@@ -72,7 +68,7 @@ class TC_GAME_API WardenCheckMgr
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
-        boost::shared_mutex* _checkStoreLock;
+        std::shared_mutex _checkStoreLock;
 
     private:
         CheckContainer CheckStore;

@@ -138,9 +138,9 @@ public:
 
         void ScheduleCombatEvents()
         {
-            events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 8000, 0, PHASE_COMBAT);
-            events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 10000, 0, PHASE_COMBAT);
-            events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 35000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 8s, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 10s, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 35s, 0, PHASE_COMBAT);
         }
 
         void Reset() override
@@ -192,7 +192,7 @@ public:
         void DoAction(int32 action) override
         {
             if (action == ACTION_ANRAPHET_INTRO)
-                events.ScheduleEvent(EVENT_ANRAPHET_APPEAR, 6000, 0, PHASE_INTRO);
+                events.ScheduleEvent(EVENT_ANRAPHET_APPEAR, 6s, 0, PHASE_INTRO);
         }
 
         void MovementInform(uint32 type, uint32 point) override
@@ -202,7 +202,7 @@ public:
 
             if (point == POINT_ANRAPHET_ACTIVATE)
             {
-                events.ScheduleEvent(EVENT_ANRAPHET_ACTIVATE, 1500, 0, PHASE_INTRO);
+                events.ScheduleEvent(EVENT_ANRAPHET_ACTIVATE, 1500ms, 0, PHASE_INTRO);
                 me->SetHomePosition(AnraphetActivatePos);
             }
         }
@@ -228,11 +228,11 @@ public:
                     case EVENT_ANRAPHET_ACTIVATE:
                         me->SetWalk(false);
                         Talk(ANRAPHET_SAY_INTRO);
-                        events.ScheduleEvent(EVENT_ANRAPHET_DESTROY, 17500, 0, PHASE_INTRO);
+                        events.ScheduleEvent(EVENT_ANRAPHET_DESTROY, 17500ms, 0, PHASE_INTRO);
                         return;
                     case EVENT_ANRAPHET_DESTROY:
                         DoCastAOE(SPELL_DESTRUCTION_PROTOCOL);
-                        events.ScheduleEvent(EVENT_ANRAPHET_READY, 6000, 0, PHASE_INTRO);
+                        events.ScheduleEvent(EVENT_ANRAPHET_READY, 6s, 0, PHASE_INTRO);
                         break;
                     case EVENT_ANRAPHET_READY:
                         me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
@@ -241,19 +241,19 @@ public:
                         break;
                     case EVENT_ANRAPHET_NEMESIS_STRIKE:
                         DoCastVictim(SPELL_NEMESIS_STRIKE);
-                        events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 21500, 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_NEMESIS_STRIKE, 21500ms, 0, PHASE_COMBAT);
                         break;
                     case EVENT_ANRAPHET_ALPHA_BEAMS:
                         DoCast(me, SPELL_ALPHA_BEAMS);
-                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 12500, 0, PHASE_COMBAT);
-                        events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, urand(40000, 45000), 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 12500ms, 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_ALPHA_BEAMS, 40s, 45s, 0, PHASE_COMBAT);
                         break;
                     case EVENT_ANRAPHET_OMEGA_STANCE:
                         DoCast(me, SPELL_OMEGA_STANCE_SUMMON);
                         DoCast(me, SPELL_OMEGA_STANCE);
                         Talk(ANRAPHET_SAY_OMEGA_STANCE);
-                        events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, urand(45000, 50000), 0, PHASE_COMBAT);
-                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 13000, 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_OMEGA_STANCE, 45s, 50s, 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_ANRAPHET_CRUMBLING_RUIN, 13s, 0, PHASE_COMBAT);
                         break;
                     case EVENT_ANRAPHET_CRUMBLING_RUIN:
                         DoCast(me, SPELL_CRUMBLING_RUIN);
@@ -344,7 +344,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     me->SetWalk(true);
                     Talk(BRANN_SAY_DOOR_INTRO);
-                    events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, 7500);
+                    events.ScheduleEvent(EVENT_BRANN_UNLOCK_DOOR, 7500ms);
                 }
                 return false;
             }
@@ -367,7 +367,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                     }
                     case ACTION_ANRAPHET_DIED:
                         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                        events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1000);
+                        events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1s);
                         break;
                 }
             }
@@ -388,28 +388,28 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                             Talk(BRANN_SAY_UNLOCK_DOOR);
                             _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
                             _instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_VAULT_OF_LIGHTS_EVENT);
-                            events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 3500);
+                            events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 3500ms);
                             break;
                         case EVENT_BRANN_THINK:
                             Talk(BRANN_SAY_THINK);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_1, 6000);
+                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_1, 6s);
                             break;
                         case EVENT_BRANN_SET_ORIENTATION_1:
                             me->SetFacingTo(5.445427f);
                             Talk(BRANN_SAY_MIRRORS);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_2, 1000);
+                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_2, 1s);
                             break;
                         case EVENT_BRANN_SET_ORIENTATION_2:
                             me->SetFacingTo(0.6283185f);
-                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_3, 2500);
+                            events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_3, 2500ms);
                             break;
                         case EVENT_BRANN_SET_ORIENTATION_3:
                             me->SetFacingTo(0.01745329f);
-                            events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, 200);
+                            events.ScheduleEvent(EVENT_BRANN_SAY_ELEMENTALS, 200ms);
                             break;
                         case EVENT_BRANN_SAY_ELEMENTALS:
                             Talk(BRANN_SAY_ELEMENTALS);
-                            events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, 3500);
+                            events.ScheduleEvent(EVENT_BRANN_SAY_GET_IT, 3500ms);
                             break;
                         case EVENT_BRANN_SAY_GET_IT:
                             Talk(BRANN_SAY_GET_IT);
@@ -428,24 +428,24 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                     return;
 
                 _currentPoint = pointId + 1;
-                uint32 delay = 1;
+                Milliseconds delay = 1ms;
 
                 switch (pointId)
                 {
                     case 0:
                         Talk(BRANN_SAY_TROGGS);
-                        events.ScheduleEvent(EVENT_BRANN_THINK, 15000);
+                        events.ScheduleEvent(EVENT_BRANN_THINK, 15s);
                         return;
                     case 1:
                         Talk(BRANN_SAY_ANRAPHET_DIED);
-                        delay = 1000;
+                        delay = 1s;
                         break;
                     case 14:
                         Talk(BRANN_SAY_MOMENT);
-                        delay = 2200;
+                        delay = 2200ms;
                         break;
                     case 16:
-                        events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_4, 6000);
+                        events.ScheduleEvent(EVENT_BRANN_SET_ORIENTATION_4, 6s);
                         return;
                     default:
                         break;

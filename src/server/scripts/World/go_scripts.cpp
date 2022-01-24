@@ -74,7 +74,7 @@ public:
             {
                 if (player->GetQuestStatus(QUEST_THE_FIRST_TRIAL) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (Creature* Stillblade = player->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 60000))
+                    if (Creature* Stillblade = player->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 1min))
                         Stillblade->AI()->AttackStart(player);
                 }
             }
@@ -155,7 +155,7 @@ public:
             int Random = rand32() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
             if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player),
-                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s))
             {
                 if (!creature->IsHostileTo(player))
                 {
@@ -215,7 +215,7 @@ public:
             int Random = rand32() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
             player->SummonCreature(NpcStasisEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player),
-                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
 
             return false;
         }
@@ -248,7 +248,7 @@ public:
         bool GossipHello(Player* /*player*/) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-                me->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+                me->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5min);
 
             return false;
         }
@@ -285,7 +285,7 @@ public:
             //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
             //player->CastSpell(player, SPELL_SUMMON_RIZZLE, false);
 
-            if (Creature* creature = player->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* creature = player->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN))
                 creature->CastSpell(player, SPELL_BLACKJACK, false);
 
             return false;
@@ -498,7 +498,7 @@ public:
         {
             if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
             {
-                me->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                me->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 1min);
                 player->CastSpell(player, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
                 return true;
             }
@@ -534,7 +534,7 @@ public:
         bool GossipHello(Player* player) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-                player->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                player->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
 
             return true;
         }
@@ -776,8 +776,8 @@ public:
         bool GossipHello(Player* player) override
         {
             player->SendLoot(me->GetGUID(), LOOT_CORPSE);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX(), me->GetPositionY() + 1, me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
+            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX(), me->GetPositionY() + 1, me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
             return true;
         }
     };
@@ -840,7 +840,7 @@ class go_veil_skith_cage : public GameObjectScript
                    for (Creature* creature : childrenList)
                    {
                        player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, creature->GetGUID());
-                       creature->DespawnOrUnsummon(5000);
+                       creature->DespawnOrUnsummon(5s);
                        creature->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 5, me->GetPositionY(), me->GetPositionZ());
                        creature->AI()->Talk(SAY_FREE_0);
                        creature->GetMotionMaster()->Clear();
@@ -1027,16 +1027,12 @@ enum BrewfestMusic
     EVENT_BREWFESTGOBLIN03 = 11815 // 0.28 min
 };
 
-// These are in seconds
-enum BrewfestMusicTime
-{
-    EVENT_BREWFESTDWARF01_TIME = 95000,
-    EVENT_BREWFESTDWARF02_TIME = 155000,
-    EVENT_BREWFESTDWARF03_TIME = 23000,
-    EVENT_BREWFESTGOBLIN01_TIME = 68000,
-    EVENT_BREWFESTGOBLIN02_TIME = 93000,
-    EVENT_BREWFESTGOBLIN03_TIME = 28000
-};
+constexpr Seconds EVENT_BREWFESTDWARF01_TIME = 95s;
+constexpr Seconds EVENT_BREWFESTDWARF02_TIME = 155s;
+constexpr Seconds EVENT_BREWFESTDWARF03_TIME = 23s;
+constexpr Seconds EVENT_BREWFESTGOBLIN01_TIME = 68s;
+constexpr Seconds EVENT_BREWFESTGOBLIN02_TIME = 93s;
+constexpr Seconds EVENT_BREWFESTGOBLIN03_TIME = 28s;
 
 enum BrewfestMusicAreas
 {
@@ -1067,7 +1063,7 @@ public:
     struct go_brewfest_musicAI : public GameObjectAI
     {
         uint32 rnd = 0;
-        uint32 musicTime = 1000;
+        Milliseconds musicTime = 1s;
 
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {

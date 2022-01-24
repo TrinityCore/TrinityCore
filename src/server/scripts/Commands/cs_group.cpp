@@ -419,6 +419,7 @@ public:
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
+                LocaleConstant locale = handler->GetSessionDbcLocale();
                 phases = PhasingHandler::FormatPhases(p->GetPhaseShift());
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
@@ -426,7 +427,7 @@ public:
                 {
                     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
-                        zoneName = zone->AreaName[handler->GetSessionDbcLocale()];
+                        zoneName = zone->AreaName[locale];
                 }
             }
             else

@@ -63,7 +63,7 @@ void BattlegroundScore::BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::
     playerData.Faction = TeamId;
     if (HonorableKills || Deaths || BonusHonor)
     {
-        playerData.Honor = boost::in_place();
+        playerData.Honor.emplace();
         playerData.Honor->HonorKills = HonorableKills;
         playerData.Honor->Deaths = Deaths;
         playerData.Honor->ContributionPoints = BonusHonor;

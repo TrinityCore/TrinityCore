@@ -72,7 +72,7 @@ class boss_hydromancer_thespia : public CreatureScript
                 Talk(SAY_AGGRO);
                 BossAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15000);
+                events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15s);
                 events.ScheduleEvent(EVENT_LUNG_BURST, 7s);
                 events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 9s);
             }
