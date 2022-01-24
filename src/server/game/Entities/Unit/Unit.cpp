@@ -39,7 +39,6 @@
 #include "DB2Stores.h"
 #include "Formulas.h"
 #include "GameObjectAI.h"
-#include "GarrisonPackets.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -13330,7 +13329,7 @@ void Unit::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uin
     if (!IsPlayer())
         return;
 
-    WorldPackets::Garrison::DisplayToast data;
+    WorldPackets::Misc::DisplayToast data;
     data.Quantity = quantity;
     data.ToastMethod = method;
     data.QuestID = questID;

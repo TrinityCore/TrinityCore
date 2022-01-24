@@ -422,25 +422,6 @@ namespace WorldPackets
 
             uint32 GarrPlotInstanceID = 0;
         };
-
-        class DisplayToast final : public ServerPacket
-        {
-        public:
-            DisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
-
-            WorldPacket const* Write() override;
-
-            uint64 Quantity = 0;
-            DisplayToastMethod ToastMethod = DisplayToastMethod::DoNotDisplay;
-            uint32 QuestID = 0;
-            bool Mailed = false;
-            RewardType Type = RewardType::Money;
-            bool BonusRoll = false;
-            WorldPackets::Item::ItemInstance Item;
-            int32 SpecializationID = 0;
-            int32 ItemQuantity = 0;
-            int32 CurrencyID = 0;
-        };
     }
 }
 

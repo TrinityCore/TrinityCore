@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "CollectionMgr.h"
 #include "CUFProfile.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "PacketUtilities.h"
@@ -963,6 +964,25 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 UISplashScreenID = 0;
+        };
+
+        class DisplayToast final : public ServerPacket
+        {
+        public:
+            DisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 Quantity = 0;
+            DisplayToastMethod ToastMethod = DisplayToastMethod::DoNotDisplay;
+            uint32 QuestID = 0;
+            bool Mailed = false;
+            RewardType Type = RewardType::Money;
+            bool BonusRoll = false;
+            WorldPackets::Item::ItemInstance Item;
+            int32 SpecializationID = 0;
+            int32 ItemQuantity = 0;
+            int32 CurrencyID = 0;
         };
     }
 }
