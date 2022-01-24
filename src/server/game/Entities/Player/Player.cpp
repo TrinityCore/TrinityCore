@@ -29159,9 +29159,6 @@ std::string Player::GetDebugInfo() const
 
 void Player::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questID, Item* item /*= nullptr*/)
 {
-    if (!IsPlayer())
-        return;
-
     WorldPackets::Misc::DisplayToast data;
     data.Quantity = quantity;
     data.ToastMethod = method;
@@ -29188,5 +29185,5 @@ void Player::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, u
             break;
     }
 
-    ToPlayer()->SendDirectMessage(data.Write());
+    SendDirectMessage(data.Write());
 }
