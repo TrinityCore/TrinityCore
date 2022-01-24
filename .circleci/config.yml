@@ -36,6 +36,10 @@ jobs:
             cat sql/updates/world/master/*.sql | mysql -h 127.0.0.1 -uroot world
             echo "Importing hotfixes database updates"
             cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
+  pch:
+    docker:
+      - image: trinitycore/circle-ci:master-buildpacks-focal
+    steps:
       - run:
           name: Checkout
           command: |
