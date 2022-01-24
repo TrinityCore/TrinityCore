@@ -979,6 +979,35 @@ enum PlayerLogXPReason : uint8
     LOG_XP_REASON_NO_KILL = 1
 };
 
+enum class RewardType : uint8
+{
+    Item     = 0,
+    Currency = 1,
+    Money    = 2
+};
+
+enum class DisplayToastMethod : uint8
+{
+    DoNotDisplay            = 0,
+    Loot                    = 1,
+    PetBattle               = 2,
+    PersonalLoot            = 3,
+    GarrisonMissionLoot     = 4,
+    QuestUpgrade            = 5,
+    QuestUpgradeEpic        = 6,
+    Shipment                = 7,
+    GarrisonMissionSalvage  = 8,
+    PvPFactionReward        = 9,
+    GarrisonCurrency        = 10,
+    LessAwesomeLoot         = 11,
+    UpgradedLoot            = 12,
+    LegendaryLoot           = 13,
+    InvasionLoot            = 14,
+    Default                 = 15,
+    QuestComplete           = 16,
+    RatedPvPReward          = 17
+};
+
 class Player;
 
 /// Holder for Battleground data

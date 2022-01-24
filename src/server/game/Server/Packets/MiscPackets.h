@@ -25,6 +25,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "PacketUtilities.h"
+#include "Player.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include <array>
