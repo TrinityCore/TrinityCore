@@ -13323,37 +13323,3 @@ std::string Unit::GetDebugInfo() const
         << " " << (movespline ? movespline->ToString() : "Movespline: <none>");
     return sstr.str();
 }
-
-void Unit::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questID, Item* item /*= nullptr*/)
-{
-    if (!IsPlayer())
-        return;
-
-    WorldPackets::Misc::DisplayToast data;
-    data.Quantity = quantity;
-    data.ToastMethod = method;
-    data.QuestID = questID;
-    data.Type = type;
-
-    switch (type)
-    {
-        case RewardType::Item:
-        {
-            if (!item)
-                return;
-
-            data.BonusRoll = isBonusRoll;
-            data.Item.Initialize(item);
-            data.SpecializationID = 0;
-            data.ItemQuantity = 0;
-            break;
-        }
-        case RewardType::Currency:
-            data.CurrencyID = entry;
-            break;
-        default:
-            break;
-    }
-
-    ToPlayer()->SendDirectMessage(data.Write());
-}
