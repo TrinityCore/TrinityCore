@@ -424,7 +424,7 @@ enum SpellVisuals
     SPELL_VISUAL_BLASPHEMY                              = 109680, // At 1.0f
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_3_HC            = 105852, // At 3.0f
     SPELL_VISUAL_JAILER_BOLT                            = 107337, // At 90.0f, false as time
-    SPELL_VISUAL_BANSHEES_BANE                          = 108093, // At 0.5f
+    SPELL_VISUAL_BANSHEES_BANE_ABSORB                   = 108093, // At 0.5f
 
     SPELL_VISUAL_UNK02_PLAYER                           = 107839, // At 0.349999994039535522f
     SPELL_VISUAL_UNK_02                                 = 108094, // At 1.5f
@@ -3692,7 +3692,7 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_banshee_bane);
 
-    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         uint8 stackAmount = GetStackAmount();
 
@@ -3705,7 +3705,10 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
             if (InstanceScript* instance = GetTarget()->GetInstanceScript())
             {
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500));
+                {
+                    if (sylvanas->IsInCombat())
+                        sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500));
+                }
             }
         }
     }
@@ -3995,6 +3998,9 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
         {
             case ACTION_WINDS_OF_ICECROWN_PRE:
             {
+                // HACKFIX: GameObject pathing NYI
+                me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
                     if (_windsOfIcecrown == 0)
@@ -4015,6 +4021,12 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                 {
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                         me->CastSpell(sylvanas, SPELL_WINDS_OF_ICECROWN, false);
+                });
+
+                // HACKFIX: GameObject pathing NYI
+                _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+                {
+                    me->ClearUnitState(UNIT_STATE_IGNORE_PATHFINDING);
                 });
                 break;
             }
@@ -5763,7 +5775,7 @@ struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             sylvanas->CastSpell(unit, SPELL_BANSHEES_BANE, true);
 
-        unit->SendPlaySpellVisual(at->GetPosition(), 0.0f, SPELL_VISUAL_BANSHEES_BANE, 0, 0, 0.5f, true);
+        unit->SendPlaySpellVisual(at->GetPosition(), 0.0f, SPELL_VISUAL_UNK02_PLAYER, 0, 0, 0.5f, true);
 
         at->Remove();
     }
