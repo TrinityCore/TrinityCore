@@ -102,7 +102,7 @@ enum Spells
     SPELL_DOMINATION_CHAINS_JUMP                        = 347602,
     SPELL_DOMINATION_CHAINS                             = 349419,
     SPELL_DOMINATION_ARROW_SHOT_VISUAL                  = 350426,
-    SPELL_DOMINATION_ARROW_FALL                         = 352317, 
+    SPELL_DOMINATION_ARROW_FALL                         = 352317,
     SPELL_DOMINATION_ARROW_FALL_AND_VISUAL              = 352319,
     SPELL_DOMINATION_ARROW_ACTIVATE                     = 356650,
     SPELL_DOMINATION_ARROW_CALAMITY_AREA                = 356769,
@@ -260,7 +260,7 @@ enum Events
 };
 
 enum Actions
-{                    
+{ 
     ACTION_WINDRUNNER_MODEL_ACTIVATE                    = 1,
     ACTION_WINDRUNNER_MODEL_DEACTIVATE,
     ACTION_RESET_MELEE_KIT,
@@ -446,7 +446,7 @@ enum Miscellanea
     DATA_MELEE_COMBO_SWITCH_TO_RANGED                   = 3,
     DATA_MELEE_COMBO_FINISH                             = 4,
 
-    DATA_CHANGE_SHEATHE_UNARMED                         = 0,                    
+    DATA_CHANGE_SHEATHE_UNARMED                         = 0,                 
     DATA_CHANGE_SHEATHE_DAGGERS                         = 1,
     DATA_CHANGE_SHEATHE_BOW                             = 2,
     DATA_CHANGE_NAMEPLATE_TO_COPY                       = 3,
@@ -1252,16 +1252,13 @@ struct boss_sylvanas_windrunner : public BossAI
 
         /*
         Talk(SAY_AGGRO);
-
         events.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 45s, 1, PHASE_ONE);
-
         // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
         _specialEvents.SetPhase(PHASE_ONE);
         _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, 1, PHASE_ONE);
-        
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
@@ -1734,7 +1731,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             scheduler.Schedule(Milliseconds(100 * itr), [this, itr, randomCopy](TaskContext /*task*/)
                             {
                                 if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(itr))
-                                    ai->StartWitheringFireEvent(itr == randomCopy);           
+                                    ai->StartWitheringFireEvent(itr == randomCopy);
                             });
                         }
 
@@ -2619,7 +2616,6 @@ struct boss_sylvanas_windrunner : public BossAI
             default:
                 break;
         }
-
         return true;
     }
 
@@ -2651,10 +2647,10 @@ struct boss_sylvanas_windrunner : public BossAI
     Position const GetMiddlePointInCurrentPlatform()
     {
         for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
-        {
-            if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
-                return CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
-        }
+       {
+           if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+               return CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
+       }
 
         return { };
     }
@@ -2769,7 +2765,7 @@ private:
     ObjectGuid _playerGUID;
 };
 
-// Ranger (Bow) - 347560 
+// Ranger (Bow) - 347560
 class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_bow);
@@ -3169,7 +3165,7 @@ class spell_sylvanas_windrunner_domination_chain_periodic : public AuraScript
     }
 };
 
-// Wailing Arrow - 347609 
+// Wailing Arrow - 347609
 class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_wailing_arrow);
@@ -4377,7 +4373,7 @@ private:
     TaskScheduler _scheduler;
 };
 
-// Pulverize - 354918 
+// Pulverize - 354918
 class spell_sylvanas_windrunner_pulverize : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_pulverize);
@@ -4440,7 +4436,7 @@ class spell_sylvanas_windrunner_stonecrash_phase_one_and_three : public SpellScr
     }
 };
 
-// Stonecrash (Phase 2) - 357137 
+// Stonecrash (Phase 2) - 357137
 class spell_sylvanas_windrunner_stonecrash_phase_two : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_stonecrash_phase_two);
@@ -5389,7 +5385,7 @@ class BlasphemyEvent : public BasicEvent
         uint8 _queuedSpell;
 };
 
-// Blasphemy - 357729 
+// Blasphemy - 357729
 class spell_sylvanas_windrunner_blasphemy_pre : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_blasphemy_pre);
@@ -5426,7 +5422,7 @@ class spell_sylvanas_windrunner_blasphemy_pre : public AuraScript
     }
 };
 
-// Blasphemy - 357730  
+// Blasphemy - 357730
 class spell_sylvanas_windrunner_blasphemy : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_blasphemy);
@@ -5496,7 +5492,7 @@ class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
     }
 };
 
-// Activate Phase Intermission - 359429 
+// Activate Phase Intermission - 359429
 class spell_sylvanas_windrunner_activate_phase_intermission : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);
@@ -5519,7 +5515,7 @@ class spell_sylvanas_windrunner_activate_phase_intermission : public SpellScript
     }
 };
 
-// Activate Finish Boss - 359431 
+// Activate Finish Boss - 359431
 class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_activate_finish_boss);
