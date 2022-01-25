@@ -446,7 +446,7 @@ enum Miscellanea
     DATA_MELEE_COMBO_SWITCH_TO_RANGED                   = 3,
     DATA_MELEE_COMBO_FINISH                             = 4,
 
-    DATA_CHANGE_SHEATHE_UNARMED                         = 0,                 
+    DATA_CHANGE_SHEATHE_UNARMED                         = 0,               
     DATA_CHANGE_SHEATHE_DAGGERS                         = 1,
     DATA_CHANGE_SHEATHE_BOW                             = 2,
     DATA_CHANGE_NAMEPLATE_TO_COPY                       = 3,
@@ -464,11 +464,11 @@ enum Miscellanea
 
     DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR              = 1,
 
-    DATA_DESECRATING_SHOT_PATTERN_STRAIGHT              = 0,
-    DATA_DESECRATING_SHOT_PATTERN_SCATTERED             = 1,
-    DATA_DESECRATING_SHOT_PATTERN_WAVE                  = 2,
-    DATA_DESECRATING_SHOT_PATTERN_SPIRAL                = 3,
-    DATA_DESECRATING_SHOT_PATTERN_JAR                   = 4,
+    DATA_DESECRATING_SHOT_PATTERN_STRAIGHT              = 1,
+    DATA_DESECRATING_SHOT_PATTERN_SCATTERED             = 2,
+    DATA_DESECRATING_SHOT_PATTERN_WAVE                  = 3,
+    DATA_DESECRATING_SHOT_PATTERN_SPIRAL                = 4,
+    DATA_DESECRATING_SHOT_PATTERN_JAR                   = 5,
 
     DATA_BRIDGE_PHASE_TWO_1                             = 1,
     DATA_BRIDGE_PHASE_TWO_2                             = 2,
@@ -1022,7 +1022,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                         me->NearTeleportTo(sylvanas->GetPosition(), false);
                 });
 
-                _scheduler.Schedule(1s + 500ms, [this, sylvanas, chooseMe](TaskContext /*task*/)
+                _scheduler.Schedule(1s + 500ms, [sylvanas, chooseMe](TaskContext /*task*/)
                 {
                     if (chooseMe)
                     {
@@ -1794,6 +1794,13 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DESECRATING_SHOT:
                 {
+                    // TODO: within the same Windrunner cast, patterns cannot happen twice, it always chooses a new one
+                    // for the next drawning even though the first chosen one is dynamically chosen;
+                    // also, the type of pattern to choose from varies from Windrunner cast to Windrunner cast:
+                    // Windrunner 1: DATA_DESECRATING_SHOT_PATTERN_STRAIGHT or DATA_DESECRATING_SHOT_PATTERN_SCATTERED
+                    // Windrruner 2: DATA_DESECRATING_SHOT_PATTERN_WAVE or DATA_DESECRATING_SHOT_PATTERN_SPIRAL
+                    // Windrunner 3: DATA_DESECRATING_SHOT_PATTERN_JAR or DATA_DESECRATING_SHOT_PATTERN_SCATTERED
+                    // Windrunner 4: DATA_DESECRATING_SHOT_PATTERN_WAVE or DATA_DESECRATING_SHOT_PATTERN_JAR
                     switch (urand(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, DATA_DESECRATING_SHOT_PATTERN_SCATTERED))
                     {
                         case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
@@ -1804,7 +1811,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                 int32 step = 1;
 
-                                while (DrawDesecratingShotStraight(step, orientation))
+                                while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, me->GetPosition(), orientation))
                                     ++step;
 
                                 scheduler.Schedule(2s + 300ms, [this](TaskContext /*task*/)
@@ -1818,7 +1825,12 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
                         {
-                            DrawDesecratingShotScattered();
+                            int32 step = 1;
+
+                            int32 amount = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
+
+                            while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, amount, step, me->GetPosition(), me->GetOrientation()))
+                                ++step;
 
                             scheduler.Schedule(2s + 300ms, [this](TaskContext /*task*/)
                             {
@@ -2463,122 +2475,129 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    // TODO: synthetize all of it in a single bool.
-    bool DrawDesecratingShotStraight(int32 step, float orientation)
+    bool DrawDesecratingShotPattern(int8 pattern, int32 amount, int32 step, Position pos, float orientation)
     {
-        float distance = 7.0f * step;
-
-        // Let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform
-        Position arrowCenter(me->GetPositionX() + (std::cos(orientation) * distance), me->GetPositionY() + (std::sin(orientation) * distance), me->GetPositionZ());
-
-        if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
-            return false;
-
-        scheduler.Schedule(Milliseconds(step * 5), [this, arrowCenter](TaskContext /*task*/)
+        switch (pattern)
         {
-            me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-        });
-
-        Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
-        Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
-
-        scheduler.Schedule(Milliseconds(step * 25), [this, arrowInnerLeft, arrowInnerRight](TaskContext /*task*/)
-        {
-            me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-            me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-        });
-
-        Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
-        Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
-
-        scheduler.Schedule(Milliseconds(step * 50), [this, arrowOuterLeft, arrowOuterRight](TaskContext /*task*/)
-        {
-            me->CastSpell(arrowOuterLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-            me->CastSpell(arrowOuterRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-        });
-
-        return true;
-    }
-
-    void DrawDesecratingShotWaveFirst(int32 step, Position pos, float orientation)
-    {
-        float distance = -4.0f * step;
-
-        if (step == 0)
-        {
-            Position middleLine(pos.GetPositionX() + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-            me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-
-            Position rightLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * 4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * 4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-            me->CastSpell(rightLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-
-            Position leftLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * -4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * -4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-            me->CastSpell(leftLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-        }
-        else
-        {
-            scheduler.Schedule(50ms, [this, pos, orientation, distance](TaskContext /*task*/)
+            case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
             {
-                Position rightLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * 4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * 4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
+                float distance = 7.0f * step;
 
-                me->CastSpell(rightLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-            });
+                // Let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform
+                Position arrowCenter(me->GetPositionX() + (std::cos(orientation) * distance), me->GetPositionY() + (std::sin(orientation) * distance), me->GetPositionZ());
 
-            scheduler.Schedule(75ms, [this, pos, orientation, distance](TaskContext /*task*/)
-            {
-                Position leftLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * -4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * -4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
+                if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
+                    return false;
 
-                me->CastSpell(leftLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-            });
-
-            scheduler.Schedule(100ms, [this, pos, orientation, distance](TaskContext /*task*/)
-            {
-                Position middleLine(pos.GetPositionX() + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-                me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-            });
-        }
-    }
-
-    void DrawDesecratingShotScattered()
-    {
-        for (uint8 i = 0; i < 8; i++)
-        {
-            for (uint8 i = 0; i < 2; i++)
-            {
-                scheduler.Schedule(15ms, [this](TaskContext /*task*/)
+                scheduler.Schedule(Milliseconds(step * 5), [this, arrowCenter](TaskContext /*task*/)
                 {
-                    me->CastSpell(me->GetRandomPoint(me->GetPosition(), frand(0.0f, 40.0f)), SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                 });
-            }
-        }
 
-        for (uint8 desecratingShotOnPlayer = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3)) / 3.0f; desecratingShotOnPlayer > 0; desecratingShotOnPlayer--)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true, true))
-            {
-                for (uint8 i = 0; i < 2; i++)
+                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
+
+                scheduler.Schedule(Milliseconds(step * 25), [this, arrowInnerLeft, arrowInnerRight](TaskContext /*task*/)
                 {
-                    scheduler.Schedule(15ms, [this, target](TaskContext /*task*/)
+                    me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                });
+
+                Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
+                Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
+
+                scheduler.Schedule(Milliseconds(step * 50), [this, arrowOuterLeft, arrowOuterRight](TaskContext /*task*/)
+                {
+                    me->CastSpell(arrowOuterLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    me->CastSpell(arrowOuterRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                });
+
+                return true;
+            }
+
+            case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
+            {
+                uint8 arrowAmount = amount;
+
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
+                {
+                    // Let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform
+                    Position arrowCenter(target->GetRandomPoint(target->GetPosition(), frand(0.0f, 3.0f)));
+
+                    if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS) || (amount + 1) * 2 == step)
+                        return false;
+
+                    scheduler.Schedule(50ms, [this, arrowCenter](TaskContext /*task*/)
                     {
-                        me->CastSpell(target->GetRandomPoint(target->GetPosition(), frand(1.0f, 2.5f)), SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
                 }
+
+                return true;
             }
+
+            case DATA_DESECRATING_SHOT_PATTERN_WAVE:
+            {
+                float distance = -4.0f * step;
+
+                if (step == 0)
+                {
+                    Position middleLine(pos.GetPositionX() + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation) * distance), pos.GetPositionZ());
+
+                    me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+
+                    Position rightLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * 4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * 4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
+
+                    me->CastSpell(rightLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+
+                    Position leftLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * -4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * -4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
+
+                    me->CastSpell(leftLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                }
+                else
+                {
+                    scheduler.Schedule(50ms, [this, pos, orientation, distance](TaskContext /*task*/)
+                    {
+                        Position rightLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * 4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * 4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
+
+                        me->CastSpell(rightLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+
+                    scheduler.Schedule(75ms, [this, pos, orientation, distance](TaskContext /*task*/)
+                    {
+                        Position leftLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * -4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * -4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
+
+                        me->CastSpell(leftLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+
+                    scheduler.Schedule(100ms, [this, pos, orientation, distance](TaskContext /*task*/)
+                    {
+                        Position middleLine(pos.GetPositionX() + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation) * distance), pos.GetPositionZ());
+
+                        me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
+
+                return true;
+            }
+
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
+            {
+                // for amount 3 and choose target on the loop
+                // each part of the spiral max 9 steps x 3 (each side) + 1 (center)
+                break;
+            }
+
+            case DATA_DESECRATING_SHOT_PATTERN_JAR:
+            {
+                break;
+            }
+
+            default:
+                break;
         }
-    }
 
-    void DrawDesecratingShotSpiral()
-    {
-        // Three casts
-    }
-
-    void DrawDesecratingShotJar()
-    {
-
+        return true;
     }
 
     void TeleportShadowcopiesToMe()
