@@ -87,10 +87,10 @@ public:
             bIsSplitPhase = true;
             bHasDispersed = false;
 
-            uiSplitTimer = 25 * IN_MILLISECONDS;
+            uiSplitTimer = 25s;
 
-            uiStaticOverloadTimer = urand(5 * IN_MILLISECONDS, 6 * IN_MILLISECONDS);
-            uiBallLightningTimer = urand(10 * IN_MILLISECONDS, 11 * IN_MILLISECONDS);
+            uiStaticOverloadTimer = (5s, 6s);
+            uiBallLightningTimer = (10s , 11s);
 
             uiDisperseHealth = 45 + urand(0, 10);
         }
@@ -102,10 +102,10 @@ public:
         bool bIsSplitPhase;
         bool bHasDispersed;
 
-        uint32 uiSplitTimer;
+        Seconds uiSplitTimer;
 
-        uint32 uiStaticOverloadTimer;
-        uint32 uiBallLightningTimer;
+        Seconds uiStaticOverloadTimer;
+        Seconds uiBallLightningTimer;
 
         uint32 uiDisperseHealth;
 
@@ -226,9 +226,9 @@ public:
             // Splitted
             if (!me->IsVisible())
             {
-                if (uiSplitTimer <= uiDiff)
+                if (uiSplitTimer <= Seconds(uiDiff))
                 {
-                    uiSplitTimer = 2500;
+                    uiSplitTimer = 25s;
 
                     // Return sparks to where Ionar splitted
                     if (bIsSplitPhase)
@@ -245,7 +245,7 @@ public:
 
                         DoCast(me, SPELL_SPARK_DESPAWN, false);
 
-                        uiSplitTimer = 25*IN_MILLISECONDS;
+                        uiSplitTimer = 25s;
                         bIsSplitPhase = true;
 
                         if (me->GetVictim())
@@ -253,28 +253,28 @@ public:
                     }
                 }
                 else
-                    uiSplitTimer -= uiDiff;
+                    uiSplitTimer -= Seconds(uiDiff);
 
                 return;
             }
 
-            if (uiStaticOverloadTimer <= uiDiff)
+            if (uiStaticOverloadTimer <= Seconds(uiDiff))
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_STATIC_OVERLOAD);
 
-                uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
+                uiStaticOverloadTimer = 5s, 6s;
             }
             else
-                uiStaticOverloadTimer -= uiDiff;
+                uiStaticOverloadTimer -= Seconds(uiDiff);
 
-            if (uiBallLightningTimer <= uiDiff)
+            if (uiBallLightningTimer <= Seconds(uiDiff))
             {
                 DoCastVictim(SPELL_BALL_LIGHTNING);
-                uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
+                uiBallLightningTimer = 10s, 11s;
             }
             else
-                uiBallLightningTimer -= uiDiff;
+                uiBallLightningTimer -= Seconds(uiDiff);
 
             // Health check
             if (!bHasDispersed && HealthBelowPct(uiDisperseHealth))
@@ -314,12 +314,12 @@ public:
 
         void Initialize()
         {
-            uiCheckTimer = 2 * IN_MILLISECONDS;
+            uiCheckTimer = 2s;
         }
 
         InstanceScript* instance;
 
-        uint32 uiCheckTimer;
+        Seconds uiCheckTimer;
 
         void Reset() override
         {
@@ -351,7 +351,7 @@ public:
             }
 
             // Prevent them to follow players through the whole instance
-            if (uiCheckTimer <= uiDiff)
+            if (uiCheckTimer <= Seconds(uiDiff))
             {
                 Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_IONAR));
                 if (ionar && ionar->IsAlive())
@@ -367,10 +367,10 @@ public:
                 }
                 else
                     me->DespawnOrUnsummon();
-                uiCheckTimer = 2*IN_MILLISECONDS;
+                uiCheckTimer = 2s;
             }
             else
-                uiCheckTimer -= uiDiff;
+                uiCheckTimer -= Seconds(uiDiff);
 
             // No melee attack at all!
         }
