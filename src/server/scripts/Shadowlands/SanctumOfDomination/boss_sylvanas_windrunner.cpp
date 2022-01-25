@@ -710,8 +710,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
     void JustAppeared() override
     {
-        DoZoneInCombat();
-
         me->SetReactState(REACT_PASSIVE);
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
@@ -956,7 +954,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 me->CastSpell(sylvanas->GetPosition(), SPELL_WINDRUNNER_MOVE, true);
             });
 
-            _scheduler.Schedule(2s + 62ms, [this, sylvanas, chooseMe](TaskContext /*task*/)
+            _scheduler.Schedule(2s + 62ms, [sylvanas, chooseMe](TaskContext /*task*/)
             {
                 if (chooseMe)
                 {
