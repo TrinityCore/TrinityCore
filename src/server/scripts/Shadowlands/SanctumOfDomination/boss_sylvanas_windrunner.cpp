@@ -260,7 +260,7 @@ enum Events
 };
 
 enum Actions
-{ 
+{
     ACTION_WINDRUNNER_MODEL_ACTIVATE                    = 1,
     ACTION_WINDRUNNER_MODEL_DEACTIVATE,
     ACTION_RESET_MELEE_KIT,
@@ -425,8 +425,8 @@ enum SpellVisuals
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_3_HC            = 105852, // At 3.0f
     SPELL_VISUAL_JAILER_BOLT                            = 107337, // At 90.0f, false as time
     SPELL_VISUAL_BANSHEES_BANE_ABSORB                   = 108093, // At 0.5f
+    SPELL_VISUAL_BANSHEES_BANE_DROP                     = 107839, // At 0.349999994039535522f
 
-    SPELL_VISUAL_UNK02_PLAYER                           = 107839, // At 0.349999994039535522f
     SPELL_VISUAL_UNK_02                                 = 108094, // At 1.5f
     SPELL_VISUAL_SHADOW_DAGGER                          = 108096, // At 100.0f, false
     SPELL_VISUAL_MOST_LIKELY_SPREAD_OUT_FOG             = 108092, // At 0.64f - 0.52f
@@ -2610,7 +2610,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_VENTHYR_PLATFORM:
                 return _venthyrDesecrated;
-                
             default:
                 break;
         }
@@ -2644,7 +2643,7 @@ struct boss_sylvanas_windrunner : public BossAI
     
     Position const GetMiddlePointInCurrentPlatform()
     {
-        for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
+       for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
        {
            if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
                return CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
@@ -2779,7 +2778,7 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 
         if (GetCaster()->HasAura(SPELL_RANGER_DAGGERS_STANCE))
             GetCaster()->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
-        
+
         if (urand(0, 1))
             GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN, 0, 0);
         else
@@ -3701,7 +3700,11 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
                     if (sylvanas->IsInCombat())
+                    {
+                        GetTarget()->SendPlaySpellVisual(bansheeBaneDest, 0.0f, SPELL_VISUAL_BANSHEES_BANE_DROP, 0, 0, 0.349999994039535522f, true);
+                    
                         sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500ms));
+                    }
                 }
             }
         }
@@ -5069,7 +5072,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 break;
             default:
                 break;
-        }                        
+        }
 
         _scheduler.Schedule(500ms, [this](TaskContext /*task*/)
         {
@@ -5769,7 +5772,7 @@ struct at_sylvanas_windrunner_banshee_bane : AreaTriggerAI
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             sylvanas->CastSpell(unit, SPELL_BANSHEES_BANE, true);
 
-        unit->SendPlaySpellVisual(at->GetPosition(), 0.0f, SPELL_VISUAL_UNK02_PLAYER, 0, 0, 0.5f, true);
+        unit->SendPlaySpellVisual(at->GetPosition(), 0.0f, SPELL_VISUAL_BANSHEES_BANE_DROP, 0, 0, 0.5f, true);
 
         at->Remove();
     }
