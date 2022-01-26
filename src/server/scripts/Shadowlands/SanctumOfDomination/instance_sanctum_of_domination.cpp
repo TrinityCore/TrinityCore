@@ -59,6 +59,7 @@ public:
 
         void OnPlayerEnter(Player* /*player*/) override
         {
+            SetData(DATA_SYLVANAS_INTRO, DONE);
             /*
             if (GetData(DATA_SYLVANAS_INTRO) == NOT_STARTED)
             {
