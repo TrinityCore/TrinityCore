@@ -750,20 +750,19 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
 
     _worldPacket.WriteBit(Mailed);
     _worldPacket.WriteBits(AsUnderlyingType(Type), 2);
-    _worldPacket.FlushBits();
 
     if (Type == RewardType::Item)
     {
         _worldPacket.WriteBit(BonusRoll);
-        _worldPacket.FlushBits();
 
         _worldPacket << Item;
         _worldPacket << int32(SpecializationID);
         _worldPacket << int32(ItemQuantity);
     }
-
-    if (Type == RewardType::Currency)
+    else if (Type == RewardType::Currency)
         _worldPacket << int32(CurrencyID);
+    else if (Type == RewardType::Money)
+        _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
