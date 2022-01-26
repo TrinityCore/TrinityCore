@@ -488,11 +488,6 @@ void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaCondition co
     if (!achievementCriteriaList)
         return;
 
-    //AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, 0/*get all*/);
-    //for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
-    //{
-    //    AchievementCriteriaEntry const* achievementCriteria = (*i);
-
     for (auto itr = achievementCriteriaList->begin(); itr != achievementCriteriaList->end(); ++itr)
     {
         AchievementCriteriaEntry const* achievementCriteria = *itr;
@@ -504,14 +499,6 @@ void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaCondition co
         if ((IsCompletedCriteria(achievementCriteria, achievement) && !evenIfCriteriaComplete) || HasAchieved(achievement->ID))
             continue;
 
-        //for (uint8 j = 0; j < MAX_CRITERIA_REQUIREMENTS; ++j)
-        //    if (achievementCriteria->AdditionalRequirements[j].Type == miscValue1 &&
-        //        (!achievementCriteria->AdditionalRequirements[j].Asset ||
-        //        achievementCriteria->AdditionalRequirements[j].Asset == miscValue2))
-        //    {
-        //        RemoveCriteriaProgress(achievementCriteria);
-        //        break;
-        //    }
         RemoveCriteriaProgress(achievementCriteria);
     }
 }
@@ -3259,40 +3246,40 @@ inline bool IsAchievementCriteriaTypeStoredByMiscValue(AchievementCriteriaTypes 
 {
     switch (type)
     {
-    case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
-    case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-    case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
-    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
-    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
-    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-    case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
-    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
-    case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
-    case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
-    case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-    case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
-    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
-    case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
-    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-    case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
-    case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
-    case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
-    case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
-    case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-    case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
-    case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-    case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
-    case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
-    case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
-    case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-    case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
-    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
-    case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-    case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
-    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
-        return true;
-    default:
-        break;
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+        case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
+        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
+        case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
+        case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
+        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+        case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
+        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+            return true;
+        default:
+            break;
     }
     return false;
 }
