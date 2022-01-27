@@ -1282,8 +1282,8 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 SetCriteriaProgress(achievementCriteria, skillvalue, referencePlayer);
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-            if (uint32 maxSkillvalue = referencePlayer->GetPureMaxSkillValue(achievementCriteria->Asset.SkillID))
-                SetCriteriaProgress(achievementCriteria, maxSkillvalue, referencePlayer);
+            if (uint32 skillStep = referencePlayer->GetSkillStep(achievementCriteria->Asset.SkillID))
+                SetCriteriaProgress(achievementCriteria, skillStep, referencePlayer);
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
             SetCriteriaProgress(achievementCriteria, referencePlayer->GetRewardedQuestCount(), referencePlayer);
@@ -1618,7 +1618,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
             return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-            return progress->counter >= (achievementCriteria->Amount * 75);
+            return progress->counter >= achievementCriteria->Amount;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
             return progress->counter >= 9000;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
