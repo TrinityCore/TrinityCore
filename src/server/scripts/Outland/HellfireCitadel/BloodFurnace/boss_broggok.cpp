@@ -150,7 +150,7 @@ class boss_broggok : public CreatureScript
         }
 };
 
-static std::vector<uint32> const PrisionersEmotes =
+static Emote const PrisionersEmotes[] =
 {
     EMOTE_ONESHOT_ROAR,
     EMOTE_ONESHOT_SHOUT,

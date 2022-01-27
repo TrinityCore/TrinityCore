@@ -60,7 +60,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void AddEscortState(uint32 escortState) { _escortState |= escortState; }
         void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
         void SetAutoAttack(bool on) { _canAutoAttack = on; }
-        void SetCombatMove(bool on);
+        void SetCombatMove(bool on, bool stopMoving = false);
         bool CanCombatMove() { return _canCombatMove; }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
         void StopFollow(bool complete);

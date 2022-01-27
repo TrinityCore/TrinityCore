@@ -324,6 +324,7 @@ inline bool isUpper(wchar_t wchar)
 TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring const& wstr, LocaleConstant locale);
 
 TC_COMMON_API void wstrToUpper(std::wstring& str);
+TC_COMMON_API void strToLower(std::string& str);
 TC_COMMON_API void wstrToLower(std::wstring& str);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
@@ -340,15 +341,22 @@ TC_COMMON_API bool IsIPAddress(char const* ipaddress);
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
 
-TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
+namespace Trinity::Impl
+{
+    TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
+    TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, size_t outlen, bool reverse = false);
+}
+
 template <typename Container>
-std::string ByteArrayToHexStr(Container const& c, bool reverse = false) { return ByteArrayToHexStr(std::data(c), std::size(c), reverse); }
-TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
+std::string ByteArrayToHexStr(Container const& c, bool reverse = false)
+{
+    return Trinity::Impl::ByteArrayToHexStr(std::data(c), std::size(c), reverse);
+}
+
 template <size_t Size>
 void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)
 {
-    ASSERT(str.size() == (2 * Size));
-    HexStrToByteArray(str, buf.data(), reverse);
+    Trinity::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
 }
 template <size_t Size>
 std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse = false)
@@ -358,9 +366,20 @@ std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse =
     return arr;
 }
 
+inline std::vector<uint8> HexStrToByteVector(std::string const& str, bool reverse = false)
+{
+    std::vector<uint8> buf;
+    size_t const sz = (str.size() / 2);
+    buf.resize(sz);
+    Trinity::Impl::HexStrToByteArray(str, buf.data(), sz, reverse);
+    return buf;
+}
+
 TC_COMMON_API bool StringToBool(std::string const& str);
 TC_COMMON_API float DegToRad(float degrees);
 
+TC_COMMON_API bool StringEqualI(std::string const& str1, std::string const& str2);
+TC_COMMON_API bool StringStartsWith(std::string const& haystack, std::string const& needle);
 TC_COMMON_API bool StringContainsStringI(std::string const& haystack, std::string const& needle);
 template <typename T>
 inline bool ValueContainsStringI(std::pair<T, std::string> const& haystack, std::string const& needle)

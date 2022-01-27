@@ -71,7 +71,8 @@ enum BWLGameObjectIds
     GO_PORTCULLIS_CHROMAGGUS    = 179117, //Door after you kill him, not the one for his room
     GO_CHROMAGGUS_LEVER         = 179148,
     GO_CHROMAGGUS_DOOR          = 179116,
-    GO_PORTCULLIS_NEFARIAN      = 176966
+    GO_PORTCULLIS_NEFARIAN      = 176966,
+    GO_SUPPRESSION_DEVICE       = 179784
 };
 
 enum BWLEvents

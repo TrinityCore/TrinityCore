@@ -248,7 +248,7 @@ public:
 
             if (count > resultCount)
                 count -= resultCount;
-            else if (count)
+            else
                 count = 0;
         }
 
@@ -295,7 +295,7 @@ public:
 
             if (count > resultCount)
                 count -= resultCount;
-            else if (count)
+            else
                 count = 0;
         }
 
@@ -370,7 +370,7 @@ public:
 
             if (count > resultCount)
                 count -= resultCount;
-            else if (count)
+            else
                 count = 0;
         }
 

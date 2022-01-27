@@ -198,6 +198,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
+    if (sWorld->getBoolConfig(CONFIG_SET_SHAPASSHASH))
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
         stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(newUsername, newPassword));
@@ -234,6 +235,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
+    if (sWorld->getBoolConfig(CONFIG_SET_SHAPASSHASH))
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
         stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(username, newPassword));

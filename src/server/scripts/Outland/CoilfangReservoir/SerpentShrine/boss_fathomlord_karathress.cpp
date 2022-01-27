@@ -686,8 +686,7 @@ public:
                 while (unit == nullptr || !unit->IsAlive())
                     unit = selectAdvisorUnit();
 
-                if (unit && unit->IsAlive())
-                    DoCast(unit, SPELL_HEAL);
+                DoCast(unit, SPELL_HEAL);
                 Heal_Timer = 60000;
             }
             else

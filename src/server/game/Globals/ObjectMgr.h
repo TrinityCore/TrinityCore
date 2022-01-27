@@ -747,27 +747,27 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
-    uint32               MenuId;
-    uint32               OptionIndex;
-    GossipOptionIcon     OptionIcon;
-    std::string          OptionText;
-    uint32               OptionBroadcastTextId;
-    uint32               OptionType;
-    uint64               OptionNpcFlag;
-    uint32               ActionMenuId;
-    uint32               ActionPoiId;
-    bool                 BoxCoded;
-    uint32               BoxMoney;
-    std::string          BoxText;
-    uint32               BoxBroadcastTextId;
-    ConditionContainer   Conditions;
+    uint32              MenuID;
+    uint32              OptionID;
+    GossipOptionIcon    OptionIcon;
+    std::string         OptionText;
+    uint32              OptionBroadcastTextID;
+    uint32              OptionType;
+    uint32              OptionNpcFlag;
+    uint32              ActionMenuID;
+    uint32              ActionPoiID;
+    bool                BoxCoded;
+    uint32              BoxMoney;
+    std::string         BoxText;
+    uint32              BoxBroadcastTextID;
+    ConditionContainer  Conditions;
 };
 
 struct GossipMenus
 {
-    uint32               MenuId;
-    uint32               TextId;
-    ConditionContainer   Conditions;
+    uint32              MenuID;
+    uint32              TextID;
+    ConditionContainer  Conditions;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
@@ -1570,9 +1570,9 @@ class TC_GAME_API ObjectMgr
             if (itr == _pageTextLocaleStore.end()) return nullptr;
             return &itr->second;
         }
-        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 menuId, uint32 optionIndex) const
+        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 menuId, uint32 optionId) const
         {
-            auto itr = _gossipMenuItemsLocaleStore.find(std::make_pair(menuId, optionIndex));
+            auto itr = _gossipMenuItemsLocaleStore.find(std::make_pair(menuId, optionId));
             if (itr == _gossipMenuItemsLocaleStore.end()) return nullptr;
             return &itr->second;
         }
@@ -1636,7 +1636,7 @@ class TC_GAME_API ObjectMgr
         {
             return GetCreatureTrainerForGossipOption(creatureId, 0, 0);
         }
-        uint32 GetCreatureTrainerForGossipOption(uint32 creatureId, uint32 gossipMenuId, uint32 gossipOptionIndex) const;
+        uint32 GetCreatureTrainerForGossipOption(uint32 creatureId, uint32 gossipMenuId, uint32 gossipOptionId) const;
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {

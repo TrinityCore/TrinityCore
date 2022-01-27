@@ -46,7 +46,6 @@ class TC_GAME_API PossessedAI : public CreatureAI
         void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void JustDied(Unit*) override;
-        void KilledUnit(Unit* victim) override;
 
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
