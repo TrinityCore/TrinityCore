@@ -575,7 +575,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     SetLevel(start_level, false);
     // @tswow-begin  -- autolearn all spells from level 1 at character creation
-    ApplyAutolearnSpells(1);
+    ApplyAutolearnSpells(0);
     // @tswow-end
 
     InitRunes();
