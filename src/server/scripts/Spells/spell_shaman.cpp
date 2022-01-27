@@ -81,7 +81,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE        = 71824,
     SPELL_SHAMAN_LAVA_BURST_OVERLOAD            = 77451,
-    SPELL_SHAMAN_LAVA_BURST_RANK2               = 231721,
+    SPELL_SHAMAN_LAVA_BURST_RANK_2              = 231721,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
     SPELL_SHAMAN_LIGHTNING_BOLT                 = 188196,
     SPELL_SHAMAN_LIGHTNING_BOLT_ENERGIZE        = 214815,
@@ -976,14 +976,13 @@ class spell_sha_lava_burst : public SpellScript
 
 // 285452 - Lava Burst damage
 // 285466 - Lava Burst Overload damage
-class spell_sha_lava_burst_damage : public SpellScript
+class spell_sha_lava_crit_chance : public SpellScript
 {
-    PrepareSpellScript(spell_sha_lava_burst_damage);
+    PrepareSpellScript(spell_sha_lava_crit_chance);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({ SPELL_SHAMAN_LAVA_BURST_RANK2, SPELL_SHAMAN_FLAME_SHOCK });
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST_RANK_2, SPELL_SHAMAN_FLAME_SHOCK });
     }
 
     void CalcCritChance(Unit const* victim, float& chance)
@@ -993,14 +992,14 @@ class spell_sha_lava_burst_damage : public SpellScript
         if (!caster || !victim)
             return;
 
-        if (caster->HasAura(SPELL_SHAMAN_LAVA_BURST_RANK2) && victim->HasAura(SPELL_SHAMAN_FLAME_SHOCK, caster->GetGUID()))
+        if (caster->HasAura(SPELL_SHAMAN_LAVA_BURST_RANK_2) && victim->HasAura(SPELL_SHAMAN_FLAME_SHOCK, caster->GetGUID()))
             if (victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE) > -100)
                 chance = 100.f;
     }
 
     void Register() override
     {
-        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_sha_lava_burst_damage::CalcCritChance);
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_sha_lava_crit_chance::CalcCritChance);
     }
 };
 
@@ -1734,7 +1733,7 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_item_t10_elemental_2p_bonus);
     RegisterAuraScript(spell_sha_item_t18_elemental_4p_bonus);
     RegisterSpellScript(spell_sha_lava_burst);
-    RegisterSpellScript(spell_sha_lava_burst_damage);
+    RegisterSpellScript(spell_sha_lava_crit_chance);
     RegisterAuraScript(spell_sha_lava_surge);
     RegisterSpellScript(spell_sha_lava_surge_proc);
     RegisterSpellScript(spell_sha_lightning_bolt);
