@@ -222,7 +222,7 @@ public:
                 {
                     //Teleport 4 players under the waterfalls
                     GuidSet targets;
-                    GuidSet::const_iterator itr;
+                    GuidSet::const_iterator itr = targets.begin();
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         counter = 0;
@@ -260,7 +260,7 @@ public:
                 if (WateryGlobules_Timer <= diff)
                 {
                     GuidSet globules;
-                    GuidSet::const_iterator itr;
+                    GuidSet::const_iterator itr = globules.begin();
                     for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;
@@ -274,6 +274,7 @@ public:
                                 break;
                             ++counter;
                         } while (itr != globules.end());
+
                         if (pGlobuleTarget)
                         {
                             globules.insert(pGlobuleTarget->GetGUID());

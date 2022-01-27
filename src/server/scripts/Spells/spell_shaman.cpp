@@ -45,6 +45,9 @@ enum ShamanSpells
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE = 218558,
     SPELL_SHAMAN_CHAINED_HEAL                   = 70809,
     SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE         = 187878,
+    SPELL_SHAMAN_EARTHQUAKE                     = 61882,
+    SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN       = 77505,
+    SPELL_SHAMAN_EARTHQUAKE_TICK                = 77478,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 204290,
     SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE           = 170374,
     SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC          = 170377,
@@ -55,8 +58,8 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_BLAST_ENERGIZE       = 344645,
     SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE          = 173183,
     SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY        = 173184,
-    SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_ELEMENTAL_BLAST_OVERLOAD       = 120588,
+    SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FLAME_SHOCK                    = 188389,
@@ -453,6 +456,85 @@ class spell_sha_earthen_rage_proc_aura : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthen_rage_proc_aura::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 61882 - Earthquake
+//  8382 - AreaTriggerId
+struct areatrigger_sha_earthquake : AreaTriggerAI
+{
+    areatrigger_sha_earthquake(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(0s), _period(1s) { }
+
+    void OnCreate() override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (AuraEffect const* earthquake = caster->GetAuraEffect(SPELL_SHAMAN_EARTHQUAKE, EFFECT_1))
+                _period = Milliseconds(earthquake->GetPeriod());
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _refreshTimer -= Milliseconds(diff);
+        while (_refreshTimer <= 0s)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), SPELL_SHAMAN_EARTHQUAKE_TICK, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCaster(at->GetGUID()));
+
+            _refreshTimer += _period;
+        }
+    }
+
+    // Each target can only be stunned once by each earthquake - keep track of who we already stunned
+    bool AddStunnedTarget(ObjectGuid const& guid)
+    {
+        return _stunnedUnits.insert(guid).second;
+    }
+
+private:
+    Milliseconds _refreshTimer;
+    Milliseconds _period;
+    GuidUnorderedSet _stunnedUnits;
+};
+
+// 77478 - Earthquake tick
+class spell_sha_earthquake_tick : public SpellScript
+{
+    PrepareSpellScript(spell_sha_earthquake_tick);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN }) && spellInfo->GetEffects().size() > EFFECT_1;
+    }
+
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        SetEffectValue(GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.391f);
+    }
+
+    void HandleOnHit()
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            if (roll_chance_i(GetEffectInfo(EFFECT_1).CalcValue()))
+            {
+                std::vector<AreaTrigger*> areaTriggers = GetCaster()->GetAreaTriggers(SPELL_SHAMAN_EARTHQUAKE);
+                auto itr = std::find_if(areaTriggers.begin(), areaTriggers.end(), [&](AreaTrigger const* at)
+                {
+                    return at->GetGUID() == GetSpell()->GetOriginalCasterGUID();
+                });
+                if (itr != areaTriggers.end())
+                    if (areatrigger_sha_earthquake* eq = CAST_AI(areatrigger_sha_earthquake, (*itr)->AI()))
+                        if (eq->AddStunnedTarget(target->GetGUID()))
+                            GetCaster()->CastSpell(target, SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN, true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_sha_earthquake_tick::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnHit += SpellHitFn(spell_sha_earthquake_tick::HandleOnHit);
     }
 };
 
@@ -1636,6 +1718,8 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_earth_shield);
     RegisterAuraScript(spell_sha_earthen_rage_passive);
     RegisterAuraScript(spell_sha_earthen_rage_proc_aura);
+    RegisterAreaTriggerAI(areatrigger_sha_earthquake);
+    RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_flametongue_weapon);
     RegisterAuraScript(spell_sha_flametongue_weapon_aura);

@@ -672,7 +672,7 @@ private:
     bool _checkCasting;
 };
 
-static std::vector<uint32> const DarkFallensEmotes =
+static Emote const DarkFallensEmotes[]=
 {
     EMOTE_ONESHOT_TALK,
     EMOTE_ONESHOT_EXCLAMATION,

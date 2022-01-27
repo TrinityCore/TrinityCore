@@ -1516,86 +1516,46 @@ enum TrainingDummy
     NPC_TARGET_DUMMY                           = 2673
 };
 
-class npc_training_dummy : public CreatureScript
+struct npc_training_dummy : NullCreatureAI
 {
-public:
-    npc_training_dummy() : CreatureScript("npc_training_dummy") { }
-
-    struct npc_training_dummyAI : PassiveAI
+    npc_training_dummy(Creature* creature) : NullCreatureAI(creature)
     {
-        npc_training_dummyAI(Creature* creature) : PassiveAI(creature), _combatCheckTimer(500)
-        {
-            uint32 const entry = me->GetEntry();
-            if (entry == NPC_TARGET_DUMMY || entry == NPC_ADVANCED_TARGET_DUMMY)
-            {
-                _combatCheckTimer = 0;
-                me->DespawnOrUnsummon(16s);
-            }
-        }
-
-        void Reset() override
-        {
-            _damageTimes.clear();
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (!_EnterEvadeMode(why))
-                return;
-
-            Reset();
-        }
-
-        void DamageTaken(Unit* doneBy, uint32& damage) override
-        {
-            if (doneBy)
-                _damageTimes[doneBy->GetGUID()] = GameTime::GetGameTime();
-            damage = 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!_combatCheckTimer || !me->IsInCombat())
-                return;
-
-            if (diff < _combatCheckTimer)
-            {
-                _combatCheckTimer -= diff;
-                return;
-            }
-
-            _combatCheckTimer = 500;
-
-            time_t const now = GameTime::GetGameTime();
-            auto const& pveRefs = me->GetCombatManager().GetPvECombatRefs();
-            for (auto itr = _damageTimes.begin(); itr != _damageTimes.end();)
-            {
-                // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
-                if (itr->second < now - 5)
-                {
-                    auto it = pveRefs.find(itr->first);
-                    if (it != pveRefs.end())
-                        it->second->EndCombat();
-
-                    itr = _damageTimes.erase(itr);
-                }
-                else
-                    ++itr;
-            }
-
-            for (auto const& pair : pveRefs)
-                if (_damageTimes.find(pair.first) == _damageTimes.end())
-                    _damageTimes[pair.first] = now;
-        }
-
-        std::unordered_map<ObjectGuid, time_t> _damageTimes;
-        uint32 _combatCheckTimer;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_training_dummyAI(creature);
+        uint32 const entry = me->GetEntry();
+        if (entry == NPC_TARGET_DUMMY || entry == NPC_ADVANCED_TARGET_DUMMY)
+            me->DespawnOrUnsummon(16s);
     }
+
+    void DamageTaken(Unit* attacker, uint32& damage) override
+    {
+        damage = 0;
+
+        if (!attacker)
+            return;
+
+        _combatTimer[attacker->GetGUID()] = 5s;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        for (auto itr = _combatTimer.begin(); itr != _combatTimer.end();)
+        {
+            itr->second -= Milliseconds(diff);
+            if (itr->second <= 0s)
+            {
+                // The attacker has not dealt any damage to the dummy for over 5 seconds. End combat.
+                auto const& pveRefs = me->GetCombatManager().GetPvECombatRefs();
+                auto it = pveRefs.find(itr->first);
+                if (it != pveRefs.end())
+                    it->second->EndCombat();
+
+                itr = _combatTimer.erase(itr);
+            }
+            else
+                ++itr;
+        }
+    }
+private:
+    std::unordered_map<ObjectGuid /*attackerGUID*/, Milliseconds /*combatTime*/> _combatTimer;
 };
 
 /*######
@@ -2621,7 +2581,7 @@ void AddSC_npcs_special()
     new npc_tonk_mine();
     new npc_tournament_mount();
     new npc_brewfest_reveler();
-    new npc_training_dummy();
+    RegisterCreatureAI(npc_training_dummy);
     new npc_wormhole();
     new npc_experience();
     new npc_firework();

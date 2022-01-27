@@ -169,6 +169,7 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
 #define TC_METRIC_EVENT(category, title, description) ((void)0)
 #define TC_METRIC_VALUE(category, value) ((void)0)
 #define TC_METRIC_TIMER(category, ...) ((void)0)
+#define TC_METRIC_DETAILED_EVENT(category, title, description) ((void)0)
 #define TC_METRIC_DETAILED_TIMER(category, ...) ((void)0)
 #define TC_METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) ((void)0)
 #else
@@ -215,7 +216,9 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
                 sMetric->LogValue(category, duration, { __VA_ARGS__ });                                          \
         });
 #define TC_METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) TC_METRIC_TIMER(category, __VA_ARGS__)
+#define TC_METRIC_DETAILED_EVENT(category, title, description) TC_METRIC_EVENT(category, title, description)
 #  else
+#define TC_METRIC_DETAILED_EVENT(category, title, description) ((void)0)
 #define TC_METRIC_DETAILED_TIMER(category, ...) ((void)0)
 #define TC_METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) ((void)0)
 #  endif

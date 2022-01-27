@@ -150,7 +150,6 @@ class boss_kologarn : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
-                ForceCombatStopForCreatureEntry({ NPC_ARM_SWEEP_STALKER, NPC_RUBBLE_STALKER }, 500.f);
                 _JustDied();
             }
 

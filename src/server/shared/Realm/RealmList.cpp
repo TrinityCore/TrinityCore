@@ -82,11 +82,11 @@ void RealmList::LoadBuildInfo()
             build.Build = fields[4].GetUInt32();
             std::string win64AuthSeedHexStr = fields[5].GetString();
             if (win64AuthSeedHexStr.length() == build.Win64AuthSeed.size() * 2)
-                HexStrToByteArray(win64AuthSeedHexStr, build.Win64AuthSeed.data());
+                HexStrToByteArray(win64AuthSeedHexStr, build.Win64AuthSeed);
 
             std::string mac64AuthSeedHexStr = fields[6].GetString();
             if (mac64AuthSeedHexStr.length() == build.Mac64AuthSeed.size() * 2)
-                HexStrToByteArray(mac64AuthSeedHexStr, build.Mac64AuthSeed.data());
+                HexStrToByteArray(mac64AuthSeedHexStr, build.Mac64AuthSeed);
 
         } while (result->NextRow());
     }

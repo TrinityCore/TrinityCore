@@ -788,7 +788,7 @@ void SmartAI::QuestReward(Player* player, Quest const* quest, LootItemType /*typ
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt);
 }
 
-void SmartAI::SetCombatMove(bool on)
+void SmartAI::SetCombatMove(bool on, bool stopMoving)
 {
     if (_canCombatMove == on)
         return;
@@ -803,19 +803,23 @@ void SmartAI::SetCombatMove(bool on)
         if (on)
         {
             if (!me->HasReactState(REACT_PASSIVE) && me->GetVictim() && !me->GetMotionMaster()->HasMovementGenerator([](MovementGenerator const* movement) -> bool
-            {
-                return movement->GetMovementGeneratorType() == CHASE_MOTION_TYPE && movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
-            }))
+                {
+                    return movement->GetMovementGeneratorType() == CHASE_MOTION_TYPE && movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
+                }))
             {
                 SetRun(_run);
                 me->GetMotionMaster()->MoveChase(me->GetVictim());
             }
         }
         else if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool
+            {
+                return a->GetMovementGeneratorType() == CHASE_MOTION_TYPE && a->Mode == MOTION_MODE_DEFAULT && a->Priority == MOTION_PRIORITY_NORMAL;
+            }))
         {
-            return a->GetMovementGeneratorType() == CHASE_MOTION_TYPE && a->Mode == MOTION_MODE_DEFAULT && a->Priority == MOTION_PRIORITY_NORMAL;
-        }))
             me->GetMotionMaster()->Remove(movement);
+            if (stopMoving)
+                me->StopMoving();
+        }
     }
 }
 

@@ -305,7 +305,7 @@ struct npc_head : public ScriptedAI
                     ReturnToBody(true);
                 break;
             case PHASE_HEAD_3:
-                if (!_die && damage >= me->GetHealth())
+                if (damage >= me->GetHealth())
                 {
                     _die = true;
                     damage = 0;
@@ -524,7 +524,7 @@ struct boss_headless_horseman : public ScriptedAI
                             if (Player* player = it->GetSource())
                             {
                                 player->Say(HeadlessHorsemanInitialPlayerTexts[talkContext.GetRepeatCounter()], LANG_UNIVERSAL);
-                                player->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
+                                player->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
                             }
                         }
 

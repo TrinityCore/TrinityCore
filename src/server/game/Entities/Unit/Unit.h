@@ -1037,7 +1037,7 @@ class TC_GAME_API Unit : public WorldObject
                                      DamageInfo* damageInfo, HealInfo* healInfo);
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
-        void HandleEmoteCommand(uint32 emoteId, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {});
+        void HandleEmoteCommand(Emote emoteId, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {});
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
@@ -1849,6 +1849,11 @@ class TC_GAME_API Unit : public WorldObject
         uint16 GetVirtualItemAppearanceMod(uint32 slot) const;
         void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0, uint16 itemVisual = 0);
 
+        // returns if the unit is ignoring any combat interaction
+        bool IsIgnoringCombat() const { return _isIgnoringCombat; }
+        // enables/disables combat interaction of this unit.
+        void SetIgnoringCombat(bool apply) { _isIgnoringCombat = apply; }
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;
@@ -2017,6 +2022,8 @@ class TC_GAME_API Unit : public WorldObject
 
         std::unique_ptr<MovementForces> _movementForces;
         PositionUpdateInfo _positionUpdateInfo;
+
+        bool _isIgnoringCombat;
 };
 
 namespace Trinity

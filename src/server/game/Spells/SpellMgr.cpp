@@ -4343,7 +4343,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Val'kyr Target Search
     ApplySpellFix({ 69030 }, [](SpellInfo* spellInfo)
     {
-         spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
     });
 
     // Raging Spirit Visual
@@ -4653,6 +4653,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
         });
+    });
+
+    // Earthquake
+    ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->NegativeEffects[EFFECT_2] = true;
     });
 
     for (SpellInfo const& s : mSpellInfoMap)

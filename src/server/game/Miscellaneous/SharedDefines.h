@@ -3093,9 +3093,10 @@ enum TextEmotes
 };
 
 // Emotes.db2 (9.0.2.37176)
-enum Emote
+// EnumUtils: DESCRIBE THIS
+enum Emote : uint32
 {
-    EMOTE_ONESHOT_NONE                           = 0,
+    EMOTE_ONESHOT_NONE                           = 0, // SKIP
     EMOTE_ONESHOT_TALK                           = 1,
     EMOTE_ONESHOT_BOW                            = 2,
     EMOTE_ONESHOT_WAVE                           = 3,
@@ -3497,6 +3498,10 @@ enum Emote
     EMOTE_ONESHOT_BARSWEEP_STAND                 = 987,
     EMOTE_TORGHAST_TALKING_HEAD_MAW_CAST_SOUND   = 989,
     EMOTE_TORGHAST_TALKING_HEAD_MAW_CAST_SOUND2  = 990,
+    EMOTE_ONESHOT_STAND_VAR0                     = 991,
+    EMOTE_ONESHOT_FLYCUSTOMSPELL01               = 992,
+    EMOTE_ONESHOT_SPELLEFFECT_DECAY              = 993,
+    EMOTE_STATE_CREATURE_SPECIAL                 = 994,
 };
 
 // AnimationData.db2 (6.0.2.18988)
