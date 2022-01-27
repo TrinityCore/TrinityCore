@@ -492,7 +492,7 @@ void BattlePetMgr::ClearFanfare(ObjectGuid guid)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 }
 
-void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName)
+void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, std::unique_ptr<DeclinedName> declinedName)
 {
     if (!HasJournalLock())
         return;
@@ -504,9 +504,7 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
     pet->PacketInfo.Name = name;
     pet->NameTimestamp = GameTime::GetGameTime();
 
-    pet->DeclinedName.reset();
-    if (declinedName)
-        pet->DeclinedName = std::make_unique<DeclinedName>(*declinedName);
+    pet->DeclinedName = std::move(declinedName);
 
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;

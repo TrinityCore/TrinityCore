@@ -523,9 +523,6 @@ void SmartAI::InitializeAI()
     _despawnTime = 0;
     _despawnState = 0;
     _escortState = SMART_ESCORT_NONE;
-
-    me->SetVisible(true);
-
     _followGUID.Clear(); // do not reset follower on Reset(), we need it after combat evade
     _followDistance = 0;
     _followAngle = 0;
@@ -590,6 +587,11 @@ void SmartAI::KilledUnit(Unit* victim)
 void SmartAI::JustSummoned(Creature* creature)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
+}
+
+void SmartAI::SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT_DIES, summon);
 }
 
 void SmartAI::AttackStart(Unit* who)
@@ -786,7 +788,7 @@ void SmartAI::QuestReward(Player* player, Quest const* quest, LootItemType /*typ
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt);
 }
 
-void SmartAI::SetCombatMove(bool on)
+void SmartAI::SetCombatMove(bool on, bool stopMoving)
 {
     if (_canCombatMove == on)
         return;
@@ -801,19 +803,23 @@ void SmartAI::SetCombatMove(bool on)
         if (on)
         {
             if (!me->HasReactState(REACT_PASSIVE) && me->GetVictim() && !me->GetMotionMaster()->HasMovementGenerator([](MovementGenerator const* movement) -> bool
-            {
-                return movement->GetMovementGeneratorType() == CHASE_MOTION_TYPE && movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
-            }))
+                {
+                    return movement->GetMovementGeneratorType() == CHASE_MOTION_TYPE && movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
+                }))
             {
                 SetRun(_run);
                 me->GetMotionMaster()->MoveChase(me->GetVictim());
             }
         }
         else if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool
+            {
+                return a->GetMovementGeneratorType() == CHASE_MOTION_TYPE && a->Mode == MOTION_MODE_DEFAULT && a->Priority == MOTION_PRIORITY_NORMAL;
+            }))
         {
-            return a->GetMovementGeneratorType() == CHASE_MOTION_TYPE && a->Mode == MOTION_MODE_DEFAULT && a->Priority == MOTION_PRIORITY_NORMAL;
-        }))
             me->GetMotionMaster()->Remove(movement);
+            if (stopMoving)
+                me->StopMoving();
+        }
     }
 }
 
@@ -864,9 +870,9 @@ void SmartAI::StopFollow(bool complete)
     GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED, player);
 }
 
-void SmartAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
+void SmartAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId)
 {
-    GetScript()->SetTimedActionList(e, entry, invoker);
+    GetScript()->SetTimedActionList(e, entry, invoker, startFromEventId);
 }
 
 void SmartAI::OnGameEvent(bool start, uint16 eventId)
@@ -935,13 +941,13 @@ void SmartAI::UpdatePath(uint32 diff)
     // handle pause
     if (HasEscortState(SMART_ESCORT_PAUSED) && (_waypointReached || _waypointPauseForced))
     {
-        if (_waypointPauseTimer <= diff)
+        if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
         {
-            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
+            if (_waypointPauseTimer <= diff)
                 ResumePath();
+            else
+                _waypointPauseTimer -= diff;
         }
-        else
-            _waypointPauseTimer -= diff;
     }
     else if (_waypointPathEnded) // end path
     {
@@ -1100,6 +1106,11 @@ void SmartGameObjectAI::SpellHit(WorldObject* caster, SpellInfo const* spellInfo
 void SmartGameObjectAI::JustSummoned(Creature* creature)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
+}
+
+void SmartGameObjectAI::SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT_DIES, summon);
 }
 
 void SmartGameObjectAI::SummonedCreatureDespawn(Creature* unit)

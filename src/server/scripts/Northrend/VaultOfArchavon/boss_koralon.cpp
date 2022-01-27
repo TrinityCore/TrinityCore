@@ -234,7 +234,7 @@ class spell_koralon_meteor_fists_damage : public SpellScriptLoader
         private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                _chainTargets = targets.size();
+                _chainTargets = uint8(targets.size());
             }
 
             void CalculateSplitDamage()

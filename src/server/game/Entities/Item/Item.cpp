@@ -316,7 +316,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = artifactResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.Artifact)
-                info.Artifact = boost::in_place();
+                info.Artifact.emplace();
             info.Artifact->Xp = fields[1].GetUInt64();
             info.Artifact->ArtifactAppearanceId = fields[2].GetUInt32();
             info.Artifact->ArtifactTierId = fields[3].GetUInt32();
@@ -359,7 +359,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = azeriteItemResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.AzeriteItem)
-                info.AzeriteItem = boost::in_place();
+                info.AzeriteItem.emplace();
             info.AzeriteItem->Xp = fields[1].GetUInt64();
             info.AzeriteItem->Level = fields[2].GetUInt32();
             info.AzeriteItem->KnowledgeLevel = fields[3].GetUInt32();
@@ -392,7 +392,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = azeriteItemMilestonePowersResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.AzeriteItem)
-                info.AzeriteItem = boost::in_place();
+                info.AzeriteItem.emplace();
             info.AzeriteItem->AzeriteItemMilestonePowers.push_back(fields[1].GetUInt32());
         }
         while (azeriteItemMilestonePowersResult->NextRow());
@@ -409,7 +409,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             {
                 ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
                 if (!info.AzeriteItem)
-                    info.AzeriteItem = boost::in_place();
+                    info.AzeriteItem.emplace();
 
                 info.AzeriteItem->UnlockedAzeriteEssences.push_back(azeriteEssencePower);
             }
@@ -426,7 +426,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = azeriteEmpoweredItemResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.AzeriteEmpoweredItem)
-                info.AzeriteEmpoweredItem = boost::in_place();
+                info.AzeriteEmpoweredItem.emplace();
 
             for (uint32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
                 if (sAzeritePowerStore.LookupEntry(fields[1 + i].GetInt32()))
@@ -1295,12 +1295,10 @@ uint32 Item::GetEnchantRequiredLevel() const
 
     // Check all enchants for required level
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-    {
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->MinLevel > level)
                     level = enchantEntry->MinLevel;
-    }
 
     return level;
 }
@@ -2444,7 +2442,7 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    if (std::find(m_itemData->BonusListIDs->begin(), m_itemData->BonusListIDs->end(), bonusListID) != m_itemData->BonusListIDs->end())
+    if (std::find(m_itemData->BonusListIDs->begin(), m_itemData->BonusListIDs->end(), int32(bonusListID)) != m_itemData->BonusListIDs->end())
         return;
 
     if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))

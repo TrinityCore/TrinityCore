@@ -74,9 +74,9 @@ class TC_GAME_API SmartScript
         void DoFindFriendlyMissingBuff(std::vector<Creature*>& creatures, float range, uint32 spellid) const;
         Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly) const;
 
-        bool IsSmart(Creature* c, bool silent = false);
-        bool IsSmart(GameObject* g, bool silent = false);
-        bool IsSmart(bool silent = false);
+        bool IsSmart(Creature* c, bool silent = false) const;
+        bool IsSmart(GameObject* g, bool silent = false) const;
+        bool IsSmart(bool silent = false) const;
 
         void StoreTargetList(ObjectVector const& targets, uint32 id);
         void AddToStoredTargetList(ObjectVector const& targets, uint32 id);
@@ -91,7 +91,7 @@ class TC_GAME_API SmartScript
         void OnReset();
         void ResetBaseObject();
 
-        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId = 0);
         Unit* GetLastInvoker(Unit* invoker = nullptr) const;
         ObjectGuid mLastInvoker;
         typedef std::unordered_map<uint32, uint32> CounterMap;
@@ -104,6 +104,9 @@ class TC_GAME_API SmartScript
 
         void SetPhase(uint32 p);
         bool IsInPhase(uint32 p) const;
+
+        void SortEvents(SmartAIEventList& events);
+        void RaisePriority(SmartScriptHolder& e);
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
@@ -130,6 +133,8 @@ class TC_GAME_API SmartScript
         uint32 mLastTextID;
         uint32 mTalkerEntry;
         bool mUseTextTimer;
+        uint32 mCurrentPriority;
+        bool mEventSortingRequired;
 
         ObjectVectorMap _storedTargets;
 

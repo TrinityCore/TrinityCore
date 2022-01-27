@@ -54,7 +54,7 @@ class npc_pet_shaman_earth_elemental : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SHAMAN_ANGEREDEARTH, 0);
+                _events.ScheduleEvent(EVENT_SHAMAN_ANGEREDEARTH, 0s);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
@@ -98,7 +98,7 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHAMAN_FIRENOVA, 5s, 20s);
                 _events.ScheduleEvent(EVENT_SHAMAN_FIREBLAST, 5s, 20s);
-                _events.ScheduleEvent(EVENT_SHAMAN_FIRESHIELD, 0);
+                _events.ScheduleEvent(EVENT_SHAMAN_FIRESHIELD, 0s);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 

@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "UnitDefines.h"
+#include <memory>
 
 namespace WorldPackets
 {
@@ -150,7 +151,7 @@ namespace WorldPackets
 
             ObjectGuid PetGuid;
             std::string Name;
-            Optional<DeclinedName> DeclinedNames;
+            std::unique_ptr<DeclinedName> DeclinedNames;
         };
 
         class QueryBattlePetName final : public ClientPacket

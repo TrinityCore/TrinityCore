@@ -52,6 +52,7 @@
 #include "Map.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -386,25 +387,27 @@ void Spell::EffectResurrectNew()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->IsAlive())
+    if (!corpseTarget && !unitTarget)
         return;
 
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    if (!unitTarget->IsInWorld())
-        return;
-
-    Player* target = unitTarget->ToPlayer();
-
-    if (target->IsResurrectRequested())       // already have one active request
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
     uint32 health = damage;
     uint32 mana = effectInfo->MiscValue;
-    ExecuteLogEffectResurrect(SpellEffectName(effectInfo->Effect), target);
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
-    SendResurrectRequest(target);
+    ExecuteLogEffectResurrect(SpellEffectName(effectInfo->Effect), player);
+    player->SetResurrectRequestData(m_caster, health, mana, 0);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectInstaKill()
@@ -519,7 +522,7 @@ void Spell::EffectDummy()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget && !gameObjTarget && !itemTarget)
+    if (!unitTarget && !gameObjTarget && !itemTarget && !corpseTarget)
         return;
 
     // pet auras
@@ -1037,6 +1040,8 @@ void Spell::EffectSendEvent()
             target = unitTarget;
         else if (gameObjTarget)
             target = gameObjTarget;
+        else if (corpseTarget)
+            target = corpseTarget;
     }
     else // if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
@@ -1535,6 +1540,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry, player);
 
                 // Don't return, let loots been taken
+                break;
             default:
                 break;
         }
@@ -1942,7 +1948,7 @@ void Spell::EffectSummonType()
                             // randomize position for multiple summons
                             pos = caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = caster->SummonCreature(entry, pos, summonType, duration, 0, m_spellInfo->Id, privateObjectOwner);
+                        summon = caster->SummonCreature(entry, pos, summonType, Milliseconds(duration), 0, m_spellInfo->Id, privateObjectOwner);
                         if (!summon)
                             continue;
 
@@ -3287,12 +3293,128 @@ void Spell::EffectActivateObject()
     if (!gameObjTarget)
         return;
 
-    ScriptInfo activateCommand;
-    activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
+    GameObjectActions action = GameObjectActions(effectInfo->MiscValue);
 
-    // int32 unk = effectInfo->MiscValue; // This is set for EffectActivateObject spells; needs research
+    switch (action)
+    {
+        case GameObjectActions::AnimateCustom0:
+        case GameObjectActions::AnimateCustom1:
+        case GameObjectActions::AnimateCustom2:
+        case GameObjectActions::AnimateCustom3:
+            gameObjTarget->SendCustomAnim(uint32(action) - uint32(GameObjectActions::AnimateCustom0));
+            break;
+        case GameObjectActions::Disturb: // What's the difference with Open?
+        case GameObjectActions::Open:
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->Use(unitCaster);
+            break;
+        case GameObjectActions::OpenAndUnlock:
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->UseDoorOrButton(0, false, unitCaster);
+            [[fallthrough]];
+        case GameObjectActions::Unlock:
+            gameObjTarget->RemoveFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Lock:
+            gameObjTarget->AddFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Close:
+        case GameObjectActions::Rebuild:
+            gameObjTarget->ResetDoorOrButton();
+            break;
+        case GameObjectActions::Despawn:
+            gameObjTarget->DespawnOrUnsummon();
+            break;
+        case GameObjectActions::MakeInert:
+            gameObjTarget->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            break;
+        case GameObjectActions::MakeActive:
+            gameObjTarget->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+            break;
+        case GameObjectActions::CloseAndLock:
+            gameObjTarget->ResetDoorOrButton();
+            gameObjTarget->AddFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Destroy:
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->UseDoorOrButton(0, true, unitCaster);
+            break;
+        case GameObjectActions::UseArtKit0:
+        case GameObjectActions::UseArtKit1:
+        case GameObjectActions::UseArtKit2:
+        case GameObjectActions::UseArtKit3:
+        case GameObjectActions::UseArtKit4:
+        {
+            GameObjectTemplateAddon const* templateAddon = gameObjTarget->GetTemplateAddon();
 
-    gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, 0, m_caster, gameObjTarget);
+            uint32 artKitIndex = action != GameObjectActions::UseArtKit4 ? uint32(action) - uint32(GameObjectActions::UseArtKit0) : 4;
+
+            uint32 artKitValue = 0;
+            if (templateAddon != nullptr)
+                artKitValue = templateAddon->ArtKits[artKitIndex];
+
+            if (artKitValue == 0)
+                TC_LOG_ERROR("sql.sql", "GameObject %d hit by spell %d needs `artkit%d` in `gameobject_template_addon`", gameObjTarget->GetEntry(), m_spellInfo->Id, artKitIndex);
+            else
+                gameObjTarget->SetGoArtKit(artKitValue);
+
+            break;
+        }
+        case GameObjectActions::GoTo1stFloor:
+        case GameObjectActions::GoTo2ndFloor:
+        case GameObjectActions::GoTo3rdFloor:
+        case GameObjectActions::GoTo4thFloor:
+        case GameObjectActions::GoTo5thFloor:
+        case GameObjectActions::GoTo6thFloor:
+        case GameObjectActions::GoTo7thFloor:
+        case GameObjectActions::GoTo8thFloor:
+        case GameObjectActions::GoTo9thFloor:
+        case GameObjectActions::GoTo10thFloor:
+            if (gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+                gameObjTarget->SetTransportState(GO_STATE_TRANSPORT_STOPPED, uint32(action) - uint32(GameObjectActions::GoTo1stFloor));
+            else
+                TC_LOG_ERROR("spell", "Spell %d targeted non-transport gameobject for transport only action \"Go to Floor\" %d in effect %d", m_spellInfo->Id, int32(action), int32(effectInfo->EffectIndex));
+            break;
+        case GameObjectActions::PlayAnimKit:
+            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, false);
+            break;
+        case GameObjectActions::OpenAndPlayAnimKit:
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->UseDoorOrButton(0, false, unitCaster);
+            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, false);
+            break;
+        case GameObjectActions::CloseAndPlayAnimKit:
+            gameObjTarget->ResetDoorOrButton();
+            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, false);
+            break;
+        case GameObjectActions::PlayOneShotAnimKit:
+            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, true);
+            break;
+        case GameObjectActions::StopAnimKit:
+            gameObjTarget->SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::OpenAndStopAnimKit:
+            if (Unit* unitCaster = m_caster->ToUnit())
+                gameObjTarget->UseDoorOrButton(0, false, unitCaster);
+            gameObjTarget->SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::CloseAndStopAnimKit:
+            gameObjTarget->ResetDoorOrButton();
+            gameObjTarget->SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::PlaySpellVisual:
+            gameObjTarget->SetSpellVisualId(effectInfo->MiscValueB, m_originalCasterGUID);
+            break;
+        case GameObjectActions::StopSpellVisual:
+            gameObjTarget->SetSpellVisualId(0);
+            break;
+        case GameObjectActions::None:
+            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", m_spellInfo->Id, int32(effectInfo->EffectIndex));
+            break;
+        default:
+            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", m_spellInfo->Id, int32(action), int32(effectInfo->EffectIndex));
+            break;
+    }
 }
 
 void Spell::EffectApplyGlyph()
@@ -3547,24 +3669,29 @@ void Spell::EffectResurrect()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!corpseTarget && !unitTarget)
         return;
 
-    if (unitTarget->IsAlive() || !unitTarget->IsInWorld())
+    Player* player = nullptr;
+
+    if (corpseTarget)
+        player = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+    else if (unitTarget)
+        player = unitTarget->ToPlayer();
+
+    if (!player || player->IsAlive() || !player->IsInWorld())
         return;
 
-    Player* target = unitTarget->ToPlayer();
-
-    if (target->IsResurrectRequested())       // already have one active request
+    if (player->IsResurrectRequested())       // already have one active request
         return;
 
-    uint32 health = target->CountPctFromMaxHealth(damage);
-    uint32 mana   = CalculatePct(target->GetMaxPower(POWER_MANA), damage);
+    uint32 health = player->CountPctFromMaxHealth(damage);
+    uint32 mana   = CalculatePct(player->GetMaxPower(POWER_MANA), damage);
 
-    ExecuteLogEffectResurrect(SpellEffectName(effectInfo->Effect), target);
+    ExecuteLogEffectResurrect(SpellEffectName(effectInfo->Effect), player);
 
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
-    SendResurrectRequest(target);
+    player->SetResurrectRequestData(m_caster, health, mana, 0);
+    SendResurrectRequest(player);
 }
 
 void Spell::EffectAddExtraAttacks()
@@ -3811,7 +3938,7 @@ void Spell::EffectCharge()
         Optional<Movement::SpellEffectExtraData> spellEffectExtraData;
         if (effectInfo->MiscValueB)
         {
-            spellEffectExtraData = boost::in_place();
+            spellEffectExtraData.emplace();
             spellEffectExtraData->Target = unitTarget->GetGUID();
             spellEffectExtraData->SpellVisualId = effectInfo->MiscValueB;
         }
@@ -3823,7 +3950,7 @@ void Spell::EffectCharge()
             if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
                 speed = pos.GetExactDist(m_caster) / speed;
 
-            unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed, EVENT_CHARGE, false, unitTarget, spellEffectExtraData.get_ptr());
+            unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed, EVENT_CHARGE, false, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
         }
         else
         {
@@ -3833,7 +3960,7 @@ void Spell::EffectCharge()
                 speed = Position(pos.x, pos.y, pos.z).GetExactDist(m_caster) / speed;
             }
 
-            unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData.get_ptr());
+            unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
         }
     }
 
@@ -4503,7 +4630,13 @@ void Spell::EffectSkinPlayerCorpse()
     TC_LOG_DEBUG("spells", "Effect: SkinPlayerCorpse");
 
     Player* player = m_caster->ToPlayer();
-    Player* target = unitTarget->ToPlayer();
+
+    Player* target = nullptr;
+    if (unitTarget)
+        target = unitTarget->ToPlayer();
+    else if (corpseTarget)
+        target = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+
     if (!player || !target || target->IsAlive())
         return;
 
@@ -5652,7 +5785,9 @@ void Spell::EffectJumpCharge()
             effectExtra->ParabolicCurveId = *params->ParabolicCurveId;
     }
 
-    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, false, arrivalCast.get_ptr(), effectExtra.get_ptr());
+    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, false,
+        arrivalCast ? &*arrivalCast : nullptr,
+        effectExtra ? &*effectExtra : nullptr);
 }
 
 void Spell::EffectLearnTransmogSet()

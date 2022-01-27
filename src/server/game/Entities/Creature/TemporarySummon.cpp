@@ -258,7 +258,7 @@ void TempSummon::UnSummon(uint32 msTime)
     {
         ForcedUnsummonDelayEvent* pEvent = new ForcedUnsummonDelayEvent(*this);
 
-        m_Events.AddEvent(pEvent, m_Events.CalculateTime(msTime));
+        m_Events.AddEvent(pEvent, m_Events.CalculateTime(Milliseconds(msTime)));
         return;
     }
 

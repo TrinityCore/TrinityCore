@@ -228,11 +228,9 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     if (remove)
         return;
 
-    auraInfo.AuraData = boost::in_place();
-
     Aura const* aura = GetBase();
 
-    WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData.get();
+    WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData.emplace();
     auraData.CastID = aura->GetCastId();
     auraData.SpellID = aura->GetId();
     auraData.Visual = aura->GetSpellVisual();
@@ -249,7 +247,9 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
     auraData.Applications = aura->IsUsingStacks() ? aura->GetStackAmount() : aura->GetCharges();
-    if (!(auraData.Flags & AFLAG_NOCASTER))
+    if (!aura->GetCasterGUID().IsUnit())
+        auraData.CastUnit = ObjectGuid::Empty; // optional data is filled in, but cast unit contains empty guid in packet
+    else if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
 
     if (auraData.Flags & AFLAG_DURATION)
@@ -392,14 +392,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
     // try to get caster of aura
     if (!createInfo.CasterGUID.IsEmpty())
     {
-        // world gameobjects can't own auras and they send empty casterguid
-        // checked on sniffs with spell 22247
-        if (createInfo.CasterGUID.IsGameObject())
-        {
-            createInfo.Caster = nullptr;
-            createInfo.CasterGUID.Clear();
-        }
-        else
+        if (createInfo.CasterGUID.IsUnit())
         {
             if (createInfo._owner->GetGUID() == createInfo.CasterGUID)
                 createInfo.Caster = createInfo._owner->ToUnit();
@@ -466,8 +459,8 @@ m_castItemLevel(createInfo.CastItemLevel), m_spellVisual({ createInfo.Caster ? c
 m_applyTime(GameTime::GetGameTime()), m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(createInfo.Caster ? createInfo.Caster->GetLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
-m_procCooldown(std::chrono::steady_clock::time_point::min()),
-m_lastProcAttemptTime(std::chrono::steady_clock::now() - Seconds(10)), m_lastProcSuccessTime(std::chrono::steady_clock::now() - Seconds(120))
+m_procCooldown(TimePoint::min()),
+m_lastProcAttemptTime(GameTime::Now() - Seconds(10)), m_lastProcSuccessTime(GameTime::Now() - Seconds(120))
 {
     for (SpellPowerEntry const* power : m_spellInfo->PowerCosts)
         if (power && (power->ManaPerSecond != 0 || power->PowerPctPerSecond > 0.0f))
@@ -525,6 +518,14 @@ Unit* Aura::GetCaster() const
         return aurApp->GetTarget();
 
     return ObjectAccessor::GetUnit(*GetOwner(), GetCasterGUID());
+}
+
+WorldObject* Aura::GetWorldObjectCaster() const
+{
+    if (GetCasterGUID().IsUnit())
+        return GetCaster();
+
+    return ObjectAccessor::GetWorldObject(*GetOwner(), GetCasterGUID());
 }
 
 AuraEffect* Aura::GetEffect(uint32 index) const
@@ -1003,7 +1004,7 @@ void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
         return;
 
     m_dropEvent = new ChargeDropEvent(this, removeMode);
-    owner->m_Events.AddEvent(m_dropEvent, owner->m_Events.CalculateTime(delay));
+    owner->m_Events.AddEvent(m_dropEvent, owner->m_Events.CalculateTime(Milliseconds(delay)));
 }
 
 void Aura::SetStackAmount(uint8 stackAmount)
@@ -1712,22 +1713,22 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     return true;
 }
 
-bool Aura::IsProcOnCooldown(std::chrono::steady_clock::time_point now) const
+bool Aura::IsProcOnCooldown(TimePoint now) const
 {
     return m_procCooldown > now;
 }
 
-void Aura::AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd)
+void Aura::AddProcCooldown(TimePoint cooldownEnd)
 {
     m_procCooldown = cooldownEnd;
 }
 
 void Aura::ResetProcCooldown()
 {
-    m_procCooldown = std::chrono::steady_clock::now();
+    m_procCooldown = GameTime::Now();
 }
 
-void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now)
+void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now)
 {
     bool prepare = CallScriptPrepareProcHandlers(aurApp, eventInfo);
     if (!prepare)
@@ -1754,7 +1755,7 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     SetLastProcSuccessTime(now);
 }
 
-uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const
+uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now) const
 {
     SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetSpellInfo());
     // only auras with spell proc entry can trigger proc
@@ -1936,7 +1937,7 @@ float Aura::CalcPPMProcChance(Unit* actor) const
     float ppm = m_spellInfo->CalcProcPPM(actor, GetCastItemLevel());
     float averageProcInterval = 60.0f / ppm;
 
-    std::chrono::steady_clock::time_point currentTime = GameTime::GetGameTimeSteadyPoint();
+    TimePoint currentTime = GameTime::Now();
     float secondsSinceLastAttempt = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcAttemptTime).count(), 10.0f);
     float secondsSinceLastProc = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcSuccessTime).count(), 1000.0f);
 
@@ -2461,7 +2462,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
                 if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
                     units.push_back(GetUnitOwner());
-                /* fallthrough */
+                [[fallthrough]];
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             {
                 if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())

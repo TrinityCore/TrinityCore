@@ -773,6 +773,7 @@ void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player*
         case ACHIEVEMENTS_WIN_WG_100:
         {
             // player->UpdateCriteria();
+            break;
         }
         default:
         {

@@ -150,7 +150,7 @@ class instance_zulaman : public InstanceMapScript
                         {
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, 15);
-                            events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                            events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                             SpeedRunTimer = 15;
                             ZulAmanState = data;
                             SaveToDB();
@@ -250,7 +250,7 @@ class instance_zulaman : public InstanceMapScript
                             SaveToDB();
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, --SpeedRunTimer);
                             if (SpeedRunTimer)
-                                events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                                events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                             else
                             {
                                 DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 0);
@@ -279,7 +279,7 @@ class instance_zulaman : public InstanceMapScript
 
                 if (ZulAmanState == IN_PROGRESS && SpeedRunTimer && SpeedRunTimer <= 15)
                 {
-                    events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                    events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                     DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
                     DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, SpeedRunTimer);
                 }

@@ -143,10 +143,10 @@ class boss_slabhide : public CreatureScript
             {
                 BossAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, 4000);
-                events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
-                events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 10000));
-                events.ScheduleEvent(EVENT_AIR_PHASE, 10000);
+                events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, 4s);
+                events.ScheduleEvent(EVENT_LAVA_FISSURE, 6s, 8s);
+                events.ScheduleEvent(EVENT_SAND_BLAST, 8s, 10s);
+                events.ScheduleEvent(EVENT_AIR_PHASE, 10s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -207,15 +207,15 @@ class boss_slabhide : public CreatureScript
                         break;
                     case POINT_SLABHIDE_MIDDLE:
                         _isFlying = true;
-                        events.ScheduleEvent(EVENT_TAKEOFF, 100);
+                        events.ScheduleEvent(EVENT_TAKEOFF, 100ms);
                         break;
                     case POINT_SLABHIDE_IN_AIR:
-                        events.ScheduleEvent(EVENT_STALACTITE, 400);
+                        events.ScheduleEvent(EVENT_STALACTITE, 400ms);
                         break;
                     case POINT_SLABHIDE_LAND:
                         _isFlying = false;
                         //DoCast(me, SPELL_COOLDOWN_5S); // unknown purpose
-                        events.ScheduleEvent(EVENT_ATTACK, 1200);
+                        events.ScheduleEvent(EVENT_ATTACK, 1200ms);
                         break;
                     default:
                         break;
@@ -242,18 +242,18 @@ class boss_slabhide : public CreatureScript
                         case EVENT_LAVA_FISSURE:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_LAVA_FISSURE);
-                            events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
+                            events.ScheduleEvent(EVENT_LAVA_FISSURE, 6s, 8s);
                             break;
                         case EVENT_SAND_BLAST:
                             DoCast(me, SPELL_SAND_BLAST);
-                            events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 11000));
+                            events.ScheduleEvent(EVENT_SAND_BLAST, 8s, 11s);
                             break;
                         case EVENT_AIR_PHASE:
                             events.Reset();
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             me->GetMotionMaster()->MovePoint(POINT_SLABHIDE_MIDDLE, SlabhideMiddlePos);
-                            events.ScheduleEvent(EVENT_AIR_PHASE, 60000);
+                            events.ScheduleEvent(EVENT_AIR_PHASE, 1min);
                             break;
                         case EVENT_TAKEOFF:
                             me->GetMotionMaster()->MoveTakeoff(POINT_SLABHIDE_IN_AIR, SlabhideInAirPos);
@@ -266,7 +266,7 @@ class boss_slabhide : public CreatureScript
 
                             DoCast(me, SPELL_STALACTITE_SUMMON);
 
-                            events.ScheduleEvent(EVENT_LAND, 8000);
+                            events.ScheduleEvent(EVENT_LAND, 8s);
                             break;
                         case EVENT_LAND:
                         {
@@ -281,8 +281,8 @@ class boss_slabhide : public CreatureScript
                             me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                             me->SetHover(false);
 
-                            events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
-                            events.ScheduleEvent(EVENT_SAND_BLAST, urand(8000, 10000));
+                            events.ScheduleEvent(EVENT_LAVA_FISSURE, 6s, 8s);
+                            events.ScheduleEvent(EVENT_SAND_BLAST, 8s, 10s);
                             DoCast(me, SPELL_CRYSTAL_STORM);
                             me->SetReactState(REACT_AGGRESSIVE);
                             break;
@@ -332,7 +332,7 @@ public:
         npc_lava_fissureAI(Creature* creature) : ScriptedAI(creature)
         {
             DoCast(me, SPELL_LAVA_FISSURE_CRACK, true);
-            events.ScheduleEvent(EVENT_LAVA_FISSURE_ERUPTION, 6000);
+            events.ScheduleEvent(EVENT_LAVA_FISSURE_ERUPTION, 6s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -346,7 +346,7 @@ public:
                     case EVENT_LAVA_FISSURE_ERUPTION:
                         me->RemoveAurasDueToSpell(SPELL_LAVA_FISSURE_CRACK);
                         DoCast(me, SPELL_LAVA_FISSURE_ERUPTION, true);
-                        me->DespawnOrUnsummon(14000);
+                        me->DespawnOrUnsummon(14s);
                         break;
                     default:
                         break;
@@ -376,7 +376,7 @@ public:
         {
             me->SetDisableGravity(true);
             DoCast(me, SPELL_STALACTITE_SHADE, true);
-            events.ScheduleEvent(EVENT_STALACTITE_MISSLE, 5600);
+            events.ScheduleEvent(EVENT_STALACTITE_MISSLE, 5600ms);
         }
 
         void UpdateAI(uint32 diff) override
@@ -392,7 +392,7 @@ public:
                 {
                     case EVENT_STALACTITE_MISSLE:
                         DoCast(me, SPELL_STALACTITE_MISSLE);
-                        me->DespawnOrUnsummon(11000);
+                        me->DespawnOrUnsummon(11s);
                         break;
                     default:
                         break;

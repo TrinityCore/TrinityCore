@@ -34,53 +34,6 @@
 #include "WorldSession.h"
 
 /*######
-## npc_khunok_the_behemoth
-######*/
-
-enum Khunok
-{
-    NPC_ORPHANED_MAMMOTH_CALF        = 25861,
-    SPELL_MAMMOTH_CALF_ESCORT_CREDIT = 46231
-};
-
-class npc_khunok_the_behemoth : public CreatureScript
-{
-public:
-    npc_khunok_the_behemoth() : CreatureScript("npc_khunok_the_behemoth") { }
-
-    struct npc_khunok_the_behemothAI : public ScriptedAI
-    {
-        npc_khunok_the_behemothAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (who->GetTypeId() != TYPEID_UNIT)
-                return;
-
-            if (who->GetEntry() == NPC_ORPHANED_MAMMOTH_CALF && me->IsWithinDistInMap(who, 10.0f))
-            {
-                if (Unit* owner = who->GetOwner())
-                {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        owner->CastSpell(owner, SPELL_MAMMOTH_CALF_ESCORT_CREDIT, true);
-                        who->ToCreature()->DespawnOrUnsummon();
-                    }
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_khunok_the_behemothAI(creature);
-    }
-};
-
-/*######
 ## npc_corastrasza
 ######*/
 
@@ -266,8 +219,8 @@ class spell_q11865_place_fake_fur : public SpellScript
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
 
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 20);
-        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 20s);
+        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1s))
         {
             summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);
@@ -694,7 +647,7 @@ public:
             {
                 case 3:
                     SetEscortPaused(true);
-                    if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                     {
                         arthasGUID = arthas->GetGUID();
                         arthas->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
@@ -702,7 +655,7 @@ public:
                         arthas->SetWalk(true);
                         arthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
                     }
-                    if (Creature* talbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* talbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                     {
                         talbotGUID = talbot->GetGUID();
                         talbot->SetWalk(true);
@@ -783,13 +736,13 @@ public:
                         break;
 
                     case 6:
-                        if (Creature* arlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* arlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                         {
                             arlosGUID = arlos->GetGUID();
                             arlos->SetWalk(true);
                             arlos->GetMotionMaster()->MovePoint(0, 3735.570068f, 3572.419922f, 477.441010f);
                         }
-                        if (Creature* leryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* leryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                         {
                             leryssaGUID = leryssa->GetGUID();
                             leryssa->SetWalk(false);
@@ -1668,7 +1621,7 @@ public:
                 _events.ScheduleEvent(EVENT_TALK_1, Seconds(2));
                 _events.CancelEvent(EVENT_OOC_TALK);
                 Start(true, true, player->GetGUID());
-                SetPauseTimer(12 * IN_MILLISECONDS);
+                SetPauseTimer(12s);
             }
         }
 
@@ -1808,7 +1761,7 @@ public:
 };
 
 /*######
-## Help Those That Cannot Help Themselves, Quest 11876
+## Valiance Keep Cannoneer script to activate cannons
 ######*/
 
 enum Valiancekeepcannons
@@ -2294,7 +2247,6 @@ class spell_q11653_shortening_blaster : public SpellScript
 
 void AddSC_borean_tundra()
 {
-    new npc_khunok_the_behemoth();
     new npc_corastrasza();
     new npc_nerubar_victim();
     RegisterSpellScript(spell_q11865_place_fake_fur);

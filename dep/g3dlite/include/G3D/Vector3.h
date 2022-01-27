@@ -128,7 +128,6 @@ public:
     Axis primaryAxis() const;
 
     // assignment and comparison
-    Vector3& __fastcall operator= (const Vector3& rkVector);
     Vector3& operator=(const Any& a);
     bool operator== (const Vector3& rkVector) const;
     bool operator!= (const Vector3& rkVector) const;
@@ -626,14 +625,6 @@ inline float& Vector3::operator[] (int i) {
     return ((float*)this)[i];
 }
 
-
-//----------------------------------------------------------------------------
-inline Vector3& Vector3::operator= (const Vector3& rkVector) {
-    x = rkVector.x;
-    y = rkVector.y;
-    z = rkVector.z;
-    return *this;
-}
 
 //----------------------------------------------------------------------------
 

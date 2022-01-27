@@ -44,6 +44,7 @@ enum WarlockSpells
     SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
+    SPELL_WARLOCK_IMMOLATE_PERIODIC                 = 157736,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
@@ -107,6 +108,33 @@ class spell_warl_banish : public SpellScriptLoader
         {
             return new spell_warl_banish_SpellScript();
         }
+};
+
+// 116858 - Chaos Bolt
+class spell_warl_chaos_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_warl_chaos_bolt);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage));
+    }
+
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
+    {
+        critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_warl_chaos_bolt::CalcCritChance);
+    }
 };
 
 // 77220 - Mastery: Chaotic Energies
@@ -449,6 +477,27 @@ class spell_warl_healthstone_heal : public SpellScriptLoader
         {
             return new spell_warl_healthstone_heal_SpellScript();
         }
+};
+
+// 348 - Immolate
+class spell_warl_immolate : public SpellScript
+{
+    PrepareSpellScript(spell_warl_immolate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_IMMOLATE_PERIODIC});
+    }
+
+    void HandleOnEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARLOCK_IMMOLATE_PERIODIC, GetSpell());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_immolate::HandleOnEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 6358 - Seduction (Special Ability)
@@ -1020,6 +1069,7 @@ public:
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_banish();
+    RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterAuraScript(spell_warl_chaotic_energies);
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
@@ -1029,6 +1079,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_healthstone_heal();
+    RegisterSpellScript(spell_warl_immolate);
     new spell_warl_seduction();
     new spell_warl_seed_of_corruption();
     new spell_warl_seed_of_corruption_dummy();

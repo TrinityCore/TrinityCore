@@ -170,7 +170,7 @@ static char const* HeadlessHorsemanInitialPlayerTexts[] =
 
 struct npc_wisp_invis : public ScriptedAI
 {
-    npc_wisp_invis(Creature* creature) : ScriptedAI(creature), _timer(0), _creatureType(0), _firstSpell(0), _secondSpell(0)
+    npc_wisp_invis(Creature* creature) : ScriptedAI(creature), _timer(0s), _creatureType(0), _firstSpell(0), _secondSpell(0)
     {
         creature->SetDisplayId(DISPLAYID_INVIS_WISP_INVISIBLE);
     }
@@ -186,16 +186,16 @@ struct npc_wisp_invis : public ScriptedAI
                 _firstSpell = SPELL_HEADLESS_HORSEMAN___PUMPKIN_AURA;
                 break;
             case INVIS_WISP_CREATURE_TYPE_FLAME:
-                _timer.Reset(15 * IN_MILLISECONDS);
+                _timer.Reset(15s);
                 _firstSpell = SPELL_HEADLESS_HORSEMAN___FIRE;
                 _secondSpell = SPELL_HEADLESS_HORSEMAN_CLIMAX___HEAD_IS_DEAD;
                 break;
             case INVIS_WISP_CREATURE_TYPE_SMOKE:
-                _timer.Reset(15 * IN_MILLISECONDS);
+                _timer.Reset(15s);
                 _firstSpell = SPELL_HEADLESS_HORSEMAN___SMOKE;
                 break;
             case INVIS_WISP_CREATURE_TYPE_BLUE:
-                _timer.Reset(7 * IN_MILLISECONDS);
+                _timer.Reset(7s);
                 _secondSpell = SPELL_HEADLESS_HORSEMAN___WISP_FLIGHT_MISSILE;
                 break;
             default:
@@ -231,12 +231,12 @@ struct npc_wisp_invis : public ScriptedAI
             me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN___SMOKE);
             if (_secondSpell)
                 DoCast(me, _secondSpell);
-            _timer.Reset(0);
+            _timer.Reset(0s);
         }
     }
 
 private:
-    TimeTrackerSmall _timer;
+    TimeTracker _timer;
     uint32 _creatureType;
     uint32 _firstSpell;
     uint32 _secondSpell;
@@ -244,7 +244,7 @@ private:
 
 struct npc_head : public ScriptedAI
 {
-    npc_head(Creature* creature) : ScriptedAI(creature), _laughTimer(urand(15 * IN_MILLISECONDS, 30 * IN_MILLISECONDS))
+    npc_head(Creature* creature) : ScriptedAI(creature), _laughTimer(randtime(15s, 30s))
     {
         creature->SetReactState(REACT_PASSIVE);
         Initialize();
@@ -261,7 +261,7 @@ struct npc_head : public ScriptedAI
     void Reset() override
     {
         Initialize();
-        _laughTimer.Reset(urand(15 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+        _laughTimer.Reset(randtime(15s, 30s));
         _scheduler.CancelAll();
 
         // Just to be sure it's MOTION_SLOT_DEFAULT is static
@@ -305,7 +305,7 @@ struct npc_head : public ScriptedAI
                     ReturnToBody(true);
                 break;
             case PHASE_HEAD_3:
-                if (!_die && damage >= me->GetHealth())
+                if (damage >= me->GetHealth())
                 {
                     _die = true;
                     damage = 0;
@@ -383,11 +383,11 @@ struct npc_head : public ScriptedAI
 
         if (_laughTimer.Passed())
         {
-            _laughTimer.Reset(urand(15 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+            _laughTimer.Reset(randtime(15s, 30s));
 
             DoPlaySoundToSet(me, Trinity::Containers::SelectRandomContainerElement(HeadlessHorsemanRandomLaughSound));
 
-            if (Creature* speaker = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+            if (Creature* speaker = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 1s))
                 speaker->CastSpell(speaker, SPELL_HEADLESS_HORSEMAN___SPEAKS, false);
         }
     }
@@ -421,14 +421,14 @@ private:
     void DoTalk(uint32 entry)
     {
         Talk(entry);
-        _laughTimer.Reset(3 * IN_MILLISECONDS);
+        _laughTimer.Reset(3s);
 
-        if (Creature* speaker = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 1 * IN_MILLISECONDS))
+        if (Creature* speaker = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 1s))
             speaker->CastSpell(speaker, SPELL_HEADLESS_HORSEMAN___SPEAKS, false);
     }
 
     TaskScheduler _scheduler;
-    TimeTrackerSmall _laughTimer;
+    TimeTracker _laughTimer;
     ObjectGuid _bodyGUID;
     uint32 _phase;
     bool _withBody;
@@ -437,7 +437,7 @@ private:
 
 struct boss_headless_horseman : public ScriptedAI
 {
-    boss_headless_horseman(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _laughTimer(0), _phase(0), _id(0)
+    boss_headless_horseman(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _laughTimer(0s), _phase(0), _id(0)
     {
         Initialize();
 
@@ -460,7 +460,7 @@ struct boss_headless_horseman : public ScriptedAI
 
     void Reset() override
     {
-        _laughTimer.Reset(0);
+        _laughTimer.Reset(0s);
         Initialize();
 
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_CLIMAX___HEAD_VISUAL);
@@ -524,7 +524,7 @@ struct boss_headless_horseman : public ScriptedAI
                             if (Player* player = it->GetSource())
                             {
                                 player->Say(HeadlessHorsemanInitialPlayerTexts[talkContext.GetRepeatCounter()], LANG_UNIVERSAL);
-                                player->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
+                                player->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
                             }
                         }
 
@@ -554,7 +554,7 @@ struct boss_headless_horseman : public ScriptedAI
                 me->SetVisible(true);
                 break;
             case POINT_HORSEMAN_1:
-                if (Creature* smoke = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[1], TEMPSUMMON_TIMED_DESPAWN, 20 * IN_MILLISECONDS))
+                if (Creature* smoke = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[1], TEMPSUMMON_TIMED_DESPAWN, 20s))
                     smoke->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_SMOKE);
                 DoCast(SPELL_HEADLESS_HORSEMAN_CLIMAX___SUMMONING_RHYME_SHAKE_MEDIUM);
                 break;
@@ -591,7 +591,7 @@ struct boss_headless_horseman : public ScriptedAI
             cleaveContext.Repeat(2s, 6s);
         }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext /*burnContext*/)
         {
-            if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17 * IN_MILLISECONDS))
+            if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17s))
                 flame->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_FLAME);
         });
     }
@@ -626,9 +626,9 @@ struct boss_headless_horseman : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         DoTalk(SAY_DEATH);
-        if (Creature* flame = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 60 * IN_MILLISECONDS))
+        if (Creature* flame = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 60s))
             flame->CastSpell(flame, SPELL_HEADLESS_HORSEMAN___FIRE);
-        if (Creature* wisp = DoSpawnCreature(NPC_WISP_INVIS, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 60 * IN_MILLISECONDS))
+        if (Creature* wisp = DoSpawnCreature(NPC_WISP_INVIS, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 60s))
             wisp->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_BLUE);
 
         _instance->SetBossState(DATA_HORSEMAN_EVENT, DONE);
@@ -653,7 +653,7 @@ struct boss_headless_horseman : public ScriptedAI
         if (spellInfo->Id != SPELL_HEADLESS_HORSEMAN_CLIMAX___SEND_HEAD)
             return;
 
-        _laughTimer.Reset(urand(2 * IN_MILLISECONDS, 5 * IN_MILLISECONDS));
+        _laughTimer.Reset(randtime(2s, 5s));
         _withHead = true;
         _scheduler.CancelGroup(TASK_GROUP_WITHOUT_HEAD);
 
@@ -676,7 +676,7 @@ struct boss_headless_horseman : public ScriptedAI
                     cleaveContext.Repeat(2s, 6s);
                 }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext /*burnContext*/)
                 {
-                    if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17 * IN_MILLISECONDS))
+                    if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17s))
                         flame->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_FLAME);
                 });
                 break;
@@ -733,7 +733,7 @@ struct boss_headless_horseman : public ScriptedAI
         Creature* head = nullptr;
         if (!_headGUID)
         {
-            if (Creature* newHead = DoSpawnCreature(NPC_HEADLESS_HORSEMAN_HEAD, frand(0.f, 5.f), frand(0.f, 5.f), 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* newHead = DoSpawnCreature(NPC_HEADLESS_HORSEMAN_HEAD, frand(0.f, 5.f), frand(0.f, 5.f), 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0s))
             {
                 _headGUID = newHead->GetGUID();
                 head = newHead;
@@ -782,7 +782,7 @@ struct boss_headless_horseman : public ScriptedAI
 
         if (_withHead && _laughTimer.Passed())
         {
-            _laughTimer.Reset(urand(11 * IN_MILLISECONDS, 22 * IN_MILLISECONDS));
+            _laughTimer.Reset(randtime(11s, 22s));
             DoPlaySoundToSet(me, Trinity::Containers::SelectRandomContainerElement(HeadlessHorsemanRandomLaughSound));
         }
 
@@ -802,12 +802,12 @@ private:
     void DoTalk(uint8 textEntry, Unit* target = nullptr)
     {
         Talk(textEntry, target);
-        _laughTimer.Reset(std::min<uint32>(10 * IN_MILLISECONDS, _laughTimer.GetExpiry() + 4 * IN_MILLISECONDS));
+        _laughTimer.Reset(std::min(std::chrono::duration_cast<Milliseconds>(10s), _laughTimer.GetExpiry() + 4s));
     }
 
     InstanceScript* _instance;
     TaskScheduler _scheduler;
-    TimeTrackerSmall _laughTimer;
+    TimeTracker _laughTimer;
     ObjectGuid _headGUID;
     uint32 _phase;
     uint32 _id;
@@ -827,7 +827,7 @@ struct npc_pulsing_pumpkin : public ScriptedAI
 
         Despawn();
 
-        Creature* debuff = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14 * IN_MILLISECONDS + 500);
+        Creature* debuff = DoSpawnCreature(NPC_HELPER, 0.f, 0.f, 0.f, 0.f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500ms);
         if (debuff)
         {
             debuff->SetDisplayId(me->GetDisplayId());

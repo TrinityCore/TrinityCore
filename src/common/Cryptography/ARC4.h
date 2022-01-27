@@ -22,9 +22,7 @@
 #include <array>
 #include <openssl/evp.h>
 
-namespace Trinity
-{
-namespace Crypto
+namespace Trinity::Crypto
 {
     class TC_COMMON_API ARC4
     {
@@ -42,7 +40,6 @@ namespace Crypto
         private:
             EVP_CIPHER_CTX* _ctx;
     };
-}
 }
 
 #endif

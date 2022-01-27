@@ -40,7 +40,6 @@ namespace WorldPackets
             AuctionBucketKey() : ItemID(0), ItemLevel(0) { }
             AuctionBucketKey(AuctionsBucketKey const& key) { *this = key; }
 
-            AuctionBucketKey& operator=(AuctionBucketKey const& key) = default;
             AuctionBucketKey& operator=(AuctionsBucketKey const& key);
 
             uint32 ItemID = 0;

@@ -18,13 +18,12 @@
 /* ScriptData
 SDName: Blades_Edge_Mountains
 SD%Complete: 90
-SDComment: Quest support: 10503, 10504, 10556, 10594, 10609, 10821. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
+SDComment: Quest support: 10503, 10504, 10594, 10609, 10821. Ogri'la->Skettis Flight.
 SDCategory: Blade's Edge Mountains
 EndScriptData */
 
 /* ContentData
 npc_nether_drake
-npc_daranelle
 go_legion_obelisk
 EndContentData */
 
@@ -121,7 +120,7 @@ public:
                 return;
 
             if (id == 0)
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
         }
 
         void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -231,53 +230,6 @@ public:
     }
 };
 
-/*######
-## npc_daranelle
-######*/
-
-enum Daranelle
-{
-    SAY_SPELL_INFLUENCE       = 0,
-    SPELL_LASHHAN_CHANNEL     = 36904,
-    SPELL_DISPELLING_ANALYSIS = 37028
-};
-
-class npc_daranelle : public CreatureScript
-{
-public:
-    npc_daranelle() : CreatureScript("npc_daranelle") { }
-
-    struct npc_daranelleAI : public ScriptedAI
-    {
-        npc_daranelleAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (who->HasAura(SPELL_LASHHAN_CHANNEL) && me->IsWithinDistInMap(who, 10.0f))
-                {
-                    Talk(SAY_SPELL_INFLUENCE, who);
-                    /// @todo Move the below to updateAI and run if this statement == true
-                    DoCast(who, SPELL_DISPELLING_ANALYSIS, true);
-                }
-            }
-
-            ScriptedAI::MoveInLineOfSight(who);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_daranelleAI(creature);
-    }
-};
-
 //Support for quest: You're Fired! (10821)
 bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 
@@ -330,7 +282,7 @@ public:
 
                 if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
                 {
-                    me->SummonCreature(NPC_DOOMCRYER, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    me->SummonCreature(NPC_DOOMCRYER, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2min);
                     //reset global var
                     obelisk_one = false;
                     obelisk_two = false;
@@ -660,7 +612,7 @@ class npc_simon_bunny : public CreatureScript
                 if (GameObject* relic = me->FindNearestGameObject(large ? GO_APEXIS_MONUMENT : GO_APEXIS_RELIC, searchDistance))
                     relic->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
-                me->DespawnOrUnsummon(1000);
+                me->DespawnOrUnsummon(1s);
             }
 
             /*
@@ -828,7 +780,7 @@ class npc_simon_bunny : public CreatureScript
                 if (large)
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                        if (Creature* guardian = me->SummonCreature(NPC_APEXIS_GUARDIAN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - zCoordCorrection, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000))
+                        if (Creature* guardian = me->SummonCreature(NPC_APEXIS_GUARDIAN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - zCoordCorrection, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20s))
                             guardian->AI()->AttackStart(player);
 
                     ResetNode();
@@ -993,9 +945,9 @@ public:
             else
             {
                 // Spell 37392 does not exist in dbc, manually spawning
-                me->SummonCreature(NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 50000);
-                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 50);
-                me->DespawnOrUnsummon(50000);
+                me->SummonCreature(NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 50s);
+                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 50s);
+                me->DespawnOrUnsummon(50s);
             }
 
             timer = 500;
@@ -1062,7 +1014,6 @@ class spell_oscillating_field : public SpellScriptLoader
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
-    new npc_daranelle();
     new go_legion_obelisk();
     new npc_simon_bunny();
     new go_simon_cluster();

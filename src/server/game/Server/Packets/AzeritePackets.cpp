@@ -47,7 +47,7 @@ void WorldPackets::Azerite::AzeriteEssenceActivateEssence::Read()
 WorldPacket const* WorldPackets::Azerite::ActivateEssenceFailed::Write()
 {
     _worldPacket.WriteBits(AsUnderlyingType(Reason), 4);
-    _worldPacket.WriteBit(Slot.is_initialized());
+    _worldPacket.WriteBit(Slot.has_value());
     _worldPacket << int32(Arg);
     _worldPacket << int32(AzeriteEssenceID);
     if (Slot)

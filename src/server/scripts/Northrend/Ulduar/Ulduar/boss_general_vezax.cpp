@@ -173,7 +173,7 @@ class boss_general_vezax : public CreatureScript
                         }
                         case EVENT_SEARING_FLAMES:
                             DoCastAOE(SPELL_SEARING_FLAMES);
-                            events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
+                            events.ScheduleEvent(EVENT_SEARING_FLAMES, 14s, 17500ms);
                             break;
                         case EVENT_MARK_OF_THE_FACELESS:
                         {
@@ -430,7 +430,7 @@ class npc_saronite_vapors : public CreatureScript
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();
                     DoCast(me, SPELL_SARONITE_VAPORS);
-                    me->DespawnOrUnsummon(30000);
+                    me->DespawnOrUnsummon(30s);
 
                     if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
                         vezax->AI()->DoAction(ACTION_VAPORS_DIE);

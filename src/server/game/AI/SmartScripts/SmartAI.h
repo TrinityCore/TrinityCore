@@ -60,7 +60,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void AddEscortState(uint32 escortState) { _escortState |= escortState; }
         void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
         void SetAutoAttack(bool on) { _canAutoAttack = on; }
-        void SetCombatMove(bool on);
+        void SetCombatMove(bool on, bool stopMoving = false);
         bool CanCombatMove() { return _canCombatMove; }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
         void StopFollow(bool complete);
@@ -71,7 +71,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
         void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
-        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId = 0);
         SmartScript* GetScript() { return &_script; }
 
         // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
@@ -91,6 +91,9 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Called when the creature summon successfully other creature
         void JustSummoned(Creature* creature) override;
+
+        // Called when a summoned unit dies
+        void SummonedCreatureDies(Creature* summon, Unit* killer) override;
 
         // Tell creature to attack and follow the victim
         void AttackStart(Unit* who) override;
@@ -274,6 +277,9 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 
         // Called when the gameobject summon successfully other creature
         void JustSummoned(Creature* creature) override;
+
+        // Called when a summoned unit dies
+        void SummonedCreatureDies(Creature* summon, Unit* killer) override;
 
         // Called when a summoned creature dissapears (UnSommoned)
         void SummonedCreatureDespawn(Creature* unit) override;

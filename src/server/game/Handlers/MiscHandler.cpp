@@ -54,8 +54,6 @@
 #include "WhoPackets.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
 #include <cstdarg>
 #include <zlib.h>
 
@@ -175,7 +173,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 
         if (!whoRequest.Areas.empty())
         {
-            if (std::find(whoRequest.Areas.begin(), whoRequest.Areas.end(), target.GetZoneId()) == whoRequest.Areas.end())
+            if (std::find(whoRequest.Areas.begin(), whoRequest.Areas.end(), int32(target.GetZoneId())) == whoRequest.Areas.end())
                 continue;
         }
 
@@ -932,7 +930,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDunge
                 if (!groupGuy)
                     continue;
 
-                if (!groupGuy->IsInMap(groupGuy))
+                if (!groupGuy->IsInWorld())
                     return;
 
                 if (groupGuy->GetMap()->IsNonRaidDungeon())
@@ -1011,7 +1009,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
                 if (!groupGuy)
                     continue;
 
-                if (!groupGuy->IsInMap(groupGuy))
+                if (!groupGuy->IsInWorld())
                     return;
 
                 if (groupGuy->GetMap()->IsRaid())
@@ -1058,7 +1056,7 @@ void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::G
 void WorldSession::HandleServerTimeOffsetRequest(WorldPackets::Misc::ServerTimeOffsetRequest& /*request*/)
 {
     WorldPackets::Misc::ServerTimeOffset response;
-    response.Time = GameTime::GetGameTimeSystemPoint();
+    response.Time = GameTime::GetSystemTime();
     SendPacket(response.Write());
 }
 

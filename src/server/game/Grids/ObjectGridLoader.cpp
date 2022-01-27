@@ -132,7 +132,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>&
 
         T* obj = new T;
         //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: " UI64FMTD ") Loading", table, guid);
-        if (!obj->LoadFromDB(guid, map, false, phaseOwner.is_initialized() /*allowDuplicate*/))
+        if (!obj->LoadFromDB(guid, map, false, phaseOwner.has_value() /*allowDuplicate*/))
         {
             delete obj;
             continue;

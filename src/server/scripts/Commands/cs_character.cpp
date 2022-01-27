@@ -279,7 +279,7 @@ public:
 
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = (target->GetNativeGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[handler->GetSessionDbcLocale()];
+                std::string name = target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[loc] : titleInfo->Name1[loc];
                 if (name.empty())
                     continue;
 

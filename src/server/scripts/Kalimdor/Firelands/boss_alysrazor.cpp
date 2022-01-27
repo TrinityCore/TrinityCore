@@ -187,8 +187,8 @@ class npc_harbinger_of_flame : public CreatureScript
 
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_FIEROBLAST, 1);
-                _events.ScheduleEvent(EVENT_FIEROCLAST_BARRAGE, 6000);
+                _events.ScheduleEvent(EVENT_FIEROBLAST, 1ms);
+                _events.ScheduleEvent(EVENT_FIEROCLAST_BARRAGE, 6s);
             }
 
             void JustReachedHome() override
@@ -229,11 +229,11 @@ class npc_harbinger_of_flame : public CreatureScript
                         case EVENT_FIEROBLAST:
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, -SPELL_RIDE_MONSTROSITY))
                                 DoCast(target, SPELL_FIEROBLAST_TRASH);
-                            _events.RescheduleEvent(EVENT_FIEROBLAST, 500);  // cast time is longer, but thanks to UNIT_STATE_CASTING check it won't trigger more often (need this because this creature gets a stacking haste aura)
+                            _events.RescheduleEvent(EVENT_FIEROBLAST, 500ms);  // cast time is longer, but thanks to UNIT_STATE_CASTING check it won't trigger more often (need this because this creature gets a stacking haste aura)
                             break;
                         case EVENT_FIEROCLAST_BARRAGE:
                             DoCastAOE(SPELL_FIEROCLAST_BARRAGE);
-                            _events.ScheduleEvent(EVENT_FIEROCLAST_BARRAGE, urand(9000, 12000));
+                            _events.ScheduleEvent(EVENT_FIEROCLAST_BARRAGE, 9s, 12s);
                             break;
                     }
                 }
@@ -286,8 +286,8 @@ class npc_blazing_monstrosity : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_SLEEP_ULTRA_HIGH_PRIORITY);
                 me->PlayOneShotAnimKitId(ANIM_KIT_BIRD_WAKE);
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_START_SPITTING, 6000);
-                _events.ScheduleEvent(EVENT_CONTINUE_SPITTING, 9000);
+                _events.ScheduleEvent(EVENT_START_SPITTING, 6s);
+                _events.ScheduleEvent(EVENT_CONTINUE_SPITTING, 9s);
             }
 
             void PassengerBoarded(Unit* passenger, int8 /*seat*/, bool apply) override
@@ -441,7 +441,7 @@ class npc_egg_pile : public CreatureScript
                 _callHatchlingSpell = (action == NPC_BLAZING_MONSTROSITY_LEFT) ? SPELL_MOLTEN_EGG_TRASH_CALL_L : SPELL_MOLTEN_EGG_TRASH_CALL_R;
                 DoZoneInCombat();
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SUMMON_SMOULDERING_HATCHLING, 1);
+                _events.ScheduleEvent(EVENT_SUMMON_SMOULDERING_HATCHLING, 1ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -469,12 +469,12 @@ class npc_egg_pile : public CreatureScript
                                 Creature* egg = Trinity::Containers::SelectRandomContainerElement(eggs);
                                 egg->CastSpell(egg, SPELL_SUMMON_SMOULDERING_HATCHLING, TRIGGERED_FULL_MASK);
                                 egg->SetDisplayId(MODEL_INVISIBLE_STALKER);
-                                egg->m_Events.AddEvent(new RespawnEggEvent(egg), egg->m_Events.CalculateTime(5000));
+                                egg->m_Events.AddEventAtOffset(new RespawnEggEvent(egg), 5s);
                             }
 
                             if (_callHatchlingSpell)
                                 DoCastAOE(_callHatchlingSpell, true);
-                            _events.ScheduleEvent(EVENT_SUMMON_SMOULDERING_HATCHLING, urand(6000, 10000));
+                            _events.ScheduleEvent(EVENT_SUMMON_SMOULDERING_HATCHLING, 6s, 10s);
                             break;
                         }
                         default:
@@ -517,7 +517,7 @@ class spell_alysrazor_cosmetic_egg_xplosion : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 GetHitUnit()->SetDisplayId(MODEL_INVISIBLE_STALKER);
                 if (Creature* creature = GetHitCreature())
-                    creature->DespawnOrUnsummon(4000);
+                    creature->DespawnOrUnsummon(4s);
             }
 
             void Register() override

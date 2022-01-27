@@ -20,6 +20,9 @@
 
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
+#include "SmartEnum.h"
+#include "Util.h"
+#include <map>
 
 struct GameTele;
 
@@ -48,7 +51,13 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>
     {
         char const* next = args;
         std::string token(args, tokenize(next));
-        try { val = std::stoll(token); }
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoll(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -62,7 +71,13 @@ struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T
     {
         char const* next = args;
         std::string token(args, tokenize(next));
-        try { val = std::stoull(token); }
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoull(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -76,7 +91,13 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
     {
         char const* next = args;
         std::string token(args, tokenize(next));
-        try { val = std::stold(token); }
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stold(token, &processedChars);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return std::isfinite(val) ? next : nullptr;
     }
@@ -96,6 +117,85 @@ struct ArgInfo<std::string, void>
         }
         else
             return nullptr;
+    }
+};
+
+// enum
+template <typename T>
+struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
+{
+    static std::map<std::string, Optional<T>> MakeSearchMap()
+    {
+        std::map<std::string, Optional<T>> map;
+        for (T val : EnumUtils::Iterate<T>())
+        {
+            EnumText text = EnumUtils::ToString(val);
+
+            std::string title(text.Title);
+            strToLower(title);
+            std::string constant(text.Constant);
+            strToLower(constant);
+
+            auto [constantIt, constantNew] = map.try_emplace(constant, val);
+            if (!constantNew)
+                constantIt->second = std::nullopt;
+
+            if (title != constant)
+            {
+                auto [titleIt, titleNew] = map.try_emplace(title, val);
+                if (!titleNew)
+                    titleIt->second = std::nullopt;
+            }
+        }
+        return map;
+    }
+
+    static inline std::map<std::string, Optional<T>> const SearchMap = MakeSearchMap();
+
+    static T const* Match(std::string s)
+    {
+        strToLower(s);
+
+        auto it = SearchMap.lower_bound(s);
+        if (it == SearchMap.end() || !StringStartsWith(it->first, s)) // not a match
+            return nullptr;
+
+        if (it->first != s) // we don't have an exact match - check if it is unique
+        {
+            auto it2 = it;
+            ++it2;
+            if (it2 != SearchMap.end() && StringStartsWith(it2->first, s)) // not unique
+                return nullptr;
+        }
+
+        if (it->second)
+            return &*it->second;
+        else
+            return nullptr;
+    }
+
+    static char const* TryConsume(T& val, char const* args)
+    {
+        std::string strVal;
+        char const* ret = ArgInfo<std::string>::TryConsume(strVal, args);
+
+        if (!ret)
+            return nullptr;
+
+        if (T const* tmpVal = Match(strVal))
+        {
+            val = *tmpVal;
+            return ret;
+        }
+
+        // Value not found. Try to parse arg as underlying type and cast it to enum type
+        using U = std::underlying_type_t<T>;
+        U uVal = 0;
+        ret = ArgInfo<U>::TryConsume(uVal, args);
+        if (ret)
+            val = static_cast<T>(uVal);
+
+        return ret;
     }
 };
 

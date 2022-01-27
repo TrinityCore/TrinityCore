@@ -51,7 +51,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
 
         std::unique_ptr<PathGenerator> _path;
         Optional<Position> _lastTargetPosition;
-        TimeTrackerSmall _rangeCheckTimer;
+        TimeTracker _rangeCheckTimer;
         bool _movingTowards = true;
         bool _mutualChase = true;
 };

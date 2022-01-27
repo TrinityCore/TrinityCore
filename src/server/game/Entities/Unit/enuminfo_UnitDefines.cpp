@@ -47,8 +47,8 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_PET_IN_COMBAT: return { "UNIT_FLAG_PET_IN_COMBAT", "UNIT_FLAG_PET_IN_COMBAT", "on player pets: whether the pet is chasing a target to attack || on other units: whether any of the unit's minions is in combat" };
         case UNIT_FLAG_PVP: return { "UNIT_FLAG_PVP", "UNIT_FLAG_PVP", "changed in 3.0.3" };
         case UNIT_FLAG_SILENCED: return { "UNIT_FLAG_SILENCED", "UNIT_FLAG_SILENCED", "silenced, 2.1.1" };
-        case UNIT_FLAG_CANNOT_SWIM: return { "UNIT_FLAG_CANNOT_SWIM", "UNIT_FLAG_CANNOT_SWIM", "2.0.8" };
-        case UNIT_FLAG_SWIMMING: return { "UNIT_FLAG_SWIMMING", "UNIT_FLAG_SWIMMING", "shows swim animation in water" };
+        case UNIT_FLAG_CANT_SWIM: return { "UNIT_FLAG_CANT_SWIM", "Can't Swim", "" };
+        case UNIT_FLAG_CAN_SWIM: return { "UNIT_FLAG_CAN_SWIM", "Can Swim", "shows swim animation in water" };
         case UNIT_FLAG_NON_ATTACKABLE_2: return { "UNIT_FLAG_NON_ATTACKABLE_2", "UNIT_FLAG_NON_ATTACKABLE_2", "removes attackable icon, if on yourself, cannot assist self but can cast TARGET_SELF spells - added by SPELL_AURA_MOD_UNATTACKABLE" };
         case UNIT_FLAG_PACIFIED: return { "UNIT_FLAG_PACIFIED", "UNIT_FLAG_PACIFIED", "3.0.3 ok" };
         case UNIT_FLAG_STUNNED: return { "UNIT_FLAG_STUNNED", "UNIT_FLAG_STUNNED", "3.0.3 ok" };
@@ -91,8 +91,8 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 11: return UNIT_FLAG_PET_IN_COMBAT;
         case 12: return UNIT_FLAG_PVP;
         case 13: return UNIT_FLAG_SILENCED;
-        case 14: return UNIT_FLAG_CANNOT_SWIM;
-        case 15: return UNIT_FLAG_SWIMMING;
+        case 14: return UNIT_FLAG_CANT_SWIM;
+        case 15: return UNIT_FLAG_CAN_SWIM;
         case 16: return UNIT_FLAG_NON_ATTACKABLE_2;
         case 17: return UNIT_FLAG_PACIFIED;
         case 18: return UNIT_FLAG_STUNNED;
@@ -122,11 +122,11 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags2>::ToString(UnitFlags2 value)
     switch (value)
     {
         case UNIT_FLAG2_FEIGN_DEATH: return { "UNIT_FLAG2_FEIGN_DEATH", "UNIT_FLAG2_FEIGN_DEATH", "" };
-        case UNIT_FLAG2_UNK1: return { "UNIT_FLAG2_UNK1", "UNIT_FLAG2_UNK1", "Hide unit model (show only player equip)" };
+        case UNIT_FLAG2_HIDE_BODY: return { "UNIT_FLAG2_HIDE_BODY", "Hide Body", "Hide unit model (show only player equip)" };
         case UNIT_FLAG2_IGNORE_REPUTATION: return { "UNIT_FLAG2_IGNORE_REPUTATION", "UNIT_FLAG2_IGNORE_REPUTATION", "" };
         case UNIT_FLAG2_COMPREHEND_LANG: return { "UNIT_FLAG2_COMPREHEND_LANG", "UNIT_FLAG2_COMPREHEND_LANG", "" };
         case UNIT_FLAG2_MIRROR_IMAGE: return { "UNIT_FLAG2_MIRROR_IMAGE", "UNIT_FLAG2_MIRROR_IMAGE", "" };
-        case UNIT_FLAG2_INSTANTLY_APPEAR_MODEL: return { "UNIT_FLAG2_INSTANTLY_APPEAR_MODEL", "UNIT_FLAG2_INSTANTLY_APPEAR_MODEL", "Unit model instantly appears when summoned (does not fade in)" };
+        case UNIT_FLAG2_DONT_FADE_IN: return { "UNIT_FLAG2_DONT_FADE_IN", "Don't Fade In", "Unit model instantly appears when summoned (does not fade in)" };
         case UNIT_FLAG2_FORCE_MOVEMENT: return { "UNIT_FLAG2_FORCE_MOVEMENT", "UNIT_FLAG2_FORCE_MOVEMENT", "" };
         case UNIT_FLAG2_DISARM_OFFHAND: return { "UNIT_FLAG2_DISARM_OFFHAND", "UNIT_FLAG2_DISARM_OFFHAND", "" };
         case UNIT_FLAG2_DISABLE_PRED_STATS: return { "UNIT_FLAG2_DISABLE_PRED_STATS", "UNIT_FLAG2_DISABLE_PRED_STATS", "Player has disabled predicted stats (Used by raid frames)" };
@@ -135,18 +135,28 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags2>::ToString(UnitFlags2 value)
         case UNIT_FLAG2_REGENERATE_POWER: return { "UNIT_FLAG2_REGENERATE_POWER", "UNIT_FLAG2_REGENERATE_POWER", "" };
         case UNIT_FLAG2_RESTRICT_PARTY_INTERACTION: return { "UNIT_FLAG2_RESTRICT_PARTY_INTERACTION", "UNIT_FLAG2_RESTRICT_PARTY_INTERACTION", "Restrict interaction to party or raid" };
         case UNIT_FLAG2_PREVENT_SPELL_CLICK: return { "UNIT_FLAG2_PREVENT_SPELL_CLICK", "UNIT_FLAG2_PREVENT_SPELL_CLICK", "Prevent spellclick" };
-        case UNIT_FLAG2_ALLOW_ENEMY_INTERACT: return { "UNIT_FLAG2_ALLOW_ENEMY_INTERACT", "UNIT_FLAG2_ALLOW_ENEMY_INTERACT", "" };
-        case UNIT_FLAG2_DISABLE_TURN: return { "UNIT_FLAG2_DISABLE_TURN", "UNIT_FLAG2_DISABLE_TURN", "" };
+        case UNIT_FLAG2_INTERACT_WHILE_HOSTILE: return { "UNIT_FLAG2_INTERACT_WHILE_HOSTILE", "Interact while Hostile", "" };
+        case UNIT_FLAG2_CANNOT_TURN: return { "UNIT_FLAG2_CANNOT_TURN", "Cannot Turn", "" };
         case UNIT_FLAG2_UNK2: return { "UNIT_FLAG2_UNK2", "UNIT_FLAG2_UNK2", "" };
         case UNIT_FLAG2_PLAY_DEATH_ANIM: return { "UNIT_FLAG2_PLAY_DEATH_ANIM", "UNIT_FLAG2_PLAY_DEATH_ANIM", "Plays special death animation upon death" };
         case UNIT_FLAG2_ALLOW_CHEAT_SPELLS: return { "UNIT_FLAG2_ALLOW_CHEAT_SPELLS", "UNIT_FLAG2_ALLOW_CHEAT_SPELLS", "Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL" };
+        case UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER: return { "UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER", "Suppress highlight when targeted or moused over", "" };
+        case UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS: return { "UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS", "Treat as Raid Unit For Helpful Spells (Instances ONLY)", "" };
+        case UNIT_FLAG2_LARGE_AOI: return { "UNIT_FLAG2_LARGE_AOI", "Large (AOI)", "" };
+        case UNIT_FLAG2_GIGANTIC_AOI: return { "UNIT_FLAG2_GIGANTIC_AOI", "Gigantic (AOI)", "" };
         case UNIT_FLAG2_NO_ACTIONS: return { "UNIT_FLAG2_NO_ACTIONS", "UNIT_FLAG2_NO_ACTIONS", "" };
+        case UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS: return { "UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS", "AI will only swim if target swims", "" };
+        case UNIT_FLAG2_DONT_GENERATE_COMBAT_LOG_WHEN_ENGAGED_WITH_NPCS: return { "UNIT_FLAG2_DONT_GENERATE_COMBAT_LOG_WHEN_ENGAGED_WITH_NPCS", "Don't generate combat log when engaged with NPC's", "" };
+        case UNIT_FLAG2_UNTARGETABLE_BY_CLIENT: return { "UNIT_FLAG2_UNTARGETABLE_BY_CLIENT", "Untargetable By Client", "" };
+        case UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES: return { "UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES", "Attacker Ignores Minimum Ranges", "" };
+        case UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE: return { "UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE", "Uninteractible If Hostile", "" };
+        case UNIT_FLAG2_INFINITE_AOI: return { "UNIT_FLAG2_INFINITE_AOI", "Infinite (AOI)", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<UnitFlags2>::Count() { return 20; }
+TC_API_EXPORT size_t EnumUtils<UnitFlags2>::Count() { return 30; }
 
 template <>
 TC_API_EXPORT UnitFlags2 EnumUtils<UnitFlags2>::FromIndex(size_t index)
@@ -154,11 +164,11 @@ TC_API_EXPORT UnitFlags2 EnumUtils<UnitFlags2>::FromIndex(size_t index)
     switch (index)
     {
         case 0: return UNIT_FLAG2_FEIGN_DEATH;
-        case 1: return UNIT_FLAG2_UNK1;
+        case 1: return UNIT_FLAG2_HIDE_BODY;
         case 2: return UNIT_FLAG2_IGNORE_REPUTATION;
         case 3: return UNIT_FLAG2_COMPREHEND_LANG;
         case 4: return UNIT_FLAG2_MIRROR_IMAGE;
-        case 5: return UNIT_FLAG2_INSTANTLY_APPEAR_MODEL;
+        case 5: return UNIT_FLAG2_DONT_FADE_IN;
         case 6: return UNIT_FLAG2_FORCE_MOVEMENT;
         case 7: return UNIT_FLAG2_DISARM_OFFHAND;
         case 8: return UNIT_FLAG2_DISABLE_PRED_STATS;
@@ -167,12 +177,22 @@ TC_API_EXPORT UnitFlags2 EnumUtils<UnitFlags2>::FromIndex(size_t index)
         case 11: return UNIT_FLAG2_REGENERATE_POWER;
         case 12: return UNIT_FLAG2_RESTRICT_PARTY_INTERACTION;
         case 13: return UNIT_FLAG2_PREVENT_SPELL_CLICK;
-        case 14: return UNIT_FLAG2_ALLOW_ENEMY_INTERACT;
-        case 15: return UNIT_FLAG2_DISABLE_TURN;
+        case 14: return UNIT_FLAG2_INTERACT_WHILE_HOSTILE;
+        case 15: return UNIT_FLAG2_CANNOT_TURN;
         case 16: return UNIT_FLAG2_UNK2;
         case 17: return UNIT_FLAG2_PLAY_DEATH_ANIM;
         case 18: return UNIT_FLAG2_ALLOW_CHEAT_SPELLS;
-        case 19: return UNIT_FLAG2_NO_ACTIONS;
+        case 19: return UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER;
+        case 20: return UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS;
+        case 21: return UNIT_FLAG2_LARGE_AOI;
+        case 22: return UNIT_FLAG2_GIGANTIC_AOI;
+        case 23: return UNIT_FLAG2_NO_ACTIONS;
+        case 24: return UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS;
+        case 25: return UNIT_FLAG2_DONT_GENERATE_COMBAT_LOG_WHEN_ENGAGED_WITH_NPCS;
+        case 26: return UNIT_FLAG2_UNTARGETABLE_BY_CLIENT;
+        case 27: return UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES;
+        case 28: return UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE;
+        case 29: return UNIT_FLAG2_INFINITE_AOI;
         default: throw std::out_of_range("index");
     }
 }

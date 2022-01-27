@@ -276,7 +276,7 @@ public:
                 for (uint8 i = 0; i<3; ++i)
                 {
                     target = SelectTarget(SelectTargetMethod::Random, 0);
-                    temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
+                    temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10s);
                     if (temp && target)
                     {
                         AddThreat(target, 1000000.0f, temp); //don't change target(healers)

@@ -464,7 +464,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& indexTableSize, char**& 
                             offset += sizeof(char*);
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
@@ -491,7 +491,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& indexTableSize, char**& 
                             offset += 2;
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for parent field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for parent field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
@@ -597,7 +597,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
                             break;
                         }
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
@@ -681,7 +681,7 @@ void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable)
                         *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
                         break;
                     default:
-                        ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
+                        ABORT_MSG("Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
                         break;
                 }
             }
@@ -855,7 +855,7 @@ T DB2FileLoaderRegularImpl::RecordGetVarInt(uint8 const* record, uint32 field, u
             return value;
         }
         default:
-            ASSERT(false, "Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
+            ABORT_MSG("Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
             break;
     }
 
@@ -885,7 +885,7 @@ uint16 DB2FileLoaderRegularImpl::GetFieldOffset(uint32 field) const
         case DB2ColumnCompression::PalletArray:
             return _columnMeta[field].CompressionData.pallet.BitOffset / 8 + _header->PackedDataOffset;
         default:
-            ASSERT(false, "Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
+            ABORT_MSG("Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
             break;
     }
 
@@ -958,7 +958,7 @@ bool DB2FileLoaderRegularImpl::IsSignedField(uint32 field) const
         case DB2ColumnCompression::Immediate:
             return false;
         default:
-            ASSERT(false, "Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
+            ABORT_MSG("Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
             break;
     }
 
@@ -991,7 +991,7 @@ char const* DB2FileLoaderRegularImpl::GetExpectedSignMismatchReason(uint32 field
         case DB2ColumnCompression::Immediate:
             return " (CompressionType is Immediate)";
         default:
-            ASSERT(false, "Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
+            ABORT_MSG("Unhandled compression type %u in %s", uint32(_columnMeta[field].CompressionType), _fileName);
             break;
     }
 
@@ -1149,7 +1149,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& i
                             offset += sizeof(char*);
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
@@ -1176,7 +1176,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& i
                             offset += 2;
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for parent field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for parent field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
@@ -1302,7 +1302,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
                             break;
                         }
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _fileName, _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
@@ -1409,7 +1409,7 @@ void DB2FileLoaderSparseImpl::FillParentLookup(char* dataTable)
                         *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
                         break;
                     default:
-                        ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
+                        ABORT_MSG("Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
                         break;
                 }
             }
@@ -1573,7 +1573,7 @@ void DB2FileLoaderSparseImpl::CalculateAndStoreFieldOffsets(uint8 const* rawReco
                     offset += strlen(reinterpret_cast<char const*>(rawRecord) + offset) + 1;
                     break;
                 default:
-                    ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Fields[field].Type, _fileName);
+                    ABORT_MSG("Unknown format character '%c' found in %s meta", _loadInfo->Meta->Fields[field].Type, _fileName);
                     break;
             }
             ++combinedField;

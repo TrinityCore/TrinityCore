@@ -165,7 +165,7 @@ public:
     {
         _owner->SetWalk(false);
         _owner->GetMotionMaster()->MovePoint(0, OrbPositions[POSITION_FINAL]);
-        _owner->m_Events.AddEvent(new OrbFinalPositionEvent(_owner), _owner->m_Events.CalculateTime(10000));
+        _owner->m_Events.AddEvent(new OrbFinalPositionEvent(_owner), _owner->m_Events.CalculateTime(10s));
         return true;
     }
 
@@ -295,14 +295,14 @@ public:
                     me->SetImmuneToPC(false);
                     DoZoneInCombat();
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
-                        orb->DespawnOrUnsummon(1000);
+                        orb->DespawnOrUnsummon(1s);
                     break;
                 case ACTION_START_ENCOUNTER:
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
                     {
                         orb->CastSpell(orb, SPELL_ORB_VISUAL, true);
-                        orb->m_Events.AddEvent(new OrbAirPositionEvent(orb), orb->m_Events.CalculateTime(3000));
-                        orb->m_Events.AddEvent(new OrbFlyEvent(orb), orb->m_Events.CalculateTime(6000));
+                        orb->m_Events.AddEvent(new OrbAirPositionEvent(orb), orb->m_Events.CalculateTime(3s));
+                        orb->m_Events.AddEvent(new OrbFlyEvent(orb), orb->m_Events.CalculateTime(6s));
                     }
                     break;
                 default:
@@ -515,7 +515,7 @@ public:
         {
             if (summon->GetEntry() == NPC_JORMUNGAR_WORM)
             {
-                summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2000));
+                summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2s));
                 summon->GetMotionMaster()->MoveRandom(5.0f);
             }
         }
@@ -664,7 +664,7 @@ class spell_palehoof_awaken_subboss : public SpellScriptLoader
                 Unit* target = GetHitUnit();
                 GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
                 target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500));
+                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500ms));
             }
 
             void Register() override
@@ -693,7 +693,7 @@ class spell_palehoof_awaken_gortok : public SpellScriptLoader
             {
                 Unit* target = GetHitUnit();
                 target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8000));
+                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8s));
             }
 
             void Register() override

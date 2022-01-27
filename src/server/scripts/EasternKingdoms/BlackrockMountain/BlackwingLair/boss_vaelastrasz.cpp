@@ -114,7 +114,7 @@ public:
         {
             PlayerGUID = target->GetGUID();
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            events.ScheduleEvent(EVENT_SPEECH_1, 1000);
+            events.ScheduleEvent(EVENT_SPEECH_1, 1s);
         }
 
         void KilledUnit(Unit* victim) override
@@ -140,17 +140,17 @@ public:
                             Talk(SAY_LINE1);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                            events.ScheduleEvent(EVENT_SPEECH_2, 12000);
+                            events.ScheduleEvent(EVENT_SPEECH_2, 12s);
                             break;
                         case EVENT_SPEECH_2:
                             Talk(SAY_LINE2);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                            events.ScheduleEvent(EVENT_SPEECH_3, 12000);
+                            events.ScheduleEvent(EVENT_SPEECH_3, 12s);
                             break;
                         case EVENT_SPEECH_3:
                             Talk(SAY_LINE3);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                            events.ScheduleEvent(EVENT_SPEECH_4, 16000);
+                            events.ScheduleEvent(EVENT_SPEECH_4, 16s);
                             break;
                         case EVENT_SPEECH_4:
                             me->SetFaction(FACTION_DRAGONFLIGHT_BLACK);

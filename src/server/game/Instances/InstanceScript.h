@@ -20,6 +20,7 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
+#include "Duration.h"
 #include <iosfwd>
 #include <map>
 #include <memory>
@@ -161,11 +162,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         InstanceMap* instance;
 
-        // On creation, NOT load.
-        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
-        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
-        virtual void Initialize() { }
-
         // On instance load, exactly ONE of these methods will ALWAYS be called:
         // if we're starting without any saved instance data
         virtual void Create();
@@ -213,7 +209,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoCloseDoorOrButton(ObjectGuid guid);
 
         // Respawns a GO having negative spawntimesecs in gameobject-table
-        void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
+        void DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn = 1min);
 
         // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);

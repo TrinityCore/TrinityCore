@@ -549,13 +549,8 @@ public:
     }
 
     //set npcflag of creature
-    static bool HandleNpcSetFlagCommand(ChatHandler* handler, char const* args)
+    static bool HandleNpcSetFlagCommand(ChatHandler* handler, NPCFlags npcFlags, NPCFlags2 npcFlags2)
     {
-        if (!*args)
-            return false;
-
-        uint64 npcFlags = atoull(args);
-
         Creature* creature = handler->getSelectedCreature();
 
         if (!creature)
@@ -565,14 +560,12 @@ public:
             return false;
         }
 
-        uint32 raw[2];
-        memcpy(raw, &npcFlags, sizeof(raw));
-        creature->SetNpcFlags(NPCFlags(raw[0]));
-        creature->SetNpcFlags2(NPCFlags2(raw[1]));
+        creature->SetNpcFlags(npcFlags);
+        creature->SetNpcFlags2(npcFlags2);
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
 
-        stmt->setUInt64(0, npcFlags);
+        stmt->setUInt64(0, uint64(npcFlags) | (uint64(npcFlags2) << 32));
         stmt->setUInt32(1, creature->GetEntry());
 
         WorldDatabase.Execute(stmt);
@@ -1343,7 +1336,7 @@ public:
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
 
-        chr->SummonCreature(id, *chr, loot ? TEMPSUMMON_CORPSE_TIMED_DESPAWN : TEMPSUMMON_CORPSE_DESPAWN, 30 * IN_MILLISECONDS);
+        chr->SummonCreature(id, *chr, loot ? TEMPSUMMON_CORPSE_TIMED_DESPAWN : TEMPSUMMON_CORPSE_DESPAWN, 30s);
 
         return true;
     }

@@ -184,9 +184,9 @@ class boss_steelbreaker : public CreatureScript
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
-                        events.RescheduleEvent(EVENT_FUSION_PUNCH, 15000);
+                        events.RescheduleEvent(EVENT_FUSION_PUNCH, 15s);
                         if (phase >= 2)
-                            events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30000);
+                            events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30s);
                         if (phase >= 3)
                             events.RescheduleEvent(EVENT_OVERWHELMING_POWER, 2s, 5s);
                         break;
@@ -262,7 +262,7 @@ class boss_steelbreaker : public CreatureScript
                         case EVENT_OVERWHELMING_POWER:
                             Talk(SAY_STEELBREAKER_POWER);
                             DoCastVictim(SPELL_OVERWHELMING_POWER);
-                            events.ScheduleEvent(EVENT_OVERWHELMING_POWER, RAID_MODE(60000, 35000));
+                            events.ScheduleEvent(EVENT_OVERWHELMING_POWER, RAID_MODE(60s, 35s));
                             break;
                     }
 
@@ -333,12 +333,12 @@ class boss_runemaster_molgeim : public CreatureScript
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
-                        events.RescheduleEvent(EVENT_SHIELD_OF_RUNES, 27000);
-                        events.RescheduleEvent(EVENT_RUNE_OF_POWER, 25000);
+                        events.RescheduleEvent(EVENT_SHIELD_OF_RUNES, 27s);
+                        events.RescheduleEvent(EVENT_RUNE_OF_POWER, 25s);
                         if (phase >= 2)
-                            events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
+                            events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30s);
                         if (phase >= 3)
-                            events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000, 30000));
+                            events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, 20s, 30s);
                         break;
                     }
                 }
@@ -493,7 +493,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 events.ScheduleEvent(EVENT_MOVE_POSITION, 1s);
                 events.ScheduleEvent(EVENT_BERSERK, 15min);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4s);
-                events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+                events.ScheduleEvent(EVENT_OVERLOAD, 60s, 120s);
 
                 if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f))
                     m_TriggerGUID = trigger->GetGUID();
@@ -509,13 +509,13 @@ class boss_stormcaller_brundir : public CreatureScript
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
                         events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 12s);
-                        events.RescheduleEvent(EVENT_OVERLOAD, urand(40000, 50000));
+                        events.RescheduleEvent(EVENT_OVERLOAD, 40s, 50s);
                         if (phase >= 2)
-                            events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 250000));
+                            events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, 15s, 250s);
                         if (phase >= 3)
                         {
                             DoCast(me, SPELL_STORMSHIELD);
-                            events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(50000, 60000));
+                            events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, 50s, 60s);
                             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true); // Apply immumity to stuns
                         }
                         break;
@@ -582,7 +582,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             Talk(EMOTE_BRUNDIR_OVERLOAD);
                             Talk(SAY_BRUNDIR_SPECIAL);
                             DoCast(SPELL_OVERLOAD);
-                            events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+                            events.ScheduleEvent(EVENT_OVERLOAD, 60s, 120s);
                             break;
                         case EVENT_LIGHTNING_WHIRL:
                             DoCast(SPELL_LIGHTNING_WHIRL);
@@ -594,9 +594,9 @@ class boss_stormcaller_brundir : public CreatureScript
                             DoCast(me, SPELL_LIGHTNING_TENDRILS_VISUAL);
                             me->AttackStop();
                             me->SetHover(true);
-                            events.DelayEvents(35000);
+                            events.DelayEvents(35s);
                             events.ScheduleEvent(EVENT_FLIGHT, 2500ms);
-                            events.ScheduleEvent(EVENT_ENDFLIGHT, 32500);
+                            events.ScheduleEvent(EVENT_ENDFLIGHT, 32500ms);
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90s);
                             break;
                         case EVENT_FLIGHT:
@@ -643,7 +643,7 @@ class boss_stormcaller_brundir : public CreatureScript
                                         me->GetMotionMaster()->MovePoint(0, pos);
                                 }
                             }
-                            events.ScheduleEvent(EVENT_MOVE_POSITION, urand(7500, 10000));
+                            events.ScheduleEvent(EVENT_MOVE_POSITION, 7500ms, 10s);
                             break;
                         default:
                             break;
@@ -747,7 +747,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (TempSummon* summ = GetTarget()->ToTempSummon())
-                    summ->DespawnOrUnsummon(1);
+                    summ->DespawnOrUnsummon(1ms);
             }
 
             void Register() override

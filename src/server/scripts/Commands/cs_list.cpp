@@ -233,6 +233,8 @@ public:
                     itemPos = "[equipped]";
                 else if (Player::IsInventoryPos(itemBag, itemSlot))
                     itemPos = "[in inventory]";
+                else if (Player::IsReagentBankPos(itemBag, itemSlot))
+                    itemPos = "[in reagent bank]";
                 else if (Player::IsBankPos(itemBag, itemSlot))
                     itemPos = "[in bank]";
                 else
@@ -246,7 +248,7 @@ public:
 
             if (count > resultCount)
                 count -= resultCount;
-            else if (count)
+            else
                 count = 0;
         }
 
@@ -293,7 +295,7 @@ public:
 
             if (count > resultCount)
                 count -= resultCount;
-            else if (count)
+            else
                 count = 0;
         }
 
@@ -368,7 +370,7 @@ public:
 
             if (count > resultCount)
                 count -= resultCount;
-            else if (count)
+            else
                 count = 0;
         }
 

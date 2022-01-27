@@ -1530,6 +1530,13 @@ struct FriendshipReputationEntry
     EnumFlag<FriendshipReputationFlags> GetFlags() const { return static_cast<FriendshipReputationFlags>(Flags); }
 };
 
+struct GameObjectArtKitEntry
+{
+    uint32 ID;
+    int32 AttachModelFileID;
+    int32 TextureVariationFileID[3];
+};
+
 struct GameObjectDisplayInfoEntry
 {
     uint32 ID;
@@ -3871,13 +3878,17 @@ struct UISplashScreenEntry
     int32 RequiredTimeEventPassed; // serverside TimeEvent table, see ModifierTreeType::HasTimeEventPassed
 };
 
+#define MAX_UNIT_CONDITION_VALUES 8
+
 struct UnitConditionEntry
 {
     uint32 ID;
     uint8 Flags;
-    uint8 Variable[8];
-    int8 Op[8];
-    int32 Value[8];
+    uint8 Variable[MAX_UNIT_CONDITION_VALUES];
+    int8 Op[MAX_UNIT_CONDITION_VALUES];
+    int32 Value[MAX_UNIT_CONDITION_VALUES];
+
+    EnumFlag<UnitConditionFlags> GetFlags() const { return static_cast<UnitConditionFlags>(Flags); }
 };
 
 struct UnitPowerBarEntry

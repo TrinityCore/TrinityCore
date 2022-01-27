@@ -396,7 +396,7 @@ public:
                         DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
 
                         for (uint8 i = 0; i < 4; ++i)
-                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0))
+                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN))
                                 ShieldGeneratorChannel[i] = creature->GetGUID();
 
                         Talk(SAY_PHASE2);
@@ -408,7 +408,7 @@ public:
                     // SummonSporebatTimer
                     if (SummonSporebatTimer <= diff)
                     {
-                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN))
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 sporebat->AI()->AttackStart(target);
 
@@ -469,7 +469,7 @@ public:
                 // EnchantedElementalTimer
                 if (EnchantedElementalTimer <= diff)
                 {
-                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TEMPSUMMON_CORPSE_DESPAWN);
 
                     if (EnchantedElementalPos == 7)
                         EnchantedElementalPos = 0;
@@ -483,7 +483,7 @@ public:
                 if (TaintedElementalTimer <= diff)
                 {
                     uint32 pos = rand32() % 8;
-                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN, 0);
+                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN);
 
                     TaintedElementalTimer = 120000;
                 } else TaintedElementalTimer -= diff;
@@ -492,7 +492,7 @@ public:
                 if (CoilfangEliteTimer <= diff)
                 {
                     uint32 pos = rand32() % 3;
-                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                     if (coilfangElite)
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
@@ -507,7 +507,7 @@ public:
                 if (CoilfangStriderTimer <= diff)
                 {
                     uint32 pos = rand32() % 3;
-                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             CoilfangStrider->AI()->AttackStart(target);
@@ -784,7 +784,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
-                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30s))
                     {
                         trig->SetFaction(FACTION_MONSTER);
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);

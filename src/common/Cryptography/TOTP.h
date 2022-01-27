@@ -22,19 +22,16 @@
 #include <ctime>
 #include <vector>
 
-namespace Trinity
+namespace Trinity::Crypto
 {
-namespace Crypto
-{
-struct TC_COMMON_API TOTP
-{
-    static constexpr std::size_t RECOMMENDED_SECRET_LENGTH = 20;
-    using Secret = std::vector<uint8>;
+    struct TC_COMMON_API TOTP
+    {
+        static constexpr size_t RECOMMENDED_SECRET_LENGTH = 20;
+        using Secret = std::vector<uint8>;
 
-    static uint32 GenerateToken(Secret const& key, time_t timestamp);
-    static bool ValidateToken(Secret const& key, uint32 token);
-};
-}
+        static uint32 GenerateToken(Secret const& key, time_t timestamp);
+        static bool ValidateToken(Secret const& key, uint32 token);
+    };
 }
 
 #endif

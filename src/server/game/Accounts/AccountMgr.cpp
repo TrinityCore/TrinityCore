@@ -198,6 +198,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
+    if (sWorld->getBoolConfig(CONFIG_SET_SHAPASSHASH))
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
         stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(newUsername, newPassword));
@@ -234,6 +235,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
+    if (sWorld->getBoolConfig(CONFIG_SET_SHAPASSHASH))
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
         stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(username, newPassword));
@@ -314,15 +316,6 @@ uint32 AccountMgr::GetId(std::string const& username)
     return (result) ? (*result)[0].GetUInt32() : 0;
 }
 
-uint32 AccountMgr::GetSecurity(uint32 accountId)
-{
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ACCESS_GMLEVEL);
-    stmt->setUInt32(0, accountId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
-}
-
 uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
@@ -331,6 +324,17 @@ uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
+}
+
+QueryCallback AccountMgr::GetSecurityAsync(uint32 accountId, int32 realmId, std::function<void(uint32)> callback)
+{
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
+    stmt->setUInt32(0, accountId);
+    stmt->setInt32(1, realmId);
+    return LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([callback = std::move(callback)](PreparedQueryResult result)
+    {
+        callback(result ? uint32((*result)[0].GetUInt8()) : uint32(SEC_PLAYER));
+    });
 }
 
 bool AccountMgr::GetName(uint32 accountId, std::string& name)
@@ -580,7 +584,7 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
         return false;
     }
 
-    rbac::RBACData rbac(accountId, "", realmId, GetSecurity(accountId));
+    rbac::RBACData rbac(accountId, "", realmId, GetSecurity(accountId, realmId));
     rbac.LoadFromDB();
     bool hasPermission = rbac.HasPermission(permissionId);
 

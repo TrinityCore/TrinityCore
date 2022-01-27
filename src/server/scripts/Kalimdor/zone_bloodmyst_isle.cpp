@@ -85,7 +85,7 @@ public:
                     break;
             }
 
-            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1min);
         }
     };
 
@@ -255,8 +255,8 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_UPPERCUT,      15 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_IMMOLATE,      10 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_UPPERCUT, 15s);
+            _events.ScheduleEvent(EVENT_IMMOLATE, 10s);
             _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5s);
         }
 
@@ -330,8 +330,11 @@ public:
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLOODMYST_TESLA_COIL, 500.0f);
                     if (!creatureList.empty())
+                    {
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                             (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
+                    }
+                    break;
                 }
                 default:
                     break;
@@ -422,18 +425,18 @@ public:
                     {
                         case EVENT_FROST_SHOCK:
                             DoCastVictim(SPELL_FROST_SHOCK);
-                            _events.DelayEvents(1 * IN_MILLISECONDS);
+                            _events.DelayEvents(1s);
                             _events.ScheduleEvent(EVENT_FROST_SHOCK, 10s, 15s);
                             break;
                         case EVENT_SEARING_TOTEM:
                             DoCast(me, SPELL_SEARING_TOTEM);
-                            _events.DelayEvents(1 * IN_MILLISECONDS);
-                            _events.ScheduleEvent(EVENT_SEARING_TOTEM, urand(110, 130) * IN_MILLISECONDS);
+                            _events.DelayEvents(1s);
+                            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 110s, 130s);
                             break;
                         case EVENT_STRENGTH_OF_EARTH_TOTEM:
                             DoCast(me, SPELL_STRENGTH_OF_EARTH_TOTEM);
-                            _events.DelayEvents(1 * IN_MILLISECONDS);
-                            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, urand(110, 130) * IN_MILLISECONDS);
+                            _events.DelayEvents(1s);
+                            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 110s, 130s);
                             break;
                         case EVENT_HEALING_SURGE:
                         {
@@ -506,7 +509,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -602,7 +605,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             Talk(SAY_LEGOSO_15);

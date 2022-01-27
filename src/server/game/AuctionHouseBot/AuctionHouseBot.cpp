@@ -507,7 +507,7 @@ void AuctionHouseBot::Rebuild(bool all)
         for (auto itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
             if (itr->second.Owner.IsEmpty() || sAuctionBotConfig->IsBotChar(itr->second.Owner)) // ahbot auction
                 if (all || itr->second.BidAmount == 0)           // expire now auction if no bid or forced
-                    itr->second.EndTime = GameTime::GetGameTimeSystemPoint();
+                    itr->second.EndTime = GameTime::GetSystemTime();
     }
 }
 

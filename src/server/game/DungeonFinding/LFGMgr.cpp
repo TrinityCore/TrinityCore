@@ -491,7 +491,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
                         joinData.result = LFG_JOIN_INVALID_SLOT;
                     else
                         rDungeonId = (*dungeons.begin());
-                    /* fallthrough - Random can only be dungeon or heroic dungeon */
+                    [[fallthrough]]; // Random can only be dungeon or heroic dungeon
                 case LFG_TYPE_HEROIC:
                 case LFG_TYPE_DUNGEON:
                     if (isRaid)
@@ -956,7 +956,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
                     dpsPlayers.push_back(guid);
                     break;
                 default:
-                    ASSERT(false, "Invalid LFG role %u", it->second.role);
+                    ABORT_MSG("Invalid LFG role %u", it->second.role);
                     break;
             }
 

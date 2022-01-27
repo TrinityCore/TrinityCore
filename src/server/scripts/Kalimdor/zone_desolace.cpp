@@ -106,7 +106,7 @@ public:
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->setActive(false);
-                me->DespawnOrUnsummon(60000);
+                me->DespawnOrUnsummon(60s);
             }
         }
 

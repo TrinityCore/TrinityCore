@@ -1569,7 +1569,7 @@ public:
         // the max level of the new profession.
         uint16 max = maxPureSkill ? atoul(maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
 
-        if (level == 0 || level > max || max <= 0)
+        if (level == 0 || level > max)
             return false;
 
         // If the player has the skill, we get the current skill step. If they don't have the skill, we
@@ -1914,13 +1914,13 @@ public:
         AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
-            zoneName = area->AreaName[handler->GetSessionDbcLocale()];
+            zoneName = area->AreaName[locale];
 
             AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
             if (zone)
             {
                 areaName = zoneName;
-                zoneName = zone->AreaName[handler->GetSessionDbcLocale()];
+                zoneName = zone->AreaName[locale];
             }
         }
 

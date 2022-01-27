@@ -260,22 +260,22 @@ public:
                     {
                     case EVENT_ICY_TOUCH:
                         DoCastVictim(SPELL_ICY_TOUCH);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_ICY_TOUCH, 5s, GCD_CAST);
                         break;
                     case EVENT_PLAGUE_STRIKE:
                         DoCastVictim(SPELL_PLAGUE_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_BLOOD_STRIKE:
                         DoCastVictim(SPELL_BLOOD_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_DEATH_COIL:
                         DoCastVictim(SPELL_DEATH_COIL);
-                        events.DelayEvents(1000, GCD_CAST);
+                        events.DelayEvents(1s, GCD_CAST);
                         events.ScheduleEvent(EVENT_DEATH_COIL, 5s, GCD_CAST);
                         break;
                     }
@@ -574,7 +574,7 @@ public:
 
             me->RestoreFaction();
             CombatAI::Reset();
-            me->AddUnitFlag(UNIT_FLAG_SWIMMING);
+            me->AddUnitFlag(UNIT_FLAG_CAN_SWIM);
         }
 
         void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -666,7 +666,7 @@ public:
                     return true;
 
                 me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_SWIMMING);
+                me->RemoveUnitFlag(UNIT_FLAG_CAN_SWIM);
 
                 player->CastSpell(me, SPELL_DUEL, false);
                 player->CastSpell(player, SPELL_DUEL_FLAG, true);

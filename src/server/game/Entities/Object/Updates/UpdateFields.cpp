@@ -3181,9 +3181,9 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data.WriteBit(BankAutoSortDisabled);
     data.WriteBit(SortBagsRightToLeft);
     data.WriteBit(InsertItemsLeftToRight);
-    data.WriteBits(QuestSession.is_initialized(), 1);
+    data.WriteBits(QuestSession.has_value(), 1);
     Field_1410->WriteCreate(data, owner, receiver);
-    if (QuestSession.is_initialized())
+    if (QuestSession.has_value())
     {
         QuestSession->WriteCreate(data, owner, receiver);
     }
@@ -3949,14 +3949,14 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
     }
     if (changesMask[98])
     {
-        data.WriteBits(QuestSession.is_initialized(), 1);
+        data.WriteBits(QuestSession.has_value(), 1);
         if (changesMask[106])
         {
             Field_1410->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
         if (changesMask[105])
         {
-            if (QuestSession.is_initialized())
+            if (QuestSession.has_value())
             {
                 QuestSession->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }

@@ -20,7 +20,7 @@
 
 #include "ByteBuffer.h"
 #include "Opcodes.h"
-#include <chrono>
+#include "Duration.h"
 
 class WorldPacket : public ByteBuffer
 {
@@ -86,13 +86,13 @@ class WorldPacket : public ByteBuffer
 
         ConnectionType GetConnection() const { return _connection; }
 
-        std::chrono::steady_clock::time_point GetReceivedTime() const { return m_receivedTime; }
-        void SetReceiveTime(std::chrono::steady_clock::time_point receivedTime) { m_receivedTime = receivedTime; }
+        TimePoint GetReceivedTime() const { return m_receivedTime; }
+        void SetReceiveTime(TimePoint receivedTime) { m_receivedTime = receivedTime; }
 
     protected:
         uint32 m_opcode;
         ConnectionType _connection;
-        std::chrono::steady_clock::time_point m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
+        TimePoint m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
 };
 
 #endif

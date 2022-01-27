@@ -346,17 +346,17 @@ namespace WorldPackets
             std::shared_ptr<CharRaceOrFactionChangeInfo> RaceOrFactionChangeInfo;
         };
 
+        struct CharFactionChangeDisplayInfo
+        {
+            std::string Name;
+            uint8 SexID             = 0;
+            uint8 RaceID            = RACE_NONE;
+            Array<ChrCustomizationChoice, 50> const* Customizations = nullptr;
+        };
+
         class CharFactionChangeResult final : public ServerPacket
         {
         public:
-            struct CharFactionChangeDisplayInfo
-            {
-                std::string Name;
-                uint8 SexID             = 0;
-                uint8 RaceID            = RACE_NONE;
-                Array<ChrCustomizationChoice, 50> const* Customizations = nullptr;
-            };
-
             CharFactionChangeResult() : ServerPacket(SMSG_CHAR_FACTION_CHANGE_RESULT, 20 + sizeof(CharFactionChangeDisplayInfo)) { }
 
             WorldPacket const* Write() override;

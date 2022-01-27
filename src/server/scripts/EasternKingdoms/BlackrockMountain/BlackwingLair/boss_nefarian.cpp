@@ -237,11 +237,11 @@ public:
             if ( type == 1 && data == 1)
             {
                 me->StopMoving();
-                events.ScheduleEvent(EVENT_PATH_2, 9000);
+                events.ScheduleEvent(EVENT_PATH_2, 9s);
             }
 
             if (type == 1 && data == 2)
-                events.ScheduleEvent(EVENT_SUCCESS_1, 5000);
+                events.ScheduleEvent(EVENT_SUCCESS_1, 5s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -256,7 +256,7 @@ public:
                     {
                         case EVENT_PATH_2:
                             me->GetMotionMaster()->MovePath(NEFARIUS_PATH_2, false);
-                            events.ScheduleEvent(EVENT_CHAOS_1, 7000);
+                            events.ScheduleEvent(EVENT_CHAOS_1, 7s);
                             break;
                         case EVENT_CHAOS_1:
                             if (Creature* gyth = me->FindNearestCreature(NPC_GYTH, 75.0f, true))
@@ -264,7 +264,7 @@ public:
                                 me->SetFacingToObject(gyth);
                                 Talk(SAY_CHAOS_SPELL);
                             }
-                            events.ScheduleEvent(EVENT_CHAOS_2, 2000);
+                            events.ScheduleEvent(EVENT_CHAOS_2, 2s);
                             break;
                         case EVENT_CHAOS_2:
                             DoCast(SPELL_CHROMATIC_CHAOS);
@@ -280,11 +280,11 @@ public:
                                 if (GameObject* portcullis2 = me->FindNearestGameObject(GO_PORTCULLIS_TOBOSSROOMS, 80.0f))
                                     portcullis2->SetGoState(GO_STATE_ACTIVE);
                             }
-                            events.ScheduleEvent(EVENT_SUCCESS_2, 4000);
+                            events.ScheduleEvent(EVENT_SUCCESS_2, 4s);
                             break;
                         case EVENT_SUCCESS_2:
                             DoCast(me, SPELL_VAELASTRASZZ_SPAWN);
-                            me->DespawnOrUnsummon(1000);
+                            me->DespawnOrUnsummon(1s);
                             break;
                         case EVENT_PATH_3:
                             me->GetMotionMaster()->MovePath(NEFARIUS_PATH_3, false);

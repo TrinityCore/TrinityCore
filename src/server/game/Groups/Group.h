@@ -458,7 +458,7 @@ class TC_GAME_API Group
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         bool                m_isLeaderOffline;
-        TimeTrackerSmall    m_leaderOfflineTimer;
+        TimeTracker         m_leaderOfflineTimer;
 
         // Ready Check
         bool                m_readyCheckStarted;

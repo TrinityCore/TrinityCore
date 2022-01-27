@@ -34,6 +34,10 @@
 #include "Transaction.h"
 #include "MySQLWorkaround.h"
 #include <mysqld_error.h>
+#ifdef TRINITY_DEBUG
+#include <sstream>
+#include <boost/stacktrace.hpp>
+#endif
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
@@ -223,7 +227,7 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
+SQLQueryHolderCallback DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
 {
     SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -413,6 +417,15 @@ void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
 template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
+#ifdef TRINITY_DEBUG
+    if (_warnSyncQueries)
+    {
+        std::ostringstream ss;
+        ss << boost::stacktrace::stacktrace();
+        TC_LOG_WARN("sql.performances", "Sync query at:\n%s", ss.str().c_str());
+    }
+#endif
+
     uint8 i = 0;
     auto const num_cons = _connections[IDX_SYNCH].size();
     T* connection = nullptr;

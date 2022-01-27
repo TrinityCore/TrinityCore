@@ -251,7 +251,7 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_TAIL_SMASH, 20s, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_FROST_BREATH, 8s, 12s, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, 9s, 14s, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_ICY_GRIP, 33500ms, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 50s);
                 Initialize();
 
@@ -333,8 +333,8 @@ class boss_sindragosa : public CreatureScript
                     me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                     me->SetSpeedRate(MOVE_FLIGHT, 4.0f);
                     me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    float moveTime = me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
+                    Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
+                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
                     DoCast(me, SPELL_SINDRAGOSA_S_FURY);
                 }
@@ -374,7 +374,7 @@ class boss_sindragosa : public CreatureScript
                         DoZoneInCombat();
                         break;
                     case POINT_TAKEOFF:
-                        events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
+                        events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1ms);
                         break;
                     case POINT_AIR_PHASE:
                     {
@@ -382,7 +382,7 @@ class boss_sindragosa : public CreatureScript
                         args.AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6));
                         me->CastSpell(nullptr, SPELL_ICE_TOMB_TARGET, args);
                         me->SetFacingTo(float(M_PI), true);
-                        events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
+                        events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1ms);
                         events.ScheduleEvent(EVENT_FROST_BOMB, 9s);
                         break;
                     }
@@ -391,7 +391,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_LAND, 30s);
                         break;
                     case POINT_LAND:
-                        events.ScheduleEvent(EVENT_LAND_GROUND, 1);
+                        events.ScheduleEvent(EVENT_LAND_GROUND, 1ms);
                         break;
                     case POINT_LAND_GROUND:
                     {
@@ -428,7 +428,7 @@ class boss_sindragosa : public CreatureScript
                 {
                     summon->CastSpell(summon, SPELL_FROST_BOMB_VISUAL, true);
                     summon->CastSpell(summon, SPELL_BIRTH_NO_VISUAL, true);
-                    summon->m_Events.AddEvent(new FrostBombExplosion(summon, me->GetGUID()), summon->m_Events.CalculateTime(5500));
+                    summon->m_Events.AddEvent(new FrostBombExplosion(summon, me->GetGUID()), summon->m_Events.CalculateTime(5500ms));
                 }
             }
 
@@ -512,7 +512,7 @@ class boss_sindragosa : public CreatureScript
                             pos.m_positionZ += 17.0f;
                             me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos);
                             events.CancelEventGroup(EVENT_GROUP_LAND_PHASE);
-                            events.ScheduleEvent(EVENT_AIR_PHASE, 110000);
+                            events.ScheduleEvent(EVENT_AIR_PHASE, 110s);
                             break;
                         }
                         case EVENT_AIR_MOVEMENT:
@@ -730,8 +730,8 @@ class npc_spinestalker : public CreatureScript
                     me->SetFarVisible(true);
                     me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
                     me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    float moveTime = me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
+                    Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
+                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
                     me->SetDefaultMovementType(IDLE_MOTION_TYPE);
                     me->GetMotionMaster()->MoveIdle();
                     me->StopMoving();
@@ -869,8 +869,8 @@ class npc_rimefang : public CreatureScript
                     me->SetFarVisible(true);
                     me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
                     me->SetImmuneToPC(true);
-                    float moveTime = me->GetExactDist(&RimefangFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, RimefangLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
+                    Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&RimefangFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
+                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, RimefangLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
                     me->SetDefaultMovementType(IDLE_MOTION_TYPE);
                     me->GetMotionMaster()->MoveIdle();
                     me->StopMoving();
@@ -925,9 +925,9 @@ class npc_rimefang : public CreatureScript
                             me->AttackStop();
                             me->SetCanFly(true);
                             me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, RimefangFlyPos);
-                            float moveTime = me->GetExactDist(&RimefangFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
-                            _events.ScheduleEvent(EVENT_ICY_BLAST, uint64(moveTime) + urand(60000, 70000));
-                            _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, uint64(moveTime) + 250);
+                            Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&RimefangFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f)));
+                            _events.ScheduleEvent(EVENT_ICY_BLAST, moveTime + 60s, moveTime + 70s);
+                            _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, moveTime + 250ms);
                             break;
                         }
                         case EVENT_ICY_BLAST_CAST:
@@ -1363,7 +1363,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                         {
                             summon->AI()->SetGUID(GetTarget()->GetGUID(), DATA_TRAPPED_PLAYER);
                             GetTarget()->CastSpell(GetTarget(), SPELL_ICE_TOMB_UNTARGETABLE);
-                            if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f), 0))
+                            if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f), 0s))
                             {
                                 go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
                                 summon->AddGameObject(go);
@@ -1481,7 +1481,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Position const* pos = GetExplTargetDest())
-                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
+                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40s))
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
             }
 

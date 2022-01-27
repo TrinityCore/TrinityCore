@@ -103,7 +103,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
         }
     }
 
-    TimeTrackerSmall rebalance_timer;
+    TimeTracker rebalance_timer;
     int unbalanced_times;
 };
 
@@ -295,9 +295,9 @@ void DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, PhaseShift 
         float liquidLevel;
         if (!reqLiquidType || (dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr(liquidType) & reqLiquidType))
             if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, intersectionCallBack.GetLocationInfo(), liquidLevel))
-                data.liquidInfo = boost::in_place(liquidType, liquidLevel);
+                data.liquidInfo.emplace(liquidType, liquidLevel);
 
-        data.areaInfo = boost::in_place(intersectionCallBack.GetHitModel()->GetNameSetId(),
+        data.areaInfo.emplace(intersectionCallBack.GetHitModel()->GetNameSetId(),
             intersectionCallBack.GetLocationInfo().rootId,
             intersectionCallBack.GetLocationInfo().hitModel->GetWmoID(),
             intersectionCallBack.GetLocationInfo().hitModel->GetMogpFlags());

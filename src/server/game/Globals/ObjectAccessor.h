@@ -19,6 +19,7 @@
 #define TRINITY_OBJECTACCESSOR_H
 
 #include "ObjectGuid.h"
+#include <shared_mutex>
 #include <unordered_map>
 
 class AreaTrigger;
@@ -35,11 +36,6 @@ class SceneObject;
 class Transport;
 class Unit;
 class WorldObject;
-
-namespace boost
-{
-    class shared_mutex;
-}
 
 template <class T>
 class TC_GAME_API HashMapHolder
@@ -59,7 +55,7 @@ public:
 
     static MapType& GetContainer();
 
-    static boost::shared_mutex* GetLock();
+    static std::shared_mutex* GetLock();
 };
 
 namespace ObjectAccessor

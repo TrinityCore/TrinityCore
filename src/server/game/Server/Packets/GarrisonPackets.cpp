@@ -114,7 +114,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonMissionReward const& missionRew
     data << uint32(missionRewardItem.FollowerXP);
     data << uint32(missionRewardItem.GarrMssnBonusAbilityID);
     data << int32(missionRewardItem.ItemFileDataID);
-    data.WriteBit(missionRewardItem.ItemInstance.is_initialized());
+    data.WriteBit(missionRewardItem.ItemInstance.has_value());
     data.FlushBits();
 
     if (missionRewardItem.ItemInstance)
@@ -145,7 +145,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonTalent const& talent)
     data << int32(talent.Rank);
     data << talent.ResearchStartTime;
     data << int32(talent.Flags);
-    data.WriteBit(talent.Socket.is_initialized());
+    data.WriteBit(talent.Socket.has_value());
     data.FlushBits();
 
     if (talent.Socket)

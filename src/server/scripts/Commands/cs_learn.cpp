@@ -250,12 +250,12 @@ public:
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
             if (!talentTabInfo)
                 continue;
 
             // prevent learn talent for different family (cheating)
-            if (((1 << petFamily->PetTalentType) & talentTabInfo->petTalentMask) == 0)
+            if (((1 << petFamily->PetTalentType) & talentTabInfo->PetTalentMask) == 0)
                 continue;
 
             // search highest talent rank
@@ -263,9 +263,9 @@ public:
 
             for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                if (talentInfo->RankID[rank] != 0)
+                if (talentInfo->SpellRank[rank] != 0)
                 {
-                    spellId = talentInfo->RankID[rank];
+                    spellId = talentInfo->SpellRank[rank];
                     break;
                 }
             }

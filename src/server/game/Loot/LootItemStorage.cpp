@@ -23,10 +23,7 @@
 #include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-
+#include <sstream>
 #include <unordered_map>
 
 namespace
@@ -46,9 +43,9 @@ LootItemStorage* LootItemStorage::instance()
     return &instance;
 }
 
-boost::shared_mutex* LootItemStorage::GetLock()
+std::shared_mutex* LootItemStorage::GetLock()
 {
-    static boost::shared_mutex _lock;
+    static std::shared_mutex _lock;
     return &_lock;
 }
 
@@ -144,7 +141,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 
     // read
     {
-        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+        std::shared_lock<std::shared_mutex> lock(*GetLock());
 
         auto itr = _lootItemStore.find(loot->containerID.GetCounter());
         if (itr == _lootItemStore.end())
@@ -196,7 +193,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 void LootItemStorage::RemoveStoredMoneyForContainer(uint64 containerId)
 {
     // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -209,7 +206,7 @@ void LootItemStorage::RemoveStoredLootForContainer(uint64 containerId)
 {
     // write
     {
-        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        std::unique_lock<std::shared_mutex> lock(*GetLock());
         _lootItemStore.erase(containerId);
     }
 
@@ -228,7 +225,7 @@ void LootItemStorage::RemoveStoredLootForContainer(uint64 containerId)
 void LootItemStorage::RemoveStoredLootItemForContainer(uint64 containerId, uint32 itemId, uint32 count)
 {
     // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -245,7 +242,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // read
     {
-        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+        std::shared_lock<std::shared_mutex> lock(*GetLock());
 
         auto itr = _lootItemStore.find(loot->containerID.GetCounter());
         if (itr != _lootItemStore.end())
@@ -287,7 +284,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // write
     {
-        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        std::unique_lock<std::shared_mutex> lock(*GetLock());
         _lootItemStore.emplace(loot->containerID.GetCounter(), std::move(container));
     }
 }

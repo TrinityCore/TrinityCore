@@ -323,7 +323,7 @@ struct boss_sister_svalna : public BossAI
         _JustDied();
         Talk(SAY_SVALNA_DEATH);
 
-        uint64 delay = 1;
+        Milliseconds delay = 1ms;
         for (uint8 itr = 0; itr < 4; ++itr)
         {
             if (Creature* crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CAPTAIN_ARNATH + itr)))
@@ -331,7 +331,7 @@ struct boss_sister_svalna : public BossAI
                 if (crusader->IsAlive() && crusader->GetEntry() == crusader->GetCreatureData()->id)
                 {
                     crusader->m_Events.AddEvent(new CaptainSurviveTalk(crusader), crusader->m_Events.CalculateTime(delay));
-                    delay += 6000;
+                    delay += 6s;
                 }
             }
         }
@@ -454,7 +454,7 @@ struct boss_sister_svalna : public BossAI
                     CastSpellExtraArgs args;
                     args.AddSpellBP0(1);
                     summon->CastSpell(target, VEHICLE_SPELL_RIDE_HARDCODED, args);
-                    summon->AddUnitFlag2(UnitFlags2(UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT));
+                    summon->AddUnitFlag2(UnitFlags2(UNIT_FLAG2_HIDE_BODY | UNIT_FLAG2_INTERACT_WHILE_HOSTILE));
                 }
                 break;
             default:
@@ -531,7 +531,7 @@ struct npc_crok_scourgebane : public EscortAI
     void Reset() override
     {
         _events.Reset();
-        _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
+        _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, 7500ms, 12500ms);
         _events.ScheduleEvent(EVENT_DEATH_STRIKE, 25s, 30s);
         me->SetReactState(REACT_DEFENSIVE);
         Initialize();
@@ -554,8 +554,8 @@ struct npc_crok_scourgebane : public EscortAI
                 svalna->AI()->DoAction(ACTION_START_GAUNTLET);
 
             Talk(SAY_CROK_INTRO_1);
-            _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7000);
-            _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14000);
+            _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7s);
+            _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14s);
             _events.ScheduleEvent(EVENT_START_PATHING, 35s);
             me->setActive(true);
             me->SetFarVisible(true);
@@ -1186,7 +1186,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
         {
             case NPC_YMIRJAR_FROSTBINDER:
                 me->RemoveAurasDueToSpell(SPELL_ARCTIC_CHILL);
-                /* fallthrough */
+                [[fallthrough]];
             case NPC_YMIRJAR_DEATHBRINGER:
                 _OOCevents.ScheduleEvent(EVENT_YMIRJAR_SPIRIT_STREAM, 10s, 20s);
                 break;
@@ -1393,7 +1393,7 @@ struct npc_impaling_spear : public CreatureAI
         {
             _vehicleCheckTimer = 500;
             if (!me->GetVehicle())
-                me->DespawnOrUnsummon(100);
+                me->DespawnOrUnsummon(100ms);
         }
         else
             _vehicleCheckTimer -= diff;
@@ -1455,7 +1455,7 @@ class spell_svalna_remove_spear : public SpellScript
         {
             if (Unit* vehicle = target->GetVehicleBase())
                 vehicle->RemoveAurasDueToSpell(SPELL_IMPALING_SPEAR);
-            target->DespawnOrUnsummon(1);
+            target->DespawnOrUnsummon(1ms);
         }
     }
 

@@ -1077,7 +1077,7 @@ void Battleground::AddPlayer(Player* player)
     {
         Milliseconds duration(GetElapsedTime() - BG_START_DELAY_2M);
         pvpMatchInitialize.Duration = std::chrono::duration_cast<Seconds>(duration);
-        pvpMatchInitialize.StartTime = GameTime::GetGameTimeSystemPoint() - duration;
+        pvpMatchInitialize.StartTime = GameTime::GetSystemTime() - duration;
     }
     pvpMatchInitialize.ArenaFaction = player->GetBGTeam() == HORDE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
     pvpMatchInitialize.BattlemasterListID = GetTypeID();
@@ -1639,6 +1639,22 @@ bool Battleground::DelObject(uint32 type)
     TC_LOG_ERROR("bg.battleground", "Battleground::DelObject: gameobject (type: %u, %s) not found for BG (map: %u, instance id: %u)!",
         type, BgObjects[type].ToString().c_str(), GetMapId(), m_InstanceID);
     BgObjects[type].Clear();
+    return false;
+}
+
+bool Battleground::RemoveObjectFromWorld(uint32 type)
+{
+    if (!BgObjects[type])
+        return true;
+
+    if (GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]))
+    {
+        obj->RemoveFromWorld();
+        BgObjects[type].Clear();
+        return true;
+    }
+    TC_LOG_INFO("bg.battleground", "Battleground::RemoveObjectFromWorld: gameobject (type: %u, %s) not found for BG (map: %u, instance id: %u)!",
+        type, BgObjects[type].ToString().c_str(), GetMapId(), m_InstanceID);
     return false;
 }
 
