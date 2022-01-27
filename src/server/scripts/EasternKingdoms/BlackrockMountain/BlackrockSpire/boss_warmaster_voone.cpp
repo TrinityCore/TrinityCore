@@ -57,10 +57,10 @@ public:
         {
             BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_SNAP_KICK, 8s);
-            events.ScheduleEvent(EVENT_CLEAVE,   14 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE, 14s);
             events.ScheduleEvent(EVENT_UPPERCUT, 20s);
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s);
-            events.ScheduleEvent(EVENT_PUMMEL,   32 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_PUMMEL, 32s);
             events.ScheduleEvent(EVENT_THROW_AXE, 1s);
         }
 

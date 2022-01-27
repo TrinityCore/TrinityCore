@@ -208,7 +208,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_DEFEAT_FACTION_CHAMPIONS);
                                 if (ResilienceWillFixItTimer > 0)
                                     DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
-                                DoRespawnGameObject(GetGuidData(DATA_CRUSADERS_CHEST), 7 * DAY);
+                                DoRespawnGameObject(GetGuidData(DATA_CRUSADERS_CHEST), 7_days);
                                 if (GameObject* cache = GetGameObject(DATA_CRUSADERS_CHEST))
                                     cache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 if (Creature* fordring = GetCreature(DATA_FORDRING))
@@ -283,7 +283,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                                 if (tributeChest)
                                     if (Creature* tirion = GetCreature(DATA_FORDRING))
-                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, QuaternionData::fromEulerAnglesZYX(3.27f, 0.0f, 0.0f), WEEK))
+                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, QuaternionData::fromEulerAnglesZYX(3.27f, 0.0f, 0.0f), 7_days))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                             }

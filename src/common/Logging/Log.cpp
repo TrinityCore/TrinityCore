@@ -287,11 +287,12 @@ std::string Log::GetTimestampStr()
     }
 }
 
-bool Log::SetLogLevel(std::string const& name, char const* newLevelc, bool isLogger /* = true */)
+bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /* = true */)
 {
-    LogLevel newLevel = LogLevel(atoi(newLevelc));
-    if (newLevel < 0)
+    if (newLeveli < 0)
         return false;
+
+    LogLevel newLevel = LogLevel(newLeveli);
 
     if (isLogger)
     {

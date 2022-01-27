@@ -365,7 +365,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         darnavan->CombatStop(true);
                         darnavan->GetMotionMaster()->MoveIdle();
                         darnavan->SetReactState(REACT_PASSIVE);
-                        darnavan->m_Events.AddEvent(new DaranavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10000));
+                        darnavan->m_Events.AddEvent(new DaranavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10s));
                         darnavan->AI()->Talk(SAY_DARNAVAN_RESCUED);
 
                         if (!killer)
@@ -548,7 +548,7 @@ class boss_lady_deathwhisper : public CreatureScript
             // helper for summoning wave mobs
             void Summon(uint32 entry, Position const& pos)
             {
-                if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s))
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
             }
 

@@ -183,14 +183,33 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACTIONS, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILCOUNT);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
     stmt->setUInt64(0, lowGuid);
-    stmt->setUInt64(1, GameTime::GetGameTime());
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAILS, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILDATE);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_ARTIFACT);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_ARTIFACT, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_MILESTONE_POWER);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_MILESTONE_POWER, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_UNLOCKED_ESSENCE);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_UNLOCKED_ESSENCE, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_EMPOWERED);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_EMPOWERED, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SOCIALLIST);
     stmt->setUInt64(0, lowGuid);
@@ -461,7 +480,10 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
         return;
     }
 
-    _charEnumCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* result)
+    {
+        HandleCharEnum(static_cast<EnumCharactersQueryHolder*>(result));
+    });
 }
 
 void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
@@ -474,7 +496,10 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCha
         return;
     }
 
-    _charEnumCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* result)
+    {
+        HandleCharEnum(static_cast<EnumCharactersQueryHolder*>(result));
+    });
 }
 
 bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Classes playerClass,
@@ -1015,7 +1040,10 @@ void WorldSession::HandleContinuePlayerLogin()
 
     SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
 
-    _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* holder)
+    {
+        HandlePlayerLogin(static_cast<LoginQueryHolder*>(holder));
+    });
 }
 
 void WorldSession::AbortLogin(WorldPackets::Character::LoginFailureReason reason)
@@ -1130,7 +1158,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             {
                 case PlayerCreateMode::Normal:
                     if (playerInfo->introMovieId)
-                        pCurrChar->SendMovieStart(playerInfo->introMovieId.get());
+                        pCurrChar->SendMovieStart(*playerInfo->introMovieId);
                     else if (playerInfo->introSceneId)
                         pCurrChar->GetSceneMgr().PlayScene(*playerInfo->introSceneId);
                     else if (sChrClassesStore.AssertEntry(pCurrChar->GetClass())->CinematicSequenceID)
@@ -1418,7 +1446,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
-    features.EuropaTicketSystemStatus = boost::in_place();
+    features.EuropaTicketSystemStatus.emplace();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
     features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
     features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
@@ -2486,12 +2514,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     // new team
                     if (newTeamId == TEAM_ALLIANCE)
                     {
-                        uint32 maskID = htitleInfo->MaskID;
-                        uint32 index = maskID / 32;
+                        uint32 bitIndex = htitleInfo->MaskID;
+                        uint32 index = bitIndex / 32;
                         if (index >= knownTitles.size())
                             continue;
 
-                        uint32 old_flag = 1 << (maskID % 32);
+                        uint32 old_flag = 1 << (bitIndex % 32);
                         uint32 new_flag = 1 << (atitleInfo->MaskID % 32);
                         if (knownTitles[index] & old_flag)
                         {
@@ -2502,12 +2530,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     }
                     else
                     {
-                        uint32 maskID = atitleInfo->MaskID;
-                        uint32 index = maskID / 32;
+                        uint32 bitIndex = htitleInfo->MaskID;
+                        uint32 index = bitIndex / 32;
                         if (index >= knownTitles.size())
                             continue;
 
-                        uint32 old_flag = 1 << (maskID % 32);
+                        uint32 old_flag = 1 << (bitIndex % 32);
                         uint32 new_flag = 1 << (htitleInfo->MaskID % 32);
                         if (knownTitles[index] & old_flag)
                         {
@@ -2768,7 +2796,7 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
 
     if (result == RESPONSE_SUCCESS)
     {
-        packet.Display = boost::in_place();
+        packet.Display.emplace();
         packet.Display->Name = factionChangeInfo->Name;
         packet.Display->SexID = factionChangeInfo->SexID;
         packet.Display->Customizations = &factionChangeInfo->Customizations;

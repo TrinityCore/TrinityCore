@@ -408,7 +408,7 @@ class npc_chained_spirit : public CreatureScript
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
                         DoCast(target, SPELL_REVIVE);
 
-                    me->DespawnOrUnsummon(2000);
+                    me->DespawnOrUnsummon(2s);
                 }
             }
 

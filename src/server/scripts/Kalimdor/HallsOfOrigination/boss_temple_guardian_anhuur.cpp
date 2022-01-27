@@ -111,8 +111,8 @@ public:
             _Reset();
             CleanStalkers();
             me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
-            events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
-            events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
+            events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 12s);
+            events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -220,7 +220,7 @@ public:
                 {
                     case EVENT_DIVINE_RECKONING:
                         DoCastVictim(SPELL_DIVINE_RECKONING);
-                        events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
+                        events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 12s);
                         break;
                     case EVENT_BURNING_LIGHT:
                     {
@@ -228,8 +228,8 @@ public:
                         if (!unit)
                             unit = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
                         DoCast(unit, SPELL_BURNING_LIGHT);
-                        events.ScheduleEvent(EVENT_SEAR, 2000);
-                        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
+                        events.ScheduleEvent(EVENT_SEAR, 2s);
+                        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s);
                         break;
                     }
                     case EVENT_SEAR:
@@ -344,33 +344,6 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
         }
 };
 
-class spell_anhuur_activate_beacons : public SpellScriptLoader
-{
-    public:
-        spell_anhuur_activate_beacons() : SpellScriptLoader("spell_anhuur_activate_beacons") { }
-
-        class spell_anhuur_activate_beacons_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_anhuur_activate_beacons_SpellScript);
-
-            void Activate(SpellEffIndex index)
-            {
-                PreventHitDefaultEffect(index);
-                GetHitGObj()->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_anhuur_activate_beacons_SpellScript::Activate, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_anhuur_activate_beacons_SpellScript();
-        }
-};
-
 class spell_anhuur_divine_reckoning : public SpellScriptLoader
 {
 public:
@@ -407,6 +380,5 @@ void AddSC_boss_temple_guardian_anhuur()
     new boss_temple_guardian_anhuur();
     new spell_anhuur_shield_of_light();
     new spell_anhuur_disable_beacon_beams();
-    new spell_anhuur_activate_beacons();
     new spell_anhuur_divine_reckoning();
 }

@@ -61,7 +61,7 @@ public:
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 0.1f);
 
-            if (Creature* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000))
+            if (Creature* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1s))
             {
                 _rageclawGUID = summon->GetGUID();
                 LockRageclaw(summon);
@@ -153,7 +153,7 @@ public:
                 DoCast(me, SPELL_UNSHACKLED, true);
                 Talk(SAY_RAGECLAW);
                 me->GetMotionMaster()->MoveRandom(10);
-                me->DespawnOrUnsummon(10000);
+                me->DespawnOrUnsummon(10s);
             }
         }
     };
@@ -252,12 +252,12 @@ public:
                         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         Talk(SAY_RECRUIT);
-                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3000);
+                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3s);
                         break;
                     case EVENT_RECRUIT_2:
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(_heading) * 10), me->GetPositionY() + (std::sin(_heading) * 10), me->GetPositionZ());
-                        me->DespawnOrUnsummon(5000);
+                        me->DespawnOrUnsummon(5s);
                         break;
                     default:
                         break;
@@ -270,7 +270,7 @@ public:
 
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
+            _events.ScheduleEvent(EVENT_RECRUIT_1, 100ms);
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
             me->SetFacingToObject(player);
@@ -318,7 +318,7 @@ public:
                 {
                     player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
                     gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                    gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
+                    gymerDummy->DespawnOrUnsummon(4s);
                 }
             }
             return true;
@@ -491,16 +491,16 @@ public:
                    {
                         case 2:
                         case 3:
-                            _events.ScheduleEvent(EVENT_EASY_123, 100);
+                            _events.ScheduleEvent(EVENT_EASY_123, 100ms);
                             break;
                         case 4:
-                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100);
+                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100ms);
                             break;
                         case 5:
-                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100);
+                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100ms);
                             break;
                         case 6:
-                            _events.ScheduleEvent(EVENT_HARD_6, 100);
+                            _events.ScheduleEvent(EVENT_HARD_6, 100ms);
                             break;
                         default:
                             break;
@@ -569,7 +569,7 @@ public:
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
                 _playerGUID = player->GetGUID();
                 _getingredienttry = 1;
-                _events.ScheduleEvent(EVENT_EASY_123, 100);
+                _events.ScheduleEvent(EVENT_EASY_123, 100ms);
                 return false;
             }
 

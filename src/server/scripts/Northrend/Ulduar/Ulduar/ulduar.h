@@ -514,13 +514,13 @@ class Creature;
 class UlduarKeeperDespawnEvent : public BasicEvent
 {
     public:
-        UlduarKeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500);
+        UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset = 500ms);
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override;
 
-private:
-    Creature* _owner;
-    uint32 _despawnTimer;
+    private:
+        Creature* _owner;
+        Milliseconds _despawnTimer;
 };
 
 template <class AI, class T>

@@ -86,7 +86,7 @@ class boss_doctor_theolen_krastinov : public CreatureScript
                         case EVENT_FRENZY:
                             DoCast(me, SPELL_FRENZY, true);
                             Talk(EMOTE_FRENZY_KILL);
-                            events.ScheduleEvent(EVENT_FRENZY, 120000);
+                            events.ScheduleEvent(EVENT_FRENZY, 120s);
                             break;
                         default:
                             break;

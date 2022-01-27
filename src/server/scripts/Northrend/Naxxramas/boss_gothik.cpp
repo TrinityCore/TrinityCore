@@ -473,7 +473,7 @@ class boss_gothik : public CreatureScript
                                     for (Creature* trigger : triggers)
                                         if (trigger && trigger->GetSpawnId() == targetDBGuid)
                                         {
-                                            DoSummon(entry.first, trigger, 1.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                                            DoSummon(entry.first, trigger, 1.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                                             break;
                                         }
                                 }
@@ -517,7 +517,7 @@ class boss_gothik : public CreatureScript
                                 _lastTeleportDead = !_lastTeleportDead;
 
                                 events.CancelEvent(EVENT_BOLT);
-                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2 * IN_MILLISECONDS, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2s, 0, PHASE_TWO);
                                 events.Repeat(Seconds(20));
                             }
                             break;
@@ -589,7 +589,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             {
                 case ACTION_GATE_OPENED:
                     _gateIsOpen = true;
-                    /* fallthrough */
+                    [[fallthrough]];
                 case ACTION_ACQUIRE_TARGET:
                     if (Player* target = FindEligibleTarget(me, _gateIsOpen))
                     {
@@ -936,14 +936,14 @@ public:
                         DoCast(target, SPELL_SKULLS_RIDER, true);
                     break;
                 case SPELL_SKULLS_TRAINEE:
-                    DoSummon(NPC_DEAD_TRAINEE, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_TRAINEE, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
                 case SPELL_SKULLS_DK:
-                    DoSummon(NPC_DEAD_KNIGHT, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_KNIGHT, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
                 case SPELL_SKULLS_RIDER:
-                    DoSummon(NPC_DEAD_RIDER, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                    DoSummon(NPC_DEAD_HORSE, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_RIDER, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_HORSE, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
             }
         }

@@ -105,7 +105,7 @@ public:
                 return false;
 
             instance->SetData(TYPE_RING_OF_LAW, IN_PROGRESS);
-            player->SummonCreature(NPC_GRIMSTONE, 625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN, 0);
+            player->SummonCreature(NPC_GRIMSTONE, 625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN);
 
             return false;
         }
@@ -184,7 +184,7 @@ public:
         /// @todo move them to center
         void SummonRingMob()
         {
-            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN))
                 RingMobGUID[MobCount] = tmp->GetGUID();
 
             ++MobCount;
@@ -196,7 +196,7 @@ public:
         /// @todo move them to center
         void SummonRingBoss()
         {
-            if (Creature* tmp = me->SummonCreature(RingBoss[rand32() % 6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* tmp = me->SummonCreature(RingBoss[rand32() % 6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN))
                 RingBossGUID = tmp->GetGUID();
 
             MobDeath_Timer = 2500;

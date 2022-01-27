@@ -91,7 +91,7 @@ Optional<int32> GetFinishingMoveCPCost(Spell const* spell)
  * A finishing move is a spell that cost combo points */
 bool IsFinishingMove(Spell const* spell)
 {
-    return GetFinishingMoveCPCost(spell).is_initialized();
+    return GetFinishingMoveCPCost(spell).has_value();
 }
 
 // 53 - Backstab

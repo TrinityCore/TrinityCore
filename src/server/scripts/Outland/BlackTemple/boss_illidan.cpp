@@ -706,7 +706,7 @@ struct boss_illidan_stormrage : public BossAI
         for (uint8 i = 0; i < needSummon; ++i)
         {
             _minionsCount++;
-            me->SummonCreature(NPC_ILLIDARI_ELITE, MinionsSpawnPositions[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000);
+            me->SummonCreature(NPC_ILLIDARI_ELITE, MinionsSpawnPositions[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6s);
         }
     }
 
@@ -915,8 +915,8 @@ struct boss_illidan_stormrage : public BossAI
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true))
                         DoCast(target, SPELL_DARK_BARRAGE);
                     events.RescheduleEvent(EVENT_EYE_BLAST, Seconds(5), GROUP_PHASE_2);
-                    uint32 currentTime = events.GetNextEventTime(EVENT_FLY_TO_RANDOM_PILLAR);
-                    events.RescheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, Seconds(currentTime) + Seconds(30), GROUP_PHASE_2);
+                    Milliseconds currentTime = events.GetTimeUntilEvent(EVENT_FLY_TO_RANDOM_PILLAR);
+                    events.RescheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, currentTime + 30s, GROUP_PHASE_2);
                     break;
                 }
                 case EVENT_FIREBALL:
@@ -1990,7 +1990,7 @@ class spell_illidan_throw_warglaive : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->m_Events.AddEvent(new SummonWarglaiveEvent(target), target->m_Events.CalculateTime(1000));
+        target->m_Events.AddEvent(new SummonWarglaiveEvent(target), target->m_Events.CalculateTime(1s));
     }
 
     void Register() override

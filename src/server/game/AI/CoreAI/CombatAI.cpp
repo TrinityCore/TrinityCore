@@ -84,7 +84,7 @@ void CombatAI::JustEngagedWith(Unit* who)
             if (info->condition == AICOND_AGGRO)
                 me->CastSpell(who, spell, false);
             else if (info->condition == AICOND_COMBAT)
-                Events.ScheduleEvent(spell, info->cooldown + rand32() % info->cooldown);
+                Events.ScheduleEvent(spell, info->cooldown, info->cooldown * 2);
         }
     }
 }
@@ -103,7 +103,7 @@ void CombatAI::UpdateAI(uint32 diff)
     {
         DoCast(spellId);
         if (AISpellInfoType const* info = GetAISpellInfo(spellId, me->GetMap()->GetDifficultyID()))
-            Events.ScheduleEvent(spellId, info->cooldown + rand32() % info->cooldown);
+            Events.ScheduleEvent(spellId, info->cooldown, info->cooldown * 2);
     }
     else
         DoMeleeAttackIfReady();
@@ -111,7 +111,7 @@ void CombatAI::UpdateAI(uint32 diff)
 
 void CombatAI::SpellInterrupted(uint32 spellId, uint32 unTimeMs)
 {
-    Events.RescheduleEvent(spellId, unTimeMs);
+    Events.RescheduleEvent(spellId, Milliseconds(unTimeMs));
 }
 
 /////////////////
@@ -148,11 +148,11 @@ void CasterAI::JustEngagedWith(Unit* who)
                 me->CastSpell(who, *itr, false);
             else if (info->condition == AICOND_COMBAT)
             {
-                uint32 cooldown = info->realCooldown;
+                Milliseconds cooldown = info->realCooldown;
                 if (count == spell)
                 {
                     DoCast(Spells[spell]);
-                    cooldown += me->GetCurrentSpellCastTime(*itr);
+                    cooldown += Milliseconds(me->GetCurrentSpellCastTime(*itr));
                 }
                 Events.ScheduleEvent(*itr, cooldown);
             }
@@ -181,7 +181,7 @@ void CasterAI::UpdateAI(uint32 diff)
         DoCast(spellId);
         uint32 casttime = me->GetCurrentSpellCastTime(spellId);
         if (AISpellInfoType const* info = GetAISpellInfo(spellId, me->GetMap()->GetDifficultyID()))
-            Events.ScheduleEvent(spellId, (casttime ? casttime : 500) + info->realCooldown);
+            Events.ScheduleEvent(spellId, Milliseconds(casttime ? casttime : 500) + info->realCooldown);
     }
 }
 

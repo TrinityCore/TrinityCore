@@ -187,12 +187,12 @@ class boss_skeram : public CreatureScript
                     Talk(SAY_SPLIT);
                     _hpct -= 25.0f;
                     me->SetVisible(false);
-                    events.RescheduleEvent(EVENT_BLINK, 2000);
+                    events.RescheduleEvent(EVENT_BLINK, 2s);
                 }
 
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
-                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 2000);
+                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 2s);
                     DoMeleeAttackIfReady();
                 }
             }

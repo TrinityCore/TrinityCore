@@ -498,7 +498,7 @@ public:
         {
             CloseGossipMenuFor(player);
             playerGUID = player->GetGUID();
-            events.ScheduleEvent(EVENT_SCRIPT_1, 100);
+            events.ScheduleEvent(EVENT_SCRIPT_1, 100ms);
             return false;
         }
 
@@ -514,18 +514,18 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             Talk(SAY_BRANN_1, player);
                         me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
-                        if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49000))
+                        if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49s))
                             voiceGUID = voice->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_2, 4000);
+                        events.ScheduleEvent(EVENT_SCRIPT_2, 4s);
                         break;
                     case EVENT_SCRIPT_2:
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(0, 7861.488f, -1396.376f, 1534.059f, false);
-                        events.ScheduleEvent(EVENT_SCRIPT_3, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_3, 6s);
                         break;
                     case EVENT_SCRIPT_3:
                         me->SetEmoteState(EMOTE_STATE_WORK_MINING);
-                        events.ScheduleEvent(EVENT_SCRIPT_4, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_4, 6s);
                         break;
                     case EVENT_SCRIPT_4:
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);
@@ -535,46 +535,46 @@ public:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 voice->AI()->Talk(SAY_VOICE_1, player);
                         }
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, QuaternionData(0.f, 0.f, -0.737277f, 0.6755905f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, QuaternionData(0.f, 0.f, -0.737277f, 0.6755905f), 0s))
                             objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_5, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_5, 6s);
                         break;
                     case EVENT_SCRIPT_5:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_2, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, QuaternionData(0.f, 0.f, -0.9271832f, 0.3746083f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, QuaternionData(0.f, 0.f, -0.9271832f, 0.3746083f), 0s))
                             objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_6, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_6, 6s);
                         break;
                     case EVENT_SCRIPT_6:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_3, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, QuaternionData(0.f, 0.f, 0.9961939f, 0.08716504f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, QuaternionData(0.f, 0.f, 0.9961939f, 0.08716504f), 0s))
                             objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_7, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_7, 6s);
                         break;
                     case EVENT_SCRIPT_7:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_4, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, QuaternionData(0.f, 0.f, 0.8703556f, 0.4924237f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, QuaternionData(0.f, 0.f, 0.8703556f, 0.4924237f), 0s))
                             objectGUID[objectCounter++] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_8, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_8, 6s);
                         break;
                     case EVENT_SCRIPT_8:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_5, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, QuaternionData(0.f, 0.f, 0.5446386f, 0.8386708f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, QuaternionData(0.f, 0.f, 0.5446386f, 0.8386708f), 0s))
                             objectGUID[objectCounter] = go->GetGUID();
-                        events.ScheduleEvent(EVENT_SCRIPT_9, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_9, 6s);
                         break;
                     case EVENT_SCRIPT_9:
                         if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                             voice->CastSpell(voice, SPELL_RESURRECTION);
-                        events.ScheduleEvent(EVENT_SCRIPT_10, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_10, 6s);
                         break;
                     case EVENT_SCRIPT_10:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
@@ -582,7 +582,7 @@ public:
                             Talk(SAY_BRANN_2, player);
                             player->KilledMonsterCredit(me->GetEntry());
                         }
-                        events.ScheduleEvent(EVENT_SCRIPT_11, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_11, 6s);
                         break;
                     case EVENT_SCRIPT_11:
                         me->SetFacingTo(2.932153f);
@@ -593,13 +593,13 @@ public:
                             if (GameObject* go = ObjectAccessor::GetGameObject(*me, objectGUID[i]))
                                 go->Delete();
 
-                        events.ScheduleEvent(EVENT_SCRIPT_12, 6000);
+                        events.ScheduleEvent(EVENT_SCRIPT_12, 6s);
                         break;
                     case EVENT_SCRIPT_12:
                         me->GetMotionMaster()->Clear();
                         me->SetWalk(false);
                         me->GetMotionMaster()->MovePoint(0, 7799.908f, -1413.561f, 1534.829f, false);
-                        events.ScheduleEvent(EVENT_SCRIPT_13, 10000);
+                        events.ScheduleEvent(EVENT_SCRIPT_13, 10s);
                         break;
                     case EVENT_SCRIPT_13:
                         me->DisappearAndDie();
@@ -1037,7 +1037,7 @@ public:
                 {
                     case EVENT_KROLMIR_1:
                         Talk(SAY_JOKKUM_2);
-                        events.ScheduleEvent(EVENT_KROLMIR_2, 4000);
+                        events.ScheduleEvent(EVENT_KROLMIR_2, 4s);
                         break;
                 }
             }

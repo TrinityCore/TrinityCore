@@ -1095,28 +1095,17 @@ public:
                         me->GetCreatureListWithEntryInGrid(nearbyVictims, urand(0, 1) ? NPC_CITIZEN : NPC_RESIDENT, 60.0f);
                         if (!nearbyVictims.empty())
                         {
-                            std::list<Creature*>::iterator it = nearbyVictims.begin();
-                            std::advance(it, urand(0, nearbyVictims.size()-1));
-                            Emote emote;
-                            switch (urand(0, 3))
+                            Emote emotes[] =
                             {
-                                case 0:
-                                    emote = EMOTE_ONESHOT_TALK;
-                                    break;
-                                case 1:
-                                    emote = EMOTE_ONESHOT_EXCLAMATION;
-                                    break;
-                                case 2:
-                                    emote = EMOTE_ONESHOT_RUDE;
-                                    break;
-                                case 3:
-                                    emote = EMOTE_ONESHOT_ROAR;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            if ((*it)->IsAlive())
-                                (*it)->HandleEmoteCommand(emote);
+                                EMOTE_ONESHOT_TALK,
+                                EMOTE_ONESHOT_EXCLAMATION,
+                                EMOTE_ONESHOT_RUDE,
+                                EMOTE_ONESHOT_ROAR
+                            };
+
+                            Creature* victim = Trinity::Containers::SelectRandomContainerElement(nearbyVictims);
+                            if (victim->IsAlive())
+                                victim->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(emotes));
                         }
                         break;
                     }
@@ -1160,7 +1149,7 @@ public:
                         break;
                     case RP2_EVENT_MALGANIS_LEAVE2:
                         if (Creature* malganis = me->FindNearestCreature(NPC_MALGANIS, 80.0f, true))
-                            malganis->DespawnOrUnsummon(0);
+                            malganis->DespawnOrUnsummon();
                         if (Creature* bunny = me->FindNearestCreature(NPC_MALGANIS_BUNNY, 80.0f, true))
                             bunny->CastSpell(bunny, SPELL_SHADOWSTEP_VISUAL);
                         break;
@@ -1496,6 +1485,7 @@ public:
                             chromie->AI()->Talk(RP5_LINE_CHROMIE0);
                             chromie->AddNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
                         }
+                        break;
                     default:
                         break;
                 }

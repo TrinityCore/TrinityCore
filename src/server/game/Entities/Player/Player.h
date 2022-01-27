@@ -854,8 +854,13 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_AZERITE_UNLOCKED_ESSENCES,
     PLAYER_LOGIN_QUERY_LOAD_AZERITE_EMPOWERED,
     PLAYER_LOGIN_QUERY_LOAD_ACTIONS,
-    PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT,
-    PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE,
+    PLAYER_LOGIN_QUERY_LOAD_MAILS,
+    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS,
+    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_ARTIFACT,
+    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE,
+    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_MILESTONE_POWER,
+    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_UNLOCKED_ESSENCE,
+    PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_AZERITE_EMPOWERED,
     PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST,
     PLAYER_LOGIN_QUERY_LOAD_HOME_BIND,
     PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS,
@@ -1493,7 +1498,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void PrepareGossipMenu(WorldObject* source, uint32 menuId = 0, bool showQuests = false);
         void SendPreparedGossip(WorldObject* source);
-        void OnGossipSelect(WorldObject* source, uint32 optionIndex, uint32 menuId);
+        void OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId);
 
         uint32 GetGossipTextId(uint32 menuId, WorldObject* source);
         uint32 GetGossipTextId(WorldObject* source);
@@ -1684,7 +1689,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static void DeleteOldCharacters();
         static void DeleteOldCharacters(uint32 keepDays);
 
-        bool m_mailsLoaded;
         bool m_mailsUpdated;
 
         void SetBindPoint(ObjectGuid guid) const;
@@ -1717,7 +1721,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendNewMail() const;
         void UpdateNextMailTimeAndUnreads();
         void AddNewMailDeliverTime(time_t deliver_time);
-        bool IsMailsLoaded() const { return m_mailsLoaded; }
 
         void RemoveMail(uint32 id);
 
@@ -2804,8 +2807,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
             PreparedQueryResult azeriteEmpoweredItemResult, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
-        void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
-        void _LoadMail();
+        void _LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
+            PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, PreparedQueryResult azeriteEmpoweredItemResult);
         static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint32 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusObjectives(PreparedQueryResult result);
@@ -3023,7 +3026,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles;
 
-        TimeTrackerSmall m_groupUpdateTimer;
+        TimeTracker m_groupUpdateTimer;
 
     private:
         // internal common parts for CanStore/StoreItem functions

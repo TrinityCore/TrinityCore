@@ -252,7 +252,7 @@ class boss_urom : public CreatureScript
                             Talk(EMOTE_ARCANE_EXPLOSION);
                             Talk(SAY_ARCANE_EXPLOSION);
                             DoCastAOE(SPELL_EMPOWERED_ARCANE_EXPLOSION);
-                            events.ScheduleEvent(EVENT_TELEPORT_BACK, DUNGEON_MODE<uint32>(10000, 8000));
+                            events.ScheduleEvent(EVENT_TELEPORT_BACK, DUNGEON_MODE(10s, 8s));
                             break;
                         case EVENT_TELEPORT_BACK:
                             me->SetReactState(REACT_AGGRESSIVE);

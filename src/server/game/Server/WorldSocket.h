@@ -28,7 +28,7 @@
 #include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
 #include <array>
-#include <chrono>
+#include <boost/asio/ip/tcp.hpp>
 #include <functional>
 #include <mutex>
 
@@ -158,7 +158,7 @@ private:
     SessionKey _sessionKey;
     std::array<uint8, 16> _encryptKey;
 
-    std::chrono::steady_clock::time_point _LastPingTime;
+    TimePoint _LastPingTime;
     uint32 _OverSpeedPings;
 
     std::mutex _worldSessionLock;

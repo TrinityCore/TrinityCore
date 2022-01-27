@@ -175,7 +175,7 @@ struct ValithriaManaVoidSelector
 class ValithriaDelayedCastEvent : public BasicEvent
 {
     public:
-        ValithriaDelayedCastEvent(Creature* trigger, uint32 spellId, ObjectGuid originalCaster, uint32 despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime)
+        ValithriaDelayedCastEvent(Creature* trigger, uint32 spellId, ObjectGuid originalCaster, Milliseconds despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime)
         {
         }
 
@@ -183,7 +183,7 @@ class ValithriaDelayedCastEvent : public BasicEvent
         {
             _trigger->CastSpell(_trigger, _spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                 .SetOriginalCaster(_originalCaster));
-            if (_despawnTime)
+            if (_despawnTime != 0s)
                 _trigger->DespawnOrUnsummon(_despawnTime);
             return true;
         }
@@ -192,7 +192,7 @@ class ValithriaDelayedCastEvent : public BasicEvent
         Creature* _trigger;
         ObjectGuid _originalCaster;
         uint32 _spellId;
-        uint32 _despawnTime;
+        Milliseconds _despawnTime;
 };
 
 class ValithriaAuraRemoveEvent : public BasicEvent
@@ -234,7 +234,7 @@ class ValithriaDespawner : public BasicEvent
                 case NPC_VALITHRIA_DREAMWALKER:
                     if (InstanceScript* instance = creature->GetInstanceScript())
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
-                    /* fallthrough */
+                    [[fallthrough]];
                 case NPC_BLAZING_SKELETON:
                 case NPC_SUPPRESSER:
                 case NPC_BLISTERING_ZOMBIE:
@@ -249,7 +249,7 @@ class ValithriaDespawner : public BasicEvent
                     return;
             }
 
-            creature->DespawnOrUnsummon(0, 10s);
+            creature->DespawnOrUnsummon(0s, 10s);
         }
 
     private:
@@ -318,7 +318,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_INTRO_TALK, 15s);
                 _events.ScheduleEvent(EVENT_DREAM_PORTAL, 45s, 48s);
                 if (IsHeroic())
-                    _events.ScheduleEvent(EVENT_BERSERK, 420000);
+                    _events.ScheduleEvent(EVENT_BERSERK, 420s);
             }
 
             void HealReceived(Unit* healer, uint32& heal) override
@@ -387,7 +387,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     // this display id was found in sniff instead of the one on aura
                     me->SetDisplayId(11686);
                     me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                    me->DespawnOrUnsummon(4000);
+                    me->DespawnOrUnsummon(4s);
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_TRIGGER)))
                         Unit::Kill(me, trigger);
 
@@ -400,13 +400,13 @@ class boss_valithria_dreamwalker : public CreatureScript
             {
                 if (summon->GetEntry() == NPC_DREAM_PORTAL_PRE_EFFECT)
                 {
-                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_DREAM_PORTAL, me->GetGUID(), 6000), summon->m_Events.CalculateTime(15000));
-                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_DREAM_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15000));
+                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_DREAM_PORTAL, me->GetGUID(), 6s), summon->m_Events.CalculateTime(15s));
+                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_DREAM_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15s));
                 }
                 else if (summon->GetEntry() == NPC_NIGHTMARE_PORTAL_PRE_EFFECT)
                 {
-                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_NIGHTMARE_PORTAL, me->GetGUID(), 6000), summon->m_Events.CalculateTime(15000));
-                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_NIGHTMARE_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15000));
+                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_NIGHTMARE_PORTAL, me->GetGUID(), 6s), summon->m_Events.CalculateTime(15s));
+                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_NIGHTMARE_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15s));
                 }
             }
 
@@ -726,12 +726,12 @@ class npc_risen_archmage : public CreatureScript
                 if (summon->GetEntry() == NPC_COLUMN_OF_FROST)
                 {
                     summon->CastSpell(summon, SPELL_COLUMN_OF_FROST_AURA, true);
-                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_COLUMN_OF_FROST_DAMAGE, ObjectGuid::Empty, 8000), summon->m_Events.CalculateTime(2000));
+                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_COLUMN_OF_FROST_DAMAGE, ObjectGuid::Empty, 8s), summon->m_Events.CalculateTime(2s));
                 }
                 else if (summon->GetEntry() == NPC_MANA_VOID)
                 {
                     summon->CastSpell(summon, SPELL_MANA_VOID_AURA, true);
-                    summon->DespawnOrUnsummon(36000);
+                    summon->DespawnOrUnsummon(36s);
                 }
             }
 
@@ -881,7 +881,7 @@ class npc_suppresser : public CreatureScript
             void MovementInform(uint32 type, uint32 /*id*/) override
             {
                 if (type == CHASE_MOTION_TYPE)
-                    _events.RescheduleEvent(EVENT_SUPPRESSION, 1);
+                    _events.RescheduleEvent(EVENT_SUPPRESSION, 1ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1090,7 +1090,7 @@ class npc_dream_cloud : public CreatureScript
                             Trinity::AnyPlayerInObjectRangeCheck check(me, 5.0f);
                             Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
                             Cell::VisitWorldObjects(me, searcher, 7.5f);
-                            _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1000);
+                            _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1s);
                             break;
                         }
                         case EVENT_EXPLODE:
@@ -1098,7 +1098,7 @@ class npc_dream_cloud : public CreatureScript
                             // must use originalCaster the same for all clouds to allow stacking
                             me->CastSpell(me, EMERALD_VIGOR, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                                 .SetOriginalCaster(_instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)));
-                            me->DespawnOrUnsummon(100);
+                            me->DespawnOrUnsummon(100ms);
                             break;
                         default:
                             break;

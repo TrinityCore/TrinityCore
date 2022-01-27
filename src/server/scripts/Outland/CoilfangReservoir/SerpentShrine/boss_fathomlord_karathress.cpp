@@ -210,7 +210,7 @@ public:
             instance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
             //support for quest 10944
-            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
+            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 1h);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -432,7 +432,7 @@ public:
                 //DoCast(me, spell_id, true);
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
-                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                     {
                         Pet->AI()->AttackStart(target);
                         SummonedPet = Pet->GetGUID();
@@ -664,7 +664,7 @@ public:
                 //DoCast(me, SPELL_SUMMON_CYCLONE); // Doesn't work
                 Cyclone_Timer = 30000 + rand32() % 10000;
 
-                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15000))
+                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15s))
                 {
                     Cyclone->SetObjectScale(3.0f);
                     Cyclone->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
@@ -686,8 +686,7 @@ public:
                 while (unit == nullptr || !unit->IsAlive())
                     unit = selectAdvisorUnit();
 
-                if (unit && unit->IsAlive())
-                    DoCast(unit, SPELL_HEAL);
+                DoCast(unit, SPELL_HEAL);
                 Heal_Timer = 60000;
             }
             else

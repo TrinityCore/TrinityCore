@@ -24,7 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_commander_dawnforge
-go_captain_tyralius_prison
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -229,7 +228,7 @@ public:
                 //Phase 4 Pathaleon spawns up to phase 9
             case 4:
                 //spawn pathaleon's image
-                me->SummonCreature(CreatureEntry[2], 2325.851563f, 2799.534668f, 133.084229f, 6.038996f, TEMPSUMMON_TIMED_DESPAWN, 90000);
+                me->SummonCreature(CreatureEntry[2], 2325.851563f, 2799.534668f, 133.084229f, 6.038996f, TEMPSUMMON_TIMED_DESPAWN, 90s);
                 ++Phase;
                 Phase_Timer = 500;
                 break;
@@ -462,105 +461,9 @@ public:
     };
 };
 
-/*######
-## go_captain_tyralius_prison
-######*/
-
-enum CaptainTyralius
-{
-    NPC_CAPTAIN_TYRALIUS    = 20787,
-    NPC_ETHEREUM_PRISONER   = 20825,
-    SPELL_TELEPORT_VISUAL   = 51347,
-    SAY_FREE                = 0,
-    ACTION_FREED            = 0,
-    EVENT_TELEPORT          = 1
-};
-
-class go_captain_tyralius_prison : public GameObjectScript
-{
-    public:
-        go_captain_tyralius_prison() : GameObjectScript("go_captain_tyralius_prison") { }
-
-        struct go_captain_tyralius_prisonAI : public GameObjectAI
-        {
-            go_captain_tyralius_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-            void Reset() override
-            {
-                me->SummonCreature(NPC_CAPTAIN_TYRALIUS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
-                me->SummonCreature(NPC_ETHEREUM_PRISONER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
-            }
-
-            bool GossipHello(Player* player) override
-            {
-                me->SetRespawnTime(60);
-                me->SetLootState(GO_JUST_DEACTIVATED);
-
-                if (Creature* tyralius = me->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
-                {
-                    player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS);
-                    tyralius->AI()->DoAction(ACTION_FREED);
-                }
-
-                if (Creature* prisoner = me->FindNearestCreature(NPC_ETHEREUM_PRISONER, 1.0f))
-                    prisoner->DespawnOrUnsummon(0);
-
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_captain_tyralius_prisonAI(go);
-        }
-};
-
-class npc_captain_tyralius : public CreatureScript
-{
-public:
-    npc_captain_tyralius() : CreatureScript("npc_captain_tyralius") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_captain_tyraliusAI(creature);
-    }
-
-    struct npc_captain_tyraliusAI : public ScriptedAI
-    {
-        npc_captain_tyraliusAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void DoAction(int32 /*action*/) override
-        {
-            Talk(SAY_FREE);
-            _events.ScheduleEvent(EVENT_TELEPORT, 5s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_TELEPORT:
-                        DoCastSelf(SPELL_TELEPORT_VISUAL);
-                        me->DespawnOrUnsummon(Seconds(2));
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap _events;
-    };
-};
-
 void AddSC_netherstorm()
 {
     new npc_commander_dawnforge();
     new at_commander_dawnforge();
     new npc_phase_hunter();
-    new go_captain_tyralius_prison();
-    new npc_captain_tyralius();
 }

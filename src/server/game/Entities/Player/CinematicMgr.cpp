@@ -67,7 +67,7 @@ void CinematicMgr::NextCinematicCamera()
                 return;
 
             player->GetMap()->LoadGridForActiveObject(pos.GetPositionX(), pos.GetPositionY(), player);
-            m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE * IN_MILLISECONDS);
+            m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5min);
             if (m_CinematicObject)
             {
                 m_CinematicObject->setActive(true);

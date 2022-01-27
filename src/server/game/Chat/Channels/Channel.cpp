@@ -48,13 +48,13 @@ Channel::Channel(ObjectGuid const& guid, uint32 channelId, uint32 team /*= 0*/, 
     _zoneEntry(zoneEntry)
 {
     ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-    if (channelEntry->Flags & CHANNEL_DBC_FLAG_TRADE)               // for trade channel
+    if (channelEntry->Flags & CHANNEL_DBC_FLAG_TRADE)              // for trade channel
         _channelFlags |= CHANNEL_FLAG_TRADE;
 
-    if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2)          // for city only channels
+    if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2)         // for city only channels
         _channelFlags |= CHANNEL_FLAG_CITY;
 
-    if (channelEntry->Flags & CHANNEL_DBC_FLAG_LFG)                 // for LFG channel
+    if (channelEntry->Flags & CHANNEL_DBC_FLAG_LFG)                // for LFG channel
         _channelFlags |= CHANNEL_FLAG_LFG;
     else                                                            // for all other channels
         _channelFlags |= CHANNEL_FLAG_NOT_LFG;

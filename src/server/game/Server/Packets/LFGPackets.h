@@ -316,7 +316,7 @@ namespace WorldPackets
             {
                 if (!isCurrency)
                 {
-                    RewardItem = boost::in_place();
+                    RewardItem.emplace();
                     RewardItem->ItemID = id;
                 }
                 else

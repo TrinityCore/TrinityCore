@@ -2083,6 +2083,23 @@ struct FriendshipReputationLoadInfo
     }
 };
 
+struct GameobjectArtKitLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "AttachModelFileID" },
+            { true, FT_INT, "TextureVariationFileID1" },
+            { true, FT_INT, "TextureVariationFileID2" },
+            { true, FT_INT, "TextureVariationFileID3" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GameObjectArtKitMeta::Instance(), HOTFIX_SEL_GAMEOBJECT_ART_KIT);
+        return &loadInfo;
+    }
+};
+
 struct GameobjectDisplayInfoLoadInfo
 {
     static DB2LoadInfo const* Instance()

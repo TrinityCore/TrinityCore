@@ -99,7 +99,7 @@ public:
 
     void AddCooldown(uint32 spellId, uint32 itemId, Duration cooldownDuration)
     {
-        Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
+        Clock::time_point now = GameTime::GetTime<Clock>();
         AddCooldown(spellId, itemId, now + cooldownDuration, 0, now);
     }
 

@@ -460,7 +460,7 @@ uint32 Quest::CalculateHonorGain(uint8 /*level*/) const
         if (!tc)
             return 0;
 
-        honor = uint32(tc->value * GetRewHonorMultiplier() * 0.1f);
+        honor = uint32(tc->Data * GetRewHonorMultiplier() * 0.1f);
         honor += GetRewHonorAddition();
     }*/
 

@@ -91,7 +91,7 @@ public:
 
         void SummonInfernal()
         {
-            if (Creature* infernal = me->SummonCreature(NPC_INFERNAL_ATTACKER, me->GetPositionX(), me->GetPositionY(), ground + 0.05f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+            if (Creature* infernal = me->SummonCreature(NPC_INFERNAL_ATTACKER, me->GetPositionX(), me->GetPositionY(), ground + 0.05f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min))
                 infernalGUID = infernal->GetGUID();
             else
                 infernalGUID = ObjectGuid::Empty;
@@ -346,8 +346,13 @@ enum EnshlavedNetherwingDrake
 
     // Creatures
     NPC_DRAGONMAW_SUBJUGATOR        = 21718,
-    NPC_ESCAPE_DUMMY                = 22317
+    NPC_ESCAPE_DUMMY                = 22317,
 
+    // Quests
+    QUEST_THE_FORCE_OF_NELTHARAKU   = 10854,
+
+    // Movement
+    POINT_MOVE_UP                   = 1
 };
 
 class npc_enslaved_netherwing_drake : public CreatureScript
@@ -355,29 +360,19 @@ class npc_enslaved_netherwing_drake : public CreatureScript
 public:
     npc_enslaved_netherwing_drake() : CreatureScript("npc_enslaved_netherwing_drake") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_enslaved_netherwing_drakeAI(creature);
-    }
-
     struct npc_enslaved_netherwing_drakeAI : public ScriptedAI
     {
         npc_enslaved_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature)
         {
             Tapped = false;
-            Reset();
+            FlyTimer = 10 * IN_MILLISECONDS;
         }
-
-        ObjectGuid PlayerGUID;
-        uint32 FlyTimer;
-        bool Tapped;
 
         void Reset() override
         {
             if (!Tapped)
                 me->SetFaction(FACTION_ORC_DRAGONMAW);
 
-            FlyTimer = 10000;
             me->SetDisableGravity(false);
         }
 
@@ -393,7 +388,6 @@ public:
                 PlayerGUID = playerCaster->GetGUID();
 
                 me->SetFaction(FACTION_FLAYER_HUNTER);
-                DoCast(playerCaster, SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
                 if (Dragonmaw)
@@ -402,6 +396,7 @@ public:
                     AttackStart(Dragonmaw);
                 }
 
+                FlyTimer = 10 * IN_MILLISECONDS;
                 me->GetThreatManager().ClearThreat(playerCaster);
             }
         }
@@ -414,15 +409,9 @@ public:
             if (id == 1)
             {
                 if (!PlayerGUID.IsEmpty())
-                {
-                    Unit* player = ObjectAccessor::GetUnit(*me, PlayerGUID);
-                    if (player)
-                        DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
-
                     PlayerGUID.Clear();
-                }
 
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
         }
 
@@ -438,16 +427,9 @@ public:
                         if (!PlayerGUID.IsEmpty())
                         {
                             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                            if (player && player->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
+                            if (player && player->GetQuestStatus(QUEST_THE_FORCE_OF_NELTHARAKU) == QUEST_STATUS_INCOMPLETE)
                             {
                                 DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
-                                /*
-                                float x, y, z;
-                                me->GetPosition(x, y, z);
-
-                                float dx, dy, dz;
-                                me->GetRandomPoint(x, y, z, 20, dx, dy, dz);
-                                dz += 20; // so it's in the air, not ground*/
 
                                 Position pos;
                                 if (Unit* EscapeDummy = me->FindNearestCreature(NPC_ESCAPE_DUMMY, 30))
@@ -458,8 +440,10 @@ public:
                                     pos.m_positionZ += 25;
                                 }
 
+                                me->SetCanFly(true);
                                 me->SetDisableGravity(true);
-                                me->GetMotionMaster()->MovePoint(1, pos);
+                                me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
+                                me->GetMotionMaster()->MoveTakeoff(POINT_MOVE_UP, pos);
                             }
                         }
                     } else FlyTimer -= diff;
@@ -469,7 +453,17 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        ObjectGuid PlayerGUID;
+        uint32 FlyTimer;
+        bool Tapped;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_enslaved_netherwing_drakeAI(creature);
+    }
 };
 
 /*#####
@@ -683,7 +677,7 @@ public:
         void DoSpawnAssassin()
         {
             //unknown where they actually appear
-            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5s, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -1284,7 +1278,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 
     for (uint8 i = 0; i < count; ++i)
     {
-        Creature* Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[locIndex + i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        Creature* Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[locIndex + i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
         ++LiveCount;
 
         if (Spawn)
@@ -1570,7 +1564,7 @@ public:
             Unit* totemOspirits = nullptr;
 
             if (entry != 0)
-                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
+                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
 
             // FIND TOTEM, PROCESS QUEST
             if (Summoned)

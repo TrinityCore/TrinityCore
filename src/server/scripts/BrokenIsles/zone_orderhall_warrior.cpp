@@ -166,7 +166,7 @@ struct npc_danica_the_reclaimer : public ScriptedAI
     // Should be some other way to do this...
     void QuestAccept(Player* player, Quest const* /*quest*/) override
     {
-        TempSummon* summon = player->SummonCreature(NPC_DANICA_THE_RECLAIMER, 1059.613f, 7224.605f, 100.4608f, 0.03462749f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
+        TempSummon* summon = player->SummonCreature(NPC_DANICA_THE_RECLAIMER, 1059.613f, 7224.605f, 100.4608f, 0.03462749f, TEMPSUMMON_MANUAL_DESPAWN, 0s, player->GetGUID());
         if (!summon)
             return;
 
@@ -198,7 +198,7 @@ struct npc_feasting_valarjar : public ScriptedAI
     {
         _scheduler.Schedule(5s, 30s, [this](TaskContext context)
         {
-            uint32 emoteID = Trinity::Containers::SelectRandomContainerElement(_randomEmotes);
+            Emote emoteID = Trinity::Containers::SelectRandomContainerElement(_randomEmotes);
             if (emoteID == EMOTE_ONESHOT_EAT_NO_SHEATHE)
             {
                 me->SetVirtualItem(0, urand(0, 1) ? ITEM_MONSTER_ITEM_MUTTON_WITH_BITE : ITEM_MONSTER_ITEM_TANKARD_WOODEN);
@@ -235,7 +235,7 @@ struct npc_feasting_valarjar : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    std::unordered_set<uint32> _randomEmotes;
+    std::unordered_set<Emote> _randomEmotes;
 };
 
 struct npc_valarjar_paying_respect_to_odyn : ScriptedAI
@@ -302,7 +302,7 @@ struct npc_valarjar_paying_respect_to_odyn : ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    std::unordered_set<uint32> _randomEmotes;
+    std::unordered_set<Emote> _randomEmotes;
 };
 
 struct npc_incoming_valarjar_aspirant_1 : public npc_valarjar_paying_respect_to_odyn
@@ -583,7 +583,7 @@ struct npc_spectating_valarjar : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    std::unordered_set<uint32> _randomEmotes;
+    std::unordered_set<Emote> _randomEmotes;
 };
 
 struct npc_valkyr_of_odyn : public ScriptedAI

@@ -169,7 +169,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 {
                     Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
                     if (!channeler || channeler->isDead())
-                        channeler = me->SummonCreature(ENTRY_CHANNELER, ShadowmoonChannelers[i][0], ShadowmoonChannelers[i][1], ShadowmoonChannelers[i][2], ShadowmoonChannelers[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                        channeler = me->SummonCreature(ENTRY_CHANNELER, ShadowmoonChannelers[i][0], ShadowmoonChannelers[i][1], ShadowmoonChannelers[i][2], ShadowmoonChannelers[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
                     if (channeler)
                         Channelers[i] = channeler->GetGUID();
                     else

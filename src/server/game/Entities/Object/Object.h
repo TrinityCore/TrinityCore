@@ -568,13 +568,12 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         Scenario* GetScenario() const;
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, Milliseconds despawnTime, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty) { return SummonCreature(entry, pos, despawnType, uint32(despawnTime.count()), vehId, spellId, privateObjectOwner); }
-        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
-        TempSummon* SummonPersonalClone(Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
-        GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
-        Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = nullptr);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonPersonalClone(Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+        Creature*   SummonTrigger(float x, float y, float z, float ang, Milliseconds despawnTime, CreatureAI* (*GetAI)(Creature*) = nullptr);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
@@ -673,7 +672,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void setActive(bool isActiveObject);
         bool IsFarVisible() const { return m_isFarVisible; }
         void SetFarVisible(bool on);
-        bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.is_initialized(); }
+        bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.has_value(); }
         void SetVisibilityDistanceOverride(VisibilityDistanceType type);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }

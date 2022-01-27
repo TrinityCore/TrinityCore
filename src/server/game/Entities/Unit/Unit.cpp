@@ -400,6 +400,7 @@ Unit::Unit(bool isWorldObject) :
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
     _instantCast = false;
+    _isIgnoringCombat = false;
 }
 
 ////////////////////////////////////////////////////////////
@@ -720,20 +721,18 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(attacker, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    // Signal to pets that their owner was attacked - except when DOT.
+    if (attacker != victim && damagetype != DOT)
     {
-        // Signal to pets that their owner was attacked - except when DOT.
-        if (attacker != victim && damagetype != DOT)
-        {
-            for (Unit* controlled : victim->m_Controlled)
-                if (Creature* cControlled = controlled->ToCreature())
-                    if (CreatureAI* controlledAI = cControlled->AI())
-                        controlledAI->OwnerAttackedBy(attacker);
-        }
-
-        if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
-            return 0;
+        for (Unit* controlled : victim->m_Controlled)
+            if (Creature* cControlled = controlled->ToCreature())
+                if (CreatureAI* controlledAI = cControlled->AI())
+                    controlledAI->OwnerAttackedBy(attacker);
     }
+
+    if (Player* player = victim->ToPlayer())
+        if (player->GetCommandStatus(CHEAT_GOD))
+            return 0;
 
     if (damagetype != NODAMAGE)
     {
@@ -1514,7 +1513,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 emoteId, Player* target /*=nullptr*/, Trinity::IteratorPair<int32 const*> spellVisualKitIds /*= {}*/)
+void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinity::IteratorPair<int32 const*> spellVisualKitIds /*= {}*/)
 {
     WorldPackets::Chat::Emote packet;
     packet.Guid = GetGUID();
@@ -5249,7 +5248,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     int32 overkill = damageInfo->Damage - damageInfo->Target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    packet.SubDmg = boost::in_place();
+    packet.SubDmg.emplace();
     packet.SubDmg->SchoolMask = damageInfo->DamageSchoolMask;   // School of sub damage
     packet.SubDmg->FDamage = damageInfo->Damage;                // sub damage
     packet.SubDmg->Damage = damageInfo->Damage;                 // Sub Damage
@@ -6719,16 +6718,6 @@ float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect co
                         if (caster->FindCurrentSpellBySpellId(5938))
                             crit_chance = 0.0f;
                         break;
-                    case SPELLFAMILY_SHAMAN:
-                        // Lava Burst
-                        if (spellInfo->SpellFamilyFlags[1] & 0x00001000)
-                        {
-                            if (GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, flag128(0x10000000, 0, 0), caster->GetGUID()))
-                                if (GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE) > -100)
-                                    return 100.0f;
-                            break;
-                        }
-                        break;
                 }
 
                 // Spell crit suppression
@@ -6742,7 +6731,6 @@ float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect co
         }
         case SPELL_DAMAGE_CLASS_MELEE:
 
-        /* fallthrough - Calculate critical strike chance for both Ranged and Melee spells*/
         case SPELL_DAMAGE_CLASS_RANGED:
             if (caster)
                 crit_chance = GetUnitCriticalChanceTaken(caster, attackType, crit_chance);
@@ -9718,7 +9706,7 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
 
 void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo)
 {
-    std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
+    TimePoint now = GameTime::Now();
 
     // use provided list of auras which can proc
     if (procAuras)
@@ -11112,7 +11100,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     CharmType type;
     if (HasUnitState(UNIT_STATE_POSSESSED))
         type = CHARM_TYPE_POSSESS;
-    else if (charmer && charmer->IsOnVehicle(this))
+    else if (charmer->IsOnVehicle(this))
         type = CHARM_TYPE_VEHICLE;
     else
         type = CHARM_TYPE_CHARM;
@@ -11698,6 +11686,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
             {
                 if (HasAura(58135)) // Glyph of Spectral Wolf
                     return 60247;
+                break;
             }
             default:
                 break;
@@ -12271,7 +12260,7 @@ void Unit::SendClearTarget()
 
 int32 Unit::GetResistance(SpellSchoolMask mask) const
 {
-    Optional<int32> resist = boost::make_optional(false, 0);
+    Optional<int32> resist;
     for (int32 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
     {
         int32 schoolResistance = GetResistance(SpellSchools(i));
@@ -12279,7 +12268,7 @@ int32 Unit::GetResistance(SpellSchoolMask mask) const
             resist = schoolResistance;
     }
 
-    return resist ? *resist : 0;
+    return resist.value_or(0);
 }
 
 void CharmInfo::SetIsCommandAttack(bool val)

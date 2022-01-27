@@ -121,11 +121,11 @@ struct CommandArgsConsumerMulti<Tuple, Optional<NestedNextType>, offset>
         // try with the argument
         auto& myArg = std::get<offset>(tuple);
         myArg.emplace();
-        if (char const* next = CommandArgsConsumerSingle<NestedNextType>::TryConsumeTo(*(myArg.get_ptr()), args))
+        if (char const* next = CommandArgsConsumerSingle<NestedNextType>::TryConsumeTo(myArg.value(), args))
             if ((next = CommandArgsConsumerNext<Tuple, offset+1>::GoNext(tuple, next)))
                 return next;
         // try again omitting the argument
-        myArg = boost::none;
+        myArg = std::nullopt;
         if (char const* next = CommandArgsConsumerNext<Tuple, offset+1>::GoNext(tuple, args))
             return next;
         return nullptr;
@@ -160,8 +160,8 @@ class TC_GAME_API CommandArgs
         {
             Optional<std::tuple<advstd::remove_cvref_t<T1>, advstd::remove_cvref_t<T2>, advstd::remove_cvref_t<Ts>...>> rv;
             rv.emplace();
-            if (!TryConsumeToTuple<0>(*(rv.get_ptr())))
-                rv = boost::none;
+            if (!TryConsumeToTuple<0>(rv.value()))
+                rv = std::nullopt;
             return rv;
         }
 
@@ -171,10 +171,10 @@ class TC_GAME_API CommandArgs
             using T = advstd::remove_cvref_t<T1>;
             Optional<T> rv;
             rv.emplace();
-            if (char const* next = CommandArgsConsumerSingle<T>::TryConsumeTo(*(rv.get_ptr()), _args))
+            if (char const* next = CommandArgsConsumerSingle<T>::TryConsumeTo(rv.value(), _args))
                 _args = next;
             else
-                rv = boost::none;
+                rv = std::nullopt;
             return rv;
         }
 

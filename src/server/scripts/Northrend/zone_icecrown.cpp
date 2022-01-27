@@ -79,7 +79,7 @@ public:
                 uiDamage = 0;
                 pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
                 me->SetFaction(FACTION_FRIENDLY);
-                me->DespawnOrUnsummon(5000);
+                me->DespawnOrUnsummon(5s);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 EnterEvadeMode();
             }
@@ -231,7 +231,7 @@ class npc_tournament_training_dummy : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 damage = 0;
-                events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
+                events.RescheduleEvent(EVENT_DUMMY_RESET, 10s);
             }
 
             void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -501,14 +501,14 @@ public:
                             guidMason[2] = Mason3->GetGUID();
                             Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[1]);
                         }
-                        events.ScheduleEvent(EVENT_INTRO_1, 15000);
+                        events.ScheduleEvent(EVENT_INTRO_1, 15s);
                     }
                     break;
                 case EVENT_INTRO_1:
                     {
                         if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_SAY_PRE_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 5000);
+                        events.ScheduleEvent(EVENT_INTRO_2, 5s);
                     }
                     break;
                 case EVENT_INTRO_2:
@@ -518,7 +518,7 @@ public:
                             Dalfors->SetFacingTo(6.215f);
                             Dalfors->AI()->Talk(DALFORS_SAY_PRE_2);
                         }
-                    events.ScheduleEvent(EVENT_INTRO_3, 5000);
+                    events.ScheduleEvent(EVENT_INTRO_3, 5s);
                     }
                     break;
                 case EVENT_INTRO_3:

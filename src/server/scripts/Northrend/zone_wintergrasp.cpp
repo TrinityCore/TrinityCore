@@ -370,7 +370,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                     if (Vehicle* vehicle = cVeh->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(0))
                             if (IsFriendly(passenger))
-                                if (Creature* teleportTrigger = passenger->SummonTrigger(me->GetPositionX()-60.0f, me->GetPositionY(), me->GetPositionZ()+1.0f, cVeh->GetOrientation(), 1000))
+                                if (Creature* teleportTrigger = passenger->SummonTrigger(me->GetPositionX()-60.0f, me->GetPositionY(), me->GetPositionZ()+1.0f, cVeh->GetOrientation(), 1s))
                                     return teleportTrigger;
 
                 return nullptr;

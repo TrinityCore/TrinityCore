@@ -1843,11 +1843,11 @@ Scenario* WorldObject::GetScenario() const
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
+TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, this, spellId, vehId, privateObjectOwner))
+        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
@@ -1857,7 +1857,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
 {
     if (!x && !y && !z)
         GetClosePoint(x, y, z, GetCombatReach());
@@ -1866,11 +1866,11 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, 0, privateObjectOwner);
 }
 
-TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType, uint32 despawnTime, uint32 vehId, uint32 spellId, ObjectGuid privateObjectOwner)
+TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime, this, spellId, vehId, privateObjectOwner))
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
@@ -1880,7 +1880,7 @@ TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType
     return nullptr;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime, GOSummonType summonType)
+GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType)
 {
     if (!IsInWorld())
         return nullptr;
@@ -1899,7 +1899,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
 
     PhasingHandler::InheritPhaseShift(go, this);
 
-    go->SetRespawnTime(respawnTime);
+    go->SetRespawnTime(respawnTime.count());
     if (GetTypeId() == TYPEID_PLAYER || (GetTypeId() == TYPEID_UNIT && summonType == GO_SUMMON_TIMED_OR_CORPSE_DESPAWN)) //not sure how to handle this
         ToUnit()->AddGameObject(go);
     else
@@ -1909,7 +1909,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     return go;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime, GOSummonType summonType)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType)
 {
     if (!x && !y && !z)
     {
@@ -1921,10 +1921,10 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     return SummonGameObject(entry, pos, rot, respawnTime, summonType);
 }
 
-Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint32 duration, CreatureAI* (*GetAI)(Creature*))
+Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, Milliseconds despawnTime, CreatureAI* (*GetAI)(Creature*))
 {
-    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
-    Creature* summon = SummonCreature(WORLD_TRIGGER, x, y, z, ang, summonType, duration);
+    TempSummonType summonType = (despawnTime == 0s) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    Creature* summon = SummonCreature(WORLD_TRIGGER, x, y, z, ang, summonType, despawnTime);
     if (!summon)
         return nullptr;
 
@@ -1958,7 +1958,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
     }
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, itr->time))
+        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, Milliseconds(itr->time)))
             if (list)
                 list->push_back(summon);
 }
@@ -2529,8 +2529,8 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
                             if (targetFactionEntry->CanHaveReputation())
                             {
                                 // check contested flags
-                                if (targetFactionTemplateEntry->Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD
-                                    && selfPlayerOwner->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP))
+                                if ((targetFactionTemplateEntry->Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) &&
+                                    selfPlayerOwner->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP))
                                     return REP_HOSTILE;
 
                                 // if faction has reputation, hostile state depends only from AtWar state
@@ -2562,8 +2562,8 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
     if (Player const* targetPlayerOwner = target->GetAffectingPlayer())
     {
         // check contested flags
-        if (factionTemplateEntry->Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD
-            && targetPlayerOwner->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP))
+        if ((factionTemplateEntry->Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) &&
+            targetPlayerOwner->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP))
             return REP_HOSTILE;
         if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(factionTemplateEntry))
             return *repRank;
@@ -2999,7 +2999,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
 
             // can't assist player out of sanctuary from sanctuary if has pvp enabled
             if (unitTarget->IsPvP())
-                if (unit && unit->IsInSanctuary() && !unitTarget->IsInSanctuary())
+                if (unit->IsInSanctuary() && !unitTarget->IsInSanctuary())
                     return false;
         }
     }

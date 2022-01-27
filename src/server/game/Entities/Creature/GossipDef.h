@@ -160,18 +160,25 @@ class TC_GAME_API GossipMenu
         GossipMenu();
         ~GossipMenu();
 
-        uint32 AddMenuItem(int32 optionIndex, GossipOptionIcon icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
-        void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
+        uint32 AddMenuItem(int32 menuItemId, GossipOptionIcon icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+        void AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action);
 
         void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
         uint32 GetMenuId() const { return _menuId; }
         void SetLocale(LocaleConstant locale) { _locale = locale; }
         LocaleConstant GetLocale() const { return _locale; }
 
-        void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
+        void AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi);
 
-        uint32 GetMenuItemCount() const { return uint32(_menuItems.size()); }
-        bool Empty() const { return _menuItems.empty(); }
+        uint32 GetMenuItemCount() const
+        {
+            return _menuItems.size();
+        }
+
+        bool Empty() const
+        {
+            return _menuItems.empty();
+        }
 
         GossipMenuItem const* GetItem(uint32 id) const
         {

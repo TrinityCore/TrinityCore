@@ -197,7 +197,7 @@ struct boss_xt002 : public BossAI
     void DoAction(int32 action) override
     {
         if (action == ACTION_ENTER_HARD_MODE)
-            events.ScheduleEvent(EVENT_ENTER_HARD_MODE, 1);
+            events.ScheduleEvent(EVENT_ENTER_HARD_MODE, 1ms);
     }
 
     void KilledUnit(Unit* who) override

@@ -967,7 +967,7 @@ class TC_GAME_API WorldSession
 
         void SendNotification(char const* format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 stringId, ...);
-        void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);
+        void SendPetNameInvalid(uint32 error, std::string const& name, Optional<DeclinedName> const& declinedName);
         void SendPartyResult(PartyOperation operation, std::string const& member, PartyResult res, uint32 val = 0);
         void SendQueryTimeResponse();
 
@@ -1837,17 +1837,14 @@ class TC_GAME_API WorldSession
     public:
         QueryCallbackProcessor& GetQueryProcessor() { return _queryProcessor; }
         TransactionCallback& AddTransactionCallback(TransactionCallback&& callback);
+        SQLQueryHolderCallback& AddQueryHolderCallback(SQLQueryHolderCallback&& callback);
 
     private:
         void ProcessQueryCallbacks();
 
-        QueryResultHolderFuture _realmAccountLoginCallback;
-        QueryResultHolderFuture _accountLoginCallback;
-        QueryResultHolderFuture _charLoginCallback;
-        QueryResultHolderFuture _charEnumCallback;
-
         QueryCallbackProcessor _queryProcessor;
         AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks;
+        AsyncCallbackProcessor<SQLQueryHolderCallback> _queryHolderProcessor;
 
     friend class World;
     protected:

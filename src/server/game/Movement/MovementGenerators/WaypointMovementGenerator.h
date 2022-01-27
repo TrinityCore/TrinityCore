@@ -68,7 +68,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
             return false;
         }
 
-        TimeTrackerSmall _nextMoveTime;
+        TimeTracker _nextMoveTime;
         uint32 _pathId;
         bool _repeating;
         bool _loadedFromDB;

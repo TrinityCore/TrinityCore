@@ -213,7 +213,7 @@ struct boss_kalecgos : public BossAI
         Talk(SAY_EVIL_AGGRO);
         BossAI::JustEngagedWith(who);
 
-        if (Creature* kalecgosHuman = me->SummonCreature(NPC_KALECGOS_HUMAN, KalecgosSummonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+        if (Creature* kalecgosHuman = me->SummonCreature(NPC_KALECGOS_HUMAN, KalecgosSummonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1s))
             if (Creature* sathrovar = instance->GetCreature(DATA_SATHROVARR))
             {
                 sathrovar->SetInCombatWith(kalecgosHuman);

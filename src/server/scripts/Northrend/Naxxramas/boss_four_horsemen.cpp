@@ -267,7 +267,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
-                    cBoss->DespawnOrUnsummon(0, Seconds(15));
+                    cBoss->DespawnOrUnsummon(0s, 15s);
                 else
                     TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter resetting but horseman with id %u is not present", uint32(boss));
             }

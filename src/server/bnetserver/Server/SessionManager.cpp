@@ -16,6 +16,7 @@
  */
 
 #include "SessionManager.h"
+#include "Config.h"
 #include "DatabaseEnv.h"
 #include "SRP6.h"
 #include "Util.h"
@@ -43,6 +44,7 @@ void Battlenet::SessionManager::FixLegacyAuthHashes()
         return;
     }
 
+    bool const shouldUpdate = sConfigMgr->GetBoolDefault("AllowDeprecatedExternalPasswords", false, true);
     bool hadWarning = false;
     uint32 c = 0;
     LoginDatabaseTransaction tx = LoginDatabase.BeginTransaction();
@@ -53,10 +55,37 @@ void Battlenet::SessionManager::FixLegacyAuthHashes()
             HexStrToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>((*result)[1].GetString())
         );
 
-        if ((*result)[2].GetInt64() && !hadWarning)
+        if ((*result)[2].GetInt64())
         {
-            hadWarning = true;
-            TC_LOG_WARN("server.bnetserver", "(!) You appear to be using an outdated external account management tool.\n(!!) This is INSECURE, has been deprecated, and will cease to function entirely in the near future.\n(!) Update your external tool.\n(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.");
+            if (!hadWarning)
+            {
+                hadWarning = true;
+                if (shouldUpdate)
+                {
+                    TC_LOG_WARN("server.bnetserver",
+                        "       ========\n"
+                        "(!) You appear to be using an outdated external account management tool.\n"
+                        "(!!) This is INSECURE, has been deprecated, and will cease to function entirely on September 6, 2020.\n"
+                        "(!) Update your external tool.\n"
+                        "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                        "       ========");
+                }
+                else
+                {
+                    TC_LOG_ERROR("server.bnetserver",
+                        "       ========\n"
+                        "(!) You appear to be using an outdated external account management tool.\n"
+                        "(!!) This is INSECURE, and the account(s) in question will not be able to log in.\n"
+                        "(!) Update your external tool.\n"
+                        "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                        "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 1\" to your authserver.conf file.\n"
+                        "(!!) Note that this override will cease to function entirely on September 6, 2020.\n"
+                        "       ========");
+                }
+            }
+
+            if (!shouldUpdate)
+                continue;
         }
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);

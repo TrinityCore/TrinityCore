@@ -414,7 +414,7 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 DoCastSelf(SPELL_EMBER_BLAST);
                 // DoCastSelf(SPELL_SUMMON_PHOENIX_EGG); -- We do a manual summon for now. Feel free to move it to spelleffect_dbc
-                if (Creature* egg = DoSummon(NPC_PHOENIX_EGG, me->GetPosition(), 0))
+                if (Creature* egg = DoSummon(NPC_PHOENIX_EGG, me->GetPosition(), 0s))
                 {
                     if (Creature* kaelthas = _instance->GetCreature(DATA_KAELTHAS_SUNSTRIDER))
                     {

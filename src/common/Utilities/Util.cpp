@@ -416,7 +416,7 @@ bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
     return true;
 }
 
-bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str)
+bool WStrToUtf8(wchar_t const* wstr, size_t size, std::string& utf8str)
 {
     try
     {
@@ -652,6 +652,11 @@ void wstrToUpper(std::wstring& str)
     std::transform(str.begin(), str.end(), str.begin(), wcharToUpper);
 }
 
+void strToLower(std::string& str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](char c) { return std::tolower(c); });
+}
+
 void wstrToLower(std::wstring& str)
 {
     std::transform(str.begin(), str.end(), str.begin(), wcharToLower);
@@ -794,7 +799,7 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
     return WStrToUtf8(wstr, utf8String);
 }
 
-std::string ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)
+std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)
 {
     int32 init = 0;
     int32 end = arrayLen;
@@ -818,11 +823,9 @@ std::string ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse 
     return ss.str();
 }
 
-void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= false*/)
+void Trinity::Impl::HexStrToByteArray(std::string const& str, uint8* out, size_t outlen, bool reverse /*= false*/)
 {
-    // string must have even number of characters
-    if (str.length() & 1)
-        return;
+    ASSERT(str.size() == (2 * outlen));
 
     int32 init = 0;
     int32 end = int32(str.length());
@@ -848,6 +851,20 @@ bool StringToBool(std::string const& str)
     std::string lowerStr = str;
     std::transform(str.begin(), str.end(), lowerStr.begin(), [](char c) { return char(::tolower(c)); });
     return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
+}
+
+bool StringEqualI(std::string const& str1, std::string const& str2)
+{
+    return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(),
+                      [](char a, char b)
+                      {
+                          return std::tolower(a) == std::tolower(b);
+                      });
+}
+
+bool StringStartsWith(std::string const& haystack, std::string const& needle)
+{
+    return (haystack.rfind(needle, 0) == 0);
 }
 
 bool StringContainsStringI(std::string const& haystack, std::string const& needle)

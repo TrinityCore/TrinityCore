@@ -88,7 +88,7 @@ struct boss_herod : public BossAI
         {
             Position randomNearPosition = me->GetRandomPoint(ScarletTraineePos, 5.f);
             randomNearPosition.SetOrientation(ScarletTraineePos.GetOrientation());
-            me->SummonCreature(NPC_SCARLET_TRAINEE, randomNearPosition, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600 * IN_MILLISECONDS);
+            me->SummonCreature(NPC_SCARLET_TRAINEE, randomNearPosition, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
         }
     }
 

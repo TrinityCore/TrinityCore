@@ -66,7 +66,7 @@ class TC_COMMON_API Log
         void LoadFromConfig();
         void Close();
         bool ShouldLog(std::string const& type, LogLevel level) const;
-        bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
+        bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
         template<typename Format, typename... Args>
         inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)

@@ -899,7 +899,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
             auction.MinBid = bidPrice;
 
         auction.BuyoutOrUnitPrice = buyoutPrice;
-        auction.StartTime = GameTime::GetGameTimeSystemPoint();
+        auction.StartTime = GameTime::GetSystemTime();
         auction.EndTime = auction.StartTime + Hours(urand(config.GetMinTime(), config.GetMaxTime()));
 
         auctionHouse->AddAuction(trans, std::move(auction));

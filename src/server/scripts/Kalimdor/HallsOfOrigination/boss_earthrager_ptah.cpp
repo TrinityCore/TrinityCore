@@ -121,9 +121,9 @@ public:
             Cleanup();
             _Reset();
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 12s, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_FLAME_BOLT, 15s, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_EARTH_SPIKE, 16s, 21s, 0, PHASE_NORMAL);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -136,8 +136,8 @@ public:
                 me->AttackStop();
                 DoCast(me, SPELL_SANDSTORM);
                 me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
-                events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6000, 0, PHASE_DISPERSE);
-                events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
+                events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6s, 0, PHASE_DISPERSE);
+                events.ScheduleEvent(EVENT_QUICKSAND, 10s, 0, PHASE_DISPERSE);
 
                 std::list<Creature*> stalkers;
                 GetCreatureListWithEntryInGrid(stalkers, me, NPC_BEETLE_STALKER, 100.0f);
@@ -150,7 +150,7 @@ public:
                     stalkers.remove((*itr)); // Remove it to prevent a single trigger from spawning multiple npcs.
                     (*itr)->CastSpell((*itr), SPELL_BEETLE_BURROW); // Cast visual
                     // Summon after 5 seconds.
-                    (*itr)->m_Events.AddEvent(new SummonScarab((*itr), instance), (*itr)->m_Events.CalculateTime(5000));
+                    (*itr)->m_Events.AddEventAtOffset(new SummonScarab((*itr), instance), 5s);
                 }
 
                 Trinity::Containers::RandomResize(stalkers, 2); // Holds the summoners of Dustbone Horror
@@ -170,9 +170,9 @@ public:
                     me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
                     me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
                     events.SetPhase(PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 12s, 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_FLAME_BOLT, 15s, 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_EARTH_SPIKE, 16s, 21s, 0, PHASE_NORMAL);
                 }
             }
         }
@@ -215,16 +215,16 @@ public:
                 {
                     case EVENT_RAGING_SMASH:
                         DoCastVictim(SPELL_RAGING_SMASH);
-                        events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 12s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_FLAME_BOLT:
                         DoCast(me, SPELL_FLAME_BOLT);
-                        events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_FLAME_BOLT, 15s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_EARTH_SPIKE:
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             DoCast(target, SPELL_EARTH_SPIKE_WARN);
-                        events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_EARTH_SPIKE, 16s, 21s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_PTAH_EXPLODE:
                         DoCast(me, SPELL_PTAH_EXPLOSION);
@@ -234,7 +234,7 @@ public:
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             if (Creature* quicksand = me->SummonCreature(NPC_QUICKSAND, *target))
                                 quicksand->SetCreatedBySpell(SPELL_SUMMON_QUICKSAND);
-                        events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
+                        events.ScheduleEvent(EVENT_QUICKSAND, 10s, 0, PHASE_DISPERSE);
                         break;
                 }
             }

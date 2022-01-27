@@ -107,8 +107,8 @@ void WorldPackets::Query::QueryPlayerName::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
 {
-    data.WriteBit(lookupHint.VirtualRealmAddress.is_initialized());
-    data.WriteBit(lookupHint.NativeRealmAddress.is_initialized());
+    data.WriteBit(lookupHint.VirtualRealmAddress.has_value());
+    data.WriteBit(lookupHint.NativeRealmAddress.has_value());
     data.FlushBits();
 
     if (lookupHint.VirtualRealmAddress)

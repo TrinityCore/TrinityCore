@@ -91,7 +91,7 @@ class boss_infinite_corruptor : public CreatureScript
                 if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
                 {
                     guardian->RemoveAurasDueToSpell(SPELL_CORRUPTION_OF_TIME_TARGET);
-                    guardian->DespawnOrUnsummon(5000);
+                    guardian->DespawnOrUnsummon(5s);
                 }
 
                 if (Creature* rift = me->FindNearestCreature(NPC_TIME_RIFT, 100.0f))

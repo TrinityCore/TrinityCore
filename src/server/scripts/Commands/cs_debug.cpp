@@ -171,10 +171,10 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             case 1:
-                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.get_value_or(0));
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_ALLIANCE, rewardValue.value_or(0));
                 break;
             case 2:
-                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.get_value_or(0));
+                sWorld->SetForcedWarModeFactionBalanceState(TEAM_HORDE, rewardValue.value_or(0));
                 break;
             case 3:
                 sWorld->SetForcedWarModeFactionBalanceState(TEAM_NEUTRAL);
@@ -1255,15 +1255,20 @@ public:
         return true;
     }
 
-    //show animation
-    static bool HandleDebugAnimCommand(ChatHandler* handler, char const* args)
+    // Play emote animation
+    static bool HandleDebugAnimCommand(ChatHandler* handler, Emote emote)
     {
-        if (!*args)
-            return false;
-
-        uint32 animId = atoi((char*)args);
         if (Unit* unit = handler->getSelectedUnit())
-            unit->HandleEmoteCommand(animId);
+            unit->HandleEmoteCommand(emote);
+
+        try
+        {
+            handler->PSendSysMessage("Playing emote %s", EnumUtils::ToConstant(emote));
+        }
+        catch (...)
+        {
+            handler->PSendSysMessage("Playing unknown emote");
+        }
         return true;
     }
 
@@ -1425,9 +1430,9 @@ public:
         char* fill_str = args ? strtok((char*)args, " ") : nullptr;
         char* duration_str = args ? strtok(nullptr, " ") : nullptr;
 
-        int duration = duration_str ? atoi(duration_str) : -1;
-        if (duration <= 0 || duration >= 30 * MINUTE) // arbitary upper limit
-            duration = 3 * MINUTE;
+        Seconds duration = duration_str ? Seconds(atoi(duration_str)) : 0s;
+        if (duration <= 0s || duration >= 30min) // arbitary upper limit
+            duration = 3min;
 
         bool doFill = fill_str ? (stricmp(fill_str, "FILL") == 0) : false;
 
@@ -1472,8 +1477,7 @@ public:
         }
         if (!mEntry->IsDungeon())
         {
-            handler->PSendSysMessage("'%s' is not a dungeon map.",
-                    mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->MapName[handler->GetSessionDbcLocale()]);
             return true;
         }
         int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
@@ -1484,34 +1488,29 @@ public:
         }
         if (difficulty >= 0 && !sDB2Manager.GetMapDifficultyData(mEntry->ID, Difficulty(difficulty)))
         {
-            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.",
-                    difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             return true;
         }
 
         if (difficulty == -1)
         {
-            handler->PSendSysMessage("Resetting all difficulties for '%s'.",
-                    mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->MapName[handler->GetSessionDbcLocale()]);
             for (DifficultyEntry const* diff : sDifficultyStore)
             {
                 if (sDB2Manager.GetMapDifficultyData(map, Difficulty(diff->ID)))
                 {
-                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.",
-                            diff->ID, mEntry->MapName[handler->GetSessionDbcLocale()]);
+                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff->ID, mEntry->MapName[handler->GetSessionDbcLocale()]);
                     sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(diff->ID));
                 }
             }
         }
         else if (mEntry->IsNonRaidDungeon() && difficulty == DIFFICULTY_NORMAL)
         {
-            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.",
-                    mEntry->MapName[handler->GetSessionDbcLocale()], difficulty);
+            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.", mEntry->MapName[handler->GetSessionDbcLocale()], difficulty);
         }
         else
         {
-            handler->PSendSysMessage("Resetting difficulty %d for '%s'.",
-                    difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         }
         return true;
@@ -1820,7 +1819,7 @@ public:
         auto mapId = args->TryConsume<uint32>();
         if (mapId)
         {
-            sMapMgr->DoForAllMapsWithMapId(mapId.get(),
+            sMapMgr->DoForAllMapsWithMapId(mapId.value(),
                 [handler](Map* map) -> void
                 {
                     HandleDebugGuidLimitsMap(handler, map);
@@ -1853,7 +1852,7 @@ public:
         auto mapId = args->TryConsume<uint32>();
         if (mapId)
         {
-            sMapMgr->DoForAllMapsWithMapId(mapId.get(),
+            sMapMgr->DoForAllMapsWithMapId(mapId.value(),
                 [handler](Map* map) -> void
                 {
                     HandleDebugObjectCountMap(handler, map);
@@ -1873,12 +1872,57 @@ public:
         return true;
     }
 
+    class CreatureCountWorker
+    {
+    public:
+        CreatureCountWorker() { }
+
+        void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+        {
+            for (auto const& p : creatureMap)
+            {
+                uint32& count = creatureIds[p.second->GetEntry()];
+                ++count;
+            }
+        }
+
+        template<class T>
+        void Visit(std::unordered_map<ObjectGuid, T*>&) { }
+
+        std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(uint32 count)
+        {
+            auto comp = [](std::pair<uint32, uint32> const& a, std::pair<uint32, uint32> const& b)
+            {
+                return a.second > b.second;
+            };
+            std::set<std::pair<uint32, uint32>, decltype(comp)> set(creatureIds.begin(), creatureIds.end(), comp);
+
+            count = std::min(count, uint32(set.size()));
+            std::vector<std::pair<uint32, uint32>> result(count);
+            std::copy_n(set.begin(), count, result.begin());
+
+            return result;
+        }
+
+    private:
+        std::unordered_map<uint32, uint32> creatureIds;
+    };
+
     static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
     {
         handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD,
             map->GetId(), map->GetMapName(), map->GetInstanceId(),
             uint64(map->GetObjectsStore().Size<Creature>()),
             uint64(map->GetObjectsStore().Size<GameObject>()));
+
+        CreatureCountWorker worker;
+        TypeContainerVisitor<CreatureCountWorker, MapStoredObjectTypesContainer> visitor(worker);
+        visitor.Visit(map->GetObjectsStore());
+
+        handler->PSendSysMessage("Top Creatures count:");
+
+        for (auto&& p : worker.GetTopCreatureCount(5))
+            handler->PSendSysMessage("Entry: %u Count: %u", p.first, p.second);
     }
 
     static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)

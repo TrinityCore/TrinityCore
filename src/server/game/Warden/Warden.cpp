@@ -29,21 +29,27 @@
 #include "WardenPackets.h"
 
 #include <openssl/sha.h>
+#include <openssl/md5.h>
 
-Warden::Warden() : _session(nullptr), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
-                   _dataSent(false), _previousTimestamp(0), _module(nullptr), _initialized(false)
+Warden::Warden() : _session(nullptr), _checkTimer(10 * IN_MILLISECONDS), _clientResponseTimer(0),
+                   _dataSent(false), _initialized(false)
 {
-    memset(_inputKey, 0, sizeof(_inputKey));
-    memset(_outputKey, 0, sizeof(_outputKey));
-    memset(_seed, 0, sizeof(_seed));
 }
 
 Warden::~Warden()
 {
-    delete[] _module->CompressedData;
-    delete _module;
-    _module = nullptr;
     _initialized = false;
+}
+
+void Warden::MakeModuleForClient()
+{
+    TC_LOG_DEBUG("warden", "Make module for client");
+    InitializeModuleForClient(_module.emplace());
+
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, _module->CompressedData, _module->CompressedSize);
+    MD5_Final(_module->Id.data(), &ctx);
 }
 
 void Warden::SendModuleToClient()
@@ -61,13 +67,15 @@ void Warden::SendModuleToClient()
         burstSize = sizeLeft < 500 ? sizeLeft : 500;
         packet.Command = WARDEN_SMSG_MODULE_CACHE;
         packet.DataSize = burstSize;
-        memcpy(packet.Data, &_module->CompressedData[pos], burstSize);
+        memcpy(packet.Data, _module->CompressedData + pos, burstSize);
         sizeLeft -= burstSize;
         pos += burstSize;
 
-        EncryptData((uint8*)&packet, burstSize + 3);
+        EndianConvert(packet.DataSize);
+
+        EncryptData(reinterpret_cast<uint8*>(&packet), burstSize + 3);
         WorldPacket pkt1(SMSG_WARDEN3_DATA, burstSize + 3);
-        pkt1.append((uint8*)&packet, burstSize + 3);
+        pkt1.append(reinterpret_cast<uint8*>(&packet), burstSize + 3);
         _session->SendPacket(&pkt1);
     }
 }
@@ -80,52 +88,48 @@ void Warden::RequestModule()
     WardenModuleUse request;
     request.Command = WARDEN_SMSG_MODULE_USE;
 
-    memcpy(request.ModuleId, _module->Id, 16);
-    memcpy(request.ModuleKey, _module->Key, 16);
+    request.ModuleId = _module->Id;
+    request.ModuleKey = _module->Key;
     request.Size = _module->CompressedSize;
 
+    EndianConvert(request.Size);
+
     // Encrypt with warden RC4 key.
-    EncryptData((uint8*)&request, sizeof(WardenModuleUse));
+    EncryptData(reinterpret_cast<uint8*>(&request), sizeof(WardenModuleUse));
 
     WorldPacket pkt(SMSG_WARDEN3_DATA, sizeof(WardenModuleUse));
-    pkt.append((uint8*)&request, sizeof(WardenModuleUse));
+    pkt.append(reinterpret_cast<uint8*>(&request), sizeof(WardenModuleUse));
     _session->SendPacket(&pkt);
 }
 
-void Warden::Update()
+void Warden::Update(uint32 diff)
 {
-    if (_initialized)
+    if (!_initialized)
+        return;
+
+    if (_dataSent)
     {
-        uint32 currentTimestamp = GameTime::GetGameTimeMS();
-        uint32 diff = currentTimestamp - _previousTimestamp;
-        _previousTimestamp = currentTimestamp;
+        uint32 maxClientResponseDelay = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_RESPONSE_DELAY);
 
-        if (_dataSent)
+        if (maxClientResponseDelay > 0)
         {
-            uint32 maxClientResponseDelay = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_RESPONSE_DELAY);
-
-            if (maxClientResponseDelay > 0)
+            // Kick player if client response delays more than set in config
+            if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
             {
-                // Kick player if client response delays more than set in config
-                if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
-                {
-                    TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay for more than %s - disconnecting client",
-                                   _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, TimeFormat::ShortText).c_str());
-                    _session->KickPlayer("Warden::Update Warden module response delay exceeded");
-                }
-                else
-                    _clientResponseTimer += diff;
-            }
-        }
-        else
-        {
-            if (diff >= _checkTimer)
-            {
-                RequestData();
+                TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay (%s) - disconnecting client",
+                                _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, TimeFormat::ShortText).c_str());
+                _session->KickPlayer("Warden::Update Warden module response delay exceeded");
             }
             else
-                _checkTimer -= diff;
+                _clientResponseTimer += diff;
         }
+    }
+    else
+    {
+        if (diff >= _checkTimer)
+            RequestChecks();
+        else
+            _checkTimer -= diff;
     }
 }
 
@@ -181,7 +185,7 @@ uint32 Warden::BuildChecksum(uint8 const* data, uint32 length)
     return checkSum;
 }
 
-std::string Warden::Penalty(WardenCheck* check /*= nullptr*/)
+char const* Warden::ApplyPenalty(WardenCheck const* check)
 {
     WardenActions action;
 
@@ -192,12 +196,8 @@ std::string Warden::Penalty(WardenCheck* check /*= nullptr*/)
 
     switch (action)
     {
-        case WARDEN_ACTION_LOG:
-            return "None";
-            break;
         case WARDEN_ACTION_KICK:
             _session->KickPlayer("Warden::Penalty");
-            return "Kick";
             break;
         case WARDEN_ACTION_BAN:
         {
@@ -208,14 +208,50 @@ std::string Warden::Penalty(WardenCheck* check /*= nullptr*/)
             if (check)
                 banReason += Trinity::StringFormat(": %s (CheckId: %u", check->Comment, uint32(check->CheckId));
 
-            sWorld->BanAccount(BAN_ACCOUNT, accountName, Trinity::StringFormat("%ds", sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION)), banReason, "Server");
+            sWorld->BanAccount(BAN_ACCOUNT, accountName, sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION), banReason, "Server");
 
-            return "Ban";
-        }
-        default:
             break;
+        }
+        case WARDEN_ACTION_LOG:
+        default:
+            return "None";
     }
-    return "Undefined";
+    return EnumUtils::ToTitle(action);
+}
+
+void Warden::HandleData(ByteBuffer& buff)
+{
+    DecryptData(buff.contents(), buff.size());
+    uint8 opcode;
+    buff >> opcode;
+    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(buff.size() - 1));
+    buff.hexlike();
+
+    switch (opcode)
+    {
+    case WARDEN_CMSG_MODULE_MISSING:
+        SendModuleToClient();
+        break;
+    case WARDEN_CMSG_MODULE_OK:
+        RequestHash();
+        break;
+    case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
+        HandleCheckResult(buff);
+        break;
+    case WARDEN_CMSG_MEM_CHECKS_RESULT:
+        TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+        break;
+    case WARDEN_CMSG_HASH_RESULT:
+        HandleHashResult(buff);
+        InitializeModule();
+        break;
+    case WARDEN_CMSG_MODULE_FAILED:
+        TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
+        break;
+    default:
+        TC_LOG_WARN("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(buff.size() - 1));
+        break;
+    }
 }
 
 void WorldSession::HandleWardenData(WorldPackets::Warden::WardenData& packet)
@@ -223,35 +259,5 @@ void WorldSession::HandleWardenData(WorldPackets::Warden::WardenData& packet)
     if (!_warden || packet.Data.empty())
         return;
 
-    _warden->DecryptData(packet.Data.contents(), packet.Data.size());
-    uint8 opcode;
-    packet.Data >> opcode;
-    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(packet.Data.size()));
-    packet.Data.hexlike();
-
-    switch (opcode)
-    {
-        case WARDEN_CMSG_MODULE_MISSING:
-            _warden->SendModuleToClient();
-            break;
-        case WARDEN_CMSG_MODULE_OK:
-            _warden->RequestHash();
-            break;
-        case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
-            _warden->HandleData(packet.Data);
-            break;
-        case WARDEN_CMSG_MEM_CHECKS_RESULT:
-            TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
-            break;
-        case WARDEN_CMSG_HASH_RESULT:
-            _warden->HandleHashResult(packet.Data);
-            _warden->InitializeModule();
-            break;
-        case WARDEN_CMSG_MODULE_FAILED:
-            TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
-            break;
-        default:
-            TC_LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(packet.Data.size() - 1));
-            break;
-    }
+    _warden->HandleData(packet.Data);
 }

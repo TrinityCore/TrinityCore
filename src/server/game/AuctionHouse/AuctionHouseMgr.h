@@ -237,8 +237,8 @@ struct AuctionPosting
     uint64 BuyoutOrUnitPrice = 0;
     uint64 Deposit = 0;
     uint64 BidAmount = 0;
-    std::chrono::system_clock::time_point StartTime = std::chrono::system_clock::time_point::min();
-    std::chrono::system_clock::time_point EndTime = std::chrono::system_clock::time_point::min();
+    SystemTimePoint StartTime = SystemTimePoint::min();
+    SystemTimePoint EndTime = SystemTimePoint::min();
 
     GuidUnorderedSet BidderHistory;
 
@@ -255,7 +255,7 @@ struct CommodityQuote
 {
     uint64 TotalPrice = 0;
     uint32 Quantity = 0;
-    std::chrono::steady_clock::time_point ValidTo = std::chrono::steady_clock::time_point::min();
+    TimePoint ValidTo = TimePoint::min();
 };
 
 struct AuctionThrottleResult
@@ -277,7 +277,7 @@ public:
         uint32 Global = 0;
         uint32 Cursor = 0;
         uint32 Tombstone = 0;
-        std::chrono::steady_clock::time_point NextAllowedReplication = std::chrono::steady_clock::time_point::min();
+        TimePoint NextAllowedReplication = TimePoint::min();
 
         bool IsReplicationInProgress() const { return Cursor != Tombstone && Global != 0; }
     };
@@ -407,7 +407,7 @@ class TC_GAME_API AuctionHouseMgr
 
         struct PlayerThrottleObject
         {
-            std::chrono::steady_clock::time_point PeriodEnd;
+            TimePoint PeriodEnd;
             uint8 QueriesRemaining = 100;
         };
 
@@ -418,7 +418,7 @@ class TC_GAME_API AuctionHouseMgr
         uint32 _replicateIdGenerator;
 
         std::unordered_map<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects;
-        std::chrono::steady_clock::time_point _playerThrottleObjectsCleanupTime;
+        TimePoint _playerThrottleObjectsCleanupTime;
 };
 
 #define sAuctionMgr AuctionHouseMgr::instance()

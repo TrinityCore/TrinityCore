@@ -44,7 +44,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     data << uint32(pet.Speed);
     data << uint8(pet.Quality);
     data.WriteBits(pet.Name.size(), 7);
-    data.WriteBit(pet.OwnerInfo.is_initialized());
+    data.WriteBit(pet.OwnerInfo.has_value());
     data.WriteBit(false); // NoRename
     data.FlushBits();
 
@@ -116,7 +116,7 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
 
     if (hasDeclinedNames)
     {
-        DeclinedNames.emplace();
+        DeclinedNames = std::make_unique<DeclinedName>();
         uint8 declinedNameLengths[MAX_DECLINED_NAME_CASES];
 
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)

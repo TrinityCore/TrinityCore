@@ -116,7 +116,7 @@ public:
             handler->PSendSysMessage("Enable GM mode to see the path points.");
 
         for (uint32 i = 0; i < pointPath.size(); ++i)
-            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9s);
 
         return true;
     }
@@ -176,7 +176,7 @@ public:
                 if (tile)
                 {
                     handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
-                    return false;
+                    return true;
                 }
             }
 

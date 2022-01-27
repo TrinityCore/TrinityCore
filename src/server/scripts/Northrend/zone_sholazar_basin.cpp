@@ -81,7 +81,7 @@ public:
                 case 1:
                     Talk(SAY_WP_3);
                     me->CastSpell(Position{ 5918.33f, 5372.91f, -98.770f }, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, QuaternionData(), TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, QuaternionData(), 3s, GO_SUMMON_TIMED_DESPAWN);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 2:
@@ -92,7 +92,7 @@ public:
                     break;
                 case 8:
                     me->CastSpell(Position{ 5887.37f, 5379.39f, -91.289f }, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, QuaternionData(), TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, QuaternionData(), 3s, GO_SUMMON_TIMED_DESPAWN);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 9:
@@ -516,8 +516,8 @@ public:
                         /// @todo Make crunchy perform emote eat when he reaches the bird
                         break;
                     }
+                    [[fallthrough]];
                 }
-                /* fallthrough */
                 case EVENT_MISS:
                 {
                     shooter->CastSpell(wilhelm, SPELL_MISS_APPLE);

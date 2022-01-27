@@ -161,14 +161,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_BERSERK, 330000);
+                events.ScheduleEvent(EVENT_BERSERK, 330s);
                 events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15s);
                 events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
                 events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 15s, EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500ms, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, 20s, 25s, EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
+                events.ScheduleEvent(EVENT_AIR_PHASE, 124s + (Is25ManRaid() ? 3s : 0s));
                 CleanAuras();
                 _vampires.clear();
                 Initialize();
@@ -312,9 +312,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 {
                     case POINT_CENTER:
                         DoCast(me, SPELL_INCITE_TERROR);
-                        events.ScheduleEvent(EVENT_AIR_PHASE, 100000 + uint32(Is25ManRaid() ? 0 : 20000));
-                        events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
-                        events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500, EVENT_GROUP_NORMAL);
+                        events.ScheduleEvent(EVENT_AIR_PHASE, 100s + (Is25ManRaid() ? 0s : 20s));
+                        events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500ms, EVENT_GROUP_NORMAL);
+                        events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500ms, EVENT_GROUP_NORMAL);
                         events.ScheduleEvent(EVENT_AIR_START_FLYING, 5s);
                         break;
                     case POINT_AIR:
@@ -423,7 +423,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                 for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                     DoCast(*itr, SPELL_PACT_OF_THE_DARKFALLEN);
                             }
-                            events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 30500, EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 30500ms, EVENT_GROUP_NORMAL);
                             break;
                         }
                         case EVENT_SWARMING_SHADOWS:
@@ -433,7 +433,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                 Talk(SAY_SWARMING_SHADOWS);
                                 DoCast(target, SPELL_SWARMING_SHADOWS);
                             }
-                            events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500ms, EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_TWILIGHT_BLOODBOLT:
                         {
@@ -449,7 +449,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         case EVENT_AIR_PHASE:
                             DoStopAttack();
                             me->SetReactState(REACT_PASSIVE);
-                            events.DelayEvents(10000, EVENT_GROUP_NORMAL);
+                            events.DelayEvents(10s, EVENT_GROUP_NORMAL);
                             events.CancelEventGroup(EVENT_GROUP_CANCELLABLE);
                             me->GetMotionMaster()->MovePoint(POINT_CENTER, centerPos);
                             break;

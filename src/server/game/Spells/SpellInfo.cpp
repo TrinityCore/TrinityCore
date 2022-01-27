@@ -186,7 +186,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                                 targetMask = TARGET_FLAG_UNIT_PASSENGER;
                                 break;
                             case TARGET_CHECK_RAID_CLASS:
-                                /* fallthrough */
+                                [[fallthrough]];
                             default:
                                 targetMask = TARGET_FLAG_UNIT;
                                 break;
@@ -2692,7 +2692,7 @@ void SpellInfo::_LoadSpellSpecific()
                         /// @workaround For non-stacking tracking spells (We need generic solution)
                         if (Id == 30645) // Gas Cloud Tracking
                             return SPELL_SPECIFIC_NORMAL;
-                        /* fallthrough */
+                        [[fallthrough]];
                     case SPELL_AURA_TRACK_RESOURCES:
                     case SPELL_AURA_TRACK_STEALTHED:
                         return SPELL_SPECIFIC_TRACKER;
@@ -3243,7 +3243,7 @@ void SpellInfo::_LoadImmunityInfo()
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_CONFUSE);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                                /* fallthrough */
+                                [[fallthrough]];
                             case 61869: // Overload
                             case 63481:
                             case 61887: // Lightning Tendrils
@@ -4455,7 +4455,8 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
                 if (otherEffect.EffectIndex != effect.EffectIndex && // for spells like 38044: instakill effect is negative but auras on target must count as buff
                     otherEffect.TargetA.GetTarget() == effect.TargetA.GetTarget() &&
                     otherEffect.TargetB.GetTarget() == effect.TargetB.GetTarget())
-                return false;
+                    return false;
+                break;
             default:
                 break;
         }
@@ -4626,29 +4627,26 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
                 return true;
             case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
             case SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT:
-            case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                if (!_isPositiveTarget(effect))
+                if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect.TriggerSpell, spellInfo->Difficulty))
                 {
-                    if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect.TriggerSpell, spellInfo->Difficulty))
+                    // negative targets of main spell return early
+                    for (SpellEffectInfo const& spellTriggeredEffect : spellTriggeredProto->GetEffects())
                     {
-                        // negative targets of main spell return early
-                        for (SpellEffectInfo const& spellTriggeredEffect : spellTriggeredProto->GetEffects())
-                        {
-                            // already seen this
-                            if (visited.count({ spellTriggeredProto, spellTriggeredEffect.EffectIndex }) > 0)
-                                continue;
+                        // already seen this
+                        if (visited.count({ spellTriggeredProto, spellTriggeredEffect.EffectIndex }) > 0)
+                            continue;
 
-                            if (!spellTriggeredEffect.IsEffect())
-                                continue;
+                        if (!spellTriggeredEffect.IsEffect())
+                            continue;
 
-                            // if non-positive trigger cast targeted to positive target this main cast is non-positive
-                            // this will place this spell auras as debuffs
-                            if (_isPositiveTarget(spellTriggeredEffect) && !_isPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect, visited))
-                                return false;
-                        }
+                        // if non-positive trigger cast targeted to positive target this main cast is non-positive
+                        // this will place this spell auras as debuffs
+                        if (_isPositiveTarget(spellTriggeredEffect) && !_isPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect, visited))
+                            return false;
                     }
                 }
                 break;
+            case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
             case SPELL_AURA_MOD_STUN:
             case SPELL_AURA_TRANSFORM:
             case SPELL_AURA_MOD_DECREASE_SPEED:

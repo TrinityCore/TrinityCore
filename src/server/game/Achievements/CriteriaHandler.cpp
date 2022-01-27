@@ -3419,7 +3419,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerIsAtMaxExpansionLevel: // 264
-            if (referencePlayer->GetLevel() != GetMaxLevelForExpansion(sWorld->getIntConfig(CONFIG_EXPANSION)))
+            if (!referencePlayer->IsMaxLevel())
                 return false;
             break;
         case ModifierTreeType::TransmogSource: // 265
