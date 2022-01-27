@@ -607,6 +607,7 @@ class TC_GAME_API Spell
         CurrentSpellTypes GetCurrentContainer() const;
 
         WorldObject* GetCaster() const { return m_caster; }
+        ObjectGuid GetOriginalCasterGUID() const { return m_originalCasterGUID; }
         Unit* GetOriginalCaster() const { return m_originalCaster; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         Difficulty GetCastDifficulty() const;

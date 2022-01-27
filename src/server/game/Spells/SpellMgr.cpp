@@ -4655,6 +4655,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Earthquake
+    ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->NegativeEffects[EFFECT_2] = true;
+    });
+
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
