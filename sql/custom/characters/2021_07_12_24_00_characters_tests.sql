@@ -11,10 +11,10 @@ CREATE TABLE `test_sessions` (
 );
 
 CREATE TABLE `test_errors` (
-	`sessionName` VARCHAR(255) NOT NULL,
-	`testType` VARCHAR(255) NOT NULL,
-	`modName` VARCHAR(255) NOT NULL,
-	`testName` VARCHAR(255) NOT NULL,
+	`sessionName` VARCHAR(80) NOT NULL,
+	`testType` VARCHAR(80) NOT NULL,
+	`modName` VARCHAR(80) NOT NULL,
+	`testName` VARCHAR(80) NOT NULL,
 	`stepName` VARCHAR(255) NOT NULL,
 	`errorMessage` TEXT NOT NULL,
 	PRIMARY KEY (`sessionName`,`testType`,`modName`,`testName`)
