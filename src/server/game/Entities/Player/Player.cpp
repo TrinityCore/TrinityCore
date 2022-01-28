@@ -22406,13 +22406,40 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier cons
     if (spell && mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges() && !spell->m_appliedMods.count(mod->ownerAura))
         return false;
 
-    // +duration to infinite duration spells making them limited
-    if (mod->op == SpellModOp::Duration && spellInfo->GetDuration() == -1)
-        return false;
-
-    // mod crit to spells that can't crit
-    if (mod->op == SpellModOp::CritChance && !spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
-        return false;
+    switch (mod->op)
+    {
+        case SpellModOp::Duration: // +duration to infinite duration spells making them limited
+            if (spellInfo->GetDuration() == -1)
+                return false;
+            break;
+        case SpellModOp::CritChance: // mod crit to spells that can't crit
+            if (!spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
+                return false;
+            break;
+        case SpellModOp::PointsIndex0: // check if spell has any effect at that index
+        case SpellModOp::Points:
+            if (spellInfo->GetEffects().size() <= EFFECT_0)
+                return false;
+            break;
+        case SpellModOp::PointsIndex1: // check if spell has any effect at that index
+            if (spellInfo->GetEffects().size() <= EFFECT_1)
+                return false;
+            break;
+        case SpellModOp::PointsIndex2: // check if spell has any effect at that index
+            if (spellInfo->GetEffects().size() <= EFFECT_2)
+                return false;
+            break;
+        case SpellModOp::PointsIndex3: // check if spell has any effect at that index
+            if (spellInfo->GetEffects().size() <= EFFECT_3)
+                return false;
+            break;
+        case SpellModOp::PointsIndex4: // check if spell has any effect at that index
+            if (spellInfo->GetEffects().size() <= EFFECT_4)
+                return false;
+            break;
+        default:
+            break;
+    }
 
     return spellInfo->IsAffectedBySpellMod(mod);
 }
@@ -22518,7 +22545,11 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
-        *flat += static_cast<SpellModifierByClassMask*>(mod)->value;
+        int32 value = static_cast<SpellModifierByClassMask*>(mod)->value;
+        if (value == 0)
+            continue;
+
+        *flat += value;
         Player::ApplyModToSpell(mod, spell);
     }
 
@@ -22527,7 +22558,11 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
-        *flat += static_cast<SpellFlatModifierByLabel*>(mod)->value.ModifierValue;
+        int32 value = static_cast<SpellFlatModifierByLabel*>(mod)->value.ModifierValue;
+        if (value == 0)
+            continue;
+
+        *flat += value;
         Player::ApplyModToSpell(mod, spell);
     }
 
@@ -22540,14 +22575,18 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         if (base + *flat == T(0))
             continue;
 
+        int32 value = static_cast<SpellModifierByClassMask*>(mod)->value;
+        if (value == 0)
+            continue;
+
         // special case (skip > 10sec spell casts for instant cast setting)
         if (op == SpellModOp::ChangeCastTime)
         {
-            if (base >= T(10000) && static_cast<SpellModifierByClassMask*>(mod)->value <= -100)
+            if (base >= T(10000) && value <= -100)
                 continue;
         }
 
-        *pct *= 1.0f + CalculatePct(1.0f, static_cast<SpellModifierByClassMask*>(mod)->value);
+        *pct *= 1.0f + CalculatePct(1.0f, value);
         Player::ApplyModToSpell(mod, spell);
     }
 
@@ -22560,14 +22599,18 @@ void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell*
         if (base + *flat == T(0))
             continue;
 
+        float value = static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue;
+        if (value == 1.0f)
+            continue;
+
         // special case (skip > 10sec spell casts for instant cast setting)
         if (op == SpellModOp::ChangeCastTime)
         {
-            if (base >= T(10000) && static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue <= -1.0f)
+            if (base >= T(10000) && value <= -1.0f)
                 continue;
         }
 
-        *pct *= static_cast<SpellPctModifierByLabel*>(mod)->value.ModifierValue;
+        *pct *= value;
         Player::ApplyModToSpell(mod, spell);
     }
 }
