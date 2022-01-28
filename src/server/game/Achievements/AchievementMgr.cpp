@@ -2794,7 +2794,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
 }
 
 template<class T>
-bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry const* criteria, uint64 miscValue1, uint64 /*miscValue2*/, Unit const* unit, Player* referencePlayer) const
+bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const
 {
     for (uint8 i = 0; i < MAX_ADDITIONAL_CRITERIA_CONDITIONS; ++i)
     {
@@ -2805,7 +2805,8 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
         {
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
             {
-                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                uint64 itemId = (criteria->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(itemId));
                 if (!item || item->GetBaseItemLevel() < reqValue)
                     return false;
                 break;
@@ -2840,16 +2841,16 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_MIN: // 14
             {
-                // miscValue1 is itemid
-                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                uint64 itemId = (criteria->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(itemId));
                 if (!item || item->GetQuality() < reqValue)
                     return false;
                 break;
             }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_EQUALS: // 15
             {
-                // miscValue1 is itemid
-                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                uint64 itemId = (criteria->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(itemId));
                 if (!item || item->GetQuality() != reqValue)
                     return false;
                 break;
@@ -2911,14 +2912,16 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_CLASS: // 33
             {
-                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                uint64 itemId = (criteria->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(itemId));
                 if (!item || item->GetClass() != reqValue)
                     return false;
                 break;
             }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_SUBCLASS: // 34
             {
-                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                uint64 itemId = (criteria->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(itemId));
                 if (!item || item->GetSubClass() != reqValue)
                     return false;
                 break;
