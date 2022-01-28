@@ -86,13 +86,15 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
-    SPELL_PALADIN_JUDGEMENT_GAIN_HOLY_POWER      = 220637,
-    SPELL_PALADIN_JUDGEMENT_PROT_RET_R3          = 315867,
+    SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
+    SPELL_PALADIN_JUDGMENT_PROT_RET_R3           = 315867,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_ZEAL_AURA                      = 269571,
+    SPELL_PALADIN_JUDGMENT_HOLY_R3               = 231644,
+    SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF        = 214222,
 };
 
 enum PaladinSpellVisualKit
@@ -712,26 +714,36 @@ class spell_pal_moment_of_glory : public SpellScript
     }
 };
 
-// 20271/275779 - Judgement Ret/Prot
-class spell_pal_judgement : public SpellScript
+// 20271/275779/275773 - Judgement (Retribution/Protection/Holy)
+class spell_pal_judgment : public SpellScript
 {
-    PrepareSpellScript(spell_pal_judgement);
+    PrepareSpellScript(spell_pal_judgment);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_JUDGEMENT_PROT_RET_R3, SPELL_PALADIN_JUDGEMENT_GAIN_HOLY_POWER });
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_JUDGMENT_PROT_RET_R3,
+            SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER,
+            SPELL_PALADIN_JUDGMENT_HOLY_R3,
+            SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF
+        });
     }
 
     void HandleOnHit()
     {
         Unit* caster = GetCaster();
-        if (caster->HasSpell(SPELL_PALADIN_JUDGEMENT_PROT_RET_R3))
-            caster->CastSpell(caster, SPELL_PALADIN_JUDGEMENT_GAIN_HOLY_POWER, TRIGGERED_FULL_MASK);
+
+        if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_PROT_RET_R3))
+            caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, TRIGGERED_FULL_MASK);
+
+        if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_HOLY_R3))
+            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF, true);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pal_judgement::HandleOnHit);
+        OnHit += SpellHitFn(spell_pal_judgment::HandleOnHit);
     }
 };
 
@@ -1318,7 +1330,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_hand_of_sacrifice();
     RegisterSpellScript(spell_pal_hammer_of_the_righteous);
     RegisterSpellScript(spell_pal_moment_of_glory);
-    RegisterSpellScript(spell_pal_judgement);
+    RegisterSpellScript(spell_pal_judgment);
     RegisterSpellScript(spell_pal_holy_prism);
     RegisterSpellScript(spell_pal_holy_prism_selector);
     RegisterSpellScript(spell_pal_holy_shock);
