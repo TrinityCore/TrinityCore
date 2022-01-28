@@ -1172,8 +1172,8 @@ private:
 struct boss_sylvanas_windrunner : public BossAI
 {
     boss_sylvanas_windrunner(Creature* creature) : BossAI(creature, DATA_SYLVANAS_WINDRUNNER), _rangerShotOnCD(false),
-        _maldraxxiDesecrated(false), _nightfaeDesecrated(false), _kyrianDesecrated(false), _venthyrDesecrated(false), _meleeKitCombo(0),
-        _windrunnerCastTimes(0), _disecratingShotCastTimes(0), _riveCastTimes(0), _hauntingWaveTimes(0) { }
+        _maldraxxiDesecrated(false), _nightfaeDesecrated(false), _kyrianDesecrated(false), _venthyrDesecrated(false),
+        _meleeKitCombo(0), _windrunnerCastTimes(0), _disecratingShotCastTimes(0), _riveCastTimes(0), _hauntingWaveTimes(0) { }
 
     void JustAppeared() override
     {
@@ -2493,7 +2493,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(2s, [this](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
+                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_WAVE);
                 });
                 break;
             }
@@ -2502,19 +2502,18 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 int32 step = 0;
 
-                for (uint8 spiralAmount = 3; spiralAmount > 0; spiralAmount--)
+                std::list<Unit*> targets;
+                SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 250.0f, true, true);
+                for (Unit* target : targets)
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
-                    {
-                        while (step < 10 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, 0, step, target->GetPosition(), target->GetOrientation()))
-                            ++step;
+                    while (step < 10 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, 0, step, target->GetPosition(), target->GetOrientation()))
+                        ++step;
 
-                        scheduler.Schedule(2s, [this](TaskContext /*task*/)
-                        {
-                            if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                                ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
-                        });
-                    }
+                    scheduler.Schedule(2s, [this](TaskContext /*task*/)
+                    {
+                        if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
+                            ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
+                    });
                 }
                 break;
             }
@@ -2528,7 +2527,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(2s, [this](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
+                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_JAR);
                 });
                 break;
             }
