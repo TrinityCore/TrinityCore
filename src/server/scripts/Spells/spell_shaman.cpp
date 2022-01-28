@@ -73,6 +73,7 @@ enum ShamanSpells
     SPELL_SHAMAN_HEALING_RAIN_HEAL              = 73921,
     SPELL_SHAMAN_ICEFURY                        = 210714,
     SPELL_SHAMAN_ICEFURY_OVERLOAD               = 219271,
+    SPELL_SHAMAN_IGNEOUS_POTENTIAL              = 279830,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
@@ -958,7 +959,7 @@ class spell_sha_lava_burst : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD });
+        return ValidateSpellInfo({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, SPELL_SHAMAN_LAVA_SURGE });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -968,9 +969,27 @@ class spell_sha_lava_burst : public SpellScript
                 caster->CastSpell(GetHitUnit(), SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, GetSpell());
     }
 
+    void EnsureLavaSurgeCanBeImmediatelyConsumed()
+    {
+        Unit* caster = GetCaster();
+
+        if (Aura* lavaSurge = caster->GetAura(SPELL_SHAMAN_LAVA_SURGE))
+        {
+            if (!GetSpell()->m_appliedMods.count(lavaSurge))
+            {
+                uint32 chargeCategoryId = GetSpellInfo()->ChargeCategoryId;
+
+                // Ensure we have at least 1 usable charge after cast to allow next cast immediately
+                if (!caster->GetSpellHistory()->HasCharge(chargeCategoryId))
+                    caster->GetSpellHistory()->RestoreCharge(chargeCategoryId);
+            }
+        }
+    }
+
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst::HandleScript, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+        AfterCast += SpellCastFn(spell_sha_lava_burst::EnsureLavaSurgeCanBeImmediatelyConsumed);
     }
 };
 
@@ -1010,7 +1029,16 @@ class spell_sha_lava_surge : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE });
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE, SPELL_SHAMAN_IGNEOUS_POTENTIAL });
+    }
+
+    bool CheckProcChance(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        int32 procChance = aurEff->GetAmount();
+        if (AuraEffect const* igneousPotential = GetTarget()->GetAuraEffect(SPELL_SHAMAN_IGNEOUS_POTENTIAL, EFFECT_0))
+            procChance += igneousPotential->GetAmount();
+
+        return roll_chance_i(procChance);
     }
 
     void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -1021,6 +1049,7 @@ class spell_sha_lava_surge : public AuraScript
 
     void Register() override
     {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_lava_surge::CheckProcChance, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_sha_lava_surge::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
