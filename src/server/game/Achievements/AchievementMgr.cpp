@@ -1168,11 +1168,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         if (!CanUpdateCriteria(achievementCriteria, achievement, miscValue1, miscValue2, miscValue3, unit, referencePlayer, go))
             continue;
 
-        // requirements not found in the dbc
-        if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
-            if (!data->Meets(referencePlayer, unit, miscValue1))
-                continue;
-
         switch (type)
         {
             // special cases, db data is checked later
