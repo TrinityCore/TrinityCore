@@ -370,7 +370,7 @@ class TC_GAME_API Object
             }
         }
 
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const;
+        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
         virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
         virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
@@ -436,6 +436,12 @@ class FlaggedValuesArray32
     private:
         T_VALUES m_values[ARRAY_SIZE];
         T_FLAGS m_flags;
+};
+
+struct TC_GAME_API ReplaceObjectInfo
+{
+    ObjectGuid ReplaceObject;
+    bool StopAnimKits = true;
 };
 
 class TC_GAME_API WorldObject : public Object, public WorldLocation
@@ -725,6 +731,21 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetPrivateObjectOwner(ObjectGuid const& owner) { _privateObjectOwner = owner; }
         bool CheckPrivateObjectOwnerVisibility(WorldObject const* seer) const;
 
+        // Smooth Phasing
+        void ReplaceWith(ObjectGuid const& seerGuid, ObjectGuid const& replaceWithObjectGuid, bool stopAnimKits = true);
+        void ReplaceWith(WorldObject const* seer, WorldObject* replaceWithObject, bool stopAnimKits = true);
+        void SetReplacedObject(ObjectGuid const& seer, ObjectGuid const& replacedObject, bool stopAnimKits = true);
+        void RestoreReplacedObject();
+        void RemoveObjectWhichReplacesMe(WorldObject const* seer) { RemoveObjectWhichReplacesMe(seer->GetGUID()); }
+        void RemoveObjectWhichReplacesMe(ObjectGuid const& seerGuid) { _objectsWhichReplaceMeForSeer.erase(seerGuid); }
+        // If Me is replacing any other creature
+        ReplaceObjectInfo const* GetReplacedObjectFor(WorldObject const* seer) const;
+        bool IsReplacingObjectFor(WorldObject const* seer) const { return GetReplacedObjectFor(seer) != nullptr; }
+        // If Me is replaced for player x by any other creature
+        bool IsBeingReplacedFor(WorldObject const* seer) const { return _objectsWhichReplaceMeForSeer.find(seer->GetGUID()) != _objectsWhichReplaceMeForSeer.end(); }
+
+        bool CheckReplacedObjectVisibility(WorldObject const* seer) const;
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -765,6 +786,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint16 m_notifyflags;
 
         ObjectGuid _privateObjectOwner;
+
+        std::unordered_map<ObjectGuid /* Seer */, ReplaceObjectInfo> _replacedObjects;
+        std::unordered_map<ObjectGuid /* Seer */, ObjectGuid /* Object which is replacing me */> _objectsWhichReplaceMeForSeer;
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 

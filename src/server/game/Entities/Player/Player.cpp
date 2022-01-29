@@ -24177,6 +24177,30 @@ inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
         t->ToPet()->Remove(PET_SAVE_NOT_IN_SLOT, true);
 }
 
+void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
+{
+    if (targets.begin() == targets.end())
+        return;
+
+    UpdateData udata(GetMapId());
+    std::set<Unit*> visibleNow;
+
+    for (WorldObject* target : targets)
+    {
+        UpdateVisibilityOf(target, udata, visibleNow);
+    }
+
+    if (!udata.HasData())
+        return;
+
+    WorldPacket packet;
+    udata.BuildPacket(&packet);
+    SendDirectMessage(&packet);
+
+    for (std::set<Unit*>::const_iterator it = visibleNow.begin(); it != visibleNow.end(); ++it)
+        SendInitialVisiblePackets(*it);
+}
+
 void Player::UpdateVisibilityOf(WorldObject* target)
 {
     if (HaveAtClient(target))
