@@ -656,6 +656,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
         virtual void UpdateObjectVisibilityOnCreate() { UpdateObjectVisibility(true); }
+        virtual void UpdateObjectVisibilityOnDestroy() { DestroyForNearbyPlayers(); }
         void UpdatePositionData();
 
         void BuildUpdate(UpdateDataMapType&) override;
