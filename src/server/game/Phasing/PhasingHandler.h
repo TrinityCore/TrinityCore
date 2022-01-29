@@ -74,8 +74,6 @@ public:
 
     static bool IsPersonalPhase(uint32 phaseId);
 
-    static void ReplaceObject(WorldObject* object, WorldObject* newObject, ObjectGuid const& replacedObjectGuid, bool stopAnimKits = true);
-
 private:
     class ControlledUnitVisitor;
     friend ControlledUnitVisitor;

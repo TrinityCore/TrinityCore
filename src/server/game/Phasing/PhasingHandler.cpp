@@ -670,20 +670,6 @@ bool PhasingHandler::IsPersonalPhase(uint32 phaseId)
     return false;
 }
 
-void PhasingHandler::ReplaceObject(WorldObject* object, WorldObject* newObject, ObjectGuid const& replacedObjectGuid, bool stopAnimKits /*= true*/)
-{
-    WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*object, replacedObjectGuid);
-    if (!replacedObject)
-        return;
-
-    replacedObject->ReplaceWith(object, newObject, stopAnimKits);
-    if (Player* player = object->ToPlayer())
-    {
-        WorldObject* targets[] = { newObject, replacedObject };
-        player->UpdateVisibilityOf({ std::begin(targets), std::end(targets) });
-    }
-}
-
 void PhasingHandler::UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed)
 {
     if (changed && object->IsInWorld())

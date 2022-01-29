@@ -49,9 +49,9 @@ namespace Trinity
 
     struct VisibleChangesNotifier
     {
-        WorldObject &i_object;
+        IteratorPair<WorldObject**> i_objects;
 
-        explicit VisibleChangesNotifier(WorldObject &object) : i_object(object) { }
+        explicit VisibleChangesNotifier(IteratorPair<WorldObject**> objects) : i_objects(objects) { }
         template<class T> void Visit(GridRefManager<T> &) { }
         void Visit(PlayerMapType &);
         void Visit(CreatureMapType &);

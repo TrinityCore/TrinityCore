@@ -24183,11 +24183,42 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
         return;
 
     UpdateData udata(GetMapId());
-    std::set<Unit*> visibleNow;
+    std::set<Unit*> newVisibleUnits;
 
     for (WorldObject* target : targets)
     {
-        UpdateVisibilityOf(target, udata, visibleNow);
+        if (target == this)
+            continue;
+
+        switch (target->GetTypeId())
+        {
+            case TYPEID_UNIT:
+                UpdateVisibilityOf(target->ToCreature(), udata, newVisibleUnits);
+                break;
+            case TYPEID_PLAYER:
+                UpdateVisibilityOf(target->ToPlayer(), udata, newVisibleUnits);
+                break;
+            case TYPEID_GAMEOBJECT:
+                UpdateVisibilityOf(target->ToGameObject(), udata, newVisibleUnits);
+                break;
+            case TYPEID_DYNAMICOBJECT:
+                UpdateVisibilityOf(target->ToDynObject(), udata, newVisibleUnits);
+                break;
+            case TYPEID_CORPSE:
+                UpdateVisibilityOf(target->ToCorpse(), udata, newVisibleUnits);
+                break;
+            case TYPEID_AREATRIGGER:
+                UpdateVisibilityOf(target->ToAreaTrigger(), udata, newVisibleUnits);
+                break;
+            case TYPEID_SCENEOBJECT:
+                UpdateVisibilityOf(target->ToSceneObject(), udata, newVisibleUnits);
+                break;
+            case TYPEID_CONVERSATION:
+                UpdateVisibilityOf(target->ToConversation(), udata, newVisibleUnits);
+                break;
+            default:
+                break;
+        }
     }
 
     if (!udata.HasData())
@@ -24197,8 +24228,8 @@ void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
     udata.BuildPacket(&packet);
     SendDirectMessage(&packet);
 
-    for (std::set<Unit*>::const_iterator it = visibleNow.begin(); it != visibleNow.end(); ++it)
-        SendInitialVisiblePackets(*it);
+    for (Unit* visibleUnit : newVisibleUnits)
+        SendInitialVisiblePackets(visibleUnit);
 }
 
 void Player::UpdateVisibilityOf(WorldObject* target)

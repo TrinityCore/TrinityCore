@@ -133,7 +133,8 @@ public:
             { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
             { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
             { "objectcount",   rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugObjectCountCommand,      "" },
-            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" }
+            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" },
+            { "personalclone", rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugBecomePersonalClone,     "" }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1923,6 +1924,17 @@ public:
 
         for (auto&& p : worker.GetTopCreatureCount(5))
             handler->PSendSysMessage("Entry: %u Count: %u", p.first, p.second);
+    }
+
+    static bool HandleDebugBecomePersonalClone(ChatHandler* handler)
+    {
+        Creature* selection = handler->getSelectedCreature();
+        if (!selection)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+        selection->SummonPersonalClone(player->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->GetGUID());
+        return true;
     }
 
     static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)

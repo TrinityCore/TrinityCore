@@ -41,6 +41,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ReputationMgr.h"
+#include "SmoothPhasing.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -164,7 +165,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
             flags.AnimKit = true;
 
-        if (worldObject->IsReplacingObjectFor(target))
+        if (worldObject->GetSmoothPhasing() && worldObject->GetSmoothPhasing()->GetInfoForSeer(target->GetGUID()))
             flags.SmoothPhasing = true;
     }
 
@@ -564,14 +565,15 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.SmoothPhasing)
     {
-        ReplaceObjectInfo const* replacedObjectInfo = static_cast<WorldObject const*>(this)->GetReplacedObjectFor(target);
-        ASSERT(replacedObjectInfo);
+        SmoothPhasingInfo const* smoothPhasingInfo = static_cast<WorldObject const*>(this)->GetSmoothPhasing()->GetInfoForSeer(target->GetGUID());
+        ASSERT(smoothPhasingInfo);
 
-        data->WriteBit(true); // ReplaceActive
-        data->WriteBit(replacedObjectInfo->StopAnimKits);
-        data->WriteBit(true);
+        data->WriteBit(smoothPhasingInfo->ReplaceActive);
+        data->WriteBit(smoothPhasingInfo->StopAnimKits);
+        data->WriteBit(smoothPhasingInfo->ReplaceObject.has_value());
         data->FlushBits();
-        *data << ObjectGuid(replacedObjectInfo->ReplaceObject);
+        if (smoothPhasingInfo->ReplaceObject)
+            *data << *smoothPhasingInfo->ReplaceObject;
     }
 
     if (flags.SceneObject)
@@ -926,8 +928,6 @@ void WorldObject::RemoveFromWorld()
 {
     if (!IsInWorld())
         return;
-
-    RestoreReplacedObject();
 
     UpdateObjectVisibilityOnDestroy();
 
@@ -1409,71 +1409,12 @@ bool WorldObject::CheckPrivateObjectOwnerVisibility(WorldObject const* seer) con
     return false;
 }
 
-void WorldObject::SetReplacedObject(ObjectGuid const& seer, ObjectGuid const& replacedObject, bool stopAnimKits)
+SmoothPhasing* WorldObject::GetOrCreateSmoothPhasing()
 {
-    ReplaceObjectInfo replaceObjectInfo;
-    replaceObjectInfo.ReplaceObject = replacedObject;
-    replaceObjectInfo.StopAnimKits = stopAnimKits;
-    _replacedObjects[seer] = replaceObjectInfo;
-}
+    if (!_smoothPhasing)
+        _smoothPhasing = std::make_unique<SmoothPhasing>();
 
-void WorldObject::ReplaceWith(WorldObject const* seer, WorldObject* replaceWithObject, bool stopAnimKits)
-{
-    _objectsWhichReplaceMeForSeer[seer->GetGUID()] = replaceWithObject->GetGUID();
-    replaceWithObject->SetReplacedObject(seer->GetGUID(), GetGUID(), stopAnimKits);
-}
-
-void WorldObject::ReplaceWith(ObjectGuid const& seerGuid, ObjectGuid const& replaceWithObjectGuid, bool stopAnimKits /*=true*/)
-{
-    WorldObject* replaceWithObject = ObjectAccessor::GetWorldObject(*this, replaceWithObjectGuid);
-    if (!replaceWithObject)
-        return;
-
-    _objectsWhichReplaceMeForSeer[seerGuid] = replaceWithObjectGuid;
-    replaceWithObject->SetReplacedObject(seerGuid, GetGUID(), stopAnimKits);
-}
-
-void WorldObject::RestoreReplacedObject()
-{
-    if (_replacedObjects.empty() || !IsPrivateObject())
-        return;
-
-    std::unordered_map<ObjectGuid, ReplaceObjectInfo>::iterator itr = _replacedObjects.begin();
-    WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*this, itr->second.ReplaceObject);
-    if (!replacedObject)
-        return;
-
-    ReplaceWith(itr->first, itr->second.ReplaceObject, itr->second.StopAnimKits);
-    replacedObject->RemoveObjectWhichReplacesMe(itr->first);
-    _replacedObjects.erase(itr->first);
-
-    Player* player = ObjectAccessor::FindPlayer(itr->first);
-    if (!player)
-        return;
-
-    WorldObject* targets[] = { replacedObject, this };
-    player->UpdateVisibilityOf({ std::begin(targets), std::end(targets) });
-}
-
-ReplaceObjectInfo const* WorldObject::GetReplacedObjectFor(WorldObject const* seer) const
-{
-    auto itr = _replacedObjects.find(seer->GetGUID());
-    if (itr != _replacedObjects.end())
-        return &itr->second;
-
-    return nullptr;
-}
-
-bool WorldObject::CheckReplacedObjectVisibility(WorldObject const* seer) const
-{
-    if (Creature const* creature = ToCreature())
-    {
-        Player const* player = seer->ToPlayer();
-        if (player && IsBeingReplacedFor(player))
-            return false;
-    }
-
-    return true;
+    return _smoothPhasing.get();
 }
 
 bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck, bool checkAlert) const
@@ -1490,8 +1431,9 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (!obj->CheckPrivateObjectOwnerVisibility(this))
         return false;
 
-    if (!obj->CheckReplacedObjectVisibility(this))
-        return false;
+    if (SmoothPhasing const* smoothPhasing = obj->GetSmoothPhasing())
+        if (smoothPhasing->IsBeingReplacedForSeer(GetGUID()))
+            return false;
 
     if (!sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj->GetTypeId(), obj->GetEntry(), const_cast<WorldObject*>(this)))
         return false;
@@ -1789,7 +1731,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, WorldObject* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/, ObjectGuid replaceObject /* = ObjectGuid::Empty */)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, WorldObject* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/, SmoothPhasingInfo const* smoothPhasingInfo /* = nullptr*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
@@ -1839,9 +1781,6 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         }
     }
 
-    if (WorldObject* objectOwner = ObjectAccessor::GetWorldObject(*summoner, privateObjectOwner))
-        summoner = objectOwner;
-
     Unit* summonerUnit = summoner ? summoner->ToUnit() : nullptr;
 
     TempSummon* summon = nullptr;
@@ -1881,8 +1820,19 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     summon->SetPrivateObjectOwner(privateObjectOwner);
 
-    if (summoner && !replaceObject.IsEmpty())
-        PhasingHandler::ReplaceObject(summoner, summon, replaceObject);
+    if (smoothPhasingInfo)
+    {
+        if (summoner && smoothPhasingInfo->ReplaceObject)
+        {
+            SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
+            originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
+            summoner->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
+
+            summon->SetDemonCreatorGUID(privateObjectOwner);
+        }
+
+        summon->GetOrCreateSmoothPhasing()->SetSingleInfo(*smoothPhasingInfo);
+    }
 
     if (!AddToMap(summon->ToCreature()))
     {
@@ -1970,7 +1920,8 @@ TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner, GetGUID()))
+        SmoothPhasingInfo smoothPhasingInfo{GetGUID(), true, true};
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner, &smoothPhasingInfo))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
@@ -3473,7 +3424,8 @@ void WorldObject::DestroyForNearbyPlayers()
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)
 {
     //updates object's visibility for nearby players
-    Trinity::VisibleChangesNotifier notifier(*this);
+    WorldObject* objects[] = { this };
+    Trinity::VisibleChangesNotifier notifier({ std::begin(objects), std::end(objects) });
     Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
