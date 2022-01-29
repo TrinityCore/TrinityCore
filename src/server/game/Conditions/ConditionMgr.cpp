@@ -19,6 +19,7 @@
 #include "AchievementMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
+#include "BattlePetMgr.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DatabaseEnv.h"
@@ -144,6 +145,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Is Gamemaster",             true, false, false },
     { "Object Entry or Guid",      true, true,  true  },
     { "Object TypeMask",           true, false, false },
+    { "BatllePet Learned",         true, false, false },
 };
 
 // Checks if object meets the condition
@@ -564,6 +566,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_BATTLEPET_JOURNAL:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->GetSession()->GetBattlePetMgr()->GetPetCount(ConditionValue1, player->GetGUID()) > 0;
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -763,6 +771,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_GAMEMASTER:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_BATTLEPET_JOURNAL:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -2553,6 +2564,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 return false;
             }
             break;
+        case CONDITION_BATTLEPET_JOURNAL:
+        {
+            if (!sBattlePetSpeciesStore.LookupEntry(cond->ConditionValue1))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non existing BattlePet SpecieId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "%s Invalid ConditionType in `condition` table, ignoring.", cond->ToString().c_str());
             return false;
