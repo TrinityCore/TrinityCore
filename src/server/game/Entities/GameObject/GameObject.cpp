@@ -789,7 +789,7 @@ void GameObject::Update(uint32 diff)
                 m_respawnTime = 0;
 
                 if (m_spawnId)
-                    DestroyForNearbyPlayers();
+                    UpdateObjectVisibilityOnDestroy();
                 else
                     Delete();
 
@@ -806,7 +806,7 @@ void GameObject::Update(uint32 diff)
             SaveRespawnTime();
 
             if (m_respawnCompatibilityMode)
-                DestroyForNearbyPlayers();
+                UpdateObjectVisibilityOnDestroy();
             else
                 AddObjectToRemoveList();
 

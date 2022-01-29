@@ -255,7 +255,10 @@ template<class T>
 void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 {
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        iter->GetSource()->SetDestroyedObject(true);
         iter->GetSource()->CleanupsBeforeDelete();
+    }
 }
 
 template void ObjectGridUnloader::Visit(CreatureMapType &);

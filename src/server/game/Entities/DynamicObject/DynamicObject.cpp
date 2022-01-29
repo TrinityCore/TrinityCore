@@ -164,10 +164,7 @@ void DynamicObject::Update(uint32 p_time)
 void DynamicObject::Remove()
 {
     if (IsInWorld())
-    {
-        RemoveFromWorld();
         AddObjectToRemoveList();
-    }
 }
 
 void DynamicObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const

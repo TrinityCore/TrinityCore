@@ -276,6 +276,17 @@ void Object::DestroyForPlayer(Player* target, bool isDead /*= false*/) const
     target->SendDirectMessage(packet.Write());
 }
 
+void Object::SendOutOfRangeForPlayer(Player* target) const
+{
+    ASSERT(target);
+
+    UpdateData updateData(target->GetMapId());
+    BuildOutOfRangeUpdateBlock(&updateData);
+    WorldPacket packet;
+    updateData.BuildPacket(&packet);
+    target->SendDirectMessage(&packet);
+}
+
 int32 Object::GetInt32Value(uint16 index) const
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, false));
@@ -1265,7 +1276,7 @@ void WorldObject::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    DestroyForNearbyPlayers();
+    UpdateObjectVisibilityOnDestroy();
 
     Object::RemoveFromWorld();
 }

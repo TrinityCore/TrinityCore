@@ -1850,11 +1850,12 @@ class TC_GAME_API Unit : public WorldObject
         void CancelPendingCastRequest();
         bool CanRequestSpellCast(SpellInfo const* spell) const;
 
+        void DestroyForPlayer(Player* target, bool onDeath = false) const override;
+
     protected:
         explicit Unit (bool isWorldObject);
 
         void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
-        void DestroyForPlayer(Player* target, bool onDeath = false) const override;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();

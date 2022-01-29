@@ -1091,7 +1091,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     SendRemoveTransports(player);
 
     if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
-        player->DestroyForNearbyPlayers(); // previous player->UpdateObjectVisibility(true)
+        player->UpdateObjectVisibilityOnDestroy();
 
     if (player->IsInGrid())
         player->RemoveFromGrid();
@@ -1112,7 +1112,7 @@ void Map::RemoveFromMap(T *obj, bool remove)
         RemoveFromActive(obj);
 
     if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
-        obj->DestroyForNearbyPlayers(); // previous obj->UpdateObjectVisibility(true)
+        obj->UpdateObjectVisibilityOnDestroy();
 
     obj->RemoveFromGrid();
 
@@ -3489,6 +3489,7 @@ void Map::AddObjectToRemoveList(WorldObject* obj)
 {
     ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
 
+    obj->SetDestroyedObject(true);
     obj->CleanupsBeforeDelete(false);                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
@@ -4541,7 +4542,7 @@ void Map::RemoveCorpse(Corpse* corpse)
 {
     ASSERT(corpse);
 
-    corpse->DestroyForNearbyPlayers();
+    corpse->UpdateObjectVisibilityOnDestroy();
     if (corpse->IsInGrid())
         RemoveFromMap(corpse, false);
     else
