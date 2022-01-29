@@ -41,6 +41,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ReputationMgr.h"
+#include "SmoothPhasing.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -75,6 +76,7 @@ Object::Object() : m_values(this)
 
     m_inWorld           = false;
     m_isNewObject       = false;
+    m_isDestroyedObject = false;
     m_objectUpdated     = false;
 }
 
@@ -162,6 +164,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
             flags.AnimKit = true;
+
+        if (worldObject->GetSmoothPhasing() && worldObject->GetSmoothPhasing()->GetInfoForSeer(target->GetGUID()))
+            flags.SmoothPhasing = true;
     }
 
     if (Unit const* unit = ToUnit())
@@ -177,7 +182,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << GetGUID();
     buf << uint8(objectType);
 
-    BuildMovementUpdate(&buf, flags);
+    BuildMovementUpdate(&buf, flags, target);
     BuildValuesCreate(&buf, target);
     data->AddUpdateBlock(buf);
 }
@@ -243,7 +248,18 @@ void Object::DestroyForPlayer(Player* target) const
     target->SendDirectMessage(&packet);
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
+void Object::SendOutOfRangeForPlayer(Player* target) const
+{
+    ASSERT(target);
+
+    UpdateData updateData(target->GetMapId());
+    BuildOutOfRangeUpdateBlock(&updateData);
+    WorldPacket packet;
+    updateData.BuildPacket(&packet);
+    target->SendDirectMessage(&packet);
+}
+
+void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const
 {
     std::vector<uint32> const* PauseTimes = nullptr;
     uint32 PauseTimesCount = 0;
@@ -547,15 +563,18 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
             *data << uint32(Int1);
     }
 
-    //if (flags.SmoothPhasing)
-    //{
-    //    data->WriteBit(ReplaceActive);
-    //    data->WriteBit(StopAnimKits);
-    //    data->WriteBit(HasReplaceObject);
-    //    data->FlushBits();
-    //    if (HasReplaceObject)
-    //        *data << ObjectGuid(ReplaceObject);
-    //}
+    if (flags.SmoothPhasing)
+    {
+        SmoothPhasingInfo const* smoothPhasingInfo = static_cast<WorldObject const*>(this)->GetSmoothPhasing()->GetInfoForSeer(target->GetGUID());
+        ASSERT(smoothPhasingInfo);
+
+        data->WriteBit(smoothPhasingInfo->ReplaceActive);
+        data->WriteBit(smoothPhasingInfo->StopAnimKits);
+        data->WriteBit(smoothPhasingInfo->ReplaceObject.has_value());
+        data->FlushBits();
+        if (smoothPhasingInfo->ReplaceObject)
+            *data << *smoothPhasingInfo->ReplaceObject;
+    }
 
     if (flags.SceneObject)
     {
@@ -910,7 +929,7 @@ void WorldObject::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    DestroyForNearbyPlayers();
+    UpdateObjectVisibilityOnDestroy();
 
     Object::RemoveFromWorld();
 }
@@ -1390,6 +1409,14 @@ bool WorldObject::CheckPrivateObjectOwnerVisibility(WorldObject const* seer) con
     return false;
 }
 
+SmoothPhasing* WorldObject::GetOrCreateSmoothPhasing()
+{
+    if (!_smoothPhasing)
+        _smoothPhasing = std::make_unique<SmoothPhasing>();
+
+    return _smoothPhasing.get();
+}
+
 bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck, bool checkAlert) const
 {
     if (this == obj)
@@ -1403,6 +1430,10 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
 
     if (!obj->CheckPrivateObjectOwnerVisibility(this))
         return false;
+
+    if (SmoothPhasing const* smoothPhasing = obj->GetSmoothPhasing())
+        if (smoothPhasing->IsBeingReplacedForSeer(GetGUID()))
+            return false;
 
     if (!sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj->GetTypeId(), obj->GetEntry(), const_cast<WorldObject*>(this)))
         return false;
@@ -1700,7 +1731,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, WorldObject* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, WorldObject* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/, SmoothPhasingInfo const* smoothPhasingInfo /* = nullptr*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
@@ -1789,7 +1820,26 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     summon->SetPrivateObjectOwner(privateObjectOwner);
 
-    AddToMap(summon->ToCreature());
+    if (smoothPhasingInfo)
+    {
+        if (summoner && smoothPhasingInfo->ReplaceObject)
+        {
+            SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
+            originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
+            summoner->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
+
+            summon->SetDemonCreatorGUID(privateObjectOwner);
+        }
+
+        summon->GetOrCreateSmoothPhasing()->SetSingleInfo(*smoothPhasingInfo);
+    }
+
+    if (!AddToMap(summon->ToCreature()))
+    {
+        delete summon;
+        return nullptr;
+    }
+
     summon->InitSummon();
 
     // call MoveInLineOfSight for nearby creatures
@@ -1870,7 +1920,8 @@ TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner))
+        SmoothPhasingInfo smoothPhasingInfo{GetGUID(), true, true};
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner, &smoothPhasingInfo))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
@@ -3373,7 +3424,8 @@ void WorldObject::DestroyForNearbyPlayers()
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)
 {
     //updates object's visibility for nearby players
-    Trinity::VisibleChangesNotifier notifier(*this);
+    WorldObject* objects[] = { this };
+    Trinity::VisibleChangesNotifier notifier({ std::begin(objects), std::end(objects) });
     Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 

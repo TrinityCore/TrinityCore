@@ -20,11 +20,14 @@
 #include "DB2Structure.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "GridNotifiers.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
+#include "SmoothPhasing.h"
+#include <boost/container/small_vector.hpp>
 #include <sstream>
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject) :
@@ -244,7 +247,40 @@ void TempSummon::InitSummon()
 
 void TempSummon::UpdateObjectVisibilityOnCreate()
 {
-    WorldObject::UpdateObjectVisibility(true);
+    boost::container::small_vector<WorldObject*, 2> objectsToUpdate;
+    objectsToUpdate.push_back(this);
+
+    SmoothPhasing const* smoothPhasing = GetSmoothPhasing();
+    if (WorldObject* original = GetSummoner())
+        if (smoothPhasing && smoothPhasing->IsReplacing(original->GetGUID()))
+            objectsToUpdate.push_back(original);
+
+    Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
+}
+
+void TempSummon::UpdateObjectVisibilityOnDestroy()
+{
+    boost::container::small_vector<WorldObject*, 2> objectsToUpdate;
+    objectsToUpdate.push_back(this);
+
+    WorldObject* original = GetSummoner();
+    SmoothPhasing const* smoothPhasing = GetSmoothPhasing();
+    if (original && smoothPhasing && smoothPhasing->IsReplacing(original->GetGUID()))
+    {
+        objectsToUpdate.push_back(original);
+
+        // disable replacement without removing - it is still needed for next step (visibility update)
+        if (SmoothPhasing* originalSmoothPhasing = original->GetSmoothPhasing())
+            originalSmoothPhasing->DisableReplacementForSeer(GetDemonCreatorGUID());
+    }
+
+    Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
+
+    if (original && smoothPhasing && smoothPhasing->IsReplacing(original->GetGUID()))
+        if (SmoothPhasing* originalSmoothPhasing = original->GetSmoothPhasing())
+            originalSmoothPhasing->ClearViewerDependentInfo(GetDemonCreatorGUID());
 }
 
 void TempSummon::SetTempSummonType(TempSummonType type)

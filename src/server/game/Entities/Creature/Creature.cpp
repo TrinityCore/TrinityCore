@@ -425,7 +425,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
             ai->CorpseRemoved(respawnDelay);
 
         if (destroyForNearbyPlayers)
-            DestroyForNearbyPlayers();
+            UpdateObjectVisibilityOnDestroy();
 
         // Should get removed later, just keep "compatibility" with scripts
         if (setSpawnTime)
@@ -2201,7 +2201,7 @@ void Creature::Respawn(bool force)
 
     if (m_respawnCompatibilityMode)
     {
-        DestroyForNearbyPlayers();
+        UpdateObjectVisibilityOnDestroy();
         RemoveCorpse(false, false);
 
         if (getDeathState() == DEAD)
@@ -2266,7 +2266,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
         uint32 respawnDelay = GetRespawnDelay();
 
         // do it before killing creature
-        DestroyForNearbyPlayers();
+        UpdateObjectVisibilityOnDestroy();
 
         bool overrideRespawnTime = false;
         if (IsAlive())

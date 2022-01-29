@@ -24177,6 +24177,61 @@ inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
         t->ToPet()->Remove(PET_SAVE_NOT_IN_SLOT, true);
 }
 
+void Player::UpdateVisibilityOf(Trinity::IteratorPair<WorldObject**> targets)
+{
+    if (targets.begin() == targets.end())
+        return;
+
+    UpdateData udata(GetMapId());
+    std::set<Unit*> newVisibleUnits;
+
+    for (WorldObject* target : targets)
+    {
+        if (target == this)
+            continue;
+
+        switch (target->GetTypeId())
+        {
+            case TYPEID_UNIT:
+                UpdateVisibilityOf(target->ToCreature(), udata, newVisibleUnits);
+                break;
+            case TYPEID_PLAYER:
+                UpdateVisibilityOf(target->ToPlayer(), udata, newVisibleUnits);
+                break;
+            case TYPEID_GAMEOBJECT:
+                UpdateVisibilityOf(target->ToGameObject(), udata, newVisibleUnits);
+                break;
+            case TYPEID_DYNAMICOBJECT:
+                UpdateVisibilityOf(target->ToDynObject(), udata, newVisibleUnits);
+                break;
+            case TYPEID_CORPSE:
+                UpdateVisibilityOf(target->ToCorpse(), udata, newVisibleUnits);
+                break;
+            case TYPEID_AREATRIGGER:
+                UpdateVisibilityOf(target->ToAreaTrigger(), udata, newVisibleUnits);
+                break;
+            case TYPEID_SCENEOBJECT:
+                UpdateVisibilityOf(target->ToSceneObject(), udata, newVisibleUnits);
+                break;
+            case TYPEID_CONVERSATION:
+                UpdateVisibilityOf(target->ToConversation(), udata, newVisibleUnits);
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (!udata.HasData())
+        return;
+
+    WorldPacket packet;
+    udata.BuildPacket(&packet);
+    SendDirectMessage(&packet);
+
+    for (Unit* visibleUnit : newVisibleUnits)
+        SendInitialVisiblePackets(visibleUnit);
+}
+
 void Player::UpdateVisibilityOf(WorldObject* target)
 {
     if (HaveAtClient(target))
@@ -24186,7 +24241,11 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             if (target->GetTypeId() == TYPEID_UNIT)
                 BeforeVisibilityDestroy<Creature>(target->ToCreature(), this);
 
-            target->DestroyForPlayer(this);
+            if (!target->IsDestroyedObject())
+                target->SendOutOfRangeForPlayer(this);
+            else
+                target->DestroyForPlayer(this);
+
             m_clientGUIDs.erase(target->GetGUID());
 
             #ifdef TRINITY_DEBUG
@@ -24273,7 +24332,11 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
         {
             BeforeVisibilityDestroy<T>(target, this);
 
-            target->BuildOutOfRangeUpdateBlock(&data);
+            if (!target->IsDestroyedObject())
+                target->BuildOutOfRangeUpdateBlock(&data);
+            else
+                target->BuildDestroyUpdateBlock(&data);
+
             m_clientGUIDs.erase(target->GetGUID());
 
             #ifdef TRINITY_DEBUG
@@ -24281,7 +24344,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
             #endif
         }
     }
-    else //if (visibleNow.size() < 30 || target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsVehicle())
+    else
     {
         if (CanSeeOrDetect(target, false, true))
         {
