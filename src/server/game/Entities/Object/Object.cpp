@@ -75,6 +75,7 @@ Object::Object() : m_values(this)
 
     m_inWorld           = false;
     m_isNewObject       = false;
+    m_isDestroyedObject = false;
     m_objectUpdated     = false;
 }
 
@@ -238,6 +239,17 @@ void Object::DestroyForPlayer(Player* target) const
 
     UpdateData updateData(target->GetMapId());
     BuildDestroyUpdateBlock(&updateData);
+    WorldPacket packet;
+    updateData.BuildPacket(&packet);
+    target->SendDirectMessage(&packet);
+}
+
+void Object::SendOutOfRangeForPlayer(Player* target) const
+{
+    ASSERT(target);
+
+    UpdateData updateData(target->GetMapId());
+    BuildOutOfRangeUpdateBlock(&updateData);
     WorldPacket packet;
     updateData.BuildPacket(&packet);
     target->SendDirectMessage(&packet);
