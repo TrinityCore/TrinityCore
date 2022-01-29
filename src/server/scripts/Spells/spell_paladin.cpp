@@ -87,14 +87,14 @@ enum PaladinSpells
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
+    SPELL_PALADIN_JUDGMENT_HOLY_R3               = 231644,
+    SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF        = 214222,
     SPELL_PALADIN_JUDGMENT_PROT_RET_R3           = 315867,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_ZEAL_AURA                      = 269571,
-    SPELL_PALADIN_JUDGMENT_HOLY_R3               = 231644,
-    SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF        = 214222,
 };
 
 enum PaladinSpellVisualKit
@@ -735,10 +735,10 @@ class spell_pal_judgment : public SpellScript
         Unit* caster = GetCaster();
 
         if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_PROT_RET_R3))
-            caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, TRIGGERED_FULL_MASK);
+            caster->CastSpell(caster, SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER, GetSpell());
 
         if (caster->HasSpell(SPELL_PALADIN_JUDGMENT_HOLY_R3))
-            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF, true);
+            caster->CastSpell(GetHitUnit(), SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF, GetSpell());
     }
 
     void Register() override
