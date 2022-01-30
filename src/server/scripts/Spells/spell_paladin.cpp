@@ -81,9 +81,9 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY         = 114871,
     SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY        = 114852,
     SPELL_PALADIN_HOLY_PRISM_TARGET_BEAM_VISUAL  = 114862,
-    SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
-    SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
-    SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
+    SPELL_PALADIN_HOLY_SHOCK                     = 20473,
+    SPELL_PALADIN_HOLY_SHOCK_DAMAGE              = 25912,
+    SPELL_PALADIN_HOLY_SHOCK_HEALING             = 25914,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
@@ -99,7 +99,12 @@ enum PaladinSpells
 
 enum PaladinSpellVisualKit
 {
-    PALADIN_VISUAL_KIT_DIVINE_STORM = 73892
+    PALADIN_VISUAL_KIT_DIVINE_STORM              = 73892
+};
+
+enum PaladinSpellVisual
+{
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK              = 83732
 };
 
 /*
@@ -361,12 +366,12 @@ class spell_pal_crusader_might : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_SHOCK_R1 });
+        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_SHOCK });
     }
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK_R1, Seconds(aurEff->GetAmount()));
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK, Seconds(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -841,39 +846,20 @@ class spell_pal_holy_shock : public SpellScript
 {
     PrepareSpellScript(spell_pal_holy_shock);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1, DIFFICULTY_NONE);
-        if (!firstRankSpellInfo)
-            return false;
-
-        // can't use other spell than holy shock due to spell_ranks dependency
-        if (!spellInfo->IsRankOf(firstRankSpellInfo))
-            return false;
-
-        uint8 rank = spellInfo->GetRank();
-        if (!sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank, true) || !sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank, true))
-            return false;
-
-        return true;
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (Unit* unitTarget = GetHitUnit())
-        {
-            uint8 rank = GetSpellInfo()->GetRank();
-            if (caster->IsFriendlyTo(unitTarget))
-                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank), true);
-            else
-                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank), true);
-        }
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_HOLY_SHOCK,
+            SPELL_PALADIN_HOLY_SHOCK_HEALING,
+            SPELL_PALADIN_HOLY_SHOCK_DAMAGE
+        });
     }
 
     SpellCastResult CheckCast()
     {
         Unit* caster = GetCaster();
+
         if (Unit* target = GetExplTargetUnit())
         {
             if (!caster->IsFriendlyTo(target))
@@ -887,7 +873,23 @@ class spell_pal_holy_shock : public SpellScript
         }
         else
             return SPELL_FAILED_BAD_TARGETS;
+
         return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (Unit* unitTarget = GetHitUnit())
+        {
+            if (caster->IsFriendlyTo(unitTarget))
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_HEALING, true);
+            else
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_DAMAGE, true);
+
+            caster->SendPlaySpellVisual(unitTarget, PALADIN_VISUAL_SPELL_HOLY_SHOCK, 0, 0, 0, false);
+        }
     }
 
     void Register() override
