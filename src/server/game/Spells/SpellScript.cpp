@@ -686,6 +686,25 @@ void SpellScript::SetHitHeal(int32 heal)
     m_spell->m_healing = heal;
 }
 
+bool SpellScript::IsHitCrit() const
+{
+    if (!IsInTargetHook())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::IsHitCrit was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        return false;
+    }
+    if (Unit* hitUnit = GetHitUnit())
+    {
+        auto itr = std::find_if(m_spell->m_UniqueTargetInfo.begin(), m_spell->m_UniqueTargetInfo.end(), [hitUnit](Spell::TargetInfo const& targetInfo)
+        {
+            return targetInfo.TargetGUID == hitUnit->GetGUID();
+        });
+        ASSERT(itr != m_spell->m_UniqueTargetInfo.end());
+        return itr->IsCrit;
+    }
+    return false;
+}
+
 Aura* SpellScript::GetHitAura(bool dynObjAura /*= false*/) const
 {
     if (!IsInTargetHook())
