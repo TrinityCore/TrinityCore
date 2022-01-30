@@ -104,6 +104,8 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER      = 28825,
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
+    SPELL_SHAMAN_UNDULATION_PASSIVE             = 200071,
+    SPELL_SHAMAN_UNDULATION_PROC                = 216251,
     SPELL_SHAMAN_UNLIMITED_POWER_BUFF           = 272737,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
     SPELL_SHAMAN_WINDFURY_ENCHANTMENT           = 334302,
@@ -1636,6 +1638,62 @@ class spell_sha_unlimited_power : public AuraScript
     }
 };
 
+// 200071 - Undulation
+class spell_sha_undulation_passive : public AuraScript
+{
+private:
+    PrepareAuraScript(spell_sha_undulation_passive);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_SHAMAN_UNDULATION_PROC });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        _castCounter++;
+
+        if (_castCounter == 2)
+            GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_UNDULATION_PROC, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_undulation_passive::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+    uint8 _castCounter;
+
+public:
+    void ResetCounter()
+    {
+        _castCounter = 0;
+    }
+};
+
+// 216251 - Undulation (proc)
+class spell_sha_undulation_proc : public AuraScript
+{
+    PrepareAuraScript(spell_sha_undulation_proc);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_SHAMAN_UNDULATION_PASSIVE });
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Aura const* aura = GetTarget()->GetAura(SPELL_SHAMAN_UNDULATION_PASSIVE))
+            if (spell_sha_undulation_passive* script = aura->GetScript<spell_sha_undulation_passive>())
+                script->ResetCounter();
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_sha_undulation_proc::HandleRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 33757 - Windfury Weapon
 class spell_sha_windfury_weapon : public SpellScript
 {
@@ -1781,6 +1839,8 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_t10_elemental_4p_bonus);
     RegisterAuraScript(spell_sha_t10_restoration_4p_bonus);
     RegisterAuraScript(spell_sha_unlimited_power);
+    RegisterAuraScript(spell_sha_undulation_passive);
+    RegisterAuraScript(spell_sha_undulation_proc);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterAuraScript(spell_sha_windfury_weapon_proc);
     RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
