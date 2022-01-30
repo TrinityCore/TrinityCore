@@ -104,7 +104,10 @@ enum PaladinSpellVisualKit
 
 enum PaladinSpellVisual
 {
-    PALADIN_VISUAL_SPELL_HOLY_SHOCK              = 83732
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE       = 83731,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT  = 83881,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL         = 83732,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
 };
 
 /*
@@ -884,11 +887,9 @@ class spell_pal_holy_shock : public SpellScript
         if (Unit* unitTarget = GetHitUnit())
         {
             if (caster->IsFriendlyTo(unitTarget))
-                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_HEALING, true);
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_HEALING, GetSpell());
             else
-                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_DAMAGE, true);
-
-            caster->SendPlaySpellVisual(unitTarget, PALADIN_VISUAL_SPELL_HOLY_SHOCK, 0, 0, 0, false);
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_DAMAGE, GetSpell());
         }
     }
 
@@ -896,6 +897,50 @@ class spell_pal_holy_shock : public SpellScript
     {
         OnCheckCast += SpellCheckCastFn(spell_pal_holy_shock::CheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_pal_holy_shock::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 25912 - Holy Shock
+class spell_pal_holy_shock_damage_visual : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_shock_damage_visual);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE)
+            && sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT);
+    }
+
+    void PlayVisual()
+    {
+        GetCaster()->SendPlaySpellVisual(GetHitUnit(), IsHitCrit() ? PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT : PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE, 0, 0, 0.0f, false);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_holy_shock_damage_visual::PlayVisual);
+    }
+};
+
+// 25914 - Holy Shock
+class spell_pal_holy_shock_heal_visual : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_shock_heal_visual);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL)
+            && sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT);
+    }
+
+    void PlayVisual()
+    {
+        GetCaster()->SendPlaySpellVisual(GetHitUnit(), IsHitCrit() ? PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT : PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL, 0, 0, 0.0f, false);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_holy_shock_heal_visual::PlayVisual);
     }
 };
 
@@ -1336,6 +1381,8 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_holy_prism);
     RegisterSpellScript(spell_pal_holy_prism_selector);
     RegisterSpellScript(spell_pal_holy_shock);
+    RegisterSpellScript(spell_pal_holy_shock_damage_visual);
+    RegisterSpellScript(spell_pal_holy_shock_heal_visual);
     RegisterAuraScript(spell_pal_item_healing_discount);
     RegisterAuraScript(spell_pal_item_t6_trinket);
     RegisterSpellScript(spell_pal_lay_on_hands);
