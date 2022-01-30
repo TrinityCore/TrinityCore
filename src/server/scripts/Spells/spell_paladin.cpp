@@ -77,9 +77,9 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_PRISM_TARGET_ALLY         = 114871,
     SPELL_PALADIN_HOLY_PRISM_TARGET_ENEMY        = 114852,
     SPELL_PALADIN_HOLY_PRISM_TARGET_BEAM_VISUAL  = 114862,
-    SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
-    SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
-    SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
+    SPELL_PALADIN_HOLY_SHOCK                     = 20473,
+    SPELL_PALADIN_HOLY_SHOCK_DAMAGE              = 25912,
+    SPELL_PALADIN_HOLY_SHOCK_HEALING             = 25914,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
@@ -95,7 +95,15 @@ enum PaladinSpells
 
 enum PaladinSpellVisualKit
 {
-    PALADIN_VISUAL_KIT_DIVINE_STORM = 73892
+    PALADIN_VISUAL_KIT_DIVINE_STORM              = 73892
+};
+
+enum PaladinSpellVisual
+{
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE       = 83731,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT  = 83881,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL         = 83732,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
 };
 
 /*
@@ -308,12 +316,12 @@ class spell_pal_crusader_might : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_SHOCK_R1 });
+        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_SHOCK });
     }
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK_R1, Seconds(aurEff->GetAmount()));
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK, Seconds(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -788,39 +796,20 @@ class spell_pal_holy_shock : public SpellScript
 {
     PrepareSpellScript(spell_pal_holy_shock);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1, DIFFICULTY_NONE);
-        if (!firstRankSpellInfo)
-            return false;
-
-        // can't use other spell than holy shock due to spell_ranks dependency
-        if (!spellInfo->IsRankOf(firstRankSpellInfo))
-            return false;
-
-        uint8 rank = spellInfo->GetRank();
-        if (!sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank, true) || !sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank, true))
-            return false;
-
-        return true;
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (Unit* unitTarget = GetHitUnit())
-        {
-            uint8 rank = GetSpellInfo()->GetRank();
-            if (caster->IsFriendlyTo(unitTarget))
-                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank), true);
-            else
-                caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank), true);
-        }
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_HOLY_SHOCK,
+            SPELL_PALADIN_HOLY_SHOCK_HEALING,
+            SPELL_PALADIN_HOLY_SHOCK_DAMAGE
+        });
     }
 
     SpellCastResult CheckCast()
     {
         Unit* caster = GetCaster();
+
         if (Unit* target = GetExplTargetUnit())
         {
             if (!caster->IsFriendlyTo(target))
@@ -834,13 +823,71 @@ class spell_pal_holy_shock : public SpellScript
         }
         else
             return SPELL_FAILED_BAD_TARGETS;
+
         return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (Unit* unitTarget = GetHitUnit())
+        {
+            if (caster->IsFriendlyTo(unitTarget))
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_HEALING, GetSpell());
+            else
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_DAMAGE, GetSpell());
+        }
     }
 
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_pal_holy_shock::CheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_pal_holy_shock::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 25912 - Holy Shock
+class spell_pal_holy_shock_damage_visual : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_shock_damage_visual);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE)
+            && sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT);
+    }
+
+    void PlayVisual()
+    {
+        GetCaster()->SendPlaySpellVisual(GetHitUnit(), IsHitCrit() ? PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT : PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE, 0, 0, 0.0f, false);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_holy_shock_damage_visual::PlayVisual);
+    }
+};
+
+// 25914 - Holy Shock
+class spell_pal_holy_shock_heal_visual : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_shock_heal_visual);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL)
+            && sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT);
+    }
+
+    void PlayVisual()
+    {
+        GetCaster()->SendPlaySpellVisual(GetHitUnit(), IsHitCrit() ? PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT : PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL, 0, 0, 0.0f, false);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_holy_shock_heal_visual::PlayVisual);
     }
 };
 
@@ -1280,6 +1327,8 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_holy_prism);
     RegisterSpellScript(spell_pal_holy_prism_selector);
     RegisterSpellScript(spell_pal_holy_shock);
+    RegisterSpellScript(spell_pal_holy_shock_damage_visual);
+    RegisterSpellScript(spell_pal_holy_shock_heal_visual);
     RegisterAuraScript(spell_pal_item_healing_discount);
     RegisterAuraScript(spell_pal_item_t6_trinket);
     RegisterSpellScript(spell_pal_lay_on_hands);
