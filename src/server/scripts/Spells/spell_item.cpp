@@ -143,6 +143,64 @@ class spell_item_absorb_eye_of_grillok : public AuraScript
     }
 };
 
+enum LowerCityPrayerbook
+{
+    SPELL_BLESSING_OF_LOWER_CITY_DRUID      = 37878,
+    SPELL_BLESSING_OF_LOWER_CITY_PALADIN    = 37879,
+    SPELL_BLESSING_OF_LOWER_CITY_PRIEST     = 37880,
+    SPELL_BLESSING_OF_LOWER_CITY_SHAMAN     = 37881
+};
+
+// 37877 - Blessing of Faith
+class spell_item_blessing_of_faith : public SpellScript
+{
+    PrepareSpellScript(spell_item_blessing_of_faith);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_BLESSING_OF_LOWER_CITY_DRUID,
+            SPELL_BLESSING_OF_LOWER_CITY_PALADIN,
+            SPELL_BLESSING_OF_LOWER_CITY_PRIEST,
+            SPELL_BLESSING_OF_LOWER_CITY_SHAMAN
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* unitTarget = GetHitUnit())
+        {
+            uint32 spellId = 0;
+            switch (unitTarget->GetClass())
+            {
+                case CLASS_DRUID:
+                    spellId = SPELL_BLESSING_OF_LOWER_CITY_DRUID;
+                    break;
+                case CLASS_PALADIN:
+                    spellId = SPELL_BLESSING_OF_LOWER_CITY_PALADIN;
+                    break;
+                case CLASS_PRIEST:
+                    spellId = SPELL_BLESSING_OF_LOWER_CITY_PRIEST;
+                    break;
+                case CLASS_SHAMAN:
+                    spellId = SPELL_BLESSING_OF_LOWER_CITY_SHAMAN;
+                    break;
+                default:
+                    return; // ignore for non-healing classes
+            }
+
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, spellId, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_blessing_of_faith::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 enum AlchemistStone
 {
     SPELL_ALCHEMIST_STONE_EXTRA_HEAL       = 21399,
@@ -4482,6 +4540,7 @@ void AddSC_item_spell_scripts()
 
     RegisterAuraScript(spell_item_aegis_of_preservation);
     RegisterAuraScript(spell_item_absorb_eye_of_grillok);
+    RegisterSpellScript(spell_item_blessing_of_faith);
     RegisterAuraScript(spell_item_alchemist_stone);
     new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
     new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
