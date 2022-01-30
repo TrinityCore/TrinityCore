@@ -42,10 +42,6 @@ enum PaladinSpells
     SPELL_PALADIN_AVENGING_WRATH                 = 31884,
     SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
     SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID   = 37878,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
     SPELL_PALADIN_BLINDING_LIGHT_EFFECT          = 105421,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE     = 204054,
@@ -183,55 +179,6 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         }
 };
 */
-
-// 37877 - Blessing of Faith
-class spell_pal_blessing_of_faith : public SpellScript
-{
-    PrepareSpellScript(spell_pal_blessing_of_faith);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID,
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN,
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST,
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* unitTarget = GetHitUnit())
-        {
-            uint32 spell_id = 0;
-            switch (unitTarget->GetClass())
-            {
-                case CLASS_DRUID:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID;
-                    break;
-                case CLASS_PALADIN:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN;
-                    break;
-                case CLASS_PRIEST:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST;
-                    break;
-                case CLASS_SHAMAN:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN;
-                    break;
-                default:
-                    return; // ignore for non-healing classes
-            }
-            Unit* caster = GetCaster();
-            caster->CastSpell(caster, spell_id, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_pal_blessing_of_faith::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
 
 // 1022 - Blessing of Protection
 // 204018 - Blessing of Spellwarding
@@ -1314,7 +1261,6 @@ class spell_pal_zeal : public AuraScript
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
-    RegisterSpellScript(spell_pal_blessing_of_faith);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterAuraScript(spell_pal_crusader_might);
