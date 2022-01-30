@@ -172,7 +172,6 @@ class spell_item_blessing_of_faith : public SpellScript
         if (Unit* unitTarget = GetHitUnit())
         {
             uint32 spellId = 0;
-
             switch (unitTarget->GetClass())
             {
                 case CLASS_DRUID:
@@ -192,7 +191,6 @@ class spell_item_blessing_of_faith : public SpellScript
             }
 
             Unit* caster = GetCaster();
-
             caster->CastSpell(caster, spellId, true);
         }
     }
