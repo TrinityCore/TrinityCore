@@ -632,7 +632,7 @@ bool Guild::Member::LoadFromDB(Field* fields)
              fields[18].GetUInt16(),                        // characters.zone
              fields[19].GetUInt32(),                        // characters.account
              0);
-    m_logoutTime = fields[20].GetUInt32();                  // characters.logout_time
+    m_logoutTime = fields[20].GetUInt64();                  // characters.logout_time
     m_totalActivity = 0;
     m_weekActivity = 0;
     m_weekReputation = 0;
