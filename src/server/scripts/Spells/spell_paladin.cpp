@@ -594,28 +594,6 @@ class spell_pal_grand_crusader : public SpellScriptLoader
         }
 };
 
-// 54968 - Glyph of Holy Light
-class spell_pal_glyph_of_holy_light : public SpellScript
-{
-    PrepareSpellScript(spell_pal_glyph_of_holy_light);
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        uint32 const maxTargets = GetSpellInfo()->MaxAffectedTargets;
-
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_holy_light::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-    }
-};
-
 // 53595 - Hammer of the Righteous
 struct spell_pal_hammer_of_the_righteous : public SpellScript
 {
@@ -1325,7 +1303,6 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_divine_storm);
     RegisterAuraScript(spell_pal_eye_for_an_eye);
     RegisterAuraScript(spell_pal_fist_of_justice);
-    RegisterSpellScript(spell_pal_glyph_of_holy_light);
     new spell_pal_grand_crusader();
     new spell_pal_hand_of_sacrifice();
     RegisterSpellScript(spell_pal_hammer_of_the_righteous);
