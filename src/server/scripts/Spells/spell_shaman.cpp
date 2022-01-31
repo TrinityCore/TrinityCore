@@ -786,6 +786,9 @@ class spell_sha_icefury : public AuraScript
 
     void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
+        if (!GetCaster())
+            return;
+
         if (AuraEffect const* energizeAmount = GetCaster()->GetAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_6))
             GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_FROST_SHOCK_ENERGIZE, CastSpellExtraArgs(energizeAmount));
     }
