@@ -609,44 +609,6 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
-{
-    ObjectGuid npcGUID;
-
-    recvData >> npcGUID;
-
-    if (!CheckStableMaster(npcGUID))
-    {
-        SendPetStableResult(StableResult::InternalError);
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    PetStable& petStable = GetPlayer()->GetOrInitPetStable();
-    if (petStable.MaxStabledPets < MAX_PET_STABLES)
-    {
-        /*StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(petStable.MaxStabledPets + 1);
-        if (_player->HasEnoughMoney(SlotPrice->Cost))
-        {
-            ++petStable.MaxStabledPets;
-            _player->ModifyMoney(-int32(SlotPrice->Cost));
-            SendPetStableResult(StableResult::BuySlotSuccess);
-        }
-        else
-            SendPetStableResult(StableResult::NotEnoughMoney);*/
-    }
-    else
-        SendPetStableResult(StableResult::InternalError);
-}
-
-void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
-{
-    TC_LOG_DEBUG("network", "HandleStableRevivePet: Not implemented");
-}
-
 void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 {
     ObjectGuid npcGUID;
