@@ -45,13 +45,6 @@ enum PetSaveMode : int8
     PET_SAVE_NOT_IN_SLOT       =  100                       // for avoid conflict with stable size grow will use 100
 };
 
-enum HappinessState
-{
-    UNHAPPY = 1,
-    CONTENT = 2,
-    HAPPY   = 3
-};
-
 enum PetSpellState
 {
     PETSPELL_UNCHANGED = 0,
