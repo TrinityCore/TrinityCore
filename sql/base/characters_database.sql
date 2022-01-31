@@ -1826,6 +1826,7 @@ CREATE TABLE `characters` (
   `trans_o` float NOT NULL DEFAULT '0',
   `transguid` bigint unsigned NOT NULL DEFAULT '0',
   `extra_flags` smallint unsigned NOT NULL DEFAULT '0',
+  `summonedPetNumber` int unsigned NOT NULL DEFAULT '0',
   `at_login` smallint unsigned NOT NULL DEFAULT '0',
   `zone` smallint unsigned NOT NULL DEFAULT '0',
   `death_expire_time` bigint NOT NULL DEFAULT '0',

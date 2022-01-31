@@ -365,8 +365,7 @@ public:
 
         bool result = true;
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][withDeclinedNames ? 1 : 0]);
-        stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
-        stmt->setUInt32(1, accountId);
+        stmt->setUInt32(0, accountId);
         result &= SetPreparedQuery(CHARACTERS, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][2]);
@@ -1297,7 +1296,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
-    pCurrChar->LoadPet();
+    pCurrChar->ResummonPetTemporaryUnSummonedIfAny();
 
     // Set FFA PvP for non GM in non-rest mode
     if (sWorld->IsFFAPvPRealm() && !pCurrChar->IsGameMaster() && !pCurrChar->HasPlayerFlag(PLAYER_FLAGS_RESTING))
