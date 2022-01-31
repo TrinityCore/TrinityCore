@@ -621,17 +621,17 @@ void SmartAI::SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo)
 
 void SmartAI::OnSpellCast(SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_CAST, nullptr, spellInfo);
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_CAST, nullptr, 0, 0, false, spellInfo);
 }
 
 void SmartAI::OnSpellFailed(SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_FAILED, nullptr, spellInfo);
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_FAILED, nullptr, 0, 0, false, spellInfo);
 }
 
 void SmartAI::OnSpellStart(SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_START, nullptr, spellInfo);
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_START, nullptr, 0, 0, false, spellInfo);
 }
 
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
