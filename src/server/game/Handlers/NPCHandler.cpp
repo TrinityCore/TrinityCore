@@ -466,7 +466,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
         return;
     }
 
-    for (uint32 freeSlot = 0; freeSlot < petStable->MaxStabledPets; ++freeSlot)
+    for (uint32 freeSlot = 0; freeSlot < petStable->StabledPets.size(); ++freeSlot)
     {
         if (!petStable->StabledPets[freeSlot])
         {

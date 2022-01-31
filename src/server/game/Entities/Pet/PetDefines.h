@@ -130,7 +130,6 @@ public:
 
     Optional<PetInfo> CurrentPet;                                   // PET_SAVE_AS_CURRENT
     std::array<Optional<PetInfo>, MAX_PET_STABLES> StabledPets;     // PET_SAVE_FIRST_STABLE_SLOT - PET_SAVE_LAST_STABLE_SLOT
-    uint32 MaxStabledPets = 0;
     std::vector<PetInfo> UnslottedPets;                             // PET_SAVE_NOT_IN_SLOT
 
     PetInfo const* GetUnslottedHunterPet() const
