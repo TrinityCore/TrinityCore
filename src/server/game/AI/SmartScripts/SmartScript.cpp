@@ -2936,6 +2936,10 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         {
             if (!spell)
                 return;
+
+            if (spell->Id != e.event.spellCast.spell)
+                return;
+
             RecalcTimer(e, e.event.spellCast.cooldownMin, e.event.spellCast.cooldownMax);
             ProcessAction(e, nullptr, 0, 0, bvar, spell);
             break;
