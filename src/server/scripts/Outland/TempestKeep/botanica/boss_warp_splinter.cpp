@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "the_botanica.h"
 
@@ -82,9 +81,9 @@ struct boss_warp_splinter : public BossAI
         Talk(SAY_DEATH);
     }
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    void OnSpellCast(SpellInfo const* spell) override
     {
-        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && spell->Id == SPELL_SUMMON_SAPLINGS)
+        if (spell->Id == SPELL_SUMMON_SAPLINGS)
         {
             for (uint32 summonSpells : SummonSaplingsSpells)
                 DoCastSelf(summonSpells, true);
