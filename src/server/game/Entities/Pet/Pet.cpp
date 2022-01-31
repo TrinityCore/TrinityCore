@@ -511,12 +511,12 @@ void Pet::SavePetToDB(PetSaveMode mode)
         trans->Append(stmt);
 
         // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
-        if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
+        if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode == PET_SAVE_NOT_IN_SLOT))
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
             stmt->setUInt64(0, ownerLowGUID);
-            stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
-            stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
+            stmt->setInt16(1, mode);
+            stmt->setInt16(2, PET_SAVE_NOT_IN_SLOT);
             trans->Append(stmt);
         }
 

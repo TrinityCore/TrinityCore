@@ -21959,7 +21959,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         {
             // Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-            stmt->setUInt8(0, PET_SAVE_NOT_IN_SLOT);
+            stmt->setInt16(0, PET_SAVE_NOT_IN_SLOT);
             stmt->setUInt64(1, GetGUID().GetCounter());
             stmt->setUInt32(2, m_petStable->CurrentPet->PetNumber);
             CharacterDatabase.Execute(stmt);
@@ -28309,7 +28309,7 @@ void Player::_LoadPetStable(PreparedQueryResult result)
             petInfo.Level = fields[3].GetUInt16();
             petInfo.Experience = fields[4].GetUInt32();
             petInfo.ReactState = ReactStates(fields[5].GetUInt8());
-            PetSaveMode slot = PetSaveMode(fields[6].GetUInt8());
+            PetSaveMode slot = PetSaveMode(fields[6].GetInt16());
             petInfo.Name = fields[7].GetString();
             petInfo.WasRenamed = fields[8].GetBool();
             petInfo.Health = fields[9].GetUInt32();
