@@ -47,6 +47,7 @@ EndContentData */
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "SmartAI.h"
 
 /*#####
 # Quest: A Pawn on the Eternal Board
@@ -1220,6 +1221,25 @@ class go_wind_stone : public GameObjectScript
                     player->CastSpell(player, spell, true);
                     TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                     summons->CastSpell(summons, SPELL_SPAWN_IN, false);
+
+                    // Add player to SmartAI stored target list 1
+                    ObjectVector primaryTarget;
+                    primaryTarget.push_back(player);
+                    ENSURE_AI(SmartAI, summons->AI())->GetScript()->AddToStoredTargetList(primaryTarget, 1);
+
+                    // Add player's group (if applicable) within 50yds to SmartAI stored target list 2
+                    if (Group* group = player->GetGroup())
+                    {
+                        ObjectVector secondaryTargets;
+                        for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                            if (Player* member = groupRef->GetSource())
+                                if (member != player && member->IsInMap(summons) and member->GetDistance(summons) < 50.0f)
+                                    secondaryTargets.push_back(member);
+
+                        if (secondaryTargets.size() > 0)
+                            ENSURE_AI(SmartAI, summons->AI())->GetScript()->AddToStoredTargetList(secondaryTargets, 2);
+                    }
+
                     switch (summons->GetEntry())
                     {
                         case NPC_TEMPLAR_FIRE:
@@ -1243,9 +1263,13 @@ class go_wind_stone : public GameObjectScript
                             break;
                     }
                     // Next actions happen in smart_scripts
-                    // On Summon: Set Root, Set Immune to PC, Create Timed Event (5s)
-                    // On Timed Event (5s): Unset Root, Unset Immune, Aggro Closest Player
-                    // On Combat: Use NPC specific spells
+                    // On Summon: Set Root, Set Immune to PC, Create Timed Event 1 (5s), Create Timed Event 2 (30s)
+                    // On Timed Event 1 (5s): Unset Root, Unset Immune to PC, Add 100.0f Threat (Stored List 1), Add 50.0f Threat (Stored List 2)
+                    // On Reset: Set Counter 1 +1
+                    // On Counter 1 = 2: Despawn Self In 1000ms
+                    // On Timed Event 2 (30s): Despawn Self Instant
+                    // On Aggro: Remove Timed Event 2
+                    // In Combat: Use NPC specific spells
                 }
 
             public:
@@ -1335,17 +1359,16 @@ class go_wind_stone : public GameObjectScript
 
                 bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
                 {
-                    // fix possible exploit
-                    if (isSummoning)
-                    {
-                        ClearGossipMenuFor(player);
-                        player->PlayerTalkClass->SendCloseGossip();
-                        return true;
-                    }
-
                     uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                     ClearGossipMenuFor(player);
                     player->PlayerTalkClass->SendCloseGossip();
+
+                    // fix possible exploit
+                    if (isSummoning)
+                    {
+                        return true;
+                    }
+
                     uint8 rank = GetPlayerTwilightSetRank(player);
 
                     switch (action)
