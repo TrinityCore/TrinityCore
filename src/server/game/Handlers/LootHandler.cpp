@@ -231,8 +231,7 @@ void WorldSession::HandleLootOpcode(WorldPacket& recvData)
     if (GetPlayer()->IsNonMeleeSpellCast(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 
-    // remove auras with 0x800 flag (stealth, disguises, etc)
-    GetPlayer()->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+    GetPlayer()->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LOOTING);
 
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
 }
