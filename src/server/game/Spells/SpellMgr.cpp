@@ -3742,6 +3742,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
     });
 
+    // Arcane Missiles
+    ApplySpellFix({ 5143 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
+    });
+
     ApplySpellFix({
         70728, // Exploit Weakness (needs target selection script)
         70840  // Devious Minds (needs target selection script)
