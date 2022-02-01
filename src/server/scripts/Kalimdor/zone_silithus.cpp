@@ -48,6 +48,7 @@ EndContentData */
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "SmartAI.h"
+#include "Log.h"
 
 /*#####
 # Quest: A Pawn on the Eternal Board
@@ -349,8 +350,8 @@ public:
             eventEnd = false;
         }
 
-        uint32 AnimationTimer;
-        uint8 AnimationCount;
+        uint32 AnimationTimer = 1500;
+        uint8 AnimationCount = 0;
 
         ObjectGuid AnachronosQuestTriggerGUID;
         ObjectGuid MerithraGUID;
@@ -358,7 +359,7 @@ public:
         ObjectGuid CaelestraszGUID;
         ObjectGuid FandralGUID;
         ObjectGuid PlayerGUID;
-        bool eventEnd;
+        bool eventEnd = false;
 
         void Reset() override
         {
@@ -692,9 +693,9 @@ public:
 
         ObjectGuid MobGUID;
         ObjectGuid PlayerGUID;
-        uint32 SpellTimer1, SpellTimer2, SpellTimer3, SpellTimer4;
-        bool Timers;
-        bool hasTarget;
+        uint32 SpellTimer1 = 0, SpellTimer2 = 0, SpellTimer3 = 0, SpellTimer4 = 0;
+        bool Timers = false;
+        bool hasTarget = false;
 
         void Reset() override
         {
@@ -819,15 +820,15 @@ public:
 
         ObjectGuid PlayerGUID;
 
-        uint32 WaveTimer;
-        uint32 AnnounceTimer;
+        uint32 WaveTimer = 2000;
+        uint32 AnnounceTimer = 1000;
 
-        int8 LiveCount;
-        uint8 WaveCount;
+        int8 LiveCount = 0;
+        uint8 WaveCount = 0;
 
-        bool EventStarted;
-        bool Announced;
-        bool Failed;
+        bool EventStarted = false;
+        bool Announced = false;
+        bool Failed = false;
 
         void Reset() override
         {
@@ -1149,7 +1150,7 @@ class go_wind_stone : public GameObjectScript
             go_wind_stoneAI(GameObject* go) : GameObjectAI(go) { }
 
             private:
-                bool isSummoning;
+                bool isSummoning = false;
 
                 uint8 GetPlayerTwilightSetRank(Player* player) // For random summoning
                 {
@@ -1218,58 +1219,73 @@ class go_wind_stone : public GameObjectScript
                 void SummonNPC(GameObject* go, Player* player, uint32 npc, uint32 spell)
                 {
                     isSummoning = true;
-                    player->CastSpell(player, spell, true);
+                    
                     TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
-                    summons->CastSpell(summons, SPELL_SPAWN_IN, false);
 
-                    // Add player to SmartAI stored target list 1
-                    ObjectVector primaryTarget;
-                    primaryTarget.push_back(player);
-                    ENSURE_AI(SmartAI, summons->AI())->GetScript()->AddToStoredTargetList(primaryTarget, 1);
-
-                    // Add player's group (if applicable) within 50yds to SmartAI stored target list 2
-                    if (Group* group = player->GetGroup())
-                    {
-                        ObjectVector secondaryTargets;
-                        for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                            if (Player* member = groupRef->GetSource())
-                                if (member != player && member->IsInMap(summons) && member->GetDistance(summons) < 50.0f)
-                                    secondaryTargets.push_back(member);
-
-                        if (secondaryTargets.size() > 0)
-                            ENSURE_AI(SmartAI, summons->AI())->GetScript()->AddToStoredTargetList(secondaryTargets, 2);
+                    if (!summons) {
+                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: Failed to summon NPC entry %u on GameObject `%s` (%s)", npc, go->GetName(), go->GetGUID().ToString());
+                        return;
                     }
-
-                    switch (summons->GetEntry())
+                    
+                    // summoned NPC should have SmartAI
+                    if (SmartAI* sai = CAST_AI(SmartAI, summons->AI()))
                     {
+                        player->CastSpell(player, spell, true);
+                        summons->CastSpell(summons, SPELL_SPAWN_IN, false);
+
+                        // Add player to SmartAI stored target list 1
+                        ObjectVector primaryTarget;
+                        primaryTarget.push_back(player);
+                        sai->GetScript()->AddToStoredTargetList(primaryTarget, 1);
+
+                        // Add player's group (if applicable) within 50yds to SmartAI stored target list 2
+                        if (Group* group = player->GetGroup())
+                        {
+                            ObjectVector secondaryTargets;
+                            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                                if (Player* member = groupRef->GetSource())
+                                    if (member != player && member->IsInMap(summons) && member->GetDistance(summons) < 50.0f)
+                                        secondaryTargets.push_back(member);
+
+                            if (secondaryTargets.size() > 0)
+                                sai->GetScript()->AddToStoredTargetList(secondaryTargets, 2);
+                        }
+
+                        switch (summons->GetEntry())
+                        {
                         case NPC_TEMPLAR_FIRE:
                         case NPC_TEMPLAR_WATER:
                         case NPC_TEMPLAR_AIR:
                         case NPC_TEMPLAR_EARTH:
-                            summons->AI()->Talk(SAY_TEMPLAR_AGGRO, player);
+                            sai->Talk(SAY_TEMPLAR_AGGRO, player);
                             break;
 
                         case NPC_DUKE_FIRE:
                         case NPC_DUKE_WATER:
                         case NPC_DUKE_EARTH:
                         case NPC_DUKE_AIR:
-                            summons->AI()->Talk(SAY_DUKE_AGGRO, player);
+                            sai->Talk(SAY_DUKE_AGGRO, player);
                             break;
                         case NPC_ROYAL_FIRE:
                         case NPC_ROYAL_AIR:
                         case NPC_ROYAL_EARTH:
                         case NPC_ROYAL_WATER:
-                            summons->AI()->Talk(YELL_ROYAL_AGGRO, player);
+                            sai->Talk(YELL_ROYAL_AGGRO, player);
                             break;
+                        }
+                        // Next actions happen in smart_scripts
+                        // On Summon: Set Root, Set Immune to PC, Create Timed Event 1 (5s), Create Timed Event 2 (30s)
+                        // On Timed Event 1 (5s): Unset Root, Unset Immune to PC, Add 100.0f Threat (Stored List 1), Add 50.0f Threat (Stored List 2)
+                        // On Reset: Set Counter 1 +1
+                        // On Counter 1 = 2: Despawn Self In 1000ms
+                        // On Timed Event 2 (30s): Despawn Self Instant
+                        // On Aggro: Remove Timed Event 2
+                        // In Combat: Use NPC specific spells
                     }
-                    // Next actions happen in smart_scripts
-                    // On Summon: Set Root, Set Immune to PC, Create Timed Event 1 (5s), Create Timed Event 2 (30s)
-                    // On Timed Event 1 (5s): Unset Root, Unset Immune to PC, Add 100.0f Threat (Stored List 1), Add 50.0f Threat (Stored List 2)
-                    // On Reset: Set Counter 1 +1
-                    // On Counter 1 = 2: Despawn Self In 1000ms
-                    // On Timed Event 2 (30s): Despawn Self Instant
-                    // On Aggro: Remove Timed Event 2
-                    // In Combat: Use NPC specific spells
+                    else {
+                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: NPC `%s` (%s) has wrong AI `%s`, should be `SmartAI`.", summons->GetName(), summons->GetGUID().ToString(), summons->GetAIName());
+                        summons->DespawnOrUnsummon();
+                    }
                 }
 
             public:
