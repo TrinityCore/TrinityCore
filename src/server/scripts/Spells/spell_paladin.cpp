@@ -114,39 +114,42 @@ enum PaladinSpellVisual
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
 };
 
-// 316958 - Ashen Hallow
-class spell_pal_ashen_hallow : public AuraScript
-{
-    PrepareAuraScript(spell_pal_ashen_hallow);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_PALADIN_ASHEN_HALLOW_DAMAGE,
-            SPELL_PALADIN_ASHEN_HALLOW_HEAL
-        });
-    }
-
-    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-    {
-        if (AreaTrigger* at = GetTarget()->GetAreaTrigger(SPELL_PALADIN_ASHEN_HALLOW))
-        {
-            GetTarget()->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_HEAL);
-            GetTarget()->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_DAMAGE);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_ashen_hallow::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 // 19042 - Ashen Hallow
 struct areatrigger_pal_ashen_hallow : AreaTriggerAI
 {
     areatrigger_pal_ashen_hallow(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void RefreshPeriod()
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (AuraEffect const* ashen = caster->GetAuraEffect(SPELL_PALADIN_ASHEN_HALLOW, EFFECT_1))
+                _period = Milliseconds(ashen->GetPeriod());
+        }
+    }
+
+    void OnCreate() override
+    {
+        RefreshPeriod();
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _refreshTimer -= Milliseconds(diff);
+
+        while (_refreshTimer <= 0s)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_HEAL);
+                caster->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_DAMAGE);
+            }
+
+            RefreshPeriod();
+
+            _refreshTimer += _period;
+        }
+    }
 
     void OnUnitEnter(Unit* unit) override
     {
@@ -159,6 +162,10 @@ struct areatrigger_pal_ashen_hallow : AreaTriggerAI
         if (unit == at->GetCaster())
             unit->RemoveAura(SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER);
     }
+
+private:
+    Milliseconds _refreshTimer;
+    Milliseconds _period;
 };
 
 /*
@@ -1363,8 +1370,7 @@ class spell_pal_zeal : public AuraScript
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
-	RegisterAuraScript(spell_pal_ashen_hallow);
-	RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow)
+	RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_crusader_might);
@@ -1397,6 +1403,4 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_t3_6p_bonus();
     new spell_pal_t8_2p_bonus();
     RegisterSpellScript(spell_pal_zeal);
-    RegisterAuraScript(spell_pal_zeal);;
-	
 }

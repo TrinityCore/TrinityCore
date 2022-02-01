@@ -5,8 +5,3 @@ INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=19042;
 INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ScriptName`, `VerifiedBuild`) VALUES 
 (19042, 23072, 0, 0, 0, 0, -1, 0, 0, 0, 30000, 4, 20, 20, 16, 16, 8, 8, 'areatrigger_pal_ashen_hallow', 41488);
-
- -- Ashen Hallow
-DELETE FROM `spell_script_names` WHERE `spell_id`=316958 AND `ScriptName`='spell_pal_ashen_hallow';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(316958, 'spell_pal_ashen_hallow');
