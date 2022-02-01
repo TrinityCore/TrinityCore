@@ -1233,7 +1233,7 @@ class go_wind_stone : public GameObjectScript
                         ObjectVector secondaryTargets;
                         for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                             if (Player* member = groupRef->GetSource())
-                                if (member != player && member->IsInMap(summons) and member->GetDistance(summons) < 50.0f)
+                                if (member != player && member->IsInMap(summons) && member->GetDistance(summons) < 50.0f)
                                     secondaryTargets.push_back(member);
 
                         if (secondaryTargets.size() > 0)
