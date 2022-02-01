@@ -1223,7 +1223,7 @@ class go_wind_stone : public GameObjectScript
                     TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
 
                     if (!summons) {
-                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: Failed to summon NPC entry %u on GameObject `%s` (%s)", npc, go->GetName(), go->GetGUID().ToString());
+                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: Failed to summon NPC entry %u on GameObject `%s` (%s)", npc, go->GetName().c_str(), go->GetGUID().ToString().c_str());
                         return;
                     }
 
@@ -1283,7 +1283,7 @@ class go_wind_stone : public GameObjectScript
                         // In Combat: Use NPC specific spells
                     }
                     else {
-                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: NPC `%s` (%s) has wrong AI `%s`, should be `SmartAI`.", summons->GetName(), summons->GetGUID().ToString(), summons->GetAIName());
+                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: NPC `%s` (%s) has wrong AI `%s`, should be `SmartAI`.", summons->GetName().c_str(), summons->GetGUID().ToString().c_str(), summons->GetAIName().c_str());
                         summons->DespawnOrUnsummon();
                     }
                 }
