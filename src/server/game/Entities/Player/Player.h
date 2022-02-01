@@ -1211,7 +1211,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PetStable const* GetPetStable() const { return m_petStable.get(); }
 
         Pet* GetPet() const;
-        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
+        Pet* SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float y, float z, float ang, uint32 despwtime, bool* isNew = nullptr);
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
         void SendTameFailure(PetTameResult result);
 
@@ -2835,7 +2835,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadTalents(PreparedQueryResult result);
         void _LoadPvpTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
-        void _LoadPetStable(PreparedQueryResult result);
+        void _LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
 

@@ -18413,8 +18413,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     uint32 extraflags = fields.extra_flags;
 
-    _LoadPetStable(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS));
-    m_temporaryUnsummonedPetNumber = fields.summonedPetNumber;
+    _LoadPetStable(fields.summonedPetNumber, holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS));
 
     if (HasAtLoginFlag(AT_LOGIN_RENAME))
     {
@@ -20611,7 +20610,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, GetPrimarySpecialization());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         if (PetStable const* petStable = GetPetStable())
-            stmt->setUInt32(index++, petStable->CurrentPet && petStable->CurrentPet->Health > 0 ? petStable->CurrentPet->PetNumber : 0); // summonedPetNumber
+            stmt->setUInt32(index++, petStable->GetCurrentPet() && petStable->GetCurrentPet()->Health > 0 ? petStable->GetCurrentPet()->PetNumber : 0); // summonedPetNumber
         else
             stmt->setUInt32(index++, 0); // summonedPetNumber
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
@@ -21955,49 +21954,22 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (!pet)
     {
-        if (mode == PET_SAVE_NOT_IN_SLOT && m_petStable && m_petStable->CurrentPet)
-        {
-            // Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-            stmt->setInt16(0, PET_SAVE_NOT_IN_SLOT);
-            stmt->setUInt64(1, GetGUID().GetCounter());
-            stmt->setUInt32(2, m_petStable->CurrentPet->PetNumber);
-            CharacterDatabase.Execute(stmt);
-
-            m_petStable->UnslottedPets.push_back(std::move(*m_petStable->CurrentPet));
-            m_petStable->CurrentPet.reset();
-        }
+        // Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
+        if (mode == PET_SAVE_NOT_IN_SLOT && m_petStable && m_petStable->CurrentPetIndex)
+            m_petStable->CurrentPetIndex.reset();
 
         return;
     }
 
     pet->CombatStop();
 
-    if (returnreagent)
-    {
-        switch (pet->GetEntry())
-        {
-            //warlock pets except imp are removed(?) when logging out
-            case 1860:
-            case 1863:
-            case 417:
-            case 17252:
-                mode = PET_SAVE_NOT_IN_SLOT;
-                break;
-        }
-    }
-
     // only if current pet in slot
     pet->SavePetToDB(mode);
 
-    ASSERT(m_petStable->CurrentPet && m_petStable->CurrentPet->PetNumber == pet->GetCharmInfo()->GetPetNumber());
-    if (mode == PET_SAVE_NOT_IN_SLOT)
-    {
-        m_petStable->UnslottedPets.push_back(std::move(*m_petStable->CurrentPet));
-        m_petStable->CurrentPet.reset();
-    }
-    else if (mode == PET_SAVE_AS_DELETED)
-        m_petStable->CurrentPet.reset();
+    PetStable::PetInfo const* currentPet = m_petStable->GetCurrentPet();
+    ASSERT(currentPet && currentPet->PetNumber == pet->GetCharmInfo()->GetPetNumber());
+    if (mode == PET_SAVE_NOT_IN_SLOT || mode == PET_SAVE_AS_DELETED)
+        m_petStable->CurrentPetIndex.reset();
     // else if (stable slots) handled in opcode handlers due to required swaps
     // else (current pet) doesnt need to do anything
 
@@ -28288,7 +28260,7 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void Player::_LoadPetStable(PreparedQueryResult result)
+void Player::_LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result)
 {
     if (!result)
         return;
@@ -28319,15 +28291,18 @@ void Player::_LoadPetStable(PreparedQueryResult result)
             petInfo.CreatedBySpellId = fields[13].GetUInt32();
             petInfo.Type = PetType(fields[14].GetUInt8());
             petInfo.SpecializationId = fields[15].GetUInt16();
-            if (slot == PET_SAVE_AS_CURRENT)
-                m_petStable->CurrentPet = std::move(petInfo);
-            else if (slot >= PET_SAVE_FIRST_STABLE_SLOT && slot <= PET_SAVE_LAST_STABLE_SLOT)
-                m_petStable->StabledPets[slot - 1] = std::move(petInfo);
+            if (slot >= PET_SAVE_FIRST_ACTIVE_SLOT && slot < PET_SAVE_LAST_ACTIVE_SLOT)
+                m_petStable->ActivePets[slot] = std::move(petInfo);
+            else if (slot >= PET_SAVE_FIRST_STABLE_SLOT && slot < PET_SAVE_LAST_STABLE_SLOT)
+                m_petStable->StabledPets[slot - PET_SAVE_FIRST_STABLE_SLOT] = std::move(petInfo);
             else if (slot == PET_SAVE_NOT_IN_SLOT)
                 m_petStable->UnslottedPets.push_back(std::move(petInfo));
 
         } while (result->NextRow());
     }
+
+    if (Pet::GetLoadPetInfo(*m_petStable, 0, summonedPetNumber, {}).first)
+        m_temporaryUnsummonedPetNumber = summonedPetNumber;
 }
 
 void Player::_SaveInstanceTimeRestrictions(CharacterDatabaseTransaction& trans)
@@ -28665,18 +28640,21 @@ Guild const* Player::GetGuild() const
     return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
 }
 
-Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
+Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float y, float z, float ang, uint32 duration, bool* isNew /*= nullptr*/)
 {
     PetStable& petStable = GetOrInitPetStable();
 
-    Pet* pet = new Pet(this, petType);
+    Pet* pet = new Pet(this, SUMMON_PET);
 
-    if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry, 0, false))
+    if (pet->LoadPetFromDB(this, entry, 0, false, slot))
     {
         if (duration > 0)
             pet->SetDuration(duration);
 
-        return nullptr;
+        if (isNew)
+            *isNew = false;
+
+        return pet;
     }
 
     // petentry == 0 for hunter "call pet" (current pet summoned if any)
@@ -28685,6 +28663,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         delete pet;
         return nullptr;
     }
+
+    // only SUMMON_PET are handled here
 
     pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
@@ -28703,7 +28683,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return nullptr;
     }
 
-    if (petType == SUMMON_PET && petStable.CurrentPet)
+    if (petStable.GetCurrentPet())
         RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT);
 
     PhasingHandler::InheritPhaseShift(pet, this);
@@ -28717,42 +28697,32 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     SetMinion(pet, true);
 
-    switch (petType)
-    {
-        case SUMMON_PET:
-            // this enables pet details window (Shift+P)
-            pet->GetCharmInfo()->SetPetNumber(pet_number, true);
-            pet->SetClass(CLASS_MAGE);
-            pet->SetPetExperience(0);
-            pet->SetPetNextLevelExperience(1000);
-            pet->SetFullHealth();
-            pet->SetFullPower(POWER_MANA);
-            pet->SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
-            break;
-        default:
-            break;
-    }
+    // this enables pet details window (Shift+P)
+    pet->GetCharmInfo()->SetPetNumber(pet_number, true);
+    pet->SetClass(CLASS_MAGE);
+    pet->SetPetExperience(0);
+    pet->SetPetNextLevelExperience(1000);
+    pet->SetFullHealth();
+    pet->SetFullPower(POWER_MANA);
+    pet->SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
 
     map->AddToMap(pet->ToCreature());
 
-    ASSERT(!petStable.CurrentPet && (petType != HUNTER_PET || !petStable.GetUnslottedHunterPet()));
-    pet->FillPetInfo(&petStable.CurrentPet.emplace());
+    ASSERT(!petStable.CurrentPetIndex);
+    petStable.SetCurrentUnslottedPetIndex(petStable.UnslottedPets.size());
+    pet->FillPetInfo(&petStable.UnslottedPets.emplace_back());
 
-    switch (petType)
-    {
-        case SUMMON_PET:
-            pet->InitPetCreateSpells();
-            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-            PetSpellInitialize();
-            break;
-        default:
-            break;
-    }
+    pet->InitPetCreateSpells();
+    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    PetSpellInitialize();
 
     if (duration > 0)
         pet->SetDuration(duration);
 
     //ObjectAccessor::UpdateObjectVisibility(pet);
+
+    if (isNew)
+        *isNew = true;
 
     return pet;
 }

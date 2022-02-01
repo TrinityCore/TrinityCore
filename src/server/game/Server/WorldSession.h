@@ -547,6 +547,7 @@ namespace WorldPackets
         class SpiritHealerActivate;
         class TrainerBuySpell;
         class RequestStabledPets;
+        class SetPetSlot;
     }
 
     namespace Party
@@ -1403,9 +1404,7 @@ class TC_GAME_API WorldSession
         void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);
         void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPets& packet);
-        void HandleStablePet(WorldPacket& recvPacket);
-        void HandleUnstablePet(WorldPacket& recvPacket);
-        void HandleStableSwapPet(WorldPacket& recvPacket);
+        void HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot);
 
         void HandleCanDuel(WorldPackets::Duel::CanDuel& packet);
         void HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse);

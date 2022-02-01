@@ -5928,13 +5928,23 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             }
             case SPELL_EFFECT_RESURRECT_PET:
             {
-                Unit* unitCaster = m_caster->ToUnit();
-                if (!unitCaster)
+                Player* playerCaster = m_caster->ToPlayer();
+                if (!playerCaster || !playerCaster->GetPetStable())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                Creature* pet = unitCaster->GetGuardianPet();
+                Pet* pet = playerCaster->GetPet();
                 if (pet && pet->IsAlive())
                     return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                PetStable const* petStable = playerCaster->GetPetStable();
+                auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+                {
+                    return petInfo && !petInfo->Health;
+                });
+
+                if (deadPetItr == petStable->ActivePets.end())
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 break;
             }
             // This is generic summon effect
@@ -5998,17 +6008,27 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 Player* playerCaster = unitCaster->ToPlayer();
                 if (playerCaster && playerCaster->GetPetStable())
                 {
-                    std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*playerCaster->GetPetStable(), spellEffectInfo.MiscValue, 0, false);
-                    if (info.first)
+                    Optional<PetSaveMode> petSlot;
+                    if (!spellEffectInfo.MiscValue)
                     {
-                        if (info.first->Type == HUNTER_PET)
+                        petSlot = PetSaveMode(spellEffectInfo.CalcValue());
+
+                        // No pet can be summoned if any pet is dead
+                        for (Optional<PetStable::PetInfo> const& activePet : playerCaster->GetPetStable()->ActivePets)
                         {
-                            if (!info.first->Health)
+                            if (activePet && !activePet->Health)
                             {
                                 playerCaster->SendTameFailure(PetTameResult::Dead);
                                 return SPELL_FAILED_DONT_REPORT;
                             }
+                        }
+                    }
 
+                    std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*playerCaster->GetPetStable(), spellEffectInfo.MiscValue, 0, petSlot);
+                    if (info.first)
+                    {
+                        if (info.first->Type == HUNTER_PET)
+                        {
                             CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
                             if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
                             {
@@ -6028,6 +6048,21 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
+
+                break;
+            }
+            case SPELL_EFFECT_DISMISS_PET:
+            {
+                Player* playerCaster = m_caster->ToPlayer();
+                if (!playerCaster)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                Pet* pet = playerCaster->GetPet();
+                if (!pet)
+                    return SPELL_FAILED_NO_PET;
+
+                if (!pet->IsAlive())
+                    return SPELL_FAILED_TARGETS_DEAD;
 
                 break;
             }
