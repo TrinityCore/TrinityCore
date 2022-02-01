@@ -1219,14 +1219,14 @@ class go_wind_stone : public GameObjectScript
                 void SummonNPC(GameObject* go, Player* player, uint32 npc, uint32 spell)
                 {
                     isSummoning = true;
-                    
+
                     TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
 
                     if (!summons) {
                         TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: Failed to summon NPC entry %u on GameObject `%s` (%s)", npc, go->GetName(), go->GetGUID().ToString());
                         return;
                     }
-                    
+
                     // summoned NPC should have SmartAI
                     if (SmartAI* sai = CAST_AI(SmartAI, summons->AI()))
                     {
