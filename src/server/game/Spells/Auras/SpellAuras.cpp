@@ -1393,7 +1393,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             break;
 
                         target->CastSpell(target, 32612, GetEffect(EFFECT_1));
-                        target->CombatStop();
                         break;
                     }
                     default:
