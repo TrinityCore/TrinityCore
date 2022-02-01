@@ -1452,7 +1452,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (removeMode != AURA_REMOVE_BY_EXPIRE)
                             break;
                         target->CastSpell(target, 32612, GetEffect(1));
-                        target->CombatStop();
                         break;
                     default:
                         break;
