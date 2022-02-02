@@ -109,7 +109,7 @@ namespace WorldPackets
         class LootResponse final : public ServerPacket
         {
         public:
-            LootResponse() : ServerPacket(SMSG_LOOT_RESPONSE, 3) { }
+            LootResponse() : ServerPacket(SMSG_LOOT_RESPONSE, 100) { }
 
             WorldPacket const* Write() override;
 
