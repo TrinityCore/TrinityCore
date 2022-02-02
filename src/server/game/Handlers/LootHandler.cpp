@@ -231,6 +231,8 @@ void WorldSession::HandleLootOpcode(WorldPacket& recvData)
     if (GetPlayer()->IsNonMeleeSpellCast(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 
+    GetPlayer()->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LOOTING);
+
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
 }
 

@@ -1066,9 +1066,7 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScript
 enum Quest12372Data
 {
     // NPCs
-    NPC_WYRMREST_TEMPLE_CREDIT       = 27698,
-    // Spells
-    WHISPER_ON_HIT_BY_FORCE_WHISPER       = 1
+    NPC_WYRMREST_TEMPLE_CREDIT       = 27698
 };
 
 // 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
@@ -1089,29 +1087,6 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum q12372Creatures
-{
-    NPC_WYRMREST_DEFENDER = 27629
-};
-
-// 50287 - Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
-class spell_q12372_azure_on_death_force_whisper : public SpellScript
-{
-    PrepareSpellScript(spell_q12372_azure_on_death_force_whisper);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Creature* defender = GetHitCreature();
-        if (defender && defender->GetEntry() == NPC_WYRMREST_DEFENDER)
-            defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwner());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12372_azure_on_death_force_whisper::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -2381,7 +2356,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11010_q11102_q11023_choose_loc);
     RegisterSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount);
     RegisterSpellScript(spell_q11140salvage_wreckage);
-    RegisterSpellScript(spell_q12372_azure_on_death_force_whisper);
     RegisterSpellScript(spell_q12527_zuldrak_rat);
     RegisterSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan);
     RegisterSpellScript(spell_q12730_quenching_mist);

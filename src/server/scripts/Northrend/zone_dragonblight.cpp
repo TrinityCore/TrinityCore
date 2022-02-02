@@ -15,17 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Dragonblight
-SD%Complete: 100
-SDComment:
-SDCategory: Dragonblight
-EndScriptData */
-
-/* ContentData
-npc_alexstrasza_wr_gate
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "CreatureAIImpl.h"
@@ -37,6 +26,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 
 /*#####
@@ -733,6 +723,60 @@ class spell_warsong_battle_standard : public SpellScript
     }
 };
 
+/*######
+## Quest 12470 & 13343: Mystery of the Infinite & Mystery of the Infinite, Redux
+######*/
+
+enum MysteryOfTheInfinite
+{
+    SPELL_MIRROR_IMAGE_AURA         = 49889
+};
+
+// 49686 - Mystery of the Infinite: Script Effect Player Cast Mirror Image
+class spell_moti_mirror_image_script_effect : public SpellScript
+{
+    PrepareSpellScript(spell_moti_mirror_image_script_effect);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_AURA });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_moti_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 50020 - Mystery of the Infinite: Hourglass cast See Invis on Master
+class spell_moti_hourglass_cast_see_invis_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (TempSummon* casterSummon = caster->ToTempSummon())
+                if (Unit* summoner = casterSummon->GetSummonerUnit())
+                    summoner->CastSpell(summoner, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_moti_hourglass_cast_see_invis_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_commander_eligor_dawnbringer();
@@ -741,4 +785,6 @@ void AddSC_dragonblight()
     new npc_wyrmrest_defender();
     new npc_torturer_lecraft();
     RegisterSpellScript(spell_warsong_battle_standard);
+    RegisterSpellScript(spell_moti_mirror_image_script_effect);
+    RegisterSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
 }
