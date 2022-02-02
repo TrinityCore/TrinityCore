@@ -45,6 +45,8 @@ enum MageSpells
     SPELL_MAGE_BLINK                             = 1953,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_CAUTERIZED                        = 87024,
+    SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
+    SPELL_MAGE_COMET_STORM_VISUAL                = 228601,
     SPELL_MAGE_CONE_OF_COLD                      = 120,
     SPELL_MAGE_CONE_OF_COLD_SLOW                 = 212792,
     SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
@@ -427,6 +429,71 @@ class spell_mage_cold_snap : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_mage_cold_snap::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 153595 - Comet Storm (launch)
+class spell_mage_comet_storm : public SpellScript
+{
+    PrepareSpellScript(spell_mage_comet_storm);
+
+    class CometStormEvent : public BasicEvent
+    {
+        public:
+            CometStormEvent(Unit* caster, Position const& dest) : _caster(caster), _dest(dest), _count(0) { }
+
+            bool Execute(uint64 time, uint32 /*diff*/) override
+            {
+                _caster->CastSpell(Position { _dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ() }, SPELL_MAGE_COMET_STORM_VISUAL, true);
+                ++_count;
+
+                if (_count >= 7)
+                    return true;
+
+                _caster->m_Events.AddEvent(this, Milliseconds(time) + 200ms);
+                return false;
+            }
+
+        private:
+            Unit* _caster;
+            Position _dest;
+            uint8 _count;
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_MAGE_COMET_STORM_VISUAL });
+    }
+
+    void EffectHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->m_Events.AddEvent(new CometStormEvent(GetCaster(), *GetHitDest()), GetCaster()->m_Events.CalculateTime(500ms));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_mage_comet_storm::EffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 228601 - Comet Storm (damage)
+class spell_mage_comet_storm_damage : public SpellScript
+{
+    PrepareSpellScript(spell_mage_comet_storm_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_MAGE_COMET_STORM_DAMAGE });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(Position { GetHitDest()->GetPositionX(), GetHitDest()->GetPositionY(), GetHitDest()->GetPositionZ() }, SPELL_MAGE_COMET_STORM_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_mage_comet_storm_damage::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1226,6 +1293,8 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_burning_determination);
     RegisterSpellAndAuraScriptPair(spell_mage_cauterize, spell_mage_cauterize_AuraScript);
     RegisterSpellScript(spell_mage_cold_snap);
+    RegisterSpellScript(spell_mage_comet_storm);
+    RegisterSpellScript(spell_mage_comet_storm_damage);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
     RegisterAuraScript(spell_mage_fingers_of_frost);
