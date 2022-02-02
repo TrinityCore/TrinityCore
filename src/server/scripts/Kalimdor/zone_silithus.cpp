@@ -1493,6 +1493,7 @@ class go_wind_stone : public GameObjectScript
                     me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
                     isSummoning = false;
                 }
+
                 void JustSummoned(Creature* /*summon*/) override
                 {
                     me->DespawnOrUnsummon(1100ms);
