@@ -447,7 +447,7 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
 
     Optional<PetStable::PetInfo>* src = nullptr;
     Optional<PetStable::PetInfo>* dst = nullptr;
-    Optional<int16> newActivePetIndex;
+    Optional<uint32> newActivePetIndex;
 
     if (IsActivePetSlot(srcPetSlot) && IsActivePetSlot(dstPetSlot))
     {
@@ -455,9 +455,9 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
         src = &petStable->ActivePets[srcPetSlot - PET_SAVE_FIRST_ACTIVE_SLOT];
         dst = &petStable->ActivePets[dstPetSlot - PET_SAVE_FIRST_ACTIVE_SLOT];
 
-        if (petStable->GetCurrentActivePetIndex() == srcPetSlot)
+        if (petStable->GetCurrentActivePetIndex() == uint32_t(srcPetSlot))
             newActivePetIndex = dstPetSlot;
-        else if (petStable->GetCurrentActivePetIndex() == dstPetSlot)
+        else if (petStable->GetCurrentActivePetIndex() == uint32(dstPetSlot))
             newActivePetIndex = srcPetSlot;
     }
     else if (IsStabledPetSlot(srcPetSlot) && IsStabledPetSlot(dstPetSlot))
@@ -469,7 +469,7 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
     else if (IsActivePetSlot(srcPetSlot) && IsStabledPetSlot(dstPetSlot))
     {
         // active<->stabled: swap petStable contents and despawn active pet if it is involved in swap
-        if (petStable->CurrentPetIndex == srcPetSlot)
+        if (petStable->CurrentPetIndex == uint32(srcPetSlot))
         {
             Pet* oldPet = _player->GetPet();
             if (oldPet && !oldPet->IsAlive())
@@ -497,7 +497,7 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
     else if (IsStabledPetSlot(srcPetSlot) && IsActivePetSlot(dstPetSlot))
     {
         // stabled<->active: swap petStable contents and despawn active pet if it is involved in swap
-        if (petStable->CurrentPetIndex == dstPetSlot)
+        if (petStable->CurrentPetIndex == uint32(dstPetSlot))
         {
             Pet* oldPet = _player->GetPet();
             if (oldPet && !oldPet->IsAlive())
