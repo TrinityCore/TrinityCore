@@ -636,6 +636,10 @@ void Spell::EffectTriggerSpell()
         }
     }
 
+    Milliseconds delay = 0ms;
+    if (effectInfo->Effect == SPELL_EFFECT_TRIGGER_SPELL)
+        delay = Milliseconds(effectInfo->MiscValue);
+
     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
     args.SetOriginalCaster(m_originalCasterGUID);
     args.SetOriginalCastId(m_castId);
@@ -644,8 +648,11 @@ void Spell::EffectTriggerSpell()
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
-    // original caster guid only for GO cast
-    m_caster->CastSpell(std::move(targets), spellInfo->Id, args);
+    m_caster->m_Events.AddEventAtOffset([caster = m_caster, targets, triggered_spell_id, args]() mutable
+    {
+        // original caster guid only for GO cast
+        caster->CastSpell(std::move(targets), triggered_spell_id, args);
+    }, delay);
 }
 
 void Spell::EffectTriggerMissileSpell()
