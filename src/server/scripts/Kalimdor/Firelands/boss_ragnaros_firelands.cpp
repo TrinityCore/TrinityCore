@@ -735,6 +735,7 @@ struct boss_ragnaros_firelands : public BossAI
                         Talk(SAY_SPLITTING_BLOW);
                         DoCastSelf(SPELL_SUBMERGE);
                         me->SetFacingToObject(splittingBlow);
+                        me->SetOrientationTowards(splittingBlow);
                         DoCastSelf(SPELL_SPLITTING_BLOW);
                     }
                     break;
