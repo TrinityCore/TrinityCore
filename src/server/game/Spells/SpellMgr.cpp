@@ -3056,16 +3056,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
     });
 
-    ApplySpellFix({
-        63320, // Glyph of Life Tap
-        53228, // Rapid Killing (Rank 1)
-        53232  // Rapid Killing (Rank 2)
-               // Entries were not updated after spell effect change, we have to do that manually :/
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
-    });
-
     // Improved Spell Reflection - aoe aura
     ApplySpellFix({ 59725 }, [](SpellInfo* spellInfo)
     {
