@@ -109,7 +109,7 @@ namespace WorldPackets
         class LootResponse final : public ServerPacket
         {
         public:
-            LootResponse() : ServerPacket(SMSG_LOOT_RESPONSE, 100) { }
+            LootResponse() : ServerPacket(SMSG_LOOT_RESPONSE, 3) { }
 
             WorldPacket const* Write() override;
 
@@ -120,6 +120,16 @@ namespace WorldPackets
             uint32 Coins         = 0;
             std::vector<LootItemData> Items;
             std::vector<LootCurrency> Currencies;
+        };
+
+        class LootContents final : public ServerPacket
+        {
+        public:
+            LootContents() : ServerPacket(SMSG_LOOT_CONTENTS, 1) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<LootItemData> Items;
         };
     }
 }

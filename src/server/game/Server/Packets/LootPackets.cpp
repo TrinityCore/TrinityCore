@@ -123,3 +123,20 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Loot::LootContents::Write()
+{
+    _worldPacket.WriteBits(Items.size(), 21);
+    _worldPacket.FlushBits();
+
+    for (LootItemData const& lootItem : Items)
+    {
+        _worldPacket << uint32(lootItem.Loot.ItemDisplayID);
+        _worldPacket << int32(lootItem.Loot.RandomPropertiesSeed);
+        _worldPacket << int32(lootItem.Quantity);
+        _worldPacket << uint32(lootItem.Loot.ItemID);
+        _worldPacket << int32(lootItem.Loot.RandomPropertiesID);
+    }
+
+    return &_worldPacket;
+}
