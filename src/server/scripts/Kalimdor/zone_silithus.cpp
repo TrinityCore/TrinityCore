@@ -1282,7 +1282,8 @@ class go_wind_stone : public GameObjectScript
                         // On Aggro: Remove Timed Event 2
                         // In Combat: Use NPC specific spells
                     }
-                    else {
+                    else
+                    {
                         TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: NPC `%s` (%s) has wrong AI `%s`, should be `SmartAI`.", summons->GetName().c_str(), summons->GetGUID().ToString().c_str(), summons->GetAIName().c_str());
                         summons->DespawnOrUnsummon();
                     }
@@ -1487,6 +1488,7 @@ class go_wind_stone : public GameObjectScript
                     }
                     return true;
                 }
+
                 void Reset() override
                 {
                     // Allow despawning
