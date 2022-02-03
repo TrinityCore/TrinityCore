@@ -38,10 +38,12 @@
 
 enum PaladinSpells
 {
+    SPELL_PALADIN_ART_OF_WAR_TRIGGERED           = 231843,
     SPELL_PALADIN_AVENGERS_SHIELD                = 31935,
     SPELL_PALADIN_AVENGING_WRATH                 = 31884,
     SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
     SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
+    SPELL_PALADIN_BLADE_OF_JUSTICE               = 184575,
     SPELL_PALADIN_BLINDING_LIGHT_EFFECT          = 105421,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE     = 204054,
@@ -104,6 +106,26 @@ enum PaladinSpellVisual
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT  = 83881,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL         = 83732,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
+};
+
+// 267344 - Art of War
+class spell_pal_art_of_war : public AuraScript
+{
+    PrepareAuraScript(spell_pal_art_of_war);
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        if (roll_chance_f(aurEff->GetAmount()))
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ART_OF_WAR_TRIGGERED, true);
+            GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_PALADIN_BLADE_OF_JUSTICE, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_art_of_war::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 /*
@@ -1308,6 +1330,7 @@ class spell_pal_zeal : public AuraScript
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
+    RegisterAuraScript(spell_pal_art_of_war);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_crusader_might);
