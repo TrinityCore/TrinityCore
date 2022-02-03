@@ -47,8 +47,6 @@ EndContentData */
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "SmartAI.h"
-#include "Log.h"
 
 /*#####
 # Quest: A Pawn on the Eternal Board
@@ -350,8 +348,8 @@ public:
             eventEnd = false;
         }
 
-        uint32 AnimationTimer = 1500;
-        uint8 AnimationCount = 0;
+        uint32 AnimationTimer;
+        uint8 AnimationCount;
 
         ObjectGuid AnachronosQuestTriggerGUID;
         ObjectGuid MerithraGUID;
@@ -359,7 +357,7 @@ public:
         ObjectGuid CaelestraszGUID;
         ObjectGuid FandralGUID;
         ObjectGuid PlayerGUID;
-        bool eventEnd = false;
+        bool eventEnd;
 
         void Reset() override
         {
@@ -693,9 +691,9 @@ public:
 
         ObjectGuid MobGUID;
         ObjectGuid PlayerGUID;
-        uint32 SpellTimer1 = 0, SpellTimer2 = 0, SpellTimer3 = 0, SpellTimer4 = 0;
-        bool Timers = false;
-        bool hasTarget = false;
+        uint32 SpellTimer1, SpellTimer2, SpellTimer3, SpellTimer4;
+        bool Timers;
+        bool hasTarget;
 
         void Reset() override
         {
@@ -820,15 +818,15 @@ public:
 
         ObjectGuid PlayerGUID;
 
-        uint32 WaveTimer = 2000;
-        uint32 AnnounceTimer = 1000;
+        uint32 WaveTimer;
+        uint32 AnnounceTimer;
 
-        int8 LiveCount = 0;
-        uint8 WaveCount = 0;
+        int8 LiveCount;
+        uint8 WaveCount;
 
-        bool EventStarted = false;
-        bool Announced = false;
-        bool Failed = false;
+        bool EventStarted;
+        bool Announced;
+        bool Failed;
 
         void Reset() override
         {
@@ -1061,8 +1059,7 @@ enum WSSpells
     SPELL_ROYAL_EARTH      = 24792,
     SPELL_ROYAL_WATER      = 24793,
 
-    SPELL_PUNISHMENT       = 24803,
-    SPELL_SPAWN_IN         = 25035
+    SPELL_PUNISHMENT       = 24803
 };
 
 enum WSGossip
@@ -1131,13 +1128,6 @@ enum WS
     WATER                  = 0x2,
     EARTH                  = 0x4,
     AIR                    = 0x8
-};
-
-enum WSTexts
-{
-    SAY_TEMPLAR_AGGRO      = 0,
-    SAY_DUKE_AGGRO         = 0,
-    YELL_ROYAL_AGGRO       = 0
 };
 
 class go_wind_stone : public GameObjectScript
@@ -1220,73 +1210,9 @@ class go_wind_stone : public GameObjectScript
                 {
                     isSummoning = true;
 
-                    TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
-
-                    if (!summons) {
-                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: Failed to summon NPC entry %u on GameObject `%s` (%s)", npc, go->GetName().c_str(), go->GetGUID().ToString().c_str());
-                        return;
-                    }
-
-                    // summoned NPC should have SmartAI
-                    if (SmartAI* sai = CAST_AI(SmartAI, summons->AI()))
-                    {
-                        player->CastSpell(player, spell, true);
-                        summons->CastSpell(summons, SPELL_SPAWN_IN, false);
-
-                        // Add player to SmartAI stored target list 1
-                        ObjectVector primaryTarget;
-                        primaryTarget.push_back(player);
-                        sai->GetScript()->AddToStoredTargetList(primaryTarget, 1);
-
-                        // Add player's group (if applicable) within 50yds to SmartAI stored target list 2
-                        if (Group* group = player->GetGroup())
-                        {
-                            ObjectVector secondaryTargets;
-                            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                                if (Player* member = groupRef->GetSource())
-                                    if (member != player && member->IsInMap(summons) && member->GetDistance(summons) < 50.0f)
-                                        secondaryTargets.push_back(member);
-
-                            if (secondaryTargets.size() > 0)
-                                sai->GetScript()->AddToStoredTargetList(secondaryTargets, 2);
-                        }
-
-                        switch (summons->GetEntry())
-                        {
-                        case NPC_TEMPLAR_FIRE:
-                        case NPC_TEMPLAR_WATER:
-                        case NPC_TEMPLAR_AIR:
-                        case NPC_TEMPLAR_EARTH:
-                            sai->Talk(SAY_TEMPLAR_AGGRO, player);
-                            break;
-
-                        case NPC_DUKE_FIRE:
-                        case NPC_DUKE_WATER:
-                        case NPC_DUKE_EARTH:
-                        case NPC_DUKE_AIR:
-                            sai->Talk(SAY_DUKE_AGGRO, player);
-                            break;
-                        case NPC_ROYAL_FIRE:
-                        case NPC_ROYAL_AIR:
-                        case NPC_ROYAL_EARTH:
-                        case NPC_ROYAL_WATER:
-                            sai->Talk(YELL_ROYAL_AGGRO, player);
-                            break;
-                        }
-                        // Next actions happen in smart_scripts
-                        // On Summon: Set Root, Set Immune to PC, Create Timed Event 1 (5s), Create Timed Event 2 (30s)
-                        // On Timed Event 1 (5s): Unset Root, Unset Immune to PC, Add 100.0f Threat (Stored List 1), Add 50.0f Threat (Stored List 2)
-                        // On Reset: Set Counter 1 +1
-                        // On Counter 1 = 2: Despawn Self In 1000ms
-                        // On Timed Event 2 (30s): Despawn Self Instant
-                        // On Aggro: Remove Timed Event 2
-                        // In Combat: Use NPC specific spells
-                    }
-                    else
-                    {
-                        TC_LOG_ERROR("scripts", "[zone_silithus] go_wind_stoneAI: NPC `%s` (%s) has wrong AI `%s`, should be `SmartAI`.", summons->GetName().c_str(), summons->GetGUID().ToString().c_str(), summons->GetAIName().c_str());
-                        summons->DespawnOrUnsummon();
-                    }
+                    player->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5min);
+                    me->CastSpell(player, spell);
+                    me->DespawnOrUnsummon(1100ms);
                 }
 
             public:
@@ -1495,11 +1421,6 @@ class go_wind_stone : public GameObjectScript
                     me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
                     isSummoning = false;
                 }
-
-                void JustSummoned(Creature* /*summon*/) override
-                {
-                    me->DespawnOrUnsummon(1100ms);
-                }
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
@@ -1539,8 +1460,7 @@ class spell_silithus_summon_cultist_periodic : public AuraScript
 
         // All these spells trigger a spell that requires reagents; if the
         // triggered spell is cast as "triggered", reagents are not consumed
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST)).SetTriggeringAura(aurEff));
+        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST)).SetTriggeringAura(aurEff));
     }
 
     void Register() override
