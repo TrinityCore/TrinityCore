@@ -129,6 +129,14 @@ namespace WorldPackets
             uint8 Param1 = 0;
             uint8 Param2 = 0;
         };
+
+        class UpdateDungeonEncounterForLoot final : public ServerPacket
+        {
+        public:
+            UpdateDungeonEncounterForLoot() : ServerPacket(SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT, 0) { }
+
+            WorldPacket const* Write() override;
+        };
     }
 }
 

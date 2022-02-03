@@ -130,3 +130,8 @@ WorldPacket const* WorldPackets::Instance::UpdateInstanceEncounterUnit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::UpdateDungeonEncounterForLoot::Write()
+{
+    return &_worldPacket;
+}
