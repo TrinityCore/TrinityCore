@@ -66,6 +66,7 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 
+struct AchievementEntry;
 struct AreaTriggerEntry;
 struct AuctionPosting;
 struct ConditionSourceInfo;
@@ -621,6 +622,18 @@ class TC_GAME_API TransportScript : public ScriptObject, public UpdatableScript<
         virtual void OnRelocate(Transport* /*transport*/, uint32 /*waypointId*/, uint32 /*mapId*/, float /*x*/, float /*y*/, float /*z*/) { }
 };
 
+class TC_GAME_API AchievementScript : public ScriptObject
+{
+    protected:
+
+        AchievementScript(char const* name);
+
+    public:
+
+        // Called when an achievement is completed.
+        virtual void OnCompleted(Player* /*player*/, AchievementEntry const* /*achievement*/) { }
+};
+
 class TC_GAME_API AchievementCriteriaScript : public ScriptObject
 {
     protected:
@@ -1083,6 +1096,10 @@ class TC_GAME_API ScriptMgr
         void OnRemovePassenger(Transport* transport, Player* player);
         void OnTransportUpdate(Transport* transport, uint32 diff);
         void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z);
+
+    public: /* AchievementScript */
+
+        void OnAchievementCompleted(Player* player, AchievementEntry const* achievement);
 
     public: /* AchievementCriteriaScript */
 

@@ -33,6 +33,7 @@
 #include "Mail.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
+#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -534,6 +535,8 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
     UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
 
+    sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
+
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement);
 
@@ -984,6 +987,8 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
 
     UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
     UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
+
+    sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
 }
 
 void GuildAchievementMgr::SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds /*timeElapsed*/, bool /*timedCompleted*/) const
@@ -1137,6 +1142,39 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void AchievementGlobalMgr::LoadAchievementScripts()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _achievementScriptStore.clear();                            // need for reload case
+
+    QueryResult result = WorldDatabase.Query("SELECT AchievementId, ScriptName FROM achievement_scripts");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 achievement scripts. DB table `achievement_scripts` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 achievementId         = fields[0].GetUInt32();
+        std::string const scriptName = fields[1].GetString();
+
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
+        if (!achievement)
+        {
+            TC_LOG_ERROR("sql.sql", "Achievement (ID: %u) does not exist in `Achievement.db2`.", achievementId);
+            continue;
+        }
+        _achievementScriptStore[achievementId] = sObjectMgr->GetScriptId(scriptName);
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " achievement scripts in %u ms", _achievementScriptStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
@@ -1336,4 +1374,12 @@ void AchievementGlobalMgr::LoadRewardLocales()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement reward locale strings in %u ms.", uint32(_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+uint32 AchievementGlobalMgr::GetAchievementScriptId(uint32 achievementId) const
+{
+    AchievementScriptContainer::const_iterator i = _achievementScriptStore.find(achievementId);
+    if (i!= _achievementScriptStore.end())
+        return i->second;
+    return 0;
 }

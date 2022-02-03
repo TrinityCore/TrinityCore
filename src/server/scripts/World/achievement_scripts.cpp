@@ -18,8 +18,10 @@
 #include "ScriptMgr.h"
 #include "BattlegroundSA.h"
 #include "BattlegroundIC.h"
+#include "BattlePetMgr.h"
 #include "Creature.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 class achievement_resilient_victory : public AchievementCriteriaScript
 {
@@ -289,6 +291,29 @@ class achievement_killed_exp_or_honor_target : public AchievementCriteriaScript
         }
 };
 
+class achievement_newbie : public AchievementScript
+{
+    public:
+        achievement_newbie() : AchievementScript("achievement_newbie") { }
+
+        void OnCompleted(Player* player, AchievementEntry const* /*achievement*/) override
+        {
+            player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePets::BattlePetSlot::Slot1);
+            // TODO: Unlock trap
+        }
+};
+
+class achievement_just_a_pup : public AchievementScript
+{
+    public:
+        achievement_just_a_pup() : AchievementScript("achievement_just_a_pup") { }
+
+        void OnCompleted(Player* player, AchievementEntry const* /*achievement*/) override
+        {
+            player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePets::BattlePetSlot::Slot2);
+        }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -309,4 +334,6 @@ void AddSC_achievement_scripts()
     new achievement_not_even_a_scratch();
     new achievement_flirt_with_disaster_perf_check();
     new achievement_killed_exp_or_honor_target();
+    new achievement_newbie();
+    new achievement_just_a_pup();
 }

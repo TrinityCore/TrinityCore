@@ -150,6 +150,8 @@ class TC_GAME_API AchievementGlobalMgr
 public:
     static AchievementGlobalMgr* Instance();
 
+    typedef std::unordered_map<uint32, uint32> AchievementScriptContainer;
+
     std::vector<AchievementEntry const*> const* GetAchievementByReferencedId(uint32 id) const;
     AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const;
     AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const;
@@ -158,9 +160,12 @@ public:
     void SetRealmCompleted(AchievementEntry const* achievement);
 
     void LoadAchievementReferenceList();
+    void LoadAchievementScripts();
     void LoadCompletedAchievements();
     void LoadRewards();
     void LoadRewardLocales();
+
+    uint32 GetAchievementScriptId(uint32 achievementId) const;
 
 private:
     // store achievements by referenced achievement id to speed up lookup
@@ -173,6 +178,7 @@ private:
 
     std::unordered_map<uint32, AchievementReward> _achievementRewards;
     std::unordered_map<uint32, AchievementRewardLocale> _achievementRewardLocales;
+    AchievementScriptContainer _achievementScriptStore;
 };
 
 #define sAchievementMgr AchievementGlobalMgr::Instance()
