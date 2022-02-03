@@ -93,6 +93,21 @@ enum DSSpells
     SPELL_CALM_MAELSTROM_SKYBOX = 109480
 };
 
+enum DSMapObjIds
+{
+    /*
+    * Data Values:
+    * 1, 0, 60,  0, 0, 0  -- Talk
+    * 1, 0, 213, 0, 0, 0  -- Scream in Agony
+    */
+    MAP_OBJ_ID_SPINE_OF_DEATHWING_HEAD  = 6574436,
+    /*
+    * Data Values:
+    * 1, 1, [(0 - 100)], 0, 0, 0 -- Skybox cloud speed
+    */
+    MAP_OBJ_ID_SKYFIRE_SKYBOX           = 6858573
+};
+
 template<class AI>
 AI* GetDragonSoulAI(Creature* creature)
 {
