@@ -490,3 +490,13 @@ void WorldPackets::Misc::SetCurrencyFlags::Read()
     _worldPacket >> Flags;
     _worldPacket >> CurrencyID;
 }
+
+WorldPacket const* WorldPackets::Misc::MapObjEvents::Write()
+{
+    _worldPacket << uint32(UniqueID);
+    _worldPacket << uint32(Events.size());
+    for (uint8 const& eventData : Events)
+        _worldPacket << uint8(eventData);
+
+    return &_worldPacket;
+}

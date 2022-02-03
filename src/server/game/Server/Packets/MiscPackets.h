@@ -530,6 +530,17 @@ namespace WorldPackets
             uint32 Flags = 0;
             uint32 CurrencyID = 0;
         };
+
+        class MapObjEvents final : public ServerPacket
+        {
+        public:
+            MapObjEvents() : ServerPacket(SMSG_MAP_OBJ_EVENTS, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 UniqueID = 0;
+            std::vector<uint8> Events;
+        };
     }
 }
 
