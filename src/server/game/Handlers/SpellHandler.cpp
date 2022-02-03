@@ -501,7 +501,9 @@ void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& tot
 
 void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)
 {
-    if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+    SpellInfo const* spell = sSpellMgr->GetSpellInfo(_player->m_activePlayerData->SelfResSpells.FindIndex(selfRes.SpellID), _player->GetMap()->GetDifficultyID());
+
+    if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !spell->HasAttribute(SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA))
         return; // silent return, client should display error by itself and not send this opcode
 
     if (_player->m_activePlayerData->SelfResSpells.FindIndex(selfRes.SpellID) < 0)
