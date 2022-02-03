@@ -432,33 +432,33 @@ class spell_mage_cold_snap : public SpellScript
     }
 };
 
+class CometStormEvent : public BasicEvent
+{
+    public:
+        CometStormEvent(Unit* caster, Position const& dest) : _caster(caster), _dest(dest), _count(0) { }
+
+        bool Execute(uint64 time, uint32 /*diff*/) override
+        {
+            _caster->CastSpell(Position { _dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ() }, SPELL_MAGE_COMET_STORM_VISUAL, true);
+            ++_count;
+
+            if (_count >= 7)
+                return true;
+
+            _caster->m_Events.AddEvent(this, Milliseconds(time) + 200ms);
+            return false;
+        }
+
+    private:
+        Unit* _caster;
+        Position _dest;
+        uint8 _count;
+};
+
 // 153595 - Comet Storm (launch)
 class spell_mage_comet_storm : public SpellScript
 {
     PrepareSpellScript(spell_mage_comet_storm);
-
-    class CometStormEvent : public BasicEvent
-    {
-        public:
-            CometStormEvent(Unit* caster, Position const& dest) : _caster(caster), _dest(dest), _count(0) { }
-
-            bool Execute(uint64 time, uint32 /*diff*/) override
-            {
-                _caster->CastSpell(Position { _dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ() }, SPELL_MAGE_COMET_STORM_VISUAL, true);
-                ++_count;
-
-                if (_count >= 7)
-                    return true;
-
-                _caster->m_Events.AddEvent(this, Milliseconds(time) + 200ms);
-                return false;
-            }
-
-        private:
-            Unit* _caster;
-            Position _dest;
-            uint8 _count;
-    };
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
