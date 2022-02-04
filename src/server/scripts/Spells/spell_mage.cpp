@@ -330,8 +330,10 @@ struct areatrigger_mage_blizzard : AreaTriggerAI
 
     void RefreshPeriod()
     {
-        if (Unit* caster = at->GetCaster())
-            _period = Milliseconds(1000);
+        if (!at->GetCaster())
+            return;
+
+        _period = Milliseconds(1000);
     }
 
     void OnCreate() override
