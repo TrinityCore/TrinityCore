@@ -78,14 +78,14 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
     if (!(val.Achievement && t.TryConsumeTo(val.CharacterId) && t.TryConsumeTo(val.IsFinished) &&
         t.TryConsumeTo(val.Month) && t.TryConsumeTo(val.Day)))
         return false;
-    int8 year;
+    int32 year;
     if (!t.TryConsumeTo(year))
         return false;
     if (val.IsFinished) // if finished, year must be >= 0
     {
         if (year < 0)
             return false;
-        val.Year = static_cast<uint8>(year);
+        val.Year = year;
     }
     else
         val.Year = 0;

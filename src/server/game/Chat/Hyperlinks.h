@@ -58,96 +58,96 @@ namespace Trinity::Hyperlinks
 
     struct AchievementLinkData
     {
-        AchievementEntry const* Achievement;
+        AchievementEntry const* Achievement = nullptr;
         ObjectGuid CharacterId;
-        bool IsFinished;
-        uint8 Year;
-        uint8 Month;
-        uint8 Day;
-        std::array<uint32, 4> Criteria;
+        bool IsFinished = false;
+        int32 Year = 0;
+        int32 Month = 0;
+        int32 Day = 0;
+        std::array<uint32, 4> Criteria = { };
     };
 
     struct ArtifactPowerLinkData
     {
-        ArtifactPowerRankEntry const* ArtifactPower;
-        uint8 PurchasedRank;
-        uint8 CurrentRankWithBonus;
+        ArtifactPowerRankEntry const* ArtifactPower = nullptr;
+        uint8 PurchasedRank = 0;
+        uint8 CurrentRankWithBonus = 0;
     };
 
     struct AzeriteEssenceLinkData
     {
-        AzeriteEssenceEntry const* Essence;
-        uint8 Rank;
+        AzeriteEssenceEntry const* Essence = nullptr;
+        uint8 Rank = 0;
     };
 
     struct BattlePetLinkData
     {
-        BattlePetSpeciesEntry const* Species;
-        uint8 Level;
-        uint8 Quality;
-        uint32 MaxHealth;
-        uint32 Power;
-        uint32 Speed;
+        BattlePetSpeciesEntry const* Species = nullptr;
+        uint8 Level = 0;
+        uint8 Quality = 0;
+        uint32 MaxHealth = 0;
+        uint32 Power = 0;
+        uint32 Speed = 0;
         ObjectGuid PetGuid;
-        uint32 DisplayId;
+        uint32 DisplayId = 0;
     };
 
     struct CurrencyLinkData
     {
-        CurrencyTypesEntry const* Currency;
-        int32 Quantity;
+        CurrencyTypesEntry const* Currency = nullptr;
+        int32 Quantity = 0;
 
-        CurrencyContainerEntry const* Container;
+        CurrencyContainerEntry const* Container = nullptr;
     };
 
     struct GarrisonFollowerLinkData
     {
-        GarrFollowerEntry const* Follower;
-        uint32 Quality;
-        uint32 Level;
-        uint32 ItemLevel;
-        uint32 Abilities[4];
-        uint32 Traits[4];
-        uint32 Specialization;
+        GarrFollowerEntry const* Follower = nullptr;
+        uint32 Quality = 0;
+        uint32 Level = 0;
+        uint32 ItemLevel = 0;
+        std::array<uint32, 4> Abilities = { };
+        uint32 Traits[4] = { };
+        uint32 Specialization = 0;
     };
 
     struct GarrisonMissionLinkData
     {
-        GarrMissionEntry const* Mission;
-        uint64 DbID;
+        GarrMissionEntry const* Mission = nullptr;
+        uint64 DbID = 0;
     };
 
     struct InstanceLockLinkData
     {
         ObjectGuid Owner;
-        MapEntry const* Map;
-        uint32 Difficulty;
-        uint32 CompletedEncountersMask;
+        MapEntry const* Map = nullptr;
+        uint32 Difficulty = 0;
+        uint32 CompletedEncountersMask = 0;
     };
 
     struct ItemLinkData
     {
-        ItemTemplate const* Item;
-        uint32 EnchantId;
-        std::array<uint32, 3> GemItemId;
-        uint8 RenderLevel;
-        uint32 RenderSpecialization;
-        uint8 Context;
+        ItemTemplate const* Item = nullptr;
+        uint32 EnchantId = 0;
+        std::array<uint32, 3> GemItemId = { };
+        uint8 RenderLevel = 0;
+        uint32 RenderSpecialization = 0;
+        uint8 Context = 0;
         std::vector<int32> ItemBonusListIDs;
 
         struct Modifier
         {
-            uint32 Type;
-            int32 Value;
+            uint32 Type = 0;
+            int32 Value = 0;
         };
 
         std::vector<Modifier> Modifiers;
         std::vector<int32> GemItemBonusListIDs[3];
         ObjectGuid Creator;
-        uint32 UseEnchantId;
+        uint32 UseEnchantId = 0;
 
-        uint32 Quality;
-        ItemNameDescriptionEntry const* Suffix;
+        uint32 Quality = 0;
+        ItemNameDescriptionEntry const* Suffix = nullptr;
     };
 
     struct JournalLinkData
@@ -160,43 +160,43 @@ namespace Trinity::Hyperlinks
             Tier                = 3
         };
 
-        uint8 Type;
-        LocalizedString const* ExpectedText;
-        uint32 Difficulty;
+        uint8 Type = 0;
+        LocalizedString const* ExpectedText = nullptr;
+        uint32 Difficulty = 0;
     };
 
     struct KeystoneLinkData
     {
-        uint32 ItemId;
-        MapChallengeModeEntry const* Map;
-        uint32 Level;
-        uint32 Affix[4];
+        uint32 ItemId = 0;
+        MapChallengeModeEntry const* Map = nullptr;
+        uint32 Level = 0;
+        std::array<uint32, 4> Affix = { };
     };
 
     struct QuestLinkData
     {
-        ::Quest const* Quest;
-        uint32 ContentTuningId;
+        ::Quest const* Quest = nullptr;
+        uint32 ContentTuningId = 0;
     };
 
     struct SpellLinkData
     {
-        SpellInfo const* Spell;
-        GlyphPropertiesEntry const* Glyph;
+        SpellInfo const* Spell = nullptr;
+        GlyphPropertiesEntry const* Glyph = nullptr;
     };
 
     struct TradeskillLinkData
     {
         ObjectGuid Owner;
-        SpellInfo const* Spell;
-        SkillLineEntry const* Skill;
+        SpellInfo const* Spell = nullptr;
+        SkillLineEntry const* Skill = nullptr;
     };
 
     struct WorldMapLinkData
     {
-        UiMapEntry const* UiMap;
-        uint32 X;
-        uint32 Y;
+        UiMapEntry const* UiMap = nullptr;
+        uint32 X = 0;
+        uint32 Y = 0;
         Optional<uint32> Z;
     };
 
