@@ -63,6 +63,7 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
+    SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE         = 129253,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
     SPELL_PRIEST_RAPTURE                            = 47536,
     SPELL_PRIEST_RENEW                              = 139,
@@ -822,6 +823,27 @@ public:
     }
 };
 
+// 129250 - Power Word: Solace
+class spell_pri_power_word_solace : public SpellScript
+{
+    PrepareSpellScript(spell_pri_power_word_solace);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE });
+    }
+
+    void HandleAfterHit()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pri_power_word_solace::HandleAfterHit);
+    }
+};
+
 // Base class used by various prayer of mending spells
 class spell_pri_prayer_of_mending_SpellScriptBase : public SpellScript
 {
@@ -1439,6 +1461,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_penance();
     RegisterSpellScript(spell_pri_power_word_radiance);
     new spell_pri_power_word_shield();
+    RegisterSpellScript(spell_pri_power_word_solace);
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
