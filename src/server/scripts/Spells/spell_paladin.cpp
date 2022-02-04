@@ -51,7 +51,7 @@ enum PaladinSpells
     SPELL_PALADIN_CONSECRATION                   = 26573,
     SPELL_PALADIN_CONSECRATION_DAMAGE            = 81297,
     SPELL_PALADIN_CONSECRATION_PROTECTION_AURA   = 188370,
-    SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
+    SPELL_PALADIN_DIVINE_PURPOSE_TRIGGERED       = 223819,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
     SPELL_PALADIN_DIVINE_STEED_DWARF             = 276111,
     SPELL_PALADIN_DIVINE_STEED_DRAENEI           = 221887,
@@ -424,6 +424,37 @@ class spell_pal_crusader_might : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pal_crusader_might::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 223817 - Divine Purpose
+class spell_pal_divine_purpose : public AuraScript
+{
+    PrepareAuraScript(spell_pal_divine_purpose);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_TRIGGERED });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (Spell const* procSpell = eventInfo.GetProcSpell())
+            return procSpell->HasPowerTypeCost(POWER_HOLY_POWER);
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        if (roll_chance_f(aurEff->GetAmount()))
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_PALADIN_DIVINE_PURPOSE_TRIGGERED, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetTriggeringSpell(eventInfo.GetProcSpell()));
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pal_divine_purpose::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pal_divine_purpose::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1476,6 +1507,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_crusader_might);
     RegisterSpellScript(spell_pal_consecration);
     RegisterAreaTriggerAI(areatrigger_pal_consecration);
+    RegisterSpellScript(spell_pal_divine_purpose);
     RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_steed);
     RegisterSpellScript(spell_pal_divine_storm);
