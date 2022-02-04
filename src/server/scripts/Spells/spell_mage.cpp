@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_mage_".
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "DB2Stores.h"
 #include "GridNotifiers.h"
@@ -43,6 +45,8 @@ enum MageSpells
     SPELL_MAGE_ARCANE_MAGE                       = 137021,
     SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
     SPELL_MAGE_BLINK                             = 1953,
+    SPELL_MAGE_BLIZZARD                          = 190356,
+    SPELL_MAGE_BLIZZARD_DAMAGE                   = 190357,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_CAUTERIZED                        = 87024,
     SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
@@ -315,6 +319,43 @@ class spell_mage_blazing_barrier : public AuraScript
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_blazing_barrier::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectProc += AuraEffectProcFn(spell_mage_blazing_barrier::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
+};
+
+// 190356 - Blizzard
+// 4658 - AreaTrigger Create Properties
+struct areatrigger_mage_blizzard : AreaTriggerAI
+{
+    areatrigger_mage_blizzard(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void RefreshPeriod()
+    {
+        if (Unit* caster = at->GetCaster())
+            _period = Milliseconds(1000);
+    }
+
+    void OnCreate() override
+    {
+        RefreshPeriod();
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _refreshTimer -= Milliseconds(diff);
+
+        while (_refreshTimer <= 0s)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), SPELL_MAGE_BLIZZARD_DAMAGE);
+
+            RefreshPeriod();
+
+            _refreshTimer += _period;
+        }
+    }
+
+private:
+    Milliseconds _refreshTimer;
+    Milliseconds _period;
 };
 
 // 198063 - Burning Determination
@@ -1294,6 +1335,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_arcane_charge_clear);
     RegisterSpellScript(spell_mage_arcane_explosion);
     RegisterSpellScript(spell_mage_blazing_barrier);
+    RegisterAreaTriggerAI(areatrigger_mage_blizzard);
     RegisterSpellScript(spell_mage_burning_determination);
     RegisterSpellAndAuraScriptPair(spell_mage_cauterize, spell_mage_cauterize_AuraScript);
     RegisterSpellScript(spell_mage_cold_snap);
