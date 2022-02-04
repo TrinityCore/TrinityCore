@@ -1204,6 +1204,11 @@ class spell_pri_twist_of_fate : public AuraScript
 {
     PrepareAuraScript(spell_pri_twist_of_fate);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_TWIST_OF_FATE });
+    }
+
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_PRIEST_TWIST_OF_FATE, EFFECT_0))
