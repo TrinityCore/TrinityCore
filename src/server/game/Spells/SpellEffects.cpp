@@ -4100,8 +4100,8 @@ void Spell::EffectLeapBack()
 
     float speedxy = effectInfo->MiscValue / 10.f;
     float speedz = damage / 10.f;
-    // Disengage
-    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->IconFileDataId != 132572);
+
+    unitTarget->JumpTo(speedxy, speedz, false);
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
