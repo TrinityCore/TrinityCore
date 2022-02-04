@@ -91,6 +91,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (15307,0,2,0,0,0,100,0,10000,15000,15000,25000,0,11,18813,0,0,0,0,0,2,0,0,0,0,0,0,0,0,"Earthen Templar - In Combat - Cast 'Knock Away'"),
 (15307,0,3,0,0,0,100,0,5000,10000,15000,25000,0,11,22127,0,0,0,0,0,2,0,0,0,0,0,0,0,0,"Earthen Templar - In Combat - Cast 'Entangling Roots'");
 
+--
+UPDATE `gameobject` SET `spawntimesecs` = 300 WHERE `id` IN (180456,180518,180529,180544,180549,180564);
+UPDATE `gameobject` SET `spawntimesecs` = 10800 WHERE `id` IN (180466,180539,180559);
+
 -- Credit: vmangos
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 2.28571, `BaseAttackTime` = 2500, `unit_flags` = 256 WHERE `entry` = 15203;
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 2.28571, `unit_flags` = 256 WHERE `entry` = 15204;
