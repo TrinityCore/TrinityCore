@@ -1330,7 +1330,7 @@ class spell_pal_zeal : public AuraScript
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
-    RegisterAuraScript(spell_pal_art_of_war);
+    RegisterSpellScript(spell_pal_art_of_war);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_crusader_might);
