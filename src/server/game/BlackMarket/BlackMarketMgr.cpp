@@ -30,6 +30,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Realm.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -368,10 +369,10 @@ bool BlackMarketTemplate::LoadFromDB(Field* fields)
     Duration = static_cast<time_t>(fields[5].GetUInt32());
     Chance = fields[6].GetFloat();
 
-    Tokenizer bonusListIDsTok(fields[7].GetString(), ' ');
     std::vector<int32> bonusListIDs;
-    for (char const* token : bonusListIDsTok)
-        bonusListIDs.push_back(int32(atol(token)));
+    for (std::string_view token : Trinity::Tokenize(fields[7].GetStringView(), ' ', false))
+        if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+            bonusListIDs.push_back(*bonusListID);
 
     if (!bonusListIDs.empty())
     {

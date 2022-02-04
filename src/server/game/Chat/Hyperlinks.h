@@ -19,7 +19,7 @@
 #define TRINITY_HYPERLINKS_H
 
 #include "ObjectGuid.h"
-#include "Optional.h"
+#include "StringConvert.h"
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -220,26 +220,28 @@ namespace Trinity::Hyperlinks
                 return true;
             }
 
+            template <typename T>
+            static std::enable_if_t<std::is_integral_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
+            {
+                if (Optional<T> res = Trinity::StringTo<T>(std::string_view(pos, len)))
+                {
+                    val = *res;
+                    return true;
+                }
+                else
+                    return false;
+            }
+
             static bool StoreTo(ObjectGuid& val, char const* pos, size_t len)
             {
-                val = ObjectGuid::FromString(std::string(pos, len));
-                return true;
-            }
-
-            template <typename T>
-            static std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
-            {
-                try { val = std::stoull(std::string(pos, len)); }
-                catch (...) { return false; }
-                return true;
-            }
-
-            template <typename T>
-            static std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, bool> StoreTo(T& val, char const* pos, size_t len)
-            {
-                try { val = std::stoll(std::string(pos, len)); }
-                catch (...) { return false; }
-                return true;
+                ObjectGuid parsed = ObjectGuid::FromString(std::string(pos, len));
+                if (parsed != ObjectGuid::FromStringFailed)
+                {
+                    val = parsed;
+                    return true;
+                }
+                else
+                    return false;
             }
         };
 

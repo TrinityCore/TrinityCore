@@ -73,7 +73,18 @@ public:
         }
         return true;
     }
-    static bool CheckSpellExistsAndIsValid(ChatHandler* handler, uint32 const spellId) { return CheckSpellExistsAndIsValid(handler, sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE)); }
+
+    static Optional<TriggerCastFlags> GetTriggerFlags(Optional<std::string> triggeredStr)
+    {
+        if (triggeredStr)
+        {
+            if (StringStartsWith("triggered", *triggeredStr)) // check if "triggered" starts with *triggeredStr (e.g. "trig", "trigger", etc.)
+                return TRIGGERED_FULL_DEBUG_MASK;
+            else
+                return std::nullopt;
+        }
+        return TRIGGERED_NONE;
+    }
 
     static bool HandleCastCommand(ChatHandler* handler, SpellInfo const* spell, Optional<std::string> triggeredStr)
     {
@@ -88,22 +99,16 @@ public:
         if (!CheckSpellExistsAndIsValid(handler, spell))
             return false;
 
-        TriggerCastFlags triggerFlags = TRIGGERED_NONE;
-        if (triggeredStr)
-        {
-            if (std::string("triggered").rfind(*triggeredStr, 0) == 0) // check if "triggered" starts with *triggeredStr (e.g. "trig", "trigger", etc.)
-                triggerFlags = TRIGGERED_FULL_DEBUG_MASK;
-            else
-                return false;
+        Optional<TriggerCastFlags> triggerFlags = GetTriggerFlags(triggeredStr);
+        if (!triggerFlags)
+            return false;
 
-        }
-
-        handler->GetSession()->GetPlayer()->CastSpell(target, spell->Id, triggerFlags);
+        handler->GetSession()->GetPlayer()->CastSpell(target, spell->Id, *triggerFlags);
 
         return true;
     }
 
-    static bool HandleCastBackCommand(ChatHandler* handler, char const* args)
+    static bool HandleCastBackCommand(ChatHandler* handler, SpellInfo const* spell, Optional<std::string> triggeredStr)
     {
         Creature* caster = handler->getSelectedCreature();
         if (!caster)
@@ -113,85 +118,57 @@ public:
             return false;
         }
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId)
+        if (!CheckSpellExistsAndIsValid(handler, spell))
             return false;
 
-        if (!CheckSpellExistsAndIsValid(handler, spellId))
+        Optional<TriggerCastFlags> triggerFlags = GetTriggerFlags(triggeredStr);
+        if (!triggerFlags)
             return false;
 
-        char* triggeredStr = strtok(nullptr, " ");
-        if (triggeredStr)
-        {
-            int l = strlen(triggeredStr);
-            if (strncmp(triggeredStr, "triggered", l) != 0)
-                return false;
-        }
-
-        TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
-        caster->CastSpell(handler->GetSession()->GetPlayer(), spellId, triggered);
+        caster->CastSpell(handler->GetSession()->GetPlayer(), spell->Id, *triggerFlags);
 
         return true;
     }
 
-    static bool HandleCastDistCommand(ChatHandler* handler, char const* args)
+    static bool HandleCastDistCommand(ChatHandler* handler, SpellInfo const* spell, float dist, Optional<std::string> triggeredStr)
     {
-        if (!*args)
+        if (!CheckSpellExistsAndIsValid(handler, spell))
             return false;
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId)
+        Optional<TriggerCastFlags> triggerFlags = GetTriggerFlags(triggeredStr);
+        if (!triggerFlags)
             return false;
 
-        if (!CheckSpellExistsAndIsValid(handler, spellId))
-            return false;
-
-        char* distStr = strtok(nullptr, " ");
-
-        float dist = 0;
-
-        if (distStr)
-            sscanf(distStr, "%f", &dist);
-
-        char* triggeredStr = strtok(nullptr, " ");
-        if (triggeredStr)
-        {
-            int l = strlen(triggeredStr);
-            if (strncmp(triggeredStr, "triggered", l) != 0)
-                return false;
-        }
-
-        TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
         float x, y, z;
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, dist);
-        handler->GetSession()->GetPlayer()->CastSpell(Position{ x, y, z }, spellId, triggered);
+        handler->GetSession()->GetPlayer()->CastSpell(Position{ x, y, z }, spell->Id, *triggerFlags);
 
         return true;
     }
 
-    static bool HandleCastSelfCommand(ChatHandler* handler, char const* args)
+    static bool HandleCastSelfCommand(ChatHandler* handler, SpellInfo const* spell, Optional<std::string> triggeredStr)
     {
-        if (!*args)
-            return false;
-
         Unit* target = handler->getSelectedUnit();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId)
+        if (!CheckSpellExistsAndIsValid(handler, spell))
             return false;
 
-        if (!CheckSpellExistsAndIsValid(handler, spellId))
+        Optional<TriggerCastFlags> triggerFlags = GetTriggerFlags(triggeredStr);
+        if (!triggerFlags)
             return false;
 
-        target->CastSpell(target, spellId, false);
+        target->CastSpell(target, spell->Id, *triggerFlags);
 
         return true;
     }
 
-    static bool HandleCastTargetCommad(ChatHandler* handler, char const* args)
+    static bool HandleCastTargetCommad(ChatHandler* handler, SpellInfo const* spell, Optional<std::string> triggeredStr)
     {
         Creature* caster = handler->getSelectedCreature();
         if (!caster)
@@ -208,29 +185,19 @@ public:
             return false;
         }
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId)
+        if (!CheckSpellExistsAndIsValid(handler, spell))
             return false;
 
-        if (!CheckSpellExistsAndIsValid(handler, spellId))
+        Optional<TriggerCastFlags> triggerFlags = GetTriggerFlags(triggeredStr);
+        if (!triggerFlags)
             return false;
 
-        char* triggeredStr = strtok(nullptr, " ");
-        if (triggeredStr)
-        {
-            int l = strlen(triggeredStr);
-            if (strncmp(triggeredStr, "triggered", l) != 0)
-                return false;
-        }
-
-        TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
-        caster->CastSpell(caster->GetVictim(), spellId, triggered);
+        caster->CastSpell(caster->GetVictim(), spell->Id, *triggerFlags);
 
         return true;
     }
 
-    static bool HandleCastDestCommand(ChatHandler* handler, char const* args)
+    static bool HandleCastDestCommand(ChatHandler* handler, SpellInfo const* spell, float x, float y, float z, Optional<std::string> triggeredStr)
     {
         Unit* caster = handler->getSelectedUnit();
         if (!caster)
@@ -240,33 +207,14 @@ public:
             return false;
         }
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId)
+        if (!CheckSpellExistsAndIsValid(handler, spell))
             return false;
 
-        if (!CheckSpellExistsAndIsValid(handler, spellId))
+        Optional<TriggerCastFlags> triggerFlags = GetTriggerFlags(triggeredStr);
+        if (!triggerFlags)
             return false;
 
-        char* posX = strtok(nullptr, " ");
-        char* posY = strtok(nullptr, " ");
-        char* posZ = strtok(nullptr, " ");
-
-        if (!posX || !posY || !posZ)
-            return false;
-
-        Position dest(atof(posX), atof(posY), atof(posZ));
-
-        char* triggeredStr = strtok(nullptr, " ");
-        if (triggeredStr)
-        {
-            int l = strlen(triggeredStr);
-            if (strncmp(triggeredStr, "triggered", l) != 0)
-                return false;
-        }
-
-        TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
-        caster->CastSpell(dest, spellId, triggered);
+        caster->CastSpell(Position{ x, y, z }, spell->Id, *triggerFlags);
 
         return true;
     }

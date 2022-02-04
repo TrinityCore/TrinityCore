@@ -21,8 +21,12 @@
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
 #include "SmartEnum.h"
+#include "StringConvert.h"
 #include "Util.h"
+#include <charconv>
 #include <map>
+#include <string>
+#include <string_view>
 
 struct GameTele;
 
@@ -43,42 +47,19 @@ namespace ChatCommands
 template <typename T, typename = void>
 struct ArgInfo { static_assert(!std::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
 
-// catch-all for signed integral types
+// catch-all for integral types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T>>>
 {
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
-        try
-        {
-            size_t processedChars = 0;
-            val = std::stoll(token, &processedChars, 0);
-            if (processedChars != token.length())
-                return nullptr;
-        }
-        catch (...) { return nullptr; }
-        return next;
-    }
-};
+        std::string_view token(args, Trinity::Impl::ChatCommands::tokenize(next));
 
-// catch-all for unsigned integral types
-template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>>
-{
-    static char const* TryConsume(T& val, char const* args)
-    {
-        char const* next = args;
-        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
-        try
-        {
-            size_t processedChars = 0;
-            val = std::stoull(token, &processedChars, 0);
-            if (processedChars != token.length())
-                return nullptr;
-        }
-        catch (...) { return nullptr; }
+        if (Optional<T> v = StringTo<T>(token, 0))
+            val = *v;
+        else
+            return nullptr;
         return next;
     }
 };
@@ -93,6 +74,7 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
         std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
         try
         {
+            // @todo replace this once libc++ supports double args to from_chars for required minimum
             size_t processedChars = 0;
             val = std::stold(token, &processedChars);
             if (processedChars != token.length())
@@ -103,20 +85,53 @@ struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
     }
 };
 
+// string_view
+template <>
+struct ArgInfo<std::string_view, void>
+{
+    static char const* TryConsume(std::string_view& val, char const* args)
+    {
+        char const* next = args;
+        if (size_t len = Trinity::Impl::ChatCommands::tokenize(next))
+        {
+            val = std::string_view(args, len);
+            return next;
+        }
+        else
+            return nullptr;
+    }
+};
+
 // string
 template <>
 struct ArgInfo<std::string, void>
 {
     static char const* TryConsume(std::string& val, char const* args)
     {
-        char const* next = args;
-        if (size_t len = Trinity::Impl::ChatCommands::tokenize(next))
-        {
-            val.assign(args, len);
-            return next;
-        }
-        else
+        std::string_view view;
+        args = ArgInfo<std::string_view>::TryConsume(view, args);
+        if (args)
+            val.assign(view);
+        return args;
+    }
+};
+
+// wstring
+template <>
+struct ArgInfo<std::wstring, void>
+{
+    static char const* TryConsume(std::wstring& val, char const* args)
+    {
+        std::string_view utf8view;
+        char const* ret = ArgInfo<std::string_view>::TryConsume(utf8view, args);
+
+        if (!ret)
             return nullptr;
+
+        if (!Utf8toWStr(utf8view, val))
+            return nullptr;
+
+        return ret;
     }
 };
 

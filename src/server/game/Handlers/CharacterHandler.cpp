@@ -58,6 +58,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
+#include "StringConvert.h"
 #include "SystemPackets.h"
 #include "Util.h"
 #include "World.h"
@@ -2505,11 +2506,20 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             // Title conversion
             if (!knownTitlesStr.empty())
             {
+                std::vector<std::string_view> tokens = Trinity::Tokenize(knownTitlesStr, ' ', false);
                 std::vector<uint32> knownTitles;
-                Tokenizer tokens(knownTitlesStr, ' ');
 
-                for (uint32 index = 0; index < tokens.size(); ++index)
-                    knownTitles.push_back(atoul(tokens[index]));
+                for (std::string_view token : tokens)
+                {
+                    if (Optional<uint32> thisMask = Trinity::StringTo<uint32>(token))
+                        knownTitles.push_back(*thisMask);
+                    else
+                    {
+                        TC_LOG_WARN("entities.player", "%s has invalid title data '%s' - skipped, this may result in titles being lost",
+                           GetPlayerInfo().c_str(), std::string(token).c_str());
+                        knownTitles.push_back(0);
+                    }
+                }
 
                 for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChangeTitles.begin(); it != sObjectMgr->FactionChangeTitles.end(); ++it)
                 {
@@ -2553,8 +2563,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     }
 
                     std::ostringstream ss;
-                    for (uint32 index = 0; index < knownTitles.size(); ++index)
-                        ss << knownTitles[index] << ' ';
+                    for (uint32 mask : knownTitles)
+                        ss << mask << ' ';
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                     stmt->setString(0, ss.str());

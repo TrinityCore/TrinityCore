@@ -1070,12 +1070,12 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_banish();
     RegisterSpellScript(spell_warl_chaos_bolt);
-    RegisterAuraScript(spell_warl_chaotic_energies);
+    RegisterSpellScript(spell_warl_chaotic_energies);
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_devour_magic();
-    RegisterAuraScript(spell_warl_drain_soul);
+    RegisterSpellScript(spell_warl_drain_soul);
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_healthstone_heal();
