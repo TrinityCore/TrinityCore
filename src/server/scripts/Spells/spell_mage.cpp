@@ -439,7 +439,8 @@ class CometStormEvent : public BasicEvent
 
         bool Execute(uint64 time, uint32 /*diff*/) override
         {
-            _caster->CastSpell(Position { _dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ() }, SPELL_MAGE_COMET_STORM_VISUAL, true);
+            Position destPosition = { _dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ() };
+            _caster->CastSpell(destPosition, SPELL_MAGE_COMET_STORM_VISUAL, true);
             ++_count;
 
             if (_count >= 7)
@@ -488,7 +489,7 @@ class spell_mage_comet_storm_damage : public SpellScript
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(Position { GetHitDest()->GetPositionX(), GetHitDest()->GetPositionY(), GetHitDest()->GetPositionZ() }, SPELL_MAGE_COMET_STORM_DAMAGE, true);
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_MAGE_COMET_STORM_DAMAGE, true);
     }
 
     void Register() override
