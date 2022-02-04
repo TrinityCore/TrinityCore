@@ -85,6 +85,7 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
+    SPELL_PRIEST_TWIST_OF_FATE                      = 265259
 };
 
 enum MiscSpells
@@ -1198,6 +1199,26 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
         }
 };
 
+// 265259 - Twist of Fate
+class spell_pri_twist_of_fate : public AuraScript
+{
+    PrepareAuraScript(spell_pri_twist_of_fate);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_PRIEST_TWIST_OF_FATE, EFFECT_0))
+            if (eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount())
+                return true;
+
+        return false;
+    };
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_twist_of_fate::CheckProc);
+    }
+};
+
 // 15286 - Vampiric Embrace
 class spell_pri_vampiric_embrace : public SpellScriptLoader
 {
@@ -1448,6 +1469,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_t3_4p_bonus();
     new spell_pri_t5_heal_2p_bonus();
     new spell_pri_t10_heal_2p_bonus();
+    RegisterSpellScript(spell_pri_twist_of_fate);
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
