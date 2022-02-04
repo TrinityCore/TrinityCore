@@ -47,6 +47,7 @@ enum MageSpells
     SPELL_MAGE_BLINK                             = 1953,
     SPELL_MAGE_BLIZZARD                          = 190356,
     SPELL_MAGE_BLIZZARD_DAMAGE                   = 190357,
+    SPELL_MAGE_BLIZZARD_SLOW                     = 12486,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_CAUTERIZED                        = 87024,
     SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
@@ -356,6 +357,27 @@ struct areatrigger_mage_blizzard : AreaTriggerAI
 private:
     Milliseconds _refreshTimer;
     Milliseconds _period;
+};
+
+// 190357 - Blizzard (Damage)
+class spell_mage_blizzard_damage : public SpellScript
+{
+    PrepareSpellScript(spell_mage_blizzard_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_BLIZZARD_SLOW });
+    }
+
+    void HandleSlow(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_BLIZZARD_SLOW, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_blizzard_damage::HandleSlow, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 198063 - Burning Determination
@@ -1336,6 +1358,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_arcane_explosion);
     RegisterSpellScript(spell_mage_blazing_barrier);
     RegisterAreaTriggerAI(areatrigger_mage_blizzard);
+    RegisterSpellScript(spell_mage_blizzard_damage);
     RegisterSpellScript(spell_mage_burning_determination);
     RegisterSpellAndAuraScriptPair(spell_mage_cauterize, spell_mage_cauterize_AuraScript);
     RegisterSpellScript(spell_mage_cold_snap);
