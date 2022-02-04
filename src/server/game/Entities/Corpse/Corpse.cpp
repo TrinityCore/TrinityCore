@@ -186,7 +186,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
-    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', EQUIPMENT_SLOT_END);
+    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     if (items.size() == EQUIPMENT_SLOT_END)
         for (uint32 index = 0; index < EQUIPMENT_SLOT_END; ++index)
             SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
