@@ -326,20 +326,9 @@ class spell_mage_blazing_barrier : public AuraScript
 // 4658 - AreaTrigger Create Properties
 struct areatrigger_mage_blizzard : AreaTriggerAI
 {
-    areatrigger_mage_blizzard(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    areatrigger_mage_blizzard(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(TICK_PERIOD) { }
 
-    void RefreshPeriod()
-    {
-        if (!at->GetCaster())
-            return;
-
-        _period = Milliseconds(1000);
-    }
-
-    void OnCreate() override
-    {
-        RefreshPeriod();
-    }
+    static constexpr Milliseconds TICK_PERIOD = Milliseconds(1000);
 
     void OnUpdate(uint32 diff) override
     {
@@ -350,15 +339,12 @@ struct areatrigger_mage_blizzard : AreaTriggerAI
             if (Unit* caster = at->GetCaster())
                 caster->CastSpell(at->GetPosition(), SPELL_MAGE_BLIZZARD_DAMAGE);
 
-            RefreshPeriod();
-
-            _refreshTimer += _period;
+            _refreshTimer += TICK_PERIOD;
         }
     }
 
 private:
     Milliseconds _refreshTimer;
-    Milliseconds _period;
 };
 
 // 190357 - Blizzard (Damage)
