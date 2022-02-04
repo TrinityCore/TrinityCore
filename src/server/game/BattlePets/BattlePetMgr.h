@@ -183,6 +183,7 @@ public:
     void GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource);
     void GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels);
     void HealBattlePetsPct(uint8 pct);
+    void UpdateBattlePetData(ObjectGuid guid);
 
     void SummonPet(ObjectGuid guid);
     void DismissPet();
