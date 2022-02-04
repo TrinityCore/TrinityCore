@@ -85,6 +85,7 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
+    SPELL_PRIEST_WEAKENED_SOUL                      = 6788
 };
 
 enum MiscSpells
@@ -725,100 +726,142 @@ private:
 };
 
 // 17 - Power Word: Shield
-class spell_pri_power_word_shield : public SpellScriptLoader
+class spell_pri_power_word_shield : public SpellScript
 {
-public:
-    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+    PrepareSpellScript(spell_pri_power_word_shield);
 
-    class spell_pri_power_word_shield_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+        return ValidateSpellInfo({ SPELL_PRIEST_WEAKENED_SOUL });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+
+        if (Unit* target = GetExplTargetUnit())
         {
-            return ValidateSpellInfo
-            ({
-                SPELL_PRIEST_BODY_AND_SOUL,
-                SPELL_PRIEST_BODY_AND_SOUL_SPEED,
-                SPELL_PRIEST_STRENGTH_OF_SOUL,
-                SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT,
-                SPELL_PRIEST_RENEWED_HOPE,
-                SPELL_PRIEST_RENEWED_HOPE_EFFECT,
-                SPELL_PRIEST_VOID_SHIELD,
-                SPELL_PRIEST_VOID_SHIELD_EFFECT,
-                SPELL_PRIEST_ATONEMENT,
-                SPELL_PRIEST_TRINITY,
-                SPELL_PRIEST_ATONEMENT_TRIGGERED,
-                SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY,
-                SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE,
-                SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE,
-                SPELL_PRIEST_RAPTURE,
-                SPELL_PRIEST_MASTERY_GRACE
-            });
-        }
-
-        void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated)
-        {
-            canBeRecalculated = false;
-
-            if (Unit* caster = GetCaster())
+            if (!caster->HasAura(SPELL_PRIEST_RAPTURE))
             {
-                float amountF = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 1.65f;
-
-                if (Player* player = caster->ToPlayer())
-                {
-                    AddPct(amountF, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
-
-                    if (AuraEffect const* mastery = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
-                        if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED) || GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY))
-                            AddPct(amountF, mastery->GetAmount());
-                }
-
-                if (AuraEffect const* rapture = caster->GetAuraEffect(SPELL_PRIEST_RAPTURE, EFFECT_1))
-                    AddPct(amountF, rapture->GetAmount());
-
-                amount = amountF;
+                if (target->HasAura(SPELL_PRIEST_WEAKENED_SOUL, caster->GetGUID()))
+                    return SPELL_FAILED_BAD_TARGETS;
             }
         }
 
-        void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetTarget();
-            if (!caster)
-                return;
+        return SPELL_CAST_OK;
+    }
 
-            if (caster->HasAura(SPELL_PRIEST_BODY_AND_SOUL))
-                caster->CastSpell(target, SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
-            if (caster->HasAura(SPELL_PRIEST_STRENGTH_OF_SOUL))
-                caster->CastSpell(target, SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT, true);
-            if (caster->HasAura(SPELL_PRIEST_RENEWED_HOPE))
-                caster->CastSpell(target, SPELL_PRIEST_RENEWED_HOPE_EFFECT, true);
-            if (caster->HasAura(SPELL_PRIEST_VOID_SHIELD) && caster == target)
-                caster->CastSpell(target, SPELL_PRIEST_VOID_SHIELD_EFFECT, true);
-            if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
-                caster->CastSpell(target, caster->HasAura(SPELL_PRIEST_TRINITY) ? SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY : SPELL_PRIEST_ATONEMENT_TRIGGERED, true);
-        }
-
-        void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->RemoveAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT);
-            if (Unit* caster = GetCaster())
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE))
-                    caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            AfterEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::HandleOnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::HandleOnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandleEffectHit()
     {
-        return new spell_pri_power_word_shield_AuraScript();
+        Unit* caster = GetCaster();
+
+        if (Unit* target = GetHitUnit())
+        {
+            if (!caster->HasAura(SPELL_PRIEST_RAPTURE))
+                caster->CastSpell(target, SPELL_PRIEST_WEAKENED_SOUL, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pri_power_word_shield::CheckCast);
+        AfterHit += SpellHitFn(spell_pri_power_word_shield::HandleEffectHit);
+    }
+};
+
+class spell_pri_power_word_shield_aura : public AuraScript
+{
+    PrepareAuraScript(spell_pri_power_word_shield_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_BODY_AND_SOUL,
+            SPELL_PRIEST_BODY_AND_SOUL_SPEED,
+            SPELL_PRIEST_STRENGTH_OF_SOUL,
+            SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT,
+            SPELL_PRIEST_RENEWED_HOPE,
+            SPELL_PRIEST_RENEWED_HOPE_EFFECT,
+            SPELL_PRIEST_VOID_SHIELD,
+            SPELL_PRIEST_VOID_SHIELD_EFFECT,
+            SPELL_PRIEST_ATONEMENT,
+            SPELL_PRIEST_TRINITY,
+            SPELL_PRIEST_ATONEMENT_TRIGGERED,
+            SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY,
+            SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE,
+            SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE,
+            SPELL_PRIEST_RAPTURE,
+            SPELL_PRIEST_MASTERY_GRACE
+        });
+    }
+
+    void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+
+        if (Unit* caster = GetCaster())
+        {
+            float amountF = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 1.65f;
+
+            if (Player* player = caster->ToPlayer())
+            {
+                AddPct(amountF, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+                if (AuraEffect const* mastery = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
+                {
+                    if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED) || GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY))
+                        AddPct(amountF, mastery->GetAmount());
+                }
+            }
+
+            if (AuraEffect const* rapture = caster->GetAuraEffect(SPELL_PRIEST_RAPTURE, EFFECT_1))
+                AddPct(amountF, rapture->GetAmount());
+
+            amount = amountF;
+        }
+    }
+
+    void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+
+        if (!caster)
+            return;
+
+        if (caster->HasAura(SPELL_PRIEST_BODY_AND_SOUL))
+            caster->CastSpell(target, SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
+
+        if (caster->HasAura(SPELL_PRIEST_STRENGTH_OF_SOUL))
+            caster->CastSpell(target, SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT, true);
+
+        if (caster->HasAura(SPELL_PRIEST_RENEWED_HOPE))
+            caster->CastSpell(target, SPELL_PRIEST_RENEWED_HOPE_EFFECT, true);
+
+        if (caster->HasAura(SPELL_PRIEST_VOID_SHIELD) && caster == target)
+            caster->CastSpell(target, SPELL_PRIEST_VOID_SHIELD_EFFECT, true);
+
+        if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
+            caster->CastSpell(target, caster->HasAura(SPELL_PRIEST_TRINITY) ? SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY : SPELL_PRIEST_ATONEMENT_TRIGGERED, true);
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT);
+
+        if (Unit* caster = GetCaster())
+        {
+            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE))
+                caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_aura::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_aura::HandleOnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_aura::HandleOnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1438,7 +1481,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_mind_bomb);
     new spell_pri_penance();
     RegisterSpellScript(spell_pri_power_word_radiance);
-    new spell_pri_power_word_shield();
+    RegisterSpellAndAuraScriptPair(spell_pri_power_word_shield, spell_pri_power_word_shield_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
