@@ -305,7 +305,8 @@ Unit::Unit(bool isWorldObject) :
     m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
     m_isEngaged(false), m_combatManager(this), m_threatManager(this),
     i_AI(nullptr), m_aiLocked(false), _lastDamagedTime(0),
-    m_spellHistory(new SpellHistory(this)), _isIgnoringCombat(false)
+    m_spellHistory(new SpellHistory(this)), _isIgnoringCombat(false),
+    _destLocCastIndex(0)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -1278,7 +1279,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
        return;
     }
 
-    damage += CalculateDamage(damageInfo->attackType, IsInFeralForm(), true);
+    damage += CalculateDamage(damageInfo->attackType, false, true);
     // Add melee damage bonus
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
