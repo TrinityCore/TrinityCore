@@ -305,8 +305,7 @@ Unit::Unit(bool isWorldObject) :
     m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
     m_isEngaged(false), m_combatManager(this), m_threatManager(this),
     i_AI(nullptr), m_aiLocked(false), _lastDamagedTime(0),
-    m_spellHistory(new SpellHistory(this)), _isIgnoringCombat(false),
-    _destLocCastIndex(0)
+    m_spellHistory(new SpellHistory(this)), _isIgnoringCombat(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
