@@ -11,12 +11,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 3, 38439, 0, 0, 1, 0, 38502, 0, 0, 1, 0, 0, '', 'Do Not cast \'Placing Rocknail Flayer Carcass\' on targets with aura \'Has Eaten Recently\'');
 
 -- SAI for Mature Netherwing Drake
-DELETE FROM `smart_scripts` WHERE `entryorguid`=21648 AND `source_type`=0 AND `id` IN (0,1,2,3);
+DELETE FROM `smart_scripts` WHERE `entryorguid`=21648 AND `source_type`=0 AND `id` IN (0,1,2,3,4);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
 (21648, 0, 0, 1, 8, 0, 100, 0, 38439, 0, 0, 0, 0, 54, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Mature Netherwing Drake - On Spellhit \'Placing Rocknail Flayer Carcass\' - Pause Waypoint'),
 (21648, 0, 1, 0, 61, 0, 100, 0, 38439, 0, 0, 0, 0, 69, 1, 0, 0, 2, 0, 0, 20, 185155, 500, 0, 0, 0, 0, 0, 0, 'Mature Netherwing Drake - On Spellhit \'Placing Rocknail Flayer Carcass\' - Move To Closest GO \'Rocknail Flayer Carcass\''),
 (21648, 0, 2, 0, 34, 0, 100, 0, 8, 1, 0, 0, 0, 80, 2164800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Mature Netherwing Drake - On Reached Point 1 - Run Script'),
-(21648, 0, 3, 0, 7, 0, 100, 0, 0, 0, 0, 0, 0, 101, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 'Mature Netherwing Drake - On Evade - Set Home Position On Self Offset Z+1');
+(21648, 0, 3, 0, 7, 0, 100, 0, 0, 0, 0, 0, 0, 101, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 'Mature Netherwing Drake - On Evade - Set Home Position On Self Offset Z+1'),
+(21648, 0, 4, 0, 0, 0, 100, 0, 5000, 5000, 5000, 5000, 0, 11, 38467, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Mature Netherwing Drake - In Combat - Cast \'Netherbreath\'');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2164800 AND `source_type`=9 AND `id` IN (0,1,2,3,4,5,6,7,8);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
