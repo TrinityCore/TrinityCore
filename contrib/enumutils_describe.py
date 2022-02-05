@@ -25,7 +25,7 @@ if not getcwd().endswith('src'):
     print('(Invoke as \'python ../contrib/enumutils_describe.py\')')
     exit(1)
 
-EnumPattern = compile(r'//\s*EnumUtils: DESCRIBE THIS(?:\s*\(in ([^\)]+)\))?\s+enum\s+([0-9A-Za-z]+)[^\n]*\s*{([^}]+)};')
+EnumPattern = compile(r'//\s*EnumUtils: DESCRIBE THIS(?:\s*\(in ([^\)]+)\))?\s+enum\s+(class\s+)?([0-9A-Za-z]+)[^\n]*\s*{([^}]+)};')
 EnumValuesPattern = compile(r'\s+\S.+?(,|$)[^\n]*')
 EnumValueNamePattern = compile(r'^\s*([a-zA-Z0-9_]+)', flags=MULTILINE)
 EnumValueSkipLinePattern = compile(r'^\s*//')
@@ -53,9 +53,13 @@ def processFile(path, filename):
     enums = []
     for enum in EnumPattern.finditer(file):
         prefix = enum.group(1) or ''
-        name = enum.group(2)
+        name = enum.group(3)
         values = []
-        for value in EnumValuesPattern.finditer(enum.group(3)):
+        # support enum class
+        valuePrefix = ''
+        if enum.group(2) is not None:
+            valuePrefix = name + '::'
+        for value in EnumValuesPattern.finditer(enum.group(4)):
             valueData = value.group(0)
             
             valueNameMatch = EnumValueNamePattern.search(valueData)
@@ -88,7 +92,7 @@ def processFile(path, filename):
             if valueDescription is None:
                 valueDescription = ''
             
-            values.append((valueName, valueTitle, valueDescription))
+            values.append((valueName, valueTitle, valueDescription, valuePrefix))
                 
         enums.append((prefix + name, prefix, values))
         print('%s.h: Enum %s parsed with %d values' % (filename, name, len(values)))
@@ -122,8 +126,8 @@ def processFile(path, filename):
         output.write('{\n')
         output.write('    switch (value)\n')
         output.write('    {\n')
-        for label, title, description in values:
-            output.write('        case %s: return { %s, %s, %s };\n' % (prefix + label, strescape(label), strescape(title), strescape(description)))
+        for label, title, description, labelPrefix in values:
+            output.write('        case %s: return { %s, %s, %s };\n' % (prefix + labelPrefix + label, strescape(label), strescape(title), strescape(description)))
         output.write('        default: throw std::out_of_range("value");\n')
         output.write('    }\n')
         output.write('}\n')
@@ -136,8 +140,8 @@ def processFile(path, filename):
         output.write('{\n')
         output.write('    switch (index)\n')
         output.write('    {\n')
-        for (i, (label, title, description)) in enumerate(values):
-            output.write('        case %d: return %s;\n' % (i, prefix + label))
+        for (i, (label, title, description, labelPrefix)) in enumerate(values):
+            output.write('        case %d: return %s;\n' % (i, prefix + labelPrefix + label))
         output.write('        default: throw std::out_of_range("index");\n')
         output.write('    }\n')
         output.write('}\n')
@@ -147,8 +151,8 @@ def processFile(path, filename):
         output.write('{\n')
         output.write('    switch (value)\n')
         output.write('    {\n')
-        for (i, (label, title, description)) in enumerate(values):
-            output.write('        case %s: return %d;\n' % (prefix + label, i))
+        for (i, (label, title, description, labelPrefix)) in enumerate(values):
+            output.write('        case %s: return %d;\n' % (prefix + labelPrefix + label, i))
         output.write('        default: throw std::out_of_range("value");\n')
         output.write('    }\n')
         output.write('}\n')
