@@ -457,15 +457,15 @@ class spell_mage_cold_snap : public SpellScript
         });
     }
 
-    std::initializer_list<uint32> spellsToReset =
-    {
-        SPELL_MAGE_ICE_BLOCK,
-        SPELL_MAGE_ICE_BARRIER,
-        SPELL_MAGE_CONE_OF_COLD
-    };
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
+        std::initializer_list<uint32> spellsToReset =
+        {
+            SPELL_MAGE_ICE_BLOCK,
+            SPELL_MAGE_ICE_BARRIER,
+            SPELL_MAGE_CONE_OF_COLD
+        };
+
         for (uint32 spellId : spellsToReset)
             GetCaster()->GetSpellHistory()->ResetCooldown(spellId, true);
 
