@@ -538,7 +538,7 @@ enum SMART_ACTION
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
     SMART_ACTION_GO_SET_LOOT_STATE                  = 99,     // state
     SMART_ACTION_SEND_TARGET_TO_TARGET              = 100,    // id
-    SMART_ACTION_SET_HOME_POS                       = 101,    // none (if target self/gameobject/creature, can use targetX/Y/Z/O as offset)
+    SMART_ACTION_SET_HOME_POS                       = 101,    // none (if target self/gameobject/creature, can use targetX/Y/Z as offset)
     SMART_ACTION_SET_HEALTH_REGEN                   = 102,    // 0/1
     SMART_ACTION_SET_ROOT                           = 103,    // off/on
     SMART_ACTION_SET_GO_FLAG                        = 104,    // UNUSED, DO NOT REUSE

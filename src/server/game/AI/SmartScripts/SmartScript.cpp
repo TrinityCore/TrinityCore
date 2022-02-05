@@ -1874,7 +1874,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsCreature(target))
                 {
                     if (e.GetTargetType() == SMART_TARGET_SELF)
-                        target->ToCreature()->SetHomePosition(me->GetPositionX()+e.target.x, me->GetPositionY()+e.target.y, me->GetPositionZ()+e.target.z, me->GetOrientation()+e.target.o);
+                        target->ToCreature()->SetHomePosition(me->GetPositionX()+e.target.x, me->GetPositionY()+e.target.y, me->GetPositionZ()+e.target.z, me->GetOrientation());
                     else if (e.GetTargetType() == SMART_TARGET_POSITION)
                         target->ToCreature()->SetHomePosition(e.target.x, e.target.y, e.target.z, e.target.o);
                     else if (e.GetTargetType() == SMART_TARGET_CREATURE_RANGE || e.GetTargetType() == SMART_TARGET_CREATURE_GUID ||
@@ -1885,7 +1885,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                              e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY || e.GetTargetType() == SMART_TARGET_CLOSEST_FRIENDLY ||
                              e.GetTargetType() == SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT)
                     {
-                        target->ToCreature()->SetHomePosition(target->GetPositionX()+e.target.x, target->GetPositionY()+e.target.y, target->GetPositionZ()+e.target.z, target->GetOrientation()+e.target.o);
+                        target->ToCreature()->SetHomePosition(target->GetPositionX()+e.target.x, target->GetPositionY()+e.target.y, target->GetPositionZ()+e.target.z, target->GetOrientation());
                     }
                     else
                         TC_LOG_ERROR("sql.sql", "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is invalid, skipping");
