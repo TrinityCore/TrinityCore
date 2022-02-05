@@ -200,6 +200,10 @@ public:
 # npc_mature_netherwing_drake
 #####*/
 
+/*
+
+// TODO: Commented out for now, wipe this. Script is implemented in SAI.
+
 enum MatureNetherwing
 {
     SAY_JUST_EATEN              = 0,
@@ -339,6 +343,8 @@ public:
         }
     };
 };
+
+*/
 
 /*###
 # npc_enslaved_netherwing_drake
