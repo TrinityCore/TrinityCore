@@ -50,6 +50,7 @@ enum MageSpells
     SPELL_MAGE_BLIZZARD_SLOW                     = 12486,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_CAUTERIZED                        = 87024,
+	SPELL_MAGE_CHILLED                           = 205708,
     SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
     SPELL_MAGE_COMET_STORM_VISUAL                = 228601,
     SPELL_MAGE_CONE_OF_COLD                      = 120,
@@ -93,8 +94,7 @@ enum MiscSpells
 {
     SPELL_HUNTER_INSANITY                        = 95809,
     SPELL_SHAMAN_EXHAUSTION                      = 57723,
-    SPELL_SHAMAN_SATED                           = 57724,
-    SPELL_MAGE_CHILLED                           = 205708
+    SPELL_SHAMAN_SATED                           = 57724
 };
 
 // 110909 - Alter Time Aura
@@ -712,6 +712,28 @@ class spell_mage_flame_on : public AuraScript
    }
 };
 
+// 116 - Frostbolt
+class spell_mage_frostbolt : public SpellScript
+{
+    PrepareSpellScript(spell_mage_frostbolt);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_CHILLED });
+    }
+
+    void HandleChilled()
+    {
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_mage_frostbolt::HandleChilled);
+    }
+};
+
 // 11426 - Ice Barrier
 class spell_mage_ice_barrier : public AuraScript
 {
@@ -1288,30 +1310,6 @@ class spell_mage_touch_of_the_magi_aura : public AuraScript
     }
 };
 
-/* 228597 - Frostbolt
-   84721  - Frozen Orb
-   190357 - Blizzard */
-class spell_mage_trigger_chilled : public SpellScript
-{
-    PrepareSpellScript(spell_mage_trigger_chilled);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_MAGE_CHILLED });
-    }
-
-    void HandleChilled()
-    {
-        if (Unit* target = GetHitUnit())
-            GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
-    }
-
-    void Register() override
-    {
-        OnHit += SpellHitFn(spell_mage_trigger_chilled::HandleChilled);
-    }
-};
-
 // 33395 Water Elemental's Freeze
 class spell_mage_water_elemental_freeze : public SpellScript
 {
@@ -1358,6 +1356,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
     RegisterSpellScript(spell_mage_flame_on);
+    RegisterSpellScript(spell_mage_frostbolt);
     RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);
@@ -1374,6 +1373,5 @@ void AddSC_mage_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_time_warp);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
-    RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }
