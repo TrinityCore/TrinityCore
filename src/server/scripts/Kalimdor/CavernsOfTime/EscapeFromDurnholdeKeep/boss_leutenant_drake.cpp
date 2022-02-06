@@ -45,7 +45,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
                 return false;

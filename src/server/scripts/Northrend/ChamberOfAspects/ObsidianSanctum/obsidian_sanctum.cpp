@@ -250,7 +250,7 @@ struct dummy_dragonAI : public ScriptedAI
 
         // using a grid search here seem to be more efficient than caching all four guids
         // in instance script and calculate range to each.
-        GameObject* portal = me->FindNearestGameObject(GO_TWILIGHT_PORTAL, 50.0f);
+        GameObject* portal = me->FindNearestGameObject(GO_TWILIGHT_PORTAL, 50.0f, false);
 
         switch (me->GetEntry())
         {

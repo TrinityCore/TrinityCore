@@ -1164,7 +1164,7 @@ CREATE TABLE `character_pet` (
   `Reactstate` tinyint unsigned NOT NULL DEFAULT '0',
   `name` varchar(21) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pet',
   `renamed` tinyint unsigned NOT NULL DEFAULT '0',
-  `slot` tinyint unsigned NOT NULL DEFAULT '0',
+  `slot` smallint NOT NULL DEFAULT '-1',
   `curhealth` int unsigned NOT NULL DEFAULT '1',
   `curmana` int unsigned NOT NULL DEFAULT '0',
   `savetime` int unsigned NOT NULL DEFAULT '0',
@@ -1826,7 +1826,7 @@ CREATE TABLE `characters` (
   `trans_o` float NOT NULL DEFAULT '0',
   `transguid` bigint unsigned NOT NULL DEFAULT '0',
   `extra_flags` smallint unsigned NOT NULL DEFAULT '0',
-  `stable_slots` tinyint unsigned NOT NULL DEFAULT '0',
+  `summonedPetNumber` int unsigned NOT NULL DEFAULT '0',
   `at_login` smallint unsigned NOT NULL DEFAULT '0',
   `zone` smallint unsigned NOT NULL DEFAULT '0',
   `death_expire_time` bigint NOT NULL DEFAULT '0',
@@ -3659,7 +3659,10 @@ INSERT INTO `updates` VALUES
 ('2021_12_31_02_characters.sql','C66A367F0AD7A9D6837238C21E91298413BD960C','ARCHIVED','2021-12-31 16:10:30',0),
 ('2022_01_02_00_characters.sql','5169A5BBACB42E6CEDE405D3C4843FD386CDF92E','ARCHIVED','2022-01-02 21:22:35',0),
 ('2022_01_09_00_characters.sql','3AC51F589821C17027CBA861EF762A709430CDB3','ARCHIVED','2022-01-09 21:29:45',0),
-('2022_01_15_00_characters.sql','884EFB6592DC8A765E0C0BF8BF907B4E4733BB0C','ARCHIVED','2022-01-15 23:24:58',0);
+('2022_01_15_00_characters.sql','884EFB6592DC8A765E0C0BF8BF907B4E4733BB0C','ARCHIVED','2022-01-15 23:24:58',0),
+('2022_01_31_00_characters.sql','19551474AA6079F0616B565F254914C5DD9ED1A1','RELEASED','2022-01-31 14:32:49',0),
+('2022_01_31_01_characters.sql','E0A1FA670F4621AEB594D7ACBA4921CB298F54FF','RELEASED','2022-01-31 20:47:59',0),
+('2022_01_31_02_characters.sql','6E3A3F02276287DD540BC4C17E246DFB850260D8','RELEASED','2022-01-31 21:43:38',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

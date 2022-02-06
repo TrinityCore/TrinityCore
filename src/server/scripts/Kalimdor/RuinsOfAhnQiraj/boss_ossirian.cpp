@@ -299,7 +299,7 @@ class go_ossirian_crystal : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // Crystal animation on use
                 me->SetLootState(GO_ACTIVATED);

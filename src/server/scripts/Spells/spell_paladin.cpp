@@ -42,10 +42,6 @@ enum PaladinSpells
     SPELL_PALADIN_AVENGING_WRATH                 = 31884,
     SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
     SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID   = 37878,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
     SPELL_PALADIN_BLINDING_LIGHT_EFFECT          = 105421,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_CONSECRATED_GROUND_PASSIVE     = 204054,
@@ -90,11 +86,23 @@ enum PaladinSpells
     SPELL_PALADIN_JUDGMENT_HOLY_R3               = 231644,
     SPELL_PALADIN_JUDGMENT_HOLY_R3_DEBUFF        = 214222,
     SPELL_PALADIN_JUDGMENT_PROT_RET_R3           = 315867,
+    SPELL_PALADIN_LIGHT_HAMMER_COSMETIC          = 122257,
+    SPELL_PALADIN_LIGHT_HAMMER_DAMAGE            = 114919,
+    SPELL_PALADIN_LIGHT_HAMMER_HEALING           = 119952,
+    SPELL_PALADIN_LIGHT_HAMMER_PERIODIC          = 114918,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_ZEAL_AURA                      = 269571,
+};
+
+enum PaladinCovenantSpells
+{
+    SPELL_PALADIN_ASHEN_HALLOW                   = 316958,
+    SPELL_PALADIN_ASHEN_HALLOW_DAMAGE            = 317221,
+    SPELL_PALADIN_ASHEN_HALLOW_HEAL              = 317223,
+    SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER      = 330382
 };
 
 enum PaladinSpellVisualKit
@@ -104,7 +112,65 @@ enum PaladinSpellVisualKit
 
 enum PaladinSpellVisual
 {
-    PALADIN_VISUAL_SPELL_HOLY_SHOCK              = 83732
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE       = 83731,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT  = 83881,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL         = 83732,
+    PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
+};
+
+// 19042 - Ashen Hallow
+struct areatrigger_pal_ashen_hallow : AreaTriggerAI
+{
+    areatrigger_pal_ashen_hallow(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void RefreshPeriod()
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (AuraEffect const* ashen = caster->GetAuraEffect(SPELL_PALADIN_ASHEN_HALLOW, EFFECT_1))
+                _period = Milliseconds(ashen->GetPeriod());
+        }
+    }
+
+    void OnCreate() override
+    {
+        RefreshPeriod();
+        _refreshTimer = _period;
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _refreshTimer -= Milliseconds(diff);
+
+        while (_refreshTimer <= 0s)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_HEAL);
+                caster->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_DAMAGE);
+            }
+
+            RefreshPeriod();
+
+            _refreshTimer += _period;
+        }
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (unit->GetGUID() == at->GetCasterGuid())
+            unit->CastSpell(unit, SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        if (unit->GetGUID() == at->GetCasterGuid())
+            unit->RemoveAura(SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER);
+    }
+
+private:
+    Milliseconds _refreshTimer;
+    Milliseconds _period;
 };
 
 /*
@@ -188,55 +254,6 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         }
 };
 */
-
-// 37877 - Blessing of Faith
-class spell_pal_blessing_of_faith : public SpellScript
-{
-    PrepareSpellScript(spell_pal_blessing_of_faith);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID,
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN,
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST,
-            SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* unitTarget = GetHitUnit())
-        {
-            uint32 spell_id = 0;
-            switch (unitTarget->GetClass())
-            {
-                case CLASS_DRUID:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID;
-                    break;
-                case CLASS_PALADIN:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN;
-                    break;
-                case CLASS_PRIEST:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST;
-                    break;
-                case CLASS_SHAMAN:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN;
-                    break;
-                default:
-                    return; // ignore for non-healing classes
-            }
-            Unit* caster = GetCaster();
-            caster->CastSpell(caster, spell_id, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_pal_blessing_of_faith::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
 
 // 1022 - Blessing of Protection
 // 204018 - Blessing of Spellwarding
@@ -884,11 +901,9 @@ class spell_pal_holy_shock : public SpellScript
         if (Unit* unitTarget = GetHitUnit())
         {
             if (caster->IsFriendlyTo(unitTarget))
-                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_HEALING, true);
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_HEALING, GetSpell());
             else
-                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_DAMAGE, true);
-
-            caster->SendPlaySpellVisual(unitTarget, PALADIN_VISUAL_SPELL_HOLY_SHOCK, 0, 0, 0, false);
+                caster->CastSpell(unitTarget, SPELL_PALADIN_HOLY_SHOCK_DAMAGE, GetSpell());
         }
     }
 
@@ -896,6 +911,50 @@ class spell_pal_holy_shock : public SpellScript
     {
         OnCheckCast += SpellCheckCastFn(spell_pal_holy_shock::CheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_pal_holy_shock::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 25912 - Holy Shock
+class spell_pal_holy_shock_damage_visual : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_shock_damage_visual);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE)
+            && sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT);
+    }
+
+    void PlayVisual()
+    {
+        GetCaster()->SendPlaySpellVisual(GetHitUnit(), IsHitCrit() ? PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT : PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE, 0, 0, 0.0f, false);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_holy_shock_damage_visual::PlayVisual);
+    }
+};
+
+// 25914 - Holy Shock
+class spell_pal_holy_shock_heal_visual : public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_shock_heal_visual);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL)
+            && sSpellVisualStore.HasRecord(PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT);
+    }
+
+    void PlayVisual()
+    {
+        GetCaster()->SendPlaySpellVisual(GetHitUnit(), IsHitCrit() ? PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT : PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL, 0, 0, 0.0f, false);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_holy_shock_heal_visual::PlayVisual);
     }
 };
 
@@ -1073,6 +1132,70 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
         {
             return new spell_pal_light_s_beacon_AuraScript();
         }
+};
+
+// 122773 - Light's Hammer
+class spell_pal_light_hammer_init_summon : public SpellScript
+{
+    PrepareSpellScript(spell_pal_light_hammer_init_summon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_LIGHT_HAMMER_COSMETIC,
+            SPELL_PALADIN_LIGHT_HAMMER_PERIODIC
+        });
+    }
+
+    void InitSummon()
+    {
+         for (SpellLogEffectGenericVictimParams const& summonedObject : GetSpell()->GetExecuteLogEffectTargets(SPELL_EFFECT_SUMMON, &SpellLogEffect::GenericVictimTargets))
+         {
+             if (Unit* hammer = ObjectAccessor::GetUnit(*GetCaster(), summonedObject.Victim))
+             {
+                 hammer->CastSpell(hammer, SPELL_PALADIN_LIGHT_HAMMER_COSMETIC,
+                     CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetTriggeringSpell(GetSpell()));
+                 hammer->CastSpell(hammer, SPELL_PALADIN_LIGHT_HAMMER_PERIODIC,
+                     CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetTriggeringSpell(GetSpell()));
+             }
+         }
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pal_light_hammer_init_summon::InitSummon);
+    }
+};
+
+// 114918 - Light's Hammer (Periodic)
+class spell_pal_light_hammer_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_pal_light_hammer_periodic);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PALADIN_LIGHT_HAMMER_HEALING,
+            SPELL_PALADIN_LIGHT_HAMMER_DAMAGE
+        });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* lightHammer = GetTarget();
+        if (Unit* originalCaster = lightHammer->GetOwner())
+        {
+            originalCaster->CastSpell(lightHammer->GetPosition(), SPELL_PALADIN_LIGHT_HAMMER_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            originalCaster->CastSpell(lightHammer->GetPosition(), SPELL_PALADIN_LIGHT_HAMMER_HEALING, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_light_hammer_periodic::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 // 204074 - Righteous Protector
@@ -1316,17 +1439,17 @@ class spell_pal_zeal : public AuraScript
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
-    RegisterSpellScript(spell_pal_blessing_of_faith);
+    RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
-    RegisterAuraScript(spell_pal_crusader_might);
-    RegisterAuraScript(spell_pal_consecration);
+    RegisterSpellScript(spell_pal_crusader_might);
+    RegisterSpellScript(spell_pal_consecration);
     RegisterAreaTriggerAI(areatrigger_pal_consecration);
     RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_steed);
     RegisterSpellScript(spell_pal_divine_storm);
-    RegisterAuraScript(spell_pal_eye_for_an_eye);
-    RegisterAuraScript(spell_pal_fist_of_justice);
+    RegisterSpellScript(spell_pal_eye_for_an_eye);
+    RegisterSpellScript(spell_pal_fist_of_justice);
     RegisterSpellScript(spell_pal_glyph_of_holy_light);
     new spell_pal_grand_crusader();
     new spell_pal_hand_of_sacrifice();
@@ -1336,15 +1459,19 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_holy_prism);
     RegisterSpellScript(spell_pal_holy_prism_selector);
     RegisterSpellScript(spell_pal_holy_shock);
-    RegisterAuraScript(spell_pal_item_healing_discount);
-    RegisterAuraScript(spell_pal_item_t6_trinket);
+    RegisterSpellScript(spell_pal_holy_shock_damage_visual);
+    RegisterSpellScript(spell_pal_holy_shock_heal_visual);
+    RegisterSpellScript(spell_pal_item_healing_discount);
+    RegisterSpellScript(spell_pal_item_t6_trinket);
     RegisterSpellScript(spell_pal_lay_on_hands);
     new spell_pal_light_s_beacon();
-    RegisterAuraScript(spell_pal_righteous_protector);
-    RegisterAuraScript(spell_pal_righteous_verdict);
-    RegisterAuraScript(spell_pal_selfless_healer);
+    RegisterSpellScript(spell_pal_light_hammer_init_summon);
+    RegisterSpellScript(spell_pal_light_hammer_periodic);
+    RegisterSpellScript(spell_pal_righteous_protector);
+    RegisterSpellScript(spell_pal_righteous_verdict);
+    RegisterSpellScript(spell_pal_selfless_healer);
     RegisterSpellScript(spell_pal_templar_s_verdict);
     new spell_pal_t3_6p_bonus();
     new spell_pal_t8_2p_bonus();
-    RegisterAuraScript(spell_pal_zeal);
+    RegisterSpellScript(spell_pal_zeal);
 }

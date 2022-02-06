@@ -338,9 +338,12 @@ constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
-    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
-        if (mask & GetMaskForSchool(school))
-            return school;
+    // Do not use EnumUtils to iterate
+    // this can cause some compilers to instantiate Trinity::Impl::EnumUtils<SpellSchools>
+    // when compiling enuminfo_SharedDefines before their explicit specializations in that file
+    for (uint16 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        if (mask & (1 << i))
+            return SpellSchools(i);
 
     return SPELL_SCHOOL_NORMAL;
 }
@@ -505,7 +508,7 @@ enum SpellAttr2 : uint32
     SPELL_ATTR2_UNK27                            = 0x08000000, // TITLE Unknown attribute 27@Attr2
     SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS= 0x10000000,// TITLE Not an Action
     SPELL_ATTR2_CANT_CRIT                        = 0x20000000, // TITLE Cannot critically strike
-    SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC       = 0x40000000, // TITLE Allow triggered spell to trigger procs DESCRIPTION Without this attribute, any triggered spell will be unable to trigger other auras' procs
+    SPELL_ATTR2_ACTIVE_THREAT                    = 0x40000000, // TITLE Active Threat
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // TITLE Food buff (client only)
 };
 
@@ -521,7 +524,7 @@ enum SpellAttr3 : uint32
     SPELL_ATTR3_UNK6                             = 0x00000040, // TITLE Unknown attribute 6@Attr3
     SPELL_ATTR3_STACK_FOR_DIFF_CASTERS           = 0x00000080, // TITLE Stack separately for each caster
     SPELL_ATTR3_ONLY_TARGET_PLAYERS              = 0x00000100, // TITLE Can only target players
-    SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2     = 0x00000200, // TITLE Allow triggered spell to trigger (type 2) DESCRIPTION Without this attribute, any triggered spell will be unable to trigger other auras' procs
+    SPELL_ATTR3_NOT_A_PROC                       = 0x00000200, // TITLE Not a Proc DESCRIPTION Without this attribute, any triggered spell will be unable to trigger other auras' procs
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // TITLE Require main hand weapon
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // TITLE Can only be cast in battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // TITLE Can only target ghost players
@@ -538,7 +541,7 @@ enum SpellAttr3 : uint32
     SPELL_ATTR3_UNK23                            = 0x00800000, // TITLE Unknown attribute 23@Attr3
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // TITLE Requires offhand weapon
     SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // TITLE Treat as periodic effect
-    SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // TITLE Can trigger from triggered spells
+    SPELL_ATTR3_CAN_PROC_FROM_PROCS              = 0x04000000, // TITLE Can Proc From Procs
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // TITLE Drain Soul
     SPELL_ATTR3_UNK28                            = 0x10000000, // TITLE Unknown attribute 28@Attr3
     SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // TITLE Damage dealt is unaffected by modifiers
@@ -1422,6 +1425,7 @@ enum SpellEffectName
     TOTAL_SPELL_EFFECTS
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellCastResult
 {
     SPELL_FAILED_SUCCESS                                        = 0,
@@ -1740,7 +1744,7 @@ enum SpellCastResult
     SPELL_FAILED_UNKNOWN                                        = 313,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
-    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
+    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
 };
 
 enum SpellCustomErrors
@@ -2381,6 +2385,7 @@ enum GhostVisibilityType
 };
 
 // Spell aura states
+// EnumUtils: DESCRIBE THIS
 enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
@@ -5630,6 +5635,7 @@ enum CorpseDynFlags
 
 #define PLAYER_CORPSE_LOOT_ENTRY 1
 
+// EnumUtils: DESCRIBE THIS
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,
@@ -5642,6 +5648,7 @@ enum WeatherType
 
 #define MAX_WEATHER_TYPE 4
 
+// EnumUtils: DESCRIBE THIS
 enum ChatMsg : int32
 {
     CHAT_MSG_ADDON                              = -1,

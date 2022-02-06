@@ -57,12 +57,12 @@ public:
         return commandTable;
     }
 
-    // Enables or disables hiding of the staff badge
-    static bool HandleGMChatCommand(ChatHandler* handler, char const* args)
+    // Enables or disables the staff badge
+    static bool HandleGMChatCommand(ChatHandler* handler, Optional<bool> enableArg)
     {
         if (WorldSession* session = handler->GetSession())
         {
-            if (!*args)
+            if (!enableArg)
             {
                 if (session->HasPermission(rbac::RBAC_PERM_CHAT_USE_STAFF_BADGE) && session->GetPlayer()->isGMChat())
                     session->SendNotification(LANG_GM_CHAT_ON);
@@ -71,16 +71,13 @@ public:
                 return true;
             }
 
-            std::string param = (char*)args;
-
-            if (param == "on")
+            if (*enableArg)
             {
                 session->GetPlayer()->SetGMChat(true);
                 session->SendNotification(LANG_GM_CHAT_ON);
                 return true;
             }
-
-            if (param == "off")
+            else
             {
                 session->GetPlayer()->SetGMChat(false);
                 session->SendNotification(LANG_GM_CHAT_OFF);
@@ -93,49 +90,40 @@ public:
         return false;
     }
 
-    static bool HandleGMFlyCommand(ChatHandler* handler, char const* args)
+    static bool HandleGMFlyCommand(ChatHandler* handler, bool enable)
     {
-        if (!*args)
-            return false;
-
         Player* target = handler->getSelectedPlayer();
         if (!target)
             target = handler->GetSession()->GetPlayer();
 
-        WorldPacket data;
-        if (strncmp(args, "on", 3) == 0)
+        if (enable)
         {
             target->SetCanFly(true);
             target->SetCanTransitionBetweenSwimAndFly(true);
         }
-        else if (strncmp(args, "off", 4) == 0)
+        else
         {
             target->SetCanFly(false);
             target->SetCanTransitionBetweenSwimAndFly(false);
         }
-        else
-        {
-            handler->SendSysMessage(LANG_USE_BOL);
-            return false;
-        }
-        handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, handler->GetNameLink(target).c_str(), args);
+
+        handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, handler->GetNameLink(target).c_str(), enable ? "on" : "off");
         return true;
     }
 
-    static bool HandleGMListIngameCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleGMListIngameCommand(ChatHandler* handler)
     {
         bool first = true;
         bool footer = false;
 
         std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-        HashMapHolder<Player>::MapType const& m = ObjectAccessor::GetPlayers();
-        for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+        for (auto const [playerGuid, player] : ObjectAccessor::GetPlayers())
         {
-            AccountTypes itrSec = itr->second->GetSession()->GetSecurity();
-            if ((itr->second->IsGameMaster() ||
-                (itr->second->GetSession()->HasPermission(rbac::RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST) &&
-                 itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
-                (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
+            AccountTypes playerSec = player->GetSession()->GetSecurity();
+            if ((player->IsGameMaster() ||
+                (player->GetSession()->HasPermission(rbac::RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST) &&
+                    playerSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+                (!handler->GetSession() || player->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
                 {
@@ -144,9 +132,9 @@ public:
                     handler->SendSysMessage(LANG_GMS_ON_SRV);
                     handler->SendSysMessage("========================");
                 }
-                std::string const& name = itr->second->GetName();
+                std::string const& name = player->GetName();
                 uint8 size = uint8(name.size());
-                uint8 security = itrSec;
+                uint8 security = playerSec;
                 uint8 max = ((16 - size) / 2);
                 uint8 max2 = max;
                 if ((max + max2 + size) == 16)
@@ -165,7 +153,7 @@ public:
     }
 
     /// Display the list of GMs
-    static bool HandleGMListFullCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleGMListFullCommand(ChatHandler* handler)
     {
         ///- Get the accounts with GM Level >0
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_GM_ACCOUNTS);
@@ -200,20 +188,19 @@ public:
     }
 
     //Enable\Disable Invisible mode
-    static bool HandleGMVisibleCommand(ChatHandler* handler, char const* args)
+    static bool HandleGMVisibleCommand(ChatHandler* handler, Optional<bool> visibleArg)
     {
         Player* _player = handler->GetSession()->GetPlayer();
 
-        if (!*args)
+        if (!visibleArg)
         {
             handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetTrinityString(LANG_VISIBLE) : handler->GetTrinityString(LANG_INVISIBLE));
             return true;
         }
 
         const uint32 VISUAL_AURA = 37800;
-        std::string param = (char*)args;
 
-        if (param == "on")
+        if (*visibleArg)
         {
             if (_player->HasAura(VISUAL_AURA))
                 _player->RemoveAurasDueToSpell(VISUAL_AURA);
@@ -221,55 +208,43 @@ public:
             _player->SetGMVisible(true);
             _player->UpdateObjectVisibility();
             handler->GetSession()->SendNotification(LANG_INVISIBLE_VISIBLE);
-            return true;
         }
-
-        if (param == "off")
+        else
         {
             _player->AddAura(VISUAL_AURA, _player);
             _player->SetGMVisible(false);
             _player->UpdateObjectVisibility();
             handler->GetSession()->SendNotification(LANG_INVISIBLE_INVISIBLE);
-            return true;
         }
 
-        handler->SendSysMessage(LANG_USE_BOL);
-        handler->SetSentErrorMessage(true);
-        return false;
+        return true;
     }
 
     //Enable\Disable GM Mode
-    static bool HandleGMCommand(ChatHandler* handler, char const* args)
+    static bool HandleGMCommand(ChatHandler* handler, Optional<bool> enableArg)
     {
         Player* _player = handler->GetSession()->GetPlayer();
 
-        if (!*args)
+        if (!enableArg)
         {
             handler->GetSession()->SendNotification(_player->IsGameMaster() ? LANG_GM_ON : LANG_GM_OFF);
             return true;
         }
 
-        std::string param = (char*)args;
-
-        if (param == "on")
+        if (*enableArg)
         {
             _player->SetGameMaster(true);
             handler->GetSession()->SendNotification(LANG_GM_ON);
             _player->UpdateTriggerVisibility();
-            return true;
         }
-
-        if (param == "off")
+        else
         {
             _player->SetGameMaster(false);
             handler->GetSession()->SendNotification(LANG_GM_OFF);
             _player->UpdateTriggerVisibility();
-            return true;
         }
 
-        handler->SendSysMessage(LANG_USE_BOL);
-        handler->SetSentErrorMessage(true);
-        return false;
+        return true;
     }
 };
 
