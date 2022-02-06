@@ -459,7 +459,7 @@ class spell_mage_cold_snap : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        std::initializer_list<uint32> spellsToReset =
+        std::vector<uint32> spellsToReset =
         {
             SPELL_MAGE_ICE_BLOCK,
             SPELL_MAGE_ICE_BARRIER,
