@@ -145,7 +145,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Is Gamemaster",             true, false, false },
     { "Object Entry or Guid",      true, true,  true  },
     { "Object TypeMask",           true, false, false },
-    { "BatllePet Learned",         true, false, false },
+    { "BattlePet Species Learned", true, true,  true  },
 };
 
 // Checks if object meets the condition
@@ -566,10 +566,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
-        case CONDITION_BATTLEPET_JOURNAL:
+        case CONDITION_BATTLE_PET_COUNT:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->GetSession()->GetBattlePetMgr()->GetPetCount(ConditionValue1, player->GetGUID()) > 0;
+                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue3),
+                    player->GetSession()->GetBattlePetMgr()->GetPetCount(sBattlePetSpeciesStore.AssertEntry(ConditionValue1), player->GetGUID()),
+                    static_cast<uint8>(ConditionValue2));
             break;
         }
         default:
@@ -773,7 +775,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
         case CONDITION_GAMEMASTER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
-        case CONDITION_BATTLEPET_JOURNAL:
+        case CONDITION_BATTLE_PET_COUNT:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -2564,15 +2566,24 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 return false;
             }
             break;
-        case CONDITION_BATTLEPET_JOURNAL:
-        {
+        case CONDITION_BATTLE_PET_COUNT:
             if (!sBattlePetSpeciesStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing BattlePet SpecieId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing BattlePet SpeciesId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            if (cond->ConditionValue2 > BattlePets::DEFAULT_MAX_BATTLE_PETS_PER_SPECIES)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has invalid (greater than %u) value2 (%u), skipped.", cond->ToString(true).c_str(),
+                    uint32(BattlePets::DEFAULT_MAX_BATTLE_PETS_PER_SPECIES), cond->ConditionValue2);
+                return false;
+            }
+            if (cond->ConditionValue3 >= COMP_TYPE_MAX)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
                 return false;
             }
             break;
-        }
         default:
             TC_LOG_ERROR("sql.sql", "%s Invalid ConditionType in `condition` table, ignoring.", cond->ToString().c_str());
             return false;
