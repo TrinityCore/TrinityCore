@@ -19,6 +19,7 @@
 #include "AchievementMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
+#include "BattlePetMgr.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DatabaseEnv.h"
@@ -144,6 +145,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Is Gamemaster",             true, false, false },
     { "Object Entry or Guid",      true, true,  true  },
     { "Object TypeMask",           true, false, false },
+    { "BattlePet Species Learned", true, true,  true  },
 };
 
 // Checks if object meets the condition
@@ -564,6 +566,14 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_BATTLE_PET_COUNT:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue3),
+                    player->GetSession()->GetBattlePetMgr()->GetPetCount(sBattlePetSpeciesStore.AssertEntry(ConditionValue1), player->GetGUID()),
+                    static_cast<uint8>(ConditionValue2));
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -763,6 +773,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_GAMEMASTER:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_BATTLE_PET_COUNT:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -2550,6 +2563,24 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing difficulty in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        case CONDITION_BATTLE_PET_COUNT:
+            if (!sBattlePetSpeciesStore.LookupEntry(cond->ConditionValue1))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non existing BattlePet SpeciesId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            if (cond->ConditionValue2 > BattlePets::DEFAULT_MAX_BATTLE_PETS_PER_SPECIES)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has invalid (greater than %u) value2 (%u), skipped.", cond->ToString(true).c_str(),
+                    uint32(BattlePets::DEFAULT_MAX_BATTLE_PETS_PER_SPECIES), cond->ConditionValue2);
+                return false;
+            }
+            if (cond->ConditionValue3 >= COMP_TYPE_MAX)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
                 return false;
             }
             break;

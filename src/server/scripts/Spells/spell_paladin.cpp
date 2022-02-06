@@ -95,6 +95,14 @@ enum PaladinSpells
     SPELL_PALADIN_LIGHT_HAMMER_DAMAGE            = 114919
 };
 
+enum PaladinCovenantSpells
+{
+    SPELL_PALADIN_ASHEN_HALLOW                   = 316958,
+    SPELL_PALADIN_ASHEN_HALLOW_DAMAGE            = 317221,
+    SPELL_PALADIN_ASHEN_HALLOW_HEAL              = 317223,
+    SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER      = 330382
+};
+
 enum PaladinSpellVisualKit
 {
     PALADIN_VISUAL_KIT_DIVINE_STORM              = 73892
@@ -106,6 +114,61 @@ enum PaladinSpellVisual
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT  = 83881,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL         = 83732,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
+};
+
+// 19042 - Ashen Hallow
+struct areatrigger_pal_ashen_hallow : AreaTriggerAI
+{
+    areatrigger_pal_ashen_hallow(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void RefreshPeriod()
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (AuraEffect const* ashen = caster->GetAuraEffect(SPELL_PALADIN_ASHEN_HALLOW, EFFECT_1))
+                _period = Milliseconds(ashen->GetPeriod());
+        }
+    }
+
+    void OnCreate() override
+    {
+        RefreshPeriod();
+        _refreshTimer = _period;
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _refreshTimer -= Milliseconds(diff);
+
+        while (_refreshTimer <= 0s)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                caster->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_HEAL);
+                caster->CastSpell(at->GetPosition(), SPELL_PALADIN_ASHEN_HALLOW_DAMAGE);
+            }
+
+            RefreshPeriod();
+
+            _refreshTimer += _period;
+        }
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (unit->GetGUID() == at->GetCasterGuid())
+            unit->CastSpell(unit, SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        if (unit->GetGUID() == at->GetCasterGuid())
+            unit->RemoveAura(SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER);
+    }
+
+private:
+    Milliseconds _refreshTimer;
+    Milliseconds _period;
 };
 
 // 114918 - Light's Hammer (Periodic)
@@ -1342,6 +1405,7 @@ class spell_pal_zeal : public AuraScript
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
+    RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_crusader_might);
