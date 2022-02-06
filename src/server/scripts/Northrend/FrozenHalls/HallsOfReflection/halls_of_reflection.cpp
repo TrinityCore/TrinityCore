@@ -360,7 +360,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // override default gossip
                 if (_instance->GetData(DATA_QUEL_DELAR_EVENT) == IN_PROGRESS || _instance->GetData(DATA_QUEL_DELAR_EVENT) == SPECIAL)
@@ -373,7 +373,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 return false;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 ClearGossipMenuFor(player);
 
@@ -880,7 +880,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 }
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // override default gossip
                 if (_instance->GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
@@ -894,7 +894,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 return false;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 ClearGossipMenuFor(player);
 
@@ -1091,7 +1091,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             break;
                         case EVENT_ESCAPE_7:
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
-                                lichking->HandleEmoteCommand(TEXT_EMOTE_ROAR);
+                                lichking->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             me->GetMotionMaster()->MovePoint(0, NpcJainaOrSylvanasEscapeRoute[0]);
                             _events.ScheduleEvent(EVENT_ESCAPE_8, 3s);
                             break;

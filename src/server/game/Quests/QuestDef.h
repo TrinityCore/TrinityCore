@@ -50,24 +50,26 @@ namespace WorldPackets
 #define QUEST_REWARD_CURRENCY_COUNT 4
 #define QUEST_REWARD_DISPLAY_SPELL_COUNT 3
 
-enum QuestFailedReason
+// EnumUtils: DESCRIBE THIS
+enum QuestFailedReason : uint32
 {
     QUEST_ERR_NONE                              = 0,
-    QUEST_ERR_FAILED_LOW_LEVEL                  = 1,        // "You are not high enough level for that quest.""
-    QUEST_ERR_FAILED_WRONG_RACE                 = 6,        // "That quest is not available to your race."
-    QUEST_ERR_ALREADY_DONE                      = 7,        // "You have completed that daily quest today."
-    QUEST_ERR_ONLY_ONE_TIMED                    = 12,       // "You can only be on one timed quest at a time"
-    QUEST_ERR_ALREADY_ON1                       = 13,       // "You are already on that quest"
-    QUEST_ERR_FAILED_EXPANSION                  = 16,       // "This quest requires an expansion enabled account."
-    QUEST_ERR_ALREADY_ON2                       = 18,       // "You are already on that quest"
-    QUEST_ERR_FAILED_MISSING_ITEMS              = 21,       // "You don't have the required items with you.  Check storage."
-    QUEST_ERR_FAILED_NOT_ENOUGH_MONEY           = 23,       // "You don't have enough money for that quest"
-    QUEST_ERR_FAILED_CAIS                       = 24,       // "You cannot complete quests once you have reached tired time"
-    QUEST_ERR_ALREADY_DONE_DAILY                = 26,       // "You have completed that daily quest today."
-    QUEST_ERR_FAILED_SPELL                      = 28,       // "You haven't learned the required spell."
-    QUEST_ERR_HAS_IN_PROGRESS                   = 30        // "Progress Bar objective not completed"
+    QUEST_ERR_FAILED_LOW_LEVEL                  = 1,        // DESCRIPTION "You are not high enough level for that quest.""
+    QUEST_ERR_FAILED_WRONG_RACE                 = 6,        // DESCRIPTION "That quest is not available to your race."
+    QUEST_ERR_ALREADY_DONE                      = 7,        // DESCRIPTION "You have completed that daily quest today."
+    QUEST_ERR_ONLY_ONE_TIMED                    = 12,       // DESCRIPTION "You can only be on one timed quest at a time"
+    QUEST_ERR_ALREADY_ON1                       = 13,       // DESCRIPTION "You are already on that quest"
+    QUEST_ERR_FAILED_EXPANSION                  = 16,       // DESCRIPTION "This quest requires an expansion enabled account."
+    QUEST_ERR_ALREADY_ON2                       = 18,       // DESCRIPTION "You are already on that quest"
+    QUEST_ERR_FAILED_MISSING_ITEMS              = 21,       // DESCRIPTION "You don't have the required items with you.  Check storage."
+    QUEST_ERR_FAILED_NOT_ENOUGH_MONEY           = 23,       // DESCRIPTION "You don't have enough money for that quest"
+    QUEST_ERR_FAILED_CAIS                       = 24,       // DESCRIPTION "You cannot complete quests once you have reached tired time"
+    QUEST_ERR_ALREADY_DONE_DAILY                = 26,       // DESCRIPTION "You have completed that daily quest today."
+    QUEST_ERR_FAILED_SPELL                      = 28,       // DESCRIPTION "You haven't learned the required spell."
+    QUEST_ERR_HAS_IN_PROGRESS                   = 30        // DESCRIPTION "Progress Bar objective not completed"
 };
 
+// EnumUtils: DESCRIBE THIS
 enum class QuestPushReason : uint8
 {
     Success                         = 0,    // "Sharing quest with %s..."
@@ -185,7 +187,7 @@ enum QuestFlags : uint32
     QUEST_FLAGS_RAID                        = 0x00000040,   // Can be completed while in raid
     QUEST_FLAGS_WAR_MODE_REWARDS_OPT_IN     = 0x00000080,   // Not used currently
     QUEST_FLAGS_NO_MONEY_FROM_XP            = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
-    QUEST_FLAGS_HIDDEN_REWARDS              = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_HIDDEN_REWARDS              = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUEST_GIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
     QUEST_FLAGS_TRACKING                    = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_DEPRECATE_REPUTATION        = 0x00000800,   // Not used currently
     QUEST_FLAGS_DAILY                       = 0x00001000,   // Used to know quest is Daily one

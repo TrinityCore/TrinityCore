@@ -91,42 +91,25 @@ public:
         }
 
         // Everything looks OK, create new pet
-        Pet* pet = new Pet(player, HUNTER_PET);
-        if (!pet->CreateBaseAtCreature(creatureTarget))
-        {
-            delete pet;
-            handler->PSendSysMessage("Error 1");
-            return false;
-        }
+        Pet* pet = player->CreateTamedPetFrom(creatureTarget);
 
+        // "kill" original creature
         creatureTarget->DespawnOrUnsummon();
-        creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-        pet->SetCreatorGUID(player->GetGUID());
-        pet->SetFaction(player->GetFaction());
 
-        if (!pet->InitStatsForLevel(creatureTarget->GetLevel()))
-        {
-            TC_LOG_ERROR("misc", "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
-            handler->PSendSysMessage("Error 2");
-            delete pet;
-            return false;
-        }
 
         // prepare visual effect for levelup
-        pet->SetLevel(creatureTarget->GetLevel() - 1);
+        pet->SetLevel(player->GetLevel() - 1);
 
-        pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
-        // this enables pet details window (Shift+P)
-        pet->InitPetCreateSpells();
-        pet->SetFullHealth();
-
+        // add to world
         pet->GetMap()->AddToMap(pet->ToCreature());
 
         // visual effect for levelup
-        pet->SetLevel(creatureTarget->GetLevel());
+        pet->SetLevel(player->GetLevel());
 
+        // caster have pet now
         player->SetMinion(pet, true);
+
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
         player->PetSpellInitialize();
 

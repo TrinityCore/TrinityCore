@@ -99,7 +99,13 @@ public:
         {
             instance = creature->GetInstanceScript();
             creature->RestoreFaction();
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiTimer = 0;
+            uiPhase = 0;
         }
 
         InstanceScript* instance;
@@ -114,8 +120,7 @@ public:
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                uiTimer = 0;
-                uiPhase = 0;
+                Initialize();
 
                 RestoreAll();
 
@@ -124,7 +129,7 @@ public:
             }
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {

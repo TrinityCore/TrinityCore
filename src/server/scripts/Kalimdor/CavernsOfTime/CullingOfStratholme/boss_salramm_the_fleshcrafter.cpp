@@ -159,5 +159,5 @@ class spell_salramm_steal_flesh : public AuraScript
 void AddSC_boss_salramm()
 {
     new boss_salramm();
-    RegisterAuraScript(spell_salramm_steal_flesh);
+    RegisterSpellScript(spell_salramm_steal_flesh);
 }

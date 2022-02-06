@@ -40,10 +40,10 @@ std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 bool DBUpdaterUtil::CheckExecutable()
 {
     boost::filesystem::path exe(GetCorrectedMySQLExecutable());
-    if (!exists(exe))
+    if (!is_regular_file(exe))
     {
         exe = Trinity::SearchExecutableInPath("mysql");
-        if (!exe.empty() && exists(exe))
+        if (!exe.empty() && is_regular_file(exe))
         {
             // Correct the path to the cli
             corrected_path() = absolute(exe).generic_string();
@@ -364,7 +364,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     Path const& path)
 {
     std::vector<std::string> args;
-    args.reserve(7);
+    args.reserve(9);
 
     // CLI Client connection info
     args.emplace_back("-h" + host);
@@ -414,13 +414,17 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
 #endif
 
+    // Execute sql file
+    args.emplace_back("-e");
+    args.emplace_back(Trinity::StringFormat("BEGIN; SOURCE %s; COMMIT;", path.generic_string().c_str()));
+
     // Database
     if (!database.empty())
         args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
     int const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
-                                 "sql.updates", path.generic_string(), true);
+                                 "sql.updates", "", true);
 
     if (ret != EXIT_SUCCESS)
     {

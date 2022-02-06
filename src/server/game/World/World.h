@@ -170,6 +170,7 @@ enum WorldBoolConfigs
     CONFIG_EVENT_ANNOUNCE,
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
+    CONFIG_SET_SHAPASSHASH,
     CONFIG_IP_BASED_ACTION_LOGGING,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
@@ -373,8 +374,9 @@ enum WorldIntConfigs
     CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF,
     CONFIG_WARDEN_CLIENT_FAIL_ACTION,
     CONFIG_WARDEN_CLIENT_BAN_DURATION,
-    CONFIG_WARDEN_NUM_MEM_CHECKS,
-    CONFIG_WARDEN_NUM_OTHER_CHECKS,
+    CONFIG_WARDEN_NUM_INJECT_CHECKS,
+    CONFIG_WARDEN_NUM_LUA_CHECKS,
+    CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS,
     CONFIG_WINTERGRASP_PLR_MAX,
     CONFIG_WINTERGRASP_PLR_MIN,
     CONFIG_WINTERGRASP_PLR_MIN_LVL,
@@ -560,8 +562,8 @@ enum RealmZone
 /// Storage class for commands issued for delayed execution
 struct TC_GAME_API CliCommandHolder
 {
-    typedef void(*Print)(void*, char const*);
-    typedef void(*CommandFinished)(void*, bool success);
+    using Print = void(*)(void*, std::string_view);
+    using CommandFinished = void(*)(void*, bool success);
 
     void* m_callbackArg;
     char* m_command;

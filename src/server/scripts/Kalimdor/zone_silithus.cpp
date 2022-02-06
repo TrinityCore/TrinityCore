@@ -971,7 +971,7 @@ public:
     {
         go_crystalline_tearAI(GameObject* go) : GameObjectAI(go) { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
             {
@@ -1244,7 +1244,7 @@ class go_wind_stone : public GameObjectScript
                 }
 
             public:
-                bool GossipHello(Player* player) override
+                bool OnGossipHello(Player* player) override
                 {
                     uint8 rank = GetPlayerRank(player);
 
@@ -1322,7 +1322,7 @@ class go_wind_stone : public GameObjectScript
                     return true;
                 }
 
-                bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+                bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
                 {
                     uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                     ClearGossipMenuFor(player);
@@ -1439,5 +1439,5 @@ void AddSC_silithus()
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
     new go_wind_stone();
-    RegisterAuraScript(spell_silithus_summon_cultist_periodic);
+    RegisterSpellScript(spell_silithus_summon_cultist_periodic);
 }

@@ -75,6 +75,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "StringConvert.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"
@@ -400,6 +401,7 @@ Unit::Unit(bool isWorldObject) :
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
     _instantCast = false;
+    _isIgnoringCombat = false;
 }
 
 ////////////////////////////////////////////////////////////
@@ -532,7 +534,12 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     }
 
     if (arrived)
+    {
         DisableSpline();
+
+        if (Optional<AnimTier> animTier = movespline->GetAnimation())
+            SetAnimTier(*animTier);
+    }
 
     UpdateSplinePosition();
 }
@@ -720,20 +727,18 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(attacker, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    // Signal to pets that their owner was attacked - except when DOT.
+    if (attacker != victim && damagetype != DOT)
     {
-        // Signal to pets that their owner was attacked - except when DOT.
-        if (attacker != victim && damagetype != DOT)
-        {
-            for (Unit* controlled : victim->m_Controlled)
-                if (Creature* cControlled = controlled->ToCreature())
-                    if (CreatureAI* controlledAI = cControlled->AI())
-                        controlledAI->OwnerAttackedBy(attacker);
-        }
-
-        if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
-            return 0;
+        for (Unit* controlled : victim->m_Controlled)
+            if (Creature* cControlled = controlled->ToCreature())
+                if (CreatureAI* controlledAI = cControlled->AI())
+                    controlledAI->OwnerAttackedBy(attacker);
     }
+
+    if (Player* player = victim->ToPlayer())
+        if (player->GetCommandStatus(CHEAT_GOD))
+            return 0;
 
     if (damagetype != NODAMAGE)
     {
@@ -1514,7 +1519,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 emoteId, Player* target /*=nullptr*/, Trinity::IteratorPair<int32 const*> spellVisualKitIds /*= {}*/)
+void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinity::IteratorPair<int32 const*> spellVisualKitIds /*= {}*/)
 {
     WorldPackets::Chat::Emote packet;
     packet.Guid = GetGUID();
@@ -5646,7 +5651,7 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
                 PlayerSpellMap const& sp_list = ToPlayer()->GetSpellMap();
                 for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
                 {
-                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                    if (itr->second.state == PLAYERSPELL_REMOVED || itr->second.disabled)
                         continue;
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first, DIFFICULTY_NONE);
                     if (!spellInfo || !spellInfo->IsPassive())
@@ -5821,8 +5826,8 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 if (oldPet != minion && (oldPet->IsPet() || minion->IsPet() || oldPet->GetEntry() != minion->GetEntry()))
                 {
                     // remove existing minion pet
-                    if (oldPet->IsPet())
-                        ((Pet*)oldPet)->Remove(PET_SAVE_AS_CURRENT);
+                    if (Pet* oldPetAsPet = oldPet->ToPet())
+                        oldPetAsPet->Remove(PET_SAVE_NOT_IN_SLOT);
                     else
                         oldPet->UnSummon();
                     SetPetGUID(minion->GetGUID());
@@ -6718,16 +6723,6 @@ float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect co
                         // Shiv-applied poisons can't crit
                         if (caster->FindCurrentSpellBySpellId(5938))
                             crit_chance = 0.0f;
-                        break;
-                    case SPELLFAMILY_SHAMAN:
-                        // Lava Burst
-                        if (spellInfo->SpellFamilyFlags[1] & 0x00001000)
-                        {
-                            if (GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, flag128(0x10000000, 0, 0), caster->GetGUID()))
-                                if (GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE) > -100)
-                                    return 100.0f;
-                            break;
-                        }
                         break;
                 }
 
@@ -8226,6 +8221,8 @@ void Unit::setDeathState(DeathState s)
     // Death state needs to be updated before RemoveAllAurasOnDeath() is called, to prevent entering combat
     m_deathState = s;
 
+    bool isOnVehicle = GetVehicle() != nullptr;
+
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
         CombatStop();
@@ -8246,18 +8243,25 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
-        if (IsInWorld())
+
+        // Don't clear the movement if the Unit was on a vehicle as we are exiting now
+        if (!isOnVehicle)
         {
-            // Only clear MotionMaster for entities that exists in world
-            // Avoids crashes in the following conditions :
-            //  * Using 'call pet' on dead pets
-            //  * Using 'call stabled pet'
-            //  * Logging in with dead pets
-            GetMotionMaster()->Clear();
-            GetMotionMaster()->MoveIdle();
+            if (IsInWorld())
+            {
+                // Only clear MotionMaster for entities that exists in world
+                // Avoids crashes in the following conditions :
+                //  * Using 'call pet' on dead pets
+                //  * Using 'call stabled pet'
+                //  * Logging in with dead pets
+                GetMotionMaster()->Clear();
+                GetMotionMaster()->MoveIdle();
+            }
+
+            StopMoving();
+            DisableSpline();
         }
-        StopMoving();
-        DisableSpline();
+
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
@@ -9542,29 +9546,28 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
 {
     InitPetActionBar();
 
-    Tokenizer tokens(data, ' ');
-
+    std::vector<std::string_view> tokens = Trinity::Tokenize(data, ' ', false);
     if (tokens.size() != (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START) * 2)
         return;                                             // non critical, will reset to default
 
-    uint8 index = ACTION_BAR_INDEX_START;
-    Tokenizer::const_iterator iter = tokens.begin();
-    for (; index < ACTION_BAR_INDEX_END; ++iter, ++index)
+    auto iter = tokens.begin();
+    for (uint8 index = ACTION_BAR_INDEX_START; index < ACTION_BAR_INDEX_END; ++index)
     {
-        // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
-        ActiveStates type  = ActiveStates(atol(*iter));
-        ++iter;
-        uint32 action = atoul(*iter);
+        Optional<uint8> type = Trinity::StringTo<uint8>(*(iter++));
+        Optional<uint32> action = Trinity::StringTo<uint32>(*(iter++));
 
-        PetActionBar[index].SetActionAndType(action, type);
+        if (!type || !action)
+            continue;
+
+        PetActionBar[index].SetActionAndType(*action, static_cast<ActiveStates>(*type));
 
         // check correctness
         if (PetActionBar[index].IsActionBarForSpell())
         {
-            SpellInfo const* spelInfo = sSpellMgr->GetSpellInfo(PetActionBar[index].GetAction(), _unit->GetMap()->GetDifficultyID());
-            if (!spelInfo)
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(PetActionBar[index].GetAction(), _unit->GetMap()->GetDifficultyID());
+            if (!spellInfo)
                 SetActionBar(index, 0, ACT_PASSIVE);
-            else if (!spelInfo->IsAutocastable())
+            else if (!spellInfo->IsAutocastable())
                 SetActionBar(index, PetActionBar[index].GetAction(), ACT_PASSIVE);
         }
     }
@@ -9927,15 +9930,15 @@ void Unit::SetStandState(UnitStandStateType state, uint32 animKitID /* = 0*/)
     }
 }
 
-void Unit::SetAnimTier(UnitBytes1_Flags animTier, bool notifyClient)
+void Unit::SetAnimTier(AnimTier animTier, bool notifyClient /*= true*/)
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AnimTier), animTier);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AnimTier), AsUnderlyingType(animTier));
 
     if (notifyClient)
     {
         WorldPackets::Misc::SetAnimTier setAnimTier;
         setAnimTier.Unit = GetGUID();
-        setAnimTier.Tier = animTier;
+        setAnimTier.Tier = AsUnderlyingType(animTier);
         SendMessageToSet(setAnimTier.Write(), true);
     }
 }
@@ -10294,7 +10297,11 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
 
     uint8 level = creatureTarget->GetLevelForTarget(this) + 5 < GetLevel() ? (GetLevel() - 5) : creatureTarget->GetLevelForTarget(this);
 
-    InitTamedPet(pet, level, spell_id);
+    if (!InitTamedPet(pet, level, spell_id))
+    {
+        delete pet;
+        return nullptr;
+    }
 
     return pet;
 }
@@ -10321,6 +10328,16 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
 
 bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 {
+    Player* player = ToPlayer();
+    PetStable& petStable = player->GetOrInitPetStable();
+    auto freeActiveSlotItr = std::find_if(petStable.ActivePets.begin(), petStable.ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+    {
+        return !petInfo.has_value();
+    });
+
+    if (freeActiveSlotItr == petStable.ActivePets.end())
+        return false;
+
     pet->SetCreatorGUID(GetGUID());
     pet->SetFaction(GetFaction());
     pet->SetCreatedBySpell(spell_id);
@@ -10341,6 +10358,9 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
     pet->SetFullHealth();
+
+    petStable.SetCurrentActivePetIndex(std::distance(petStable.ActivePets.begin(), freeActiveSlotItr));
+    pet->FillPetInfo(&freeActiveSlotItr->emplace());
     return true;
 }
 
@@ -10437,8 +10457,30 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             creature->SetLootRecipient(nullptr);
     }
 
-    if (isRewardAllowed && creature && creature->GetLootRecipient())
-        player = creature->GetLootRecipient();
+    if (isRewardAllowed && creature)
+    {
+        if (Player* lootRecipient = creature->GetLootRecipient())
+        {
+            // Loot recipient can be in a different map
+            if (!creature->IsInMap(lootRecipient))
+            {
+                if (Group* group = creature->GetLootRecipientGroup())
+                {
+                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    {
+                        Player* member = itr->GetSource();
+                        if (!member || !creature->IsInMap(member))
+                            continue;
+
+                        player = member;
+                        break;
+                    }
+                }
+            }
+            else
+                player = creature->GetLootRecipient();
+        }
+    }
 
     // Exploit fix
     if (creature && creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
@@ -10893,6 +10935,8 @@ void Unit::SetFeared(bool apply)
             GetMotionMaster()->Remove(FLEEING_MOTION_TYPE);
             if (GetVictim())
                 SetTarget(EnsureVictim()->GetGUID());
+            if (!IsPlayer() && !IsInCombat())
+                GetMotionMaster()->MoveTargetedHome();
         }
     }
 
@@ -11111,7 +11155,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     CharmType type;
     if (HasUnitState(UNIT_STATE_POSSESSED))
         type = CHARM_TYPE_POSSESS;
-    else if (charmer && charmer->IsOnVehicle(this))
+    else if (charmer->IsOnVehicle(this))
         type = CHARM_TYPE_VEHICLE;
     else
         type = CHARM_TYPE_CHARM;
@@ -12408,7 +12452,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable)
+bool Unit::SetDisableGravity(bool disable, bool updateAnimationTier /*= true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -12443,6 +12487,16 @@ bool Unit::SetDisableGravity(bool disable)
         WorldPackets::Movement::MoveSplineSetFlag packet(gravityOpcodeTable[disable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
     }
 
     return true;
@@ -12601,7 +12655,7 @@ bool Unit::SetFeatherFall(bool enable)
     return true;
 }
 
-bool Unit::SetHover(bool enable)
+bool Unit::SetHover(bool enable, bool updateAnimationTier /*= true*/)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;
@@ -12649,6 +12703,16 @@ bool Unit::SetHover(bool enable)
         WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
     }
 
     return true;
@@ -13130,7 +13194,7 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
     return true;
 }
 
-void Unit::Talk(std::string const& text, ChatMsg msgType, Language language, float textRange, WorldObject const* target)
+void Unit::Talk(std::string_view text, ChatMsg msgType, Language language, float textRange, WorldObject const* target)
 {
     Trinity::CustomChatTextBuilder builder(this, msgType, text, language, target);
     Trinity::LocalizedDo<Trinity::CustomChatTextBuilder> localizer(builder);
@@ -13138,22 +13202,22 @@ void Unit::Talk(std::string const& text, ChatMsg msgType, Language language, flo
     Cell::VisitWorldObjects(this, worker, textRange);
 }
 
-void Unit::Say(std::string const& text, Language language, WorldObject const* target /*= nullptr*/)
+void Unit::Say(std::string_view text, Language language, WorldObject const* target /*= nullptr*/)
 {
     Talk(text, CHAT_MSG_MONSTER_SAY, language, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
 }
 
-void Unit::Yell(std::string const& text, Language language, WorldObject const* target /*= nullptr*/)
+void Unit::Yell(std::string_view text, Language language, WorldObject const* target /*= nullptr*/)
 {
     Talk(text, CHAT_MSG_MONSTER_YELL, language, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), target);
 }
 
-void Unit::TextEmote(std::string const& text, WorldObject const* target /*= nullptr*/, bool isBossEmote /*= false*/)
+void Unit::TextEmote(std::string_view text, WorldObject const* target /*= nullptr*/, bool isBossEmote /*= false*/)
 {
     Talk(text, isBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), target);
 }
 
-void Unit::Whisper(std::string const& text, Language language, Player* target, bool isBossWhisper /*= false*/)
+void Unit::Whisper(std::string_view text, Language language, Player* target, bool isBossWhisper /*= false*/)
 {
     if (!target)
         return;

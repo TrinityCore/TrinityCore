@@ -63,4 +63,23 @@ class TC_DATABASE_API SQLQueryHolderTask : public SQLOperation
         QueryResultHolderFuture GetFuture() { return m_result.get_future(); }
 };
 
+class TC_DATABASE_API SQLQueryHolderCallback
+{
+public:
+    SQLQueryHolderCallback(QueryResultHolderFuture&& future) : m_future(std::move(future)) { }
+    SQLQueryHolderCallback(SQLQueryHolderCallback&&) = default;
+
+    SQLQueryHolderCallback& operator=(SQLQueryHolderCallback&&) = default;
+
+    void AfterComplete(std::function<void(SQLQueryHolderBase*)> callback) &
+    {
+        m_callback = std::move(callback);
+    }
+
+    bool InvokeIfReady();
+
+    QueryResultHolderFuture m_future;
+    std::function<void(SQLQueryHolderBase*)> m_callback;
+};
+
 #endif

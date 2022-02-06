@@ -71,18 +71,12 @@ class instance_magisters_terrace : public InstanceMapScript
 
         struct instance_magisters_terrace_InstanceMapScript : public InstanceScript
         {
-            instance_magisters_terrace_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+            instance_magisters_terrace_InstanceMapScript(InstanceMap* map) : InstanceScript(map), _delrissaDeathCount(0)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
-                Initialize();
-            }
-
-            void Initialize() override
-            {
-                _delrissaDeathCount = 0;
             }
 
             uint32 GetData(uint32 type) const override

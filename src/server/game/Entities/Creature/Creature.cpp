@@ -425,7 +425,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
             ai->CorpseRemoved(respawnDelay);
 
         if (destroyForNearbyPlayers)
-            DestroyForNearbyPlayers();
+            UpdateObjectVisibilityOnDestroy();
 
         // Should get removed later, just keep "compatibility" with scripts
         if (setSpawnTime)
@@ -679,6 +679,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
+
+    SetIgnoringCombat((cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_COMBAT) != 0);
 
     LoadTemplateRoot();
     InitializeMovementFlags();
@@ -2013,7 +2015,7 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         if (!_IsTargetAcceptable(who))
             return false;
 
-        if (!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
+        if (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance))
             return false;
     }
 
@@ -2098,6 +2100,7 @@ void Creature::setDeathState(DeathState s)
         uint32 respawnDelay = m_respawnDelay;
         if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
             GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
+
         // @todo remove the boss respawn time hack in a dynspawn follow-up once we have creature groups in instances
         if (m_respawnCompatibilityMode)
         {
@@ -2133,8 +2136,9 @@ void Creature::setDeathState(DeathState s)
         if (m_formation && m_formation->GetLeader() == this)
             m_formation->FormationReset(true);
 
-        bool needsFalling = IsFlying() || IsHovering();
-        SetHover(false);
+        bool needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater();
+        SetHover(false, false);
+        SetDisableGravity(false, false);
 
         if (needsFalling)
             GetMotionMaster()->MoveFall();
@@ -2199,7 +2203,7 @@ void Creature::Respawn(bool force)
 
     if (m_respawnCompatibilityMode)
     {
-        DestroyForNearbyPlayers();
+        UpdateObjectVisibilityOnDestroy();
         RemoveCorpse(false, false);
 
         if (getDeathState() == DEAD)
@@ -2264,7 +2268,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
         uint32 respawnDelay = GetRespawnDelay();
 
         // do it before killing creature
-        DestroyForNearbyPlayers();
+        UpdateObjectVisibilityOnDestroy();
 
         bool overrideRespawnTime = false;
         if (IsAlive())
@@ -2668,7 +2672,7 @@ bool Creature::LoadCreaturesAddon()
 
         SetStandState(UnitStandStateType(cainfo->bytes1 & 0xFF));
         SetVisFlags(UnitVisFlags((cainfo->bytes1 >> 16) & 0xFF));
-        SetAnimTier(UnitBytes1_Flags((cainfo->bytes1 >> 24) & 0xFF), false);
+        SetAnimTier(AnimTier((cainfo->bytes1 >> 24) & 0xFF), false);
 
         //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
         //! If no inhabittype_fly (if no MovementFlag_DisableGravity or MovementFlag_CanFly flag found in sniffs)
@@ -3252,41 +3256,15 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     _spellFocusInfo.Spell = focusSpell;
 
     bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    bool const turnDisabled = HasUnitFlag2(UNIT_FLAG2_CANNOT_TURN);
     // set target, then force send update packet to players if it changed to provide appropriate facing
-    ObjectGuid newTarget = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid newTarget = (target && !noTurnDuringCast && !turnDisabled) ? target->GetGUID() : ObjectGuid::Empty;
     if (GetTarget() != newTarget)
-    {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), newTarget);
 
-        if ( // here we determine if the (relatively expensive) forced update is worth it, or whether we can afford to wait until the scheduled update tick
-            ( // only require instant update for spells that actually have a visual
-                spellInfo->GetSpellVisual()
-            ) && (
-                !focusSpell->GetCastTime() || // if the spell is instant cast
-                noTurnDuringCast // client gets confused if we attempt to turn at the regularly scheduled update packet
-            )
-        )
-        {
-            std::vector<Player*> playersNearby;
-            GetPlayerListInGrid(playersNearby, GetVisibilityRange());
-            for (Player* player : playersNearby)
-            {
-                // only update players that are known to the client (have already been created)
-                if (player->HaveAtClient(this))
-                    SendUpdateToPlayer(player);
-            }
-        }
-    }
-
-    if (!HasUnitFlag2(UNIT_FLAG2_CANNOT_TURN))
-    {
-        // Face the target - we need to do this before the unit state is modified for no-turn spells
-        if (target)
-            SetFacingToObject(target, false);
-        else if (noTurnDuringCast)
-            if (Unit* victim = GetVictim())
-                SetFacingToObject(victim, false); // ensure orientation is correct at beginning of cast
-    }
+    // If we are not allowed to turn during cast but have a focus target, face the target
+    if (!turnDisabled && noTurnDuringCast && target)
+        SetFacingToObject(target, false);
 
     if (noTurnDuringCast)
         AddUnitState(UNIT_STATE_FOCUSING);

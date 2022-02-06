@@ -63,12 +63,12 @@ private:
 
 struct boss_high_inquisitor_fairbanks : public BossAI
 {
-    boss_high_inquisitor_fairbanks(Creature* creature) : BossAI(creature, DATA_HIGH_INQUISITOR_FAIRBANKS), _healTimer(0), _powerWordShield(false) { }
+    boss_high_inquisitor_fairbanks(Creature* creature) : BossAI(creature, DATA_HIGH_INQUISITOR_FAIRBANKS), _healTimer(0s), _powerWordShield(false) { }
 
     void Reset() override
     {
         _Reset();
-        _healTimer.Reset(0);
+        _healTimer.Reset(0s);
         _powerWordShield = false;
         me->SetStandState(UNIT_STAND_STATE_DEAD);
     }
@@ -95,7 +95,7 @@ struct boss_high_inquisitor_fairbanks : public BossAI
 
             if (!me->IsNonMeleeSpellCast(false) && _healTimer.Passed())
             {
-                _healTimer.Reset(30 * IN_MILLISECONDS);
+                _healTimer.Reset(30s);
                 DoCastSelf(SPELL_HEAL);
             }
         }
@@ -153,7 +153,7 @@ struct boss_high_inquisitor_fairbanks : public BossAI
     }
 
 private:
-    TimeTrackerSmall _healTimer;
+    TimeTracker _healTimer;
     bool _powerWordShield;
 };
 

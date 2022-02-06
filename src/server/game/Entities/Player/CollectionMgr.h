@@ -90,7 +90,7 @@ public:
     // Account-wide toys
     void LoadToys();
     void LoadAccountToys(PreparedQueryResult result);
-    void SaveAccountToys(LoginDatabaseTransaction& trans);
+    void SaveAccountToys(LoginDatabaseTransaction trans);
     void ToySetFavorite(uint32 itemId, bool favorite);
     void ToyClearFanfare(uint32 itemId);
 
@@ -105,7 +105,7 @@ public:
     // Account-wide heirlooms
     void LoadHeirlooms();
     void LoadAccountHeirlooms(PreparedQueryResult result);
-    void SaveAccountHeirlooms(LoginDatabaseTransaction& trans);
+    void SaveAccountHeirlooms(LoginDatabaseTransaction trans);
     void AddHeirloom(uint32 itemId, uint32 flags);
     void UpgradeHeirloom(uint32 itemId, int32 castItem);
     void CheckHeirloomUpgrades(Item* item);
@@ -117,7 +117,7 @@ public:
     // Account-wide mounts
     void LoadMounts();
     void LoadAccountMounts(PreparedQueryResult result);
-    void SaveAccountMounts(LoginDatabaseTransaction& trans);
+    void SaveAccountMounts(LoginDatabaseTransaction trans);
     bool AddMount(uint32 spellId, MountStatusFlags flags, bool factionMount = false, bool learned = false);
     void MountSetFavorite(uint32 spellId, bool favorite);
     void SendSingleMountUpdate(std::pair<uint32, MountStatusFlags> mount);
@@ -126,7 +126,7 @@ public:
     // Appearances
     void LoadItemAppearances();
     void LoadAccountItemAppearances(PreparedQueryResult knownAppearances, PreparedQueryResult favoriteAppearances);
-    void SaveAccountItemAppearances(LoginDatabaseTransaction& trans);
+    void SaveAccountItemAppearances(LoginDatabaseTransaction trans);
     void AddItemAppearance(Item* item);
     void AddItemAppearance(uint32 itemId, uint32 appearanceModId = 0);
     void AddTransmogSet(uint32 transmogSetId);

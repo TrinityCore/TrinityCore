@@ -25,6 +25,8 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
+Position const Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
+
 class at_nethekurse_exit : public AreaTriggerScript
 {
     public:

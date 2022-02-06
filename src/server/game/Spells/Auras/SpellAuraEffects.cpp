@@ -1065,6 +1065,15 @@ void AuraEffect::PeriodicTick(AuraApplication* aurApp, Unit* caster) const
 
     Unit* target = aurApp->GetTarget();
 
+    // Update serverside orientation of tracking channeled auras on periodic update ticks
+    if (caster && m_spellInfo->IsChanneled() && m_spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET) && caster->m_unitData->ChannelObjects.size())
+    {
+        ObjectGuid const channelGuid = caster->m_unitData->ChannelObjects[0];
+        if (channelGuid != caster->GetGUID())
+            if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*caster, channelGuid))
+                caster->SetInFront(objectTarget);
+    }
+
     switch (GetAuraType())
     {
         case SPELL_AURA_PERIODIC_DUMMY:
@@ -1324,7 +1333,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             PlayerSpellMap const& sp_list = plrTarget->GetSpellMap();
             for (auto itr = sp_list.begin(); itr != sp_list.end(); ++itr)
             {
-                if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                if (itr->second.state == PLAYERSPELL_REMOVED || itr->second.disabled)
                     continue;
 
                 if (itr->first == spellId || itr->first == spellId2 || itr->first == spellId3 || itr->first == spellId4)

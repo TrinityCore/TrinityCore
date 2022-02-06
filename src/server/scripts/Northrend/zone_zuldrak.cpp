@@ -268,7 +268,7 @@ public:
                 return;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             _events.ScheduleEvent(EVENT_RECRUIT_1, 100ms);
             CloseGossipMenuFor(player);
@@ -309,7 +309,7 @@ public:
     {
         go_scourge_enclosureAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
@@ -563,7 +563,7 @@ public:
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 CloseGossipMenuFor(player);
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
@@ -594,7 +594,7 @@ public:
     {
         go_finklesteins_cauldronAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             player->CastSpell(player, SPELL_POT_CHECK);
             return true;
@@ -1060,8 +1060,8 @@ void AddSC_zuldrak()
     new spell_pot_check();
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
-    RegisterAuraScript(spell_scourge_disguise);
-    RegisterAuraScript(spell_scourge_disguise_instability);
-    RegisterAuraScript(spell_scourge_disguise_expiring);
+    RegisterSpellScript(spell_scourge_disguise);
+    RegisterSpellScript(spell_scourge_disguise_instability);
+    RegisterSpellScript(spell_scourge_disguise_expiring);
     RegisterSpellScript(spell_drop_disguise);
 }

@@ -150,7 +150,7 @@ class boss_broggok : public CreatureScript
         }
 };
 
-static std::vector<uint32> const PrisionersEmotes =
+static Emote const PrisionersEmotes[] =
 {
     EMOTE_ONESHOT_ROAR,
     EMOTE_ONESHOT_SHOUT,
@@ -254,7 +254,7 @@ class go_broggok_lever : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
                 {

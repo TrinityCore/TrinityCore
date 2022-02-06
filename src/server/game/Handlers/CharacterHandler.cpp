@@ -58,6 +58,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
+#include "StringConvert.h"
 #include "SystemPackets.h"
 #include "Util.h"
 #include "World.h"
@@ -310,6 +311,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PETS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON, stmt);
@@ -361,8 +366,7 @@ public:
 
         bool result = true;
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][withDeclinedNames ? 1 : 0]);
-        stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
-        stmt->setUInt32(1, accountId);
+        stmt->setUInt32(0, accountId);
         result &= SetPreparedQuery(CHARACTERS, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][2]);
@@ -480,7 +484,10 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
         return;
     }
 
-    _charEnumCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* result)
+    {
+        HandleCharEnum(static_cast<EnumCharactersQueryHolder*>(result));
+    });
 }
 
 void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
@@ -493,7 +500,10 @@ void WorldSession::HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCha
         return;
     }
 
-    _charEnumCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* result)
+    {
+        HandleCharEnum(static_cast<EnumCharactersQueryHolder*>(result));
+    });
 }
 
 bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Classes playerClass,
@@ -887,12 +897,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             newChar->SaveToDB(trans, characterTransaction, true);
             createInfo->CharCount += 1;
 
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
-            stmt->setUInt32(0, GetAccountId());
-            stmt->setUInt32(1, realm.Id.Realm);
-            trans->Append(stmt);
-
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
             stmt->setUInt32(0, createInfo->CharCount);
             stmt->setUInt32(1, GetAccountId());
             stmt->setUInt32(2, realm.Id.Realm);
@@ -1034,7 +1039,10 @@ void WorldSession::HandleContinuePlayerLogin()
 
     SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
 
-    _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(holder)).AfterComplete([this](SQLQueryHolderBase* holder)
+    {
+        HandlePlayerLogin(static_cast<LoginQueryHolder*>(holder));
+    });
 }
 
 void WorldSession::AbortLogin(WorldPackets::Character::LoginFailureReason reason)
@@ -1133,6 +1141,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetGuildRank(0);
         pCurrChar->SetGuildLevel(0);
     }
+
+    // Send stable contents to display icons on Call Pet spells
+    if (pCurrChar->HasSpell(CALL_PET_SPELL_ID))
+        SendStablePet(ObjectGuid::Empty);
 
     pCurrChar->GetSession()->GetBattlePetMgr()->SendJournalLockStatus();
 
@@ -1284,7 +1296,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
-    pCurrChar->LoadPet();
+    pCurrChar->ResummonPetTemporaryUnSummonedIfAny();
 
     // Set FFA PvP for non GM in non-rest mode
     if (sWorld->IsFFAPvPRealm() && !pCurrChar->IsGameMaster() && !pCurrChar->HasPlayerFlag(PLAYER_FLAGS_RESTING))
@@ -2489,11 +2501,20 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             // Title conversion
             if (!knownTitlesStr.empty())
             {
+                std::vector<std::string_view> tokens = Trinity::Tokenize(knownTitlesStr, ' ', false);
                 std::vector<uint32> knownTitles;
-                Tokenizer tokens(knownTitlesStr, ' ');
 
-                for (uint32 index = 0; index < tokens.size(); ++index)
-                    knownTitles.push_back(atoul(tokens[index]));
+                for (std::string_view token : tokens)
+                {
+                    if (Optional<uint32> thisMask = Trinity::StringTo<uint32>(token))
+                        knownTitles.push_back(*thisMask);
+                    else
+                    {
+                        TC_LOG_WARN("entities.player", "%s has invalid title data '%s' - skipped, this may result in titles being lost",
+                           GetPlayerInfo().c_str(), std::string(token).c_str());
+                        knownTitles.push_back(0);
+                    }
+                }
 
                 for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChangeTitles.begin(); it != sObjectMgr->FactionChangeTitles.end(); ++it)
                 {
@@ -2537,8 +2558,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
                     }
 
                     std::ostringstream ss;
-                    for (uint32 index = 0; index < knownTitles.size(); ++index)
-                        ss << knownTitles[index] << ' ';
+                    for (uint32 mask : knownTitles)
+                        ss << mask << ' ';
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                     stmt->setString(0, ss.str());

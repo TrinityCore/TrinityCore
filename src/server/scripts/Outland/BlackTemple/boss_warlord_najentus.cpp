@@ -182,7 +182,7 @@ struct go_najentus_spine : public GameObjectAI
 {
     go_najentus_spine(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
 
-    bool GossipHello(Player* player) override
+    bool OnGossipHello(Player* player) override
     {
         if (!_instance)
             return false;

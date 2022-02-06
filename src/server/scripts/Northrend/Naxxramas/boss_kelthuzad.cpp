@@ -1032,7 +1032,7 @@ void AddSC_boss_kelthuzad()
     new npc_kelthuzad_guardian();
     new spell_kelthuzad_chains();
     new spell_kelthuzad_detonate_mana();
-    RegisterAuraScript(spell_kelthuzad_frost_blast);
+    RegisterSpellScript(spell_kelthuzad_frost_blast);
     new at_kelthuzad_center();
     new achievement_just_cant_get_enough();
 }

@@ -101,7 +101,7 @@ MailDraft& MailDraft::AddItem(Item* item)
     return *this;
 }
 
-void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction& trans)
+void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction trans)
 {
     if (!m_mailTemplateId || !m_mailTemplateItemsNeed)
         return;
@@ -131,7 +131,7 @@ void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction& tra
     }
 }
 
-void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction& trans, bool inDB /*= false*/ )
+void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction trans, bool inDB /*= false*/ )
 {
     for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
     {
@@ -146,7 +146,7 @@ void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction& trans, bool in
     m_items.clear();
 }
 
-void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction& trans)
+void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans)
 {
     ObjectGuid receiverGuid = ObjectGuid::Create<HighGuid::Player>(receiver_guid);
     Player* receiver = ObjectAccessor::FindConnectedPlayer(receiverGuid);
@@ -189,7 +189,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
     SendMailTo(trans, MailReceiver(receiver, receiver_guid), MailSender(MAIL_NORMAL, sender_guid), MAIL_CHECK_MASK_RETURNED, deliver_delay);
 }
 
-void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
+void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
     Player* pSender = sender.GetMailMessageType() == MAIL_NORMAL ? ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(sender.GetSenderId())) : nullptr;

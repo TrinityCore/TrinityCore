@@ -127,7 +127,7 @@ public:
                     break;
                 case 20:
                     if (Creature* RWORG = ObjectAccessor::GetCreature(*me, _RavenousworgGUID))
-                        RWORG->HandleEmoteCommand(34);
+                        RWORG->HandleEmoteCommand(EMOTE_ONESHOT_WOUND_CRITICAL);
                     break;
                 case 21:
                     if (Creature* Mrfloppy = ObjectAccessor::GetCreature(*me, _mrfloppyGUID))
@@ -183,7 +183,7 @@ public:
             _RavenousworgGUID.Clear();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_PERILOUS_ADVENTURE)
             {
@@ -774,7 +774,7 @@ public:
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 DoCast(player, SPELL_SUMMON_ASHWOOD_BRAND);
                 return false;

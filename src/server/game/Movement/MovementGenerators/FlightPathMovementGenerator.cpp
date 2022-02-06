@@ -211,7 +211,7 @@ void FlightPathMovementGenerator::LoadPath(Player* owner, uint32 startNode /*= 0
     {
         uint32 path, cost;
         sObjectMgr->GetTaxiPath(taxi[src], taxi[dst], path, cost);
-        if (path > sTaxiPathNodesByPath.size())
+        if (path >= sTaxiPathNodesByPath.size())
             return;
 
         TaxiPathNodeList const& nodes = sTaxiPathNodesByPath[path];

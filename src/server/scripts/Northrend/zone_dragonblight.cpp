@@ -560,7 +560,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == MENU_ID && gossipListId == GOSSIP_OPTION_ID)
                 {

@@ -166,10 +166,7 @@ void DynamicObject::Update(uint32 p_time)
 void DynamicObject::Remove()
 {
     if (IsInWorld())
-    {
-        RemoveFromWorld();
         AddObjectToRemoveList();
-    }
 }
 
 int32 DynamicObject::GetDuration() const

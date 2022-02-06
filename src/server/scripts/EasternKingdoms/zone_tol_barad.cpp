@@ -55,7 +55,7 @@ class npc_tb_spirit_guide : public CreatureScript
                     DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 player->PlayerTalkClass->SendCloseGossip();
 

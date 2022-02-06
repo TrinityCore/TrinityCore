@@ -58,11 +58,13 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "StringConvert.h"
 #include "TemporarySummon.h"
 #include "Timer.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
 #include <numeric>
@@ -288,7 +290,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
     //                                               0       1            2       3           4
-    QueryResult result = WorldDatabase.Query("SELECT MenuId, OptionIndex, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
 
     if (!result)
         return;
@@ -298,14 +300,14 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
         Field* fields = result->Fetch();
 
         uint32 menuId           = fields[0].GetUInt32();
-        uint32 optionIndex      = fields[1].GetUInt32();
+        uint32 optionId         = fields[1].GetUInt32();
         std::string localeName  = fields[2].GetString();
 
         LocaleConstant locale   = GetLocaleByName(localeName);
         if (!IsValidLocale(locale) || locale == LOCALE_enUS)
             continue;
 
-        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[std::make_pair(menuId, optionIndex)];
+        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[std::make_pair(menuId, optionId)];
         AddLocaleString(fields[3].GetString(), locale, data.OptionText);
         AddLocaleString(fields[4].GetString(), locale, data.BoxText);
     } while (result->NextRow());
@@ -675,34 +677,34 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
-        creatureAddon.auras.reserve(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (std::string_view aura : Trinity::Tokenize(fields[10].GetStringView(), ' ', false))
         {
-            uint32 spellId = uint32(atoul(*itr));
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-            if (!AdditionalSpellInfo)
+            SpellInfo const* spellInfo = nullptr;
+            if (Optional<uint32> spellId = Trinity::StringTo<uint32>(aura))
+                spellInfo = sSpellMgr->GetSpellInfo(*spellId, DIFFICULTY_NONE);
+
+            if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell '%s' defined in `auras` field in `creature_template_addon`.", entry, std::string(aura).c_str());
                 continue;
             }
 
-            if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, spellId);
+            if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, spellInfo->Id);
 
-            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellId) != creatureAddon.auras.end())
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellInfo->Id) != creatureAddon.auras.end())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellInfo->Id);
                 continue;
             }
 
-            if (AdditionalSpellInfo->GetDuration() > 0)
+            if (spellInfo->GetDuration() > 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellInfo->Id);
                 continue;
             }
 
-            creatureAddon.auras.push_back(spellId);
+            creatureAddon.auras.push_back(spellInfo->Id);
         }
 
         if (creatureAddon.mount)
@@ -1220,34 +1222,34 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
-        creatureAddon.auras.reserve(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (std::string_view aura : Trinity::Tokenize(fields[10].GetStringView(), ' ', false))
         {
-            uint32 spellId = uint32(atoul(*itr));
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-            if (!AdditionalSpellInfo)
+            SpellInfo const* spellInfo = nullptr;
+            if (Optional<uint32> spellId = Trinity::StringTo<uint32>(aura))
+                spellInfo = sSpellMgr->GetSpellInfo(*spellId, DIFFICULTY_NONE);
+
+            if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong spell %u defined in `auras` field in `creature_addon`.", guid, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong spell '%s' defined in `auras` field in `creature_addon`.", guid, std::string(aura).c_str());
                 continue;
             }
 
-            if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, spellId);
+            if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, spellInfo->Id);
 
-            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellId) != creatureAddon.auras.end())
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellInfo->Id) != creatureAddon.auras.end())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has duplicate aura (spell %u) in `auras` field in `creature_addon`.", guid, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has duplicate aura (spell %u) in `auras` field in `creature_addon`.", guid, spellInfo->Id);
                 continue;
             }
 
-            if (AdditionalSpellInfo->GetDuration() > 0)
+            if (spellInfo->GetDuration() > 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has temporary aura (spell %u) in `auras` field in `creature_addon`.", guid, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has temporary aura (spell %u) in `auras` field in `creature_addon`.", guid, spellInfo->Id);
                 continue;
             }
 
-            creatureAddon.auras.push_back(spellId);
+            creatureAddon.auras.push_back(spellInfo->Id);
         }
 
         if (creatureAddon.mount)
@@ -2048,12 +2050,11 @@ void ObjectMgr::LoadTempSummons()
 inline std::vector<Difficulty> ParseSpawnDifficulties(std::string const& difficultyString, std::string const& table, ObjectGuid::LowType spawnId, uint32 mapId,
     std::set<Difficulty> const& mapDifficulties)
 {
-    Tokenizer tokens(difficultyString, ',', 0, false);
     std::vector<Difficulty> difficulties;
     bool isTransportMap = sObjectMgr->IsTransportMap(mapId);
-    for (char const* token : tokens)
+    for (std::string_view token : Trinity::Tokenize(difficultyString, ',', false))
     {
-        Difficulty difficultyId = Difficulty(strtoul(token, nullptr, 10));
+        Difficulty difficultyId = Difficulty(Trinity::StringTo<std::underlying_type_t<Difficulty>>(token).value_or(DIFFICULTY_NONE));
         if (difficultyId && !sDifficultyStore.LookupEntry(difficultyId))
         {
             TC_LOG_ERROR("sql.sql", "Table `%s` has %s (GUID: " UI64FMTD ") with non invalid difficulty id %u, skipped.",
@@ -7595,7 +7596,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         go.name = db2go->Name[sWorld->GetDefaultDbcLocale()];
         go.size = db2go->Scale;
         memset(go.raw.data, 0, sizeof(go.raw.data));
-        memcpy(go.raw.data, db2go->PropValue, std::min(sizeof(db2go->PropValue), sizeof(go.raw.data)));
+        std::copy(db2go->PropValue.begin(), db2go->PropValue.end(), std::begin(go.raw.data));
         go.ContentTuningId = 0;
         go.ScriptId = 0;
     }
@@ -8640,7 +8641,7 @@ void ObjectMgr::LoadReservedPlayersNames()
     TC_LOG_INFO("server.loading", ">> Loaded %u reserved player names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool ObjectMgr::IsReservedName(const std::string& name) const
+bool ObjectMgr::IsReservedName(std::string_view name) const
 {
     std::wstring wstr;
     if (!Utf8toWStr (name, wstr))
@@ -8724,7 +8725,7 @@ bool isValidString(const std::wstring& wstr, uint32 strictMask, bool numericOrSp
     return false;
 }
 
-ResponseCodes ObjectMgr::CheckPlayerName(std::string const& name, LocaleConstant locale, bool create /*= false*/)
+ResponseCodes ObjectMgr::CheckPlayerName(std::string_view name, LocaleConstant locale, bool create /*= false*/)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
@@ -8749,7 +8750,7 @@ ResponseCodes ObjectMgr::CheckPlayerName(std::string const& name, LocaleConstant
     return sDB2Manager.ValidateName(wname, locale);
 }
 
-bool ObjectMgr::IsValidCharterName(const std::string& name)
+bool ObjectMgr::IsValidCharterName(std::string_view name)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
@@ -8767,7 +8768,7 @@ bool ObjectMgr::IsValidCharterName(const std::string& name)
     return isValidString(wname, strictMask, true);
 }
 
-PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
+PetNameInvalidReason ObjectMgr::CheckPetName(std::string_view name)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
@@ -9083,7 +9084,7 @@ void ObjectMgr::LoadGameTele()
     TC_LOG_INFO("server.loading", ">> Loaded %u GameTeleports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
+GameTele const* ObjectMgr::GetGameTele(std::string_view name) const
 {
     // explicit name case
     std::wstring wname;
@@ -9106,7 +9107,7 @@ GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
     return alt;
 }
 
-GameTele const* ObjectMgr::GetGameTeleExactName(const std::string& name) const
+GameTele const* ObjectMgr::GetGameTeleExactName(std::string_view name) const
 {
     // explicit name case
     std::wstring wname;
@@ -9158,7 +9159,7 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
     return true;
 }
 
-bool ObjectMgr::DeleteGameTele(const std::string& name)
+bool ObjectMgr::DeleteGameTele(std::string_view name)
 {
     // explicit name case
     std::wstring wname;
@@ -9363,7 +9364,7 @@ void ObjectMgr::LoadCreatureTrainers()
 
     _creatureDefaultTrainers.clear();
 
-    if (QueryResult result = WorldDatabase.Query("SELECT CreatureId, TrainerId, MenuId, OptionIndex FROM creature_trainer"))
+    if (QueryResult result = WorldDatabase.Query("SELECT CreatureID, TrainerID, MenuID, OptionID FROM creature_trainer"))
     {
         do
         {
@@ -9371,37 +9372,37 @@ void ObjectMgr::LoadCreatureTrainers()
             uint32 creatureId = fields[0].GetUInt32();
             uint32 trainerId = fields[1].GetUInt32();
             uint32 gossipMenuId = fields[2].GetUInt32();
-            uint32 gossipOptionIndex = fields[3].GetUInt32();
+            uint32 gossipOptionId = fields[3].GetUInt32();
 
             if (!GetCreatureTemplate(creatureId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature_trainer` references non-existing creature template (CreatureId: %u), ignoring", creatureId);
+                TC_LOG_ERROR("sql.sql", "Table `creature_trainer` references non-existing creature template (CreatureID: %u), ignoring", creatureId);
                 continue;
             }
 
             if (!GetTrainer(trainerId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `creature_trainer` references non-existing trainer (TrainerId: %u) for CreatureId %u MenuId %u OptionIndex %u, ignoring",
-                    trainerId, creatureId, gossipMenuId, gossipOptionIndex);
+                TC_LOG_ERROR("sql.sql", "Table `creature_trainer` references non-existing trainer (TrainerID: %u) for CreatureID %u MenuID %u OptionID %u, ignoring",
+                    trainerId, creatureId, gossipMenuId, gossipOptionId);
                 continue;
             }
 
-            if (gossipMenuId || gossipOptionIndex)
+            if (gossipMenuId || gossipOptionId)
             {
                 Trinity::IteratorPair<GossipMenuItemsContainer::const_iterator> gossipMenuItems = GetGossipMenuItemsMapBounds(gossipMenuId);
-                auto gossipOptionItr = std::find_if(gossipMenuItems.begin(), gossipMenuItems.end(), [gossipOptionIndex](std::pair<uint32 const, GossipMenuItems> const& entry)
+                auto gossipOptionItr = std::find_if(gossipMenuItems.begin(), gossipMenuItems.end(), [gossipOptionId](std::pair<uint32 const, GossipMenuItems> const& entry)
                 {
-                    return entry.second.OptionIndex == gossipOptionIndex;
+                    return entry.second.OptionID == gossipOptionId;
                 });
                 if (gossipOptionItr == gossipMenuItems.end())
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `creature_trainer` references non-existing gossip menu option (MenuId %u OptionIndex %u) for CreatureId %u and TrainerId %u, ignoring",
-                        gossipMenuId, gossipOptionIndex, creatureId, trainerId);
+                    TC_LOG_ERROR("sql.sql", "Table `creature_trainer` references non-existing gossip menu option (MenuID %u OptionID %u) for CreatureID %u and TrainerID %u, ignoring",
+                        gossipMenuId, gossipOptionId, creatureId, trainerId);
                     continue;
                 }
             }
 
-            _creatureDefaultTrainers[std::make_tuple(creatureId, gossipMenuId, gossipOptionIndex)] = trainerId;
+            _creatureDefaultTrainers[std::make_tuple(creatureId, gossipMenuId, gossipOptionId)] = trainerId;
         } while (result->NextRow());
     }
 
@@ -9439,9 +9440,9 @@ uint32 ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>
             vItem.PlayerConditionId = fields[6].GetUInt32();
             vItem.IgnoreFiltering   = fields[7].GetBool();
 
-            Tokenizer bonusListIDsTok(fields[5].GetString(), ' ');
-            for (char const* token : bonusListIDsTok)
-                vItem.BonusListIDs.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[5].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    vItem.BonusListIDs.push_back(*bonusListID);
 
             if (!IsVendorItemValid(vendor, vItem, nullptr, skip_vendors))
                 continue;
@@ -9496,9 +9497,9 @@ void ObjectMgr::LoadVendors()
             vItem.PlayerConditionId = fields[7].GetUInt32();
             vItem.IgnoreFiltering   = fields[8].GetBool();
 
-            Tokenizer bonusListIDsTok(fields[6].GetString(), ' ');
-            for (char const* token : bonusListIDsTok)
-                vItem.BonusListIDs.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[6].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    vItem.BonusListIDs.push_back(*bonusListID);
 
             if (!IsVendorItemValid(entry, vItem, nullptr, &skip_vendors))
                 continue;
@@ -9520,7 +9521,7 @@ void ObjectMgr::LoadGossipMenu()
     _gossipMenusStore.clear();
 
     //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT MenuId, TextId FROM gossip_menu");
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, TextID FROM gossip_menu");
 
     if (!result)
     {
@@ -9534,16 +9535,16 @@ void ObjectMgr::LoadGossipMenu()
 
         GossipMenus gMenu;
 
-        gMenu.MenuId = fields[0].GetUInt32();
-        gMenu.TextId = fields[1].GetUInt32();
+        gMenu.MenuID = fields[0].GetUInt32();
+        gMenu.TextID = fields[1].GetUInt32();
 
-        if (!GetNpcText(gMenu.TextId))
+        if (!GetNpcText(gMenu.TextID))
         {
-            TC_LOG_ERROR("sql.sql", "Table gossip_menu: ID %u is using non-existing TextId %u", gMenu.MenuId, gMenu.TextId);
+            TC_LOG_ERROR("sql.sql", "Table gossip_menu: ID %u is using non-existing TextID %u", gMenu.MenuID, gMenu.TextID);
             continue;
         }
 
-        _gossipMenusStore.insert(GossipMenusContainer::value_type(gMenu.MenuId, gMenu));
+        _gossipMenusStore.insert(GossipMenusContainer::value_type(gMenu.MenuID, gMenu));
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu IDs in %u ms", uint32(_gossipMenusStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -9556,16 +9557,9 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
-    //          0         1              2             3             4                        5             6
-        "SELECT o.MenuId, o.OptionIndex, o.OptionIcon, o.OptionText, o.OptionBroadcastTextId, o.OptionType, o.OptionNpcFlag, "
-    //   7                8
-        "oa.ActionMenuId, oa.ActionPoiId, "
-    //   9            10           11          12
-        "ob.BoxCoded, ob.BoxMoney, ob.BoxText, ob.BoxBroadcastTextId "
-        "FROM gossip_menu_option o "
-        "LEFT JOIN gossip_menu_option_action oa ON o.MenuId = oa.MenuId AND o.OptionIndex = oa.OptionIndex "
-        "LEFT JOIN gossip_menu_option_box ob ON o.MenuId = ob.MenuId AND o.OptionIndex = ob.OptionIndex "
-        "ORDER BY o.MenuId, o.OptionIndex");
+        //      0       1         2           3           4                      5           6              7             8            9         10        11       12
+        "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
+        "FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
     if (!result)
     {
@@ -9579,54 +9573,54 @@ void ObjectMgr::LoadGossipMenuItems()
 
         GossipMenuItems gMenuItem;
 
-        gMenuItem.MenuId                = fields[0].GetUInt32();
-        gMenuItem.OptionIndex           = fields[1].GetUInt32();
+        gMenuItem.MenuID                = fields[0].GetUInt32();
+        gMenuItem.OptionID              = fields[1].GetUInt32();
         gMenuItem.OptionIcon            = GossipOptionIcon(fields[2].GetUInt8());
         gMenuItem.OptionText            = fields[3].GetString();
-        gMenuItem.OptionBroadcastTextId = fields[4].GetUInt32();
+        gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt32();
         gMenuItem.OptionNpcFlag         = fields[6].GetUInt64();
-        gMenuItem.ActionMenuId          = fields[7].GetUInt32();
-        gMenuItem.ActionPoiId           = fields[8].GetUInt32();
+        gMenuItem.ActionMenuID          = fields[7].GetUInt32();
+        gMenuItem.ActionPoiID           = fields[8].GetUInt32();
         gMenuItem.BoxCoded              = fields[9].GetBool();
         gMenuItem.BoxMoney              = fields[10].GetUInt32();
         gMenuItem.BoxText               = fields[11].GetString();
-        gMenuItem.BoxBroadcastTextId    = fields[12].GetUInt32();
+        gMenuItem.BoxBroadcastTextID    = fields[12].GetUInt32();
 
         if (gMenuItem.OptionIcon >= GossipOptionIcon::Count)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has unknown icon id %u. Replacing with GossipOptionIcon::None", gMenuItem.MenuId, gMenuItem.OptionIndex, uint8(gMenuItem.OptionIcon));
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown icon id %u. Replacing with GossipOptionIcon::None", gMenuItem.MenuID, gMenuItem.OptionID, uint32(gMenuItem.OptionIcon));
             gMenuItem.OptionIcon = GossipOptionIcon::None;
         }
 
-        if (gMenuItem.OptionBroadcastTextId)
+        if (gMenuItem.OptionBroadcastTextID)
         {
-            if (!sBroadcastTextStore.LookupEntry(gMenuItem.OptionBroadcastTextId))
+            if (!sBroadcastTextStore.LookupEntry(gMenuItem.OptionBroadcastTextID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has non-existing or incompatible OptionBroadcastTextID %u, ignoring.", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionBroadcastTextId);
-                gMenuItem.OptionBroadcastTextId = 0;
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible OptionBroadcastTextID %u, ignoring.", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionBroadcastTextID);
+                gMenuItem.OptionBroadcastTextID = 0;
             }
         }
 
         if (gMenuItem.OptionType >= GOSSIP_OPTION_MAX)
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has unknown option id %u. Option will not be used", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.OptionType);
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown option id %u. Option will not be used", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionType);
 
-        if (gMenuItem.ActionPoiId && !GetPointOfInterest(gMenuItem.ActionPoiId))
+        if (gMenuItem.ActionPoiID && !GetPointOfInterest(gMenuItem.ActionPoiID))
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u use non-existing action_poi_id %u, ignoring", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.ActionPoiId);
-            gMenuItem.ActionPoiId = 0;
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing ActionPoiID %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.ActionPoiID);
+            gMenuItem.ActionPoiID = 0;
         }
 
-        if (gMenuItem.BoxBroadcastTextId)
+        if (gMenuItem.BoxBroadcastTextID)
         {
-            if (!sBroadcastTextStore.LookupEntry(gMenuItem.BoxBroadcastTextId))
+            if (!sBroadcastTextStore.LookupEntry(gMenuItem.BoxBroadcastTextID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for MenuId %u, OptionIndex %u has non-existing or incompatible BoxBroadcastTextId %u, ignoring.", gMenuItem.MenuId, gMenuItem.OptionIndex, gMenuItem.BoxBroadcastTextId);
-                gMenuItem.BoxBroadcastTextId = 0;
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible BoxBroadcastTextID %u, ignoring.", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.BoxBroadcastTextID);
+                gMenuItem.BoxBroadcastTextID = 0;
             }
         }
 
-        _gossipMenuItemsStore.insert(GossipMenuItemsContainer::value_type(gMenuItem.MenuId, gMenuItem));
+        _gossipMenuItemsStore.insert(GossipMenuItemsContainer::value_type(gMenuItem.MenuID, gMenuItem));
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " gossip_menu_option entries in %u ms", _gossipMenuItemsStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -9637,9 +9631,9 @@ Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
     return Trinity::Containers::MapGetValuePtr(_trainers, trainerId);
 }
 
-uint32 ObjectMgr::GetCreatureTrainerForGossipOption(uint32 creatureId, uint32 gossipMenuId, uint32 gossipOptionIndex) const
+uint32 ObjectMgr::GetCreatureTrainerForGossipOption(uint32 creatureId, uint32 gossipMenuId, uint32 gossipOptionId) const
 {
-    auto itr = _creatureDefaultTrainers.find(std::make_tuple(creatureId, gossipMenuId, gossipOptionIndex));
+    auto itr = _creatureDefaultTrainers.find(std::make_tuple(creatureId, gossipMenuId, gossipOptionId));
     if (itr != _creatureDefaultTrainers.end())
         return itr->second;
 
@@ -10967,10 +10961,10 @@ void ObjectMgr::LoadPlayerChoices()
             int32 choiceId = fields[0].GetInt32();
             int32 responseId = fields[1].GetInt32();
             uint32 itemId = fields[2].GetUInt32();
-            Tokenizer bonusListIDsTok(fields[3].GetString(), ' ');
             std::vector<int32> bonusListIds;
-            for (char const* token : bonusListIDsTok)
-                bonusListIds.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[3].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    bonusListIds.push_back(*bonusListID);
             int32 quantity = fields[4].GetInt32();
 
             PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
@@ -11109,10 +11103,10 @@ void ObjectMgr::LoadPlayerChoices()
             int32 choiceId = fields[0].GetInt32();
             int32 responseId = fields[1].GetInt32();
             uint32 itemId = fields[2].GetUInt32();
-            Tokenizer bonusListIDsTok(fields[3].GetString(), ' ');
             std::vector<int32> bonusListIds;
-            for (char const* token : bonusListIDsTok)
-                bonusListIds.push_back(int32(atol(token)));
+            for (std::string_view token : Trinity::Tokenize(fields[3].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+                    bonusListIds.push_back(*bonusListID);
             int32 quantity = fields[4].GetInt32();
 
             PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);

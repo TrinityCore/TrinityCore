@@ -66,6 +66,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT    = 10
 };
 
+// EnumUtils: DESCRIBE THIS
 enum EncounterState
 {
     NOT_STARTED   = 0,
@@ -161,11 +162,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual ~InstanceScript() { }
 
         InstanceMap* instance;
-
-        // On creation, NOT load.
-        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
-        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
-        virtual void Initialize() { }
 
         // On instance load, exactly ONE of these methods will ALWAYS be called:
         // if we're starting without any saved instance data

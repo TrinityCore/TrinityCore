@@ -1217,37 +1217,37 @@ class spell_mage_water_elemental_freeze : public SpellScript
 
 void AddSC_mage_spell_scripts()
 {
-    RegisterAuraScript(spell_mage_alter_time_aura);
+    RegisterSpellScript(spell_mage_alter_time_aura);
     RegisterSpellScript(spell_mage_alter_time_active);
     RegisterSpellScript(spell_mage_arcane_barrage);
     RegisterSpellScript(spell_mage_arcane_charge_clear);
     RegisterSpellScript(spell_mage_arcane_explosion);
-    RegisterAuraScript(spell_mage_blazing_barrier);
-    RegisterAuraScript(spell_mage_burning_determination);
+    RegisterSpellScript(spell_mage_blazing_barrier);
+    RegisterSpellScript(spell_mage_burning_determination);
     RegisterSpellAndAuraScriptPair(spell_mage_cauterize, spell_mage_cauterize_AuraScript);
     RegisterSpellScript(spell_mage_cold_snap);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
-    RegisterAuraScript(spell_mage_fingers_of_frost);
+    RegisterSpellScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
-    RegisterAuraScript(spell_mage_firestarter_dots);
-    RegisterAuraScript(spell_mage_flame_on);
-    RegisterAuraScript(spell_mage_ice_barrier);
+    RegisterSpellScript(spell_mage_firestarter_dots);
+    RegisterSpellScript(spell_mage_flame_on);
+    RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);
     RegisterSpellScript(spell_mage_ice_lance_damage);
-    RegisterAuraScript(spell_mage_ignite);
-    RegisterAuraScript(spell_mage_imp_mana_gems);
-    RegisterAuraScript(spell_mage_incanters_flow);
+    RegisterSpellScript(spell_mage_ignite);
+    RegisterSpellScript(spell_mage_imp_mana_gems);
+    RegisterSpellScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
-    RegisterAuraScript(spell_mage_living_bomb_periodic);
+    RegisterSpellScript(spell_mage_living_bomb_periodic);
     RegisterSpellScript(spell_mage_polymorph_visual);
-    RegisterAuraScript(spell_mage_prismatic_barrier);
-    RegisterAuraScript(spell_mage_ring_of_frost);
+    RegisterSpellScript(spell_mage_prismatic_barrier);
+    RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_time_warp);
-    RegisterAuraScript(spell_mage_touch_of_the_magi_aura);
+    RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }

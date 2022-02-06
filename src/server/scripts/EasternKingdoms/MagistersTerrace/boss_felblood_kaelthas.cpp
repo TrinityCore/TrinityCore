@@ -510,5 +510,5 @@ void AddSC_boss_felblood_kaelthas()
 {
     RegisterMagistersTerraceCreatureAI(boss_felblood_kaelthas);
     RegisterMagistersTerraceCreatureAI(npc_felblood_kaelthas_phoenix);
-    RegisterAuraScript(spell_felblood_kaelthas_flame_strike);
+    RegisterSpellScript(spell_felblood_kaelthas_flame_strike);
 }

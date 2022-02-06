@@ -73,7 +73,17 @@ public:
 
     struct npc_maghar_captiveAI : public EscortAI
     {
-        npc_maghar_captiveAI(Creature* creature) : EscortAI(creature) { Reset(); }
+        npc_maghar_captiveAI(Creature* creature) : EscortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ChainLightningTimer = 1000;
+            HealTimer = 0;
+            FrostShockTimer = 6000;
+        }
 
         uint32 ChainLightningTimer;
         uint32 HealTimer;
@@ -81,9 +91,7 @@ public:
 
         void Reset() override
         {
-            ChainLightningTimer = 1000;
-            HealTimer = 0;
-            FrostShockTimer = 6000;
+            Initialize();
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -193,7 +201,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
             {
@@ -387,7 +395,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
             {

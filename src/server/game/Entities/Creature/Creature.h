@@ -105,7 +105,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
-        bool IsCombatDisallowed() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_COMBAT) != 0; }
 
         void InitializeMovementFlags();
         void UpdateMovementFlags();
