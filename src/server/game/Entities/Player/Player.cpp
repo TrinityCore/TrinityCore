@@ -15730,6 +15730,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
         if (moneyRew > 0)
             UpdateCriteria(CriteriaType::MoneyEarnedFromQuesting, uint32(moneyRew));
+
+        SendDisplayToast(0, DisplayToastType::Money, false, moneyRew, DisplayToastMethod::QuestComplete, quest_id);
     }
 
     // honor reward
@@ -29246,4 +29248,35 @@ std::string Player::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Unit::GetDebugInfo();
     return sstr.str();
+}
+
+void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId, Item* item /*= nullptr*/) const
+{
+    WorldPackets::Misc::DisplayToast displayToast;
+    displayToast.Quantity = quantity;
+    displayToast.DisplayToastMethod = method;
+    displayToast.QuestID = questId;
+    displayToast.Type = type;
+
+    switch (type)
+    {
+        case DisplayToastType::NewItem:
+        {
+            if (!item)
+                return;
+
+            displayToast.BonusRoll = isBonusRoll;
+            displayToast.Item.Initialize(item);
+            displayToast.LootSpec = 0; // loot spec that was selected when loot was generated (not at loot time)
+            displayToast.Gender = GetNativeGender();
+            break;
+        }
+        case DisplayToastType::NewCurrency:
+            displayToast.CurrencyID = entry;
+            break;
+        default:
+            break;
+    }
+
+    SendDirectMessage(displayToast.Write());
 }
