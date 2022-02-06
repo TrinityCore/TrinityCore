@@ -104,6 +104,7 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER      = 28825,
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
+    SPELL_SHAMAN_UNDULATION_PROC                = 216251,
     SPELL_SHAMAN_UNLIMITED_POWER_BUFF           = 272737,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
     SPELL_SHAMAN_WINDFURY_ENCHANTMENT           = 334302,
@@ -1636,6 +1637,33 @@ class spell_sha_unlimited_power : public AuraScript
     }
 };
 
+// 200071 - Undulation
+class spell_sha_undulation_passive : public AuraScript
+{
+    PrepareAuraScript(spell_sha_undulation_passive);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_UNDULATION_PROC });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        if (++_castCounter == 3)
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_UNDULATION_PROC, true);
+            _castCounter = 0;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_undulation_passive::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+    uint8 _castCounter = 1; // first proc happens after two casts, then one every 3 casts
+};
+
 // 33757 - Windfury Weapon
 class spell_sha_windfury_weapon : public SpellScript
 {
@@ -1781,6 +1809,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_t10_elemental_4p_bonus);
     RegisterSpellScript(spell_sha_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_sha_unlimited_power);
+    RegisterSpellScript(spell_sha_undulation_passive);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_windfury_weapon_proc);
     RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
