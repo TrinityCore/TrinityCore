@@ -153,13 +153,13 @@ struct areatrigger_pal_ashen_hallow : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (unit == at->GetCaster())
+        if (unit->GetGUID() == at->GetCasterGuid())
             unit->CastSpell(unit, SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER, true);
     }
 
     void OnUnitExit(Unit* unit) override
     {
-        if (unit == at->GetCaster())
+        if (unit->GetGUID() == at->GetCasterGuid())
             unit->RemoveAura(SPELL_PALADIN_ASHEN_HALLOW_ALLOW_HAMMER);
     }
 
