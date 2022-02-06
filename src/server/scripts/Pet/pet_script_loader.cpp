@@ -20,7 +20,6 @@ void AddSC_deathknight_pet_scripts();
 void AddSC_generic_pet_scripts();
 void AddSC_hunter_pet_scripts();
 void AddSC_mage_pet_scripts();
-void AddSC_paladin_pet_scripts();
 void AddSC_priest_pet_scripts();
 void AddSC_shaman_pet_scripts();
 
@@ -32,7 +31,6 @@ void AddPetScripts()
     AddSC_generic_pet_scripts();
     AddSC_hunter_pet_scripts();
     AddSC_mage_pet_scripts();
-    AddSC_paladin_pet_scripts();
     AddSC_priest_pet_scripts();
     AddSC_shaman_pet_scripts();
 }
