@@ -60,9 +60,9 @@ enum PriestSpells
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
-    SPELL_PRIEST_PENANCE_R1                         = 47540,
-    SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
-    SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
+    SPELL_PRIEST_PENANCE                            = 47540,
+    SPELL_PRIEST_PENANCE_DAMAGE                     = 47758,
+    SPELL_PRIEST_PENANCE_HEALING                    = 47757,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
     SPELL_PRIEST_RAPTURE                            = 47536,
     SPELL_PRIEST_RENEW                              = 139,
@@ -573,85 +573,64 @@ class spell_pri_mind_bomb : public AuraScript
 };
 
 // 47540 - Penance
-class spell_pri_penance : public SpellScriptLoader
+class spell_pri_penance : public SpellScript
 {
-    public:
-        spell_pri_penance() : SpellScriptLoader("spell_pri_penance") { }
+    PrepareSpellScript(spell_pri_penance);
 
-        class spell_pri_penance_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PENANCE_DAMAGE,
+            SPELL_PRIEST_PENANCE_HEALING
+        });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Player* caster = GetCaster()->ToPlayer();
+
+        if (Unit* target = GetExplTargetUnit())
         {
-            PrepareSpellScript(spell_pri_penance_SpellScript);
-
-            bool Load() override
+            if (!caster->IsFriendlyTo(target))
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                if (!caster->IsValidAttackTarget(target))
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!caster->isInFront(target))
+                    return SPELL_FAILED_UNIT_NOT_INFRONT;
             }
-
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1, DIFFICULTY_NONE);
-                if (!firstRankSpellInfo)
-                    return false;
-
-                // can't use other spell than this penance due to spell_ranks dependency
-                if (!spellInfo->IsRankOf(firstRankSpellInfo))
-                    return false;
-
-                uint8 rank = spellInfo->GetRank();
-                if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank, true))
-                    return false;
-                if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank, true))
-                    return false;
-
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                {
-                    if (!target->IsAlive())
-                        return;
-
-                    uint8 rank = GetSpellInfo()->GetRank();
-
-                    if (caster->IsFriendlyTo(target))
-                        caster->CastSpell(target, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
-                    else
-                        caster->CastSpell(target, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
-                }
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (!caster->IsFriendlyTo(target))
-                    {
-                        if (!caster->IsValidAttackTarget(target))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (!caster->isInFront(target))
-                            return SPELL_FAILED_UNIT_NOT_INFRONT;
-                    }
-                }
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnCheckCast += SpellCheckCastFn(spell_pri_penance_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pri_penance_SpellScript;
         }
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (Unit* target = GetHitUnit())
+        {
+            if (!target->IsAlive())
+                return;
+
+            if (caster->IsFriendlyTo(target))
+                caster->CastSpell(target, SPELL_PRIEST_PENANCE_HEALING, false);
+            else
+                caster->CastSpell(target, SPELL_PRIEST_PENANCE_DAMAGE, false);
+        }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pri_penance::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_penance::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 194509 - Power Word: Radiance
@@ -1469,7 +1448,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_leap_of_faith_effect_trigger();
     new spell_pri_levitate();
     RegisterSpellScript(spell_pri_mind_bomb);
-    new spell_pri_penance();
+    RegisterSpellScript(spell_pri_penance);
     RegisterSpellScript(spell_pri_power_word_radiance);
     RegisterSpellAndAuraScriptPair(spell_pri_power_word_shield, spell_pri_power_word_shield_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending);
