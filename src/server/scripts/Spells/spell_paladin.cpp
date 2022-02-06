@@ -131,6 +131,7 @@ struct areatrigger_pal_ashen_hallow : AreaTriggerAI
     void OnCreate() override
     {
         RefreshPeriod();
+        _refreshTimer = _period;
     }
 
     void OnUpdate(uint32 diff) override
