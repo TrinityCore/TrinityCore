@@ -533,7 +533,7 @@ struct npc_akama_shade : public ScriptedAI
                 shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
     }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
         if (gossipListId == 0)
         {
@@ -1133,6 +1133,6 @@ void AddSC_boss_shade_of_akama()
     RegisterBlackTempleCreatureAI(npc_ashtongue_elementalist);
     RegisterBlackTempleCreatureAI(npc_ashtongue_spiritbinder);
     RegisterBlackTempleCreatureAI(npc_ashtongue_broken);
-    RegisterAuraScript(spell_shade_soul_channel_serverside);
-    RegisterAuraScript(spell_shade_soul_channel);
+    RegisterSpellScript(spell_shade_soul_channel_serverside);
+    RegisterSpellScript(spell_shade_soul_channel);
 }

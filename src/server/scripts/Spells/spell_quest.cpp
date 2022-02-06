@@ -3077,8 +3077,8 @@ void AddSC_quest_spell_scripts()
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
-    RegisterAuraScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
-    RegisterAuraScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
+    RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
+    RegisterSpellScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
     RegisterSpellScript(spell_q12690_burst_at_the_seams_52510);

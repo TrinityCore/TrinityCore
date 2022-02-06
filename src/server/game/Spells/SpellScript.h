@@ -514,6 +514,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         int32 GetHitHeal() const;
         void SetHitHeal(int32 heal);
         void PreventHitHeal() { SetHitHeal(0); }
+        // returns: true if spell critically hits current HitUnit
+        bool IsHitCrit() const;
         Spell* GetSpell() const { return m_spell; }
         // returns current spell hit target aura
         Aura* GetHitAura(bool dynObjAura = false) const;

@@ -25,190 +25,83 @@
 #include "Errors.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "StringFormat.h"
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
 #include <vector>
 
 class ChatHandler;
-class CommandArgs;
 
-template <typename T>
-struct CommandArgsConsumerSingle
+namespace Trinity::Impl::ChatCommands
 {
-    using arginfo = Trinity::ChatCommands::ArgInfo<T>;
-    static char const* TryConsumeTo(T& val, char const* args)
-    {
-        return arginfo::TryConsume(val, args);
-    }
-};
+    // forward declaration
+    // ConsumeFromOffset contains the bounds check for offset, then hands off to MultiConsumer
+    // the call stack is MultiConsumer -> ConsumeFromOffset -> MultiConsumer -> ConsumeFromOffset etc
+    // MultiConsumer goes into ArgInfo for parsing on each iteration
+    template <typename Tuple, size_t offset>
+    ChatCommandResult ConsumeFromOffset(Tuple&, ChatHandler const* handler, std::string_view args);
 
-struct CommandArgsVariantConsumer
-{
-    template <typename V, typename T1, typename... Ts>
-    static char const* TryConsumeTo(V& val, char const* args)
+    template <typename Tuple, typename NextType, size_t offset>
+    struct MultiConsumer
     {
-        T1 v;
-        if (char const* next = CommandArgsConsumerSingle<T1>::TryConsumeTo(v, args))
+        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
         {
-            val = std::move(v);
-            return next;
-        }
-        else if constexpr (sizeof...(Ts) > 0)
-            return TryConsumeTo<V, Ts...>(val, args);
-        else
-            return nullptr;
-    }
-};
-
-template <typename... Ts>
-struct CommandArgsConsumerSingle<Trinity::ChatCommands::Variant<Ts...>>
-{
-    static char const* TryConsumeTo(Trinity::ChatCommands::Variant<Ts...>& val, char const* args)
-    {
-        return CommandArgsVariantConsumer::TryConsumeTo<Trinity::ChatCommands::Variant<Ts...>, Ts...>(val, args);
-    }
-};
-
-template <typename T>
-struct CommandArgsConsumerSingle<std::vector<T>>
-{
-    static char const* TryConsumeTo(std::vector<T>& val, char const* args)
-    {
-        char const* last;
-        val.clear();
-
-        do val.emplace_back();
-        while ((args = CommandArgsConsumerSingle<T>::TryConsumeTo(val.back(), (last = args))));
-
-        val.pop_back();
-        return last;
-    }
-};
-
-template <>
-struct CommandArgsConsumerSingle<CommandArgs*>
-{
-    static char const* TryConsumeTo(CommandArgs*&, char const* args) { return args; }
-};
-
-template <>
-struct CommandArgsConsumerSingle<char const*>
-{
-    static char const* TryConsumeTo(char const*&, char const* args) { return args; }
-};
-
-template <typename T, size_t offset>
-struct CommandArgsConsumerNext;
-
-template <typename Tuple, typename NextType, size_t offset>
-struct CommandArgsConsumerMulti
-{
-    static char const* TryConsumeTo(Tuple& tuple, char const* args)
-    {
-        if (char const* next = CommandArgsConsumerSingle<NextType>::TryConsumeTo(std::get<offset>(tuple), args))
-            return CommandArgsConsumerNext<Tuple, offset+1>::GoNext(tuple, next);
-        else
-            return nullptr;
-    }
-};
-
-template <typename Tuple, typename NestedNextType, size_t offset>
-struct CommandArgsConsumerMulti<Tuple, Optional<NestedNextType>, offset>
-{
-    static char const* TryConsumeTo(Tuple& tuple, char const* args)
-    {
-        // try with the argument
-        auto& myArg = std::get<offset>(tuple);
-        myArg.emplace();
-        if (char const* next = CommandArgsConsumerSingle<NestedNextType>::TryConsumeTo(myArg.value(), args))
-            if ((next = CommandArgsConsumerNext<Tuple, offset+1>::GoNext(tuple, next)))
+            ChatCommandResult next = ArgInfo<NextType>::TryConsume(std::get<offset>(tuple), handler, args);
+            if (next)
+                return ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *next);
+            else
                 return next;
-        // try again omitting the argument
-        myArg = std::nullopt;
-        if (char const* next = CommandArgsConsumerNext<Tuple, offset+1>::GoNext(tuple, args))
-            return next;
-        return nullptr;
-    }
-};
-
-template <size_t offset, typename... Ts>
-struct CommandArgsConsumerNext<std::tuple<Ts...>, offset>
-{
-    using tuple_type = std::tuple<Ts...>;
-
-    template <bool C = (offset < sizeof...(Ts))>
-    static std::enable_if_t<C, char const*> GoNext(tuple_type& tuple, char const* args)
-    {
-        return CommandArgsConsumerMulti<tuple_type, std::tuple_element_t<offset, tuple_type>, offset>::TryConsumeTo(tuple, args);
-    }
-
-    template <bool C = (offset < sizeof...(Ts))>
-    static std::enable_if_t<!C, char const*> GoNext(tuple_type&, char const* args)
-    {
-        return args;
-    }
-};
-
-class TC_GAME_API CommandArgs
-{
-    public:
-        CommandArgs(char const* args) : _original(args), _args(args) {}
-
-        template <typename T1, typename T2, typename... Ts>
-        auto TryConsume()
-        {
-            Optional<std::tuple<advstd::remove_cvref_t<T1>, advstd::remove_cvref_t<T2>, advstd::remove_cvref_t<Ts>...>> rv;
-            rv.emplace();
-            if (!TryConsumeToTuple<0>(rv.value()))
-                rv = std::nullopt;
-            return rv;
         }
+    };
 
-        template <typename T1>
-        auto TryConsume()
+    template <typename Tuple, typename NestedNextType, size_t offset>
+    struct MultiConsumer<Tuple, Optional<NestedNextType>, offset>
+    {
+        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
         {
-            using T = advstd::remove_cvref_t<T1>;
-            Optional<T> rv;
-            rv.emplace();
-            if (char const* next = CommandArgsConsumerSingle<T>::TryConsumeTo(rv.value(), _args))
-                _args = next;
-            else
-                rv = std::nullopt;
-            return rv;
-        }
+            // try with the argument
+            auto& myArg = std::get<offset>(tuple);
+            myArg.emplace();
 
-        template <size_t offset = 0, typename T>
-        bool TryConsumeToTuple(T& tuple)
-        {
-            if (char const* next = CommandArgsConsumerNext<T, offset>::GoNext(tuple, _args))
+            ChatCommandResult result1 = ArgInfo<NestedNextType>::TryConsume(myArg.value(), handler, args);
+            if (result1)
+                if ((result1 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *result1)))
+                    return result1;
+            // try again omitting the argument
+            myArg = std::nullopt;
+            ChatCommandResult result2 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, args);
+            if (result2)
+                return result2;
+            if (result1.HasErrorMessage() && result2.HasErrorMessage())
             {
-                _args = next;
-                return true;
+                return Trinity::StringFormat("%s \"%s\"\n%s \"%s\"",
+                    GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage().c_str(),
+                    GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage().c_str());
             }
+            else if (result1.HasErrorMessage())
+                return result1;
             else
-                return false;
+                return result2;
         }
+    };
 
-        void Reset() { _args = _original; }
+    template <typename Tuple, size_t offset>
+    ChatCommandResult ConsumeFromOffset([[maybe_unused]] Tuple& tuple, [[maybe_unused]] ChatHandler const* handler, std::string_view args)
+    {
+        if constexpr (offset < std::tuple_size_v<Tuple>)
+            return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, handler, args);
+        else if (!args.empty()) /* the entire string must be consumed */
+            return std::nullopt;
+        else
+            return args;
+    }
 
-        char const* GetFullArgs() const { return _original; }
-        char const* GetRemainingArgs() const { return _args; }
+    template <typename T> struct HandlerToTuple { static_assert(Trinity::dependant_false_v<T>, "Invalid command handler signature"); };
+    template <typename... Ts> struct HandlerToTuple<bool(*)(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...>; };
+    template <typename T> using TupleType = typename HandlerToTuple<T>::type;
+}
 
-        bool IsEmpty() const { return !!*_args; }
-        explicit operator bool() const { return IsEmpty(); }
-
-    private:
-        char const* const _original;
-        char const* _args;
-};
-
-template <typename T> struct ChatCommandHandlerToTuple { static_assert(!std::is_same_v<T,T>, "Invalid command handler signature"); };
-template <typename... Ts> struct ChatCommandHandlerToTuple<bool(*)(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...>; };
-
-template <typename T> struct ChatCommandStoreLastArg { static void store(T&, CommandArgs&) {} };
-template <> struct ChatCommandStoreLastArg<char const*> { static void store(char const*& arg, CommandArgs& args) { arg = args.GetRemainingArgs(); } };
-template <> struct ChatCommandStoreLastArg<CommandArgs*> { static void store(CommandArgs*& arg, CommandArgs& args) { arg = &args; } };
 
 class TC_GAME_API ChatCommand
 {
@@ -221,20 +114,19 @@ class TC_GAME_API ChatCommand
         {
             _wrapper = [](void* handler, ChatHandler* chatHandler, char const* argsStr)
             {
-                using tuple_type = typename ChatCommandHandlerToTuple<TypedHandler>::type;
+                using Tuple = Trinity::Impl::ChatCommands::TupleType<TypedHandler>;
 
-                tuple_type arguments;
+                Tuple arguments;
                 std::get<0>(arguments) = chatHandler;
-
-                CommandArgs args(argsStr);
-                if (args.TryConsumeToTuple<1>(arguments))
-                {
-                    auto& last = std::get<std::tuple_size_v<tuple_type>-1>(arguments);
-                    ChatCommandStoreLastArg<advstd::remove_cvref_t<decltype(last)>>::store(last, args);
+                Trinity::Impl::ChatCommands::ChatCommandResult result = Trinity::Impl::ChatCommands::ConsumeFromOffset<Tuple, 1>(arguments, chatHandler, argsStr);
+                if (result)
                     return std::apply(reinterpret_cast<TypedHandler>(handler), std::move(arguments));
-                }
                 else
+                {
+                    if (result.HasErrorMessage())
+                        Trinity::Impl::ChatCommands::SendErrorMessageToHandler(chatHandler, result.GetErrorMessage());
                     return false;
+                }
             };
             _handler = reinterpret_cast<void*>(handler);
         }
@@ -255,7 +147,7 @@ class TC_GAME_API ChatCommand
         bool HasHandler() const { return !!_handler; }
 
         char const* Name;
-        uint32 Permission;                   // function pointer required correct align (use uint32)
+        uint32 Permission;
         bool AllowConsole;
         std::string Help;
         std::vector<ChatCommand> ChildCommands;

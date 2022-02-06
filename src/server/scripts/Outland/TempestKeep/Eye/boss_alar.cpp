@@ -622,5 +622,5 @@ void AddSC_boss_alar()
     new boss_alar();
     new npc_ember_of_alar();
     new npc_flame_patch_alar();
-    RegisterAuraScript(spell_alar_flame_quills);
+    RegisterSpellScript(spell_alar_flame_quills);
 }

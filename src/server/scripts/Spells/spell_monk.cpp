@@ -389,10 +389,10 @@ private:
 
 void AddSC_monk_spell_scripts()
 {
-    RegisterAuraScript(spell_monk_crackling_jade_lightning);
-    RegisterAuraScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
+    RegisterSpellScript(spell_monk_crackling_jade_lightning);
+    RegisterSpellScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
     RegisterSpellScript(spell_monk_provoke);
-    RegisterAuraScript(spell_monk_stagger);
-    RegisterAuraScript(spell_monk_stagger_damage_aura);
-    RegisterAuraScript(spell_monk_stagger_debuff_aura);
+    RegisterSpellScript(spell_monk_stagger);
+    RegisterSpellScript(spell_monk_stagger_damage_aura);
+    RegisterSpellScript(spell_monk_stagger_debuff_aura);
 }

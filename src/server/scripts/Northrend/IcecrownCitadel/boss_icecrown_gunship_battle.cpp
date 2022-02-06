@@ -29,6 +29,7 @@
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
@@ -952,7 +953,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
@@ -1216,7 +1217,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
@@ -1382,7 +1383,7 @@ class npc_zafod_boombox : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
                 CloseGossipMenuFor(player);

@@ -1015,15 +1015,15 @@ void AddSC_boss_xt002()
     RegisterUlduarCreatureAI(npc_life_spark);
     RegisterUlduarCreatureAI(npc_xt_void_zone);
 
-    RegisterAuraScript(spell_xt002_searing_light_spawn_life_spark);
-    RegisterAuraScript(spell_xt002_gravity_bomb_aura);
+    RegisterSpellScript(spell_xt002_searing_light_spawn_life_spark);
+    RegisterSpellScript(spell_xt002_gravity_bomb_aura);
     RegisterSpellScript(spell_xt002_gravity_bomb_damage);
     RegisterSpellScript(spell_xt002_heart_overload_periodic);
     RegisterSpellScript(spell_xt002_energy_orb);
     RegisterSpellScript(spell_xt002_tympanic_tantrum);
     RegisterSpellScript(spell_xt002_submerged);
-    RegisterAuraScript(spell_xt002_321_boombot_aura);
-    RegisterAuraScript(spell_xt002_exposed_heart);
+    RegisterSpellScript(spell_xt002_321_boombot_aura);
+    RegisterSpellScript(spell_xt002_exposed_heart);
 
     new achievement_nerf_engineering();
     new achievement_heartbreaker();
