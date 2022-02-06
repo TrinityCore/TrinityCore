@@ -980,11 +980,12 @@ enum PlayerLogXPReason : uint8
     LOG_XP_REASON_NO_KILL = 1
 };
 
-enum class RewardType : uint8
+enum class DisplayToastType : uint8
 {
-    Item     = 0,
-    Currency = 1,
-    Money    = 2
+    NewItem     = 0,
+    NewCurrency = 1,
+    Money       = 2,
+    Honor       = 3
 };
 
 enum class DisplayToastMethod : uint8
@@ -1006,7 +1007,8 @@ enum class DisplayToastMethod : uint8
     InvasionLoot            = 14,
     Default                 = 15,
     QuestComplete           = 16,
-    RatedPvPReward          = 17
+    RatedPvPReward          = 17,
+    CorruptedLoot           = 19
 };
 
 class Player;
@@ -1660,7 +1662,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestUpdateAddCreditSimple(QuestObjective const& obj) const;
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
         void SendQuestGiverStatusMultiple();
-        void SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questID = 0, Item* item = nullptr);
+        void SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId = 0, Item* item = nullptr) const;
 
         uint32 GetSharedQuestID() const { return m_sharedQuestId; }
         ObjectGuid GetPlayerSharingQuest() const { return m_playerSharingQuest; }

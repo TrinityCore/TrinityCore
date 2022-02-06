@@ -745,24 +745,29 @@ WorldPacket const* WorldPackets::Misc::SplashScreenShowLatest::Write()
 WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
 {
     _worldPacket << uint64(Quantity);
-    _worldPacket << AsUnderlyingType(ToastMethod);
+    _worldPacket << uint8(AsUnderlyingType(DisplayToastMethod));
     _worldPacket << uint32(QuestID);
 
     _worldPacket.WriteBit(Mailed);
     _worldPacket.WriteBits(AsUnderlyingType(Type), 2);
+    _worldPacket.WriteBit(IsSecondaryResult);
 
-    if (Type == RewardType::Item)
+    switch (Type)
     {
-        _worldPacket.WriteBit(BonusRoll);
-
-        _worldPacket << Item;
-        _worldPacket << int32(SpecializationID);
-        _worldPacket << int32(ItemQuantity);
+        case DisplayToastType::NewItem:
+            _worldPacket.WriteBit(BonusRoll);
+            _worldPacket << Item;
+            _worldPacket << int32(LootSpec);
+            _worldPacket << int32(Gender);
+            break;
+        case DisplayToastType::NewCurrency:
+            _worldPacket << uint32(CurrencyID);
+            break;
+        default:
+            break;
     }
-    else if (Type == RewardType::Currency)
-        _worldPacket << int32(CurrencyID);
-    else if (Type == RewardType::Money)
-        _worldPacket.FlushBits();
+
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

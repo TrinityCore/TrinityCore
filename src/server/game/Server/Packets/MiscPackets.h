@@ -975,15 +975,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 Quantity = 0;
-            DisplayToastMethod ToastMethod = DisplayToastMethod::DoNotDisplay;
-            uint32 QuestID = 0;
+            ::DisplayToastMethod DisplayToastMethod = ::DisplayToastMethod::DoNotDisplay;
             bool Mailed = false;
-            RewardType Type = RewardType::Money;
+            DisplayToastType Type = DisplayToastType::Money;
+            uint32 QuestID = 0;
+            bool IsSecondaryResult = false;
+            Item::ItemInstance Item;
             bool BonusRoll = false;
-            WorldPackets::Item::ItemInstance Item;
-            int32 SpecializationID = 0;
-            int32 ItemQuantity = 0;
-            int32 CurrencyID = 0;
+            int32 LootSpec = 0;
+            ::Gender Gender = GENDER_NONE;
+            uint32 CurrencyID = 0;
         };
     }
 }

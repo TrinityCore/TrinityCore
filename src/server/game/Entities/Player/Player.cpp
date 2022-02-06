@@ -15731,7 +15731,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         if (moneyRew > 0)
             UpdateCriteria(CriteriaType::MoneyEarnedFromQuesting, uint32(moneyRew));
 
-        SendDisplayToast(0, RewardType::Money, false, moneyRew, DisplayToastMethod::QuestComplete, quest_id);
+        SendDisplayToast(0, DisplayToastType::Money, false, moneyRew, DisplayToastMethod::QuestComplete, quest_id);
     }
 
     // honor reward
@@ -29250,33 +29250,33 @@ std::string Player::GetDebugInfo() const
     return sstr.str();
 }
 
-void Player::SendDisplayToast(uint32 entry, RewardType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questID, Item* item /*= nullptr*/)
+void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId, Item* item /*= nullptr*/) const
 {
-    WorldPackets::Misc::DisplayToast data;
-    data.Quantity = quantity;
-    data.ToastMethod = method;
-    data.QuestID = questID;
-    data.Type = type;
+    WorldPackets::Misc::DisplayToast displayToast;
+    displayToast.Quantity = quantity;
+    displayToast.DisplayToastMethod = method;
+    displayToast.QuestID = questId;
+    displayToast.Type = type;
 
     switch (type)
     {
-        case RewardType::Item:
+        case DisplayToastType::NewItem:
         {
             if (!item)
                 return;
 
-            data.BonusRoll = isBonusRoll;
-            data.Item.Initialize(item);
-            data.SpecializationID = 0;
-            data.ItemQuantity = 0;
+            displayToast.BonusRoll = isBonusRoll;
+            displayToast.Item.Initialize(item);
+            displayToast.LootSpec = 0; // loot spec that was selected when loot was generated (not at loot time)
+            displayToast.Gender = GetNativeGender();
             break;
         }
-        case RewardType::Currency:
-            data.CurrencyID = entry;
+        case DisplayToastType::NewCurrency:
+            displayToast.CurrencyID = entry;
             break;
         default:
             break;
     }
 
-    SendDirectMessage(data.Write());
+    SendDirectMessage(displayToast.Write());
 }
