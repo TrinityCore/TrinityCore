@@ -559,7 +559,7 @@ void AddSC_boss_jaraxxus()
     RegisterTrialOfTheCrusaderCreatureAI(npc_fel_infernal);
     RegisterTrialOfTheCrusaderCreatureAI(npc_nether_portal);
     RegisterTrialOfTheCrusaderCreatureAI(npc_mistress_of_pain);
-    RegisterAuraScript(spell_mistress_kiss);
+    RegisterSpellScript(spell_mistress_kiss);
     RegisterSpellScript(spell_mistress_kiss_area);
     RegisterSpellScript(spell_fel_streak_visual);
 }

@@ -607,6 +607,7 @@ class TC_GAME_API Spell
         CurrentSpellTypes GetCurrentContainer() const;
 
         WorldObject* GetCaster() const { return m_caster; }
+        ObjectGuid GetOriginalCasterGUID() const { return m_originalCasterGUID; }
         Unit* GetOriginalCaster() const { return m_originalCaster; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         Difficulty GetCastDifficulty() const;
@@ -689,7 +690,7 @@ class TC_GAME_API Spell
         Unit* unitTarget;
         Item* itemTarget;
         GameObject* gameObjTarget;
-        Corpse* corpseTarget;
+        Corpse* m_corpseTarget;
         WorldLocation* destTarget;
         int32 damage;
         SpellMissInfo targetMissInfo;
@@ -697,7 +698,7 @@ class TC_GAME_API Spell
         SpellEffectHandleMode effectHandleMode;
         SpellEffectInfo const* effectInfo;
         // used in effects handlers
-        Unit* unitCaster;
+        Unit* GetUnitCasterForEffectHandlers() const;
         UnitAura* _spellAura;
         DynObjAura* _dynObjAura;
 

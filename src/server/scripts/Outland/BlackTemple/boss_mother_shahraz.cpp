@@ -326,7 +326,7 @@ void AddSC_boss_mother_shahraz()
     RegisterBlackTempleCreatureAI(boss_mother_shahraz);
     RegisterSpellScript(spell_mother_shahraz_fatal_attraction);
     RegisterSpellScript(spell_mother_shahraz_fatal_attraction_link);
-    RegisterAuraScript(spell_mother_shahraz_saber_lash);
-    RegisterAuraScript(spell_mother_shahraz_generic_periodic);
-    RegisterAuraScript(spell_mother_shahraz_random_periodic);
+    RegisterSpellScript(spell_mother_shahraz_saber_lash);
+    RegisterSpellScript(spell_mother_shahraz_generic_periodic);
+    RegisterSpellScript(spell_mother_shahraz_random_periodic);
 }

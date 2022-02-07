@@ -49,6 +49,7 @@ class TC_GAME_API TempSummon : public Creature
         virtual void InitStats(uint32 lifetime);
         virtual void InitSummon();
         void UpdateObjectVisibilityOnCreate() override;
+        void UpdateObjectVisibilityOnDestroy() override;
         virtual void UnSummon(uint32 msTime = 0);
         void RemoveFromWorld() override;
         void SetTempSummonType(TempSummonType type);

@@ -408,10 +408,10 @@ DisconnectToleranceInterval = 0
 #
 #    mmap.enablePathFinding
 #        Description: Enable/Disable pathfinding using mmaps - recommended.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
-mmap.enablePathFinding = 0
+mmap.enablePathFinding = 1
 
 #
 #    vmap.enableLOS
@@ -1528,21 +1528,18 @@ HotSwap.ReCompilerBuildType = ""
 Warden.Enabled = 0
 
 #
-#    Warden.NumMemChecks
-#        Description: Number of Warden memory checks that are sent to the client each cycle.
-#        Default:     3 - (Enabled)
-#                     0 - (Disabled)
+#    Warden.NumInjectionChecks
+#    Warden.NumLuaSandboxChecks
+#    Warden.NumClientModChecks
+#        Description: Number of Warden checks of the respective category that are sent per cycle.
+#        Default:     9 - (Warden.NumInjectionChecks)
+#        Default:     1 - (Warden.NumLuaSandboxChecks)
+#        Default:     1 - (Warden.NumClientModChecks)
+#                     0 - (Disable category)
 
-Warden.NumMemChecks = 3
-
-#
-#    Warden.NumOtherChecks
-#        Description: Number of Warden checks other than memory checks that are added to request
-#                     each checking cycle.
-#        Default:     7 - (Enabled)
-#                     0 - (Disabled)
-
-Warden.NumOtherChecks = 7
+Warden.NumInjectionChecks = 9
+Warden.NumLuaSandboxChecks = 1
+Warden.NumClientModChecks = 1
 
 #
 #    Warden.ClientResponseDelay
@@ -1621,6 +1618,15 @@ AllowTwoSide.Interaction.Guild = 0
 #
 #    AllowTwoSide.Interaction.Auction
 #        Description: Allow auctions between factions.
+#                     This results in all auctions being handled as if placed in the neutral
+#                     auction house and will intentionally lock acces to the Horde and Alliance AH.
+#                     Deposit fee and auction cut values will be taken from neutral auction house.
+#                     If used in combination with the AH-Bot, settings should be set for neutral
+#                     auction house only.
+#
+#                     Warning: changing this in production results in players loosing access to their
+#                     already placed auctions in the faction houses - these auctions will expire after
+#                     their regular timings.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
@@ -1981,10 +1987,14 @@ ChatFakeMessagePreventing = 1
 #
 #    ChatStrictLinkChecking.Severity
 #        Description: Check chat messages for in-game links to spells, items, quests, etc.
-#        Default:     0 - (Only verify that link format looks valid without checking the text)
-#                     1 - (Check if color, entry and name don't contradict each other. For this to
-#                         work correctly, please assure that you have extracted locale DBCs of
-#                         every language specific client playing on this server)
+#                     -1 - (Only verify validity of link data, but permit use of custom colors)
+#        Default:      0 - (Only verify that link data and color are valid without checking text)
+#                      1 - (Additionally verifies that the link text matches the provided data)
+#
+#        Note:        If this is set to '1', you must additionally provide .dbc files for all
+#                     client locales that are in use on your server.
+#                     If any files are missing, messages with links from clients using those
+#                     locales will likely be blocked by the server.
 
 ChatStrictLinkChecking.Severity = 0
 
@@ -3578,11 +3588,11 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 
 #
 #    AuctionHouseBot.BuyPrice.Seller
-#       Description: Should the Seller use BuyPrice or SellPrice to determine Bid Prices
-#       Default:     1 - (use SellPrice)
-#                    0 - (use BuyPrice)
+#       Description: Should the Seller use the items BuyPrice or SellPrice to determine Bid Prices
+#       Default:     0 - (use BuyPrice - results in higher prices)
+#                    1 - (use SellPrice - results in lower prices)
 
-AuctionHouseBot.BuyPrice.Seller = 1
+AuctionHouseBot.BuyPrice.Seller = 0
 
 #
 #    AuctionHouseBot.BidPrice.*

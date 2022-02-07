@@ -88,7 +88,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -99,7 +99,7 @@ public:
             return false;
         }
 
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
                 Talk(SAY_QUEST_ACCEPT);
@@ -132,7 +132,7 @@ public:
     {
         npc_roxi_ramrocketAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             //Quest Menu
             if (me->IsQuestGiver())
@@ -151,7 +151,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -494,7 +494,7 @@ public:
             objectCounter = 0;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             playerGUID = player->GetGUID();

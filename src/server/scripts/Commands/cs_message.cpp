@@ -37,6 +37,8 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommands;
+
 class message_commandscript : public CommandScript
 {
 public:
@@ -66,16 +68,8 @@ public:
         return commandTable;
     }
 
-    static bool HandleChannelSetOwnership(ChatHandler* handler, char const* args)
+    static bool HandleChannelSetOwnership(ChatHandler* handler, std::string channelName, bool grantOwnership)
     {
-        if (!*args)
-            return false;
-        char const* channelStr = strtok((char*)args, " ");
-        char const* argStr = strtok(nullptr, "");
-
-        if (!channelStr || !argStr)
-            return false;
-
         uint32 channelId = 0;
         for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
         {
@@ -83,7 +77,7 @@ public:
             if (!channelEntry)
                 continue;
 
-            if (strstr(channelEntry->Name[handler->GetSessionDbcLocale()], channelStr))
+            if (StringContainsStringI(channelEntry->Name[handler->GetSessionDbcLocale()], channelName))
             {
                 channelId = i;
                 break;
@@ -97,7 +91,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->AreaName[handler->GetSessionDbcLocale()], channelStr))
+            if (StringContainsStringI(entry->AreaName[handler->GetSessionDbcLocale()], channelName))
             {
                 zoneEntry = entry;
                 break;
@@ -108,149 +102,151 @@ public:
         Channel* channel = nullptr;
 
         if (ChannelMgr* cMgr = ChannelMgr::ForTeam(player->GetTeam()))
-            channel = cMgr->GetChannel(channelId, channelStr, player, false, zoneEntry);
+            channel = cMgr->GetChannel(channelId, channelName, player, false, zoneEntry);
 
-        if (strcmp(argStr, "on") == 0)
+        if (grantOwnership)
         {
             if (channel)
                 channel->SetOwnership(true);
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 1);
-            stmt->setString(1, channelStr);
+            stmt->setString(1, channelName);
             CharacterDatabase.Execute(stmt);
-            handler->PSendSysMessage(LANG_CHANNEL_ENABLE_OWNERSHIP, channelStr);
+            handler->PSendSysMessage(LANG_CHANNEL_ENABLE_OWNERSHIP, channelName.c_str());
         }
-        else if (strcmp(argStr, "off") == 0)
+        else
         {
             if (channel)
                 channel->SetOwnership(false);
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 0);
-            stmt->setString(1, channelStr);
+            stmt->setString(1, channelName);
             CharacterDatabase.Execute(stmt);
-            handler->PSendSysMessage(LANG_CHANNEL_DISABLE_OWNERSHIP, channelStr);
+            handler->PSendSysMessage(LANG_CHANNEL_DISABLE_OWNERSHIP, channelName.c_str());
         }
-        else
-            return false;
 
         return true;
     }
 
-    static bool HandleNameAnnounceCommand(ChatHandler* handler, char const* args)
+    static bool HandleNameAnnounceCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string name("Console");
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args);
+        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), message.data());
         return true;
     }
 
-    static bool HandleGMNameAnnounceCommand(ChatHandler* handler, char const* args)
+    static bool HandleGMNameAnnounceCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string name("Console");
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
+        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), message.data());
         return true;
     }
+
     // global announce
-    static bool HandleAnnounceCommand(ChatHandler* handler, char const* args)
+    static bool HandleAnnounceCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
-        std::string str = handler->PGetParseString(LANG_SYSTEMMESSAGE, args);
-
-        sWorld->SendServerMessage(SERVER_MSG_STRING, str);
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), message.data()).c_str());
         return true;
     }
+
     // announce to logged in GMs
-    static bool HandleGMAnnounceCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleGMAnnounceCommand(ChatHandler* /*handler*/, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
-        sWorld->SendGMText(LANG_GM_BROADCAST, args);
+        sWorld->SendGMText(LANG_GM_BROADCAST, message.data());
         return true;
     }
-    // notification player at the screen
-    static bool HandleNotifyCommand(ChatHandler* handler, char const* args)
+
+    // send on-screen notification to players
+    static bool HandleNotifyCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
-        str += args;
+        str += message;
 
         sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }
-    // notification GM at the screen
-    static bool HandleGMNotifyCommand(ChatHandler* handler, char const* args)
+
+    // send on-screen notification to GMs
+    static bool HandleGMNotifyCommand(ChatHandler* handler, Tail message)
     {
-        if (!*args)
+        if (message.empty())
             return false;
 
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
-        str += args;
+        str += message;
 
         sWorld->SendGlobalGMMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }
-    // Enable\Dissable accept whispers (for GM)
-    static bool HandleWhispersCommand(ChatHandler* handler, char const* args)
+
+    // Enable/Disable accepting whispers (for GM)
+    static bool HandleWhispersCommand(ChatHandler* handler, Optional<Variant<bool, EXACT_SEQUENCE("remove")>> operationArg, Optional<std::string> playerNameArg)
     {
-        if (!*args)
+        if (!operationArg)
         {
             handler->PSendSysMessage(LANG_COMMAND_WHISPERACCEPTING, handler->GetSession()->GetPlayer()->isAcceptWhispers() ?  handler->GetTrinityString(LANG_ON) : handler->GetTrinityString(LANG_OFF));
             return true;
         }
 
-        std::string argStr = strtok((char*)args, " ");
-        // whisper on
-        if (argStr == "on")
+        if (operationArg->holds_alternative<bool>())
         {
-            handler->GetSession()->GetPlayer()->SetAcceptWhispers(true);
-            handler->SendSysMessage(LANG_COMMAND_WHISPERON);
-            return true;
-        }
-
-        // whisper off
-        if (argStr == "off")
-        {
-            // Remove all players from the Gamemaster's whisper whitelist
-            handler->GetSession()->GetPlayer()->ClearWhisperWhiteList();
-            handler->GetSession()->GetPlayer()->SetAcceptWhispers(false);
-            handler->SendSysMessage(LANG_COMMAND_WHISPEROFF);
-            return true;
-        }
-
-        if (argStr == "remove")
-        {
-            std::string name = strtok(nullptr, " ");
-            if (normalizePlayerName(name))
+            if (operationArg->get<bool>())
             {
-                if (Player* player = ObjectAccessor::FindPlayerByName(name))
+                handler->GetSession()->GetPlayer()->SetAcceptWhispers(true);
+                handler->SendSysMessage(LANG_COMMAND_WHISPERON);
+                return true;
+            }
+            else
+            {
+                // Remove all players from the Gamemaster's whisper whitelist
+                handler->GetSession()->GetPlayer()->ClearWhisperWhiteList();
+                handler->GetSession()->GetPlayer()->SetAcceptWhispers(false);
+                handler->SendSysMessage(LANG_COMMAND_WHISPEROFF);
+                return true;
+            }
+        }
+
+        if (operationArg->holds_alternative<EXACT_SEQUENCE("remove")>())
+        {
+            if (!playerNameArg)
+                return false;
+
+            if (normalizePlayerName(*playerNameArg))
+            {
+                if (Player* player = ObjectAccessor::FindPlayerByName(*playerNameArg))
                 {
                     handler->GetSession()->GetPlayer()->RemoveFromWhisperWhiteList(player->GetGUID());
-                    handler->PSendSysMessage(LANG_COMMAND_WHISPEROFFPLAYER, name.c_str());
+                    handler->PSendSysMessage(LANG_COMMAND_WHISPEROFFPLAYER, playerNameArg->c_str());
                     return true;
                 }
                 else
                 {
-                    handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND, name.c_str());
+                    handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND, playerNameArg->c_str());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }

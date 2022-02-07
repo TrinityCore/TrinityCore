@@ -615,10 +615,19 @@ class spell_hun_tame_beast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_tame_beast_SpellScript);
 
+            static constexpr uint32 CallPetSpellIds[MAX_ACTIVE_PETS] =
+            {
+                883,
+                83242,
+                83243,
+                83244,
+                83245,
+            };
+
             SpellCastResult CheckCast()
             {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
+                Player* caster = GetCaster()->ToPlayer();
+                if (!caster)
                     return SPELL_FAILED_DONT_REPORT;
 
                 if (!GetExplTargetUnit())
@@ -630,11 +639,33 @@ class spell_hun_tame_beast : public SpellScriptLoader
                         return SPELL_FAILED_HIGHLEVEL;
 
                     // use SMSG_PET_TAME_FAILURE?
-                    if (!target->GetCreatureTemplate()->IsTameable(caster->ToPlayer()->CanTameExoticPets()))
+                    if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
                         return SPELL_FAILED_BAD_TARGETS;
 
-                    if (!caster->GetPetGUID().IsEmpty())
-                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                    if (PetStable const* petStable = caster->GetPetStable())
+                    {
+                        if (petStable->CurrentPetIndex)
+                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                        auto freeSlotItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+                        {
+                            return !petInfo.has_value();
+                        });
+
+                        if (freeSlotItr == petStable->ActivePets.end())
+                        {
+                            caster->SendTameFailure(PetTameResult::TooMany);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+
+                        // Check for known Call Pet X spells
+                        std::size_t freeSlotIndex = std::distance(petStable->ActivePets.begin(), freeSlotItr);
+                        if (!caster->HasSpell(CallPetSpellIds[freeSlotIndex]))
+                        {
+                            caster->SendTameFailure(PetTameResult::TooMany);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+                    }
 
                     if (!caster->GetCharmedGUID().IsEmpty())
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
@@ -702,7 +733,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
-    RegisterAuraScript(spell_hun_a_murder_of_crows);
+    RegisterSpellScript(spell_hun_a_murder_of_crows);
     new spell_hun_aspect_cheetah();
     new spell_hun_exhilaration();
     new spell_hun_hunting_party();

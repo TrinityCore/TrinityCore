@@ -50,6 +50,7 @@
 #include "Transport.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
@@ -909,6 +910,20 @@ void Map::Update(uint32 t_diff)
             for (Unit* unit : toVisit)
                 VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
         }
+
+        { // Update player's summons
+            std::vector<Unit*> toVisit;
+
+            // Totems
+            for (ObjectGuid const& summonGuid : player->m_SummonSlot)
+                if (!summonGuid.IsEmpty())
+                    if (Creature* unit = GetCreature(summonGuid))
+                        if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                            toVisit.push_back(unit);
+
+            for (Unit* unit : toVisit)
+                VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+        }
     }
 
     // non-player active objects, increasing iterator in the loop in case of object removal
@@ -1079,7 +1094,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     SendRemoveTransports(player);
 
     if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
-        player->DestroyForNearbyPlayers(); // previous player->UpdateObjectVisibility(true)
+        player->UpdateObjectVisibilityOnDestroy();
 
     if (player->IsInGrid())
         player->RemoveFromGrid();
@@ -1101,7 +1116,7 @@ void Map::RemoveFromMap(T *obj, bool remove)
     GetMultiPersonalPhaseTracker().UnregisterTrackedObject(obj);
 
     if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
-        obj->DestroyForNearbyPlayers(); // previous obj->UpdateObjectVisibility(true)
+        obj->UpdateObjectVisibilityOnDestroy();
 
     obj->RemoveFromGrid();
 
@@ -3667,6 +3682,7 @@ void Map::AddObjectToRemoveList(WorldObject* obj)
 {
     ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
 
+    obj->SetDestroyedObject(true);
     obj->CleanupsBeforeDelete(false);                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
@@ -3898,10 +3914,10 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
 
-InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, Map* _parent)
+InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, Map* _parent, TeamId InstanceTeam)
   : Map(id, expiry, InstanceId, SpawnMode, _parent),
     m_resetAfterUnload(false), m_unloadWhenEmpty(false),
-    i_data(nullptr), i_script_id(0), i_scenario(nullptr)
+    i_data(nullptr), i_script_id(0), i_script_team(InstanceTeam), i_scenario(nullptr)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -4788,7 +4804,7 @@ void Map::RemoveCorpse(Corpse* corpse)
 {
     ASSERT(corpse);
 
-    corpse->DestroyForNearbyPlayers();
+    corpse->UpdateObjectVisibilityOnDestroy();
     if (corpse->IsInGrid())
         RemoveFromMap(corpse, false);
     else

@@ -307,7 +307,7 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
     }
 }
 
-void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
+void BattlePetMgr::SaveToDB(LoginDatabaseTransaction trans)
 {
     LoginDatabasePreparedStatement* stmt = nullptr;
 

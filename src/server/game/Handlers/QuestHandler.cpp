@@ -94,7 +94,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     creature->SetHomePosition(creature->GetPosition());
 
     _player->PlayerTalkClass->ClearMenus();
-    if (creature->AI()->GossipHello(_player))
+    if (creature->AI()->OnGossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
@@ -406,7 +406,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
 
                     _player->PlayerTalkClass->ClearMenus();
                     if (Creature* creatureQGiver = object->ToCreature())
-                        creatureQGiver->AI()->QuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
+                        creatureQGiver->AI()->OnQuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
                     break;
                 }
                 case TYPEID_GAMEOBJECT:
@@ -426,7 +426,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                     }
 
                     _player->PlayerTalkClass->ClearMenus();
-                    questGiver->AI()->QuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
+                    questGiver->AI()->OnQuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
                     break;
                 }
                 default:

@@ -89,31 +89,22 @@ void VisibleChangesNotifier::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (iter->GetSource() == &i_object)
-            continue;
+        iter->GetSource()->UpdateVisibilityOf(i_objects);
 
-        iter->GetSource()->UpdateVisibilityOf(&i_object);
-
-        if (iter->GetSource()->HasSharedVision())
-        {
-            for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
-                i != iter->GetSource()->GetSharedVisionList().end(); ++i)
-            {
+        for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
+            i != iter->GetSource()->GetSharedVisionList().end(); ++i)
                 if ((*i)->m_seer == iter->GetSource())
-                    (*i)->UpdateVisibilityOf(&i_object);
-            }
-        }
+                    (*i)->UpdateVisibilityOf(i_objects);
     }
 }
 
 void VisibleChangesNotifier::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->GetSource()->HasSharedVision())
-            for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
-                i != iter->GetSource()->GetSharedVisionList().end(); ++i)
-                if ((*i)->m_seer == iter->GetSource())
-                    (*i)->UpdateVisibilityOf(&i_object);
+        for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
+            i != iter->GetSource()->GetSharedVisionList().end(); ++i)
+            if ((*i)->m_seer == iter->GetSource())
+                (*i)->UpdateVisibilityOf(i_objects);
 }
 
 void VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
@@ -122,7 +113,7 @@ void VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
         if (Unit* caster = iter->GetSource()->GetCaster())
             if (Player* player = caster->ToPlayer())
                 if (player->m_seer == iter->GetSource())
-                    player->UpdateVisibilityOf(&i_object);
+                    player->UpdateVisibilityOf(i_objects);
 }
 
 inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
