@@ -1811,7 +1811,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return nullptr;
     }
 
-    Transport* transport = summon->m_movementInfo.transport.guid.IsEmpty() ? summonerUnit->GetTransport() : nullptr;
+    Transport* transport = summoner ? summoner->GetTransport() : nullptr;
     if (transport)
     {
         float x, y, z, o;
