@@ -570,6 +570,9 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_castItemLevel = -1;
     m_castFlagsEx = 0;
 
+    if (IsIgnoringCooldowns())
+        m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
+
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
@@ -4445,9 +4448,6 @@ void Spell::SendSpellStart()
     if (HasPowerTypeCost(POWER_RUNES))
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
-    if (IsIgnoringCooldowns())
-        m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
-
     WorldPackets::Spells::SpellStart packet;
     WorldPackets::Spells::SpellCastData& castData = packet.Cast;
 
@@ -4560,9 +4560,6 @@ void Spell::SendSpellGo()
 
     if (!m_spellInfo->StartRecoveryTime)
         castFlags |= CAST_FLAG_NO_GCD;
-
-    if (IsIgnoringCooldowns())
-        m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
 
     WorldPackets::Spells::SpellGo packet;
     WorldPackets::Spells::SpellCastData& castData = packet.Cast;
