@@ -1173,9 +1173,9 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
         case SPELL_ATTR7_UNK20: return { "SPELL_ATTR7_UNK20", "Unknown attribute 20@Attr7", "Invulnerability related?" };
         case SPELL_ATTR7_UNK21: return { "SPELL_ATTR7_UNK21", "Unknown attribute 21@Attr7", "" };
         case SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT: return { "SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT", "Ignores Cold Weather Flying Requirement", "" };
-        case SPELL_ATTR7_CANT_DODGE: return { "SPELL_ATTR7_CANT_DODGE", "Spell cannot be dodged", "" };
-        case SPELL_ATTR7_CANT_PARRY: return { "SPELL_ATTR7_CANT_PARRY", "Spell cannot be parried", "" };
-        case SPELL_ATTR7_CANT_MISS: return { "SPELL_ATTR7_CANT_MISS", "Spell cannot be missed", "" };
+        case SPELL_ATTR7_NO_ATTACK_DODGE: return { "SPELL_ATTR7_NO_ATTACK_DODGE", "No Attack Dodge", "" };
+        case SPELL_ATTR7_NO_ATTACK_PARRY: return { "SPELL_ATTR7_NO_ATTACK_PARRY", "No Attack Parry", "" };
+        case SPELL_ATTR7_NO_ATTACK_MISS: return { "SPELL_ATTR7_NO_ATTACK_MISS", "No Attack Miss", "" };
         case SPELL_ATTR7_UNK26: return { "SPELL_ATTR7_UNK26", "Unknown attribute 26@Attr7", "" };
         case SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA: return { "SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA", "Bypass No Resurrect Aura", "" };
         case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return { "SPELL_ATTR7_CONSOLIDATED_RAID_BUFF", "Consolidate in raid buff frame (client only)", "" };
@@ -1217,9 +1217,9 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 20: return SPELL_ATTR7_UNK20;
         case 21: return SPELL_ATTR7_UNK21;
         case 22: return SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT;
-        case 23: return SPELL_ATTR7_CANT_DODGE;
-        case 24: return SPELL_ATTR7_CANT_PARRY;
-        case 25: return SPELL_ATTR7_CANT_MISS;
+        case 23: return SPELL_ATTR7_NO_ATTACK_DODGE;
+        case 24: return SPELL_ATTR7_NO_ATTACK_PARRY;
+        case 25: return SPELL_ATTR7_NO_ATTACK_MISS;
         case 26: return SPELL_ATTR7_UNK26;
         case 27: return SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA;
         case 28: return SPELL_ATTR7_CONSOLIDATED_RAID_BUFF;
@@ -1258,9 +1258,9 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
         case SPELL_ATTR7_UNK20: return 20;
         case SPELL_ATTR7_UNK21: return 21;
         case SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT: return 22;
-        case SPELL_ATTR7_CANT_DODGE: return 23;
-        case SPELL_ATTR7_CANT_PARRY: return 24;
-        case SPELL_ATTR7_CANT_MISS: return 25;
+        case SPELL_ATTR7_NO_ATTACK_DODGE: return 23;
+        case SPELL_ATTR7_NO_ATTACK_PARRY: return 24;
+        case SPELL_ATTR7_NO_ATTACK_MISS: return 25;
         case SPELL_ATTR7_UNK26: return 26;
         case SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA: return 27;
         case SPELL_ATTR7_CONSOLIDATED_RAID_BUFF: return 28;

@@ -686,9 +686,9 @@ enum SpellAttr7 : uint32
     SPELL_ATTR7_UNK20                            = 0x00100000, // TITLE Unknown attribute 20@Attr7 DESCRIPTION Invulnerability related?
     SPELL_ATTR7_UNK21                            = 0x00200000, // TITLE Unknown attribute 21@Attr7
     SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT = 0x00400000, // TITLE Ignores Cold Weather Flying Requirement
-    SPELL_ATTR7_CANT_DODGE                       = 0x00800000, // TITLE Spell cannot be dodged
-    SPELL_ATTR7_CANT_PARRY                       = 0x01000000, // TITLE Spell cannot be parried
-    SPELL_ATTR7_CANT_MISS                        = 0x02000000, // TITLE Spell cannot be missed
+    SPELL_ATTR7_NO_ATTACK_DODGE                  = 0x00800000, // TITLE No Attack Dodge
+    SPELL_ATTR7_NO_ATTACK_PARRY                  = 0x01000000, // TITLE No Attack Parry
+    SPELL_ATTR7_NO_ATTACK_MISS                   = 0x02000000, // TITLE No Attack Miss
     SPELL_ATTR7_UNK26                            = 0x04000000, // TITLE Unknown attribute 26@Attr7
     SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA         = 0x08000000, // TITLE Bypass No Resurrect Aura
     SPELL_ATTR7_CONSOLIDATED_RAID_BUFF           = 0x10000000, // TITLE Consolidate in raid buff frame (client only)
