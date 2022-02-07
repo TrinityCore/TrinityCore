@@ -1838,7 +1838,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     {
         if (summoner && smoothPhasingInfo->ReplaceObject)
         {
-            if (WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*summoner, smoothPhasingInfo->ReplaceObject.value()))
+            if (WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*summoner, *smoothPhasingInfo->ReplaceObject))
             {
                 SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
                 originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
@@ -1939,10 +1939,12 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
 
 TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, Player* privateObjectOwner /*= nullptr*/)
 {
+    ASSERT(privateObjectOwner);
+
     if (Map* map = FindMap())
     {
         SmoothPhasingInfo smoothPhasingInfo{GetGUID(), true, true};
-        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), privateObjectOwner ? privateObjectOwner : this, spellId, vehId, privateObjectOwner->GetGUID(), &smoothPhasingInfo))
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), privateObjectOwner, spellId, vehId, privateObjectOwner->GetGUID(), &smoothPhasingInfo))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
