@@ -109,6 +109,7 @@ enum ConditionTypes
     CONDITION_GAMEMASTER               = 50,                   // canBeGM          0              0                  true if player is gamemaster (or can be gamemaster)
     CONDITION_OBJECT_ENTRY_GUID        = 51,                   // TypeID           entry          guid               true if object is type TypeID and the entry is 0 or matches entry of the object or matches guid of the object
     CONDITION_TYPE_MASK                = 52,                   // TypeMask         0              0                  true if object is type object's TypeMask matches provided TypeMask
+    CONDITION_BATTLE_PET_COUNT         = 53,                   // SpecieId         count          ComparisonType     true if player has `count` of battle pet species
     CONDITION_MAX
 };
 

@@ -442,7 +442,6 @@ public:
 
                                 me->SetCanFly(true);
                                 me->SetDisableGravity(true);
-                                me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
                                 me->GetMotionMaster()->MoveTakeoff(POINT_MOVE_UP, pos);
                             }
                         }
@@ -464,97 +463,6 @@ public:
     {
         return new npc_enslaved_netherwing_drakeAI(creature);
     }
-};
-
-/*#####
-# npc_dragonmaw_peon
-#####*/
-
-class npc_dragonmaw_peon : public CreatureScript
-{
-public:
-    npc_dragonmaw_peon() : CreatureScript("npc_dragonmaw_peon") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dragonmaw_peonAI(creature);
-    }
-
-    struct npc_dragonmaw_peonAI : public ScriptedAI
-    {
-        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            PlayerGUID.Clear();
-            Tapped = false;
-            PoisonTimer = 0;
-        }
-
-        ObjectGuid PlayerGUID;
-        bool Tapped;
-        uint32 PoisonTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-        {
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == 40468 && !Tapped)
-            {
-                PlayerGUID = caster->GetGUID();
-
-                Tapped = true;
-                float x, y, z;
-                caster->GetClosePoint(x, y, z, me->GetCombatReach());
-
-                me->SetWalk(false);
-                me->GetMotionMaster()->MovePoint(1, x, y, z);
-            }
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (id)
-            {
-                me->SetEmoteState(EMOTE_ONESHOT_EAT);
-                PoisonTimer = 15000;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (PoisonTimer)
-            {
-                if (PoisonTimer <= diff)
-                {
-                    if (!PlayerGUID.IsEmpty())
-                    {
-                        Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                        if (player && player->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                            player->KilledMonsterCredit(23209);
-                    }
-                    PoisonTimer = 0;
-                    me->KillSelf();
-                } else PoisonTimer -= diff;
-            }
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
 };
 
 /*####
@@ -715,7 +623,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
             {
@@ -1347,7 +1255,7 @@ public:
     {
         go_crystal_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
             {
@@ -1684,7 +1592,6 @@ void AddSC_shadowmoon_valley()
     new npc_infernal_attacker();
     new npc_mature_netherwing_drake();
     new npc_enslaved_netherwing_drake();
-    new npc_dragonmaw_peon();
     new npc_earthmender_wilda();
     new npc_lord_illidan_stormrage();
     new go_crystal_prison();

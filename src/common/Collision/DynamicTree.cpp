@@ -293,7 +293,7 @@ void DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, PhaseShift 
         data.floorZ = intersectionCallBack.GetLocationInfo().ground_Z;
         uint32 liquidType = intersectionCallBack.GetLocationInfo().hitModel->GetLiquidType();
         float liquidLevel;
-        if (!reqLiquidType || (dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr(liquidType) & reqLiquidType))
+        if (!reqLiquidType || VMAP::VMapFactory::createOrGetVMapManager()->GetLiquidFlagsPtr(liquidType) & reqLiquidType)
             if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, intersectionCallBack.GetLocationInfo(), liquidLevel))
                 data.liquidInfo.emplace(liquidType, liquidLevel);
 

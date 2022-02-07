@@ -102,7 +102,7 @@ public:
             Initialize();
         }
 
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_SYLVANAS && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -197,7 +197,7 @@ public:
             Initialize();
         }
 
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_JAINA && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -305,5 +305,5 @@ void AddSC_forge_of_souls()
 {
     new npc_sylvanas_fos();
     new npc_jaina_fos();
-    RegisterAuraScript(spell_forge_of_souls_soul_sickness);
+    RegisterSpellScript(spell_forge_of_souls_soul_sickness);
 }

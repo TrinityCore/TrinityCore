@@ -888,6 +888,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     init.SetTransportEnter();
     Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
 
+    for (auto const& [guid, threatRef] : Passenger->GetThreatManager().GetThreatenedByMeList())
+        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), threatRef->GetThreat(), nullptr, true, true);
+
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
         if (CreatureAI* ai = creature->AI())

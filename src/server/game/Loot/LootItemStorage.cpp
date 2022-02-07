@@ -23,6 +23,7 @@
 #include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "StringConvert.h"
 #include <sstream>
 #include <unordered_map>
 
@@ -87,11 +88,9 @@ void LootItemStorage::LoadStorageFromDB()
             lootItem.needs_quest = fields[8].GetBool();
             lootItem.randomBonusListId = fields[9].GetUInt32();
             lootItem.context = ItemContext(fields[10].GetUInt8());
-            Tokenizer bonusLists(fields[11].GetString(), ' ');
-            std::transform(bonusLists.begin(), bonusLists.end(), std::back_inserter(lootItem.BonusListIDs), [](char const* token)
-                {
-                    return int32(strtol(token, nullptr, 10));
-                });
+            for (std::string_view bonusList : Trinity::Tokenize(fields[11].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(bonusList))
+                    lootItem.BonusListIDs.push_back(*bonusListID);
 
             storedContainer.AddLootItem(lootItem, trans);
 
@@ -289,7 +288,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
     }
 }
 
-void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction& trans)
+void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction trans)
 {
     _lootItems.emplace(std::piecewise_construct, std::forward_as_tuple(lootItem.itemid), std::forward_as_tuple(lootItem));
     if (!trans)
@@ -316,7 +315,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     trans->Append(stmt);
 }
 
-void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction& trans)
+void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction trans)
 {
     _money = money;
     if (!trans)

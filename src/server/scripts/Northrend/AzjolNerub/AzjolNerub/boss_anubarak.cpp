@@ -652,6 +652,6 @@ void AddSC_boss_anub_arak()
     RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_venomancer, GetAzjolNerubAI);
     RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
 
-    RegisterAuraScript(spell_anubarak_pound);
-    RegisterAuraScript(spell_anubarak_carrion_beetles);
+    RegisterSpellScript(spell_anubarak_pound);
+    RegisterSpellScript(spell_anubarak_carrion_beetles);
 }

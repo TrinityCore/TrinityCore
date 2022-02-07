@@ -224,5 +224,12 @@ void RequestStabledPets::Read()
 {
     _worldPacket >> StableMaster;
 }
+
+void SetPetSlot::Read()
+{
+    _worldPacket >> PetNumber;
+    _worldPacket >> DestSlot;
+    _worldPacket >> StableMaster;
+}
 }
 }

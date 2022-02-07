@@ -1063,7 +1063,7 @@ struct npc_akama_illidan : public ScriptedAI
         _isTeleportToMinions = false;
     }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
         if (gossipListId == GOSSIP_START_INTRO)
         {
@@ -2368,24 +2368,24 @@ void AddSC_boss_illidan()
     RegisterBlackTempleCreatureAI(npc_illidari_elite);
     RegisterBlackTempleCreatureAI(npc_illidan_generic_fire);
     RegisterSpellScript(spell_illidan_akama_teleport);
-    RegisterAuraScript(spell_illidan_akama_door_channel);
+    RegisterSpellScript(spell_illidan_akama_door_channel);
     RegisterSpellScript(spell_illidan_draw_soul);
-    RegisterAuraScript(spell_illidan_parasitic_shadowfiend);
-    RegisterAuraScript(spell_illidan_parasitic_shadowfiend_proc);
-    RegisterAuraScript(spell_illidan_remove_parasitic_shadowfiend);
+    RegisterSpellScript(spell_illidan_parasitic_shadowfiend);
+    RegisterSpellScript(spell_illidan_parasitic_shadowfiend_proc);
+    RegisterSpellScript(spell_illidan_remove_parasitic_shadowfiend);
     RegisterSpellScript(spell_illidan_throw_warglaive);
-    RegisterAuraScript(spell_illidan_tear_of_azzinoth_channel);
+    RegisterSpellScript(spell_illidan_tear_of_azzinoth_channel);
     RegisterSpellScript(spell_illidan_flame_blast);
     RegisterSpellScript(spell_illidan_return_glaives);
     RegisterSpellScript(spell_illidan_agonizing_flames);
-    RegisterAuraScript(spell_illidan_demon_transform1);
-    RegisterAuraScript(spell_illidan_demon_transform2);
+    RegisterSpellScript(spell_illidan_demon_transform1);
+    RegisterSpellScript(spell_illidan_demon_transform2);
     RegisterSpellScript(spell_illidan_flame_burst);
     RegisterSpellScript(spell_illidan_find_target);
-    RegisterAuraScript(spell_illidan_eye_blast);
+    RegisterSpellScript(spell_illidan_eye_blast);
     RegisterSpellScript(spell_illidan_cage_trap);
-    RegisterAuraScript(spell_illidan_caged);
-    RegisterAuraScript(spell_maiev_down);
+    RegisterSpellScript(spell_illidan_caged);
+    RegisterSpellScript(spell_maiev_down);
     RegisterSpellScript(spell_illidan_cage_teleport);
     RegisterSpellScript(spell_illidan_despawn_akama);
 }

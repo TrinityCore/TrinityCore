@@ -33,6 +33,7 @@
 #include "Mail.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -315,7 +316,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
     }
 }
 
-void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     if (!_completedAchievements.empty())
     {
@@ -756,9 +757,9 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
 
             CompletedAchievementData& ca = _completedAchievements[achievementid];
             ca.Date = fields[1].GetInt64();
-            Tokenizer guids(fields[2].GetString(), ' ');
-            for (uint32 i = 0; i < guids.size(); ++i)
-                ca.CompletingPlayers.insert(ObjectGuid::Create<HighGuid::Player>(uint64(strtoull(guids[i], nullptr, 10))));
+            for (std::string_view guid : Trinity::Tokenize(fields[2].GetStringView(), ' ', false))
+                if (Optional<ObjectGuid::LowType> parsedGuid = Trinity::StringTo<ObjectGuid::LowType>(guid))
+                    ca.CompletingPlayers.insert(ObjectGuid::Create<HighGuid::Player>(*parsedGuid));
 
             ca.Changed = false;
 
@@ -801,7 +802,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
     }
 }
 
-void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt;
     std::ostringstream guidstr;

@@ -246,27 +246,24 @@ public:
         return true;
     }
 
-    static bool HandleGoQuestCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoQuestCommand(ChatHandler* handler, Variant<Hyperlink<quest>, uint32> questData)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
 
-        char* id = handler->extractKeyFromLink((char*)args, "Hquest");
-        if (!id)
-            return false;
-
-        uint32 questID = atoul(id);
-        if (!questID)
-            return false;
-
-        if (!sObjectMgr->GetQuestTemplate(questID))
+        uint32 questID;
+        if (questData.holds_alternative<uint32>())
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, questID);
-            handler->SetSentErrorMessage(true);
-            return false;
+            questID = questData.get<uint32>();
+
+            if (!sObjectMgr->GetQuestTemplate(questID))
+            {
+                handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, questID);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
         }
+        else
+            questID = questData.get<Hyperlink<quest>>()->Quest->GetQuestId();
 
         float x, y, z;
         uint32 mapId;
@@ -333,30 +330,11 @@ public:
     }
 
     //teleport at coordinates
-    static bool HandleGoZoneXYCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoZoneXYCommand(ChatHandler* handler, float x, float y, Optional<Variant<Hyperlink<area>, uint32>> areaIdArg)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
 
-        char* zoneX = strtok((char*)args, " ");
-        char* zoneY = strtok(nullptr, " ");
-        char* tail = strtok(nullptr, "");
-
-        char* id = handler->extractKeyFromLink(tail, "Harea");       // string or [name] Shift-click form |color|Harea:area_id|h[name]|h|r
-
-        if (!zoneX || !zoneY)
-            return false;
-
-        float x = (float)atof(zoneX);
-        float y = (float)atof(zoneY);
-
-        // prevent accept wrong numeric args
-        if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
-            return false;
-
-        uint32 areaId = id ? atoul(id) : player->GetZoneId();
+        uint32 areaId = areaIdArg ? *areaIdArg : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
@@ -463,7 +441,7 @@ public:
         return DoTeleport(handler, loc);
     }
 
-    static bool HandleGoInstanceCommand(ChatHandler* handler, std::vector<std::string> const& labels)
+    static bool HandleGoInstanceCommand(ChatHandler* handler, std::vector<std::string_view> labels)
     {
         if (labels.empty())
             return false;
@@ -475,7 +453,7 @@ public:
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
             char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->MapName[handler->GetSessionDbcLocale()];
-            for (auto const& label : labels)
+            for (std::string_view label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
 
@@ -548,7 +526,7 @@ public:
         return false;
     }
 
-    static bool HandleGoBossCommand(ChatHandler* handler, std::vector<std::string> const& needles)
+    static bool HandleGoBossCommand(ChatHandler* handler, std::vector<std::string_view> needles)
     {
         if (needles.empty())
             return false;
@@ -565,7 +543,7 @@ public:
 
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(data.ScriptID);
-            for (auto const& label : needles)
+            for (std::string_view label : needles)
                 if (StringContainsStringI(scriptName, label) || StringContainsStringI(data.Name, label))
                     ++count;
 

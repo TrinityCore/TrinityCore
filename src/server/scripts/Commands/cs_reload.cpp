@@ -46,6 +46,7 @@ EndScriptData */
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "SupportMgr.h"
 #include "WaypointManager.h"
 #include "World.h"
@@ -205,7 +206,7 @@ public:
         HandleReloadGameTeleCommand(handler, "");
 
         HandleReloadCreatureMovementOverrideCommand(handler, "");
-        HandleReloadCreatureSummonGroupsCommand(handler, "");
+        HandleReloadCreatureSummonGroupsCommand(handler);
 
         HandleReloadVehicleAccessoryCommand(handler, "");
         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
@@ -420,7 +421,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler)
     {
         TC_LOG_INFO("misc", "Reloading creature summon groups...");
         sObjectMgr->LoadTempSummons();
@@ -433,11 +434,9 @@ public:
         if (!*args)
             return false;
 
-        Tokenizer entries(std::string(args), ' ');
-
-        for (Tokenizer::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
+        for (std::string_view entryStr : Trinity::Tokenize(args, ' ', false))
         {
-            uint32 entry = atoul(*itr);
+            uint32 entry = Trinity::StringTo<uint32>(entryStr).value_or(0);
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);

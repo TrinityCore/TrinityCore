@@ -201,9 +201,7 @@ void UnitAI::FillAISpellInfo()
         if (AIInfo->cooldown.count() < int32(spellInfo->RecoveryTime))
             AIInfo->cooldown = Milliseconds(spellInfo->RecoveryTime);
 
-        if (!spellInfo->GetMaxRange(false))
-            UPDATE_TARGET(AITARGET_SELF)
-        else
+        if (spellInfo->GetMaxRange(false))
         {
             for (SpellEffectInfo const& effect : spellInfo->GetEffects())
             {
@@ -304,7 +302,7 @@ ThreatManager& UnitAI::GetThreatManager()
     return me->GetThreatManager();
 }
 
-void UnitAI::SortByDistance(std::list<Unit*> list, bool ascending)
+void UnitAI::SortByDistance(std::list<Unit*>& list, bool ascending)
 {
     list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
 }

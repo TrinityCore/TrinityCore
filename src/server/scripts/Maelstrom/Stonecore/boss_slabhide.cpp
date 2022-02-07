@@ -118,7 +118,6 @@ class boss_slabhide : public CreatureScript
                 me->setActive(true);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
-                me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
                 _isFlying = false;
@@ -134,7 +133,6 @@ class boss_slabhide : public CreatureScript
 
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
-                me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _isFlying = false;
             }
@@ -197,7 +195,6 @@ class boss_slabhide : public CreatureScript
                     case POINT_SLABHIDE_INTRO_LAND:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                         me->SetHover(false);
                         me->SetHomePosition(SlabhideIntroLandPos);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -261,7 +258,6 @@ class boss_slabhide : public CreatureScript
                         case EVENT_STALACTITE:
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
-                            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                             me->SetHover(true);
 
                             DoCast(me, SPELL_STALACTITE_SUMMON);
@@ -278,7 +274,6 @@ class boss_slabhide : public CreatureScript
                         case EVENT_ATTACK:
                             me->SetCanFly(false);
                             me->SetDisableGravity(false);
-                            me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                             me->SetHover(false);
 
                             events.ScheduleEvent(EVENT_LAVA_FISSURE, 6s, 8s);

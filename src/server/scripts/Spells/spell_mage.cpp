@@ -45,6 +45,8 @@ enum MageSpells
     SPELL_MAGE_BLINK                             = 1953,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_CAUTERIZED                        = 87024,
+    SPELL_MAGE_COMET_STORM_DAMAGE                = 153596,
+    SPELL_MAGE_COMET_STORM_VISUAL                = 228601,
     SPELL_MAGE_CONE_OF_COLD                      = 120,
     SPELL_MAGE_CONE_OF_COLD_SLOW                 = 212792,
     SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
@@ -427,6 +429,75 @@ class spell_mage_cold_snap : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_mage_cold_snap::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class CometStormEvent : public BasicEvent
+{
+public:
+    CometStormEvent(Unit* caster, ObjectGuid originalCastId, Position const& dest) : _caster(caster), _originalCastId(originalCastId), _dest(dest), _count(0) { }
+
+    bool Execute(uint64 time, uint32 /*diff*/) override
+    {
+        Position destPosition = {_dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ()};
+        _caster->CastSpell(destPosition, SPELL_MAGE_COMET_STORM_VISUAL,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetOriginalCastId(_originalCastId));
+        ++_count;
+
+        if (_count >= 7)
+            return true;
+
+        _caster->m_Events.AddEvent(this, Milliseconds(time) + randtime(100ms, 275ms));
+        return false;
+    }
+
+private:
+    Unit* _caster;
+    ObjectGuid _originalCastId;
+    Position _dest;
+    uint8 _count;
+};
+
+// 153595 - Comet Storm (launch)
+class spell_mage_comet_storm : public SpellScript
+{
+    PrepareSpellScript(spell_mage_comet_storm);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_COMET_STORM_VISUAL });
+    }
+
+    void EffectHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->m_Events.AddEventAtOffset(new CometStormEvent(GetCaster(), GetSpell()->m_castId, *GetHitDest()), randtime(100ms, 275ms));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_mage_comet_storm::EffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 228601 - Comet Storm (damage)
+class spell_mage_comet_storm_damage : public SpellScript
+{
+    PrepareSpellScript(spell_mage_comet_storm_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_COMET_STORM_DAMAGE });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_MAGE_COMET_STORM_DAMAGE,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetOriginalCastId(GetSpell()->m_originalCastId));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_mage_comet_storm_damage::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1217,37 +1288,39 @@ class spell_mage_water_elemental_freeze : public SpellScript
 
 void AddSC_mage_spell_scripts()
 {
-    RegisterAuraScript(spell_mage_alter_time_aura);
+    RegisterSpellScript(spell_mage_alter_time_aura);
     RegisterSpellScript(spell_mage_alter_time_active);
     RegisterSpellScript(spell_mage_arcane_barrage);
     RegisterSpellScript(spell_mage_arcane_charge_clear);
     RegisterSpellScript(spell_mage_arcane_explosion);
-    RegisterAuraScript(spell_mage_blazing_barrier);
-    RegisterAuraScript(spell_mage_burning_determination);
+    RegisterSpellScript(spell_mage_blazing_barrier);
+    RegisterSpellScript(spell_mage_burning_determination);
     RegisterSpellAndAuraScriptPair(spell_mage_cauterize, spell_mage_cauterize_AuraScript);
     RegisterSpellScript(spell_mage_cold_snap);
+    RegisterSpellScript(spell_mage_comet_storm);
+    RegisterSpellScript(spell_mage_comet_storm_damage);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
-    RegisterAuraScript(spell_mage_fingers_of_frost);
+    RegisterSpellScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
-    RegisterAuraScript(spell_mage_firestarter_dots);
-    RegisterAuraScript(spell_mage_flame_on);
-    RegisterAuraScript(spell_mage_ice_barrier);
+    RegisterSpellScript(spell_mage_firestarter_dots);
+    RegisterSpellScript(spell_mage_flame_on);
+    RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);
     RegisterSpellScript(spell_mage_ice_lance_damage);
-    RegisterAuraScript(spell_mage_ignite);
-    RegisterAuraScript(spell_mage_imp_mana_gems);
-    RegisterAuraScript(spell_mage_incanters_flow);
+    RegisterSpellScript(spell_mage_ignite);
+    RegisterSpellScript(spell_mage_imp_mana_gems);
+    RegisterSpellScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
-    RegisterAuraScript(spell_mage_living_bomb_periodic);
+    RegisterSpellScript(spell_mage_living_bomb_periodic);
     RegisterSpellScript(spell_mage_polymorph_visual);
-    RegisterAuraScript(spell_mage_prismatic_barrier);
-    RegisterAuraScript(spell_mage_ring_of_frost);
+    RegisterSpellScript(spell_mage_prismatic_barrier);
+    RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_time_warp);
-    RegisterAuraScript(spell_mage_touch_of_the_magi_aura);
+    RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }

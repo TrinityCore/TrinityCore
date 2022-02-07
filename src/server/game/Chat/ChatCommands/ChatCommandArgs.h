@@ -21,230 +21,321 @@
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
 #include "SmartEnum.h"
+#include "StringConvert.h"
+#include "StringFormat.h"
 #include "Util.h"
+#include <charconv>
 #include <map>
+#include <string>
+#include <string_view>
 
 struct GameTele;
 
-namespace Trinity
-{
-namespace ChatCommands
+namespace Trinity::Impl::ChatCommands
 {
 
-/************************** ARGUMENT HANDLERS *******************************************\
-|* Define how to extract contents of a certain requested type from a string             *|
-|* Must implement the following:                                                        *|
-|* - TryConsume: T&, char const* -> char const*                                         *|
-|*   returns nullptr if no match, otherwise pointer to first character of next token    *|
-|*     - if nullptr is returned, state of T& is indeterminate                           *|
-|*     - otherwise, T& should be initialized to the intended return value               *|
-|*                                                                                      *|
-\****************************************************************************************/
-template <typename T, typename = void>
-struct ArgInfo { static_assert(!std::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
+    /************************** ARGUMENT HANDLERS *******************************************\
+    |* Define how to extract contents of a certain requested type from a string             *|
+    |* Must implement the following:                                                        *|
+    |* - TryConsume: T&, ChatHandler const*, std::string_view -> ChatCommandResult          *|
+    |*   - on match, returns tail of the provided argument string (as std::string_view)     *|
+    |*   - on specific error, returns error message (as std::string&& or char const*)       *|
+    |*   - on generic error, returns std::nullopt (this will print command usage)           *|
+    |*                                                                                      *|
+    |*   - if a match is returned, T& should be initialized to the matched value            *|
+    |*   - otherwise, the state of T& is indeterminate and caller will not use it           *|
+    |*                                                                                      *|
+    \****************************************************************************************/
+    template <typename T, typename = void>
+    struct ArgInfo { static_assert(Trinity::dependant_false_v<T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
 
-// catch-all for signed integral types
-template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>>
-{
-    static char const* TryConsume(T& val, char const* args)
+    // catch-all for number types
+    template <typename T>
+    struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
     {
-        char const* next = args;
-        std::string token(args, tokenize(next));
-        try
+        static ChatCommandResult TryConsume(T& val, ChatHandler const* handler, std::string_view args)
         {
-            size_t processedChars = 0;
-            val = std::stoll(token, &processedChars, 0);
-            if (processedChars != token.length())
-                return nullptr;
+            auto [token, tail] = tokenize(args);
+            if (token.empty())
+                return std::nullopt;
+
+            if (Optional<T> v = StringTo<T>(token, 0))
+                val = *v;
+            else
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+
+            if constexpr (std::is_floating_point_v<T>)
+            {
+                if (!std::isfinite(val))
+                    return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+            }
+
+            return tail;
         }
-        catch (...) { return nullptr; }
-        return next;
-    }
-};
+    };
 
-// catch-all for unsigned integral types
-template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>>
-{
-    static char const* TryConsume(T& val, char const* args)
+    /*
+      for backwards compatibility, consumes the rest of the string
+      new code should use the Tail/WTail tags defined in ChatCommandTags
+    */
+    template <>
+    struct ArgInfo<char const*, void>
     {
-        char const* next = args;
-        std::string token(args, tokenize(next));
-        try
-        {
-            size_t processedChars = 0;
-            val = std::stoull(token, &processedChars, 0);
-            if (processedChars != token.length())
-                return nullptr;
-        }
-        catch (...) { return nullptr; }
-        return next;
-    }
-};
+        static ChatCommandResult TryConsume(char const*& arg, ChatHandler const*, std::string_view args) { arg = args.data(); return std::string_view(); }
+    };
 
-// catch-all for floating point types
-template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
-{
-    static char const* TryConsume(T& val, char const* args)
+    // string_view
+    template <>
+    struct ArgInfo<std::string_view, void>
     {
-        char const* next = args;
-        std::string token(args, tokenize(next));
-        try
+        static ChatCommandResult TryConsume(std::string_view& val, ChatHandler const*, std::string_view args)
         {
-            size_t processedChars = 0;
-            val = std::stold(token, &processedChars);
-            if (processedChars != token.length())
-                return nullptr;
-        }
-        catch (...) { return nullptr; }
-        return std::isfinite(val) ? next : nullptr;
-    }
-};
-
-// string
-template <>
-struct ArgInfo<std::string, void>
-{
-    static char const* TryConsume(std::string& val, char const* args)
-    {
-        char const* next = args;
-        if (size_t len = tokenize(next))
-        {
-            val.assign(args, len);
+            auto [token, next] = tokenize(args);
+            if (token.empty())
+                return std::nullopt;
+            val = token;
             return next;
         }
-        else
-            return nullptr;
-    }
-};
+    };
 
-// enum
-template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
-{
-    static std::map<std::string, Optional<T>> MakeSearchMap()
+    // string
+    template <>
+    struct ArgInfo<std::string, void>
     {
-        std::map<std::string, Optional<T>> map;
-        for (T val : EnumUtils::Iterate<T>())
+        static ChatCommandResult TryConsume(std::string& val, ChatHandler const* handler, std::string_view args)
         {
-            EnumText text = EnumUtils::ToString(val);
-
-            std::string title(text.Title);
-            strToLower(title);
-            std::string constant(text.Constant);
-            strToLower(constant);
-
-            auto [constantIt, constantNew] = map.try_emplace(constant, val);
-            if (!constantNew)
-                constantIt->second = std::nullopt;
-
-            if (title != constant)
-            {
-                auto [titleIt, titleNew] = map.try_emplace(title, val);
-                if (!titleNew)
-                    titleIt->second = std::nullopt;
-            }
+            std::string_view view;
+            ChatCommandResult next = ArgInfo<std::string_view>::TryConsume(view, handler, args);
+            if (next)
+                val.assign(view);
+            return next;
         }
-        return map;
-    }
+    };
 
-    static inline std::map<std::string, Optional<T>> const SearchMap = MakeSearchMap();
-
-    static T const* Match(std::string s)
+    // wstring
+    template <>
+    struct ArgInfo<std::wstring, void>
     {
-        strToLower(s);
-
-        auto it = SearchMap.lower_bound(s);
-        if (it == SearchMap.end() || !StringStartsWith(it->first, s)) // not a match
-            return nullptr;
-
-        if (it->first != s) // we don't have an exact match - check if it is unique
+        static ChatCommandResult TryConsume(std::wstring& val, ChatHandler const* handler, std::string_view args)
         {
-            auto it2 = it;
-            ++it2;
-            if (it2 != SearchMap.end() && StringStartsWith(it2->first, s)) // not unique
+            std::string_view utf8view;
+            ChatCommandResult next = ArgInfo<std::string_view>::TryConsume(utf8view, handler, args);
+
+            if (next)
+            {
+                if (Utf8toWStr(utf8view, val))
+                    return next;
+                else
+                    return GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
+            }
+            else
+                return std::nullopt;
+        }
+    };
+
+    // enum
+    template <typename T>
+    struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
+    {
+        using SearchMap = std::map<std::string_view, Optional<T>, StringCompareLessI_T>;
+        static SearchMap MakeSearchMap()
+        {
+            SearchMap map;
+            for (T val : EnumUtils::Iterate<T>())
+            {
+                EnumText text = EnumUtils::ToString(val);
+
+                std::string_view title(text.Title);
+                std::string_view constant(text.Constant);
+
+                auto [constantIt, constantNew] = map.try_emplace(title, val);
+                if (!constantNew)
+                    constantIt->second = std::nullopt;
+
+                if (title != constant)
+                {
+                    auto [titleIt, titleNew] = map.try_emplace(title, val);
+                    if (!titleNew)
+                        titleIt->second = std::nullopt;
+                }
+            }
+            return map;
+        }
+
+        static inline SearchMap const _map = MakeSearchMap();
+
+        static T const* Match(std::string_view s)
+        {
+            auto it = _map.lower_bound(s);
+            if (it == _map.end() || !StringStartsWithI(it->first, s)) // not a match
+                return nullptr;
+
+            if (!StringEqualI(it->first, s)) // we don't have an exact match - check if it is unique
+            {
+                auto it2 = it;
+                ++it2;
+                if ((it2 != _map.end()) && StringStartsWithI(it2->first, s)) // not unique
+                    return nullptr;
+            }
+
+            if (it->second)
+                return &*it->second;
+            else
                 return nullptr;
         }
 
-        if (it->second)
-            return &*it->second;
-        else
-            return nullptr;
-    }
-
-    static char const* TryConsume(T& val, char const* args)
-    {
-        std::string strVal;
-        char const* ret = ArgInfo<std::string>::TryConsume(strVal, args);
-
-        if (!ret)
-            return nullptr;
-
-        if (T const* tmpVal = Match(strVal))
+        static ChatCommandResult TryConsume(T& val, ChatHandler const* handler, std::string_view args)
         {
-            val = *tmpVal;
-            return ret;
+            std::string_view strVal;
+            ChatCommandResult next1 = ArgInfo<std::string_view>::TryConsume(strVal, handler, args);
+            if (next1)
+            {
+                if (T const* match = Match(strVal))
+                {
+                    val = *match;
+                    return next1;
+                }
+            }
+
+            // Value not found. Try to parse arg as underlying type and cast it to enum type
+            using U = std::underlying_type_t<T>;
+            U uVal = 0;
+            if (ChatCommandResult next2 = ArgInfo<U>::TryConsume(uVal, handler, args))
+            {
+                if (EnumUtils::IsValid<T>(uVal))
+                {
+                    val = static_cast<T>(uVal);
+                    return next2;
+                }
+            }
+
+            if (next1)
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), GetTypeName<T>().c_str());
+            else
+                return next1;
+        }
+    };
+
+    // a container tag
+    template <typename T>
+    struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
+    {
+        static ChatCommandResult TryConsume(T& tag, ChatHandler const* handler, std::string_view args)
+        {
+            return tag.TryConsume(handler, args);
+        }
+    };
+
+    // non-empty vector
+    template <typename T>
+    struct ArgInfo<std::vector<T>, void>
+    {
+        static ChatCommandResult TryConsume(std::vector<T>& val, ChatHandler const* handler, std::string_view args)
+        {
+            val.clear();
+            ChatCommandResult next = ArgInfo<T>::TryConsume(val.emplace_back(), handler, args);
+
+            if (!next)
+                return next;
+
+            while (ChatCommandResult next2 = ArgInfo<T>::TryConsume(val.emplace_back(), handler, *next))
+                next = std::move(next2);
+
+            val.pop_back();
+            return next;
+        }
+    };
+
+    // fixed-size array
+    template <typename T, size_t N>
+    struct ArgInfo<std::array<T, N>, void>
+    {
+        static ChatCommandResult TryConsume(std::array<T, N>& val, ChatHandler const* handler, std::string_view args)
+        {
+            ChatCommandResult next = args;
+            for (T& t : val)
+                if (!(next = ArgInfo<T>::TryConsume(t, handler, *next)))
+                    break;
+            return next;
+        }
+    };
+
+    // variant
+    template <typename... Ts>
+    struct ArgInfo<Trinity::ChatCommands::Variant<Ts...>>
+    {
+        using V = std::variant<Ts...>;
+        static constexpr size_t N = std::variant_size_v<V>;
+
+        template <size_t I>
+        static ChatCommandResult TryAtIndex([[maybe_unused]] Trinity::ChatCommands::Variant<Ts...>& val, [[maybe_unused]] ChatHandler const* handler, [[maybe_unused]] std::string_view args)
+        {
+            if constexpr (I < N)
+            {
+                ChatCommandResult thisResult = ArgInfo<std::variant_alternative_t<I, V>>::TryConsume(val.template emplace<I>(), handler, args);
+                if (thisResult)
+                    return thisResult;
+                else
+                {
+                    ChatCommandResult nestedResult = TryAtIndex<I + 1>(val, handler, args);
+                    if (nestedResult || !thisResult.HasErrorMessage())
+                        return nestedResult;
+                    if (!nestedResult.HasErrorMessage())
+                        return thisResult;
+                    if (StringStartsWith(nestedResult.GetErrorMessage(), "\""))
+                        return Trinity::StringFormat("\"%s\"\n%s %s", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                    else
+                        return Trinity::StringFormat("\"%s\"\n%s \"%s\"", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                }
+            }
+            else
+                return std::nullopt;
         }
 
-        // Value not found. Try to parse arg as underlying type and cast it to enum type
-        using U = std::underlying_type_t<T>;
-        U uVal = 0;
-        ret = ArgInfo<U>::TryConsume(uVal, args);
-        if (ret)
-            val = static_cast<T>(uVal);
+        static ChatCommandResult TryConsume(Trinity::ChatCommands::Variant<Ts...>& val, ChatHandler const* handler, std::string_view args)
+        {
+            ChatCommandResult result = TryAtIndex<0>(val, handler, args);
+            if (result.HasErrorMessage() && (result.GetErrorMessage().find('\n') != std::string::npos))
+                return Trinity::StringFormat("%s %s", GetTrinityString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage().c_str());
+            return result;
+        }
+    };
 
-        return ret;
-    }
-};
-
-// a container tag
-template <typename T>
-struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
-{
-    static char const* TryConsume(T& tag, char const* args)
+    // AchievementEntry* from numeric id or link
+    template <>
+    struct TC_GAME_API ArgInfo<AchievementEntry const*>
     {
-        return tag.TryConsume(args);
-    }
-};
+        static ChatCommandResult TryConsume(AchievementEntry const*&, ChatHandler const*, std::string_view);
+    };
 
-// AchievementEntry* from numeric id or link
-template <>
-struct TC_GAME_API ArgInfo<AchievementEntry const*>
-{
-    static char const* TryConsume(AchievementEntry const*&, char const*);
-};
+    // CurrencyTypesEntry* from numeric id or link
+    template <>
+    struct TC_GAME_API ArgInfo<CurrencyTypesEntry const*>
+    {
+        static ChatCommandResult TryConsume(CurrencyTypesEntry const*&, ChatHandler const*, std::string_view);
+    };
 
-// CurrencyTypesEntry* from numeric id or link
-template <>
-struct TC_GAME_API ArgInfo<CurrencyTypesEntry const*>
-{
-    static char const* TryConsume(CurrencyTypesEntry const*&, char const*);
-};
+    // GameTele* from string name or link
+    template <>
+    struct TC_GAME_API ArgInfo<GameTele const*>
+    {
+        static ChatCommandResult TryConsume(GameTele const*&, ChatHandler const*, std::string_view);
+    };
 
-// GameTele* from string name or link
-template <>
-struct TC_GAME_API ArgInfo<GameTele const*>
-{
-    static char const* TryConsume(GameTele const*&, char const*);
-};
+    // ItemTemplate* from numeric id or link
+    template <>
+    struct TC_GAME_API ArgInfo<ItemTemplate const*>
+    {
+        static ChatCommandResult TryConsume(ItemTemplate const*&, ChatHandler const*, std::string_view);
+    };
 
-// SpellInfo const* from spell id or link
-template <>
-struct TC_GAME_API ArgInfo<SpellInfo const*>
-{
-    static char const* TryConsume(SpellInfo const*&, char const*);
-};
+    // SpellInfo const* from spell id or link
+    template <>
+    struct TC_GAME_API ArgInfo<SpellInfo const*>
+    {
+        static ChatCommandResult TryConsume(SpellInfo const*&, ChatHandler const*, std::string_view);
+    };
 
-// bool from 1/0 or on/off
-template <>
-struct TC_GAME_API ArgInfo<bool>
-{
-    static char const* TryConsume(bool&, char const*);
-};
-
-}
 }
 
 #endif
