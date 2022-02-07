@@ -434,26 +434,28 @@ class spell_mage_cold_snap : public SpellScript
 
 class CometStormEvent : public BasicEvent
 {
-    public:
-        CometStormEvent(Unit* caster, Position const& dest) : _caster(caster), _dest(dest), _count(0) { }
+public:
+    CometStormEvent(Unit* caster, ObjectGuid originalCastId, Position const& dest) : _caster(caster), _originalCastId(originalCastId), _dest(dest), _count(0) { }
 
-        bool Execute(uint64 time, uint32 /*diff*/) override
-        {
-            Position destPosition = { _dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ() };
-            _caster->CastSpell(destPosition, SPELL_MAGE_COMET_STORM_VISUAL, true);
-            ++_count;
+    bool Execute(uint64 time, uint32 /*diff*/) override
+    {
+        Position destPosition = {_dest.GetPositionX() + frand(-3.0f, 3.0f), _dest.GetPositionY() + frand(-3.0f, 3.0f), _dest.GetPositionZ()};
+        _caster->CastSpell(destPosition, SPELL_MAGE_COMET_STORM_VISUAL,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetOriginalCastId(_originalCastId));
+        ++_count;
 
-            if (_count >= 7)
-                return true;
+        if (_count >= 7)
+            return true;
 
-            _caster->m_Events.AddEvent(this, Milliseconds(time) + 200ms);
-            return false;
-        }
+        _caster->m_Events.AddEvent(this, Milliseconds(time) + randtime(100ms, 275ms));
+        return false;
+    }
 
-    private:
-        Unit* _caster;
-        Position _dest;
-        uint8 _count;
+private:
+    Unit* _caster;
+    ObjectGuid _originalCastId;
+    Position _dest;
+    uint8 _count;
 };
 
 // 153595 - Comet Storm (launch)
@@ -463,12 +465,12 @@ class spell_mage_comet_storm : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_MAGE_COMET_STORM_VISUAL });
+        return ValidateSpellInfo({ SPELL_MAGE_COMET_STORM_VISUAL });
     }
 
     void EffectHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->m_Events.AddEvent(new CometStormEvent(GetCaster(), *GetHitDest()), GetCaster()->m_Events.CalculateTime(500ms));
+        GetCaster()->m_Events.AddEventAtOffset(new CometStormEvent(GetCaster(), GetSpell()->m_castId, *GetHitDest()), randtime(100ms, 275ms));
     }
 
     void Register() override
@@ -484,12 +486,13 @@ class spell_mage_comet_storm_damage : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_MAGE_COMET_STORM_DAMAGE });
+        return ValidateSpellInfo({ SPELL_MAGE_COMET_STORM_DAMAGE });
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(*GetHitDest(), SPELL_MAGE_COMET_STORM_DAMAGE, true);
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_MAGE_COMET_STORM_DAMAGE,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetOriginalCastId(GetSpell()->m_originalCastId));
     }
 
     void Register() override
