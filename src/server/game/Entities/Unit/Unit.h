@@ -998,7 +998,8 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveVisFlags(UnitVisFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags); }
         void SetVisFlags(UnitVisFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags); }
 
-        void SetAnimTier(UnitBytes1_Flags animTier, bool notifyClient);
+        AnimTier GetAnimTier() const { return AnimTier(*m_unitData->AnimTier); }
+        void SetAnimTier(AnimTier animTier, bool notifyClient = true);
 
         bool IsMounted() const { return HasUnitFlag(UNIT_FLAG_MOUNT); }
         uint32 GetMountDisplayId() const { return m_unitData->MountDisplayID; }
@@ -1205,13 +1206,13 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
         bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
         bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable);
+        bool SetDisableGravity(bool disable, bool updateAnimationTier = true);
         bool SetFall(bool enable);
         bool SetSwim(bool enable);
         bool SetCanFly(bool enable);
         bool SetWaterWalking(bool enable);
         bool SetFeatherFall(bool enable);
-        bool SetHover(bool enable);
+        bool SetHover(bool enable, bool updateAnimationTier = true);
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
@@ -1833,11 +1834,11 @@ class TC_GAME_API Unit : public WorldObject
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
         bool IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType auraType, int32 effectAmount, uint32 auraEffectMask, bool removeOtherAuraApplications = false);
 
-        virtual void Talk(std::string const& text, ChatMsg msgType, Language language, float textRange, WorldObject const* target);
-        virtual void Say(std::string const& text, Language language, WorldObject const* target = nullptr);
-        virtual void Yell(std::string const& text, Language language, WorldObject const* target = nullptr);
-        virtual void TextEmote(std::string const& text, WorldObject const* target = nullptr, bool isBossEmote = false);
-        virtual void Whisper(std::string const& text, Language language, Player* target, bool isBossWhisper = false);
+        virtual void Talk(std::string_view text, ChatMsg msgType, Language language, float textRange, WorldObject const* target);
+        virtual void Say(std::string_view text, Language language, WorldObject const* target = nullptr);
+        virtual void Yell(std::string_view text, Language language, WorldObject const* target = nullptr);
+        virtual void TextEmote(std::string_view text, WorldObject const* target = nullptr, bool isBossEmote = false);
+        virtual void Whisper(std::string_view text, Language language, Player* target, bool isBossWhisper = false);
         virtual void Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject const* target);
         virtual void Say(uint32 textId, WorldObject const* target = nullptr);
         virtual void Yell(uint32 textId, WorldObject const* target = nullptr);

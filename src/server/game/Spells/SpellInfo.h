@@ -209,7 +209,7 @@ private:
         SpellTargetCheckTypes SelectionCheckType; // defines selection criteria
         SpellTargetDirectionTypes DirectionType; // direction for cone and dest targets
     };
-    static StaticData _data[TOTAL_SPELL_TARGETS];
+    static std::array<StaticData, TOTAL_SPELL_TARGETS> _data;
 };
 
 struct TC_GAME_API ImmunityInfo
@@ -295,7 +295,7 @@ public:
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
     ExpectedStatType GetScalingExpectedStat() const;
 
-    ImmunityInfo const* GetImmunityInfo() const { return &_immunityInfo; }
+    ImmunityInfo const& GetImmunityInfo() const { return _immunityInfo; }
 
 private:
     struct StaticData
@@ -306,7 +306,7 @@ private:
         SpellEffectImplicitTargetTypes ImplicitTargetType; // defines what target can be added to effect target list if there's no valid target type provided for effect
         SpellTargetObjectTypes UsedTargetObjectType; // defines valid target object type for spell effect
     };
-    static StaticData _data[TOTAL_SPELL_EFFECTS];
+    static std::array<StaticData, TOTAL_SPELL_EFFECTS> _data;
 
     ImmunityInfo _immunityInfo;
 };
@@ -398,10 +398,10 @@ class TC_GAME_API SpellInfo
         float Speed = 0.0f;
         float LaunchDelay = 0.0f;
         uint32 StackAmount = 0;
-        std::array<uint32, MAX_SPELL_TOTEMS> Totem = {};
-        std::array<uint32, MAX_SPELL_TOTEMS> TotemCategory = {};
+        std::array<int32, MAX_SPELL_TOTEMS> Totem = {};
+        std::array<uint16, MAX_SPELL_TOTEMS> TotemCategory = {};
         std::array<int32, MAX_SPELL_REAGENTS> Reagent = {};
-        std::array<uint32, MAX_SPELL_REAGENTS> ReagentCount = {};
+        std::array<int16, MAX_SPELL_REAGENTS> ReagentCount = {};
         std::vector<SpellReagentsCurrencyEntry const*> ReagentsCurrency;
         int32 EquippedItemClass = -1;
         int32 EquippedItemSubClassMask = 0;

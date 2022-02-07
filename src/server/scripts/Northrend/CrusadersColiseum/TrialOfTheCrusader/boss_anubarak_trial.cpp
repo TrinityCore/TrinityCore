@@ -961,7 +961,7 @@ void AddSC_boss_anubarak_trial()
     new npc_anubarak_spike();
     new npc_frost_sphere();
 
-    RegisterAuraScript(spell_pursuing_spikes);
+    RegisterSpellScript(spell_pursuing_spikes);
     new spell_impale();
     new spell_anubarak_leeching_swarm();
 }

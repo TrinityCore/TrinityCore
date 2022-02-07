@@ -469,9 +469,10 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) final;
 
     protected:
-        virtual bool _OnTrigger(Player* player, AreaTriggerEntry const* trigger) = 0;
-        void ResetAreaTriggerDone(InstanceScript* instance, uint32 triggerId);
-        void ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger);
+        // returns true if the trigger was successfully handled, false if we should try again next time
+        virtual bool TryHandleOnce(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) = 0;
+        void ResetAreaTriggerDone(InstanceScript* /*instance*/, uint32 /*triggerId*/);
+        void ResetAreaTriggerDone(Player const* /*player*/, AreaTriggerEntry const* /*trigger*/);
 };
 
 class TC_GAME_API BattlefieldScript : public ScriptObject
@@ -1238,7 +1239,6 @@ private:
 
 #define RegisterSpellScriptWithArgs(spell_script, script_name, ...) new GenericSpellAndAuraScriptLoader<spell_script, decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
 #define RegisterSpellScript(spell_script) RegisterSpellScriptWithArgs(spell_script, #spell_script)
-#define RegisterAuraScript(aura_script) RegisterSpellScriptWithArgs(aura_script, #aura_script)
 #define RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, script_name, ...) new GenericSpellAndAuraScriptLoader<script_1, script_2, decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
 #define RegisterSpellAndAuraScriptPair(script_1, script_2) RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, #script_1)
 

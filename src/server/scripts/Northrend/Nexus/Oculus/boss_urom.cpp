@@ -372,5 +372,5 @@ class spell_urom_frostbomb : public AuraScript
 void AddSC_boss_urom()
 {
     new boss_urom();
-    RegisterAuraScript(spell_urom_frostbomb);
+    RegisterSpellScript(spell_urom_frostbomb);
 }

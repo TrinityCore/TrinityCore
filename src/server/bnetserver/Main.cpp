@@ -164,8 +164,6 @@ int main(int argc, char** argv)
 
     sSecretMgr->Initialize(SECRET_OWNER_BNETSERVER);
 
-    sSessionMgr.FixLegacyAuthHashes();
-
     // Load IP Location Database
     sIPLocation->Load();
 

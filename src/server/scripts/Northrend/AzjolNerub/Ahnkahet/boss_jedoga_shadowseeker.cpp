@@ -246,7 +246,7 @@ struct boss_jedoga_shadowseeker : public BossAI
             if (++_initiatesKilled == TWILIGHT_INITIATES_SIZE)
             {
                 DoCastSelf(SPELL_HOVER_FALL_1);
-                me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, true);
+                me->SetAnimTier(AnimTier::Ground);
                 events.ScheduleEvent(EVENT_START_FIGHT_1, Seconds(1));
             }
         }
@@ -318,7 +318,6 @@ struct boss_jedoga_shadowseeker : public BossAI
                 case EVENT_START_FIGHT_2:
                     summons.DespawnEntry(NPC_JEDOGA_CONTROLLER);
                     me->SetDisableGravity(false);
-                    me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, true);
                     me->GetMotionMaster()->MoveLand(POINT_GROUND, JedogaGroundPosition);
                     break;
                 case EVENT_START_PHASE_TWO:
@@ -330,7 +329,6 @@ struct boss_jedoga_shadowseeker : public BossAI
                     break;
                 case EVENT_FLY_DELAY:
                     me->SetDisableGravity(true);
-                    me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
                     me->GetMotionMaster()->MoveTakeoff(POINT_PHASE_TWO_FLY, JedogaFlyPosition);
                     break;
                 case EVENT_CHOOSE_VOLUNTEER:
@@ -364,7 +362,6 @@ struct boss_jedoga_shadowseeker : public BossAI
                     summons.DespawnEntry(NPC_JEDOGA_CONTROLLER);
                     DoCastSelf(SPELL_HOVER_FALL_2);
                     me->SetDisableGravity(false);
-                    me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, true);
                     me->GetMotionMaster()->MoveLand(POINT_GROUND, JedogaGroundPosition);
                     break;
                 case EVENT_CYCLONE_STRIKE:

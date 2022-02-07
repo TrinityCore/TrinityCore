@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScenarioMgr.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "World.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
@@ -231,7 +232,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save ? "" : "new ", InstanceId, GetId(), difficulty ? "heroic" : "normal");
 
-    InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
+    InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this, team);
     ASSERT(map->IsDungeon());
 
     map->LoadRespawnTimes();

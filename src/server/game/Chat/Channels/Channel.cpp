@@ -31,6 +31,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -73,11 +74,10 @@ Channel::Channel(ObjectGuid const& guid, std::string const& name, uint32 team /*
     _channelName(name),
     _zoneEntry(nullptr)
 {
-    Tokenizer tokens(banList, ' ');
-    for (auto const& token : tokens)
+    for (std::string_view guid : Trinity::Tokenize(banList, ' ', false))
     {
         // legacy db content might not have 0x prefix, account for that
-        std::string bannedGuidStr(memcmp(token, "0x", 2) ? token + 2 : token);
+        std::string bannedGuidStr(guid.size() > 2 && guid.substr(0, 2) == "0x" ? guid.substr(2) : guid);
         ObjectGuid banned;
         banned.SetRawValue(uint64(strtoull(bannedGuidStr.substr(0, 16).c_str(), nullptr, 16)), uint64(strtoull(bannedGuidStr.substr(16).c_str(), nullptr, 16)));
         if (!banned)

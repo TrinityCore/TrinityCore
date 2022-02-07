@@ -126,6 +126,8 @@ private:
         T** AsT;
         char** AsChar;
     } _indexTable;
+
+    friend class UnitTestDataLoader;
 };
 
 #endif

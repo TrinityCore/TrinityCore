@@ -40,7 +40,7 @@ class go_shadowforge_brazier : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
                     instance->SetData(TYPE_LYCEUM, DONE);
@@ -451,7 +451,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
         {
             npc_lokhtos_darkbargainerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
 
@@ -467,7 +467,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -600,7 +600,7 @@ public:
             EscortAI::UpdateAI(diff);
         }
 
-        void QuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*item*/) override
+        void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*item*/) override
         {
             if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
                 return;

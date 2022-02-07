@@ -32,21 +32,19 @@
 
 MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 {
-    Tokenizer tokens(infoString, ';');
+    std::vector<std::string_view> tokens = Trinity::Tokenize(infoString, ';', true);
 
     if (tokens.size() != 5 && tokens.size() != 6)
         return;
 
-    uint8 i = 0;
-
-    host.assign(tokens[i++]);
-    port_or_socket.assign(tokens[i++]);
-    user.assign(tokens[i++]);
-    password.assign(tokens[i++]);
-    database.assign(tokens[i++]);
+    host.assign(tokens[0]);
+    port_or_socket.assign(tokens[1]);
+    user.assign(tokens[2]);
+    password.assign(tokens[3]);
+    database.assign(tokens[4]);
 
     if (tokens.size() == 6)
-        ssl.assign(tokens[i++]);
+        ssl.assign(tokens[5]);
 }
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :

@@ -91,7 +91,7 @@ void RASession::Start()
     _socket.close();
 }
 
-int RASession::Send(char const* data)
+int RASession::Send(std::string_view data)
 {
     std::ostream os(&_writeBuffer);
     os << data;
@@ -204,9 +204,9 @@ bool RASession::ProcessCommand(std::string& command)
     return false;
 }
 
-void RASession::CommandPrint(void* callbackArg, char const* text)
+void RASession::CommandPrint(void* callbackArg, std::string_view text)
 {
-    if (!text || !*text)
+    if (text.empty())
         return;
 
     RASession* session = static_cast<RASession*>(callbackArg);
