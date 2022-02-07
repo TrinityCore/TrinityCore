@@ -566,11 +566,16 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        int64 moneyToAdd = 0;
+        Optional<int64> moneyToAddO = 0;
         if (strchr(args, 'g') || strchr(args, 's') || strchr(args, 'c'))
-            moneyToAdd = MoneyStringToMoney(std::string(args));
+            moneyToAddO = MoneyStringToMoney(std::string(args));
         else
-            moneyToAdd = atoll(args);
+            moneyToAddO = Trinity::StringTo<int64>(args);
+
+        if (!moneyToAddO)
+            return false;
+
+        int64 moneyToAdd = *moneyToAddO;
 
         uint64 targetMoney = target->GetMoney();
 

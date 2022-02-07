@@ -601,7 +601,7 @@ public:
     {
         go_ahune_ice_stoneAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             ClearGossipMenuFor(player);
 
@@ -873,12 +873,12 @@ void AddSC_boss_ahune()
     RegisterSlavePensCreatureAI(npc_ahune_bunny);
     new go_ahune_ice_stone();
     RegisterSpellScript(spell_ahune_synch_health);
-    RegisterAuraScript(spell_summoning_rhyme_aura);
-    RegisterAuraScript(spell_summon_ice_spear_delayer);
-    RegisterAuraScript(spell_ice_spear_control_aura);
+    RegisterSpellScript(spell_summoning_rhyme_aura);
+    RegisterSpellScript(spell_summon_ice_spear_delayer);
+    RegisterSpellScript(spell_ice_spear_control_aura);
     RegisterSpellScript(spell_ice_spear_target_picker);
     RegisterSpellScript(spell_slippery_floor_periodic);
-    RegisterAuraScript(spell_ahune_spanky_hands);
+    RegisterSpellScript(spell_ahune_spanky_hands);
     RegisterSpellScript(spell_ahune_minion_despawner);
     RegisterSpellScript(spell_ice_bombardment_dest_picker);
 }

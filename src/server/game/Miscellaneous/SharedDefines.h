@@ -338,9 +338,12 @@ constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
-    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
-        if (mask & GetMaskForSchool(school))
-            return school;
+    // Do not use EnumUtils to iterate
+    // this can cause some compilers to instantiate Trinity::Impl::EnumUtils<SpellSchools>
+    // when compiling enuminfo_SharedDefines before their explicit specializations in that file
+    for (uint16 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        if (mask & (1 << i))
+            return SpellSchools(i);
 
     return SPELL_SCHOOL_NORMAL;
 }
@@ -1422,6 +1425,7 @@ enum SpellEffectName
     TOTAL_SPELL_EFFECTS
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellCastResult
 {
     SPELL_FAILED_SUCCESS                                        = 0,
@@ -1740,7 +1744,7 @@ enum SpellCastResult
     SPELL_FAILED_UNKNOWN                                        = 313,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
-    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
+    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
 };
 
 enum SpellCustomErrors
@@ -2381,6 +2385,7 @@ enum GhostVisibilityType
 };
 
 // Spell aura states
+// EnumUtils: DESCRIBE THIS
 enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
@@ -5630,6 +5635,7 @@ enum CorpseDynFlags
 
 #define PLAYER_CORPSE_LOOT_ENTRY 1
 
+// EnumUtils: DESCRIBE THIS
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,
@@ -5642,6 +5648,7 @@ enum WeatherType
 
 #define MAX_WEATHER_TYPE 4
 
+// EnumUtils: DESCRIBE THIS
 enum ChatMsg : int32
 {
     CHAT_MSG_ADDON                              = -1,

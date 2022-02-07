@@ -24,6 +24,8 @@
 
 class Unit;
 
+enum class AnimTier : uint8;
+
 namespace Movement
 {
     typedef std::vector<Vector3> PointsArray;
@@ -53,7 +55,7 @@ namespace Movement
     struct AnimTierTransition
     {
         uint32 TierTransitionId = 0;
-        uint8 AnimTier = 0;
+        ::AnimTier AnimTier = ::AnimTier(0);
     };
 
     struct MoveSplineInitArgs

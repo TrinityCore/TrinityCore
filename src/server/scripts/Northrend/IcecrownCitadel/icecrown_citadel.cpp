@@ -24,41 +24,42 @@
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellScript.h"
 
 enum ICCTexts
 {
     // Highlord Tirion Fordring (at Light's Hammer)
-    SAY_TIRION_INTRO_1 = 0,
-    SAY_TIRION_INTRO_2 = 1,
-    SAY_TIRION_INTRO_3 = 2,
-    SAY_TIRION_INTRO_4 = 3,
-    SAY_TIRION_INTRO_H_5 = 4,
-    SAY_TIRION_INTRO_A_5 = 5,
+    SAY_TIRION_INTRO_1          = 0,
+    SAY_TIRION_INTRO_2          = 1,
+    SAY_TIRION_INTRO_3          = 2,
+    SAY_TIRION_INTRO_4          = 3,
+    SAY_TIRION_INTRO_H_5        = 4,
+    SAY_TIRION_INTRO_A_5        = 5,
 
     // The Lich King (at Light's Hammer)
-    SAY_LK_INTRO_1 = 0,
-    SAY_LK_INTRO_2 = 1,
-    SAY_LK_INTRO_3 = 2,
-    SAY_LK_INTRO_4 = 3,
-    SAY_LK_INTRO_5 = 4,
+    SAY_LK_INTRO_1              = 0,
+    SAY_LK_INTRO_2              = 1,
+    SAY_LK_INTRO_3              = 2,
+    SAY_LK_INTRO_4              = 3,
+    SAY_LK_INTRO_5              = 4,
 
     // Highlord Bolvar Fordragon (at Light's Hammer)
-    SAY_BOLVAR_INTRO_1 = 0,
+    SAY_BOLVAR_INTRO_1          = 0,
 
     // High Overlord Saurfang (at Light's Hammer)
-    SAY_SAURFANG_INTRO_1 = 15,
-    SAY_SAURFANG_INTRO_2 = 16,
-    SAY_SAURFANG_INTRO_3 = 17,
-    SAY_SAURFANG_INTRO_4 = 18,
+    SAY_SAURFANG_INTRO_1       = 15,
+    SAY_SAURFANG_INTRO_2       = 16,
+    SAY_SAURFANG_INTRO_3       = 17,
+    SAY_SAURFANG_INTRO_4       = 18,
 
     // Muradin Bronzebeard (at Light's Hammer)
-    SAY_MURADIN_INTRO_1 = 13,
-    SAY_MURADIN_INTRO_2 = 14,
-    SAY_MURADIN_INTRO_3 = 15,
+    SAY_MURADIN_INTRO_1        = 13,
+    SAY_MURADIN_INTRO_2        = 14,
+    SAY_MURADIN_INTRO_3        = 15,
 
     // Deathbound Ward
-    SAY_TRAP_ACTIVATE = 0,
+    SAY_TRAP_ACTIVATE          = 0,
 
     // Rotting Frost Giant
     EMOTE_DEATH_PLAGUE_WARNING = 0,
@@ -67,62 +68,68 @@ enum ICCTexts
 enum ICCSpells
 {
     // Rotting Frost Giant
-    SPELL_DEATH_PLAGUE = 72879,
-    SPELL_DEATH_PLAGUE_AURA = 72865,
-    SPELL_RECENTLY_INFECTED = 72884,
-    SPELL_DEATH_PLAGUE_KILL = 72867,
-    SPELL_STOMP = 64652,
-    SPELL_ARCTIC_BREATH = 72848,
+    SPELL_DEATH_PLAGUE              = 72879,
+    SPELL_DEATH_PLAGUE_AURA         = 72865,
+    SPELL_RECENTLY_INFECTED         = 72884,
+    SPELL_DEATH_PLAGUE_KILL         = 72867,
+    SPELL_STOMP                     = 64652,
+    SPELL_ARCTIC_BREATH             = 72848,
 
     // Frost Freeze Trap
-    SPELL_COLDFLAME_JETS = 70460,
+    SPELL_COLDFLAME_JETS            = 70460,
 
     // Alchemist Adrianna
-    SPELL_HARVEST_BLIGHT_SPECIMEN = 72155,
+    SPELL_HARVEST_BLIGHT_SPECIMEN   = 72155,
     SPELL_HARVEST_BLIGHT_SPECIMEN25 = 72162,
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
-    SPELL_SOUL_MISSILE = 72585,
+    SPELL_SOUL_MISSILE              = 72585,
 
     // Empowering Blood Orb
-    SPELL_EMPOWERED_BLOOD_2 = 70232,
-    SPELL_EMPOWERED_BLOOD_3 = 70304,
-    SPELL_EMPOWERED_BLOOD_4 = 70320,
-    SPELL_ORB_CONTROLLER_ACTIVE = 70293,
+    SPELL_EMPOWERED_BLOOD_2         = 70232,
+    SPELL_EMPOWERED_BLOOD_3         = 70304,
+    SPELL_EMPOWERED_BLOOD_4         = 70320,
+    SPELL_ORB_CONTROLLER_ACTIVE     = 70293,
 
     // Darkfallen Generic
-    SPELL_BLOOD_ORB_VISUAL = 72099,
-    SPELL_SIPHON_ESSENCE = 70299,
+    SPELL_BLOOD_ORB_VISUAL          = 72099,
+    SPELL_SIPHON_ESSENCE            = 70299,
 
     // Darkfallen Blood Knight
-    SPELL_VAMPIRIC_AURA = 71736,
-    SPELL_BLOOD_MIRROR = 70450,
-    SPELL_BLOOD_MIRROR_2 = 70451,
+    SPELL_VAMPIRIC_AURA             = 71736,
+    SPELL_BLOOD_MIRROR              = 70450,
+    SPELL_BLOOD_MIRROR_2            = 70451,
     SPELL_BLOOD_MIRROR_DAMAGE_SHARE = 70445,
-    SPELL_UNHOLY_STRIKE = 70437,
+    SPELL_UNHOLY_STRIKE             = 70437,
 
     // Darkfallen Noble
-    SPELL_SHADOW_BOLT = 72960,
-    SPELL_CHAINS_OF_SHADOW = 72960,
+    SPELL_SHADOW_BOLT               = 72960,
+    SPELL_CHAINS_OF_SHADOW          = 72960,
 
     // Darkfallen Archmage
-    SPELL_FIREBALL = 70409,
-    SPELL_AMPLIFY_MAGIC = 70408,
-    SPELL_BLAST_WAVE = 70407,
-    SPELL_POLYMORPH_ALLY = 72106,
-    SPELL_POLYMORPH = 70410,
+    SPELL_FIREBALL                  = 70409,
+    SPELL_AMPLIFY_MAGIC             = 70408,
+    SPELL_BLAST_WAVE                = 70407,
+    SPELL_POLYMORPH_ALLY            = 72106,
+    SPELL_POLYMORPH                 = 70410,
 
     // Darkfallen Advisor
-    SPELL_LICH_SLAP = 72057,
-    SPELL_SHROUD_OF_SPELL_WARDING = 72066,
+    SPELL_LICH_SLAP                 = 72057,
+    SPELL_SHROUD_OF_SPELL_WARDING   = 72066,
 
     // Vampiric Fiend
-    SPELL_DISEASE_CLOUD = 41290,
-    SPELL_LEECHING_ROOT = 70671,
+    SPELL_DISEASE_CLOUD             = 41290,
+    SPELL_LEECHING_ROOT             = 70671,
 
     // Darkfallen Tactician
-    SPELL_SHADOWSTEP = 70431,
-    SPELL_BLOOD_SAP = 70432
+    SPELL_SHADOWSTEP                = 70431,
+    SPELL_BLOOD_SAP                 = 70432,
+
+    // Nerubar broodkeeper
+    SPELL_WEB_BEAM                  = 69887,
+    SPELL_CRYPT_SCARABS             = 70965,
+    SPELL_WEB_WRAP                  = 70980,
+    SPELL_DARK_MENDING              = 71020
 };
 
 enum ICCTimedEventIds
@@ -152,6 +159,11 @@ enum ICCTimedEventIds
     EVENT_MURADIN_INTRO_4,
     EVENT_MURADIN_INTRO_5,
     EVENT_MURADIN_RUN,
+
+    // Nerub'ar Broodkeeper
+    EVENT_CRYPT_SCARABS,
+    EVENT_WEB_WRAP,
+    EVENT_DARK_MENDING,
 
     // Rotting Frost Giant
     EVENT_DEATH_PLAGUE,
@@ -188,8 +200,9 @@ enum ICCEventIds
 
 enum ICCMisc
 {
-    GOSSIP_MENUID_ALLY = 11204,
-    GOSSIP_MENUID_HORDE = 11207
+    GOSSIP_MENUID_ALLY  = 11204,
+    GOSSIP_MENUID_HORDE = 11207,
+    POINT_LAND          = 1,
 };
 
 // at Light's Hammer
@@ -495,6 +508,9 @@ class npc_rotting_frost_giant : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -565,7 +581,7 @@ class npc_alchemist_adrianna : public CreatureScript
         {
             npc_alchemist_adriannaAI(Creature* creature) : ScriptedAI(creature) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (!me->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN) && !me->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN25))
                     if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
@@ -634,7 +650,7 @@ struct npc_entrance_faction_leader : public ScriptedAI
 {
     npc_entrance_faction_leader(Creature* creature) : ScriptedAI(creature) { }
 
-    bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
+    bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
     {
         if (menuId == GOSSIP_MENUID_ALLY || menuId == GOSSIP_MENUID_HORDE)
             if (InstanceScript* instance = me->GetInstanceScript())
@@ -1037,6 +1053,105 @@ struct npc_darkfallen_tactician : public DarkFallenAI
     }
 };
 
+struct npc_icc_nerubar_broodkeeper : public ScriptedAI
+{
+    npc_icc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature) { }
+
+    // We set the anim tier and flags manually because we don't need them anymore once the spiders are down
+    void InitializeAI() override
+    {
+        me->SetDisableGravity(true);
+        me->SetImmuneToAll(true);
+        me->SetEmoteState(EMOTE_STATE_CUSTOM_SPELL_03);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CRYPT_SCARABS, 1s, 3s);
+        _events.ScheduleEvent(EVENT_DARK_MENDING, 5s);
+        _events.ScheduleEvent(EVENT_WEB_WRAP, 20s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action != ACTION_NERUBAR_FALL)
+            return;
+
+        DoCastSelf(SPELL_WEB_BEAM);
+        float x, y, z;
+        me->GetPosition(x, y);
+        z = me->GetFloorZ();
+        me->SetHomePosition(x, y, z, me->GetOrientation());
+
+        me->GetMotionMaster()->MoveLand(POINT_LAND, Position(x, y, z));
+        me->SetEmoteState(EMOTE_ONESHOT_NONE);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == EFFECT_MOTION_TYPE && id == POINT_LAND)
+        {
+            me->SetImmuneToAll(false);
+            me->SetDisableGravity(false);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CRYPT_SCARABS:
+                    DoCastVictim(SPELL_CRYPT_SCARABS);
+                    _events.Repeat(4s, 10s);
+                    break;
+                case EVENT_DARK_MENDING:
+                {
+                    // Select a friendly target between 1% and 75% hp
+                    Unit* target = nullptr;
+                    Trinity::MostHPPercentMissingInRange u_check(me, 40.0f, 1, 75);
+                    Trinity::UnitLastSearcher<Trinity::MostHPPercentMissingInRange> searcher(me, target, u_check);
+                    Cell::VisitGridObjects(me, searcher, 40.0f);
+
+                    if (target)
+                        DoCast(target, SPELL_DARK_MENDING);
+                    _events.Repeat(3s, 10s);
+                    break;
+                }
+                case EVENT_WEB_WRAP:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
+                        DoCast(target, SPELL_WEB_WRAP);
+                    _events.Repeat(16s, 20s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
 struct go_empowering_blood_orb : public GameObjectAI
 {
     go_empowering_blood_orb(GameObject* go) : GameObjectAI(go) { }
@@ -1047,7 +1162,7 @@ struct go_empowering_blood_orb : public GameObjectAI
             _triggerGuid = trigger->GetGUID();
     }
 
-    bool GossipHello(Player* player) override
+    bool OnGossipHello(Player* player) override
     {
         me->CastSpell(player, SPELL_EMPOWERED_BLOOD, true);
         HandleObjectUse();
@@ -1459,47 +1574,24 @@ class spell_icc_soul_missile : public SpellScriptLoader
         }
 };
 
-class spell_trigger_spell_from_caster_SpellScript : public SpellScript
-{
-    PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
-
-public:
-    spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
-        : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-private:
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ _triggerId });
-    }
-
-    void HandleTrigger()
-    {
-        GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
-    }
-
-    void Register() override
-    {
-        AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
-    }
-
-    uint32 _triggerId;
-    TriggerCastFlags _triggerFlags;
-};
-
-spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId)
-    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(TRIGGERED_FULL_MASK)
+spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(uint32 triggerId, TriggerCastFlags triggerFlags /*= TRIGGERED_FULL_MASK*/)
+    : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags)
 {
 }
 
-spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags)
-    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(triggerFlags)
+bool spell_trigger_spell_from_caster::Validate(SpellInfo const* /*spell*/)
 {
+    return ValidateSpellInfo({ _triggerId });
 }
 
-SpellScript* spell_trigger_spell_from_caster::GetSpellScript() const
+void spell_trigger_spell_from_caster::HandleTrigger()
 {
-    return new spell_trigger_spell_from_caster_SpellScript(_triggerId, _triggerFlags);
+    GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
+}
+
+void spell_trigger_spell_from_caster::Register()
+{
+    AfterHit += SpellHitFn(spell_trigger_spell_from_caster::HandleTrigger);
 }
 
 class at_icc_saurfang_portal : public AreaTriggerScript
@@ -1564,6 +1656,24 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
         }
 };
 
+class at_icc_nerubar_broodkeeper : public OnlyOnceAreaTriggerScript
+{
+    public:
+        at_icc_nerubar_broodkeeper() : OnlyOnceAreaTriggerScript("at_icc_nerubar_broodkeeper") { }
+
+        bool TryHandleOnce(Player* player, AreaTriggerEntry const* areaTrigger) override
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+            {
+                if (player->IsGameMaster())
+                    return false;
+
+                instance->SetData(DATA_NERUBAR_BROODKEEPER_EVENT, areaTrigger->ID);
+            }
+            return true;
+        }
+};
+
 void AddSC_icecrown_citadel()
 {
     new npc_highlord_tirion_fordring_lh();
@@ -1579,10 +1689,11 @@ void AddSC_icecrown_citadel()
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_archmage);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_advisor);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_tactician);
+    RegisterIcecrownCitadelCreatureAI(npc_icc_nerubar_broodkeeper);
     RegisterGameObjectAI(go_empowering_blood_orb);
-    RegisterAuraScript(spell_icc_empowered_blood);
-    RegisterAuraScript(spell_icc_empowered_blood_3);
-    RegisterAuraScript(spell_icc_siphon_essence);
+    RegisterSpellScript(spell_icc_empowered_blood);
+    RegisterSpellScript(spell_icc_empowered_blood_3);
+    RegisterSpellScript(spell_icc_siphon_essence);
     RegisterSpellScript(spell_darkfallen_blood_mirror);
     RegisterSpellScript(spell_generic_remove_empowered_blood);
     new spell_icc_stoneform();
@@ -1593,4 +1704,5 @@ void AddSC_icecrown_citadel()
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
     new at_icc_start_blood_quickening();
+    new at_icc_nerubar_broodkeeper();
 }

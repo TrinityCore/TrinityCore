@@ -115,7 +115,7 @@ public:
         return true;
     }
 
-    static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, Optional<ExactSequence<'a', 'l', 'l'>> all)
+    static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, Optional<EXACT_SEQUENCE("all")> all)
     {
         sAuctionBot->Rebuild(all.has_value());
         return true;
@@ -128,7 +128,7 @@ public:
         return true;
     }
 
-    static bool HandleAHBotStatusCommand(ChatHandler* handler, Optional<ExactSequence<'a', 'l', 'l'>> all)
+    static bool HandleAHBotStatusCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("all")> all)
     {
         std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType> statusInfo;
         sAuctionBot->PrepareStatusInfos(statusInfo);

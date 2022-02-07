@@ -733,7 +733,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
-    RegisterAuraScript(spell_hun_a_murder_of_crows);
+    RegisterSpellScript(spell_hun_a_murder_of_crows);
     new spell_hun_aspect_cheetah();
     new spell_hun_exhilaration();
     new spell_hun_hunting_party();

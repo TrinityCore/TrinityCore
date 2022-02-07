@@ -41,6 +41,7 @@ class TC_GAME_API ChatHandler
 {
     public:
         WorldSession* GetSession() { return m_session; }
+        Player* GetPlayer();
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
@@ -48,7 +49,7 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
-        virtual void SendSysMessage(char const* str, bool escapeCharacters = false);
+        virtual void SendSysMessage(std::string_view str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
 
@@ -103,14 +104,9 @@ class TC_GAME_API ChatHandler
 
         char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
         char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
-
-        // if args have single value then it return in arg2 and arg1 == nullptr
-        void extractOptFirstArg(char* args, char** arg1, char** arg2);
         char* extractQuotedArg(char* args);
-
         uint32 extractSpellIdFromLink(char* text);
         ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
-        GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
@@ -142,14 +138,14 @@ class TC_GAME_API ChatHandler
 class TC_GAME_API CliHandler : public ChatHandler
 {
     public:
-        typedef void Print(void*, char const*);
+        using Print = void(void*, std::string_view);
         explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
 
         // overwrite functions
         char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str, bool escapeCharacters) override;
+        void SendSysMessage(std::string_view, bool escapeCharacters) override;
         bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
@@ -168,7 +164,7 @@ class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
 
         using ChatHandler::ChatHandler;
         bool ParseCommands(char const* str) override;
-        void SendSysMessage(char const* str, bool escapeCharacters) override;
+        void SendSysMessage(std::string_view, bool escapeCharacters) override;
         using ChatHandler::SendSysMessage;
         bool IsHumanReadable() const override { return humanReadable; }
 

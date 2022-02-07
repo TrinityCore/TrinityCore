@@ -84,7 +84,7 @@ jobs:
           keys:
             - master-nopch-{{ .Branch }}-{{ .Revision }}
             - master-nopch-{{ .Branch }}
-            - master-nopch
+            - master-nopch-master
       - run:
           name: Setup
           command: |

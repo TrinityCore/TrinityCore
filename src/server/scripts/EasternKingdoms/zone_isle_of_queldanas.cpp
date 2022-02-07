@@ -126,7 +126,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
     {
     }
 
-    bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
     {
         if (menuId == MENU_EXAMINE_REMAINS)
         {
