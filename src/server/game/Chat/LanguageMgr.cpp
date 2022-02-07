@@ -216,13 +216,12 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 language, Loca
 
     std::string result;
     result.reserve(textToTranslate.length());
-    Tokenizer tokens(textToTranslate, ' ');
-    for (char const* str : tokens)
+    for (std::string_view str : Trinity::Tokenize(textToTranslate, ' ', false))
     {
-        uint32 wordLen = std::min(18u, uint32(strlen(str)));
+        uint32 wordLen = std::min(18u, uint32(str.length()));
         if (LanguageMgr::WordList const* wordGroup = FindWordGroup(language, wordLen))
         {
-            uint32 wordHash = SStrHash(str, true);
+            uint32 wordHash = SStrHash(str.data(), true);
             uint8 idxInsideGroup = wordHash % wordGroup->size();
 
             char const* replacementWord = (*wordGroup)[idxInsideGroup];
@@ -233,7 +232,7 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 language, Loca
                 case LOCALE_zhCN:
                 case LOCALE_zhTW:
                 {
-                    size_t length = std::min(strlen(str), strlen(replacementWord));
+                    size_t length = std::min(str.length(), strlen(replacementWord));
                     for (size_t i = 0; i < length; ++i)
                     {
                         if (str[i] >= 'A' && str[i] <= 'Z')

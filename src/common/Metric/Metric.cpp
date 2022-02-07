@@ -89,7 +89,7 @@ void Metric::LoadFromConfigs()
             return;
         }
 
-        Tokenizer tokens(connectionInfo, ';');
+        std::vector<std::string_view> tokens = Trinity::Tokenize(connectionInfo, ';', true);
         if (tokens.size() != 3)
         {
             TC_LOG_ERROR("metric", "'Metric.ConnectionInfo' specified with wrong format in configuration file.");

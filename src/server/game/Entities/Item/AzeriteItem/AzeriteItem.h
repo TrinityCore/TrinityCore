@@ -33,10 +33,10 @@ public:
 
     bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner) override;
 
-    void SaveToDB(CharacterDatabaseTransaction& trans) override;
+    void SaveToDB(CharacterDatabaseTransaction trans) override;
     void LoadAzeriteItemData(Player const* owner, AzeriteItemData& azeriteItem);
-    static void DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid);
-    void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
+    static void DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid);
+    void DeleteFromDB(CharacterDatabaseTransaction trans) override;
 
     uint32 GetLevel() const { return m_azeriteItemData->Level; }
     uint32 GetEffectiveLevel() const

@@ -19,6 +19,7 @@
 #define _WARDENCHECKMGR_H
 
 #include "Define.h"
+#include "World.h"
 #include <shared_mutex>
 #include <unordered_map>
 #include <vector>
@@ -32,30 +33,72 @@ enum WardenActions : uint8
 };
 
 // EnumUtils: DESCRIBE THIS
+enum WardenCheckCategory : uint8
+{
+    INJECT_CHECK_CATEGORY = 0, // checks that test whether the client's execution has been interfered with
+    LUA_CHECK_CATEGORY,        // checks that test whether the lua sandbox has been modified
+    MODDED_CHECK_CATEGORY,     // checks that test whether the client has been modified
+
+    NUM_CHECK_CATEGORIES // SKIP
+};
+
+// EnumUtils: DESCRIBE THIS
 enum WardenCheckType : uint8
 {
-    MEM_CHECK = 0xF3, // 243: byte moduleNameIndex + uint Offset + byte Len (check to ensure memory isn't modified)
-    PAGE_CHECK_A = 0xB2, // 178: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans all pages for specified hash)
-    PAGE_CHECK_B = 0xBF, // 191: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans only pages starts with MZ+PE headers for specified hash)
-    MPQ_CHECK = 0x98, // 152: byte fileNameIndex (check to ensure MPQ file isn't modified)
-    LUA_STR_CHECK = 0x8B, // 139: byte luaNameIndex (check to ensure LUA string isn't used)
-    DRIVER_CHECK = 0x71, // 113: uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
-    TIMING_CHECK = 0x57, //  87: empty (check to ensure GetTickCount() isn't detoured)
-    PROC_CHECK = 0x7E, // 126: uint Seed + byte[20] SHA1 + byte moluleNameIndex + byte procNameIndex + uint Offset + byte Len (check to ensure proc isn't detoured)
-    MODULE_CHECK = 0xD9  // 217: uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
+    NONE_CHECK     =   0, // SKIP
+    TIMING_CHECK   =  87, // nyi
+    DRIVER_CHECK   = 113, // uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
+    PROC_CHECK     = 126, // nyi
+    LUA_EVAL_CHECK = 139, // evaluate arbitrary Lua check
+    MPQ_CHECK      = 152, // get hash of MPQ file (to check it is not modified)
+    PAGE_CHECK_A   = 178, // scans all pages for specified SHA1 hash
+    PAGE_CHECK_B   = 191, // scans only pages starts with MZ+PE headers for specified hash
+    MODULE_CHECK   = 217, // check to make sure module isn't injected
+    MEM_CHECK      = 243, // retrieve specific memory
 };
+
+constexpr WardenCheckCategory GetWardenCheckCategory(WardenCheckType type)
+{
+    switch (type)
+    {
+        case TIMING_CHECK:   return NUM_CHECK_CATEGORIES;
+        case DRIVER_CHECK:   return INJECT_CHECK_CATEGORY;
+        case PROC_CHECK:     return NUM_CHECK_CATEGORIES;
+        case LUA_EVAL_CHECK: return LUA_CHECK_CATEGORY;
+        case MPQ_CHECK:      return MODDED_CHECK_CATEGORY;
+        case PAGE_CHECK_A:   return INJECT_CHECK_CATEGORY;
+        case PAGE_CHECK_B:   return INJECT_CHECK_CATEGORY;
+        case MODULE_CHECK:   return INJECT_CHECK_CATEGORY;
+        case MEM_CHECK:      return MODDED_CHECK_CATEGORY;
+        default:             return NUM_CHECK_CATEGORIES;
+    }
+}
+
+constexpr WorldIntConfigs GetWardenCategoryCountConfig(WardenCheckCategory category)
+{
+    switch (category)
+    {
+        case INJECT_CHECK_CATEGORY: return CONFIG_WARDEN_NUM_INJECT_CHECKS;
+        case LUA_CHECK_CATEGORY:    return CONFIG_WARDEN_NUM_LUA_CHECKS;
+        case MODDED_CHECK_CATEGORY: return CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS;
+        default:                    return INT_CONFIG_VALUE_COUNT;
+    }
+}
 
 struct WardenCheck
 {
-    WardenCheckType Type;
+    uint16 CheckId;
+    WardenCheckType Type = NONE_CHECK;
     std::vector<uint8> Data;
     uint32 Address;                                         // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     uint8 Length;                                           // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     std::string Str;                                        // LUA, MPQ, DRIVER
     std::string Comment;
-    uint16 CheckId;
+    std::array<char, 4> IdStr = {};                         // LUA
     WardenActions Action;
 };
+
+constexpr uint8 WARDEN_MAX_LUA_CHECK_LENGTH = 170;
 
 using WardenCheckResult = std::vector<uint8>;
 
@@ -67,20 +110,19 @@ class TC_GAME_API WardenCheckMgr
     public:
         static WardenCheckMgr* instance();
 
-        WardenCheck const& GetCheckDataById(uint16 Id) const;
-        WardenCheckResult const& GetCheckResultById(uint16 Id) const;
+        uint16 GetMaxValidCheckId() const { return static_cast<uint16>(_checks.size()); }
+        WardenCheck const& GetCheckData(uint16 Id) const;
+        WardenCheckResult const& GetCheckResult(uint16 Id) const;
 
-        std::vector<uint16> const& GetAvailableMemoryChecks() const { return MemChecksIdPool; }
-        std::vector<uint16> const& GetAvailableOtherChecks() const { return OtherChecksIdPool; }
+        std::vector<uint16> const& GetAvailableChecks(WardenCheckCategory category) { return _pools[category]; }
 
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
     private:
-        std::vector<WardenCheck> CheckStore;
-        std::unordered_map<uint32, WardenCheckResult> CheckResultStore;
-        std::vector<uint16> MemChecksIdPool;
-        std::vector<uint16> OtherChecksIdPool;
+        std::vector<WardenCheck> _checks;
+        std::unordered_map<uint16, WardenCheckResult> _checkResults;
+        std::array<std::vector<uint16>, NUM_CHECK_CATEGORIES> _pools;
 };
 
 #define sWardenCheckMgr WardenCheckMgr::instance()

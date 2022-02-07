@@ -109,7 +109,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_FREE_FROM_HOLD)
             {
@@ -593,7 +593,7 @@ public:
             PostEventTimer = 5000;
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ESCAPE)
             {

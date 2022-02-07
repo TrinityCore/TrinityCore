@@ -373,7 +373,7 @@ public:
             _moveTimer = 0;
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
             {

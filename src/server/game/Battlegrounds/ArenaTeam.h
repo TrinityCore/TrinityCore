@@ -73,6 +73,7 @@ enum ArenaTeamEvents
     ERR_ARENA_TEAM_DISBANDED_S              = 9             // captain name + arena team name
 };
 
+// EnumUtils: DESCRIBE THIS
 enum ArenaTeamTypes
 {
     ARENA_TEAM_2v2      = 2,

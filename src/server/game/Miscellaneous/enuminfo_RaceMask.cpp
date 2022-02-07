@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl::EnumUtilsImpl
 {
 
 /********************************************************\
@@ -98,5 +96,38 @@ TC_API_EXPORT Races EnumUtils<Races>::FromIndex(size_t index)
         default: throw std::out_of_range("index");
     }
 }
+
+template <>
+TC_API_EXPORT size_t EnumUtils<Races>::ToIndex(Races value)
+{
+    switch (value)
+    {
+        case RACE_HUMAN: return 0;
+        case RACE_ORC: return 1;
+        case RACE_DWARF: return 2;
+        case RACE_NIGHTELF: return 3;
+        case RACE_UNDEAD_PLAYER: return 4;
+        case RACE_TAUREN: return 5;
+        case RACE_GNOME: return 6;
+        case RACE_TROLL: return 7;
+        case RACE_GOBLIN: return 8;
+        case RACE_BLOODELF: return 9;
+        case RACE_DRAENEI: return 10;
+        case RACE_WORGEN: return 11;
+        case RACE_PANDAREN_NEUTRAL: return 12;
+        case RACE_PANDAREN_ALLIANCE: return 13;
+        case RACE_PANDAREN_HORDE: return 14;
+        case RACE_NIGHTBORNE: return 15;
+        case RACE_HIGHMOUNTAIN_TAUREN: return 16;
+        case RACE_VOID_ELF: return 17;
+        case RACE_LIGHTFORGED_DRAENEI: return 18;
+        case RACE_ZANDALARI_TROLL: return 19;
+        case RACE_KUL_TIRAN: return 20;
+        case RACE_DARK_IRON_DWARF: return 21;
+        case RACE_VULPERA: return 22;
+        case RACE_MAGHAR_ORC: return 23;
+        case RACE_MECHAGNOME: return 24;
+        default: throw std::out_of_range("value");
+    }
 }
 }

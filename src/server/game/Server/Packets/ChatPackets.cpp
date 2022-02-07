@@ -102,8 +102,8 @@ WorldPackets::Chat::Chat::Chat(Chat const& chat) : ServerPacket(SMSG_CHAT, chat.
 {
 }
 
-void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message,
-    uint32 achievementId /*= 0*/, std::string channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string addonPrefix /*= ""*/)
+void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message,
+    uint32 achievementId /*= 0*/, std::string_view channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string_view addonPrefix /*= ""*/)
 {
     // Clear everything because same packet can be used multiple times
     Clear();
@@ -131,7 +131,7 @@ void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, W
     AchievementID = achievementId;
     _Channel = std::move(channelName);
     Prefix = std::move(addonPrefix);
-    ChatText = std::move(message);
+    ChatText = message;
 }
 
 void WorldPackets::Chat::Chat::SetSender(WorldObject const* sender, LocaleConstant locale)

@@ -1973,11 +1973,11 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_dismount_ram();
     new spell_brewfest_barker_bunny();
     // Midsummer Fire Festival
-    RegisterAuraScript(spell_midsummer_braziers_hit);
+    RegisterSpellScript(spell_midsummer_braziers_hit);
     RegisterSpellScript(spell_midsummer_torch_target_picker);
     RegisterSpellScript(spell_midsummer_torch_toss_land);
-    RegisterAuraScript(spell_midsummer_test_ribbon_pole_channel);
-    RegisterAuraScript(spell_midsummer_ribbon_pole_periodic_visual);
+    RegisterSpellScript(spell_midsummer_test_ribbon_pole_channel);
+    RegisterSpellScript(spell_midsummer_ribbon_pole_periodic_visual);
     RegisterSpellScript(spell_midsummer_juggle_torch);
     RegisterSpellScript(spell_midsummer_torch_catch);
     RegisterSpellScript(spell_midsummer_fling_torch);

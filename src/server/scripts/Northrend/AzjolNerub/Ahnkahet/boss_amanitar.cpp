@@ -280,5 +280,5 @@ void AddSC_boss_amanitar()
 {
     RegisterAhnKahetCreatureAI(boss_amanitar);
     RegisterAhnKahetCreatureAI(npc_amanitar_mushrooms);
-    RegisterAuraScript(spell_amanitar_potent_fungus);
+    RegisterSpellScript(spell_amanitar_potent_fungus);
 }

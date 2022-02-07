@@ -28,7 +28,9 @@
 #include "Player.h"
 #include "RBAC.h"
 
-void GetPlayerInfo(ChatHandler* handler, Player* player)
+using namespace Trinity::ChatCommands;
+
+void PrintPlayerInfo(ChatHandler* handler, Player const* player)
 {
     if (!player)
         return;
@@ -65,48 +67,45 @@ public:
         return commandTable;
     }
 
-    static bool HandleLfgPlayerInfoCommand(ChatHandler* handler, char const* args)
+    static bool HandleLfgPlayerInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)
     {
-        Player* target = nullptr;
-        std::string playerName;
-        if (!handler->extractPlayerTarget((char*)args, &target, nullptr, &playerName))
+        if (!player)
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+        if (!player)
             return false;
 
-        GetPlayerInfo(handler, target);
-        return true;
+        if (Player* target = player->GetConnectedPlayer())
+        {
+            PrintPlayerInfo(handler, target);
+            return true;
+        }
+
+        return false;
     }
 
-    static bool HandleLfgGroupInfoCommand(ChatHandler* handler, char const* args)
+    static bool HandleLfgGroupInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)
     {
-        Player* playerTarget;
-        ObjectGuid guidTarget;
-        std::string nameTarget;
-
-        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(uint64(atoull(args)));
-
-        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
-        {
-            playerTarget = ObjectAccessor::FindPlayer(parseGUID);
-            guidTarget = parseGUID;
-        }
-        else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
+        if (!player)
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+        if (!player)
             return false;
 
         Group* groupTarget = nullptr;
 
-        if (playerTarget)
-            groupTarget = playerTarget->GetGroup();
+        if (Player* target = player->GetConnectedPlayer())
+            groupTarget = target->GetGroup();
         else
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt64(0, guidTarget.GetCounter());
+            stmt->setUInt64(0, player->GetGUID().GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
                 groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
         }
+
         if (!groupTarget)
         {
-            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, nameTarget.c_str());
+            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, player->GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -116,14 +115,11 @@ public:
         handler->PSendSysMessage(LANG_LFG_GROUP_INFO, groupTarget->isLFGGroup(),
             state.c_str(), sLFGMgr->GetDungeon(guid));
 
-        Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
-
-        for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+        for (Group::MemberSlot const& slot : groupTarget->GetMemberSlots())
         {
-            Group::MemberSlot const& slot = *itr;
-            Player* p = ObjectAccessor::FindPlayer((*itr).guid);
+            Player* p = ObjectAccessor::FindPlayer(slot.guid);
             if (p)
-                GetPlayerInfo(handler, p);
+                PrintPlayerInfo(handler, p);
             else
                 handler->PSendSysMessage("%s is offline.", slot.name.c_str());
         }
@@ -131,32 +127,24 @@ public:
         return true;
     }
 
-    static bool HandleLfgOptionsCommand(ChatHandler* handler, char const* args)
+    static bool HandleLfgOptionsCommand(ChatHandler* handler, Optional<uint32> optionsArg)
     {
-        int32 options = -1;
-        if (char* str = strtok((char*)args, " "))
+        if (optionsArg)
         {
-            int32 tmp = atoi(str);
-            if (tmp > -1)
-                options = tmp;
-        }
-
-        if (options != -1)
-        {
-            sLFGMgr->SetOptions(options);
+            sLFGMgr->SetOptions(*optionsArg);
             handler->PSendSysMessage(LANG_LFG_OPTIONS_CHANGED);
         }
         handler->PSendSysMessage(LANG_LFG_OPTIONS, sLFGMgr->GetOptions());
         return true;
     }
 
-    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, char const* args)
+    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, Tail full)
     {
-        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(*args != '\0').c_str(), true);
+        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(!full.empty()).c_str(), true);
         return true;
     }
 
-    static bool HandleLfgCleanCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleLfgCleanCommand(ChatHandler* handler)
     {
         handler->PSendSysMessage(LANG_LFG_CLEAN);
         sLFGMgr->Clean();

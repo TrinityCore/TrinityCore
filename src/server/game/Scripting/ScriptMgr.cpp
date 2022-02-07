@@ -1246,8 +1246,7 @@ void ScriptMgr::Initialize()
         if (scriptName.empty())
             continue;
 
-        TC_LOG_ERROR("sql.sql", "ScriptName '%s' exists in database, "
-                     "but no core script found!", scriptName.c_str());
+        TC_LOG_ERROR("sql.sql", "Script '%s' is referenced by the database, but does not exist in the core!", scriptName.c_str());
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms",
@@ -2440,14 +2439,14 @@ AreaTriggerScript::AreaTriggerScript(char const* name)
 bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
 {
     uint32 const triggerId = trigger->ID;
-    if (InstanceScript* instance = player->GetInstanceScript())
-    {
-        if (instance->IsAreaTriggerDone(triggerId))
-            return true;
-        else
-            instance->MarkAreaTriggerDone(triggerId);
-    }
-    return _OnTrigger(player, trigger);
+    InstanceScript* instance = player->GetInstanceScript();
+    if (instance && instance->IsAreaTriggerDone(triggerId))
+        return true;
+
+    if (TryHandleOnce(player, trigger) && instance)
+        instance->MarkAreaTriggerDone(triggerId);
+
+    return true;
 }
 void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(InstanceScript* script, uint32 triggerId) { script->ResetAreaTriggerDone(triggerId); }
 void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(Player const* player, AreaTriggerEntry const* trigger) { if (InstanceScript* instance = player->GetInstanceScript()) ResetAreaTriggerDone(instance, trigger->ID); }
