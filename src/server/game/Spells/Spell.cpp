@@ -570,6 +570,9 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_castItemLevel = -1;
     m_castFlagsEx = 0;
 
+    if (IsIgnoringCooldowns())
+        m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
+
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
