@@ -781,17 +781,13 @@ class spell_sha_icefury : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_FROST_SHOCK_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
-            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_6;
+        return ValidateSpellInfo({ SPELL_SHAMAN_FROST_SHOCK_ENERGIZE });
     }
 
     void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        if (!GetCaster())
-            return;
-
-        if (AuraEffect const* energizeAmount = GetCaster()->GetAuraEffect(SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_6))
-            GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_FROST_SHOCK_ENERGIZE, CastSpellExtraArgs(energizeAmount));
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_SHAMAN_FROST_SHOCK_ENERGIZE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
