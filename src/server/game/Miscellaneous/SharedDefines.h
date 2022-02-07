@@ -338,9 +338,12 @@ constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
-    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
-        if (mask & GetMaskForSchool(school))
-            return school;
+    // Do not use EnumUtils to iterate
+    // this can cause some compilers to instantiate Trinity::Impl::EnumUtils<SpellSchools>
+    // when compiling enuminfo_SharedDefines before their explicit specializations in that file
+    for (uint16 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        if (mask & (1 << i))
+            return SpellSchools(i);
 
     return SPELL_SCHOOL_NORMAL;
 }
