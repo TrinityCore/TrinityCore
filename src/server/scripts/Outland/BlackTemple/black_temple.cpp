@@ -278,5 +278,5 @@ void AddSC_black_temple()
     RegisterBlackTempleCreatureAI(npc_wrathbone_flayer);
     RegisterBlackTempleCreatureAI(npc_angered_soul_fragment);
     RegisterSpellScript(spell_soul_fragment_anger);
-    RegisterAuraScript(spell_illidari_nightlord_shadow_inferno);
+    RegisterSpellScript(spell_illidari_nightlord_shadow_inferno);
 }

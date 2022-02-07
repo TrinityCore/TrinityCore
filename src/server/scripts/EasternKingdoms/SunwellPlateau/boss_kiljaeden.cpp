@@ -379,7 +379,7 @@ class go_orb_of_the_blue_flight : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->GetFaction() == FACTION_FRIENDLY)
                 {

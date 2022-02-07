@@ -55,6 +55,7 @@
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
+#include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <numeric>
@@ -561,7 +562,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
     if (info->HasAttribute(SPELL_ATTR4_CAN_CAST_WHILE_CASTING))
-        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
+        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
     m_CastItem = nullptr;
     m_castItemGUID.Clear();
@@ -572,7 +573,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
-    corpseTarget = nullptr;
+    m_corpseTarget = nullptr;
     destTarget = nullptr;
     damage = 0;
     targetMissInfo = SPELL_MISS_NONE;
@@ -590,7 +591,6 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
     m_SpellVisual.SpellXSpellVisualID = caster->GetCastSpellXSpellVisualId(m_spellInfo);
     m_triggeredByAuraSpell  = nullptr;
-    unitCaster = nullptr;
     _spellAura = nullptr;
     _dynObjAura = nullptr;
 
@@ -2995,7 +2995,7 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
 
             if (!hitInfo.HitAura)
             {
-                bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
+                bool const resetPeriodicTimer = (m_spellInfo->StackAmount < 2) && !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
                 uint32 const allAuraEffectMask = Aura::BuildEffectMaskForOwner(m_spellInfo, MAX_EFFECT_MASK, unit);
 
                 AuraCreateInfo createInfo(m_castId, m_spellInfo, GetCastDifficulty(), allAuraEffectMask, unit);
@@ -3308,16 +3308,15 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         }
     }
 
-    // focus if not controlled creature
-    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->ToUnit()->HasUnitFlag(UNIT_FLAG_POSSESSED))
+    // Creatures focus their target when possible
+    if (m_casttime && m_caster->IsCreature() && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_caster->ToUnit()->HasUnitFlag(UNIT_FLAG_POSSESSED))
     {
-        if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat()))
-        {
-            if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-                m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
-            else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-                m_caster->ToCreature()->SetSpellFocus(this, nullptr);
-        }
+        // Channeled spells and some triggered spells do not focus a cast target. They face their target later on via channel object guid and via spell attribute or not at all
+        bool const focusTarget = !m_spellInfo->IsChanneled() && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING);
+        if (focusTarget && m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
+            m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
+        else
+            m_caster->ToCreature()->SetSpellFocus(this, nullptr);
     }
 
     // set timer base at cast time
@@ -3337,6 +3336,12 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         cast(true);
     else
     {
+        // commented out !m_spellInfo->StartRecoveryTime, it forces instant spells with global cooldown to be processed in spell::update
+        // as a result a spell that passed CheckCast and should be processed instantly may suffer from this delayed process
+        // the easiest bug to observe is LoS check in AddUnitTarget, even if spell passed the CheckCast LoS check the situation can change in spell::update
+        // because target could be relocated in the meantime, making the spell fly to the air (no targets can be registered, so no effects processed, nothing in combat log)
+        bool willCastDirectly = !m_casttime && /*!m_spellInfo->StartRecoveryTime && */ GetCurrentContainer() == CURRENT_GENERIC_SPELL;
+
         if (Unit* unitCaster = m_caster->ToUnit())
         {
             // stealth must be removed at cast starting (at show channel bar)
@@ -3344,18 +3349,17 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
             if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth() && !m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS))
                 unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Action);
 
-            unitCaster->SetCurrentCastSpell(this);
+            // Do not register as current spell when requested to ignore cast in progress
+            // We don't want to interrupt that other spell with cast time
+            if (!willCastDirectly || !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                unitCaster->SetCurrentCastSpell(this);
         }
         SendSpellStart();
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD))
             TriggerGlobalCooldown();
 
-        // commented out !m_spellInfo->StartRecoveryTime, it forces instant spells with global cooldown to be processed in spell::update
-        // as a result a spell that passed CheckCast and should be processed instantly may suffer from this delayed process
-        // the easiest bug to observe is LoS check in AddUnitTarget, even if spell passed the CheckCast LoS check the situation can change in spell::update
-        // because target could be relocated in the meantime, making the spell fly to the air (no targets can be registered, so no effects processed, nothing in combat log)
-        if (!m_casttime && /*!m_spellInfo->StartRecoveryTime && */ GetCurrentContainer() == CURRENT_GENERIC_SPELL)
+        if (willCastDirectly)
             cast(true);
     }
 
@@ -3469,10 +3473,6 @@ void Spell::_cast(bool skipCheck)
 
     SetExecutedCurrently(true);
 
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
-        if (m_caster->GetTypeId() == TYPEID_UNIT && m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-            m_caster->ToCreature()->SetInFront(m_targets.GetObjectTarget());
-
     // Should this be done for original caster?
     Player* modOwner = m_caster->GetSpellModOwner();
     if (modOwner)
@@ -3554,13 +3554,11 @@ void Spell::_cast(bool skipCheck)
             }
         }
     }
-
-    // if the spell allows the creature to turn while casting, then adjust server-side orientation to face the target now
-    // client-side orientation is handled by the client itself, as the cast target is targeted due to Creature::SetSpellFocusTarget
-    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->ToUnit()->HasUnitFlag(UNIT_FLAG_POSSESSED))
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-            if (WorldObject* objTarget = m_targets.GetObjectTarget())
-                m_caster->ToCreature()->SetInFront(objTarget);
+    // The spell focusing is making sure that we have a valid cast target guid when we need it so only check for a guid value here.
+    if (Creature* creatureCaster = m_caster->ToCreature())
+        if (!creatureCaster->GetTarget().IsEmpty() && !creatureCaster->HasUnitFlag(UNIT_FLAG_POSSESSED))
+            if (WorldObject const* target = ObjectAccessor::GetUnit(*creatureCaster, creatureCaster->GetTarget()))
+                creatureCaster->SetInFront(target);
 
     SelectSpellTargets();
 
@@ -5266,10 +5264,9 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
     unitTarget = pUnitTarget;
     itemTarget = pItemTarget;
     gameObjTarget = pGoTarget;
-    corpseTarget = pCorpseTarget;
+    m_corpseTarget = pCorpseTarget;
     destTarget = &m_destTargets[spellEffectInfo.EffectIndex]._position;
     effectInfo = &spellEffectInfo;
-    unitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 
     damage = CalculateDamage(spellEffectInfo, unitTarget, &variance);
 
@@ -5928,13 +5925,23 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             }
             case SPELL_EFFECT_RESURRECT_PET:
             {
-                Unit* unitCaster = m_caster->ToUnit();
-                if (!unitCaster)
+                Player* playerCaster = m_caster->ToPlayer();
+                if (!playerCaster || !playerCaster->GetPetStable())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                Creature* pet = unitCaster->GetGuardianPet();
+                Pet* pet = playerCaster->GetPet();
                 if (pet && pet->IsAlive())
                     return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                PetStable const* petStable = playerCaster->GetPetStable();
+                auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+                {
+                    return petInfo && !petInfo->Health;
+                });
+
+                if (deadPetItr == petStable->ActivePets.end())
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 break;
             }
             // This is generic summon effect
@@ -5998,17 +6005,27 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 Player* playerCaster = unitCaster->ToPlayer();
                 if (playerCaster && playerCaster->GetPetStable())
                 {
-                    std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*playerCaster->GetPetStable(), spellEffectInfo.MiscValue, 0, false);
-                    if (info.first)
+                    Optional<PetSaveMode> petSlot;
+                    if (!spellEffectInfo.MiscValue)
                     {
-                        if (info.first->Type == HUNTER_PET)
+                        petSlot = PetSaveMode(spellEffectInfo.CalcValue());
+
+                        // No pet can be summoned if any pet is dead
+                        for (Optional<PetStable::PetInfo> const& activePet : playerCaster->GetPetStable()->ActivePets)
                         {
-                            if (!info.first->Health)
+                            if (activePet && !activePet->Health)
                             {
                                 playerCaster->SendTameFailure(PetTameResult::Dead);
                                 return SPELL_FAILED_DONT_REPORT;
                             }
+                        }
+                    }
 
+                    std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*playerCaster->GetPetStable(), spellEffectInfo.MiscValue, 0, petSlot);
+                    if (info.first)
+                    {
+                        if (info.first->Type == HUNTER_PET)
+                        {
                             CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
                             if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
                             {
@@ -6028,6 +6045,21 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
+
+                break;
+            }
+            case SPELL_EFFECT_DISMISS_PET:
+            {
+                Player* playerCaster = m_caster->ToPlayer();
+                if (!playerCaster)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                Pet* pet = playerCaster->GetPet();
+                if (!pet)
+                    return SPELL_FAILED_NO_PET;
+
+                if (!pet->IsAlive())
+                    return SPELL_FAILED_TARGETS_DEAD;
 
                 break;
             }
@@ -7791,6 +7823,11 @@ bool Spell::IsNeedSendToClient() const
 {
     return m_SpellVisual.SpellXSpellVisualID || m_SpellVisual.ScriptVisualID || m_spellInfo->IsChanneled() ||
         (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)) || m_spellInfo->HasHitDelay() || (!m_triggeredByAuraSpell && !IsTriggered());
+}
+
+Unit* Spell::GetUnitCasterForEffectHandlers() const
+{
+    return m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 }
 
 SpellEvent::SpellEvent(Spell* spell) : BasicEvent()

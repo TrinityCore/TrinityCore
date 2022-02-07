@@ -105,6 +105,7 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER      = 28825,
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
+    SPELL_SHAMAN_UNDULATION_PROC                = 216251,
     SPELL_SHAMAN_UNLIMITED_POWER_BUFF           = 272737,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
     SPELL_SHAMAN_WINDFURY_ENCHANTMENT           = 334302,
@@ -1663,6 +1664,33 @@ class spell_sha_unlimited_power : public AuraScript
     }
 };
 
+// 200071 - Undulation
+class spell_sha_undulation_passive : public AuraScript
+{
+    PrepareAuraScript(spell_sha_undulation_passive);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_UNDULATION_PROC });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        if (++_castCounter == 3)
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_UNDULATION_PROC, true);
+            _castCounter = 0;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_undulation_passive::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+    uint8 _castCounter = 1; // first proc happens after two casts, then one every 3 casts
+};
+
 // 33757 - Windfury Weapon
 class spell_sha_windfury_weapon : public SpellScript
 {
@@ -1762,54 +1790,55 @@ private:
 
 void AddSC_shaman_spell_scripts()
 {
-    RegisterAuraScript(spell_sha_aftershock);
-    RegisterAuraScript(spell_sha_ancestral_guidance);
+    RegisterSpellScript(spell_sha_aftershock);
+    RegisterSpellScript(spell_sha_ancestral_guidance);
     RegisterSpellScript(spell_sha_ancestral_guidance_heal);
     RegisterSpellScript(spell_sha_bloodlust);
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
     RegisterSpellScript(spell_sha_downpour);
-    RegisterAuraScript(spell_sha_earth_shield);
-    RegisterAuraScript(spell_sha_earthen_rage_passive);
-    RegisterAuraScript(spell_sha_earthen_rage_proc_aura);
+    RegisterSpellScript(spell_sha_earth_shield);
+    RegisterSpellScript(spell_sha_earthen_rage_passive);
+    RegisterSpellScript(spell_sha_earthen_rage_proc_aura);
     RegisterAreaTriggerAI(areatrigger_sha_earthquake);
     RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_flametongue_weapon);
-    RegisterAuraScript(spell_sha_flametongue_weapon_aura);
+    RegisterSpellScript(spell_sha_flametongue_weapon_aura);
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, spell_sha_healing_rain_aura);
     RegisterSpellScript(spell_sha_healing_rain_target_limit);
     RegisterSpellScript(spell_sha_healing_stream_totem_heal);
     RegisterSpellScript(spell_sha_heroism);
-    RegisterAuraScript(spell_sha_icefury);
-    RegisterAuraScript(spell_sha_item_lightning_shield);
-    RegisterAuraScript(spell_sha_item_lightning_shield_trigger);
-    RegisterAuraScript(spell_sha_item_mana_surge);
-    RegisterAuraScript(spell_sha_item_t6_trinket);
-    RegisterAuraScript(spell_sha_item_t10_elemental_2p_bonus);
-    RegisterAuraScript(spell_sha_item_t18_elemental_4p_bonus);
+    RegisterSpellScript(spell_sha_icefury);
+    RegisterSpellScript(spell_sha_item_lightning_shield);
+    RegisterSpellScript(spell_sha_item_lightning_shield_trigger);
+    RegisterSpellScript(spell_sha_item_mana_surge);
+    RegisterSpellScript(spell_sha_item_t6_trinket);
+    RegisterSpellScript(spell_sha_item_t10_elemental_2p_bonus);
+    RegisterSpellScript(spell_sha_item_t18_elemental_4p_bonus);
     RegisterSpellScript(spell_sha_lava_burst);
     RegisterSpellScript(spell_sha_lava_crit_chance);
-    RegisterAuraScript(spell_sha_lava_surge);
+    RegisterSpellScript(spell_sha_lava_surge);
     RegisterSpellScript(spell_sha_lava_surge_proc);
     RegisterSpellScript(spell_sha_lightning_bolt);
     RegisterSpellScript(spell_sha_lightning_bolt_overload);
     RegisterSpellScript(spell_sha_liquid_magma_totem);
-    RegisterAuraScript(spell_sha_mastery_elemental_overload);
+    RegisterSpellScript(spell_sha_mastery_elemental_overload);
     RegisterSpellScript(spell_sha_mastery_elemental_overload_proc);
-    RegisterAuraScript(spell_sha_natures_guardian);
+    RegisterSpellScript(spell_sha_natures_guardian);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
-    RegisterAuraScript(spell_sha_spirit_wolf);
-    RegisterAuraScript(spell_sha_tidal_waves);
-    RegisterAuraScript(spell_sha_t3_6p_bonus);
-    RegisterAuraScript(spell_sha_t3_8p_bonus);
-    RegisterAuraScript(spell_sha_t8_elemental_4p_bonus);
-    RegisterAuraScript(spell_sha_t9_elemental_4p_bonus);
-    RegisterAuraScript(spell_sha_t10_elemental_4p_bonus);
-    RegisterAuraScript(spell_sha_t10_restoration_4p_bonus);
-    RegisterAuraScript(spell_sha_unlimited_power);
+    RegisterSpellScript(spell_sha_spirit_wolf);
+    RegisterSpellScript(spell_sha_tidal_waves);
+    RegisterSpellScript(spell_sha_t3_6p_bonus);
+    RegisterSpellScript(spell_sha_t3_8p_bonus);
+    RegisterSpellScript(spell_sha_t8_elemental_4p_bonus);
+    RegisterSpellScript(spell_sha_t9_elemental_4p_bonus);
+    RegisterSpellScript(spell_sha_t10_elemental_4p_bonus);
+    RegisterSpellScript(spell_sha_t10_restoration_4p_bonus);
+    RegisterSpellScript(spell_sha_unlimited_power);
+    RegisterSpellScript(spell_sha_undulation_passive);
     RegisterSpellScript(spell_sha_windfury_weapon);
-    RegisterAuraScript(spell_sha_windfury_weapon_proc);
+    RegisterSpellScript(spell_sha_windfury_weapon_proc);
     RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
 }

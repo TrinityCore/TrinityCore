@@ -164,7 +164,7 @@ struct npc_danica_the_reclaimer : public ScriptedAI
     }
 
     // Should be some other way to do this...
-    void QuestAccept(Player* player, Quest const* /*quest*/) override
+    void OnQuestAccept(Player* player, Quest const* /*quest*/) override
     {
         TempSummon* summon = player->SummonCreature(NPC_DANICA_THE_RECLAIMER, 1059.613f, 7224.605f, 100.4608f, 0.03462749f, TEMPSUMMON_MANUAL_DESPAWN, 0s, player->GetGUID());
         if (!summon)

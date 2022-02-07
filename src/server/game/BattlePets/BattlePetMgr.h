@@ -156,7 +156,7 @@ public:
     static uint32 SelectPetDisplay(BattlePetSpeciesEntry const* speciesEntry);
 
     void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
-    void SaveToDB(LoginDatabaseTransaction& trans);
+    void SaveToDB(LoginDatabaseTransaction trans);
 
     BattlePet* GetPet(ObjectGuid guid);
     void AddPet(uint32 species, uint32 display, uint16 breed, BattlePetBreedQuality quality, uint16 level = 1);

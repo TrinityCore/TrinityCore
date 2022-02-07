@@ -537,7 +537,7 @@ class npc_essence_of_twin : public CreatureScript
                 return spellReturned;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 player->RemoveAurasDueToSpell(GetData(ESSENCE_REMOVE));
                 player->CastSpell(player, GetData(ESSENCE_APPLY), true);
@@ -919,7 +919,7 @@ void AddSC_boss_twin_valkyr()
     new npc_essence_of_twin();
     new npc_bullet_controller();
 
-    RegisterAuraScript(spell_bullet_controller);
+    RegisterSpellScript(spell_bullet_controller);
     new spell_powering_up();
     new spell_valkyr_essences();
     new spell_power_of_the_twins();

@@ -446,7 +446,7 @@ class spell_dh_glide_timer : public AuraScript
 
 void AddSC_demon_hunter_spell_scripts()
 {
-    RegisterAuraScript(spell_dh_chaos_strike);
+    RegisterSpellScript(spell_dh_chaos_strike);
 
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>("areatrigger_dh_sigil_of_silence");
     new areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>("areatrigger_dh_sigil_of_misery");
@@ -461,7 +461,7 @@ void AddSC_demon_hunter_spell_scripts()
 
     /* Auras */
 
-    RegisterAuraScript(spell_dh_first_blood);
+    RegisterSpellScript(spell_dh_first_blood);
 
     /* AreaTrigger */
 
@@ -474,6 +474,6 @@ void AddSC_demon_hunter_spell_scripts()
     // Vengeance & Havoc
 
     RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
-    RegisterAuraScript(spell_dh_glide_timer);
+    RegisterSpellScript(spell_dh_glide_timer);
 
 }

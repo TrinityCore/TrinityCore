@@ -1275,14 +1275,14 @@ void AddSC_boss_algalon_the_observer()
     RegisterUlduarCreatureAI(npc_collapsing_star);
     RegisterUlduarCreatureAI(npc_brann_bronzebeard_algalon);
     RegisterGameObjectAI(go_celestial_planetarium_access);
-    RegisterAuraScript(spell_algalon_phase_punch);
-    RegisterAuraScript(spell_algalon_phase_constellation);
+    RegisterSpellScript(spell_algalon_phase_punch);
+    RegisterSpellScript(spell_algalon_phase_constellation);
     RegisterSpellScript(spell_algalon_trigger_3_adds);
-    RegisterAuraScript(spell_algalon_collapse);
+    RegisterSpellScript(spell_algalon_collapse);
     RegisterSpellScript(spell_algalon_big_bang);
-    RegisterAuraScript(spell_algalon_remove_phase);
+    RegisterSpellScript(spell_algalon_remove_phase);
     RegisterSpellScript(spell_algalon_cosmic_smash);
     RegisterSpellScript(spell_algalon_cosmic_smash_damage);
     RegisterSpellScript(spell_algalon_supermassive_fail);
-    RegisterAuraScript(spell_algalon_black_hole_phase_shifts);
+    RegisterSpellScript(spell_algalon_black_hole_phase_shifts);
 }

@@ -432,7 +432,7 @@ class at_teron_gorefiend_entrance : public OnlyOnceAreaTriggerScript
 public:
     at_teron_gorefiend_entrance() : OnlyOnceAreaTriggerScript("at_teron_gorefiend_entrance") { }
 
-    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* teron = instance->GetCreature(DATA_TERON_GOREFIEND))
@@ -447,8 +447,8 @@ void AddSC_boss_teron_gorefiend()
     RegisterBlackTempleCreatureAI(boss_teron_gorefiend);
     RegisterBlackTempleCreatureAI(npc_doom_blossom);
     RegisterBlackTempleCreatureAI(npc_shadowy_construct);
-    RegisterAuraScript(spell_teron_gorefiend_shadow_of_death);
-    RegisterAuraScript(spell_teron_gorefiend_spiritual_vengeance);
+    RegisterSpellScript(spell_teron_gorefiend_shadow_of_death);
+    RegisterSpellScript(spell_teron_gorefiend_spiritual_vengeance);
     RegisterSpellScript(spell_teron_gorefiend_shadow_of_death_remove);
     new at_teron_gorefiend_entrance();
 }

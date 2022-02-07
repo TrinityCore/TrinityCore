@@ -65,8 +65,8 @@ class TC_GAME_API Pet : public Guardian
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map);
-        static std::pair<PetStable::PetInfo const*, PetSaveMode> GetLoadPetInfo(PetStable const& stable, uint32 petEntry, uint32 petnumber, bool current);
-        bool LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current);
+        static std::pair<PetStable::PetInfo const*, PetSaveMode> GetLoadPetInfo(PetStable const& stable, uint32 petEntry, uint32 petnumber, Optional<PetSaveMode> slot);
+        bool LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current, Optional<PetSaveMode> forcedSlot = {});
         bool IsLoading() const override { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
         void FillPetInfo(PetStable::PetInfo* petInfo) const;
@@ -115,9 +115,9 @@ class TC_GAME_API Pet : public Guardian
         bool IsPetAura(Aura const* aura);
 
         void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
-        void _SaveAuras(CharacterDatabaseTransaction& trans);
+        void _SaveAuras(CharacterDatabaseTransaction trans);
         void _LoadSpells(PreparedQueryResult result);
-        void _SaveSpells(CharacterDatabaseTransaction& trans);
+        void _SaveSpells(CharacterDatabaseTransaction trans);
 
         bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
         bool learnSpell(uint32 spell_id);

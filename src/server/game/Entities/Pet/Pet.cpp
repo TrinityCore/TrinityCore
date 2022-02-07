@@ -101,13 +101,14 @@ void Pet::RemoveFromWorld()
     }
 }
 
-std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable const& stable, uint32 petEntry, uint32 petnumber, bool current)
+std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable const& stable, uint32 petEntry, uint32 petnumber, Optional<PetSaveMode> slot)
 {
     if (petnumber)
     {
         // Known petnumber entry
-        if (stable.CurrentPet && stable.CurrentPet->PetNumber == petnumber)
-            return { &stable.CurrentPet.value(), PET_SAVE_AS_CURRENT };
+        for (std::size_t activeSlot = 0; activeSlot < stable.ActivePets.size(); ++activeSlot)
+            if (stable.ActivePets[activeSlot] && stable.ActivePets[activeSlot]->PetNumber == petnumber)
+                return { &stable.ActivePets[activeSlot].value(), PetSaveMode(PET_SAVE_FIRST_ACTIVE_SLOT + activeSlot) };
 
         for (std::size_t stableSlot = 0; stableSlot < stable.StabledPets.size(); ++stableSlot)
             if (stable.StabledPets[stableSlot] && stable.StabledPets[stableSlot]->PetNumber == petnumber)
@@ -117,18 +118,24 @@ std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable 
             if (pet.PetNumber == petnumber)
                 return { &pet, PET_SAVE_NOT_IN_SLOT };
     }
-    else if (current)
+    else if (slot)
     {
-        // Current pet (slot 0)
-        if (stable.CurrentPet)
-            return { &stable.CurrentPet.value(), PET_SAVE_AS_CURRENT };
+        // Current pet
+        if (slot == PET_SAVE_AS_CURRENT)
+            if (stable.GetCurrentActivePetIndex() && stable.ActivePets[*stable.GetCurrentActivePetIndex()])
+                return { &stable.ActivePets[*stable.GetCurrentActivePetIndex()].value(), PetSaveMode(*stable.GetCurrentActivePetIndex()) };
+
+        if (slot >= PET_SAVE_FIRST_ACTIVE_SLOT && slot < PET_SAVE_LAST_ACTIVE_SLOT)
+            if (stable.ActivePets[*slot])
+                return { &stable.ActivePets[*slot].value(), *slot };
+
+        if (slot >= PET_SAVE_FIRST_STABLE_SLOT && slot < PET_SAVE_LAST_STABLE_SLOT)
+            if (stable.StabledPets[*slot])
+                return { &stable.StabledPets[*slot].value(), *slot };
     }
     else if (petEntry)
     {
         // known petEntry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
-        if (stable.CurrentPet && stable.CurrentPet->CreatureId == petEntry)
-            return { &stable.CurrentPet.value(), PET_SAVE_AS_CURRENT };
-
         for (PetStable::PetInfo const& pet : stable.UnslottedPets)
             if (pet.CreatureId == petEntry)
                 return { &pet, PET_SAVE_NOT_IN_SLOT };
@@ -136,8 +143,8 @@ std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable 
     else
     {
         // Any current or other non-stabled pet (for hunter "call pet")
-        if (stable.CurrentPet)
-            return { &stable.CurrentPet.value(), PET_SAVE_AS_CURRENT };
+        if (stable.ActivePets[0])
+            return { &stable.ActivePets[0].value(), PET_SAVE_FIRST_ACTIVE_SLOT };
 
         if (!stable.UnslottedPets.empty())
             return { &stable.UnslottedPets.front(), PET_SAVE_NOT_IN_SLOT };
@@ -194,24 +201,24 @@ public:
     }
 };
 
-bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current)
+bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current, Optional<PetSaveMode> forcedSlot /*= {}*/)
 {
     m_loading = true;
 
     PetStable* petStable = ASSERT_NOTNULL(owner->GetPetStable());
 
     ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
-    std::pair<PetStable::PetInfo const*, PetSaveMode> info = GetLoadPetInfo(*petStable, petEntry, petnumber, current);
+    std::pair<PetStable::PetInfo const*, PetSaveMode> info = GetLoadPetInfo(*petStable, petEntry, petnumber, forcedSlot);
     PetStable::PetInfo const* petInfo = info.first;
     PetSaveMode slot = info.second;
-    if (!petInfo)
+    if (!petInfo || (slot >= PET_SAVE_FIRST_STABLE_SLOT && slot < PET_SAVE_LAST_STABLE_SLOT))
     {
         m_loading = false;
         return false;
     }
 
     // Don't try to reload the current pet
-    if (petStable->CurrentPet && owner->GetPet() && petStable->CurrentPet.value().PetNumber == petInfo->PetNumber)
+    if (petStable->GetCurrentPet() && owner->GetPet() && petStable->GetCurrentPet()->PetNumber == petInfo->PetNumber)
         return false;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(petInfo->CreatedBySpellId, owner->GetMap()->GetDifficultyID());
@@ -329,40 +336,33 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     // set current pet as current
-    // 0=current
-    // 1..MAX_PET_STABLES in stable slot
-    // PET_SAVE_NOT_IN_SLOT(100) = not stable slot (summoning))
+    // 0-4=current
+    // PET_SAVE_NOT_IN_SLOT(-1) = not stable slot (summoning))
     if (slot == PET_SAVE_NOT_IN_SLOT)
     {
         uint32 petInfoNumber = petInfo->PetNumber;
-        if (petStable->CurrentPet)
+        if (petStable->CurrentPetIndex)
             owner->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT);
 
         auto unslottedPetItr = std::find_if(petStable->UnslottedPets.begin(), petStable->UnslottedPets.end(), [&](PetStable::PetInfo const& unslottedPet)
         {
             return unslottedPet.PetNumber == petInfoNumber;
         });
-        ASSERT(!petStable->CurrentPet);
+        ASSERT(!petStable->CurrentPetIndex);
         ASSERT(unslottedPetItr != petStable->UnslottedPets.end());
 
-        petStable->CurrentPet = std::move(*unslottedPetItr);
-        petStable->UnslottedPets.erase(unslottedPetItr);
-
-        // old petInfo pointer is no longer valid, refresh it
-        petInfo = &petStable->CurrentPet.value();
+        petStable->SetCurrentUnslottedPetIndex(std::distance(petStable->UnslottedPets.begin(), unslottedPetItr));
     }
-    else if (PET_SAVE_FIRST_STABLE_SLOT <= slot && slot <= PET_SAVE_LAST_STABLE_SLOT)
+    else if (PET_SAVE_FIRST_ACTIVE_SLOT <= slot && slot <= PET_SAVE_LAST_ACTIVE_SLOT)
     {
-        auto stabledPet = std::find_if(petStable->StabledPets.begin(), petStable->StabledPets.end(), [petnumber](Optional<PetStable::PetInfo> const& pet)
+        auto activePetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [&](Optional<PetStable::PetInfo> const& pet)
         {
-            return pet && pet->PetNumber == petnumber;
+            return pet && pet->PetNumber == petInfo->PetNumber;
         });
-        ASSERT(stabledPet != petStable->StabledPets.end());
+        ASSERT(!petStable->CurrentPetIndex);
+        ASSERT(activePetItr != petStable->ActivePets.end());
 
-        std::swap(*stabledPet, petStable->CurrentPet);
-
-        // old petInfo pointer is no longer valid, refresh it
-        petInfo = &petStable->CurrentPet.value();
+        petStable->SetCurrentActivePetIndex(std::distance(petStable->ActivePets.begin(), activePetItr));
     }
 
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
@@ -491,8 +491,12 @@ void Pet::SavePetToDB(PetSaveMode mode)
     // save auras before possibly removing them
     _SaveAuras(trans);
 
+    if (mode == PET_SAVE_AS_CURRENT)
+        if (Optional<uint32> activeSlot = owner->GetPetStable()->GetCurrentActivePetIndex())
+            mode = PetSaveMode(*activeSlot);
+
     // stable and not in slot saves
-    if (mode > PET_SAVE_AS_CURRENT)
+    if (mode < PET_SAVE_FIRST_ACTIVE_SLOT || mode >= PET_SAVE_LAST_ACTIVE_SLOT)
         RemoveAllAuras();
 
     _SaveSpells(trans);
@@ -500,7 +504,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     CharacterDatabase.CommitTransaction(trans);
 
     // current/stable/not_in_slot
-    if (mode >= PET_SAVE_AS_CURRENT)
+    if (mode != PET_SAVE_AS_DELETED)
     {
         ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
         trans = CharacterDatabase.BeginTransaction();
@@ -510,21 +514,11 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt32(0, m_charmInfo->GetPetNumber());
         trans->Append(stmt);
 
-        // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
-        if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
-            stmt->setUInt64(0, ownerLowGUID);
-            stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
-            stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
-            trans->Append(stmt);
-        }
-
         // save pet
         std::string actionBar = GenerateActionBarData();
 
-        ASSERT(owner->GetPetStable()->CurrentPet && owner->GetPetStable()->CurrentPet->PetNumber == m_charmInfo->GetPetNumber());
-        FillPetInfo(&owner->GetPetStable()->CurrentPet.value());
+        ASSERT(owner->GetPetStable()->GetCurrentPet() && owner->GetPetStable()->GetCurrentPet()->PetNumber == m_charmInfo->GetPetNumber());
+        FillPetInfo(owner->GetPetStable()->GetCurrentPet());
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
         stmt->setUInt32(0, m_charmInfo->GetPetNumber());
@@ -534,7 +528,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt8(4, GetLevel());
         stmt->setUInt32(5, m_unitData->PetExperience);
         stmt->setUInt8(6, GetReactState());
-        stmt->setInt16(7, mode);
+        stmt->setInt16(7, owner->GetPetStable()->GetCurrentActivePetIndex().value_or(PET_SAVE_NOT_IN_SLOT));
         stmt->setString(8, m_name);
         stmt->setUInt8(9, HasPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED) ? 0 : 1);
         stmt->setUInt32(10, curhealth);
@@ -1141,7 +1135,7 @@ void Pet::_LoadSpells(PreparedQueryResult result)
     }
 }
 
-void Pet::_SaveSpells(CharacterDatabaseTransaction& trans)
+void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
 {
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
@@ -1300,7 +1294,7 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectR
     }
 }
 
-void Pet::_SaveAuras(CharacterDatabaseTransaction& trans)
+void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURA_EFFECTS);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());

@@ -143,7 +143,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                 player->DestroyItemCount(itemId, 1, true, false);
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 switch (menuId)
                 {

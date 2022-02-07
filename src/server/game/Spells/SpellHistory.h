@@ -81,7 +81,7 @@ public:
     void LoadFromDB(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);
 
     template<class OwnerType>
-    void SaveToDB(CharacterDatabaseTransaction& trans);
+    void SaveToDB(CharacterDatabaseTransaction trans);
 
     void Update();
 
