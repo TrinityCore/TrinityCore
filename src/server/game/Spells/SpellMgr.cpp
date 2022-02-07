@@ -5943,6 +5943,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
     });
 
+    // Furious Attacks
+    ApplySpellFix({ 56112 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
