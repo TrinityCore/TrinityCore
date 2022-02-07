@@ -17,6 +17,7 @@
 
 #include "Config.h"
 #include "Log.h"
+#include "StringConvert.h"
 #include "Util.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <algorithm>
@@ -28,41 +29,65 @@ namespace bpt = boost::property_tree;
 namespace
 {
     std::string _filename;
+    std::vector<std::string> _additonalFiles;
     std::vector<std::string> _args;
     bpt::ptree _config;
     std::mutex _configLock;
+
+    bool LoadFile(std::string const& file, bpt::ptree& fullTree, std::string& error)
+    {
+        try
+        {
+            bpt::ini_parser::read_ini(file, fullTree);
+
+            if (fullTree.empty())
+            {
+                error = "empty file (" + file + ")";
+                return false;
+            }
+        }
+        catch (bpt::ini_parser::ini_parser_error const& e)
+        {
+            if (e.line() == 0)
+                error = e.message() + " (" + e.filename() + ")";
+            else
+                error = e.message() + " (" + e.filename() + ":" + std::to_string(e.line()) + ")";
+            return false;
+        }
+
+        return true;
+    }
 }
 
-bool ConfigMgr::LoadInitial(std::string const& file, std::vector<std::string> args,
+bool ConfigMgr::LoadInitial(std::string file, std::vector<std::string> args,
                             std::string& error)
 {
     std::lock_guard<std::mutex> lock(_configLock);
 
-    _filename = file;
-    _args = args;
+    _filename = std::move(file);
+    _args = std::move(args);
 
-    try
-    {
-        bpt::ptree fullTree;
-        bpt::ini_parser::read_ini(file, fullTree);
-
-        if (fullTree.empty())
-        {
-            error = "empty file (" + file + ")";
-            return false;
-        }
-
-        // Since we're using only one section per config file, we skip the section and have direct property access
-        _config = fullTree.begin()->second;
-    }
-    catch (bpt::ini_parser::ini_parser_error const& e)
-    {
-        if (e.line() == 0)
-            error = e.message() + " (" + e.filename() + ")";
-        else
-            error = e.message() + " (" + e.filename() + ":" + std::to_string(e.line()) + ")";
+    bpt::ptree fullTree;
+    if (!LoadFile(_filename, fullTree, error))
         return false;
-    }
+
+    // Since we're using only one section per config file, we skip the section and have direct property access
+    _config = fullTree.begin()->second;
+
+    return true;
+}
+
+bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::string& error)
+{
+    bpt::ptree fullTree;
+    if (!LoadFile(file, fullTree, error))
+        return false;
+
+    for (bpt::ptree::value_type const& child : fullTree.begin()->second)
+        _config.put_child(bpt::ptree::path_type(child.first, '/'), child.second);
+
+    if (keepOnReload)
+        _additonalFiles.emplace_back(std::move(file));
 
     return true;
 }
@@ -73,9 +98,17 @@ ConfigMgr* ConfigMgr::instance()
     return &instance;
 }
 
-bool ConfigMgr::Reload(std::string& error)
+bool ConfigMgr::Reload(std::vector<std::string>& errors)
 {
-    return LoadInitial(_filename, std::move(_args), error);
+    std::string error;
+    if (!LoadInitial(_filename, std::move(_args), error))
+        errors.push_back(std::move(error));
+
+    for (std::string const& additionalFile : _additonalFiles)
+        if (!LoadAdditionalFile(additionalFile, false, error))
+            errors.push_back(std::move(error));
+
+    return errors.empty();
 }
 
 template<class T>
@@ -137,7 +170,15 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) co
 {
     std::string val = GetValueDefault(name, std::string(def ? "1" : "0"), quiet);
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
-    return StringToBool(val);
+    Optional<bool> boolVal = Trinity::StringTo<bool>(val);
+    if (boolVal)
+        return *boolVal;
+    else
+    {
+        TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use '%s' instead",
+            name.c_str(), _filename.c_str(), def ? "true" : "false");
+        return def;
+    }
 }
 
 int32 ConfigMgr::GetIntDefault(std::string const& name, int32 def, bool quiet) const

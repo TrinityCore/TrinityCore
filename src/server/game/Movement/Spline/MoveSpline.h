@@ -22,6 +22,8 @@
 #include "MoveSplineInitArgs.h"
 #include <G3D/Vector3.h>
 
+enum class AnimTier : uint8;
+
 namespace WorldPackets
 {
     namespace Movement
@@ -138,6 +140,8 @@ namespace Movement
         Vector3 const& FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3::zero(); }
         Vector3 const& CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3::zero(); }
         int32 currentPathIdx() const;
+
+        Optional<AnimTier> GetAnimation() const { return anim_tier ? anim_tier->AnimTier : Optional<AnimTier>{}; }
 
         bool onTransport;
         bool splineIsFacingOnly;

@@ -16,6 +16,7 @@
  */
 
 #include "TemporarySummon.h"
+#include "CellImpl.h"
 #include "CreatureAI.h"
 #include "DB2Structure.h"
 #include "GameObject.h"

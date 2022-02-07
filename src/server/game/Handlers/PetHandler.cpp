@@ -538,7 +538,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
     if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
         !pet->HasPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED) ||
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo() ||
-        !petStable || !petStable->CurrentPet || petStable->CurrentPet->PetNumber != pet->GetCharmInfo()->GetPetNumber())
+        !petStable || !petStable->GetCurrentPet() || petStable->GetCurrentPet()->PetNumber != pet->GetCharmInfo()->GetPetNumber())
         return;
 
     PetNameInvalidReason res = ObjectMgr::CheckPetName(name);
@@ -560,8 +560,8 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
     pet->RemovePetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED);
 
-    petStable->CurrentPet->Name = name;
-    petStable->CurrentPet->WasRenamed = true;
+    petStable->GetCurrentPet()->Name = name;
+    petStable->GetCurrentPet()->WasRenamed = true;
 
     if (declinedname)
     {
