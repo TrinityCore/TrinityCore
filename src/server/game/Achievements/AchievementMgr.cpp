@@ -1149,7 +1149,7 @@ void AchievementGlobalMgr::LoadAchievementScripts()
 {
     uint32 oldMSTime = getMSTime();
 
-    _achievementScriptStore.clear();                            // need for reload case
+    _achievementScripts.clear();                            // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT AchievementId, ScriptName FROM achievement_scripts");
     if (!result)
@@ -1163,19 +1163,19 @@ void AchievementGlobalMgr::LoadAchievementScripts()
         Field* fields = result->Fetch();
 
         uint32 achievementId         = fields[0].GetUInt32();
-        std::string const scriptName = fields[1].GetString();
+        std::string scriptName       = fields[1].GetString();
 
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
         {
-            TC_LOG_ERROR("sql.sql", "Achievement (ID: %u) does not exist in `Achievement.db2`.", achievementId);
+            TC_LOG_ERROR("sql.sql", "Table `achievement_scripts` contains non-existing Achievement (ID: %u), skipped.", achievementId);
             continue;
         }
-        _achievementScriptStore[achievementId] = sObjectMgr->GetScriptId(scriptName);
+        _achievementScripts[achievementId] = sObjectMgr->GetScriptId(scriptName);
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " achievement scripts in %u ms", _achievementScriptStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " achievement scripts in %u ms", _achievementScripts.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
@@ -1379,8 +1379,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
 uint32 AchievementGlobalMgr::GetAchievementScriptId(uint32 achievementId) const
 {
-    AchievementScriptContainer::const_iterator i = _achievementScriptStore.find(achievementId);
-    if (i!= _achievementScriptStore.end())
-        return i->second;
+    if (uint32 const* scriptId = Trinity::Containers::MapGetValuePtr(_achievementScripts, achievementId))
+        return *scriptId;
     return 0;
 }

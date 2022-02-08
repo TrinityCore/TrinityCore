@@ -13,7 +13,12 @@ CREATE TABLE `achievement_scripts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
-DELETE FROM `achievement_scripts` WHERE `AchievementId` IN (6566, 7433);
+-- Dumping data for table `achievement_scripts`
+--
+LOCK TABLES `achievement_scripts` WRITE;
+/*!40000 ALTER TABLE `achievement_scripts` DISABLE KEYS */;
 INSERT INTO `achievement_scripts` (`AchievementId`, `ScriptName`) VALUES
 (6566,'achievement_just_a_pup'),
 (7433,'achievement_newbie');
+/*!40000 ALTER TABLE `achievement_scripts` ENABLE KEYS */;
+UNLOCK TABLES;

@@ -180,7 +180,7 @@ private:
 
     std::unordered_map<uint32, AchievementReward> _achievementRewards;
     std::unordered_map<uint32, AchievementRewardLocale> _achievementRewardLocales;
-    AchievementScriptContainer _achievementScriptStore;
+    std::unordered_map<uint32, uint32> _achievementScripts;
 };
 
 #define sAchievementMgr AchievementGlobalMgr::Instance()

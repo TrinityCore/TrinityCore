@@ -291,27 +291,29 @@ class achievement_killed_exp_or_honor_target : public AchievementCriteriaScript
         }
 };
 
+// 7433 - Newbie
 class achievement_newbie : public AchievementScript
 {
-    public:
-        achievement_newbie() : AchievementScript("achievement_newbie") { }
+public:
+    achievement_newbie() : AchievementScript("achievement_newbie") { }
 
-        void OnCompleted(Player* player, AchievementEntry const* /*achievement*/) override
-        {
-            player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePets::BattlePetSlot::Slot1);
-            // TODO: Unlock trap
-        }
+    void OnCompleted(Player* player, AchievementEntry const* /*achievement*/) override
+    {
+        player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePets::BattlePetSlot::Slot1);
+        // TODO: Unlock trap
+    }
 };
 
+// 6566 - Just a Pup
 class achievement_just_a_pup : public AchievementScript
 {
-    public:
-        achievement_just_a_pup() : AchievementScript("achievement_just_a_pup") { }
+public:
+    achievement_just_a_pup() : AchievementScript("achievement_just_a_pup") { }
 
-        void OnCompleted(Player* player, AchievementEntry const* /*achievement*/) override
-        {
-            player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePets::BattlePetSlot::Slot2);
-        }
+    void OnCompleted(Player* player, AchievementEntry const* /*achievement*/) override
+    {
+        player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePets::BattlePetSlot::Slot2);
+    }
 };
 
 void AddSC_achievement_scripts()
