@@ -152,8 +152,6 @@ class TC_GAME_API AchievementGlobalMgr
 public:
     static AchievementGlobalMgr* Instance();
 
-    typedef std::unordered_map<uint32, uint32> AchievementScriptContainer;
-
     std::vector<AchievementEntry const*> const* GetAchievementByReferencedId(uint32 id) const;
     AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const;
     AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const;
