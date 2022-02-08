@@ -67,7 +67,7 @@ public:
     {
         go_gilded_brazierAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
             {
@@ -101,7 +101,7 @@ public:
         go_tablet_of_the_sevenAI(GameObject* go) : GameObjectAI(go) { }
 
         /// @todo use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
                 return true;
@@ -148,7 +148,7 @@ public:
     {
         go_ethereum_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             int Random = rand32() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
@@ -208,7 +208,7 @@ public:
     {
         go_ethereum_stasisAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             int Random = rand32() % (sizeof(NpcStasisEntry) / sizeof(uint32));
@@ -244,7 +244,7 @@ public:
     {
         go_resonite_caskAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
                 me->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5min);
@@ -279,7 +279,7 @@ public:
     {
         go_southfury_moonstoneAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
             //player->CastSpell(player, SPELL_SUMMON_RIZZLE, false);
@@ -318,7 +318,7 @@ public:
     {
         go_tele_to_dalaran_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
                 return false;
@@ -347,7 +347,7 @@ public:
     {
         go_tele_to_violet_standAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || player->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
                 return false;
@@ -392,7 +392,7 @@ public:
     {
         go_matrix_punchographAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             switch (me->GetEntry())
             {
@@ -455,7 +455,7 @@ public:
     {
         go_scourge_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             if (Creature* pNearestPrisoner = me->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
@@ -493,7 +493,7 @@ public:
     {
         go_arcane_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
             {
@@ -530,7 +530,7 @@ public:
     {
         go_blood_filled_orbAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
                 player->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
@@ -561,7 +561,7 @@ public:
     {
         go_table_thekaAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
                 player->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
@@ -592,7 +592,7 @@ class go_soulwell : public GameObjectScript
             {
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 Unit* owner = me->GetOwner();
                 if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !player->IsInSameRaidWith(owner->ToPlayer()))
@@ -635,7 +635,7 @@ public:
     {
         go_amberpine_outhouseAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             QuestStatus status = player->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
             if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
@@ -649,7 +649,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -702,7 +702,7 @@ public:
     {
         go_hive_podAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             player->SendLoot(me->GetGUID(), LOOT_CORPSE);
             me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
@@ -726,7 +726,7 @@ class go_massive_seaforium_charge : public GameObjectScript
         {
             go_massive_seaforium_chargeAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->SetLootState(GO_JUST_DEACTIVATED);
                 return true;
@@ -759,7 +759,7 @@ class go_veil_skith_cage : public GameObjectScript
        {
            go_veil_skith_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-           bool GossipHello(Player* player) override
+           bool OnGossipHello(Player* player) override
            {
                me->UseDoorOrButton();
                if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
@@ -806,7 +806,7 @@ public:
     {
         go_frostblade_shrineAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton(10);
             if (!player->HasAura(SPELL_RECENT_MEDITATION))
@@ -845,7 +845,7 @@ public:
     {
         go_midsummer_bonfireAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             player->CastSpell(player, STAMP_OUT_BONFIRE_QUEST_COMPLETE, true);
             CloseGossipMenuFor(player);
@@ -884,7 +884,7 @@ public:
     {
         go_midsummer_ribbon_poleAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (Creature* creature = me->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
             {

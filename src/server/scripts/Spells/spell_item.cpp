@@ -755,8 +755,7 @@ class spell_item_goblin_weather_machine : public SpellScript
 
         uint32 spellId = RAND(SPELL_PERSONALIZED_WEATHER1, SPELL_PERSONALIZED_WEATHER2, SPELL_PERSONALIZED_WEATHER3,
                               SPELL_PERSONALIZED_WEATHER4);
-        target->CastSpell(target, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCastId(GetSpell()->m_castId));
+        target->CastSpell(target, spellId, GetSpell());
     }
 
     void Register() override
@@ -4003,8 +4002,7 @@ class spell_item_mirrens_drinking_hat : public SpellScript
         }
 
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCastId(GetSpell()->m_castId));
+        caster->CastSpell(caster, spellId, GetSpell());
     }
 
     void Register() override

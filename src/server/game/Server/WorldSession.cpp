@@ -912,7 +912,7 @@ void WorldSession::SendTutorialsData()
     SendPacket(packet.Write());
 }
 
-void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction& trans)
+void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
 {
     if (!(_tutorialsChanged & TUTORIALS_FLAG_CHANGED))
         return;
@@ -931,7 +931,7 @@ void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction& trans)
     _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
 }
 
-bool WorldSession::IsAddonRegistered(const std::string& prefix) const
+bool WorldSession::IsAddonRegistered(std::string_view prefix) const
 {
     if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
         return true;

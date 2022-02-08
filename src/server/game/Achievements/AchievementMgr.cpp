@@ -317,7 +317,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
     }
 }
 
-void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     if (!_completedAchievements.empty())
     {
@@ -805,7 +805,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
     }
 }
 
-void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt;
     std::ostringstream guidstr;

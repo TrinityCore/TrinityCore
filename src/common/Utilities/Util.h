@@ -25,6 +25,7 @@
 #include <array>
 #include <string>
 #include <string_view>
+#include <typeinfo>
 #include <utility>
 #include <vector>
 
@@ -369,13 +370,20 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
 TC_COMMON_API float DegToRad(float degrees);
 
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
-TC_COMMON_API bool StringStartsWith(std::string_view haystack, std::string_view needle);
+inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
+inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
 template <typename T>
 inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)
 {
     return StringContainsStringI(haystack.second, needle);
 }
+TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
+
+struct StringCompareLessI_T
+{
+    bool operator()(std::string_view a, std::string_view b) const { return StringCompareLessI(a, b); }
+};
 
 // simple class for not-modifyable list
 template <typename T>
@@ -597,6 +605,12 @@ Ret* Coalesce(T1* first, T*... rest)
     else
         return static_cast<Ret*>(first);
 }
+
+TC_COMMON_API std::string GetTypeName(std::type_info const&);
+template <typename T>
+std::string GetTypeName() { return GetTypeName(typeid(T)); }
+template <typename T>
+std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::type_info>, std::string> GetTypeName(T&& v) { return GetTypeName(typeid(v)); }
 
 template<typename T>
 struct NonDefaultConstructible

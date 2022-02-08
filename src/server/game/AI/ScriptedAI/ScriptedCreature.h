@@ -388,9 +388,9 @@ inline Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, 
     return source->FindNearestCreature(entry, maxSearchRange, alive);
 }
 
-inline GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange)
+inline GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool spawnedOnly = true)
 {
-    return source->FindNearestGameObject(entry, maxSearchRange);
+    return source->FindNearestGameObject(entry, maxSearchRange, spawnedOnly);
 }
 
 template <typename Container>

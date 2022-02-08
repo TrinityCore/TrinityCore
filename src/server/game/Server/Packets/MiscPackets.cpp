@@ -741,3 +741,33 @@ WorldPacket const* WorldPackets::Misc::SplashScreenShowLatest::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
+{
+    _worldPacket << uint64(Quantity);
+    _worldPacket << uint8(AsUnderlyingType(DisplayToastMethod));
+    _worldPacket << uint32(QuestID);
+
+    _worldPacket.WriteBit(Mailed);
+    _worldPacket.WriteBits(AsUnderlyingType(Type), 2);
+    _worldPacket.WriteBit(IsSecondaryResult);
+
+    switch (Type)
+    {
+        case DisplayToastType::NewItem:
+            _worldPacket.WriteBit(BonusRoll);
+            _worldPacket << Item;
+            _worldPacket << int32(LootSpec);
+            _worldPacket << int32(Gender);
+            break;
+        case DisplayToastType::NewCurrency:
+            _worldPacket << uint32(CurrencyID);
+            break;
+        default:
+            break;
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

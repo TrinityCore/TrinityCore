@@ -178,7 +178,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     }
 
     _player->PlayerTalkClass->ClearMenus();
-    if (!unit->AI()->GossipHello(_player))
+    if (!unit->AI()->OnGossipHello(_player))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
@@ -242,12 +242,12 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     {
         if (unit)
         {
-            if (!unit->AI()->GossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
+            if (!unit->AI()->OnGossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
                 _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
         }
         else
         {
-            if (!go->AI()->GossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
+            if (!go->AI()->OnGossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
                 _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
         }
     }
@@ -255,12 +255,12 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     {
         if (unit)
         {
-            if (!unit->AI()->GossipSelect(_player, packet.GossipID, packet.GossipIndex))
+            if (!unit->AI()->OnGossipSelect(_player, packet.GossipID, packet.GossipIndex))
                 _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
         }
         else
         {
-            if (!go->AI()->GossipSelect(_player, packet.GossipID, packet.GossipIndex))
+            if (!go->AI()->OnGossipSelect(_player, packet.GossipID, packet.GossipIndex))
                 _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
         }
     }

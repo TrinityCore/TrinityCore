@@ -338,9 +338,12 @@ constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
-    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
-        if (mask & GetMaskForSchool(school))
-            return school;
+    // Do not use EnumUtils to iterate
+    // this can cause some compilers to instantiate Trinity::Impl::EnumUtils<SpellSchools>
+    // when compiling enuminfo_SharedDefines before their explicit specializations in that file
+    for (uint16 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        if (mask & (1 << i))
+            return SpellSchools(i);
 
     return SPELL_SCHOOL_NORMAL;
 }
@@ -683,11 +686,11 @@ enum SpellAttr7 : uint32
     SPELL_ATTR7_UNK20                            = 0x00100000, // TITLE Unknown attribute 20@Attr7 DESCRIPTION Invulnerability related?
     SPELL_ATTR7_UNK21                            = 0x00200000, // TITLE Unknown attribute 21@Attr7
     SPELL_ATTR7_IGNORES_COLD_WEATHER_FLYING_REQUIREMENT = 0x00400000, // TITLE Ignores Cold Weather Flying Requirement
-    SPELL_ATTR7_UNK23                            = 0x00800000, // TITLE Unknown attribute 23@Attr7
-    SPELL_ATTR7_UNK24                            = 0x01000000, // TITLE Unknown attribute 24@Attr7
-    SPELL_ATTR7_UNK25                            = 0x02000000, // TITLE Unknown attribute 25@Attr7
+    SPELL_ATTR7_NO_ATTACK_DODGE                  = 0x00800000, // TITLE No Attack Dodge
+    SPELL_ATTR7_NO_ATTACK_PARRY                  = 0x01000000, // TITLE No Attack Parry
+    SPELL_ATTR7_NO_ATTACK_MISS                   = 0x02000000, // TITLE No Attack Miss
     SPELL_ATTR7_UNK26                            = 0x04000000, // TITLE Unknown attribute 26@Attr7
-    SPELL_ATTR7_UNK27                            = 0x08000000, // TITLE Unknown attribute 27@Attr7
+    SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA         = 0x08000000, // TITLE Bypass No Resurrect Aura
     SPELL_ATTR7_CONSOLIDATED_RAID_BUFF           = 0x10000000, // TITLE Consolidate in raid buff frame (client only)
     SPELL_ATTR7_UNK29                            = 0x20000000, // TITLE Unknown attribute 29@Attr7
     SPELL_ATTR7_UNK30                            = 0x40000000, // TITLE Unknown attribute 30@Attr7
@@ -1422,6 +1425,7 @@ enum SpellEffectName
     TOTAL_SPELL_EFFECTS
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellCastResult
 {
     SPELL_FAILED_SUCCESS                                        = 0,
@@ -1740,7 +1744,7 @@ enum SpellCastResult
     SPELL_FAILED_UNKNOWN                                        = 313,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
-    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
+    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
 };
 
 enum SpellCustomErrors
@@ -2381,6 +2385,7 @@ enum GhostVisibilityType
 };
 
 // Spell aura states
+// EnumUtils: DESCRIBE THIS
 enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
@@ -5643,6 +5648,7 @@ enum WeatherType
 
 #define MAX_WEATHER_TYPE 4
 
+// EnumUtils: DESCRIBE THIS
 enum ChatMsg : int32
 {
     CHAT_MSG_ADDON                              = -1,

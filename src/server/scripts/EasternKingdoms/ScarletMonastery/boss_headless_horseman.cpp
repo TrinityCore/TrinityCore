@@ -898,7 +898,7 @@ struct go_loosely_turned_soil : public GameObjectAI
 {
     go_loosely_turned_soil(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-    bool GossipHello(Player* player) override
+    bool OnGossipHello(Player* player) override
     {
         if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS || player->GetQuestStatus(QUEST_CALL_THE_HEADLESS_HORSEMAN) != QUEST_STATUS_COMPLETE)
             return true;
@@ -906,7 +906,7 @@ struct go_loosely_turned_soil : public GameObjectAI
         return false;
     }
 
-    void QuestReward(Player* player, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) override
+    void OnQuestReward(Player* player, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) override
     {
         if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS)
             return;

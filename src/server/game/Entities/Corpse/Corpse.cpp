@@ -146,12 +146,12 @@ void Corpse::SaveToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Corpse::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void Corpse::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromDB(GetOwnerGUID(), trans);
 }
 
-void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction& trans)
+void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
     stmt->setUInt64(0, ownerGuid.GetCounter());
@@ -186,7 +186,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
-    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', EQUIPMENT_SLOT_END);
+    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     if (items.size() == EQUIPMENT_SLOT_END)
         for (uint32 index = 0; index < EQUIPMENT_SLOT_END; ++index)
             SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
