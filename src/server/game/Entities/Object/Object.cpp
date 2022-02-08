@@ -2734,6 +2734,9 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
         spell->SetSpellValue(pair.first, pair.second);
 
     spell->m_CastItem = args.CastItem;
+    if (args.OriginalCastItemLevel)
+        spell->m_castItemLevel = *args.OriginalCastItemLevel;
+
     return spell->prepare(*targets.Targets, args.TriggeringAura);
 }
 
