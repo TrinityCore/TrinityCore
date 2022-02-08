@@ -446,7 +446,7 @@ enum Miscellanea
     DATA_MELEE_COMBO_SWITCH_TO_RANGED                   = 3,
     DATA_MELEE_COMBO_FINISH                             = 4,
 
-    DATA_CHANGE_SHEATHE_UNARMED                         = 0,               
+    DATA_CHANGE_SHEATHE_UNARMED                         = 0,
     DATA_CHANGE_SHEATHE_DAGGERS                         = 1,
     DATA_CHANGE_SHEATHE_BOW                             = 2,
     DATA_CHANGE_NAMEPLATE_TO_COPY                       = 3,
@@ -2537,7 +2537,7 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool DrawDesecratingShotPattern(int8 pattern, int32 amount, int32 step, Position pos, float orientation) 
+    bool DrawDesecratingShotPattern(int8 pattern, int32 amount, int32 step, Position pos, float orientation)
     {
         switch (pattern)
         {
@@ -2752,7 +2752,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 break;
         }
     }
-    
+
     Position const GetMiddlePointInCurrentPlatform()
     {
        for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
@@ -3814,7 +3814,7 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
                     if (sylvanas->IsInCombat())
                     {
                         GetTarget()->SendPlaySpellVisual(bansheeBaneDest, 0.0f, SPELL_VISUAL_BANSHEES_BANE_DROP, 0, 0, 0.349999994039535522f, true);
-                    
+
                         sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500ms));
                     }
                 }
@@ -5951,15 +5951,15 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_dagger);
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_shot);
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_strike);
-    RegisterAuraScript(spell_sylvanas_windrunner_disappear);
+    RegisterSpellScript(spell_sylvanas_windrunner_disappear);
     RegisterSpellScript(spell_sylvanas_windrunner_withering_fire);
     RegisterSpellScript(spell_sylvanas_windrunner_desecrating_shot);
     RegisterSpellAndAuraScriptPair(spell_sylvanas_windrunner_ranger_heartseeker, spell_sylvanas_windrunner_ranger_heartseeker_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_domination_chains);
     RegisterSpellScript(spell_sylvanas_windrunner_domination_arrow);
-    RegisterAuraScript(spell_sylvanas_windrunner_domination_chain);
-    RegisterAuraScript(spell_sylvanas_windrunner_domination_chain_periodic);
+    RegisterSpellScript(spell_sylvanas_windrunner_domination_chain);
+    RegisterSpellScript(spell_sylvanas_windrunner_domination_chain_periodic);
     RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow);
     RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_fade);
@@ -5967,17 +5967,17 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_rive);
     RegisterSpellScript(spell_sylvanas_windrunner_rive_fast);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail);
-    RegisterAuraScript(spell_sylvanas_windrunner_banshee_wail_marker);
+    RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_marker);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_triggered_missile);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_interrupt);
     RegisterSpellScript(spell_sylvanas_windrunner_haunting_wave);
-    RegisterAuraScript(spell_sylvanas_windrunner_ruin);
+    RegisterSpellScript(spell_sylvanas_windrunner_ruin);
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
-    RegisterAuraScript(spell_sylvanas_windrunner_banshee_bane);
-    RegisterAuraScript(spell_sylvanas_windrunner_banshee_fury);
+    RegisterSpellScript(spell_sylvanas_windrunner_banshee_bane);
+    RegisterSpellScript(spell_sylvanas_windrunner_banshee_fury);
     RegisterSpellScript(spell_sylvanas_windrunner_raze);
 
-    RegisterAuraScript(spell_sylvanas_windrunner_energize_power_aura);
+    RegisterSpellScript(spell_sylvanas_windrunner_energize_power_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_finish_boss);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_invigorating_fields);
@@ -5994,15 +5994,15 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_stonecrash_phase_two);
 
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_jaina);
-    RegisterAuraScript(spell_sylvanas_windrunner_frigid_shards);
+    RegisterSpellScript(spell_sylvanas_windrunner_frigid_shards);
     RegisterSpellScript(spell_sylvanas_windrunner_comet_barrage);
     RegisterSpellScript(spell_sylvanas_windrunner_teleport_to_phase_two);
     RegisterSpellScript(spell_sylvanas_windrunner_teleport_to_phase_three);
     RegisterSpellScript(spell_sylvanas_windrunner_teleport);
 
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_anduin);
-    RegisterAuraScript(spell_sylvanas_windrunner_blasphemy_pre);
-    RegisterAuraScript(spell_sylvanas_windrunner_blasphemy);
+    RegisterSpellScript(spell_sylvanas_windrunner_blasphemy_pre);
+    RegisterSpellScript(spell_sylvanas_windrunner_blasphemy);
 
     RegisterAreaTriggerAI(at_sylvanas_windrunner_disecrating_shot);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_rive);
