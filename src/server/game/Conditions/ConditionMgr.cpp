@@ -2837,11 +2837,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->SkillID[0] || condition->SkillID[1] || condition->SkillID[2] || condition->SkillID[3])
     {
-        using SkillCount = std::extent<decltype(condition->SkillID)>;
-
-        std::array<bool, SkillCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->SkillID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < SkillCount::value; ++i)
+        for (std::size_t i = 0; i < condition->SkillID.size(); ++i)
         {
             if (condition->SkillID[i])
             {
@@ -2872,7 +2870,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             return false;
     }
 
-    if (condition->MinFactionID[0] && condition->MinFactionID[1] && condition->MinFactionID[2] && condition->MaxFactionID)
+    if (condition->MinFactionID[0] || condition->MinFactionID[1] || condition->MinFactionID[2] || condition->MaxFactionID)
     {
         if (!condition->MinFactionID[0] && !condition->MinFactionID[1] && !condition->MinFactionID[2])
         {
@@ -2886,11 +2884,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         }
         else
         {
-            using FactionCount = std::extent<decltype(condition->MinFactionID)>;
-
-            std::array<bool, FactionCount::value + 1> results;
+            std::array<bool, std::tuple_size_v<decltype(condition->MinFactionID)> + 1> results;
             results.fill(true);
-            for (std::size_t i = 0; i < FactionCount::value; ++i)
+            for (std::size_t i = 0; i < condition->MinFactionID.size(); ++i)
             {
                 if (condition->MinFactionID[i])
                 {
@@ -2962,11 +2958,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->PrevQuestID[0])
     {
-        using PrevQuestCount = std::extent<decltype(condition->PrevQuestID)>;
-
-        std::array<bool, PrevQuestCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->PrevQuestID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < PrevQuestCount::value; ++i)
+        for (std::size_t i = 0; i < condition->PrevQuestID.size(); ++i)
             if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
                 results[i] = (player->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))) != 0;
 
@@ -2976,11 +2970,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->CurrQuestID[0])
     {
-        using CurrQuestCount = std::extent<decltype(condition->CurrQuestID)>;
-
-        std::array<bool, CurrQuestCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->CurrQuestID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < CurrQuestCount::value; ++i)
+        for (std::size_t i = 0; i < condition->CurrQuestID.size(); ++i)
             if (condition->CurrQuestID[i])
                 results[i] = player->FindQuestSlot(condition->CurrQuestID[i]) != MAX_QUEST_LOG_SIZE;
 
@@ -2990,11 +2982,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->CurrentCompletedQuestID[0])
     {
-        using CurrentCompletedQuestCount = std::extent<decltype(condition->CurrentCompletedQuestID)>;
-
-        std::array<bool, CurrentCompletedQuestCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->CurrentCompletedQuestID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < CurrentCompletedQuestCount::value; ++i)
+        for (std::size_t i = 0; i < condition->CurrentCompletedQuestID.size(); ++i)
             if (condition->CurrentCompletedQuestID[i])
                 results[i] = player->GetQuestStatus(condition->CurrentCompletedQuestID[i]) == QUEST_STATUS_COMPLETE;
 
@@ -3005,11 +2995,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->SpellID[0])
     {
-        using SpellCount = std::extent<decltype(condition->SpellID)>;
-
-        std::array<bool, SpellCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->SpellID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < SpellCount::value; ++i)
+        for (std::size_t i = 0; i < condition->SpellID.size(); ++i)
             if (condition->SpellID[i])
                 results[i] = player->HasSpell(condition->SpellID[i]);
 
@@ -3019,11 +3007,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->ItemID[0])
     {
-        using ItemCount = std::extent<decltype(condition->ItemID)>;
-
-        std::array<bool, ItemCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->ItemID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < ItemCount::value; ++i)
+        for (std::size_t i = 0; i < condition->ItemID.size(); ++i)
             if (condition->ItemID[i])
                 results[i] = player->GetItemCount(condition->ItemID[i], condition->ItemFlags != 0) >= condition->ItemCount[i];
 
@@ -3033,11 +3019,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->CurrencyID[0])
     {
-        using CurrencyCount = std::extent<decltype(condition->CurrencyID)>;
-
-        std::array<bool, CurrencyCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->CurrencyID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < CurrencyCount::value; ++i)
+        for (std::size_t i = 0; i < condition->CurrencyID.size(); ++i)
             if (condition->CurrencyID[i])
                 results[i] = player->GetCurrency(condition->CurrencyID[i]) >= condition->CurrencyCount[i];
 
@@ -3047,23 +3031,17 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->Explored[0] || condition->Explored[1])
     {
-        using ExploredCount = std::extent<decltype(condition->Explored)>;
-
-        for (std::size_t i = 0; i < ExploredCount::value; ++i)
-        {
+        for (std::size_t i = 0; i < condition->Explored.size(); ++i)
             if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(condition->Explored[i]))
                 if (area->AreaBit != -1 && !(player->m_activePlayerData->ExploredZones[area->AreaBit / 64] & (UI64LIT(1) << (uint32(area->AreaBit) % 64))))
                     return false;
-        }
     }
 
     if (condition->AuraSpellID[0])
     {
-        using AuraCount = std::extent<decltype(condition->AuraSpellID)>;
-
-        std::array<bool, AuraCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->AuraSpellID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < AuraCount::value; ++i)
+        for (std::size_t i = 0; i < condition->AuraSpellID.size(); ++i)
         {
             if (condition->AuraSpellID[i])
             {
@@ -3108,11 +3086,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->Achievement[0])
     {
-        using AchievementCount = std::extent<decltype(condition->Achievement)>;
-
-        std::array<bool, AchievementCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->Achievement)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < AchievementCount::value; ++i)
+        for (std::size_t i = 0; i < condition->Achievement.size(); ++i)
         {
             if (condition->Achievement[i])
             {
@@ -3128,11 +3104,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LfgStatus[0])
     {
-        using LfgCount = std::extent<decltype(condition->LfgStatus)>;
-
-        std::array<bool, LfgCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->LfgStatus)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < LfgCount::value; ++i)
+        for (std::size_t i = 0; i < condition->LfgStatus.size(); ++i)
             if (condition->LfgStatus[i])
                 results[i] = PlayerConditionCompare(condition->LfgCompare[i],
                     GetPlayerConditionLfgValue(player, PlayerConditionLfgStatus(condition->LfgStatus[i])),
@@ -3144,11 +3118,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->AreaID[0])
     {
-        using AreaCount = std::extent<decltype(condition->AreaID)>;
-
-        std::array<bool, AreaCount::value> results;
+        std::array<bool, std::tuple_size_v<decltype(condition->AreaID)>> results;
         results.fill(true);
-        for (std::size_t i = 0; i < AreaCount::value; ++i)
+        for (std::size_t i = 0; i < condition->AreaID.size(); ++i)
             if (condition->AreaID[i])
                 results[i] = player->GetAreaId() == condition->AreaID[i] || player->GetZoneId() == condition->AreaID[i];
 
@@ -3177,11 +3149,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         uint16 questSlot = player->FindQuestSlot(condition->QuestKillID);
         if (quest && player->GetQuestStatus(condition->QuestKillID) != QUEST_STATUS_COMPLETE && questSlot < MAX_QUEST_LOG_SIZE)
         {
-            using QuestKillCount = std::extent<decltype(condition->QuestKillMonster)>;
-
-            std::array<bool, QuestKillCount::value> results;
+            std::array<bool, std::tuple_size_v<decltype(condition->QuestKillMonster)>> results;
             results.fill(true);
-            for (std::size_t i = 0; i < QuestKillCount::value; ++i)
+            for (std::size_t i = 0; i < condition->QuestKillMonster.size(); ++i)
             {
                 if (condition->QuestKillMonster[i])
                 {
