@@ -2879,7 +2879,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
                 if (*forcedRank > ReputationRank(condition->MaxReputation))
                     return false;
             }
-            else if (player->GetReputationRank(condition->MaxFactionID) > ReputationRank(condition->MaxReputation))
+            else if (sFactionStore.HasRecord(condition->MaxReputation) && player->GetReputationRank(condition->MaxFactionID) > ReputationRank(condition->MaxReputation))
                 return false;
         }
         else
@@ -2888,7 +2888,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             results.fill(true);
             for (std::size_t i = 0; i < condition->MinFactionID.size(); ++i)
             {
-                if (condition->MinFactionID[i])
+                if (sFactionStore.HasRecord(condition->MinFactionID[i]))
                 {
                     if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MinFactionID[i]))
                         results[i] = *forcedRank >= ReputationRank(condition->MinReputation[i]);
@@ -2899,7 +2899,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
             if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MaxFactionID))
                 results[3] = *forcedRank <= ReputationRank(condition->MaxReputation);
-            else
+            else if (sFactionStore.HasRecord(condition->MaxReputation))
                 results[3] = player->GetReputationRank(condition->MaxFactionID) <= ReputationRank(condition->MaxReputation);
 
             if (!PlayerConditionLogic(condition->ReputationLogic, results))
