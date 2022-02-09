@@ -144,7 +144,7 @@ struct BattlePet
     BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
 };
 
-class BattlePetMgr
+class TC_GAME_API BattlePetMgr
 {
 public:
     explicit BattlePetMgr(WorldSession* owner);
