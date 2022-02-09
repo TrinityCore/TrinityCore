@@ -148,6 +148,8 @@ class TC_GAME_API BattlePetMgr
 {
 public:
     explicit BattlePetMgr(WorldSession* owner);
+    BattlePetMgr(BattlePetMgr const& right) = delete;
+    BattlePetMgr(BattlePetMgr&& right) = delete;
 
     static void Initialize();
 
