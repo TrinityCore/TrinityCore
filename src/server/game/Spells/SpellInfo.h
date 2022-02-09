@@ -20,7 +20,6 @@
 
 #include "SharedDefines.h"
 #include "DB2Structure.h"
-#include "Util.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
 #include "SpellDefines.h"

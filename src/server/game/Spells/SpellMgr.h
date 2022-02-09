@@ -23,10 +23,11 @@
 #include "Define.h"
 #include "DBCEnums.h"
 #include "Duration.h"
+#include "Errors.h"
+#include "FlagsArray.h"
 #include "IteratorPair.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
-#include "Util.h"
 
 #include <functional>
 #include <map>
