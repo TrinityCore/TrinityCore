@@ -1480,8 +1480,8 @@ void SpellMgr::LoadSpellProcs()
 
     //                                                     0           1                2                 3                 4                 5                 6
     QueryResult result = WorldDatabase.Query("SELECT SpellId, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, SpellFamilyMask3, "
-    //           7              8               9       10              11                  12              13      14        15       16
-        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, DisableEffectsMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
+    //           7           8              9              10       11              12                  13              14      15        16       17
+        "ProcFlags, ProcFlags2, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, DisableEffectsMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
 
     uint32 count = 0;
     if (result)
@@ -1526,16 +1526,17 @@ void SpellMgr::LoadSpellProcs()
             baseProcEntry.SpellFamilyMask[1] = fields[4].GetUInt32();
             baseProcEntry.SpellFamilyMask[2] = fields[5].GetUInt32();
             baseProcEntry.SpellFamilyMask[3] = fields[6].GetUInt32();
-            baseProcEntry.ProcFlags          = fields[7].GetUInt32();
-            baseProcEntry.SpellTypeMask      = fields[8].GetUInt32();
-            baseProcEntry.SpellPhaseMask     = fields[9].GetUInt32();
-            baseProcEntry.HitMask            = fields[10].GetUInt32();
-            baseProcEntry.AttributesMask     = fields[11].GetUInt32();
-            baseProcEntry.DisableEffectsMask = fields[12].GetUInt32();
-            baseProcEntry.ProcsPerMinute     = fields[13].GetFloat();
-            baseProcEntry.Chance             = fields[14].GetFloat();
-            baseProcEntry.Cooldown           = Milliseconds(fields[15].GetUInt32());
-            baseProcEntry.Charges            = fields[16].GetUInt8();
+            baseProcEntry.ProcFlags[0]       = fields[7].GetUInt32();
+            baseProcEntry.ProcFlags[1]       = fields[8].GetUInt32();
+            baseProcEntry.SpellTypeMask      = fields[9].GetUInt32();
+            baseProcEntry.SpellPhaseMask     = fields[10].GetUInt32();
+            baseProcEntry.HitMask            = fields[11].GetUInt32();
+            baseProcEntry.AttributesMask     = fields[12].GetUInt32();
+            baseProcEntry.DisableEffectsMask = fields[13].GetUInt32();
+            baseProcEntry.ProcsPerMinute     = fields[14].GetFloat();
+            baseProcEntry.Chance             = fields[15].GetFloat();
+            baseProcEntry.Cooldown           = Milliseconds(fields[16].GetUInt32());
+            baseProcEntry.Charges            = fields[17].GetUInt8();
 
             while (spellInfo)
             {
@@ -1781,7 +1782,8 @@ void SpellMgr::LoadSpellProcs()
             {
                 if (spellEffectInfo.IsAura())
                 {
-                    TC_LOG_ERROR("sql.sql", "Spell Id %u has DBC ProcFlags %u, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.", spellInfo.Id, spellInfo.ProcFlags);
+                    TC_LOG_ERROR("sql.sql", "Spell Id %u has DBC ProcFlags 0x%X 0x%X, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.",
+                        spellInfo.Id, spellInfo.ProcFlags[0], spellInfo.ProcFlags[1]);
                     break;
                 }
             }
@@ -2772,13 +2774,13 @@ void SpellMgr::LoadSpellInfoServerside()
         "ExcludeCasterAuraState, ExcludeTargetAuraState, CasterAuraSpell, TargetAuraSpell, ExcludeCasterAuraSpell, ExcludeTargetAuraSpell, CastingTimeIndex, "
     //   35            36                    37                     38                 39              40                   41
         "RecoveryTime, CategoryRecoveryTime, StartRecoveryCategory, StartRecoveryTime, InterruptFlags, AuraInterruptFlags1, AuraInterruptFlags2, "
-    //   42                      43                      44         45          46           47            48           49        50         51
-        "ChannelInterruptFlags1, ChannelInterruptFlags2, ProcFlags, ProcChance, ProcCharges, ProcCooldown, ProcBasePPM, MaxLevel, BaseLevel, SpellLevel, "
-    //   52             53          54     55           56           57                 58                        59                             60
+    //   42                      43                      44         45          46          47           48            49           50        51         52
+        "ChannelInterruptFlags1, ChannelInterruptFlags2, ProcFlags, ProcFlags2, ProcChance, ProcCharges, ProcCooldown, ProcBasePPM, MaxLevel, BaseLevel, SpellLevel, "
+    //   35             54          55     56           57           58                 59                        60                             61
         "DurationIndex, RangeIndex, Speed, LaunchDelay, StackAmount, EquippedItemClass, EquippedItemSubClassMask, EquippedItemInventoryTypeMask, ContentTuningId, "
-    //   61         62         63         64              65                  66               67                 68                 69                 70
+    //   62         63         64         65              66                  67               68                 69                 70                 71
         "SpellName, ConeAngle, ConeWidth, MaxTargetLevel, MaxAffectedTargets, SpellFamilyName, SpellFamilyFlags1, SpellFamilyFlags2, SpellFamilyFlags3, SpellFamilyFlags4, "
-    //   71        72              73           74          75
+    //   72        73              74           75          76
         "DmgClass, PreventionType, AreaGroupId, SchoolMask, ChargeCategoryId FROM serverside_spell");
     if (spellsResult)
     {
@@ -2796,7 +2798,7 @@ void SpellMgr::LoadSpellInfoServerside()
                 continue;
             }
 
-            mServersideSpellNames.emplace_back(spellId, fields[61].GetString());
+            mServersideSpellNames.emplace_back(spellId, fields[62].GetString());
 
             SpellInfo& spellInfo = const_cast<SpellInfo&>(*mSpellInfoMap.emplace(&mServersideSpellNames.back().Name, difficulty, spellEffects[{ spellId, difficulty }]).first);
             spellInfo.CategoryId = fields[2].GetUInt32();
@@ -2841,34 +2843,35 @@ void SpellMgr::LoadSpellInfoServerside()
             spellInfo.AuraInterruptFlags2 = SpellAuraInterruptFlags2(fields[41].GetUInt32());
             spellInfo.ChannelInterruptFlags = SpellAuraInterruptFlags(fields[42].GetUInt32());
             spellInfo.ChannelInterruptFlags2 = SpellAuraInterruptFlags2(fields[43].GetUInt32());
-            spellInfo.ProcFlags = fields[44].GetUInt32();
-            spellInfo.ProcChance = fields[45].GetUInt32();
-            spellInfo.ProcCharges = fields[46].GetUInt32();
-            spellInfo.ProcCooldown = fields[47].GetUInt32();
-            spellInfo.ProcBasePPM = fields[48].GetFloat();
-            spellInfo.MaxLevel = fields[49].GetUInt32();
-            spellInfo.BaseLevel = fields[50].GetUInt32();
-            spellInfo.SpellLevel = fields[51].GetUInt32();
-            spellInfo.DurationEntry = sSpellDurationStore.LookupEntry(fields[52].GetUInt32());
-            spellInfo.RangeEntry = sSpellRangeStore.LookupEntry(fields[53].GetUInt32());
-            spellInfo.Speed = fields[54].GetFloat();
-            spellInfo.LaunchDelay = fields[55].GetFloat();
-            spellInfo.StackAmount = fields[56].GetUInt32();
-            spellInfo.EquippedItemClass = fields[57].GetInt32();
-            spellInfo.EquippedItemSubClassMask = fields[58].GetInt32();
-            spellInfo.EquippedItemInventoryTypeMask = fields[59].GetInt32();
-            spellInfo.ContentTuningId = fields[60].GetUInt32();
-            spellInfo.ConeAngle = fields[62].GetFloat();
-            spellInfo.Width = fields[63].GetFloat();
-            spellInfo.MaxTargetLevel = fields[64].GetUInt32();
-            spellInfo.MaxAffectedTargets = fields[65].GetUInt32();
-            spellInfo.SpellFamilyName = fields[66].GetUInt32();
-            spellInfo.SpellFamilyFlags = flag128(fields[67].GetUInt32(), fields[68].GetUInt32(), fields[69].GetUInt32(), fields[70].GetUInt32());
-            spellInfo.DmgClass = fields[71].GetUInt32();
-            spellInfo.PreventionType = fields[72].GetUInt32();
-            spellInfo.RequiredAreasID = fields[73].GetInt32();
-            spellInfo.SchoolMask = fields[74].GetUInt32();
-            spellInfo.ChargeCategoryId = fields[75].GetUInt32();
+            spellInfo.ProcFlags[0] = fields[44].GetUInt32();
+            spellInfo.ProcFlags[1] = fields[45].GetUInt32();
+            spellInfo.ProcChance = fields[46].GetUInt32();
+            spellInfo.ProcCharges = fields[47].GetUInt32();
+            spellInfo.ProcCooldown = fields[48].GetUInt32();
+            spellInfo.ProcBasePPM = fields[49].GetFloat();
+            spellInfo.MaxLevel = fields[50].GetUInt32();
+            spellInfo.BaseLevel = fields[51].GetUInt32();
+            spellInfo.SpellLevel = fields[52].GetUInt32();
+            spellInfo.DurationEntry = sSpellDurationStore.LookupEntry(fields[53].GetUInt32());
+            spellInfo.RangeEntry = sSpellRangeStore.LookupEntry(fields[54].GetUInt32());
+            spellInfo.Speed = fields[55].GetFloat();
+            spellInfo.LaunchDelay = fields[56].GetFloat();
+            spellInfo.StackAmount = fields[57].GetUInt32();
+            spellInfo.EquippedItemClass = fields[58].GetInt32();
+            spellInfo.EquippedItemSubClassMask = fields[59].GetInt32();
+            spellInfo.EquippedItemInventoryTypeMask = fields[60].GetInt32();
+            spellInfo.ContentTuningId = fields[61].GetUInt32();
+            spellInfo.ConeAngle = fields[63].GetFloat();
+            spellInfo.Width = fields[64].GetFloat();
+            spellInfo.MaxTargetLevel = fields[65].GetUInt32();
+            spellInfo.MaxAffectedTargets = fields[66].GetUInt32();
+            spellInfo.SpellFamilyName = fields[67].GetUInt32();
+            spellInfo.SpellFamilyFlags = flag128(fields[68].GetUInt32(), fields[69].GetUInt32(), fields[70].GetUInt32(), fields[71].GetUInt32());
+            spellInfo.DmgClass = fields[72].GetUInt32();
+            spellInfo.PreventionType = fields[73].GetUInt32();
+            spellInfo.RequiredAreasID = fields[74].GetInt32();
+            spellInfo.SchoolMask = fields[75].GetUInt32();
+            spellInfo.ChargeCategoryId = fields[76].GetUInt32();
 
         } while (spellsResult->NextRow());
     }
@@ -4696,7 +4699,7 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         // disable proc for magnet auras, they're handled differently
         if (spellInfo->HasAura(SPELL_AURA_SPELL_MAGNET))
-            spellInfo->ProcFlags = 0;
+            spellInfo->ProcFlags = std::array<int32, 2>{};
 
         // due to the way spell system works, unit would change orientation in Spell::_cast
         if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))

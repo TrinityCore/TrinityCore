@@ -480,7 +480,7 @@ class TC_GAME_API HealInfo
 class TC_GAME_API ProcEventInfo
 {
     public:
-        ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask,
+        ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, ProcFlagsInit const& typeMask,
                       uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
@@ -488,7 +488,7 @@ class TC_GAME_API ProcEventInfo
         Unit* GetActionTarget() const { return _actionTarget; }
         Unit* GetProcTarget() const { return _procTarget; }
 
-        uint32 GetTypeMask() const { return _typeMask; }
+        FlagsArray<int32, 2> GetTypeMask() const { return _typeMask; }
         uint32 GetSpellTypeMask() const { return _spellTypeMask; }
         uint32 GetSpellPhaseMask() const { return _spellPhaseMask; }
         uint32 GetHitMask() const { return _hitMask; }
@@ -505,7 +505,7 @@ class TC_GAME_API ProcEventInfo
         Unit* const _actor;
         Unit* const _actionTarget;
         Unit* const _procTarget;
-        uint32 _typeMask;
+        FlagsArray<int32, 2> _typeMask;
         uint32 _spellTypeMask;
         uint32 _spellPhaseMask;
         uint32 _hitMask;
@@ -531,8 +531,8 @@ struct CalcDamageInfo
 
     // Helpers
     WeaponAttackType AttackType; //
-    uint32 ProcAttacker;
-    uint32 ProcVictim;
+    ProcFlagsInit ProcAttacker;
+    ProcFlagsInit ProcVictim;
     uint32 CleanDamage;          // Used only for rage calculation
     MeleeHitOutcome HitOutCome;  /// @todo remove this field (need use TargetState)
 };
@@ -1027,13 +1027,13 @@ class TC_GAME_API Unit : public WorldObject
         void KillSelf(bool durabilityLoss = true, bool skipSettingDeathState = false) { Unit::Kill(this, this, durabilityLoss, skipSettingDeathState); }
         static void DealHeal(HealInfo& healInfo);
 
-        static void ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
+        static void ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, ProcFlagsInit const& typeMaskActor, ProcFlagsInit const& typeMaskActionTarget,
                                 uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
                                 DamageInfo* damageInfo, HealInfo* healInfo);
 
         void GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo);
         void TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplicationList* targetProcAuras,
-                                     Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
+                                     Unit* actionTarget, ProcFlagsInit const& typeMaskActor, ProcFlagsInit const& typeMaskActionTarget,
                                      uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
                                      DamageInfo* damageInfo, HealInfo* healInfo);
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);

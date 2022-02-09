@@ -585,8 +585,6 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     effectInfo = nullptr;
     m_damage = 0;
     m_healing = 0;
-    m_procAttacker = 0;
-    m_procVictim = 0;
     m_hitMask = 0;
     focusObject = nullptr;
     m_castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, m_caster->GetMapId(), m_spellInfo->Id, m_caster->GetMap()->GenerateLowGuid<HighGuid::Cast>());
@@ -2148,7 +2146,7 @@ void Spell::prepareDataForTriggerSystem()
     // Create base triggers flags for Attacker and Victim (m_procAttacker, m_procVictim and m_hitMask)
     //==========================================================================================
 
-    m_procVictim = m_procAttacker = 0;
+    m_procVictim = m_procAttacker = PROC_FLAG_NONE;
     // Get data for type of attack and fill base info for trigger
     switch (m_spellInfo->DmgClass)
     {
@@ -2225,8 +2223,8 @@ class ProcReflectDelayed : public BasicEvent
             if (!caster)
                 return true;
 
-            uint32 const typeMaskActor = PROC_FLAG_NONE;
-            uint32 const typeMaskActionTarget = PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
+            ProcFlags const typeMaskActor = PROC_FLAG_NONE;
+            ProcFlags const typeMaskActionTarget = PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
             uint32 const spellTypeMask = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
             uint32 const spellPhaseMask = PROC_SPELL_PHASE_NONE;
             uint32 const hitMask = PROC_HIT_REFLECT;
@@ -2597,8 +2595,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
     if (caster)
     {
         // Fill base trigger info
-        uint32 procAttacker = spell->m_procAttacker;
-        uint32 procVictim = spell->m_procVictim;
+        ProcFlagsInit procAttacker = spell->m_procAttacker;
+        ProcFlagsInit procVictim = spell->m_procVictim;
         uint32 procSpellType = PROC_SPELL_TYPE_NONE;
         uint32 hitMask = PROC_HIT_NONE;
 
@@ -3690,7 +3688,7 @@ void Spell::_cast(bool skipCheck)
         return;
 
     // Handle procs on cast
-    uint32 procAttacker = m_procAttacker;
+    ProcFlagsInit procAttacker = m_procAttacker;
     if (!procAttacker)
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
@@ -3949,7 +3947,7 @@ void Spell::_handle_finish_phase()
     if (!m_originalCaster)
         return;
 
-    uint32 procAttacker = m_procAttacker;
+    ProcFlagsInit procAttacker = m_procAttacker;
     if (!procAttacker)
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
