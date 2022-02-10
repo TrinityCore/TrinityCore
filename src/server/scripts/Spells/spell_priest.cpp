@@ -740,13 +740,9 @@ class spell_pri_power_word_shield : public SpellScript
         Unit* caster = GetCaster();
 
         if (Unit* target = GetExplTargetUnit())
-        {
             if (!caster->HasAura(SPELL_PRIEST_RAPTURE))
-            {
                 if (target->HasAura(SPELL_PRIEST_WEAKENED_SOUL, caster->GetGUID()))
                     return SPELL_FAILED_BAD_TARGETS;
-            }
-        }
 
         return SPELL_CAST_OK;
     }
@@ -756,10 +752,8 @@ class spell_pri_power_word_shield : public SpellScript
         Unit* caster = GetCaster();
 
         if (Unit* target = GetHitUnit())
-        {
             if (!caster->HasAura(SPELL_PRIEST_RAPTURE))
                 caster->CastSpell(target, SPELL_PRIEST_WEAKENED_SOUL, true);
-        }
     }
 
     void Register() override
@@ -809,10 +803,8 @@ class spell_pri_power_word_shield_aura : public AuraScript
                 AddPct(amountF, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
 
                 if (AuraEffect const* mastery = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
-                {
                     if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED) || GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY))
                         AddPct(amountF, mastery->GetAmount());
-                }
             }
 
             if (AuraEffect const* rapture = caster->GetAuraEffect(SPELL_PRIEST_RAPTURE, EFFECT_1))
@@ -851,10 +843,8 @@ class spell_pri_power_word_shield_aura : public AuraScript
         GetTarget()->RemoveAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT);
 
         if (Unit* caster = GetCaster())
-        {
             if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE))
                 caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
-        }
     }
 
     void Register() override
