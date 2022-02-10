@@ -2623,7 +2623,12 @@ void ObjectMgr::LoadGameObjects()
 
         if (!data.rotation.isUnit())
         {
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only", guid, data.id);
+            // @tswow-begin
+            if (data.rotation.w != 0 || data.rotation.x != 0 || data.rotation.y != 0 || data.rotation.z != 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only", guid, data.id);
+            }
+            // @tswow-end
             data.rotation = QuaternionData::fromEulerAnglesZYX(data.spawnPoint.GetOrientation(), 0.0f, 0.0f);
         }
 
