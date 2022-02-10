@@ -2730,7 +2730,7 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
         return false;
     }
 
-    if (talent->OverridesSpellID)
+    if (spec == GetActiveTalentGroup() && talent->OverridesSpellID)
         AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
 
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(talent->ID);
