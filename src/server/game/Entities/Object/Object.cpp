@@ -1838,11 +1838,14 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     {
         if (summoner && smoothPhasingInfo->ReplaceObject)
         {
-            SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
-            originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
-            summoner->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
+            if (WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*summoner, *smoothPhasingInfo->ReplaceObject))
+            {
+                SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
+                originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
+                replacedObject->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
 
-            summon->SetDemonCreatorGUID(privateObjectOwner);
+                summon->SetDemonCreatorGUID(privateObjectOwner);
+            }
         }
 
         summon->GetOrCreateSmoothPhasing()->SetSingleInfo(*smoothPhasingInfo);
@@ -1934,12 +1937,14 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, 0, privateObjectOwner);
 }
 
-TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
+TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, Player* privateObjectOwner /*= nullptr*/)
 {
+    ASSERT(privateObjectOwner);
+
     if (Map* map = FindMap())
     {
         SmoothPhasingInfo smoothPhasingInfo{GetGUID(), true, true};
-        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner, &smoothPhasingInfo))
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), privateObjectOwner, spellId, vehId, privateObjectOwner->GetGUID(), &smoothPhasingInfo))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
@@ -2729,6 +2734,9 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
         spell->SetSpellValue(pair.first, pair.second);
 
     spell->m_CastItem = args.CastItem;
+    if (args.OriginalCastItemLevel)
+        spell->m_castItemLevel = *args.OriginalCastItemLevel;
+
     return spell->prepare(*targets.Targets, args.TriggeringAura);
 }
 
