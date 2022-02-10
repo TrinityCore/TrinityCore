@@ -11786,9 +11786,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
     return modelid;
 }
 
-void Unit::JumpTo(float speedXY, float speedZ, bool forward, Optional<Position> dest)
+void Unit::JumpTo(float speedXY, float speedZ, float angle, Optional<Position> dest)
 {
-    float angle = forward ? 0 : float(M_PI);
     if (dest)
         angle += GetRelativeAngle(*dest);
 
