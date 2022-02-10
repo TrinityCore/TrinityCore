@@ -79,7 +79,7 @@ public:
         return *this;
     }
 
-    constexpr operator bool() const
+    constexpr explicit operator bool() const
     {
         for (size_t i = 0; i < N; ++i)
             if (_storage[i])
