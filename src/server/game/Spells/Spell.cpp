@@ -3697,6 +3697,8 @@ void Spell::_cast(bool skipCheck)
             procAttacker = IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
     }
 
+    procAttacker |= PROC_FLAG_2_CAST_SUCCESSFUL;
+
     ProcFlagsHit hitMask = m_hitMask;
     if (!(hitMask & PROC_HIT_CRITICAL))
         hitMask |= PROC_HIT_NORMAL;
