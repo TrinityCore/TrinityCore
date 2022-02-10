@@ -285,6 +285,47 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 };
 */
 
+// 248033 - Awakening
+class spell_pal_awakening : public AuraScript
+{
+    PrepareAuraScript(spell_pal_awakening);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_AVENGING_WRATH })
+            && spellInfo->GetEffects().size() >= EFFECT_1;
+    }
+
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        Milliseconds extraDuration = 0ms;
+        if (AuraEffect const* durationEffect = GetEffect(EFFECT_1))
+            extraDuration = Seconds(durationEffect->GetAmount());
+
+        if (Aura* avengingWrath = GetTarget()->GetAura(SPELL_PALADIN_AVENGING_WRATH))
+        {
+            avengingWrath->SetDuration(avengingWrath->GetDuration() + extraDuration.count());
+            avengingWrath->SetMaxDuration(avengingWrath->GetMaxDuration() + extraDuration.count());
+        }
+        else
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_AVENGING_WRATH,
+                CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
+                    .SetTriggeringSpell(eventInfo.GetProcSpell())
+                    .AddSpellMod(SPELLVALUE_DURATION, extraDuration.count()));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_awakening::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pal_awakening::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 1022 - Blessing of Protection
 // 204018 - Blessing of Spellwarding
 class spell_pal_blessing_of_protection : public SpellScript
@@ -1506,6 +1547,7 @@ void AddSC_paladin_spell_scripts()
     //new spell_pal_ardent_defender();
     RegisterSpellScript(spell_pal_art_of_war);
     RegisterAreaTriggerAI(areatrigger_pal_ashen_hallow);
+    RegisterSpellScript(spell_pal_awakening);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_crusader_might);
