@@ -1520,7 +1520,7 @@ void SpellMgr::LoadSpellProcs()
 
             SpellProcEntry baseProcEntry;
 
-            baseProcEntry.SchoolMask         = fields[1].GetInt8();
+            baseProcEntry.SchoolMask         = fields[1].GetUInt8();
             baseProcEntry.SpellFamilyName    = fields[2].GetUInt16();
             baseProcEntry.SpellFamilyMask[0] = fields[3].GetUInt32();
             baseProcEntry.SpellFamilyMask[1] = fields[4].GetUInt32();
@@ -1528,10 +1528,10 @@ void SpellMgr::LoadSpellProcs()
             baseProcEntry.SpellFamilyMask[3] = fields[6].GetUInt32();
             baseProcEntry.ProcFlags[0]       = fields[7].GetUInt32();
             baseProcEntry.ProcFlags[1]       = fields[8].GetUInt32();
-            baseProcEntry.SpellTypeMask      = fields[9].GetUInt32();
-            baseProcEntry.SpellPhaseMask     = fields[10].GetUInt32();
-            baseProcEntry.HitMask            = fields[11].GetUInt32();
-            baseProcEntry.AttributesMask     = fields[12].GetUInt32();
+            baseProcEntry.SpellTypeMask      = ProcFlagsSpellType(fields[9].GetUInt32());
+            baseProcEntry.SpellPhaseMask     = ProcFlagsSpellPhase(fields[10].GetUInt32());
+            baseProcEntry.HitMask            = ProcFlagsHit(fields[11].GetUInt32());
+            baseProcEntry.AttributesMask     = ProcAttributes(fields[12].GetUInt32());
             baseProcEntry.DisableEffectsMask = fields[13].GetUInt32();
             baseProcEntry.ProcsPerMinute     = fields[14].GetFloat();
             baseProcEntry.Chance             = fields[15].GetFloat();
@@ -1637,7 +1637,7 @@ void SpellMgr::LoadSpellProcs()
     // Triggered always, even from triggered spells
     bool isAlwaysTriggeredAura[TOTAL_AURAS];
     // SpellTypeMask to add to the proc
-    uint32 spellTypeMask[TOTAL_AURAS];
+    ProcFlagsSpellType spellTypeMask[TOTAL_AURAS];
 
     // List of auras that CAN trigger but may not exist in spell_proc
     // in most cases needed to drop charges
@@ -1738,7 +1738,7 @@ void SpellMgr::LoadSpellProcs()
             continue;
 
         bool addTriggerFlag = false;
-        uint32 procSpellTypeMask = PROC_SPELL_TYPE_NONE;
+        ProcFlagsSpellType procSpellTypeMask = PROC_SPELL_TYPE_NONE;
         uint32 nonProcMask = 0;
         for (SpellEffectInfo const& spellEffectInfo : spellInfo.GetEffects())
         {
@@ -1837,7 +1837,7 @@ void SpellMgr::LoadSpellProcs()
             break;
         }
 
-        procEntry.AttributesMask  = 0;
+        procEntry.AttributesMask  = PROC_ATTR_NONE;
         procEntry.DisableEffectsMask = nonProcMask;
         if (spellInfo.ProcFlags & PROC_FLAG_KILL)
             procEntry.AttributesMask |= PROC_ATTR_REQ_EXP_OR_HONOR;

@@ -5326,7 +5326,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     // Set trigger flag
     ProcFlagsInit procAttacker = PROC_FLAG_DONE_PERIODIC;
     ProcFlagsInit procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask = damageInfo.GetHitMask();
+    ProcFlagsHit hitMask = damageInfo.GetHitMask();
     if (damage)
     {
         hitMask |= crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
@@ -5422,7 +5422,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     // Set trigger flag
     ProcFlagsInit procAttacker = PROC_FLAG_DONE_PERIODIC;
     ProcFlagsInit procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask = damageInfo.GetHitMask();
+    ProcFlagsHit hitMask = damageInfo.GetHitMask();
     if (damage)
     {
         hitMask |= crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
@@ -5536,7 +5536,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     ProcFlagsInit procAttacker = PROC_FLAG_DONE_PERIODIC;
     ProcFlagsInit procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask = crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
+    ProcFlagsHit hitMask = crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
     // ignore item heals
     if (GetBase()->GetCastItemGUID().IsEmpty())
         Unit::ProcSkillsAndAuras(caster, target, procAttacker, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
@@ -5698,8 +5698,8 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     // Set trigger flag
     ProcFlagsInit procAttacker = PROC_FLAG_DONE_PERIODIC;
     ProcFlagsInit procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask      = createProcHitMask(&damageInfo, SPELL_MISS_NONE);
-    uint32 spellTypeMask = PROC_SPELL_TYPE_NO_DMG_HEAL;
+    ProcFlagsHit hitMask       = createProcHitMask(&damageInfo, SPELL_MISS_NONE);
+    ProcFlagsSpellType spellTypeMask = PROC_SPELL_TYPE_NO_DMG_HEAL;
     if (damageInfo.damage)
     {
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;

@@ -382,7 +382,7 @@ class TC_GAME_API SpellInfo
         EnumFlag<SpellAuraInterruptFlags2> AuraInterruptFlags2 = SpellAuraInterruptFlags2::None;
         EnumFlag<SpellAuraInterruptFlags> ChannelInterruptFlags = SpellAuraInterruptFlags::None;
         EnumFlag<SpellAuraInterruptFlags2> ChannelInterruptFlags2 = SpellAuraInterruptFlags2::None;
-        FlagsArray<int32, 2> ProcFlags;
+        ProcFlagsInit ProcFlags;
         uint32 ProcChance = 0;
         uint32 ProcCharges = 0;
         uint32 ProcCooldown = 0;

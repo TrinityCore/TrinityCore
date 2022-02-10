@@ -98,8 +98,11 @@ class Vehicle;
 class VehicleJoinEvent;
 
 enum class PetActionFeedback : uint8;
-enum ZLiquidStatus : uint32;
 enum MovementGeneratorType : uint8;
+enum ProcFlagsHit : uint32;
+enum ProcFlagsSpellPhase : uint32;
+enum ProcFlagsSpellType : uint32;
+enum ZLiquidStatus : uint32;
 
 namespace Movement
 {
@@ -420,11 +423,11 @@ class TC_GAME_API DamageInfo
         uint32 m_absorb;
         uint32 m_resist;
         uint32 m_block;
-        uint32 m_hitMask;
+        ProcFlagsHit m_hitMask;
     public:
         DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType);
         explicit DamageInfo(CalcDamageInfo const& dmgInfo);
-        DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, uint32 hitMask);
+        DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, ProcFlagsHit hitMask);
 
         void ModifyDamage(int32 amount);
         void AbsorbDamage(uint32 amount);
@@ -443,7 +446,7 @@ class TC_GAME_API DamageInfo
         uint32 GetResist() const { return m_resist; }
         uint32 GetBlock() const { return m_block; }
 
-        uint32 GetHitMask() const;
+        ProcFlagsHit GetHitMask() const;
 };
 
 class TC_GAME_API HealInfo
@@ -481,17 +484,17 @@ class TC_GAME_API ProcEventInfo
 {
     public:
         ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, ProcFlagsInit const& typeMask,
-                      uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask,
+                      ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                       Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo);
 
         Unit* GetActor() { return _actor; }
         Unit* GetActionTarget() const { return _actionTarget; }
         Unit* GetProcTarget() const { return _procTarget; }
 
-        FlagsArray<int32, 2> GetTypeMask() const { return _typeMask; }
-        uint32 GetSpellTypeMask() const { return _spellTypeMask; }
-        uint32 GetSpellPhaseMask() const { return _spellPhaseMask; }
-        uint32 GetHitMask() const { return _hitMask; }
+        ProcFlagsInit GetTypeMask() const { return _typeMask; }
+        ProcFlagsSpellType GetSpellTypeMask() const { return _spellTypeMask; }
+        ProcFlagsSpellPhase GetSpellPhaseMask() const { return _spellPhaseMask; }
+        ProcFlagsHit GetHitMask() const { return _hitMask; }
 
         SpellInfo const* GetSpellInfo() const;
         SpellSchoolMask GetSchoolMask() const;
@@ -505,10 +508,10 @@ class TC_GAME_API ProcEventInfo
         Unit* const _actor;
         Unit* const _actionTarget;
         Unit* const _procTarget;
-        FlagsArray<int32, 2> _typeMask;
-        uint32 _spellTypeMask;
-        uint32 _spellPhaseMask;
-        uint32 _hitMask;
+        ProcFlagsInit _typeMask;
+        ProcFlagsSpellType _spellTypeMask;
+        ProcFlagsSpellPhase _spellPhaseMask;
+        ProcFlagsHit _hitMask;
         Spell* _spell;
         DamageInfo* _damageInfo;
         HealInfo* _healInfo;
@@ -576,7 +579,7 @@ struct SpellPeriodicAuraLogInfo
     bool   critical;
 };
 
-uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
+ProcFlagsHit createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
 
 enum CurrentSpellTypes : uint8
 {
@@ -1028,13 +1031,13 @@ class TC_GAME_API Unit : public WorldObject
         static void DealHeal(HealInfo& healInfo);
 
         static void ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, ProcFlagsInit const& typeMaskActor, ProcFlagsInit const& typeMaskActionTarget,
-                                uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
+                                ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell* spell,
                                 DamageInfo* damageInfo, HealInfo* healInfo);
 
         void GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo);
         void TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplicationList* targetProcAuras,
                                      Unit* actionTarget, ProcFlagsInit const& typeMaskActor, ProcFlagsInit const& typeMaskActionTarget,
-                                     uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
+                                     ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell* spell,
                                      DamageInfo* damageInfo, HealInfo* healInfo);
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
@@ -1974,7 +1977,7 @@ class TC_GAME_API Unit : public WorldObject
         float GetCombatRatingReduction(CombatRating cr) const;
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
-        void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType);
+        void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, ProcFlagsInit const& typeMask, ProcFlagsHit hitMask, WeaponAttackType attType);
 
     protected:
         void SetFeared(bool apply);
