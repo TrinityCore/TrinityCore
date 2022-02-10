@@ -388,8 +388,7 @@ class spell_death_knight_initiate_visual : public SpellScript
             default: return;
         }
 
-        target->CastSpell(target, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCastId(GetSpell()->m_castId));
+        target->CastSpell(target, spellId, GetSpell());
         target->LoadEquipment();
     }
 

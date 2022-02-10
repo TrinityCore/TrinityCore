@@ -17,10 +17,9 @@
 
 #include "GarrisonPackets.h"
 #include "DB2Structure.h"
+#include "Errors.h"
 
-namespace WorldPackets
-{
-namespace Garrison
+namespace WorldPackets::Garrison
 {
 WorldPacket const* GarrisonCreateResult::Write()
 {
@@ -452,6 +451,5 @@ WorldPacket const* GarrisonBuildingActivated::Write()
     _worldPacket << uint32(GarrPlotInstanceID);
 
     return &_worldPacket;
-}
 }
 }

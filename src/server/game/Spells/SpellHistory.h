@@ -87,7 +87,7 @@ public:
 
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr);
-    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
     template<class PacketType>
     void WritePacket(PacketType* packet) const;
 
@@ -129,8 +129,8 @@ public:
     }
 
     void ResetAllCooldowns();
-    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
-    bool HasCooldown(uint32 spellId, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0) const;
+    bool HasCooldown(uint32 spellId, uint32 itemId = 0) const;
     Duration GetRemainingCooldown(SpellInfo const* spellInfo) const;
     Duration GetRemainingCategoryCooldown(uint32 categoryId) const;
     Duration GetRemainingCategoryCooldown(SpellInfo const* spellInfo) const;

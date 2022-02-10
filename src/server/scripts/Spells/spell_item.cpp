@@ -755,8 +755,7 @@ class spell_item_goblin_weather_machine : public SpellScript
 
         uint32 spellId = RAND(SPELL_PERSONALIZED_WEATHER1, SPELL_PERSONALIZED_WEATHER2, SPELL_PERSONALIZED_WEATHER3,
                               SPELL_PERSONALIZED_WEATHER4);
-        target->CastSpell(target, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCastId(GetSpell()->m_castId));
+        target->CastSpell(target, spellId, GetSpell());
     }
 
     void Register() override
@@ -1332,7 +1331,7 @@ class spell_item_mark_of_conquest : public AuraScript
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        if (eventInfo.GetTypeMask() & (PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS))
+        if (eventInfo.GetTypeMask() & (PROC_FLAG_DEAL_RANGED_ATTACK | PROC_FLAG_DEAL_RANGED_ABILITY))
         {
             // in that case, do not cast heal spell
             PreventDefaultAction();
@@ -3486,10 +3485,10 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
 
-                if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+                if (eventInfo.GetTypeMask() & PROC_FLAG_DEAL_HELPFUL_SPELL)
                     caster->CastSpell(target, HealProc, aurEff);
 
-                if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
+                if (eventInfo.GetTypeMask() & PROC_FLAG_DEAL_HARMFUL_SPELL)
                     caster->CastSpell(target, DamageProc, aurEff);
             }
 
@@ -4003,8 +4002,7 @@ class spell_item_mirrens_drinking_hat : public SpellScript
         }
 
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCastId(GetSpell()->m_castId));
+        caster->CastSpell(caster, spellId, GetSpell());
     }
 
     void Register() override

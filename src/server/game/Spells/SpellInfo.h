@@ -20,7 +20,6 @@
 
 #include "SharedDefines.h"
 #include "DB2Structure.h"
-#include "Util.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
 #include "SpellDefines.h"
@@ -383,7 +382,7 @@ class TC_GAME_API SpellInfo
         EnumFlag<SpellAuraInterruptFlags2> AuraInterruptFlags2 = SpellAuraInterruptFlags2::None;
         EnumFlag<SpellAuraInterruptFlags> ChannelInterruptFlags = SpellAuraInterruptFlags::None;
         EnumFlag<SpellAuraInterruptFlags2> ChannelInterruptFlags2 = SpellAuraInterruptFlags2::None;
-        uint32 ProcFlags = 0;
+        ProcFlagsInit ProcFlags;
         uint32 ProcChance = 0;
         uint32 ProcCharges = 0;
         uint32 ProcCooldown = 0;

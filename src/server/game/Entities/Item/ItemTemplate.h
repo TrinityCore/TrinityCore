@@ -20,9 +20,9 @@
 
 #include "Common.h"
 #include "DB2Structure.h"
+#include "Errors.h"
 #include "SharedDefines.h"
 #include <bitset>
-#include <unordered_map>
 #include <vector>
 
 enum ItemModType
