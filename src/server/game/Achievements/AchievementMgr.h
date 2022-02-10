@@ -160,9 +160,12 @@ public:
     void SetRealmCompleted(AchievementEntry const* achievement);
 
     void LoadAchievementReferenceList();
+    void LoadAchievementScripts();
     void LoadCompletedAchievements();
     void LoadRewards();
     void LoadRewardLocales();
+
+    uint32 GetAchievementScriptId(uint32 achievementId) const;
 
 private:
     // store achievements by referenced achievement id to speed up lookup
@@ -175,6 +178,7 @@ private:
 
     std::unordered_map<uint32, AchievementReward> _achievementRewards;
     std::unordered_map<uint32, AchievementRewardLocale> _achievementRewardLocales;
+    std::unordered_map<uint32, uint32> _achievementScripts;
 };
 
 #define sAchievementMgr AchievementGlobalMgr::Instance()

@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AchievementMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Chat.h"
@@ -106,6 +107,10 @@ struct is_script_database_bound<ConditionScript>
 
 template<>
 struct is_script_database_bound<TransportScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<AchievementScript>
     : std::true_type { };
 
 template<>
@@ -1938,6 +1943,16 @@ void ScriptMgr::OnShutdown()
     FOREACH_SCRIPT(WorldScript)->OnShutdown();
 }
 
+// Achievement
+void ScriptMgr::OnAchievementCompleted(Player* player, AchievementEntry const* achievement)
+{
+    ASSERT(player);
+    ASSERT(achievement);
+
+    GET_SCRIPT(AchievementScript, sAchievementMgr->GetAchievementScriptId(achievement->ID), tmpscript);
+    tmpscript->OnCompleted(player, achievement);
+}
+
 bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 {
     ASSERT(source);
@@ -2511,6 +2526,12 @@ TransportScript::TransportScript(char const* name)
     ScriptRegistry<TransportScript>::Instance()->AddScript(this);
 }
 
+AchievementScript::AchievementScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<AchievementScript>::Instance()->AddScript(this);
+}
+
 AchievementCriteriaScript::AchievementCriteriaScript(char const* name)
     : ScriptObject(name)
 {
@@ -2587,6 +2608,7 @@ template class TC_GAME_API ScriptRegistry<ConditionScript>;
 template class TC_GAME_API ScriptRegistry<VehicleScript>;
 template class TC_GAME_API ScriptRegistry<DynamicObjectScript>;
 template class TC_GAME_API ScriptRegistry<TransportScript>;
+template class TC_GAME_API ScriptRegistry<AchievementScript>;
 template class TC_GAME_API ScriptRegistry<AchievementCriteriaScript>;
 template class TC_GAME_API ScriptRegistry<PlayerScript>;
 template class TC_GAME_API ScriptRegistry<GuildScript>;

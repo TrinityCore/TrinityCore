@@ -585,9 +585,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     effectInfo = nullptr;
     m_damage = 0;
     m_healing = 0;
-    m_procAttacker = 0;
-    m_procVictim = 0;
-    m_hitMask = 0;
+    m_hitMask = PROC_HIT_NONE;
     focusObject = nullptr;
     m_castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, m_caster->GetMapId(), m_spellInfo->Id, m_caster->GetMap()->GenerateLowGuid<HighGuid::Cast>());
     m_originalCastId = originalCastId;
@@ -2148,7 +2146,7 @@ void Spell::prepareDataForTriggerSystem()
     // Create base triggers flags for Attacker and Victim (m_procAttacker, m_procVictim and m_hitMask)
     //==========================================================================================
 
-    m_procVictim = m_procAttacker = 0;
+    m_procVictim = m_procAttacker = PROC_FLAG_NONE;
     // Get data for type of attack and fill base info for trigger
     switch (m_spellInfo->DmgClass)
     {
@@ -2225,11 +2223,11 @@ class ProcReflectDelayed : public BasicEvent
             if (!caster)
                 return true;
 
-            uint32 const typeMaskActor = PROC_FLAG_NONE;
-            uint32 const typeMaskActionTarget = PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
-            uint32 const spellTypeMask = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
-            uint32 const spellPhaseMask = PROC_SPELL_PHASE_NONE;
-            uint32 const hitMask = PROC_HIT_REFLECT;
+            ProcFlags const typeMaskActor = PROC_FLAG_NONE;
+            ProcFlags const typeMaskActionTarget = PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
+            ProcFlagsSpellType const spellTypeMask = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
+            ProcFlagsSpellPhase const spellPhaseMask = PROC_SPELL_PHASE_NONE;
+            ProcFlagsHit const hitMask = PROC_HIT_REFLECT;
 
             Unit::ProcSkillsAndAuras(caster, _victim, typeMaskActor, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, nullptr, nullptr, nullptr);
             return true;
@@ -2597,10 +2595,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
     if (caster)
     {
         // Fill base trigger info
-        uint32 procAttacker = spell->m_procAttacker;
-        uint32 procVictim = spell->m_procVictim;
-        uint32 procSpellType = PROC_SPELL_TYPE_NONE;
-        uint32 hitMask = PROC_HIT_NONE;
+        ProcFlagsInit procAttacker = spell->m_procAttacker;
+        ProcFlagsInit procVictim = spell->m_procVictim;
+        ProcFlagsSpellType procSpellType = PROC_SPELL_TYPE_NONE;
+        ProcFlagsHit hitMask = PROC_HIT_NONE;
 
         // Spells with this flag cannot trigger if effect is cast on self
         bool const canEffectTrigger = !spell->m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_PROC) && spell->unitTarget->CanProc() &&
@@ -2777,8 +2775,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
         // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
         if (MissCondition == SPELL_MISS_NONE && spell->m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
-            caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCastId(spell->m_castId));
+            caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, spell);
     }
 
     if (_spellHitTarget)
@@ -3085,7 +3082,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
             if (CanExecuteTriggersOnHit(effMask, i->triggeredByAura) && roll_chance_i(i->chance))
             {
                 m_caster->CastSpell(unit, i->triggeredSpell->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                    .SetOriginalCastId(m_castId)
+                    .SetTriggeringSpell(this)
                     .SetCastDifficulty(i->triggeredSpell->Difficulty));
                 TC_LOG_DEBUG("spells", "Spell %d triggered spell %d by SPELL_AURA_ADD_TARGET_TRIGGER aura", m_spellInfo->Id, i->triggeredSpell->Id);
 
@@ -3119,7 +3116,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
             else
                 unit->CastSpell(unit, *i, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                     .SetOriginalCaster(m_caster->GetGUID())
-                    .SetOriginalCastId(m_castId));
+                    .SetTriggeringSpell(this));
         }
     }
 }
@@ -3669,7 +3666,7 @@ void Spell::_cast(bool skipCheck)
             }
             else
                 m_caster->CastSpell(m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster, id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                    .SetOriginalCastId(m_castId));
+                    .SetTriggeringSpell(this));
         }
     }
 
@@ -3691,7 +3688,7 @@ void Spell::_cast(bool skipCheck)
         return;
 
     // Handle procs on cast
-    uint32 procAttacker = m_procAttacker;
+    ProcFlagsInit procAttacker = m_procAttacker;
     if (!procAttacker)
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
@@ -3700,7 +3697,9 @@ void Spell::_cast(bool skipCheck)
             procAttacker = IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
     }
 
-    uint32 hitMask = m_hitMask;
+    procAttacker |= PROC_FLAG_2_CAST_SUCCESSFUL;
+
+    ProcFlagsHit hitMask = m_hitMask;
     if (!(hitMask & PROC_HIT_CRITICAL))
         hitMask |= PROC_HIT_NORMAL;
 
@@ -3950,7 +3949,7 @@ void Spell::_handle_finish_phase()
     if (!m_originalCaster)
         return;
 
-    uint32 procAttacker = m_procAttacker;
+    ProcFlagsInit procAttacker = m_procAttacker;
     if (!procAttacker)
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
@@ -5996,7 +5995,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                             if (Pet* pet = unitCaster->ToPlayer()->GetPet())
                                 pet->CastSpell(pet, 32752, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                                     .SetOriginalCaster(pet->GetGUID())
-                                    .SetOriginalCastId(m_castId));
+                                    .SetTriggeringSpell(this));
                     }
                     else if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
@@ -7188,7 +7187,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                                 }
                                 else if (m_spellInfo->GetEffects().size() > EFFECT_1)
                                     player->CastSpell(player, m_spellInfo->GetEffect(EFFECT_1).CalcValue(), CastSpellExtraArgs()
-                                        .SetOriginalCastId(m_castId));        // move this to anywhere
+                                        .SetTriggeringSpell(this));        // move this to anywhere
                                 return SPELL_FAILED_DONT_REPORT;
                             }
                         }
@@ -8889,7 +8888,11 @@ CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
 
 CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeringSpell)
 {
-    OriginalCastId = triggeringSpell->m_castId;
+    if (triggeringSpell)
+    {
+        OriginalCastItemLevel = triggeringSpell->m_castItemLevel;
+        OriginalCastId = triggeringSpell->m_castId;
+    }
     return *this;
 }
 
