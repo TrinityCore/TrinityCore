@@ -23,12 +23,11 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
-#include "ScriptMgr.h"
 #include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "ObjectAccessor.h"
-#include "Pet.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
@@ -45,7 +44,6 @@ enum MageSpells
     SPELL_MAGE_ARCANE_MAGE                       = 137021,
     SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
     SPELL_MAGE_BLINK                             = 1953,
-    SPELL_MAGE_BLIZZARD                          = 190356,
     SPELL_MAGE_BLIZZARD_DAMAGE                   = 190357,
     SPELL_MAGE_BLIZZARD_SLOW                     = 12486,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
@@ -359,7 +357,7 @@ class spell_mage_blizzard_damage : public SpellScript
 
     void HandleSlow(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_BLIZZARD_SLOW, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_BLIZZARD_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
@@ -725,7 +723,7 @@ class spell_mage_frostbolt : public SpellScript
     void HandleChilled()
     {
         if (Unit* target = GetHitUnit())
-            GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
+            GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
