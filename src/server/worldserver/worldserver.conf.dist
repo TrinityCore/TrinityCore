@@ -1819,7 +1819,7 @@ Creature.RegenHPCannotReachTargetInRaid = 1
 #
 #    Creature.HeartbeatResistanceEnabled
 #        Description: On every heartbeat creatures will try to break casted by players auras with heartbeat resistance attribute.
-                      Heartbeat is internal unit timer that fires every 5 seconds by default.
+#                     Heartbeat is internal unit timer that fires every 5 seconds by default.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled, Experimental as not fully researched and possibly incorrect)
 
