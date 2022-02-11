@@ -17,6 +17,7 @@
 
 #include "Guild.h"
 #include "AccountMgr.h"
+#include "AchievementMgr.h"
 #include "Bag.h"
 #include "CalendarMgr.h"
 #include "CalendarPackets.h"
@@ -1106,7 +1107,7 @@ Guild::Guild():
     m_createdDate(0),
     m_accountsNumber(0),
     m_bankMoney(0),
-    m_achievementMgr(this)
+    m_achievementMgr(std::make_unique<GuildAchievementMgr>(this))
 {
 }
 
@@ -1234,7 +1235,7 @@ void Guild::SaveToDB()
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    m_achievementMgr.SaveToDB(trans);
+    GetAchievementMgr().SaveToDB(trans);
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -1405,7 +1406,7 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, uint32 const* ac
             uint32 achievementId = *achievementIdItr;
             if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId))
             {
-                if (!(achievement->Flags & ACHIEVEMENT_FLAG_GUILD) || m_achievementMgr.HasAchieved(achievementId))
+                if (!(achievement->Flags & ACHIEVEMENT_FLAG_GUILD) || GetAchievementMgr().HasAchieved(achievementId))
                     continue;
 
                 if (CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(achievement->CriteriaTree))
@@ -1420,13 +1421,13 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, uint32 const* ac
         }
 
         member->SetTrackedCriteriaIds(std::move(criteriaIds));
-        m_achievementMgr.SendAllTrackedCriterias(player, member->GetTrackedCriteriaIds());
+        GetAchievementMgr().SendAllTrackedCriterias(player, member->GetTrackedCriteriaIds());
     }
 }
 
 void Guild::HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const
 {
-    m_achievementMgr.SendAchievementMembers(session->GetPlayer(), achievementId);
+    GetAchievementMgr().SendAchievementMembers(session->GetPlayer(), achievementId);
 }
 
 void Guild::HandleSetMOTD(WorldSession* session, std::string_view motd)
@@ -2284,7 +2285,7 @@ void Guild::SendLoginInfo(WorldSession* session)
     for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
         player->LearnSpell(entry->SpellID, true);
 
-    m_achievementMgr.SendAllData(player);
+    GetAchievementMgr().SendAllData(player);
 
     WorldPackets::Guild::GuildMemberDailyReset packet; // tells the client to request bank withdrawal limit
     player->GetSession()->SendPacket(packet.Write());
@@ -3588,12 +3589,12 @@ void Guild::AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value
 
 bool Guild::HasAchieved(uint32 achievementId) const
 {
-    return m_achievementMgr.HasAchieved(achievementId);
+    return GetAchievementMgr().HasAchieved(achievementId);
 }
 
-void Guild::UpdateCriteria(CriteriaType type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject* ref, Player* player)
+void Guild::UpdateCriteria(CriteriaType type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* player)
 {
-    m_achievementMgr.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, player);
+    GetAchievementMgr().UpdateCriteria(type, miscValue1, miscValue2, miscValue3, ref, player);
 }
 
 void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky)
