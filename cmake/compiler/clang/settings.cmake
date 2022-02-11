@@ -150,3 +150,13 @@ if(BUILD_SHARED_LIBS)
 
   message(STATUS "Clang: Disallow undefined symbols")
 endif()
+
+# speedup PCH builds by forcing template instantiations during PCH generation
+set(CMAKE_REQUIRED_FLAGS "-fpch-instantiate-templates")
+check_cxx_source_compiles("int main() { return 0; }" CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
+unset(CMAKE_REQUIRED_FLAGS)
+if(CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fpch-instantiate-templates)
+endif()
