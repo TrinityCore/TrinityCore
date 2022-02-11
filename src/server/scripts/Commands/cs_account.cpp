@@ -26,6 +26,7 @@ EndScriptData */
 #include "AES.h"
 #include "Base32.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "CryptoGenerics.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"

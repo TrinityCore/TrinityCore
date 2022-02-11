@@ -26,6 +26,7 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DisableMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Map.h"

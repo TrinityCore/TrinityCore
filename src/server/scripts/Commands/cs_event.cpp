@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
 #include "Language.h"

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GroupMgr.h"

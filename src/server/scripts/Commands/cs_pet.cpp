@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"

@@ -19,6 +19,7 @@
 #include "AccountMgr.h"
 #include "CellImpl.h"
 #include "CharacterCache.h"
+#include "ChatCommand.h"
 #include "ChatPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -39,6 +40,13 @@
 #include <sstream>
 
 Player* ChatHandler::GetPlayer() { return m_session ? m_session->GetPlayer() : nullptr; }
+
+char* ChatHandler::LineFromMessage(char*& pos)
+{
+    char* start = strtok(pos, "\n");
+    pos = nullptr;
+    return start;
+}
 
 // Lazy loading of the command table cache from commands and the
 // ScriptMgr should be thread safe since the player commands,

@@ -18,12 +18,11 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
-#include "ChatCommand.h"
 #include "ObjectGuid.h"
-#include "SharedDefines.h"
 #include "StringFormat.h"
 #include <vector>
 
+class ChatCommand;
 class ChatHandler;
 class Creature;
 class GameObject;
@@ -45,7 +44,7 @@ class TC_GAME_API ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
+        static char* LineFromMessage(char*& pos);
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;

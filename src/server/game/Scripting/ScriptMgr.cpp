@@ -20,6 +20,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Conversation.h"
 #include "Creature.h"
 #include "CreatureAI.h"
