@@ -111,7 +111,7 @@ void WardenCheckMgr::LoadWardenChecks()
                 continue;
             }
 
-            std::string str = fmt::sprintf("%04u", id);
+            std::string str = Trinity::StringFormat("%04u", id);
             ASSERT(str.size() == 4);
             std::copy(str.begin(), str.end(), wardenCheck.IdStr.begin());
         }

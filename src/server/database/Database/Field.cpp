@@ -19,6 +19,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "MySQLHacks.h"
+#include <cstring>
 
 Field::Field()
 {

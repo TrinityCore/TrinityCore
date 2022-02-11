@@ -35,10 +35,12 @@
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include <Windows.h>
+#include <intrin.h>
 #define Crash(message) \
     ULONG_PTR execeptionArgs[] = { reinterpret_cast<ULONG_PTR>(strdup(message)), reinterpret_cast<ULONG_PTR>(_ReturnAddress()) }; \
     RaiseException(EXCEPTION_ASSERTION_FAILURE, 0, 2, execeptionArgs);
 #else
+#include <cstring>
 // should be easily accessible in gdb
 extern "C" { TC_COMMON_API char const* TrinityAssertionFailedMessage = nullptr; }
 #define Crash(message) \

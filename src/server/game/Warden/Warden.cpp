@@ -208,7 +208,7 @@ char const* Warden::ApplyPenalty(WardenCheck const* check)
             std::string banReason = "Warden Anticheat Violation";
             // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
             if (check)
-                banReason += Trinity::StringFormat(": %s (CheckId: %u", check->Comment, uint32(check->CheckId));
+                banReason += Trinity::StringFormat(": %s (CheckId: %u", check->Comment.c_str(), uint32(check->CheckId));
 
             sWorld->BanAccount(BAN_ACCOUNT, accountName, sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION), banReason, "Server");
 
