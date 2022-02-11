@@ -1920,15 +1920,9 @@ class spell_gen_gryphon_wyvern_mount_check : public AuraScript
             return;
 
         if (owner->IsMounted())
-        {
-            target->SetAnimationTier(AnimationTier::Fly);
             target->SetDisableGravity(true);
-        }
         else
-        {
-            target->SetAnimationTier(AnimationTier::Ground);
             target->SetDisableGravity(false);
-        }
     }
 
     void Register() override
@@ -2729,6 +2723,28 @@ class spell_gen_prevent_emotes : public AuraScript
     {
         OnEffectApply += AuraEffectApplyFn(spell_gen_prevent_emotes::HandleEffectApply, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
         OnEffectRemove += AuraEffectRemoveFn(spell_gen_prevent_emotes::OnRemove, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_gen_player_say : public SpellScript
+{
+    PrepareSpellScript(spell_gen_player_say);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return sObjectMgr->GetBroadcastText(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        // Note: target here is always player; caster here is gameobject, creature or player (self cast)
+        if (Unit* target = GetHitUnit())
+            target->Unit::Say(uint32(GetEffectValue()), target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_player_say::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -3680,6 +3696,68 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public AuraScript
     }
 };
 
+class spell_gen_whisper_to_controller : public SpellScript
+{
+    PrepareSpellScript(spell_gen_whisper_to_controller);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return sObjectMgr->GetBroadcastText(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (TempSummon* casterSummon = caster->ToTempSummon())
+                if (Player* target = casterSummon->GetSummonerUnit()->ToPlayer())
+                    casterSummon->Unit::Whisper(uint32(GetEffectValue()), target, false);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_whisper_to_controller::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum WhisperToControllerTexts
+{
+    WHISPER_FUTURE_YOU   = 2,
+    WHISPER_DEFENDER     = 1,
+    WHISPER_PAST_YOU     = 2
+};
+
+// BasePoints of spells is ID of npc_text used to group texts, it's not implemented so texts are grouped the old way
+// 50037 - Mystery of the Infinite: Future You's Whisper to Controller - Random
+// 50287 - Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random
+// 60709 - MOTI, Redux: Past You's Whisper to Controller - Random
+class spell_gen_whisper_to_controller_random : public SpellScript
+{
+    PrepareSpellScript(spell_gen_whisper_to_controller_random);
+
+public:
+    spell_gen_whisper_to_controller_random(uint32 text) : SpellScript(), _text(text) { }
+
+private:
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        // Same for all spells
+        if (!roll_chance_i(20))
+            return;
+
+        if (Creature* target = GetHitCreature())
+            if (TempSummon* targetSummon = target->ToTempSummon())
+                if (Player* player = targetSummon->GetSummonerUnit()->ToPlayer())
+                    targetSummon->AI()->Talk(_text, player);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_whisper_to_controller_random::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    uint32 _text;
+};
+
 class spell_gen_eject_all_passengers : public SpellScript
 {
     PrepareSpellScript(spell_gen_eject_all_passengers);
@@ -4557,6 +4635,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_orc_disguise);
     RegisterSpellScript(spell_gen_paralytic_poison);
     RegisterSpellScript(spell_gen_prevent_emotes);
+    RegisterSpellScript(spell_gen_player_say);
     RegisterSpellScriptWithArgs(spell_gen_proc_below_pct_damaged, "spell_item_soul_harvesters_charm");
     RegisterSpellScriptWithArgs(spell_gen_proc_below_pct_damaged, "spell_item_commendation_of_kaelthas");
     RegisterSpellScriptWithArgs(spell_gen_proc_below_pct_damaged, "spell_item_corpse_tongue_coin");
@@ -4593,6 +4672,10 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_vendor_bark_trigger);
     RegisterSpellScript(spell_gen_wg_water);
     RegisterSpellScript(spell_gen_whisper_gulch_yogg_saron_whisper);
+    RegisterSpellScript(spell_gen_whisper_to_controller);
+    RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_future_you_whisper_to_controller_random", WHISPER_FUTURE_YOU);
+    RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_wyrmrest_defender_whisper_to_controller_random", WHISPER_DEFENDER);
+    RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_past_you_whisper_to_controller_random", WHISPER_PAST_YOU);
     RegisterSpellScript(spell_gen_eject_all_passengers);
     RegisterSpellScript(spell_gen_eject_passenger);
     RegisterSpellScriptWithArgs(spell_gen_eject_passenger_with_seatId, "spell_gen_eject_passenger_1", 0);

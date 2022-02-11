@@ -15,19 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Dragonblight
-SD%Complete: 100
-SDComment:
-SDCategory: Dragonblight
-EndScriptData */
-
-/* ContentData
-npc_alexstrasza_wr_gate
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -36,6 +26,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 
 /*#####
@@ -689,6 +680,103 @@ class npc_torturer_lecraft : public CreatureScript
         }
 };
 
+/*######
+## Quest 12053: The Might of the Horde
+######*/
+
+enum WarsongBattleStandard
+{
+    TEXT_TAUNT_1    = 25888,
+    TEXT_TAUNT_2    = 25889,
+    TEXT_TAUNT_3    = 25890,
+    TEXT_TAUNT_4    = 25891,
+    TEXT_TAUNT_5    = 25892,
+    TEXT_TAUNT_6    = 25893,
+    TEXT_TAUNT_7    = 25894
+};
+
+// 47304 - Warsong Battle Standard
+class spell_warsong_battle_standard : public SpellScript
+{
+    PrepareSpellScript(spell_warsong_battle_standard);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_TAUNT_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_2) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_3) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_4) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_5) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_6) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_7);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->Unit::Say(RAND(TEXT_TAUNT_1, TEXT_TAUNT_2, TEXT_TAUNT_3, TEXT_TAUNT_4, TEXT_TAUNT_5, TEXT_TAUNT_6, TEXT_TAUNT_7), caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warsong_battle_standard::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12470 & 13343: Mystery of the Infinite & Mystery of the Infinite, Redux
+######*/
+
+enum MysteryOfTheInfinite
+{
+    SPELL_MIRROR_IMAGE_AURA         = 49889
+};
+
+// 49686 - Mystery of the Infinite: Script Effect Player Cast Mirror Image
+class spell_moti_mirror_image_script_effect : public SpellScript
+{
+    PrepareSpellScript(spell_moti_mirror_image_script_effect);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_AURA });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_moti_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 50020 - Mystery of the Infinite: Hourglass cast See Invis on Master
+class spell_moti_hourglass_cast_see_invis_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (TempSummon* casterSummon = caster->ToTempSummon())
+                if (Unit* summoner = casterSummon->GetSummonerUnit())
+                    summoner->CastSpell(summoner, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_moti_hourglass_cast_see_invis_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_commander_eligor_dawnbringer();
@@ -696,4 +784,7 @@ void AddSC_dragonblight()
     new spell_q12096_q12092_bark();
     new npc_wyrmrest_defender();
     new npc_torturer_lecraft();
+    RegisterSpellScript(spell_warsong_battle_standard);
+    RegisterSpellScript(spell_moti_mirror_image_script_effect);
+    RegisterSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
 }
