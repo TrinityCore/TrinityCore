@@ -125,6 +125,14 @@ if(TSAN)
   message(STATUS "Clang: Enabled Thread Sanitizer TSan")
 endif()
 
+if(BUILD_TIME_ANALYSIS)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -ftime-trace)
+
+  message(STATUS "Clang: Enabled build time analysis (-ftime-trace)")
+endif()
+
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
 # -Wno-deprecated-copy needed to suppress a warning in g3d
