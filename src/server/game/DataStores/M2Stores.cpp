@@ -23,6 +23,7 @@
 #include "M2Structure.h"
 #include "World.h"
 #include <boost/filesystem/path.hpp>
+#include <G3D/Vector4.h>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
