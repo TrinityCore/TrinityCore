@@ -5,4 +5,3 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 DELETE FROM `spell_script_names` WHERE `spell_id`=54149 AND `ScriptName`='spell_pal_infusion_of_light';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (54149, 'spell_pal_infusion_of_light');
-
