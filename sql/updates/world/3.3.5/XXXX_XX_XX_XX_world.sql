@@ -161,3 +161,7 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_brittle_bones';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (32441, 'spell_brittle_bones');
+
+-- Party Time! (8067)
+DELETE FROM `spell_proc` WHERE `SpellId` = 8067;
+INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `DisableEffectsMask`, `ProcsPerMinute`, `Chance`, `Cooldown`, `Charges`) VALUES (8067, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 50, 0, 0);

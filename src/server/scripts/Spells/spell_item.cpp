@@ -862,10 +862,9 @@ class spell_item_party_time : public AuraScript
 {
     PrepareAuraScript(spell_item_party_time);
 
-    void HandleTargetHeartbeat()
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        if (!roll_chance_i(50))
-            return;
+        PreventDefaultAction();
 
         if (GetTarget()->isMoving())
             GetTarget()->HandleEmoteCommand(RAND(EMOTE_ONESHOT_APPLAUD, EMOTE_ONESHOT_LAUGH, EMOTE_ONESHOT_CHEER, EMOTE_ONESHOT_CHICKEN));
@@ -875,7 +874,7 @@ class spell_item_party_time : public AuraScript
 
     void Register() override
     {
-        OnTargetHeartbeat += AuraTargetHeartbeatFn(spell_item_party_time::HandleTargetHeartbeat);
+        OnEffectProc += AuraEffectProcFn(spell_item_party_time::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
