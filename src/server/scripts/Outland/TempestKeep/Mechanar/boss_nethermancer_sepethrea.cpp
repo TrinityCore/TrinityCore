@@ -16,12 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "mechanar.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -43,7 +42,7 @@ enum Spells
     // Raging Flames
     SPELL_RAGING_FLAMES_DUMMY      = 35274, // NYI, no clue what it can do
     SPELL_RAGING_FLAMES_AREA_AURA  = 35281,
-    SPELL_INVIS_STEALTH_DETECTION  = 18950, // For some reason every time it's used by summoned creatures, it's applied after random delay. Ignored
+    SPELL_INVIS_STEALTH_DETECTION  = 18950,
     SPELL_INFERNO                  = 35268,
     SPELL_INFERNO_DAMAGE           = 35283
 };
@@ -60,10 +59,8 @@ struct boss_nethermancer_sepethrea : public BossAI
 
     void Reset() override
     {
+        _Reset();
         DoCastSelf(SPELL_FROST_ATTACK);
-        me->SetCombatPulseDelay(0);
-        events.Reset();
-        instance->SetBossState(DATA_NETHERMANCER_SEPRETHREA, NOT_STARTED);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -83,9 +80,8 @@ struct boss_nethermancer_sepethrea : public BossAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        // Fails because target is in evade mode (yes, she kills them on evade too)
+        // Fails probably because target is in evade mode (yes, she kills them on evade too). We'll kill them directly in their script for now
         DoCastSelf(SPELL_QUELL_RAGING_FLAMES, true);
-        summons.DespawnAll();
         ScriptedAI::EnterEvadeMode(why);
     }
 
@@ -97,11 +93,13 @@ struct boss_nethermancer_sepethrea : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        events.Reset();
-        instance->SetBossState(DATA_NETHERMANCER_SEPRETHREA, DONE);
+        _JustDied();
         Talk(SAY_DEATH);
         DoCastSelf(SPELL_QUELL_RAGING_FLAMES, true);
     }
+
+    // Despawn is handled by spell, don't store anything
+    void JustSummoned(Creature* /*summon*/) override { }
 
     void UpdateAI(uint32 diff) override
     {
@@ -150,20 +148,16 @@ struct npc_raging_flames : public ScriptedAI
         me->SetCorpseDelay(20, true);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
-    {
-        _summonerGUID = summoner->GetGUID();
-    }
-
     // It's more tricky actually
     void FixateRandomTarget()
     {
         ResetThreatList();
 
-        if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
-            if (_summoner->IsAIEnabled())
-                if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, false))
-                    AddThreat(target, 1000000.0f);
+        if (TempSummon* summon = me->ToTempSummon())
+            if (Creature* summoner = summon->GetSummonerCreatureBase())
+                if (summoner->IsAIEnabled())
+                    if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, false))
+                        AddThreat(target, 1000000.0f);
     }
 
     void JustAppeared() override
@@ -188,6 +182,11 @@ struct npc_raging_flames : public ScriptedAI
         _scheduler.CancelAll();
     }
 
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        me->KillSelf();
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
@@ -200,7 +199,6 @@ struct npc_raging_flames : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    ObjectGuid _summonerGUID;
 };
 
 // 35268, 39346 - Inferno
