@@ -154,3 +154,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (69560, 'spell_gen_drink'),
 (69561, 'spell_gen_drink'),
 (72623, 'spell_gen_drink');
+
+-- Brittle Bones (32441)
+DELETE FROM `spell_proc` WHERE `SpellId` = 32441;
+INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `DisableEffectsMask`, `ProcsPerMinute`, `Chance`, `Cooldown`, `Charges`) VALUES (32441, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 15, 0, 0);
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_brittle_bones';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (32441, 'spell_brittle_bones');

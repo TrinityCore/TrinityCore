@@ -38,6 +38,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -621,8 +622,36 @@ public:
     };
 };
 
+enum BrittleBonesMisc
+{
+    SPELL_RATTLED = 32437
+};
+
+// 32441 - Brittle Bones
+class spell_brittle_bones : public AuraScript
+{
+    PrepareAuraScript(spell_brittle_bones);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RATTLED });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_RATTLED, { aurEff, GetCasterGUID() });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_brittle_bones::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_karazhan()
 {
     new npc_barnes();
     new npc_image_of_medivh();
+    RegisterSpellScript(spell_brittle_bones);
 }
