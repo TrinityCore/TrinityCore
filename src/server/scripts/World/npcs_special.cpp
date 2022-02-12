@@ -1750,6 +1750,8 @@ enum BehstenSlahtz
     OPTION_ID_XP_ON    = 1      // "I wish to start gaining experience again."
 };
 
+const int32 DisableEnableExperienceCost = 100000;
+
 class npc_experience : public CreatureScript
 {
 public:
@@ -1778,6 +1780,7 @@ public:
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
+            player->ModifyMoney(-DisableEnableExperienceCost);
 
             switch (action)
             {
