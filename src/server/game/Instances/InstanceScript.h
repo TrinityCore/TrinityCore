@@ -159,7 +159,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
     public:
         explicit InstanceScript(InstanceMap* map);
 
-        virtual ~InstanceScript() { }
+        virtual ~InstanceScript();
 
         InstanceMap* instance;
 

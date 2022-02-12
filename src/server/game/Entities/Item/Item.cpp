@@ -454,9 +454,12 @@ Item::Item()
     m_paidExtendedCost = 0;
 
     m_randomBonusListId = 0;
+    m_gemScalingLevels = { };
 
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
+
+Item::~Item() = default;
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {

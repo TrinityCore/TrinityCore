@@ -146,10 +146,16 @@ private:
 
 class TC_GAME_API AchievementGlobalMgr
 {
-    AchievementGlobalMgr() { }
-    ~AchievementGlobalMgr() { }
+    AchievementGlobalMgr();
+    ~AchievementGlobalMgr();
 
 public:
+    AchievementGlobalMgr(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr(AchievementGlobalMgr&&) = delete;
+
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr&&) = delete;
+
     static AchievementGlobalMgr* Instance();
 
     std::vector<AchievementEntry const*> const* GetAchievementByReferencedId(uint32 id) const;

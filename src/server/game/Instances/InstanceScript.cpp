@@ -60,6 +60,10 @@ _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatRes
 #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 }
 
+InstanceScript::~InstanceScript()
+{
+}
+
 void InstanceScript::SaveToDB()
 {
     if (InstanceScenario* scenario = instance->GetInstanceScenario())

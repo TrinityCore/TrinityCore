@@ -75,7 +75,14 @@ public:
     using ChargeStorageType = std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection>;
     using GlobalCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, Clock::time_point>;
 
-    explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
+    explicit SpellHistory(Unit* owner);
+    ~SpellHistory();
+
+    SpellHistory(SpellHistory const&) = delete;
+    SpellHistory(SpellHistory&&) = delete;
+
+    SpellHistory& operator=(SpellHistory const&) = delete;
+    SpellHistory& operator=(SpellHistory&&) = delete;
 
     template<class OwnerType>
     void LoadFromDB(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);

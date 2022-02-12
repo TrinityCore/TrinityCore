@@ -213,6 +213,14 @@ private:
 
 struct TC_GAME_API ImmunityInfo
 {
+    ImmunityInfo();
+    ~ImmunityInfo();
+
+    ImmunityInfo(ImmunityInfo const&);
+    ImmunityInfo(ImmunityInfo&&) noexcept;
+    ImmunityInfo& operator=(ImmunityInfo const&);
+    ImmunityInfo& operator=(ImmunityInfo&&) noexcept;
+
     uint32 SchoolImmuneMask = 0;
     uint32 ApplyHarmfulAuraImmuneMask = 0;
     uint32 MechanicImmuneMask = 0;
@@ -262,13 +270,14 @@ public:
         float ResourceCoefficient;
     } Scaling;
 
-    SpellEffectInfo(SpellInfo const* spellInfo) : _spellInfo(spellInfo), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
-                        BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
-                        BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
-                        RadiusEntry(nullptr), MaxRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
-                        BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr),
-                        EffectAttributes(SpellEffectAttributes::None), Scaling() { }
-    SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& effect);
+    explicit SpellEffectInfo(SpellInfo const* spellInfo);
+    explicit SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& effect);
+    SpellEffectInfo(SpellEffectInfo const&);
+    SpellEffectInfo(SpellEffectInfo&&) noexcept;
+    ~SpellEffectInfo();
+
+    SpellEffectInfo& operator=(SpellEffectInfo const&);
+    SpellEffectInfo& operator=(SpellEffectInfo&&) noexcept;
 
     bool IsEffect() const;
     bool IsEffect(SpellEffectName effectName) const;
@@ -434,9 +443,14 @@ class TC_GAME_API SpellInfo
         uint32 ExplicitTargetMask = 0;
         SpellChainNode const* ChainEntry = nullptr;
 
-        SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data);
-        SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects);
+        explicit SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data);
+        explicit SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects);
+        SpellInfo(SpellInfo const&) = delete;
+        SpellInfo(SpellInfo&&) = delete;
         ~SpellInfo();
+
+        SpellInfo& operator=(SpellInfo const&) = delete;
+        SpellInfo& operator=(SpellInfo&&) noexcept = delete;
 
         uint32 GetCategory() const;
         bool HasEffect(SpellEffectName effect) const;

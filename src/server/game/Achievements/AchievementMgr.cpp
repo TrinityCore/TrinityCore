@@ -1047,6 +1047,9 @@ CriteriaList const& GuildAchievementMgr::GetCriteriaByType(CriteriaType type, ui
     return sCriteriaMgr->GetGuildCriteriaByType(type);
 }
 
+AchievementGlobalMgr::AchievementGlobalMgr() = default;
+AchievementGlobalMgr::~AchievementGlobalMgr() = default;
+
 std::string PlayerAchievementMgr::GetOwnerInfo() const
 {
     return Trinity::StringFormat("%s %s", _owner->GetGUID().ToString().c_str(), _owner->GetName().c_str());

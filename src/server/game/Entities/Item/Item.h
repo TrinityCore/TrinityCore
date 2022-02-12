@@ -176,6 +176,7 @@ class TC_GAME_API Item : public Object
         Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
+        ~Item();
 
         virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner);
 

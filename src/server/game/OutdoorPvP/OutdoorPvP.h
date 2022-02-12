@@ -90,6 +90,11 @@ class TC_GAME_API OPvPCapturePoint
 
         virtual ~OPvPCapturePoint() { }
 
+        OPvPCapturePoint(OPvPCapturePoint const& right) = delete;
+        OPvPCapturePoint(OPvPCapturePoint&& right) = delete;
+        OPvPCapturePoint& operator=(OPvPCapturePoint const& right) = delete;
+        OPvPCapturePoint& operator=(OPvPCapturePoint&& right) = delete;
+
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // send world state update to all players present

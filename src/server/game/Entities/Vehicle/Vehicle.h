@@ -38,6 +38,11 @@ class TC_GAME_API Vehicle : public TransportBase
         ~Vehicle();
 
     public:
+        Vehicle(Vehicle const& right) = delete;
+        Vehicle(Vehicle&& right) = delete;
+        Vehicle& operator=(Vehicle const& right) = delete;
+        Vehicle& operator=(Vehicle&& right) = delete;
+
         void Install();
         void Uninstall();
         void Reset(bool evading = false);

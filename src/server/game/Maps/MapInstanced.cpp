@@ -35,6 +35,8 @@ MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFIC
 {
 }
 
+MapInstanced::~MapInstanced() = default;
+
 void MapInstanced::InitVisibilityDistance()
 {
     if (m_InstancedMaps.empty())
