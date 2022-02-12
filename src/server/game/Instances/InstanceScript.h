@@ -23,7 +23,6 @@
 #include "Duration.h"
 #include <iosfwd>
 #include <map>
-#include <memory>
 #include <set>
 
 #define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())

@@ -19,9 +19,7 @@
 #define GOPackets_h__
 
 #include "Packet.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
-#include "WorldSession.h"
 
 namespace WorldPackets
 {

@@ -21,7 +21,6 @@
 #include "GameTime.h"
 #include "Log.h"
 #include "Opcodes.h"
-#include "Player.h"
 #include "SessionKeyGenerator.h"
 #include "Util.h"
 #include "WardenModuleMac.h"

@@ -31,7 +31,6 @@
 #include "Player.h"
 #include "Transport.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <boost/dynamic_bitset.hpp>
 
 MapManager::MapManager()

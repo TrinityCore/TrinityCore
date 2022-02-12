@@ -29,17 +29,19 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
-#include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
+#include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
 #include <cstdarg>
-#include "SpellMgr.h"
+
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#include "ScriptMgr.h"
+#endif
 
 BossBoundaryData::~BossBoundaryData()
 {

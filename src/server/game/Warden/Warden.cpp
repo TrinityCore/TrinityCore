@@ -15,21 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "ByteBuffer.h"
-#include "GameTime.h"
-#include "World.h"
-#include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"
+#include "ByteBuffer.h"
+#include "Common.h"
+#include "GameTime.h"
+#include "Log.h"
+#include "SmartEnum.h"
+#include "Util.h"
 #include "WardenPackets.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
-#include <openssl/sha.h>
 #include <openssl/md5.h>
+#include <openssl/sha.h>
 
 #include <charconv>
 

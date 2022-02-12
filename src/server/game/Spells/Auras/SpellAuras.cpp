@@ -17,7 +17,6 @@
 
 #include "Common.h"
 #include "CellImpl.h"
-#include "DB2Stores.h"
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"

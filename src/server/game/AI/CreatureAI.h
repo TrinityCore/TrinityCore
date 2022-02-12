@@ -18,7 +18,6 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "Common.h"
 #include "LootItemType.h"
 #include "ObjectDefines.h"
 #include "Optional.h"

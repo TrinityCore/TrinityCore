@@ -22,7 +22,6 @@
 #include "Object.h"
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
-#include "PhasingHandler.h"
 
  /*********************************************************/
  /***            PlayerPersonalPhasesTracker            ***/

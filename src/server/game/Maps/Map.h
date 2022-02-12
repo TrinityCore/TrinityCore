@@ -37,6 +37,7 @@
 #include <boost/heap/fibonacci_heap.hpp>
 #include <bitset>
 #include <list>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <set>

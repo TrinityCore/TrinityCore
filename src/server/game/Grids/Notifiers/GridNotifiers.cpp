@@ -16,13 +16,13 @@
  */
 
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "UpdateData.h"
-#include "Transport.h"
-#include "ObjectAccessor.h"
 #include "CellImpl.h"
+#include "CreatureAI.h"
+#include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
+#include "Transport.h"
+#include "UpdateData.h"
+#include "WorldPacket.h"
 
 using namespace Trinity;
 

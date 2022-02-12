@@ -30,6 +30,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "MiscPackets.h"

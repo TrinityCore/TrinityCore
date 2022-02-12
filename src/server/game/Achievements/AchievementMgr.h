@@ -19,6 +19,7 @@
 #define __TRINITY_ACHIEVEMENTMGR_H
 
 #include "CriteriaHandler.h"
+#include "DatabaseEnvFwd.h"
 
 class Guild;
 

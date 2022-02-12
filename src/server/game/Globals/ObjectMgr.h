@@ -22,7 +22,6 @@
 #include "ConditionMgr.h"
 #include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
-#include "Errors.h"
 #include "GameObjectData.h"
 #include "ItemTemplate.h"
 #include "IteratorPair.h"

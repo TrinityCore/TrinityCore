@@ -17,7 +17,6 @@
 
 #include "RandomMovementGenerator.h"
 #include "Creature.h"
-#include "Map.h"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"

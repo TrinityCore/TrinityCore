@@ -27,7 +27,6 @@
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
 #include "LFGQueue.h"
-#include "LFGScripts.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"

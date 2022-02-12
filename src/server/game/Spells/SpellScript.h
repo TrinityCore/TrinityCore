@@ -22,8 +22,11 @@
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "Util.h"
-#include <memory>
 #include <stack>
+
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#include <memory>
+#endif
 
 class Aura;
 class AuraApplication;
