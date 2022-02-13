@@ -593,16 +593,14 @@ class spell_pri_penance : public SpellScript
 
     SpellCastResult CheckCast()
     {
-        Player* caster = GetCaster()->ToPlayer();
-
         if (Unit* target = GetExplTargetUnit())
         {
-            if (!caster->IsFriendlyTo(target))
+            if (!GetCaster()->IsFriendlyTo(target))
             {
-                if (!caster->IsValidAttackTarget(target))
+                if (!GetCaster()->IsValidAttackTarget(target))
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (!caster->isInFront(target))
+                if (!GetCaster()->isInFront(target))
                     return SPELL_FAILED_UNIT_NOT_INFRONT;
             }
         }
