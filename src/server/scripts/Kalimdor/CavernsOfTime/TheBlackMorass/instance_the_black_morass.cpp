@@ -28,7 +28,6 @@ Category: Caverns of Time, The Black Morass
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
-#include "SpellInfo.h"
 #include "the_black_morass.h"
 #include "TemporarySummon.h"
 

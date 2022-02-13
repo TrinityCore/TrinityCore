@@ -25,7 +25,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "razorfen_kraul.h"
 

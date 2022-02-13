@@ -21,7 +21,6 @@
 #include "AuthDefines.h"
 #include "BigNumber.h"
 #include "Define.h"
-#include "Common.h"
 #include "CryptoHash.h"
 #include "Optional.h"
 #include <array>

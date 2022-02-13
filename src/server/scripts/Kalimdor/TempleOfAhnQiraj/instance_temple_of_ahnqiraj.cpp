@@ -23,7 +23,6 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "Creature.h"
 #include "InstanceScript.h"
 #include "temple_of_ahnqiraj.h"
 

@@ -19,7 +19,7 @@
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 /*####

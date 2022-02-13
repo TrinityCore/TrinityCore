@@ -20,9 +20,6 @@
 
 #include "Define.h"
 #include "ConditionMgr.h"
-#include "LootItemType.h"
-#include "ObjectGuid.h"
-#include "SharedDefines.h"
 #include <list>
 #include <set>
 #include <unordered_map>

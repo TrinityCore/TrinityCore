@@ -19,7 +19,6 @@
 #define TRINITY_SESSIONKEYGENERATOR_HPP
 
 #include "CryptoHash.h"
-#include <cstring>
 
 template <typename Hash>
 class SessionKeyGenerator

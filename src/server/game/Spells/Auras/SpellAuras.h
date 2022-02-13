@@ -307,6 +307,12 @@ class TC_GAME_API Aura
 
         virtual std::string GetDebugInfo() const;
 
+        Aura(Aura const&) = delete;
+        Aura(Aura&&) = delete;
+
+        Aura& operator=(Aura const&) = delete;
+        Aura& operator=(Aura&&) = delete;
+
     private:
         AuraScript* GetScriptByType(std::type_info const& type) const;
         void _DeleteRemovedApplications();

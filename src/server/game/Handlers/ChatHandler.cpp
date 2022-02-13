@@ -22,8 +22,8 @@
 #include "Chat.h"
 #include "ChatPackets.h"
 #include "Common.h"
+#include "CreatureAI.h"
 #include "DB2Stores.h"
-#include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -41,7 +41,6 @@
 #include "Util.h"
 #include "Warden.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <algorithm>
 
 inline bool isNasty(uint8 c)

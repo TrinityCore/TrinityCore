@@ -27,8 +27,8 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
-#include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "Position.h"
+#include "ScriptedCreature.h"
 
 /*######
 ## npc_sharpbeak used by Entrys 43161 & 51125

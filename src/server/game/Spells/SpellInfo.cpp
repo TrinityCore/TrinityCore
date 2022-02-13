@@ -216,6 +216,13 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
     return targetMask;
 }
 
+ImmunityInfo::ImmunityInfo() = default;
+ImmunityInfo::~ImmunityInfo() = default;
+ImmunityInfo::ImmunityInfo(ImmunityInfo const&) = default;
+ImmunityInfo::ImmunityInfo(ImmunityInfo&&) noexcept = default;
+ImmunityInfo& ImmunityInfo::operator=(ImmunityInfo const&) = default;
+ImmunityInfo& ImmunityInfo::operator=(ImmunityInfo&&) noexcept = default;
+
 std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplicitTargetInfo::_data =
 { {
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        //
@@ -372,6 +379,15 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 151
 } };
 
+SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo): _spellInfo(spellInfo), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
+    BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
+    BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
+    RadiusEntry(nullptr), MaxRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
+    BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr),
+    EffectAttributes(SpellEffectAttributes::None), Scaling()
+{
+}
+
 SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& _effect)
     : EffectAttributes(SpellEffectAttributes::None)
 {
@@ -408,6 +424,12 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     ImplicitTargetConditions = nullptr;
     EffectAttributes = _effect.GetEffectAttributes();
 }
+
+SpellEffectInfo::SpellEffectInfo(SpellEffectInfo const&) = default;
+SpellEffectInfo::SpellEffectInfo(SpellEffectInfo&&) noexcept = default;
+SpellEffectInfo::~SpellEffectInfo() = default;
+SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo const&) = default;
+SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo&&) noexcept = default;
 
 bool SpellEffectInfo::IsEffect() const
 {

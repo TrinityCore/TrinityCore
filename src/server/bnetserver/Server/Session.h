@@ -25,7 +25,6 @@
 #include "Socket.h"
 #include "QueryResult.h"
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/ssl.hpp>
 #include <google/protobuf/message.h>
 #include <memory>
 

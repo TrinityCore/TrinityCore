@@ -27,9 +27,7 @@
 #include "PartyPackets.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 class Aura;
 

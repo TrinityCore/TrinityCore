@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "CascHandles.h"
 #include <map>
+#include <memory>
 #include <string>
 
 #define FILE_FORMAT_VERSION    18

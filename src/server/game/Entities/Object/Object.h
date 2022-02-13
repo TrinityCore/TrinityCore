@@ -398,7 +398,9 @@ class TC_GAME_API Object
         bool m_isDestroyedObject;
 
         Object(Object const& right) = delete;
+        Object(Object&& right) = delete;
         Object& operator=(Object const& right) = delete;
+        Object& operator=(Object&& right) = delete;
 };
 
 template<class T>

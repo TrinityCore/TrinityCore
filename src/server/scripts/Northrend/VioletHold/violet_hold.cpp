@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "Containers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"

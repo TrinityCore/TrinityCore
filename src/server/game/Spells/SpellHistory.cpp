@@ -136,6 +136,12 @@ struct SpellHistory::PersistenceHelper<Pet>
     }
 };
 
+SpellHistory::SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts()
+{
+}
+
+SpellHistory::~SpellHistory() = default;
+
 template<class OwnerType>
 void SpellHistory::LoadFromDB(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult)
 {

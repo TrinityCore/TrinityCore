@@ -20,9 +20,10 @@
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
+#include "SmartEnum.h"
 #include "SpellHistory.h"
-#include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "TotemPackets.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)

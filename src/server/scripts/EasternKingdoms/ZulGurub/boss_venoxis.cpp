@@ -16,10 +16,8 @@
  */
 
 #include "zulgurub.h"
-#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "Spell.h"
 
 enum Yells
 {

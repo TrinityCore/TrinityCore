@@ -28,7 +28,6 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
-#include <cmath>
 #include "string.h"
 
 #define MAX_STACK_SIZE 64

@@ -24,7 +24,7 @@
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 #include "Position.h"
-#include "QuestDef.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
 #include <array>

@@ -34,7 +34,6 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 #include "ReputationMgr.h"
-#include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "UpdateFields.h"
 #include "WorldSession.h"

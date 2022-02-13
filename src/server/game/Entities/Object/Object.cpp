@@ -56,7 +56,6 @@
 #include "Vehicle.h"
 #include "VMapManager2.h"
 #include "World.h"
-#include "WorldSession.h"
 #include <G3D/Vector3.h>
 #include <sstream>
 

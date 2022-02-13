@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include <CascPort.h>
-#include <memory>
 
 namespace boost
 {

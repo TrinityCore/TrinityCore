@@ -194,6 +194,27 @@ index 24521efc93..0f0ea459df 100644
  #include "G3D/HashTrait.h"
  #include "G3D/PositionTrait.h"
  #include <string>
+diff --git a/dep/g3dlite/include/G3D/debugAssert.h b/dep/g3dlite/include/G3D/debugAssert.h
+index edff671061..197312bd12 100644
+--- a/dep/g3dlite/include/G3D/debugAssert.h
++++ b/dep/g3dlite/include/G3D/debugAssert.h
+@@ -32,6 +32,7 @@
+ #include <cstdlib>
+
+ #ifdef _MSC_VER
++#include <intrin.h>
+ // conditional expression is constant
+ #   pragma warning (disable : 4127)
+ #endif
+@@ -116,7 +117,7 @@ namespace _internal {
+ #ifdef G3D_DEBUG
+
+ #    if defined(_MSC_VER)
+-#       define rawBreak()  ::DebugBreak();
++#       define rawBreak()  ::__debugbreak();
+ #    elif defined(__i386__)
+         // gcc on intel
+ #       define rawBreak() __asm__ __volatile__ ( "int $3" );
 diff --git a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
 index d043f21491..9202fe41d0 100644
 --- a/dep/g3dlite/include/G3D/platform.h
@@ -265,15 +286,3 @@ index 3c3e43a0af..ff843fb7ee 100644
      // disable: "C++ exception handler used"
  #   pragma warning (push)
  #   pragma warning (disable : 4530)
-diff --git a/src/server/game/DataStores/M2Stores.cpp b/src/server/game/DataStores/M2Stores.cpp
-index c5eb43fdf2..b55b5a9699 100644
---- a/src/server/game/DataStores/M2Stores.cpp
-+++ b/src/server/game/DataStores/M2Stores.cpp
-@@ -23,6 +23,7 @@
- #include "M2Structure.h"
- #include "World.h"
- #include <boost/filesystem/path.hpp>
-+#include <G3D/Vector4.h>
- #include <fstream>
- #include <iostream>
- #include <iomanip>

@@ -23,8 +23,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "SpellScript.h"
 #include "zulaman.h"
 
 enum Says

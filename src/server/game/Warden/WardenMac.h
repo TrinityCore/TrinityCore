@@ -19,7 +19,6 @@
 #define _WARDEN_MAC_H
 
 #include "ARC4.h"
-#include "ByteBuffer.h"
 #include "Warden.h"
 
 class WorldSession;

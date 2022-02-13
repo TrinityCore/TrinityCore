@@ -990,6 +990,11 @@ LocaleConstant ChatHandler::GetSessionDbLocaleIndex() const
     return m_session->GetSessionDbLocaleIndex();
 }
 
+std::string ChatHandler::playerLink(std::string const& name) const
+{
+    return m_session ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name;
+}
+
 std::string ChatHandler::GetNameLink(Player* chr) const
 {
     return playerLink(chr->GetName());

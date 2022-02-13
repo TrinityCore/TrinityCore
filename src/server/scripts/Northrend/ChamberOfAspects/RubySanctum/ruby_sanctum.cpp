@@ -21,7 +21,6 @@
 #include "Player.h"
 #include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellScript.h"
 
 enum Texts

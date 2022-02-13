@@ -28,8 +28,6 @@ EndScriptData */
 #include "Chat.h"
 #include "ChatCommand.h"
 #include "Language.h"
-#include "Log.h"
-#include "ObjectMgr.h"
 #include "RBAC.h"
 #include "WorldSession.h"
 
