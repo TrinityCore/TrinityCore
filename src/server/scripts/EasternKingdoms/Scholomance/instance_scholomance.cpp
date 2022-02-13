@@ -19,7 +19,6 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Player.h"
 #include "scholomance.h"
 
 Position const GandlingLoc = { 180.7712f, -5.428603f, 75.57024f, 1.291544f };

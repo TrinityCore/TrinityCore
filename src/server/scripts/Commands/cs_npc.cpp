@@ -32,7 +32,6 @@ EndScriptData */
 #include "FollowMovementGenerator.h"
 #include "GameTime.h"
 #include "Language.h"
-#include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"

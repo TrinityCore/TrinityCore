@@ -22,7 +22,6 @@
 #include "GameObjectAI.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
 #include "SpellScript.h"
 
 enum Spells

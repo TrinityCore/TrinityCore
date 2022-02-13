@@ -27,7 +27,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"

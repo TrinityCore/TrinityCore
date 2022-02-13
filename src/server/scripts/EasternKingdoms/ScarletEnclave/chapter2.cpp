@@ -21,7 +21,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 
 enum BloodyBreakoutTexts

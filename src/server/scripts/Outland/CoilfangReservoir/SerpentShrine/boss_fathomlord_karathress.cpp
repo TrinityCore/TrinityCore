@@ -26,7 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
 

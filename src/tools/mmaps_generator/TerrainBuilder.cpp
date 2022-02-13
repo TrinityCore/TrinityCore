@@ -23,6 +23,7 @@
 #include "ModelInstance.h"
 #include "Util.h"
 #include "VMapManager2.h"
+#include <map>
 
 namespace MMAP
 {

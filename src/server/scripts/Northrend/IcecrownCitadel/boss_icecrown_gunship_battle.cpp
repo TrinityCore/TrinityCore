@@ -18,7 +18,6 @@
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
-#include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
