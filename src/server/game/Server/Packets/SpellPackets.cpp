@@ -16,6 +16,7 @@
  */
 
 #include "MovementPackets.h"
+#include "CharacterPackets.h"
 #include "SpellPackets.h"
 
 void WorldPackets::Spells::CancelAura::Read()
@@ -884,6 +885,13 @@ void WorldPackets::Spells::GetMirrorImageData::Read()
     _worldPacket >> UnitGUID;
     _worldPacket >> DisplayID;
 }
+
+WorldPackets::Spells::MirrorImageComponentedData::MirrorImageComponentedData()
+    : ServerPacket(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 8 + 4 + 8 * 1 + 8 + 11 * 4)
+{
+}
+
+WorldPackets::Spells::MirrorImageComponentedData::~MirrorImageComponentedData() = default;
 
 WorldPacket const* WorldPackets::Spells::MirrorImageComponentedData::Write()
 {

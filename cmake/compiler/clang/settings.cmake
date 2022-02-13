@@ -125,6 +125,14 @@ if(TSAN)
   message(STATUS "Clang: Enabled Thread Sanitizer TSan")
 endif()
 
+if(BUILD_TIME_ANALYSIS)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -ftime-trace)
+
+  message(STATUS "Clang: Enabled build time analysis (-ftime-trace)")
+endif()
+
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
 # -Wno-deprecated-copy needed to suppress a warning in g3d
@@ -149,4 +157,14 @@ if(BUILD_SHARED_LIBS)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --no-undefined")
 
   message(STATUS "Clang: Disallow undefined symbols")
+endif()
+
+# speedup PCH builds by forcing template instantiations during PCH generation
+set(CMAKE_REQUIRED_FLAGS "-fpch-instantiate-templates")
+check_cxx_source_compiles("int main() { return 0; }" CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
+unset(CMAKE_REQUIRED_FLAGS)
+if(CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fpch-instantiate-templates)
 endif()

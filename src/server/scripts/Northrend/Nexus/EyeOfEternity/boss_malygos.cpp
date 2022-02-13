@@ -372,7 +372,6 @@ public:
             Initialize();
 
             me->SetDisableGravity(true);
-            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
             me->SetImmuneToAll(true);
             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             // TO DO: find what in core is making boss slower than in retail (when correct speed data) or find missing movement flag update or forced spline change

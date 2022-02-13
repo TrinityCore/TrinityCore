@@ -16,7 +16,6 @@
  */
 
 #include "ItemPackets.h"
-#include "Player.h"
 
 void WorldPackets::Item::BuyBackItem::Read()
 {

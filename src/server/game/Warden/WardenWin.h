@@ -20,10 +20,8 @@
 
 #include "Cryptography/ARC4.h"
 #include "Cryptography/BigNumber.h"
-#include "ByteBuffer.h"
 #include "Warden.h"
 #include <array>
-#include <list>
 #include <utility>
 
 #pragma pack(push, 1)

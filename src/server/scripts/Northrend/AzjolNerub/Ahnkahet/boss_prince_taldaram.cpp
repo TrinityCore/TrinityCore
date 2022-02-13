@@ -25,7 +25,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -409,7 +408,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 Creature* princeTaldaram = instance->GetCreature(DATA_PRINCE_TALDARAM);
                 if (princeTaldaram && princeTaldaram->IsAlive())

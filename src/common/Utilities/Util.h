@@ -25,6 +25,7 @@
 #include <array>
 #include <string>
 #include <string_view>
+#include <typeinfo>
 #include <utility>
 #include <vector>
 
@@ -369,13 +370,20 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
 TC_COMMON_API float DegToRad(float degrees);
 
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
-TC_COMMON_API bool StringStartsWith(std::string_view haystack, std::string_view needle);
+inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
+inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
 template <typename T>
 inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)
 {
     return StringContainsStringI(haystack.second, needle);
 }
+TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
+
+struct StringCompareLessI_T
+{
+    bool operator()(std::string_view a, std::string_view b) const { return StringCompareLessI(a, b); }
+};
 
 // simple class for not-modifyable list
 template <typename T>
@@ -420,134 +428,6 @@ class HookList final
         {
             return _container.end();
         }
-};
-
-class TC_COMMON_API flag128
-{
-private:
-    uint32 part[4];
-
-public:
-    flag128(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0, uint32 p4 = 0)
-    {
-        part[0] = p1;
-        part[1] = p2;
-        part[2] = p3;
-        part[3] = p4;
-    }
-
-    inline bool IsEqual(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0, uint32 p4 = 0) const
-    {
-        return (part[0] == p1 && part[1] == p2 && part[2] == p3 && part[3] == p4);
-    }
-
-    inline bool HasFlag(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0, uint32 p4 = 0) const
-    {
-        return (part[0] & p1 || part[1] & p2 || part[2] & p3 || part[3] & p4);
-    }
-
-    inline void Set(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0, uint32 p4 = 0)
-    {
-        part[0] = p1;
-        part[1] = p2;
-        part[2] = p3;
-        part[3] = p4;
-    }
-
-    inline bool operator<(flag128 const& right) const
-    {
-        for (uint8 i = 4; i > 0; --i)
-        {
-            if (part[i - 1] < right.part[i - 1])
-                return true;
-            else if (part[i - 1] > right.part[i - 1])
-                return false;
-        }
-        return false;
-    }
-
-    inline bool operator==(flag128 const& right) const
-    {
-        return
-            (
-            part[0] == right.part[0] &&
-            part[1] == right.part[1] &&
-            part[2] == right.part[2] &&
-            part[3] == right.part[3]
-            );
-    }
-
-    inline bool operator!=(flag128 const& right) const
-    {
-        return !(*this == right);
-    }
-
-    inline flag128 operator&(flag128 const& right) const
-    {
-        return flag128(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2], part[3] & right.part[3]);
-    }
-
-    inline flag128& operator&=(flag128 const& right)
-    {
-        part[0] &= right.part[0];
-        part[1] &= right.part[1];
-        part[2] &= right.part[2];
-        part[3] &= right.part[3];
-        return *this;
-    }
-
-    inline flag128 operator|(flag128 const& right) const
-    {
-        return flag128(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2], part[3] | right.part[3]);
-    }
-
-    inline flag128& operator |=(flag128 const& right)
-    {
-        part[0] |= right.part[0];
-        part[1] |= right.part[1];
-        part[2] |= right.part[2];
-        part[3] |= right.part[3];
-        return *this;
-    }
-
-    inline flag128 operator~() const
-    {
-        return flag128(~part[0], ~part[1], ~part[2], ~part[3]);
-    }
-
-    inline flag128 operator^(flag128 const& right) const
-    {
-        return flag128(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2], part[3] ^ right.part[3]);
-    }
-
-    inline flag128& operator^=(flag128 const& right)
-    {
-        part[0] ^= right.part[0];
-        part[1] ^= right.part[1];
-        part[2] ^= right.part[2];
-        part[3] ^= right.part[3];
-        return *this;
-    }
-
-    inline operator bool() const
-    {
-        return (part[0] != 0 || part[1] != 0 || part[2] != 0 || part[3] != 0);
-    }
-
-    inline bool operator !() const
-    {
-        return !(bool(*this));
-    }
-
-    inline uint32& operator[](uint8 el)
-    {
-        return part[el];
-    }
-
-    inline uint32 const& operator [](uint8 el) const
-    {
-        return part[el];
-    }
 };
 
 enum ComparisionType
@@ -597,6 +477,12 @@ Ret* Coalesce(T1* first, T*... rest)
     else
         return static_cast<Ret*>(first);
 }
+
+TC_COMMON_API std::string GetTypeName(std::type_info const&);
+template <typename T>
+std::string GetTypeName() { return GetTypeName(typeid(T)); }
+template <typename T>
+std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::type_info>, std::string> GetTypeName(T&& v) { return GetTypeName(typeid(v)); }
 
 template<typename T>
 struct NonDefaultConstructible

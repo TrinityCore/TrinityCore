@@ -21,7 +21,6 @@
 #include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
-#include "DB2Stores.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GossipDef.h"
@@ -38,7 +37,6 @@
 #include "Random.h"
 #include "SmartAI.h"
 #include "SpellAuras.h"
-#include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WaypointDefines.h"
@@ -63,6 +61,7 @@ SmartScript::SmartScript()
     isProcessingTimedActionList = false;
     mCurrentPriority = 0;
     mEventSortingRequired = false;
+    mNestedEventsCounter = 0;
 }
 
 SmartScript::~SmartScript()
@@ -233,16 +232,28 @@ void SmartScript::ResetBaseObject()
 
 void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob, std::string const& varString)
 {
-    for (SmartScriptHolder& event : mEvents)
-    {
-        SMART_EVENT eventType = SMART_EVENT(event.GetEventType());
-        if (eventType == SMART_EVENT_LINK)//special handling
-            continue;
+    mNestedEventsCounter++;
 
-        if (eventType == e)
-            if (sConditionMgr->IsObjectMeetingSmartEventConditions(event.entryOrGuid, event.event_id, event.source_type, unit, GetBaseObject()))
-                ProcessEvent(event, unit, var0, var1, bvar, spell, gob, varString);
+    // Allow only a fixed number of nested ProcessEventsFor calls
+    if (mNestedEventsCounter > MAX_NESTED_EVENTS)
+    {
+        TC_LOG_WARN("scripts.ai", "SmartScript::ProcessEventsFor: reached the limit of max allowed nested ProcessEventsFor() calls with event %u, skipping!\n%s", e, GetBaseObject()->GetDebugInfo().c_str());
     }
+    else
+    {
+        for (SmartScriptHolder& event : mEvents)
+        {
+            SMART_EVENT eventType = SMART_EVENT(event.GetEventType());
+            if (eventType == SMART_EVENT_LINK)//special handling
+                continue;
+
+            if (eventType == e)
+                if (sConditionMgr->IsObjectMeetingSmartEventConditions(event.entryOrGuid, event.event_id, event.source_type, unit, GetBaseObject()))
+                    ProcessEvent(event, unit, var0, var1, bvar, spell, gob, varString);
+        }
+    }
+
+    --mNestedEventsCounter;
 }
 
 void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob, std::string const& varString)
@@ -822,6 +833,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (!me)
                 break;
+
+            // Reset home position to respawn position if specified in the parameters
+            if (e.action.evade.toRespawnPosition == 0)
+            {
+                float homeX, homeY, homeZ, homeO;
+                me->GetRespawnPosition(homeX, homeY, homeZ, &homeO);
+                me->SetHomePosition(homeX, homeY, homeZ, homeO);
+            }
 
             me->AI()->EnterEvadeMode();
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature %s EnterEvadeMode", me->GetGUID().ToString().c_str());
@@ -1875,9 +1894,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             target->ToUnit()->AddVisFlags(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            // this is totally wrong to maintain compatibility with existing scripts
-                            // TODO: fix with animtier overhaul
-                            target->ToUnit()->SetAnimTier(UnitBytes1_Flags(target->ToUnit()->m_unitData->AnimTier | e.action.setunitByte.byte1), false);
+                            target->ToUnit()->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
                             break;
                     }
                 }
@@ -1900,7 +1917,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             target->ToUnit()->RemoveVisFlags(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(UnitBytes1_Flags(target->ToUnit()->m_unitData->AnimTier & ~e.action.setunitByte.byte1), false);
+                            target->ToUnit()->SetAnimTier(AnimTier::Ground);
                             break;
                     }
                 }
@@ -2512,12 +2529,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             WorldObject* baseObject = GetBaseObject();
 
-            auto doCreatePersonalClone = [&](Position const& position, Unit* owner)
+            auto doCreatePersonalClone = [&](Position const& position, Player* privateObjectOwner)
             {
-                ObjectGuid privateObjectOwner = owner->GetGUID();
                 if (Creature* summon = GetBaseObject()->SummonPersonalClone(position, TempSummonType(e.action.becomePersonalClone.type), Milliseconds(e.action.becomePersonalClone.duration), 0, 0, privateObjectOwner))
                     if (IsSmart(summon))
-                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, owner, e.event_id + 1);
+                        ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, privateObjectOwner, e.event_id + 1);
             };
 
 
@@ -3461,13 +3477,13 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             break;
         }
         case SMART_EVENT_TRANSPORT_RELOCATE:
-        case SMART_EVENT_WAYPOINT_START:
         {
-            if (e.event.waypoint.pathID && var0 != e.event.waypoint.pathID)
+            if (e.event.transportRelocate.pointID && var0 != e.event.transportRelocate.pointID)
                 return;
             ProcessAction(e, unit, var0);
             break;
         }
+        case SMART_EVENT_WAYPOINT_START:
         case SMART_EVENT_WAYPOINT_REACHED:
         case SMART_EVENT_WAYPOINT_RESUMED:
         case SMART_EVENT_WAYPOINT_PAUSED:

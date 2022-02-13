@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "AchievementMgr.h"
 #include "AzeriteItem.h"
 #include "Guild.h"
 #include "GuildMgr.h"

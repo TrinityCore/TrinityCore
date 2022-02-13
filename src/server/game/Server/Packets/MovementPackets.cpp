@@ -19,7 +19,6 @@
 #include "MoveSpline.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
-#include "PacketUtilities.h"
 #include "Unit.h"
 #include "Util.h"
 
@@ -495,7 +494,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         movementSpline.AnimTierTransition.emplace();
         movementSpline.AnimTierTransition->TierTransitionID = moveSpline.anim_tier->TierTransitionId;
         movementSpline.AnimTierTransition->StartTime = moveSpline.effect_start_time;
-        movementSpline.AnimTierTransition->AnimTier = moveSpline.anim_tier->AnimTier;
+        movementSpline.AnimTierTransition->AnimTier = AsUnderlyingType(moveSpline.anim_tier->AnimTier);
     }
 
     movementSpline.MoveTime = moveSpline.Duration();

@@ -129,7 +129,7 @@ public:
             }
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {

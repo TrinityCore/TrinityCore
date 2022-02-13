@@ -22,6 +22,7 @@
 #include "Util.h"
 #include <utf8.h>
 #include <sstream>
+#include <cmath>
 #include <ctime>
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())

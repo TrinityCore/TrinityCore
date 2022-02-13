@@ -32,10 +32,8 @@
 #include "MailPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {

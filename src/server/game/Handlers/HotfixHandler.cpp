@@ -21,7 +21,6 @@
 #include "GameTime.h"
 #include "HotfixPackets.h"
 #include "Log.h"
-#include "ObjectDefines.h"
 #include "Realm.h"
 #include "World.h"
 

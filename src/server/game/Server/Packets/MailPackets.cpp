@@ -20,7 +20,6 @@
 #include "Item.h"
 #include "Mail.h"
 #include "Player.h"
-#include "World.h"
 
 WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8 pos)
 {

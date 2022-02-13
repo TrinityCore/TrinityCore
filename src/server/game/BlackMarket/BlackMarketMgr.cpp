@@ -260,7 +260,7 @@ void BlackMarketMgr::AddTemplate(BlackMarketTemplate* templ)
     _templates[templ->MarketID] = templ;
 }
 
-void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDatabaseTransaction& trans)
+void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDatabaseTransaction trans)
 {
     // Mail already sent
     if (entry->GetMailSent())
@@ -320,7 +320,7 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDataba
     entry->MailSent();
 }
 
-void BlackMarketMgr::SendAuctionOutbidMail(BlackMarketEntry* entry, CharacterDatabaseTransaction& trans)
+void BlackMarketMgr::SendAuctionOutbidMail(BlackMarketEntry* entry, CharacterDatabaseTransaction trans)
 {
     ObjectGuid oldBidder_guid = ObjectGuid::Create<HighGuid::Player>(entry->GetBidder());
     Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
@@ -447,7 +447,7 @@ bool BlackMarketEntry::LoadFromDB(Field* fields)
     return true;
 }
 
-void BlackMarketEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
+void BlackMarketEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BLACKMARKET_AUCTIONS);
 
@@ -460,7 +460,7 @@ void BlackMarketEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
     trans->Append(stmt);
 }
 
-void BlackMarketEntry::DeleteFromDB(CharacterDatabaseTransaction& trans) const
+void BlackMarketEntry::DeleteFromDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BLACKMARKET_AUCTIONS);
     stmt->setInt32(0, _marketId);
@@ -481,7 +481,7 @@ bool BlackMarketEntry::ValidateBid(uint64 bid) const
     return true;
 }
 
-void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, CharacterDatabaseTransaction& trans)   //Updated
+void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, CharacterDatabaseTransaction trans)   //Updated
 {
     if (bid < _currentBid)
         return;

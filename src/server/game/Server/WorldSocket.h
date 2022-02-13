@@ -18,7 +18,6 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
-#include "Common.h"
 #include "AsyncCallbackProcessor.h"
 #include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
@@ -29,7 +28,6 @@
 #include "MPSCQueue.h"
 #include <array>
 #include <boost/asio/ip/tcp.hpp>
-#include <functional>
 #include <mutex>
 
 typedef struct z_stream_s z_stream;

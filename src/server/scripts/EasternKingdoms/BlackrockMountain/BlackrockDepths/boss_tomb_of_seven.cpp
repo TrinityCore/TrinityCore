@@ -60,7 +60,7 @@ class boss_gloomrel : public CreatureScript
 
             InstanceScript* instance;
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -87,7 +87,7 @@ class boss_gloomrel : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (player->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 1 && player->GetSkillValue(SKILL_MINING) >= DATA_SKILLPOINT_MIN && !player->HasSpell(SPELL_SMELT_DARK_IRON))
                     AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_TEACH_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -229,7 +229,7 @@ class boss_doomrel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -253,7 +253,7 @@ class boss_doomrel : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 AddGossipItemFor(player, GOSSIP_MENU_CHALLENGE, GOSSIP_MENU_ID_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 2601, me->GetGUID());

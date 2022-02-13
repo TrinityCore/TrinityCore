@@ -31,7 +31,6 @@
 #include "SpellAuraEffects.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
-#include "Util.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
@@ -887,6 +886,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     init.SetFacing(o);
     init.SetTransportEnter();
     Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
+
+    for (auto const& [guid, threatRef] : Passenger->GetThreatManager().GetThreatenedByMeList())
+        threatRef->GetOwner()->GetThreatManager().AddThreat(Target->GetBase(), threatRef->GetThreat(), nullptr, true, true);
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {

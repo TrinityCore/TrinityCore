@@ -20,7 +20,6 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -237,7 +236,7 @@ struct npc_barrett_toc : public ScriptedAI
         me->GetMotionMaster()->MoveAlongSplineChain(POINT_BARRETT_DESPAWN, SPLINE_INITIAL_MOVEMENT, false);
     }
 
-    bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
         switch (menuId)
         {

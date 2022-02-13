@@ -17,12 +17,12 @@
 
 #include "MapBuilder.h"
 #include "Containers.h"
+#include "IntermediateValues.h"
 #include "MapTree.h"
 #include "MMapDefines.h"
 #include "ModelInstance.h"
 #include "PathCommon.h"
 #include "StringFormat.h"
-#include <DetourCommon.h>
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
 #include <climits>

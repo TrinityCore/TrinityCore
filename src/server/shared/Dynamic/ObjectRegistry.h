@@ -18,11 +18,8 @@
 #ifndef TRINITY_OBJECTREGISTRY_H
 #define TRINITY_OBJECTREGISTRY_H
 
-#include "Define.h"
-
 #include <string>
 #include <map>
-#include <vector>
 #include <memory>
 
 /** ObjectRegistry holds all registry item of the same type

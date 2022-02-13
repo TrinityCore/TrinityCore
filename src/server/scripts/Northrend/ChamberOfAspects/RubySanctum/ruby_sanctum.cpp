@@ -21,7 +21,6 @@
 #include "Player.h"
 #include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -159,7 +158,7 @@ class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
     public:
         at_baltharus_plateau() : OnlyOnceAreaTriggerScript("at_baltharus_plateau") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())

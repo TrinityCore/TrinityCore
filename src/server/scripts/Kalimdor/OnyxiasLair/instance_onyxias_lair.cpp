@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "CellImpl.h"
+#include "CreatureAI.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"

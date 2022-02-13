@@ -54,8 +54,8 @@
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
+#include "VMapManager2.h"
 #include "World.h"
-#include "WorldSession.h"
 #include <G3D/Vector3.h>
 #include <sstream>
 
@@ -1810,6 +1810,18 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return nullptr;
     }
 
+    Transport* transport = summoner ? summoner->GetTransport() : nullptr;
+    if (transport)
+    {
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        summon->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        // This object must be added to transport before adding to map for the client to properly display it
+        transport->AddPassenger(summon);
+    }
+
     if (summoner && !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
         PhasingHandler::InheritPhaseShift(summon, summoner);
 
@@ -1825,11 +1837,14 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     {
         if (summoner && smoothPhasingInfo->ReplaceObject)
         {
-            SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
-            originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
-            summoner->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
+            if (WorldObject* replacedObject = ObjectAccessor::GetWorldObject(*summoner, *smoothPhasingInfo->ReplaceObject))
+            {
+                SmoothPhasingInfo originalSmoothPhasingInfo = *smoothPhasingInfo;
+                originalSmoothPhasingInfo.ReplaceObject = summon->GetGUID();
+                replacedObject->GetOrCreateSmoothPhasing()->SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
 
-            summon->SetDemonCreatorGUID(privateObjectOwner);
+                summon->SetDemonCreatorGUID(privateObjectOwner);
+            }
         }
 
         summon->GetOrCreateSmoothPhasing()->SetSingleInfo(*smoothPhasingInfo);
@@ -1837,6 +1852,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     if (!AddToMap(summon->ToCreature()))
     {
+        // Returning false will cause the object to be deleted - remove from transport
+        if (transport)
+            transport->RemovePassenger(summon);
+
         delete summon;
         return nullptr;
     }
@@ -1917,12 +1936,14 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, 0, privateObjectOwner);
 }
 
-TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /*= ObjectGuid::Empty*/)
+TempSummon* WorldObject::SummonPersonalClone(Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, Player* privateObjectOwner /*= nullptr*/)
 {
+    ASSERT(privateObjectOwner);
+
     if (Map* map = FindMap())
     {
         SmoothPhasingInfo smoothPhasingInfo{GetGUID(), true, true};
-        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), this, spellId, vehId, privateObjectOwner, &smoothPhasingInfo))
+        if (TempSummon* summon = map->SummonCreature(GetEntry(), pos, nullptr, despawnTime.count(), privateObjectOwner, spellId, vehId, privateObjectOwner->GetGUID(), &smoothPhasingInfo))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
@@ -2024,10 +2045,10 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     return creature;
 }
 
-GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
+GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range, bool spawnedOnly) const
 {
     GameObject* go = nullptr;
-    Trinity::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
+    Trinity::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range, spawnedOnly);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
     Cell::VisitGridObjects(this, searcher, range);
     return go;
@@ -2349,54 +2370,62 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     if (!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER)
         return SPELL_MISS_NONE;
 
-    SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
-    // PvP - PvE spell misschances per leveldif > 2
-    int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-    int32 thisLevel = GetLevelForTarget(victim);
-    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsTrigger())
-        thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
-    int32 leveldif = int32(victim->GetLevelForTarget(this)) - thisLevel;
-    int32 levelBasedHitDiff = leveldif;
-
-    // Base hit chance from attacker and victim levels
-    int32 modHitChance = 100;
-    if (levelBasedHitDiff >= 0)
+    float missChance = [&]()
     {
-        if (victim->GetTypeId() != TYPEID_PLAYER)
+        if (spellInfo->HasAttribute(SPELL_ATTR7_NO_ATTACK_MISS))
+            return 0.0f;
+
+        SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
+        // PvP - PvE spell misschances per leveldif > 2
+        int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
+        int32 thisLevel = GetLevelForTarget(victim);
+        if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsTrigger())
+            thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
+        int32 leveldif = int32(victim->GetLevelForTarget(this)) - thisLevel;
+        int32 levelBasedHitDiff = leveldif;
+
+        // Base hit chance from attacker and victim levels
+        int32 modHitChance = 100;
+        if (levelBasedHitDiff >= 0)
         {
-            modHitChance = 94 - 3 * std::min(levelBasedHitDiff, 3);
-            levelBasedHitDiff -= 3;
+            if (victim->GetTypeId() != TYPEID_PLAYER)
+            {
+                modHitChance = 94 - 3 * std::min(levelBasedHitDiff, 3);
+                levelBasedHitDiff -= 3;
+            }
+            else
+            {
+                modHitChance = 96 - std::min(levelBasedHitDiff, 2);
+                levelBasedHitDiff -= 2;
+            }
+            if (levelBasedHitDiff > 0)
+                modHitChance -= lchance * std::min(levelBasedHitDiff, 7);
         }
         else
+            modHitChance = 97 - levelBasedHitDiff;
+
+        // Spellmod from SpellModOp::HitChance
+        if (Player* modOwner = GetSpellModOwner())
+            modOwner->ApplySpellMod(spellInfo, SpellModOp::HitChance, modHitChance);
+
+        // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
+        if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         {
-            modHitChance = 96 - std::min(levelBasedHitDiff, 2);
-            levelBasedHitDiff -= 2;
+            // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
+            modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
         }
-        if (levelBasedHitDiff > 0)
-            modHitChance -= lchance * std::min(levelBasedHitDiff, 7);
-    }
-    else
-        modHitChance = 97 - levelBasedHitDiff;
 
-    // Spellmod from SpellModOp::HitChance
-    if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellInfo, SpellModOp::HitChance, modHitChance);
+        float HitChance = modHitChance;
+        // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
+        if (Unit const* unit = ToUnit())
+            HitChance += unit->m_modSpellHitChance;
 
-    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
-    if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
-    {
-        // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
-        modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
-    }
+        RoundToInterval(HitChance, 0.0f, 100.0f);
 
-    int32 HitChance = modHitChance * 100;
-    // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
-    if (Unit const* unit = ToUnit())
-        HitChance += int32(unit->m_modSpellHitChance * 100.0f);
+        return 100.0f - HitChance;
+    }();
 
-    RoundToInterval(HitChance, 0, 10000);
-
-    int32 tmp = 10000 - HitChance;
+    int32 tmp = int32(missChance * 100.0f);
 
     int32 rand = irand(0, 9999);
     if (tmp > 0 && rand < tmp)
@@ -2704,6 +2733,9 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
         spell->SetSpellValue(pair.first, pair.second);
 
     spell->m_CastItem = args.CastItem;
+    if (args.OriginalCastItemLevel)
+        spell->m_castItemLevel = *args.OriginalCastItemLevel;
+
     return spell->prepare(*targets.Targets, args.TriggeringAura);
 }
 

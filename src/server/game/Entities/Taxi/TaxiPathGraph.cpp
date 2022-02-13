@@ -16,61 +16,43 @@
  */
 
 #include "TaxiPathGraph.h"
+#include "DB2Stores.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DB2Stores.h"
-#include "Config.h"
-#include "Util.h"
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/property_map/transform_value_property_map.hpp>
 
-TaxiPathGraph& TaxiPathGraph::Instance()
+namespace
 {
-    static TaxiPathGraph instance;
-    return instance;
-}
-
-void TaxiPathGraph::Initialize()
+struct EdgeCost
 {
-    if (boost::num_vertices(m_graph) > 0)
-        return;
-
-    std::vector<std::pair<edge, EdgeCost>> edges;
-
-    // Initialize here
-    for (TaxiPathEntry const* path : sTaxiPathStore)
+    TaxiNodesEntry const* To;
+    uint32 Distance;
+    uint32 EvaluateDistance(Player const* player) const
     {
-        TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(path->FromTaxiNode);
-        TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(path->ToTaxiNode);
-        if (from && to && from->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE) && to->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE))
-            AddVerticeAndEdgeFromNodeInfo(from, to, path->ID, edges);
+        uint32 requireFlag = (player->GetTeam() == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
+        if (!(To->Flags & requireFlag))
+            return std::numeric_limits<uint16>::max();
+
+        if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
+            if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
+                return std::numeric_limits<uint16>::max();
+
+        return Distance;
     }
+};
 
-    // create graph
-    m_graph = Graph(m_nodesByVertex.size());
-    WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::property<boost::vertex_index_t, uint32>, boost::property<boost::edge_weight_t, EdgeCost>> Graph;
+typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
+typedef Graph::vertex_descriptor vertex_descriptor;
+typedef Graph::edge_descriptor edge_descriptor;
+typedef std::pair<vertex_descriptor, vertex_descriptor> edge;
 
-    for (std::size_t j = 0; j < edges.size(); ++j)
-    {
-        edge_descriptor e = boost::add_edge(edges[j].first.first, edges[j].first.second, m_graph).first;
-        weightmap[e] = edges[j].second;
-    }
-}
-
-uint32 TaxiPathGraph::GetNodeIDFromVertexID(vertex_descriptor vertexID)
-{
-    if (vertexID < m_nodesByVertex.size())
-        return m_nodesByVertex[vertexID]->ID;
-
-    return std::numeric_limits<uint32>::max();
-}
-
-TaxiPathGraph::vertex_descriptor TaxiPathGraph::GetVertexIDFromNodeID(TaxiNodesEntry const* node)
-{
-    auto itr = m_verticesByNode.find(node->ID);
-    return itr != m_verticesByNode.end() ? itr->second : std::numeric_limits<vertex_descriptor>::max();
-}
+Graph m_graph;
+std::vector<TaxiNodesEntry const*> m_nodesByVertex;
+std::unordered_map<uint32, vertex_descriptor> m_verticesByNode;
 
 void GetTaxiMapPosition(DBCPosition3D const& position, int32 mapId, DBCPosition2D* uiMapPosition, int32* uiMapId)
 {
@@ -78,7 +60,19 @@ void GetTaxiMapPosition(DBCPosition3D const& position, int32 mapId, DBCPosition2
         DB2Manager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, uiMapId, uiMapPosition);
 }
 
-void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, TaxiNodesEntry const* to, uint32 pathId, std::vector<std::pair<edge, EdgeCost>>& edges)
+vertex_descriptor CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesEntry const* node)
+{
+    auto itr = m_verticesByNode.find(node->ID);
+    if (itr == m_verticesByNode.end())
+    {
+        itr = m_verticesByNode.emplace(node->ID, m_nodesByVertex.size()).first;
+        m_nodesByVertex.push_back(node);
+    }
+
+    return itr->second;
+}
+
+void AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, TaxiNodesEntry const* to, uint32 pathId, std::vector<std::pair<edge, EdgeCost>>& edges)
 {
     if (from != to)
     {
@@ -89,7 +83,7 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
         TaxiPathNodeList const& nodes = sTaxiPathNodesByPath[pathId];
         if (nodes.size() < 2)
         {
-            edges.push_back(std::make_pair(edge(fromVertexID, toVertexID), EdgeCost{ to, 0xFFFF }));
+            edges.emplace_back(edge(fromVertexID, toVertexID), EdgeCost{ to, 0xFFFF });
             return;
         }
 
@@ -124,7 +118,72 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
         if (dist > 0xFFFF)
             dist = 0xFFFF;
 
-        edges.push_back(std::make_pair(edge(fromVertexID, toVertexID), EdgeCost{ to, dist }));
+        edges.emplace_back(edge(fromVertexID, toVertexID), EdgeCost{ to, dist });
+    }
+}
+
+vertex_descriptor GetVertexIDFromNodeID(TaxiNodesEntry const* node)
+{
+    auto itr = m_verticesByNode.find(node->ID);
+    return itr != m_verticesByNode.end() ? itr->second : std::numeric_limits<vertex_descriptor>::max();
+}
+
+uint32 GetNodeIDFromVertexID(vertex_descriptor vertexID)
+{
+    if (vertexID < m_nodesByVertex.size())
+        return m_nodesByVertex[vertexID]->ID;
+
+    return std::numeric_limits<uint32>::max();
+}
+
+template<typename T>
+struct DiscoverVertexVisitor : public boost::base_visitor<DiscoverVertexVisitor<T>>
+{
+    using event_filter = boost::on_discover_vertex;
+
+    DiscoverVertexVisitor(T&& func) : _func(std::forward<T>(func)) { }
+
+    template <class Vertex, class Graph>
+    void operator()(Vertex v, Graph& /*g*/)
+    {
+        _func(v);
+    }
+
+private:
+    T _func;
+};
+
+template<typename T>
+auto make_discover_vertex_dfs_visitor(T&& t)
+{
+    return boost::make_dfs_visitor(DiscoverVertexVisitor<T>(std::forward<T>(t)));
+}
+}
+
+void TaxiPathGraph::Initialize()
+{
+    if (boost::num_vertices(m_graph) > 0)
+        return;
+
+    std::vector<std::pair<edge, EdgeCost>> edges;
+
+    // Initialize here
+    for (TaxiPathEntry const* path : sTaxiPathStore)
+    {
+        TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(path->FromTaxiNode);
+        TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(path->ToTaxiNode);
+        if (from && to && from->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE) && to->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE))
+            AddVerticeAndEdgeFromNodeInfo(from, to, path->ID, edges);
+    }
+
+    // create graph
+    m_graph = Graph(m_nodesByVertex.size());
+    WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
+
+    for (std::size_t j = 0; j < edges.size(); ++j)
+    {
+        edge_descriptor e = boost::add_edge(edges[j].first.first, edges[j].first.second, m_graph).first;
+        weightmap[e] = edges[j].second;
     }
 }
 
@@ -177,61 +236,13 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
     return shortestPath.size();
 }
 
-template<typename T>
-struct DiscoverVertexVisitor : public boost::base_visitor<DiscoverVertexVisitor<T>>
-{
-    using event_filter = boost::on_discover_vertex;
-
-    DiscoverVertexVisitor(T&& func) : _func(std::forward<T>(func)) { }
-
-    template <class Vertex, class Graph>
-    void operator()(Vertex v, Graph& /*g*/)
-    {
-        _func(v);
-    }
-
-private:
-    T _func;
-};
-
-template<typename T>
-inline auto make_discover_vertex_dfs_visitor(T&& t)
-{
-    return boost::make_dfs_visitor(DiscoverVertexVisitor<T>(std::forward<T>(t)));
-}
-
 void TaxiPathGraph::GetReachableNodesMask(TaxiNodesEntry const* from, TaxiMask* mask)
 {
     boost::vector_property_map<boost::default_color_type> color(boost::num_vertices(m_graph));
     std::fill(color.storage_begin(), color.storage_end(), boost::white_color);
-    boost::depth_first_visit(m_graph, GetVertexIDFromNodeID(from), make_discover_vertex_dfs_visitor([this, mask](vertex_descriptor vertex)
+    boost::depth_first_visit(m_graph, GetVertexIDFromNodeID(from), make_discover_vertex_dfs_visitor([mask](vertex_descriptor vertex)
     {
         if (TaxiNodesEntry const* taxiNode = sTaxiNodesStore.LookupEntry(GetNodeIDFromVertexID(vertex)))
             (*mask)[(taxiNode->ID - 1) / 8] |= 1 << ((taxiNode->ID - 1) % 8);
     }), color);
-}
-
-TaxiPathGraph::vertex_descriptor TaxiPathGraph::CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesEntry const* node)
-{
-    auto itr = m_verticesByNode.find(node->ID);
-    if (itr == m_verticesByNode.end())
-    {
-        itr = m_verticesByNode.emplace(node->ID, m_nodesByVertex.size()).first;
-        m_nodesByVertex.push_back(node);
-    }
-
-    return itr->second;
-}
-
-uint32 TaxiPathGraph::EdgeCost::EvaluateDistance(Player const* player) const
-{
-    uint32 requireFlag = (player->GetTeam() == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
-    if (!(To->Flags & requireFlag))
-        return std::numeric_limits<uint16>::max();
-
-    if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
-        if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
-            return std::numeric_limits<uint16>::max();
-
-    return Distance;
 }

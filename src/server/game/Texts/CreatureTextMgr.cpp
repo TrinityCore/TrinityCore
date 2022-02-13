@@ -30,6 +30,9 @@
 #include "ObjectMgr.h"
 #include "World.h"
 
+CreatureTextMgr::CreatureTextMgr() = default;
+CreatureTextMgr::~CreatureTextMgr() = default;
+
 CreatureTextMgr* CreatureTextMgr::instance()
 {
     static CreatureTextMgr instance;

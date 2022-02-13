@@ -34,10 +34,6 @@ enum Spells
     SPELL_FROZEN_ORB_AURA   = 72067,
     SPELL_RANDOM_AGGRO      = 72084,
 
-    // Frost Warder
-    SPELL_FROST_BLAST       = 72123,    // don't know cd... using 20 secs.
-    SPELL_FROZEN_MALLET_2   = 72122,
-
     // Frozen Orb Stalker
     FROZEN_ORB_STALKER_AURA = 72094
 };
@@ -46,9 +42,7 @@ enum Events
 {
     EVENT_FREEZING_GROUND   = 1,
     EVENT_FROZEN_ORB        = 2,
-    EVENT_WHITEOUT          = 3,
-
-    EVENT_FROST_BLAST       = 4
+    EVENT_WHITEOUT          = 3
 };
 
 struct boss_toravon : public BossAI
@@ -117,47 +111,6 @@ struct npc_frozen_orb_stalker : public ScriptedAI
     }
 };
 
-struct npc_frost_warder : public ScriptedAI
-{
-    npc_frost_warder(Creature* creature) : ScriptedAI(creature) { }
-
-    void Reset() override
-    {
-        _events.Reset();
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        DoZoneInCombat();
-
-        DoCastSelf(SPELL_FROZEN_MALLET_2);
-
-        _events.ScheduleEvent(EVENT_FROST_BLAST, 5s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        if (_events.ExecuteEvent() == EVENT_FROST_BLAST)
-        {
-            DoCastVictim(SPELL_FROST_BLAST);
-            _events.ScheduleEvent(EVENT_FROST_BLAST, 20s);
-        }
-
-        DoMeleeAttackIfReady();
-    }
-
-private:
-    EventMap _events;
-};
-
 struct npc_frozen_orb : public ScriptedAI
 {
     npc_frozen_orb(Creature* creature) : ScriptedAI(creature) { }
@@ -211,7 +164,6 @@ class spell_toravon_random_aggro : public SpellScript
 void AddSC_boss_toravon()
 {
     RegisterVaultOfArchavonCreatureAI(boss_toravon);
-    RegisterVaultOfArchavonCreatureAI(npc_frost_warder);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb_stalker);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb);
     RegisterSpellScript(spell_toravon_random_aggro);

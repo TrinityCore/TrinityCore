@@ -36,6 +36,11 @@ class TC_GAME_API ChannelMgr
         ~ChannelMgr();
 
     public:
+        ChannelMgr(ChannelMgr const& right) = delete;
+        ChannelMgr(ChannelMgr&& right) = delete;
+        ChannelMgr& operator=(ChannelMgr const& right) = delete;
+        ChannelMgr& operator=(ChannelMgr&& right) = delete;
+
         static void LoadFromDB();
         static ChannelMgr* ForTeam(uint32 team);
         static Channel* GetChannelForPlayerByNamePart(std::string const& namePart, Player* playerSearcher);

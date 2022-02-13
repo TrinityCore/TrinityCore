@@ -105,8 +105,7 @@ class spell_q1846_bending_shinbone : public SpellScript
             return;
 
         uint32 const spellId = roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2;
-        caster->CastSpell(caster, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCastId(GetSpell()->m_castId));
+        caster->CastSpell(caster, spellId, GetSpell());
     }
 
     void Register() override

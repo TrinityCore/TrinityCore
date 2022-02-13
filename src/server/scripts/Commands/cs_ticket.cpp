@@ -26,6 +26,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"

@@ -15,18 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <sstream>
 #include "VMapManager2.h"
+#include "Errors.h"
+#include "Log.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include "VMapDefinitions.h"
 #include "WorldModel.h"
 #include <G3D/Vector3.h>
-#include "Log.h"
-#include "VMapDefinitions.h"
-#include "Errors.h"
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 using G3D::Vector3;
 

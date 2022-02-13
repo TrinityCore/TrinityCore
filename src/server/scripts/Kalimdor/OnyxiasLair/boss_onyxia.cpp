@@ -230,7 +230,6 @@ public:
                     case 9:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                         if (Creature* trigger = ObjectAccessor::GetCreature(*me, triggerGUID))
                             Unit::Kill(me, trigger);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -248,7 +247,6 @@ public:
                     case 10:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                         me->SetFacingTo(me->GetOrientation() + float(M_PI));
                         if (Creature * trigger = me->SummonCreature(NPC_TRIGGER, MiddleRoomLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             triggerGUID = trigger->GetGUID();

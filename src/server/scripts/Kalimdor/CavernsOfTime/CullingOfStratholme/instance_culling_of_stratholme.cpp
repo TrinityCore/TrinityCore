@@ -23,7 +23,6 @@
 #include "GameTime.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"

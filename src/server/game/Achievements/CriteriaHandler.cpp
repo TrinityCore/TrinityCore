@@ -16,10 +16,8 @@
  */
 
 #include "CriteriaHandler.h"
-#include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AzeriteItem.h"
-#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CollectionMgr.h"
@@ -688,9 +686,9 @@ void CriteriaHandler::UpdateCriteria(CriteriaType type, uint64 miscValue1 /*= 0*
             case CriteriaType::LearnTradeskillSkillLine:
             {
                 uint32 spellCount = 0;
-                for (std::pair<uint32 const, PlayerSpell*>& spellIter : referencePlayer->GetSpellMap())
+                for (auto& [spellId, _] : referencePlayer->GetSpellMap())
                 {
-                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
                         if (skillIter->second->SkillLine == int32(criteria->Entry->Asset.SkillID))
@@ -4296,6 +4294,8 @@ CriteriaList const& CriteriaMgr::GetPlayerCriteriaByType(CriteriaType type, uint
 
     return _criteriasByType[size_t(type)];
 }
+
+CriteriaMgr::CriteriaMgr() = default;
 
 //==========================================================
 CriteriaMgr::~CriteriaMgr()

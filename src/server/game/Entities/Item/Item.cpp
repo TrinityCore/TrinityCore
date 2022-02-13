@@ -43,7 +43,6 @@
 #include "StringConvert.h"
 #include "TradeData.h"
 #include "UpdateData.h"
-#include "World.h"
 #include "WorldSession.h"
 #include <sstream>
 
@@ -454,9 +453,12 @@ Item::Item()
     m_paidExtendedCost = 0;
 
     m_randomBonusListId = 0;
+    m_gemScalingLevels = { };
 
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
+
+Item::~Item() = default;
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {
@@ -551,7 +553,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
-void Item::SaveToDB(CharacterDatabaseTransaction& trans)
+void Item::SaveToDB(CharacterDatabaseTransaction trans)
 {
     bool isInTransaction = bool(trans);
     if (!isInTransaction)
@@ -1078,7 +1080,7 @@ void Item::CheckArtifactRelicSlotUnlock(Player const* owner)
 }
 
 /*static*/
-void Item::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void Item::DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt64(0, itemGuid);
@@ -1109,7 +1111,7 @@ void Item::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void Item::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void Item::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromDB(trans, GetGUID().GetCounter());
 
@@ -1119,14 +1121,14 @@ void Item::DeleteFromDB(CharacterDatabaseTransaction& trans)
 }
 
 /*static*/
-void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
     stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
 }
 
-void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction& trans)
+void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromInventoryDB(trans, GetGUID().GetCounter());
 }
@@ -2812,7 +2814,7 @@ void BonusData::AddBonusList(uint32 bonusListId)
             AddBonus(bonus->Type, bonus->Value);
 }
 
-void BonusData::AddBonus(uint32 type, int32 const (&values)[4])
+void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
 {
     switch (type)
     {

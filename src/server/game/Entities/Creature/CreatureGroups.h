@@ -21,7 +21,6 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
-#include <map>
 
 enum GroupAIFlags
 {

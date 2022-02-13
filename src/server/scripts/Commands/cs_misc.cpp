@@ -21,18 +21,17 @@
 #include "CellImpl.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
-#include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
 #include "IpAddress.h"
 #include "IPLocation.h"
 #include "Item.h"
 #include "Language.h"
-#include "LFG.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
@@ -41,8 +40,6 @@
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "Realm.h"
@@ -51,7 +48,6 @@
 #include "SpellMgr.h"
 #include "Transport.h"
 #include "Weather.h"
-#include "WeatherMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -323,7 +319,7 @@ public:
         return true;
     }
 
-    static bool HandleUnAuraCommand(ChatHandler* handler, Variant<SpellInfo const*, ExactSequence<'a', 'l', 'l'>> spellArg)
+    static bool HandleUnAuraCommand(ChatHandler* handler, Variant<SpellInfo const*, EXACT_SEQUENCE("all")> spellArg)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -333,7 +329,7 @@ public:
             return false;
         }
 
-        if (spellArg.holds_alternative<ExactSequence<'a', 'l', 'l'>>())
+        if (spellArg.holds_alternative<EXACT_SEQUENCE("all")>())
         {
             target->RemoveAllAuras();
             return true;
@@ -593,14 +589,13 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE));
 
             // in point where GM stay
-            CharacterDatabaseTransaction dummy;
             Player::SavePositionInDB(WorldLocation(_player->GetMapId(),
                 _player->GetPositionX(),
                 _player->GetPositionY(),
                 _player->GetPositionZ(),
                 _player->GetOrientation()),
                 _player->GetZoneId(),
-                targetGuid, dummy);
+                targetGuid, nullptr);
         }
 
         return true;
@@ -699,16 +694,16 @@ public:
         return true;
     }
 
-    static bool HandleHelpCommand(ChatHandler* handler, Optional<std::string> cmdArg)
+    static bool HandleHelpCommand(ChatHandler* handler, Tail cmdArg)
     {
-        if (!cmdArg)
+        if (cmdArg.empty())
         {
             handler->ShowHelpForCommand(ChatHandler::getCommandTable(), "help");
             handler->ShowHelpForCommand(ChatHandler::getCommandTable(), "");
         }
         else
         {
-            if (!handler->ShowHelpForCommand(ChatHandler::getCommandTable(), cmdArg->c_str()))
+            if (!handler->ShowHelpForCommand(ChatHandler::getCommandTable(), std::string(cmdArg).c_str()))
                 handler->SendSysMessage(LANG_NO_HELP_CMD);
         }
 
@@ -1913,63 +1908,51 @@ public:
     }
 
     // mute player for the specified duration
-    static bool HandleMuteCommand(ChatHandler* handler, char const* args)
+    static bool HandleMuteCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, uint32 muteTime, Tail muteReason)
     {
-        char* nameStr;
-        char* delayStr;
-        handler->extractOptFirstArg((char*)args, &nameStr, &delayStr);
-        if (!delayStr)
+        std::string muteReasonStr{ muteReason };
+        if (muteReason.empty())
+            muteReasonStr = handler->GetTrinityString(LANG_NO_REASON);
+
+        if (!player)
+            player = PlayerIdentifier::FromTarget(handler);
+        if (!player)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
             return false;
+        }
 
-        char const* muteReason = strtok(nullptr, "\r");
-        std::string muteReasonStr = handler->GetTrinityString(LANG_NO_REASON);
-        if (muteReason != nullptr)
-            muteReasonStr = muteReason;
-
-        Player* target;
-        ObjectGuid targetGuid;
-        std::string targetName;
-        if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
-            return false;
-
-        uint32 accountId = target ? target->GetSession()->GetAccountId() : sCharacterCache->GetCharacterAccountIdByGuid(targetGuid);
+        Player* target = player->GetConnectedPlayer();
+        uint32 accountId = target ? target->GetSession()->GetAccountId() : sCharacterCache->GetCharacterAccountIdByGuid(*player);
 
         // find only player from same account if any
         if (!target)
             if (WorldSession* session = sWorld->FindSession(accountId))
                 target = session->GetPlayer();
 
-        uint32 notSpeakTime = uint32(atoi(delayStr));
-
         // must have strong lesser security level
-        if (handler->HasLowerSecurity (target, targetGuid, true))
+        if (handler->HasLowerSecurity(target, player->GetGUID(), true))
             return false;
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         std::string muteBy = "";
-        if (handler->GetSession())
-            muteBy = handler->GetSession()->GetPlayerName();
+        if (Player* gmPlayer = handler->GetPlayer())
+            muteBy = gmPlayer->GetName();
         else
             muteBy = handler->GetTrinityString(LANG_CONSOLE);
 
         if (target)
         {
             // Target is online, mute will be in effect right away.
-            int64 muteTime = GameTime::GetGameTime() + notSpeakTime * MINUTE;
-            target->GetSession()->m_muteTime = muteTime;
-            stmt->setInt64(0, muteTime);
-            std::string nameLink = handler->playerLink(targetName);
-
-            if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
-                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
-
-            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
+            int64 mutedUntil = GameTime::GetGameTime() + static_cast<int64>(muteTime) * MINUTE;
+            target->GetSession()->m_muteTime = mutedUntil;
+            stmt->setInt64(0, mutedUntil);
         }
         else
         {
             // Target is offline, mute will be in effect starting from the next login.
-            int32 muteTime = -int32(notSpeakTime * MINUTE);
-            stmt->setInt64(0, muteTime);
+            stmt->setInt64(0, -static_cast<int64>(muteTime) * MINUTE);
         }
 
         stmt->setString(1, muteReasonStr);
@@ -1978,16 +1961,23 @@ public:
         LoginDatabase.Execute(stmt);
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
         stmt->setUInt32(0, accountId);
-        stmt->setUInt32(1, notSpeakTime);
+        stmt->setUInt32(1, muteTime);
         stmt->setString(2, muteBy);
         stmt->setString(3, muteReasonStr);
         LoginDatabase.Execute(stmt);
-        std::string nameLink = handler->playerLink(targetName);
 
-        if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
-            sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+        std::string nameLink = handler->playerLink(*player);
+        if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
+            sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), muteTime, muteReasonStr.c_str());
+        if (target)
+        {
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, muteTime, muteBy.c_str(), muteReasonStr.c_str());
+            handler->PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink.c_str(), muteTime, muteReasonStr.c_str());
+        }
         else
-            handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+        {
+            handler->PSendSysMessage(LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), muteTime, muteReasonStr.c_str());
+        }
 
         return true;
     }

@@ -30,7 +30,6 @@ EndContentData */
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "uldaman.h"
 
 /*######
@@ -48,7 +47,7 @@ class go_keystone_chamber : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
                 return false;
