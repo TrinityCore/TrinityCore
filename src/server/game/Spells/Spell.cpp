@@ -7965,7 +7965,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 else
                     ASSERT(n_offset == m_Spell->GetDelayMoment());
                 // re-plan the event for the delay moment
-                m_Spell->GetCaster()->m_Events.AddEvent(this, Milliseconds(e_time + m_Spell->GetDelayMoment()), false);
+                m_Spell->GetCaster()->m_Events.AddEvent(this, Milliseconds(e_time + n_offset), false);
                 return false;                               // event not complete
             }
             break;
