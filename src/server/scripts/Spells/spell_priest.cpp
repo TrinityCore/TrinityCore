@@ -61,8 +61,8 @@ enum PriestSpells
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PENANCE                            = 47540,
-    SPELL_PRIEST_PENANCE_DAMAGE                     = 47758,
-    SPELL_PRIEST_PENANCE_HEALING                    = 47757,
+    SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE             = 47758,
+    SPELL_PRIEST_PENANCE_CHANNEL_HEALING            = 47757,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
     SPELL_PRIEST_RAPTURE                            = 47536,
     SPELL_PRIEST_RENEW                              = 139,
@@ -586,11 +586,6 @@ class spell_pri_penance : public SpellScript
         });
     }
 
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
     SpellCastResult CheckCast()
     {
         if (Unit* target = GetExplTargetUnit())
@@ -615,9 +610,9 @@ class spell_pri_penance : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             if (caster->IsFriendlyTo(target))
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_HEALING, false);
+                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_HEALING, false);
             else
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_DAMAGE, false);
+                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, false);
         }
     }
 
