@@ -1232,28 +1232,20 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
         }
 };
 
-// 265259 - Twist of Fate
+// 109142 - Twist of Fate (Shadow)
+// 265259 - Twist of Fate (Discipline)
 class spell_pri_twist_of_fate : public AuraScript
 {
     PrepareAuraScript(spell_pri_twist_of_fate);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_TWIST_OF_FATE });
+        return eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount();
     }
-
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        if (AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_PRIEST_TWIST_OF_FATE, EFFECT_0))
-            if (eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount())
-                return true;
-
-        return false;
-    };
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_twist_of_fate::CheckProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_twist_of_fate::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
