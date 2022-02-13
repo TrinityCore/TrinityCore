@@ -1231,6 +1231,23 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
         }
 };
 
+// 109142 - Twist of Fate (Shadow)
+// 265259 - Twist of Fate (Discipline)
+class spell_pri_twist_of_fate : public AuraScript
+{
+    PrepareAuraScript(spell_pri_twist_of_fate);
+
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount();
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_twist_of_fate::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 15286 - Vampiric Embrace
 class spell_pri_vampiric_embrace : public SpellScriptLoader
 {
@@ -1481,6 +1498,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_t3_4p_bonus();
     new spell_pri_t5_heal_2p_bonus();
     new spell_pri_t10_heal_2p_bonus();
+    RegisterSpellScript(spell_pri_twist_of_fate);
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
