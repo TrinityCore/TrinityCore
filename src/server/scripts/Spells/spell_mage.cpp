@@ -446,6 +446,13 @@ class spell_mage_cold_snap : public SpellScript
 {
     PrepareSpellScript(spell_mage_cold_snap);
 
+    static uint32 constexpr SpellsToReset[] =
+    {
+        SPELL_MAGE_ICE_BLOCK,
+        SPELL_MAGE_ICE_BARRIER,
+        SPELL_MAGE_CONE_OF_COLD
+    };
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
@@ -459,14 +466,7 @@ class spell_mage_cold_snap : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        std::vector<uint32> spellsToReset =
-        {
-            SPELL_MAGE_ICE_BLOCK,
-            SPELL_MAGE_ICE_BARRIER,
-            SPELL_MAGE_CONE_OF_COLD
-        };
-
-        for (uint32 spellId : spellsToReset)
+        for (uint32 spellId : SpellsToReset)
             GetCaster()->GetSpellHistory()->ResetCooldown(spellId, true);
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_NOVA, GetCastDifficulty()))
