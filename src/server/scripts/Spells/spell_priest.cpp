@@ -581,8 +581,8 @@ class spell_pri_penance : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_PRIEST_PENANCE_DAMAGE,
-            SPELL_PRIEST_PENANCE_HEALING
+            SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE,
+            SPELL_PRIEST_PENANCE_CHANNEL_HEALING
         });
     }
 
