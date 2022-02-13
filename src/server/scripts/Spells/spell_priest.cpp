@@ -866,14 +866,16 @@ class spell_pri_power_word_solace : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE });
     }
 
-    void HandleAfterHit()
+    void RestoreMana(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE, true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetTriggeringSpell(GetSpell())
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, GetEffectValue() / 100));
     }
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_pri_power_word_solace::HandleAfterHit);
+        OnEffectLaunch += SpellEffectFn(spell_pri_power_word_solace::RestoreMana, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
