@@ -34,7 +34,7 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "WorldPacket.h"
+#include "SpellMgr.h"
 
 class AELootCreatureCheck
 {
@@ -140,6 +140,8 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             player->UpdateCriteria(CriteriaType::LootAnyItem, resultValue.item->GetEntry(), resultValue.count);
         }
     }
+
+    Unit::ProcSkillsAndAuras(player, nullptr, PROC_FLAG_LOOTED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }
 
 void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/)

@@ -22,7 +22,6 @@ SDComment:
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"

@@ -23,6 +23,7 @@
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameObjectAI.h"
 #include "GameObjectModel.h"
 #include "GameObjectPackets.h"
@@ -43,7 +44,7 @@
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "QueryPackets.h"
-#include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "Transport.h"
 #include "World.h"
@@ -1637,7 +1638,7 @@ void GameObject::Use(Unit* user)
             playerUser->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         playerUser->PlayerTalkClass->ClearMenus();
-        if (AI()->GossipHello(playerUser))
+        if (AI()->OnGossipHello(playerUser))
             return;
     }
 

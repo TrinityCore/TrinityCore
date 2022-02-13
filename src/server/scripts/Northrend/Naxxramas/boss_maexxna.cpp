@@ -22,7 +22,6 @@
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 
 enum Spells
 {

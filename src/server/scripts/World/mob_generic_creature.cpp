@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "Map.h"
 #include "PassiveAI.h"
-#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 

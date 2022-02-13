@@ -16,7 +16,6 @@
  */
 
 #include "SocialPackets.h"
-#include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "World.h"
 

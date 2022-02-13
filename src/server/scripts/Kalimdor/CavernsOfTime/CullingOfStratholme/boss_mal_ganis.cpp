@@ -18,13 +18,9 @@
 #include "culling_of_stratholme.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "PassiveAI.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "SpellMgr.h"
 
 enum Spells
 {

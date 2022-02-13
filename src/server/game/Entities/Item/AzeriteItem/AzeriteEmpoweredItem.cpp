@@ -39,7 +39,7 @@ bool AzeriteEmpoweredItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, It
     return true;
 }
 
-void AzeriteEmpoweredItem::SaveToDB(CharacterDatabaseTransaction& trans)
+void AzeriteEmpoweredItem::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
     stmt->setUInt64(0, GetGUID().GetCounter());
@@ -98,14 +98,14 @@ void AzeriteEmpoweredItem::LoadAzeriteEmpoweredItemData(Player const* owner, Aze
     }
 }
 
-void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
     stmt->setUInt64(0, itemGuid);
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     AzeriteEmpoweredItem::DeleteFromDB(trans, GetGUID().GetCounter());
     Item::DeleteFromDB(trans);

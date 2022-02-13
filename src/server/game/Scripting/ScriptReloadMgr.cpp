@@ -17,7 +17,6 @@
 
 #include "ScriptReloadMgr.h"
 #include "Errors.h"
-#include "Optional.h"
 
 #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 
@@ -44,6 +43,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Duration.h"
 #include "Log.h"
 #include "MPSCQueue.h"
+#include "Optional.h"
 #include "Regex.h"
 #include "ScriptMgr.h"
 #include "StartProcess.h"

@@ -18,6 +18,7 @@
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"

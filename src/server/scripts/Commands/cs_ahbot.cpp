@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "AuctionHouseBot.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Language.h"
 #include "RBAC.h"
 
@@ -115,7 +116,7 @@ public:
         return true;
     }
 
-    static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, Optional<ExactSequence<'a', 'l', 'l'>> all)
+    static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, Optional<EXACT_SEQUENCE("all")> all)
     {
         sAuctionBot->Rebuild(all.has_value());
         return true;
@@ -128,7 +129,7 @@ public:
         return true;
     }
 
-    static bool HandleAHBotStatusCommand(ChatHandler* handler, Optional<ExactSequence<'a', 'l', 'l'>> all)
+    static bool HandleAHBotStatusCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("all")> all)
     {
         std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType> statusInfo;
         sAuctionBot->PrepareStatusInfos(statusInfo);

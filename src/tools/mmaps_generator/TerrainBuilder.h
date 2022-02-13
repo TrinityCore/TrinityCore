@@ -23,7 +23,6 @@
 
 #include <G3D/Array.h>
 #include <G3D/Vector3.h>
-#include <G3D/Matrix3.h>
 
 enum class map_liquidHeaderTypeFlags : uint8;
 

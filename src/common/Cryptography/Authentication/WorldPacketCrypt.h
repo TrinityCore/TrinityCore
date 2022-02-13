@@ -19,7 +19,6 @@
 #define _WORLDPACKETCRYPT_H
 
 #include "AES.h"
-#include <array>
 
 class TC_COMMON_API WorldPacketCrypt
 {

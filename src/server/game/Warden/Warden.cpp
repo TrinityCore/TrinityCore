@@ -15,21 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "ByteBuffer.h"
-#include "GameTime.h"
-#include "World.h"
-#include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"
+#include "ByteBuffer.h"
+#include "Common.h"
+#include "GameTime.h"
+#include "Log.h"
+#include "SmartEnum.h"
+#include "Util.h"
 #include "WardenPackets.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
-#include <openssl/sha.h>
 #include <openssl/md5.h>
+#include <openssl/sha.h>
 
 #include <charconv>
 
@@ -208,7 +208,7 @@ char const* Warden::ApplyPenalty(WardenCheck const* check)
             std::string banReason = "Warden Anticheat Violation";
             // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
             if (check)
-                banReason += Trinity::StringFormat(": %s (CheckId: %u", check->Comment, uint32(check->CheckId));
+                banReason += Trinity::StringFormat(": %s (CheckId: %u", check->Comment.c_str(), uint32(check->CheckId));
 
             sWorld->BanAccount(BAN_ACCOUNT, accountName, sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION), banReason, "Server");
 

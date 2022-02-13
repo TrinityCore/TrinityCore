@@ -29,9 +29,8 @@ EndContentData */
 #include "CombatAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -560,7 +559,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == MENU_ID && gossipListId == GOSSIP_OPTION_ID)
                 {

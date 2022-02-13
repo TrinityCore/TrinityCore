@@ -31,7 +31,6 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
-#include "Spell.h"
 #include "TemporarySummon.h"
 
 enum LadyVashj

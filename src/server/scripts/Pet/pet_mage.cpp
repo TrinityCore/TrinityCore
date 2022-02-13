@@ -26,7 +26,6 @@
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "Pet.h"
-#include "PetAI.h"
 #include "ScriptedCreature.h"
 
 enum MageSpells

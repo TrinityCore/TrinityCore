@@ -373,7 +373,6 @@ public:
             me->SetFarVisible(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
-            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
 
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {

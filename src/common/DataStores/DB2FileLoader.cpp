@@ -20,8 +20,10 @@
 #include "DB2Meta.h"
 #include "Errors.h"
 #include "Log.h"
+#include <limits>
 #include <sstream>
 #include <system_error>
+#include <cstring>
 
 enum class DB2ColumnCompression : uint32
 {

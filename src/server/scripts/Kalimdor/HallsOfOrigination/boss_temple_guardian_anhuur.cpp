@@ -19,7 +19,6 @@
 #include "GridNotifiers.h"
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

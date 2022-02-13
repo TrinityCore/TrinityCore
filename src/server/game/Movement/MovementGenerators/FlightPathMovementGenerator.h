@@ -21,6 +21,7 @@
 #include "MovementGenerator.h"
 #include "PathMovementBase.h"
 #include <deque>
+#include <vector>
 
 class Player;
 struct TaxiPathNodeEntry;

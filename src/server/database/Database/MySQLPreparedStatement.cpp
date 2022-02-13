@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "PreparedStatement.h"
+#include <cstring>
 
 template<typename T>
 struct MySQLType { };

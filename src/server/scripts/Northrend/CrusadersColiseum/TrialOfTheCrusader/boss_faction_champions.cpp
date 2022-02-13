@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
