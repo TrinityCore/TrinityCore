@@ -30,11 +30,9 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpellMgr.h"
 #include "SpellHistory.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-#include "World.h"
 
 std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)

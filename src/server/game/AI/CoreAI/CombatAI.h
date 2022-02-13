@@ -19,6 +19,7 @@
 #define TRINITY_COMBATAI_H
 
 #include "CreatureAI.h"
+#include "EventMap.h"
 
 class Creature;
 
@@ -48,8 +49,8 @@ class TC_GAME_API CombatAI : public CreatureAI
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
     protected:
-        EventMap Events;
-        SpellVector Spells;
+        EventMap _events;
+        SpellVector _spells;
 };
 
 class TC_GAME_API CasterAI : public CombatAI

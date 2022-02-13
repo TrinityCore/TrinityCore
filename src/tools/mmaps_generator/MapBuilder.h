@@ -20,13 +20,11 @@
 
 #include <vector>
 #include <set>
-#include <map>
 #include <list>
 #include <atomic>
 #include <thread>
 
 #include "TerrainBuilder.h"
-#include "IntermediateValues.h"
 
 #include "Recast.h"
 #include "DetourNavMesh.h"

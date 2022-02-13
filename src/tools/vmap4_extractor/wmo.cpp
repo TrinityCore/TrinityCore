@@ -23,6 +23,7 @@
 #include "vec3d.h"
 #include "VMapDefinitions.h"
 #include "wmo.h"
+#include <algorithm>
 #include <fstream>
 #include <map>
 #include <cstdio>

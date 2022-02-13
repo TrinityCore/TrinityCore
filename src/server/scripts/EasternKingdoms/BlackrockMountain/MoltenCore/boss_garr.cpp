@@ -24,7 +24,6 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "molten_core.h"
-#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 
 enum Spells

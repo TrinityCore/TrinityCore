@@ -20,7 +20,6 @@
 
 #include "Containers.h"
 #include "Errors.h"
-#include "EventMap.h"
 #include "ObjectGuid.h"
 #include "SpellDefines.h"
 #include "ThreatManager.h"
@@ -343,7 +342,7 @@ class TC_GAME_API UnitAI
         UnitAI& operator=(UnitAI const& right) = delete;
 
         ThreatManager& GetThreatManager();
-        void SortByDistance(std::list<Unit*> list, bool ascending = true);
+        void SortByDistance(std::list<Unit*>& list, bool ascending = true);
 };
 
 #endif

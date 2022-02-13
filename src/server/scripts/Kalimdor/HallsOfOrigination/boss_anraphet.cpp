@@ -331,7 +331,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
         {
             npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _currentPoint(0), _instance(creature->GetInstanceScript()) { }
 
-            bool GossipSelect(Player* /*player*/, uint32 sender, uint32 action) override
+            bool OnGossipSelect(Player* /*player*/, uint32 sender, uint32 action) override
             {
                 if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
                     return true;

@@ -30,7 +30,7 @@ EndContentData */
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 
@@ -110,7 +110,7 @@ public:
             }
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
             {

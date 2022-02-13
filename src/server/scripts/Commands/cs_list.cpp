@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"

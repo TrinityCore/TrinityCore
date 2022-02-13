@@ -398,7 +398,9 @@ class TC_GAME_API Object
         bool m_isDestroyedObject;
 
         Object(Object const& right) = delete;
+        Object(Object&& right) = delete;
         Object& operator=(Object const& right) = delete;
+        Object& operator=(Object&& right) = delete;
 };
 
 template<class T>
@@ -575,14 +577,14 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
         TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
-        TempSummon* SummonPersonalClone(Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);
+        TempSummon* SummonPersonalClone(Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, Player* privateObjectOwner = nullptr);
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         Creature*   SummonTrigger(float x, float y, float z, float ang, Milliseconds despawnTime, CreatureAI* (*GetAI)(Creature*) = nullptr);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
-        GameObject* FindNearestGameObject(uint32 entry, float range) const;
+        GameObject* FindNearestGameObject(uint32 entry, float range, bool spawnedOnly = true) const;
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;

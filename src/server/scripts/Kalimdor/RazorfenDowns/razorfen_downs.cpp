@@ -35,7 +35,6 @@ EndContentData */
 #include "Player.h"
 #include "razorfen_downs.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
 /*###
@@ -128,7 +127,7 @@ public:
             me->DespawnOrUnsummon(5s);
         }
 
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_EXTINGUISHING_THE_IDOL)
             {
@@ -381,7 +380,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             me->SendCustomAnim(0);
             instance->SetData(DATA_WAVE, IN_PROGRESS);

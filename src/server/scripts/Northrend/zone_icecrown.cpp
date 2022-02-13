@@ -21,7 +21,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
 

@@ -18,6 +18,7 @@
 #include "ulduar.h"
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Item.h"

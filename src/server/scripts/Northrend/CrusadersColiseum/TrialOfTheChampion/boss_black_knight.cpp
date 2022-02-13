@@ -290,7 +290,7 @@ public:
         {
             DoCast(me, SPELL_KILL_CREDIT);
 
-            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            instance->SetBossState(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 

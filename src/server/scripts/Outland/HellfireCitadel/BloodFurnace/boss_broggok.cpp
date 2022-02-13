@@ -20,7 +20,6 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -254,7 +253,7 @@ class go_broggok_lever : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
                 {

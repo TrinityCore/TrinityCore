@@ -27,12 +27,10 @@ npc_maghar_captive
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 
@@ -201,7 +199,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
             {
@@ -395,7 +393,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
             {

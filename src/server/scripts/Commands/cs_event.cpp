@@ -24,10 +24,10 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
 #include "Language.h"
-#include "Player.h"
 #include "RBAC.h"
 
 using namespace Trinity::ChatCommands;

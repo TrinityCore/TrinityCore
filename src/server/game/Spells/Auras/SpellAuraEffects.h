@@ -86,7 +86,7 @@ class TC_GAME_API AuraEffect
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
         bool IsAffectingSpell(SpellInfo const* spell) const;
-        bool HasSpellClassMask() const { return GetSpellEffectInfo().SpellClassMask; }
+        bool HasSpellClassMask() const { return !!GetSpellEffectInfo().SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
         void PeriodicTick(AuraApplication* aurApp, Unit* caster) const;

@@ -23,7 +23,6 @@
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <unordered_map>
 
 namespace

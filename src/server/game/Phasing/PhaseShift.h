@@ -86,6 +86,13 @@ public:
     using VisibleMapIdContainer = std::map<uint32, VisibleMapIdRef>;
     using UiMapPhaseIdContainer = std::map<uint32, UiMapPhaseIdRef>;
 
+    PhaseShift();
+    PhaseShift(PhaseShift const& right);
+    PhaseShift(PhaseShift&& right) noexcept;
+    PhaseShift& operator=(PhaseShift const& right);
+    PhaseShift& operator=(PhaseShift&& right) noexcept;
+    ~PhaseShift();
+
     ObjectGuid GetPersonalGuid() const { return PersonalGuid; }
 
     bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);

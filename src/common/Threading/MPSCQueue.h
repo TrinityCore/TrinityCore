@@ -19,7 +19,7 @@
 #define MPSCQueue_h__
 
 #include <atomic>
-#include <utility>
+#include <type_traits>
 
 namespace Trinity
 {

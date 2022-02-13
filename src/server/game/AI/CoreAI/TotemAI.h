@@ -18,9 +18,7 @@
 #ifndef TRINITY_TOTEMAI_H
 #define TRINITY_TOTEMAI_H
 
-#include "CreatureAI.h"
 #include "PassiveAI.h"
-#include "Timer.h"
 
 class Creature;
 class Totem;

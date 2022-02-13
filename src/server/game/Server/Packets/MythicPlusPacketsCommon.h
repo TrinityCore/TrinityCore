@@ -18,7 +18,6 @@
 #ifndef MythicPlusPacketsCommon_h__
 #define MythicPlusPacketsCommon_h__
 
-#include "Packet.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 

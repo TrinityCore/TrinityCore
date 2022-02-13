@@ -59,15 +59,12 @@
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "PartyPackets.h"
-#include "PassiveAI.h"
 #include "Pet.h"
-#include "PetAI.h"
 #include "PetPackets.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "QuestDef.h"
-#include "ReputationMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
@@ -128,13 +125,13 @@ bool DispelableAura::RollDispel() const
 
 DamageInfo::DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
     : m_attacker(attacker), m_victim(victim), m_damage(damage), m_originalDamage(damage), m_spellInfo(spellInfo), m_schoolMask(schoolMask), m_damageType(damageType), m_attackType(attackType),
-    m_absorb(0), m_resist(0), m_block(0), m_hitMask(0)
+    m_absorb(0), m_resist(0), m_block(0), m_hitMask(PROC_HIT_NONE)
 {
 }
 
 DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
     : m_attacker(dmgInfo.Attacker), m_victim(dmgInfo.Target), m_damage(dmgInfo.Damage), m_originalDamage(dmgInfo.Damage), m_spellInfo(nullptr), m_schoolMask(SpellSchoolMask(dmgInfo.DamageSchoolMask)),
-    m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.AttackType), m_absorb(dmgInfo.Absorb), m_resist(dmgInfo.Resist), m_block(dmgInfo.Blocked), m_hitMask(0)
+    m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.AttackType), m_absorb(dmgInfo.Absorb), m_resist(dmgInfo.Resist), m_block(dmgInfo.Blocked), m_hitMask(PROC_HIT_NONE)
 {
     switch (dmgInfo.TargetState)
     {
@@ -185,7 +182,7 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
     }
 }
 
-DamageInfo::DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, uint32 hitMask)
+DamageInfo::DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, ProcFlagsHit hitMask)
     : m_attacker(spellNonMeleeDamage.attacker), m_victim(spellNonMeleeDamage.target), m_damage(spellNonMeleeDamage.damage), m_originalDamage(spellNonMeleeDamage.originalDamage),
     m_spellInfo(spellNonMeleeDamage.Spell), m_schoolMask(SpellSchoolMask(spellNonMeleeDamage.schoolMask)), m_damageType(damageType),
     m_attackType(attackType), m_absorb(spellNonMeleeDamage.absorb), m_resist(spellNonMeleeDamage.resist), m_block(spellNonMeleeDamage.blocked), m_hitMask(hitMask)
@@ -235,7 +232,7 @@ void DamageInfo::BlockDamage(uint32 amount)
     }
 }
 
-uint32 DamageInfo::GetHitMask() const
+ProcFlagsHit DamageInfo::GetHitMask() const
 {
     return m_hitMask;
 }
@@ -261,8 +258,8 @@ uint32 HealInfo::GetHitMask() const
 }
 
 ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
-                             uint32 typeMask, uint32 spellTypeMask,
-                             uint32 spellPhaseMask, uint32 hitMask,
+                             ProcFlagsInit const& typeMask, ProcFlagsSpellType spellTypeMask,
+                             ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                              Spell* spell, DamageInfo* damageInfo,
                              HealInfo* healInfo) :
     _actor(actor), _actionTarget(actionTarget), _procTarget(procTarget),
@@ -534,7 +531,12 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     }
 
     if (arrived)
+    {
         DisableSpline();
+
+        if (Optional<AnimTier> animTier = movespline->GetAnimation())
+            SetAnimTier(*animTier);
+    }
 
     UpdateSplinePosition();
 }
@@ -1219,12 +1221,12 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
     switch (attackType)
     {
         case BASE_ATTACK:
-            damageInfo->ProcAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_MAINHAND_ATTACK;
-            damageInfo->ProcVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
+            damageInfo->ProcAttacker = PROC_FLAG_DEAL_MELEE_SWING | PROC_FLAG_MAIN_HAND_WEAPON_SWING;
+            damageInfo->ProcVictim   = PROC_FLAG_TAKE_MELEE_SWING;
             break;
         case OFF_ATTACK:
-            damageInfo->ProcAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK;
-            damageInfo->ProcVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
+            damageInfo->ProcAttacker = PROC_FLAG_DEAL_MELEE_SWING | PROC_FLAG_OFF_HAND_WEAPON_SWING;
+            damageInfo->ProcVictim   = PROC_FLAG_TAKE_MELEE_SWING;
             damageInfo->HitInfo      = HITINFO_OFFHAND;
             break;
         default:
@@ -1367,7 +1369,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
     // Calculate absorb resist
     if (int32(damageInfo->Damage) > 0)
     {
-        damageInfo->ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
+        damageInfo->ProcVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
         // Calculate absorb & resists
         DamageInfo dmgInfo(*damageInfo);
         Unit::CalcAbsorbResist(dmgInfo);
@@ -1928,7 +1930,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             caster->SendSpellNonMeleeDamageLog(&log);
 
             // break 'Fear' and similar auras
-            Unit::ProcSkillsAndAuras(damageInfo.GetAttacker(), caster, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, &damageInfo, nullptr);
+            Unit::ProcSkillsAndAuras(damageInfo.GetAttacker(), caster, PROC_FLAG_NONE, PROC_FLAG_TAKE_HARMFUL_SPELL, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, &damageInfo, nullptr);
         }
     }
 }
@@ -2358,8 +2360,8 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     if (spellInfo->HasAttribute(SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK))
         return SPELL_MISS_NONE;
 
-    bool canDodge = true;
-    bool canParry = true;
+    bool canDodge = !spellInfo->HasAttribute(SPELL_ATTR7_NO_ATTACK_DODGE);
+    bool canParry = !spellInfo->HasAttribute(SPELL_ATTR7_NO_ATTACK_PARRY);
     bool canBlock = spellInfo->HasAttribute(SPELL_ATTR3_BLOCKABLE_SPELL);
 
     // if victim is casting or cc'd it can't avoid attacks
@@ -5176,7 +5178,9 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     SendCombatLogMessage(&packet);
 }
 
-/*static*/ void Unit::ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
+/*static*/ void Unit::ProcSkillsAndAuras(Unit* actor, Unit* actionTarget, ProcFlagsInit const& typeMaskActor, ProcFlagsInit const& typeMaskActionTarget,
+                                         ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
+                                         Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
     WeaponAttackType attType = damageInfo ? damageInfo->GetAttackType() : BASE_ATTACK;
     if (typeMaskActor && actor)
@@ -5646,7 +5650,7 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
                 PlayerSpellMap const& sp_list = ToPlayer()->GetSpellMap();
                 for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
                 {
-                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                    if (itr->second.state == PLAYERSPELL_REMOVED || itr->second.disabled)
                         continue;
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first, DIFFICULTY_NONE);
                     if (!spellInfo || !spellInfo->IsPassive())
@@ -8216,6 +8220,8 @@ void Unit::setDeathState(DeathState s)
     // Death state needs to be updated before RemoveAllAurasOnDeath() is called, to prevent entering combat
     m_deathState = s;
 
+    bool isOnVehicle = GetVehicle() != nullptr;
+
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
         CombatStop();
@@ -8236,18 +8242,25 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
-        if (IsInWorld())
+
+        // Don't clear the movement if the Unit was on a vehicle as we are exiting now
+        if (!isOnVehicle)
         {
-            // Only clear MotionMaster for entities that exists in world
-            // Avoids crashes in the following conditions :
-            //  * Using 'call pet' on dead pets
-            //  * Using 'call stabled pet'
-            //  * Logging in with dead pets
-            GetMotionMaster()->Clear();
-            GetMotionMaster()->MoveIdle();
+            if (IsInWorld())
+            {
+                // Only clear MotionMaster for entities that exists in world
+                // Avoids crashes in the following conditions :
+                //  * Using 'call pet' on dead pets
+                //  * Using 'call stabled pet'
+                //  * Logging in with dead pets
+                GetMotionMaster()->Clear();
+                GetMotionMaster()->MoveIdle();
+            }
+
+            StopMoving();
+            DisableSpline();
         }
-        StopMoving();
-        DisableSpline();
+
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
@@ -9588,9 +9601,9 @@ void Unit::SetMovedUnit(Unit* target)
     ToPlayer()->SendDirectMessage(packet.Write());
 }
 
-uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition)
+ProcFlagsHit createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition)
 {
-    uint32 hitMask = PROC_HIT_NONE;
+    ProcFlagsHit hitMask = PROC_HIT_NONE;
     // Check victim state
     if (missCondition != SPELL_MISS_NONE)
     {
@@ -9662,7 +9675,7 @@ uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCond
     return hitMask;
 }
 
-void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType /*attType*/)
+void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, ProcFlagsInit const& typeMask, ProcFlagsHit hitMask, WeaponAttackType /*attType*/)
 {
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
@@ -9735,7 +9748,9 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTrigg
     }
 }
 
-void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplicationList* targetProcAuras, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
+void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplicationList* targetProcAuras, Unit* actionTarget,
+                                   ProcFlagsInit const& typeMaskActor, ProcFlagsInit const& typeMaskActionTarget, ProcFlagsSpellType spellTypeMask,
+                                   ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
     // prepare data for self trigger
     ProcEventInfo myProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
@@ -9916,15 +9931,15 @@ void Unit::SetStandState(UnitStandStateType state, uint32 animKitID /* = 0*/)
     }
 }
 
-void Unit::SetAnimTier(UnitBytes1_Flags animTier, bool notifyClient)
+void Unit::SetAnimTier(AnimTier animTier, bool notifyClient /*= true*/)
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AnimTier), animTier);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AnimTier), AsUnderlyingType(animTier));
 
     if (notifyClient)
     {
         WorldPackets::Misc::SetAnimTier setAnimTier;
         setAnimTier.Unit = GetGUID();
-        setAnimTier.Tier = animTier;
+        setAnimTier.Tier = AsUnderlyingType(animTier);
         SendMessageToSet(setAnimTier.Write(), true);
     }
 }
@@ -10552,7 +10567,15 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     }
 
     if (!victim->IsCritter())
-        Unit::ProcSkillsAndAuras(attacker, victim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+    {
+        Unit::ProcSkillsAndAuras(attacker, victim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+
+        if (player && player->GetGroup())
+            for (GroupReference* itr = player->GetGroup()->GetFirstMember(); itr != nullptr; itr = itr->next())
+                if (Player* member = itr->GetSource())
+                    if (member->IsAtGroupRewardDistance(victim))
+                        Unit::ProcSkillsAndAuras(member, victim, { PROC_FLAG_NONE, PROC_FLAG_2_TARGET_DIES }, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+    }
 
     // Proc auras on death - must be before aura/combat remove
     Unit::ProcSkillsAndAuras(victim, victim, PROC_FLAG_NONE, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
@@ -10921,6 +10944,8 @@ void Unit::SetFeared(bool apply)
             GetMotionMaster()->Remove(FLEEING_MOTION_TYPE);
             if (GetVictim())
                 SetTarget(EnsureVictim()->GetGUID());
+            if (!IsPlayer() && !IsInCombat())
+                GetMotionMaster()->MoveTargetedHome();
         }
     }
 
@@ -11543,6 +11568,9 @@ int32 Unit::CalculateAOEAvoidance(int32 damage, uint32 schoolMask, ObjectGuid co
 // Crit or block - determined on damage calculation phase! (and can be both in some time)
 float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo) const
 {
+    if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR7_NO_ATTACK_MISS))
+        return 0.f;
+
     //calculate miss chance
     float missChance = victim->GetUnitMissChance();
 
@@ -11755,9 +11783,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
     return modelid;
 }
 
-void Unit::JumpTo(float speedXY, float speedZ, bool forward, Optional<Position> dest)
+void Unit::JumpTo(float speedXY, float speedZ, float angle, Optional<Position> dest)
 {
-    float angle = forward ? 0 : float(M_PI);
     if (dest)
         angle += GetRelativeAngle(*dest);
 
@@ -12436,7 +12463,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable)
+bool Unit::SetDisableGravity(bool disable, bool updateAnimationTier /*= true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -12471,6 +12498,16 @@ bool Unit::SetDisableGravity(bool disable)
         WorldPackets::Movement::MoveSplineSetFlag packet(gravityOpcodeTable[disable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
     }
 
     return true;
@@ -12629,7 +12666,7 @@ bool Unit::SetFeatherFall(bool enable)
     return true;
 }
 
-bool Unit::SetHover(bool enable)
+bool Unit::SetHover(bool enable, bool updateAnimationTier /*= true*/)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;
@@ -12677,6 +12714,16 @@ bool Unit::SetHover(bool enable)
         WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
     }
 
     return true;
@@ -13158,7 +13205,7 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
     return true;
 }
 
-void Unit::Talk(std::string const& text, ChatMsg msgType, Language language, float textRange, WorldObject const* target)
+void Unit::Talk(std::string_view text, ChatMsg msgType, Language language, float textRange, WorldObject const* target)
 {
     Trinity::CustomChatTextBuilder builder(this, msgType, text, language, target);
     Trinity::LocalizedDo<Trinity::CustomChatTextBuilder> localizer(builder);
@@ -13166,22 +13213,22 @@ void Unit::Talk(std::string const& text, ChatMsg msgType, Language language, flo
     Cell::VisitWorldObjects(this, worker, textRange);
 }
 
-void Unit::Say(std::string const& text, Language language, WorldObject const* target /*= nullptr*/)
+void Unit::Say(std::string_view text, Language language, WorldObject const* target /*= nullptr*/)
 {
     Talk(text, CHAT_MSG_MONSTER_SAY, language, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
 }
 
-void Unit::Yell(std::string const& text, Language language, WorldObject const* target /*= nullptr*/)
+void Unit::Yell(std::string_view text, Language language, WorldObject const* target /*= nullptr*/)
 {
     Talk(text, CHAT_MSG_MONSTER_YELL, language, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), target);
 }
 
-void Unit::TextEmote(std::string const& text, WorldObject const* target /*= nullptr*/, bool isBossEmote /*= false*/)
+void Unit::TextEmote(std::string_view text, WorldObject const* target /*= nullptr*/, bool isBossEmote /*= false*/)
 {
     Talk(text, isBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, LANG_UNIVERSAL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), target);
 }
 
-void Unit::Whisper(std::string const& text, Language language, Player* target, bool isBossWhisper /*= false*/)
+void Unit::Whisper(std::string_view text, Language language, Player* target, bool isBossWhisper /*= false*/)
 {
     if (!target)
         return;

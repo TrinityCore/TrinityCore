@@ -20,9 +20,9 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
-#include "GameObjectData.h"
 #include "GarrisonPackets.h"
 #include "Optional.h"
+#include "QuaternionData.h"
 #include <unordered_map>
 
 class GameObject;

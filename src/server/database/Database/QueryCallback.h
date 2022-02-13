@@ -18,13 +18,11 @@
 #ifndef _QUERY_CALLBACK_H
 #define _QUERY_CALLBACK_H
 
-#include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "Define.h"
 #include <functional>
-#include <future>
 #include <list>
 #include <queue>
-#include <utility>
 
 class TC_DATABASE_API QueryCallback
 {

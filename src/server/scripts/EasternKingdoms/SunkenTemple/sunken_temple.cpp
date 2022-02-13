@@ -31,7 +31,6 @@ EndContentData */
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "sunken_temple.h"
 
 /*#####
@@ -74,7 +73,7 @@ class go_atalai_statue : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 instance->SetData(EVENT_STATE, me->GetEntry());
                 return false;

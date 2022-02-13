@@ -16,7 +16,6 @@
  */
 
 #include "MMapFactory.h"
-#include "Config.h"
 
 namespace MMAP
 {
