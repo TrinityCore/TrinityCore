@@ -85,7 +85,6 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
-    SPELL_PRIEST_TWIST_OF_FATE                      = 265259,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
 };
 
