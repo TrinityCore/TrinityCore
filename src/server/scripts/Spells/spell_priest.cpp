@@ -614,9 +614,6 @@ class spell_pri_penance : public SpellScript
 
         if (Unit* target = GetHitUnit())
         {
-            if (!target->IsAlive())
-                return;
-
             if (caster->IsFriendlyTo(target))
                 caster->CastSpell(target, SPELL_PRIEST_PENANCE_HEALING, false);
             else
