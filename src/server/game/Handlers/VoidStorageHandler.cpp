@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "VoidStoragePackets.h"
-#include "World.h"
 
 void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
 {

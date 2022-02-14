@@ -75,19 +75,26 @@ public:
     using ChargeStorageType = std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection>;
     using GlobalCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, Clock::time_point>;
 
-    explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
+    explicit SpellHistory(Unit* owner);
+    ~SpellHistory();
+
+    SpellHistory(SpellHistory const&) = delete;
+    SpellHistory(SpellHistory&&) = delete;
+
+    SpellHistory& operator=(SpellHistory const&) = delete;
+    SpellHistory& operator=(SpellHistory&&) = delete;
 
     template<class OwnerType>
     void LoadFromDB(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);
 
     template<class OwnerType>
-    void SaveToDB(CharacterDatabaseTransaction& trans);
+    void SaveToDB(CharacterDatabaseTransaction trans);
 
     void Update();
 
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr);
-    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
     template<class PacketType>
     void WritePacket(PacketType* packet) const;
 
@@ -129,8 +136,8 @@ public:
     }
 
     void ResetAllCooldowns();
-    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
-    bool HasCooldown(uint32 spellId, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0) const;
+    bool HasCooldown(uint32 spellId, uint32 itemId = 0) const;
     Duration GetRemainingCooldown(SpellInfo const* spellInfo) const;
     Duration GetRemainingCategoryCooldown(uint32 categoryId) const;
     Duration GetRemainingCategoryCooldown(SpellInfo const* spellInfo) const;

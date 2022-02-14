@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 

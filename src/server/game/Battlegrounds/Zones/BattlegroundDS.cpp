@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "Log.h"
 #include "Player.h"
-#include "Random.h"
 #include "WorldStatePackets.h"
 
 BattlegroundDS::BattlegroundDS(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)

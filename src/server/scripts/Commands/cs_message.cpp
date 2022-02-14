@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "ChatPackets.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
@@ -205,7 +206,7 @@ public:
     }
 
     // Enable/Disable accepting whispers (for GM)
-    static bool HandleWhispersCommand(ChatHandler* handler, Optional<Variant<bool, ExactSequence<'r', 'e', 'm', 'o', 'v', 'e'>>> operationArg, Optional<std::string> playerNameArg)
+    static bool HandleWhispersCommand(ChatHandler* handler, Optional<Variant<bool, EXACT_SEQUENCE("remove")>> operationArg, Optional<std::string> playerNameArg)
     {
         if (!operationArg)
         {
@@ -231,7 +232,7 @@ public:
             }
         }
 
-        if (operationArg->holds_alternative<ExactSequence<'r', 'e', 'm', 'o', 'v', 'e'>>())
+        if (operationArg->holds_alternative<EXACT_SEQUENCE("remove")>())
         {
             if (!playerNameArg)
                 return false;

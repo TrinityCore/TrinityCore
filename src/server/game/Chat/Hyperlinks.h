@@ -23,8 +23,6 @@
 #include <array>
 #include <string>
 #include <string_view>
-#include <type_traits>
-#include <utility>
 
 struct AchievementEntry;
 struct ArtifactPowerRankEntry;

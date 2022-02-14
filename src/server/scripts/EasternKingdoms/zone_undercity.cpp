@@ -32,7 +32,6 @@ EndContentData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner
@@ -236,7 +235,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+        void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
                 SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);

@@ -18,7 +18,6 @@
 #ifndef __TRINITY_VEHICLE_H
 #define __TRINITY_VEHICLE_H
 
-#include "ObjectDefines.h"
 #include "Object.h"
 #include "VehicleDefines.h"
 #include "Unit.h"
@@ -38,6 +37,11 @@ class TC_GAME_API Vehicle : public TransportBase
         ~Vehicle();
 
     public:
+        Vehicle(Vehicle const& right) = delete;
+        Vehicle(Vehicle&& right) = delete;
+        Vehicle& operator=(Vehicle const& right) = delete;
+        Vehicle& operator=(Vehicle&& right) = delete;
+
         void Install();
         void Uninstall();
         void Reset(bool evading = false);

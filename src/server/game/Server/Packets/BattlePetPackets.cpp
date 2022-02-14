@@ -203,3 +203,8 @@ void WorldPackets::BattlePet::BattlePetSummon::Read()
 {
     _worldPacket >> PetGuid;
 }
+
+void WorldPackets::BattlePet::BattlePetUpdateNotify::Read()
+{
+    _worldPacket >> PetGuid;
+}

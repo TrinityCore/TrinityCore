@@ -17,6 +17,7 @@
 
 #include "culling_of_stratholme.h"
 #include "AreaBoundary.h"
+#include "EventMap.h"
 #include "DB2Structure.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -27,11 +28,10 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "QuestDef.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "SmartAI.h"
 #include "SpellInfo.h"
-#include "ScriptMgr.h"
 #include "SplineChainMovementGenerator.h"
 #include "StringFormat.h"
 #include "TemporarySummon.h"
@@ -299,7 +299,7 @@ class npc_chromie_start : public CreatureScript
                     _instance->SetData(DATA_SKIP_TO_PURGE, 1);
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -345,7 +345,7 @@ class npc_chromie_start : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
+            bool OnGossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
             {
                 uint32 const action = GetGossipActionFor(player, listId);
                 ClearGossipMenuFor(player);
@@ -408,7 +408,7 @@ class npc_chromie_start : public CreatureScript
                 return false;
             }
 
-            void QuestAccept(Player* /*player*/, Quest const* quest) override
+            void OnQuestAccept(Player* /*player*/, Quest const* quest) override
             {
                 if (quest->GetQuestId() == QUEST_DISPELLING_ILLUSIONS)
                     AdvanceDungeon();
@@ -505,7 +505,7 @@ class npc_chromie_middle : public CreatureScript
                     Instance->SetGuidData(DATA_UTHER_START, player->GetGUID());
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -516,7 +516,7 @@ class npc_chromie_middle : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
+            bool OnGossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
             {
                 uint32 const action = GetGossipActionFor(player, listId);
                 ClearGossipMenuFor(player);

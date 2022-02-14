@@ -17,6 +17,7 @@
 
 #include "WorldSession.h"
 #include "AccountMgr.h"
+#include "AchievementMgr.h"
 #include "AchievementPackets.h"
 #include "AreaTriggerPackets.h"
 #include "Battleground.h"
@@ -43,7 +44,6 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
 #include "RestMgr.h"
@@ -53,7 +53,6 @@
 #include "WhoListStorage.h"
 #include "WhoPackets.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <cstdarg>
 #include <zlib.h>
 

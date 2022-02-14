@@ -477,7 +477,8 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     if (summoner && !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
         phaseShiftOwner = summoner;
 
-    PhasingHandler::InheritPhaseShift(summon, phaseShiftOwner);
+    if (phaseShiftOwner)
+        PhasingHandler::InheritPhaseShift(summon, phaseShiftOwner);
 
     summon->SetCreatedBySpell(spellId);
 

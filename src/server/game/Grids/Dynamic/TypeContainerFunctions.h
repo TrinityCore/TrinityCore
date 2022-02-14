@@ -26,8 +26,6 @@
 
 #include "Define.h"
 #include "Dynamic/TypeList.h"
-#include <map>
-#include <unordered_map>
 
 namespace Trinity
 {

@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameEventMgr.h"
@@ -35,15 +36,12 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "RBAC.h"
 #include "WorldSession.h"
-#include <boost/core/demangle.hpp>
 #include <sstream>
-#include <typeinfo>
 
 
 using namespace Trinity::ChatCommands;
@@ -51,8 +49,8 @@ using GameObjectSpawnId = Variant<Hyperlink<gameobject>, ObjectGuid::LowType>;
 using GameObjectEntry = Variant<Hyperlink<gameobject_entry>, uint32>;
 
 // definitions are over in cs_npc.cpp
-bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'f','o','r','c','e'>, ExactSequence<'i','g','n','o','r','e','r','e','s','p','a','w','n'>>> const& opts);
-bool HandleNpcDespawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'r','e','m','o','v','e','r','e','s','p','a','w','n','t','i','m','e'>>> const& opts);
+bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, EXACT_SEQUENCE("force"), EXACT_SEQUENCE("ignorerespawn")>> const& opts);
+bool HandleNpcDespawnGroup(ChatHandler* handler, std::vector<Variant<uint32, EXACT_SEQUENCE("removerespawntime")>> const& opts);
 
 class gobject_commandscript : public CommandScript
 {
@@ -323,12 +321,12 @@ public:
 
         if (GameObject::DeleteFromDB(spawnId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, std::to_string(spawnId));
+            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, std::to_string(spawnId).c_str());
             return true;
         }
         else
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(spawnId));
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(spawnId).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -496,7 +494,7 @@ public:
     }
 
     //show info of gameobject
-    static bool HandleGameObjectInfoCommand(ChatHandler* handler, Optional<ExactSequence<'g', 'u', 'i', 'd'>> isGuid, Variant<Hyperlink<gameobject_entry>, Hyperlink<gameobject>, uint32> data)
+    static bool HandleGameObjectInfoCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("guid")> isGuid, Variant<Hyperlink<gameobject_entry>, Hyperlink<gameobject>, uint32> data)
     {
         uint32 entry = 0;
         uint32 type = 0;
@@ -562,7 +560,7 @@ public:
         {
             float yaw, pitch, roll;
             spawnData->rotation.toEulerAnglesZYX(yaw, pitch, roll);
-            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, std::to_string(spawnData->spawnId), spawnData->spawnPoint.GetPositionX(), spawnData->spawnPoint.GetPositionY(), spawnData->spawnPoint.GetPositionZ());
+            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, std::to_string(spawnData->spawnId).c_str(), spawnData->spawnPoint.GetPositionX(), spawnData->spawnPoint.GetPositionY(), spawnData->spawnPoint.GetPositionZ());
             handler->PSendSysMessage(LANG_SPAWNINFO_ROTATION, yaw, pitch, roll);
         }
 
@@ -574,7 +572,7 @@ public:
         handler->PSendSysMessage(LANG_GOINFO_SIZE, gameObjectInfo->size);
         handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, gameObjectInfo->AIName.c_str(), sObjectMgr->GetScriptName(gameObjectInfo->ScriptId).c_str());
         if (GameObjectAI const* ai = thisGO ? thisGO->AI() : nullptr)
-            handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, boost::core::demangle(typeid(*ai).name()).c_str());
+            handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, GetTypeName(*ai).c_str());
 
         if (GameObjectDisplayInfoEntry const* modelInfo = sGameObjectDisplayInfoStore.LookupEntry(displayId))
             handler->PSendSysMessage(LANG_GOINFO_MODEL, modelInfo->GeoBoxMax.X, modelInfo->GeoBoxMax.Y, modelInfo->GeoBoxMax.Z, modelInfo->GeoBoxMin.X, modelInfo->GeoBoxMin.Y, modelInfo->GeoBoxMin.Z);

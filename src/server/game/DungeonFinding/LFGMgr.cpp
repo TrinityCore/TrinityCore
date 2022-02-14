@@ -27,7 +27,6 @@
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
 #include "LFGQueue.h"
-#include "LFGScripts.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -1298,20 +1297,25 @@ void LFGMgr::UpdateBoot(ObjectGuid guid, bool accept)
 
     boot.votes[guid] = LfgAnswer(accept);
 
-    uint8 votesNum = 0;
     uint8 agreeNum = 0;
+    uint8 denyNum = 0;
     for (LfgAnswerContainer::const_iterator itVotes = boot.votes.begin(); itVotes != boot.votes.end(); ++itVotes)
     {
-        if (itVotes->second != LFG_ANSWER_PENDING)
+        switch (itVotes->second)
         {
-            ++votesNum;
-            if (itVotes->second == LFG_ANSWER_AGREE)
+            case LFG_ANSWER_PENDING:
+                break;
+            case LFG_ANSWER_AGREE:
                 ++agreeNum;
+                break;
+            case LFG_ANSWER_DENY:
+                ++denyNum;
+                break;
         }
     }
 
     // if we don't have enough votes (agree or deny) do nothing
-    if (agreeNum < LFG_GROUP_KICK_VOTES_NEEDED && (votesNum - agreeNum) < LFG_GROUP_KICK_VOTES_NEEDED)
+    if (agreeNum < LFG_GROUP_KICK_VOTES_NEEDED && (boot.votes.size() - denyNum) >= LFG_GROUP_KICK_VOTES_NEEDED)
         return;
 
     // Send update info to all players

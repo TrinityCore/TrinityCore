@@ -20,8 +20,8 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
+#include "FlagsArray.h"
 #include "RaceMask.h"
-#include "Util.h"
 
 #pragma pack(push, 1)
 
@@ -2439,7 +2439,7 @@ struct LiquidTypeEntry
 {
     uint32 ID;
     char const* Name;
-    std::array<char, 6> const* Texture;
+    std::array<char const*, 6> Texture;
     uint16 Flags;
     uint8 SoundBank;                                                // used to be "type", maybe needs fixing (works well for now)
     uint32 SoundID;

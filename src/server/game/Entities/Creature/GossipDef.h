@@ -20,7 +20,6 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "NPCHandler.h"
 #include <map>
 
 class Object;

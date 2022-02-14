@@ -22,7 +22,6 @@
 #include "HMAC.h"
 #include "ObjectMgr.h"
 #include "RSA.h"
-#include "Util.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
 {

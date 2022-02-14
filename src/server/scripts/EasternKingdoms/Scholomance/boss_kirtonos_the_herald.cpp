@@ -20,7 +20,6 @@
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "scholomance.h"
@@ -286,7 +285,7 @@ class go_brazier_of_the_herald : public GameObjectScript
         {
             go_brazier_of_the_heraldAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 me->PlayDirectSound(SOUND_SCREECH, nullptr);

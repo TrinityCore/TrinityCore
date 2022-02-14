@@ -19,22 +19,14 @@
 /// @{
 /// \file
 
-#include "Common.h"
-#include "ObjectMgr.h"
-#include "World.h"
-#include "WorldSession.h"
-#include "Configuration/Config.h"
-
-#include "AccountMgr.h"
-#include "Chat.h"
 #include "CliRunnable.h"
-#include "Language.h"
-#include "Log.h"
-#include "MapManager.h"
-#include "Player.h"
+#include "Config.h"
 #include "Util.h"
+#include "World.h"
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#include "Chat.h"
+#include "ChatCommand.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 #endif
@@ -97,18 +89,17 @@ int cli_hook_func()
 
 #endif
 
-void utf8print(void* /*arg*/, char const* str)
+void utf8print(void* /*arg*/, std::string_view str)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    wchar_t wtemp_buf[6000];
-    size_t wtemp_len = 6000-1;
-    if (!Utf8toWStr(str, strlen(str), wtemp_buf, wtemp_len))
+    std::wstring wbuf;
+    if (!Utf8toWStr(str, wbuf))
         return;
 
-    wprintf(L"%s", wtemp_buf);
+    wprintf(L"%s", wbuf.c_str());
 #else
 {
-    printf("%s", str);
+    printf(STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(str));
     fflush(stdout);
 }
 #endif

@@ -24,6 +24,7 @@
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
+#include "SmartEnum.h"
 #include "World.h"
 
 constexpr uint32 AuctionHouseIds[MAX_AUCTION_HOUSE_TYPE] = { 1, 2, 6 };

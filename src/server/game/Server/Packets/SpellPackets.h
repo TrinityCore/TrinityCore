@@ -18,15 +18,18 @@
 #ifndef SpellPackets_h__
 #define SpellPackets_h__
 
-#include "CharacterPackets.h"
 #include "CombatLogPacketsCommon.h"
 #include "MovementInfo.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "PacketUtilities.h"
 #include "Position.h"
-#include "SharedDefines.h"
 #include <array>
+
+namespace UF
+{
+    struct ChrCustomizationChoice;
+}
 
 namespace WorldPackets
 {
@@ -893,7 +896,8 @@ namespace WorldPackets
         class MirrorImageComponentedData final : public ServerPacket
         {
         public:
-            MirrorImageComponentedData() : ServerPacket(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 8 + 4 + 8 * 1 + 8 + 11 * 4) { }
+            MirrorImageComponentedData();
+            ~MirrorImageComponentedData();
 
             WorldPacket const* Write() override;
 
@@ -903,7 +907,7 @@ namespace WorldPackets
             uint8 RaceID = 0;
             uint8 Gender = 0;
             uint8 ClassID = 0;
-            std::vector<Character::ChrCustomizationChoice> Customizations;
+            std::vector<UF::ChrCustomizationChoice> Customizations;
             ObjectGuid GuildGUID;
 
             std::vector<int32> ItemDisplayID;

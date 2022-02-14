@@ -47,6 +47,7 @@
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "Transport.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
@@ -907,6 +908,20 @@ void Map::Update(uint32 t_diff)
                     if (caster->GetTypeId() != TYPEID_PLAYER && !caster->IsWithinDistInMap(player, GetVisibilityRange(), false))
                         toVisit.insert(caster);
             }
+            for (Unit* unit : toVisit)
+                VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+        }
+
+        { // Update player's summons
+            std::vector<Unit*> toVisit;
+
+            // Totems
+            for (ObjectGuid const& summonGuid : player->m_SummonSlot)
+                if (!summonGuid.IsEmpty())
+                    if (Creature* unit = GetCreature(summonGuid))
+                        if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                            toVisit.push_back(unit);
+
             for (Unit* unit : toVisit)
                 VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
         }

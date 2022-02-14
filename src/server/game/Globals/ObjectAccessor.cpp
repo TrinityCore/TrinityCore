@@ -23,12 +23,10 @@
 #include "GridNotifiers.h"
 #include "Item.h"
 #include "Map.h"
-#include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
 #include "Transport.h"
-#include "World.h"
 
 template<class T>
 void HashMapHolder<T>::Insert(T* o)

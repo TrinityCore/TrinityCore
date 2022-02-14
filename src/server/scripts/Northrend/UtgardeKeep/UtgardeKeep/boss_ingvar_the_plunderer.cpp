@@ -27,7 +27,6 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellScript.h"
 #include "utgarde_keep.h"
 

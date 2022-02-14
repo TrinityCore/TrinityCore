@@ -216,6 +216,13 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
     return targetMask;
 }
 
+ImmunityInfo::ImmunityInfo() = default;
+ImmunityInfo::~ImmunityInfo() = default;
+ImmunityInfo::ImmunityInfo(ImmunityInfo const&) = default;
+ImmunityInfo::ImmunityInfo(ImmunityInfo&&) noexcept = default;
+ImmunityInfo& ImmunityInfo::operator=(ImmunityInfo const&) = default;
+ImmunityInfo& ImmunityInfo::operator=(ImmunityInfo&&) noexcept = default;
+
 std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplicitTargetInfo::_data =
 { {
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        //
@@ -336,7 +343,7 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_SRC,    TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 115 TARGET_UNIT_SRC_AREA_FURTHEST_ENEMY
     {TARGET_OBJECT_TYPE_UNIT_AND_DEST, TARGET_REFERENCE_TYPE_LAST, TARGET_SELECT_CATEGORY_AREA, TARGET_CHECK_ENEMY, TARGET_DIR_NONE},       // 116 TARGET_UNIT_AND_DEST_LAST_ENEMY
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 117
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 118 TARGET_UNIT_TARGET_ALLY_OR_RAID
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 118 TARGET_UNIT_TARGET_ALLY_OR_RAID
     {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,  TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 119 TARGET_CORPSE_SRC_AREA_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_SUMMONED, TARGET_DIR_NONE},        // 120 TARGET_UNIT_SELF_AND_SUMMONS
     {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY,   TARGET_DIR_NONE},        // 121 TARGET_CORPSE_TARGET_ALLY
@@ -371,6 +378,15 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 150 TARGET_UNIT_OWN_CRITTER
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 151
 } };
+
+SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo): _spellInfo(spellInfo), EffectIndex(EFFECT_0), Effect(SPELL_EFFECT_NONE), ApplyAuraName(AuraType(0)), ApplyAuraPeriod(0),
+    BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
+    BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
+    RadiusEntry(nullptr), MaxRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
+    BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr),
+    EffectAttributes(SpellEffectAttributes::None), Scaling()
+{
+}
 
 SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& _effect)
     : EffectAttributes(SpellEffectAttributes::None)
@@ -408,6 +424,12 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     ImplicitTargetConditions = nullptr;
     EffectAttributes = _effect.GetEffectAttributes();
 }
+
+SpellEffectInfo::SpellEffectInfo(SpellEffectInfo const&) = default;
+SpellEffectInfo::SpellEffectInfo(SpellEffectInfo&&) noexcept = default;
+SpellEffectInfo::~SpellEffectInfo() = default;
+SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo const&) = default;
+SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo&&) noexcept = default;
 
 bool SpellEffectInfo::IsEffect() const
 {
@@ -1135,7 +1157,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     // SpellAuraOptionsEntry
     if (SpellAuraOptionsEntry const* _options = data.AuraOptions)
     {
-        ProcFlags = _options->ProcTypeMask[0];
+        ProcFlags = _options->ProcTypeMask;
         ProcChance = _options->ProcChance;
         ProcCharges = _options->ProcCharges;
         ProcCooldown = _options->ProcCategoryRecovery;
@@ -2230,7 +2252,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
     if (ExcludeTargetAuraSpell && unitTarget->HasAura(ExcludeTargetAuraSpell))
         return SPELL_FAILED_TARGET_AURASTATE;
 
-    if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+    if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !HasAttribute(SPELL_ATTR7_BYPASS_NO_RESURRECT_AURA))
         if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 

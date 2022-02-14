@@ -26,7 +26,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "Random.h"
 #include "SessionKeyGenerator.h"
 #include "SmartEnum.h"
 #include "Util.h"
@@ -253,7 +252,7 @@ void WardenWin::RequestChecks()
         [&expectedSize](uint16 id)
         {
             uint8 const thisSize = GetCheckPacketSize(sWardenCheckMgr->GetCheckData(id));
-            if ((expectedSize + thisSize) > 512) // warden packets are truncated to 512 bytes clientside
+            if ((expectedSize + thisSize) > 500) // warden packets are truncated to 512 bytes clientside
                 return true;
             expectedSize += thisSize;
             return false;

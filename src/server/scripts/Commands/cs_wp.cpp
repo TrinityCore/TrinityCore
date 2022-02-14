@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -33,7 +34,6 @@ EndScriptData */
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "WaypointDefines.h"
 #include "WaypointManager.h"
 #include "WorldSession.h"
 
