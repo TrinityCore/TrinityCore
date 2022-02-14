@@ -449,20 +449,14 @@ class spell_mage_cold_snap : public SpellScript
 
     static uint32 constexpr SpellsToReset[] =
     {
-        SPELL_MAGE_ICE_BLOCK,
+        SPELL_MAGE_CONE_OF_COLD,
         SPELL_MAGE_ICE_BARRIER,
-        SPELL_MAGE_CONE_OF_COLD
+        SPELL_MAGE_ICE_BLOCK,
     };
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_MAGE_ICE_BLOCK,
-            SPELL_MAGE_ICE_BARRIER,
-            SPELL_MAGE_CONE_OF_COLD,
-            SPELL_MAGE_FROST_NOVA
-        });
+        return ValidateSpellInfo(SpellsToReset) && ValidateSpellInfo({ SPELL_MAGE_FROST_NOVA });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -470,8 +464,7 @@ class spell_mage_cold_snap : public SpellScript
         for (uint32 spellId : SpellsToReset)
             GetCaster()->GetSpellHistory()->ResetCooldown(spellId, true);
 
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_NOVA, GetCastDifficulty()))
-            GetCaster()->GetSpellHistory()->RestoreCharge(spellInfo->ChargeCategoryId);
+        GetCaster()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FROST_NOVA, GetCastDifficulty())->ChargeCategoryId);
     }
 
     void Register() override
