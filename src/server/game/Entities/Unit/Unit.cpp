@@ -11153,6 +11153,14 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         player->RewardPlayerAndGroupAtKill(victim, false);
     }
 
+    // @tswow-begin
+    FIRE(UnitOnDeathEarly, TSUnit(victim), TSUnit(attacker));
+    if (creature)
+    {
+        FIRE_MAP(creature->GetCreatureTemplate()->events, CreatureOnDeathEarly, TSCreature(creature), TSUnit(attacker));
+    }
+    // @tswow-end
+
     // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
     if (attacker && (attacker->IsPet() || attacker->IsTotem()))
     {
@@ -11272,6 +11280,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 
         // @tswow-begin
         sTSBossAI->OnJustDied(creature,attacker);
+        FIRE(UnitOnDeath, TSUnit(creature), TSUnit(attacker));
         FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnDeath,TSCreature(creature),TSUnit(attacker));
         // @tswow-end
 
