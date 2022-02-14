@@ -46,7 +46,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
-#include "World.h"
 
 /*######
 ## go_gilded_brazier (Paladin First Trail quest (9678))

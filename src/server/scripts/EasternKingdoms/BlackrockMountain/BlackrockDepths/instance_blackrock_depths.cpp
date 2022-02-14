@@ -21,7 +21,6 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include <sstream>
 

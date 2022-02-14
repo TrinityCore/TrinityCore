@@ -29,9 +29,7 @@ EndContentData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-#include "ScriptedGossip.h"
 
 /*####
 # npc_tooga

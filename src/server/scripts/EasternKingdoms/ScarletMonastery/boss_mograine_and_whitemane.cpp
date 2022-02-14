@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "Timer.h"
 

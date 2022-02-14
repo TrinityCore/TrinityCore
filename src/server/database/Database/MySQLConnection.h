@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
-#include <map>
 #include <memory>
 #include <mutex>
 #include <string>

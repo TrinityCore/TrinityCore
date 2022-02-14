@@ -28,7 +28,6 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
-#include "SpellMgr.h"
 
 /////////////////////
 ///npc_injured_goblin

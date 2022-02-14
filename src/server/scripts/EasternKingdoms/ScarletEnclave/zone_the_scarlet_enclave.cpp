@@ -19,7 +19,6 @@
 #include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
 /*####

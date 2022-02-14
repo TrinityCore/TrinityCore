@@ -30,7 +30,6 @@
 #include <CascLib.h>
 #include <boost/filesystem/operations.hpp>
 #include <fstream>
-#include <iostream>
 #include <list>
 #include <map>
 #include <unordered_map>

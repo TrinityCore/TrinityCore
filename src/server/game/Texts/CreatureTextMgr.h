@@ -92,10 +92,16 @@ typedef std::map<CreatureTextId, CreatureTextLocale> LocaleCreatureTextMap;
 class TC_GAME_API CreatureTextMgr
 {
     private:
-        CreatureTextMgr() { }
-        ~CreatureTextMgr() { }
+        CreatureTextMgr();
+        ~CreatureTextMgr();
 
     public:
+        CreatureTextMgr(CreatureTextMgr const&) = delete;
+        CreatureTextMgr(CreatureTextMgr&&) = delete;
+
+        CreatureTextMgr& operator=(CreatureTextMgr const&) = delete;
+        CreatureTextMgr& operator=(CreatureTextMgr&&) = delete;
+
         static CreatureTextMgr* instance();
 
         void LoadCreatureTexts();

@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "IoContext.h"
-#include "IpAddress.h"
 #include "Login.pb.h"
 #include "Session.h"
 #include <boost/asio/ip/tcp.hpp>

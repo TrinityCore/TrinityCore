@@ -31,8 +31,6 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "SceneObject.h"
-#include "World.h"
-#include "ScriptMgr.h"
 
 void ObjectGridEvacuator::Visit(CreatureMapType &m)
 {

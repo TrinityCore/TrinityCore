@@ -24,6 +24,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "VehicleDefines.h"
 
 enum ICCSisterSvalnaTexts

@@ -29,7 +29,6 @@
 #include "ChatCommand.h"
 #include "DisableMgr.h"
 #include "GridNotifiersImpl.h"
-#include "Map.h"
 #include "MMapFactory.h"
 #include "PathGenerator.h"
 #include "PhasingHandler.h"

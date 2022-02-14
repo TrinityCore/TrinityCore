@@ -29,7 +29,6 @@
 #include "SceneObject.h"
 #include "Spell.h"
 #include "SpellInfo.h"
-#include "TemporarySummon.h"
 #include "UnitAI.h"
 #include "UpdateData.h"
 

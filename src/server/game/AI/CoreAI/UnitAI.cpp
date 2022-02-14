@@ -20,11 +20,7 @@
 #include "CreatureAIImpl.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "Player.h"
-#include "QuestDef.h"
 #include "Spell.h"
-#include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include <sstream>

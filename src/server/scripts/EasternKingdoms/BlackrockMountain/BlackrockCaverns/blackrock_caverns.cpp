@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"

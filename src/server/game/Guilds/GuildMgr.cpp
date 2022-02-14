@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "World.h"
-#include <algorithm>
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
 {

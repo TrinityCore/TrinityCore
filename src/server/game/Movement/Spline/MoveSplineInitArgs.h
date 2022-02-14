@@ -19,6 +19,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
+#include "MovementTypedefs.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 

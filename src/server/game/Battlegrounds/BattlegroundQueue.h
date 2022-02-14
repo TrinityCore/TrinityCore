@@ -23,8 +23,6 @@
 #include "Battleground.h"
 #include "EventProcessor.h"
 
-#include <deque>
-
 //this container can't be deque, because deque doesn't like removing the last element - if you remove it, it invalidates next iterator and crash appears
 typedef std::list<Battleground*> BGFreeSlotQueueContainer;
 
