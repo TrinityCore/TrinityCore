@@ -38,7 +38,8 @@ enum MonkSpells
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
     SPELL_MONK_NO_FEATHER_FALL                          = 79636,
-    SPELL_MONK_ROLL_TRIGGER                             = 107427,
+    SPELL_MONK_ROLL_BACKWARD                            = 109131,
+    SPELL_MONK_ROLL_FORWARD                             = 107427,
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_STAGGER_DAMAGE_AURA                      = 124255,
@@ -173,7 +174,7 @@ class spell_monk_roll : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MONK_ROLL_TRIGGER, SPELL_MONK_NO_FEATHER_FALL });
+        return ValidateSpellInfo({ SPELL_MONK_ROLL_BACKWARD, SPELL_MONK_ROLL_FORWARD, SPELL_MONK_NO_FEATHER_FALL });
     }
 
     SpellCastResult CheckCast()
@@ -185,7 +186,8 @@ class spell_monk_roll : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_ROLL_TRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        GetCaster()->CastSpell(GetCaster(), GetCaster()->HasUnitMovementFlag(MOVEMENTFLAG_BACKWARD) ? SPELL_MONK_ROLL_BACKWARD : SPELL_MONK_ROLL_FORWARD,
+            TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_NO_FEATHER_FALL, true);
     }
 
@@ -197,6 +199,7 @@ class spell_monk_roll : public SpellScript
 };
 
 // 107427 - Roll
+// 109131 - Roll (backward)
 class spell_monk_roll_aura : public AuraScript
 {
     PrepareAuraScript(spell_monk_roll_aura);
