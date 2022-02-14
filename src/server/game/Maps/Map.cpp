@@ -47,6 +47,7 @@
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "Transport.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"

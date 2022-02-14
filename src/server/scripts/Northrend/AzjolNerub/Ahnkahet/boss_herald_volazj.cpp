@@ -28,7 +28,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "TemporarySummon.h"
 
 enum Spells

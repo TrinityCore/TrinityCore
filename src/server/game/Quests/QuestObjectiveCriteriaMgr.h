@@ -19,6 +19,7 @@
 #define QuestObjectiveCriteriaMgr_h__
 
 #include "CriteriaHandler.h"
+#include "DatabaseEnvFwd.h"
 
 class TC_GAME_API QuestObjectiveCriteriaMgr : public CriteriaHandler
 {

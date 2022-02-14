@@ -31,11 +31,10 @@
 #include "Player.h"
 #include "Transport.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <boost/dynamic_bitset.hpp>
 
 MapManager::MapManager()
-    : _nextInstanceId(0), _scheduledScripts(0)
+    : _freeInstanceIds(std::make_unique<InstanceIds>()), _nextInstanceId(0), _scheduledScripts(0)
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));

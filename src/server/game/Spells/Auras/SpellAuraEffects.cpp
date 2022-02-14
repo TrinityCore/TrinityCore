@@ -31,7 +31,6 @@
 #include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
@@ -46,7 +45,6 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "Weather.h"
-#include "WeatherMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <G3D/g3dmath.h>

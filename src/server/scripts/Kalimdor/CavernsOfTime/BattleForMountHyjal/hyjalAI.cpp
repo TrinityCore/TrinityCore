@@ -22,7 +22,6 @@ SDComment:
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
-#include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "hyjal_trash.h"

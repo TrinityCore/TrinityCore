@@ -25,7 +25,6 @@
 #include "CombatAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
-#include "ScriptedCreature.h"
 
 enum DeathKnightSpells
 {

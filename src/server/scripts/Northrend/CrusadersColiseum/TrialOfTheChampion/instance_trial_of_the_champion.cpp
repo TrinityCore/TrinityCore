@@ -26,7 +26,6 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"

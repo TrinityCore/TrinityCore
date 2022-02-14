@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"

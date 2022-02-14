@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"

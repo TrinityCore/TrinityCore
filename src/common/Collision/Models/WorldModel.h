@@ -18,7 +18,6 @@
 #ifndef _WORLDMODEL_H
 #define _WORLDMODEL_H
 
-#include <G3D/HashTrait.h>
 #include <G3D/Vector3.h>
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>

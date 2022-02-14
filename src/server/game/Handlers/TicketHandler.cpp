@@ -18,11 +18,8 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "SupportMgr.h"
 #include "TicketPackets.h"
-#include "Util.h"
 
 void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& /*packet*/)
 {

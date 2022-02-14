@@ -18,6 +18,7 @@
 #include "oculus.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"

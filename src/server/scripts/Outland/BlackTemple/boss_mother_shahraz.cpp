@@ -18,8 +18,6 @@
 
 #include "ScriptMgr.h"
 #include "black_temple.h"
-#include "Containers.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"

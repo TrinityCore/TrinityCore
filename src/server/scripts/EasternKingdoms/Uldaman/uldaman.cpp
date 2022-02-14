@@ -30,7 +30,6 @@ EndContentData */
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "uldaman.h"
 
 /*######

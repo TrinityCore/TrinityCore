@@ -82,6 +82,8 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_SHOCK                     = 20473,
     SPELL_PALADIN_HOLY_SHOCK_DAMAGE              = 25912,
     SPELL_PALADIN_HOLY_SHOCK_HEALING             = 25914,
+    SPELL_PALADIN_HOLY_LIGHT                     = 82326,
+    SPELL_PALADIN_INFUSION_OF_LIGHT_ENERGIZE     = 356717,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGMENT_GAIN_HOLY_POWER       = 220637,
@@ -96,7 +98,7 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
-    SPELL_PALADIN_ZEAL_AURA                      = 269571,
+    SPELL_PALADIN_ZEAL_AURA                      = 269571
 };
 
 enum PaladinCovenantSpells
@@ -819,6 +821,44 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         {
             return new spell_pal_hand_of_sacrifice_AuraScript();
         }
+};
+
+// 54149 - Infusion of Light
+class spell_pal_infusion_of_light : public AuraScript
+{
+    PrepareAuraScript(spell_pal_infusion_of_light);
+
+    static constexpr flag128 HolyLightSpellClassMask = { 0, 0, 0x400 };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_INFUSION_OF_LIGHT_ENERGIZE });
+    }
+
+    bool CheckFlashOfLightProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcSpell() && eventInfo.GetProcSpell()->m_appliedMods.find(GetAura()) != eventInfo.GetProcSpell()->m_appliedMods.end();
+    }
+
+    bool CheckHolyLightProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PALADIN, HolyLightSpellClassMask);
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_PALADIN_INFUSION_OF_LIGHT_ENERGIZE,
+            CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetTriggeringSpell(eventInfo.GetProcSpell()));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_infusion_of_light::CheckFlashOfLightProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_infusion_of_light::CheckFlashOfLightProc, EFFECT_2, SPELL_AURA_ADD_FLAT_MODIFIER);
+
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_infusion_of_light::CheckHolyLightProc, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pal_infusion_of_light::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
 };
 
 // 327193 - Moment of Glory
@@ -1563,6 +1603,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_grand_crusader();
     new spell_pal_hand_of_sacrifice();
     RegisterSpellScript(spell_pal_hammer_of_the_righteous);
+    RegisterSpellScript(spell_pal_infusion_of_light);
     RegisterSpellScript(spell_pal_moment_of_glory);
     RegisterSpellScript(spell_pal_judgment);
     RegisterSpellScript(spell_pal_holy_prism);

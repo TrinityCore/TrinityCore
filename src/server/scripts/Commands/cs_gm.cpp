@@ -29,7 +29,6 @@ EndScriptData */
 #include "DatabaseEnv.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
 #include "World.h"

@@ -18,10 +18,8 @@
 #include "PreparedStatement.h"
 #include "Errors.h"
 #include "MySQLConnection.h"
-#include "MySQLPreparedStatement.h"
 #include "QueryResult.h"
-#include "Log.h"
-#include "MySQLWorkaround.h"
+#include "StringFormat.h"
 
 PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
     m_index(index), statement_data(capacity) { }

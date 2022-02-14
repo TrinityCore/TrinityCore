@@ -23,7 +23,6 @@
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"

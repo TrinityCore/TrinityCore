@@ -20,7 +20,6 @@
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "QuestDef.h"

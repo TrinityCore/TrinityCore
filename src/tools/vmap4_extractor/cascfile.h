@@ -25,6 +25,7 @@
 
 #include "Define.h"
 #include "CascHandles.h"
+#include <memory>
 #include <string>
 #include <utility>
 

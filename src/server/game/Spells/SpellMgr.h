@@ -676,6 +676,11 @@ class TC_GAME_API SpellMgr
 
     // Accessors (const or static functions)
     public:
+        SpellMgr(SpellMgr const& right) = delete;
+        SpellMgr(SpellMgr&& right) = delete;
+        SpellMgr& operator=(SpellMgr const& right) = delete;
+        SpellMgr& operator=(SpellMgr&& right) = delete;
+
         static SpellMgr* instance();
 
         // Spell correctness for client using

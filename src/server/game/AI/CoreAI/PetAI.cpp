@@ -30,7 +30,6 @@
 #include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "Util.h"
 
 int32 PetAI::Permissible(Creature const* creature)
 {

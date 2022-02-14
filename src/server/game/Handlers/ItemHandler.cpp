@@ -26,7 +26,6 @@
 #include "Log.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "SpellMgr.h"
 #include "World.h"

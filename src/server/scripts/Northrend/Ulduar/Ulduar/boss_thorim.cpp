@@ -28,7 +28,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "TypeContainerVisitor.h"
 #include "ulduar.h"
 #include <G3D/Vector3.h>
 

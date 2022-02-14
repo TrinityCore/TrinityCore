@@ -27,7 +27,6 @@
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 #include <numeric>
 

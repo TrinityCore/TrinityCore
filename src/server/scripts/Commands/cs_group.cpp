@@ -26,7 +26,6 @@
 #include "LFG.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"

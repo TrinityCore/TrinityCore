@@ -79,6 +79,11 @@ class TC_GAME_API BattlegroundMgr
         ~BattlegroundMgr();
 
     public:
+        BattlegroundMgr(BattlegroundMgr const& right) = delete;
+        BattlegroundMgr(BattlegroundMgr&& right) = delete;
+        BattlegroundMgr& operator=(BattlegroundMgr const& right) = delete;
+        BattlegroundMgr& operator=(BattlegroundMgr&& right) = delete;
+
         static BattlegroundMgr* instance();
 
         void Update(uint32 diff);

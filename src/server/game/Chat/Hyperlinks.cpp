@@ -27,7 +27,6 @@
 #include "SpellMgr.h"
 #include "StringFormat.h"
 #include "World.h"
-#include "advstd.h"
 
 using namespace Trinity::Hyperlinks;
 
