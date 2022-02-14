@@ -37,7 +37,7 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
-    SPELL_MONK_ROLL_FEATHER_FALL                        = 79636, // Sniffed
+    SPELL_MONK_NO_FEATHER_FALL                          = 79636,
     SPELL_MONK_ROLL_TRIGGER                             = 107427,
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
@@ -173,7 +173,7 @@ class spell_monk_roll : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MONK_ROLL_TRIGGER, SPELL_MONK_ROLL_FEATHER_FALL });
+        return ValidateSpellInfo({ SPELL_MONK_ROLL_TRIGGER, SPELL_MONK_NO_FEATHER_FALL });
     }
 
     SpellCastResult CheckCast()
@@ -185,14 +185,53 @@ class spell_monk_roll : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_ROLL_TRIGGER, true);
-        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_ROLL_FEATHER_FALL, true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_ROLL_TRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_NO_FEATHER_FALL, true);
     }
 
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_monk_roll::CheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_monk_roll::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 107427 - Roll
+class spell_monk_roll_aura : public AuraScript
+{
+    PrepareAuraScript(spell_monk_roll_aura);
+
+    void CalcMovementAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount += 100;
+    }
+
+    void CalcImmunityAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount -= 100;
+    }
+
+    void ChangeRunBackSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetSpeed(MOVE_RUN_BACK, GetTarget()->GetSpeed(MOVE_RUN));
+    }
+
+    void RestoreRunBackSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->UpdateSpeed(MOVE_RUN_BACK);
+    }
+
+    void Register() override
+    {
+        // Values need manual correction
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_roll_aura::CalcMovementAmount, EFFECT_0, SPELL_AURA_MOD_SPEED_NO_CONTROL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_roll_aura::CalcMovementAmount, EFFECT_2, SPELL_AURA_MOD_MINIMUM_SPEED);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_roll_aura::CalcImmunityAmount, EFFECT_5, SPELL_AURA_MECHANIC_IMMUNITY);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_roll_aura::CalcImmunityAmount, EFFECT_6, SPELL_AURA_MECHANIC_IMMUNITY);
+
+        // This is a special aura that sets backward run speed equal to forward speed
+        AfterEffectApply += AuraEffectApplyFn(spell_monk_roll_aura::ChangeRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_monk_roll_aura::RestoreRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -425,6 +464,7 @@ void AddSC_monk_spell_scripts()
     RegisterSpellScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
     RegisterSpellScript(spell_monk_provoke);
     RegisterSpellScript(spell_monk_roll);
+    RegisterSpellScript(spell_monk_roll_aura);
     RegisterSpellScript(spell_monk_stagger);
     RegisterSpellScript(spell_monk_stagger_damage_aura);
     RegisterSpellScript(spell_monk_stagger_debuff_aura);
