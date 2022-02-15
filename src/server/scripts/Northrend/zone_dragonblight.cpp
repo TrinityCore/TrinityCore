@@ -777,6 +777,40 @@ class spell_moti_hourglass_cast_see_invis_on_master : public SpellScript
     }
 };
 
+/*######
+## Quest 12457: The Chain Gun And You
+######*/
+
+enum TheChainGunAndYou
+{
+    TEXT_CALL_OUT_1    = 27083,
+    TEXT_CALL_OUT_2    = 27084
+};
+
+// BasePoints of the dummy effect is ID of npc_text used to group texts, it's not implemented so texts are grouped manually. Same with 49556 but looks like it's not used
+// 49550 - Call Out Injured Soldier
+class spell_call_out_injured_soldier : public SpellScript
+{
+    PrepareSpellScript(spell_call_out_injured_soldier);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_CALL_OUT_1) && sObjectMgr->GetBroadcastText(TEXT_CALL_OUT_2);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
+            if (Unit* passenger = vehicle->GetPassenger(0))
+                passenger->Unit::Say(RAND(TEXT_CALL_OUT_1, TEXT_CALL_OUT_2), passenger);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_call_out_injured_soldier::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_commander_eligor_dawnbringer();
@@ -787,4 +821,5 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_warsong_battle_standard);
     RegisterSpellScript(spell_moti_mirror_image_script_effect);
     RegisterSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
+    RegisterSpellScript(spell_call_out_injured_soldier);
 }
