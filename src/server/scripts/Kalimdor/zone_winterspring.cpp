@@ -35,7 +35,6 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "TemporarySummon.h"
-#include "WorldSession.h"
 
 enum Says
 {

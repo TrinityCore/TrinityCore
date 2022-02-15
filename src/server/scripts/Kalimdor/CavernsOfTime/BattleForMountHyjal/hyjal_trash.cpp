@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
-#include "hyjalAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"

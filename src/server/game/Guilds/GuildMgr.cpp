@@ -16,14 +16,14 @@
  */
 
 #include "GuildMgr.h"
-#include "DB2Stores.h"
+#include "AchievementMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Guild.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "World.h"
-#include <algorithm>
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
 {

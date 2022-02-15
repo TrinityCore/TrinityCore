@@ -16,10 +16,8 @@
  */
 
 #include "CriteriaHandler.h"
-#include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AzeriteItem.h"
-#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CollectionMgr.h"
@@ -4296,6 +4294,8 @@ CriteriaList const& CriteriaMgr::GetPlayerCriteriaByType(CriteriaType type, uint
 
     return _criteriasByType[size_t(type)];
 }
+
+CriteriaMgr::CriteriaMgr() = default;
 
 //==========================================================
 CriteriaMgr::~CriteriaMgr()

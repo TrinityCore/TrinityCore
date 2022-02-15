@@ -24,7 +24,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 

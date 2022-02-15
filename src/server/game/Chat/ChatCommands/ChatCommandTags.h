@@ -26,9 +26,7 @@
 #include "Util.h"
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
-#include <cmath>
-#include <cstring>
-#include <iostream>
+#include <fmt/ostream.h>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -154,7 +152,7 @@ namespace Trinity::ChatCommands
 
         operator uint32() const { return _id; }
         operator std::string const& () const { return _name; }
-        operator std::string_view() const { return { _name }; }
+        operator std::string_view() const { return _name; }
 
         uint32 GetID() const { return _id; }
         std::string const& GetName() const { return _name; }

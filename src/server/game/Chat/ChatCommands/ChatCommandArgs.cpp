@@ -20,7 +20,6 @@
 #include "DB2Stores.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
-#include "Util.h"
 
 using namespace Trinity::ChatCommands;
 using ChatCommandResult = Trinity::Impl::ChatCommands::ChatCommandResult;

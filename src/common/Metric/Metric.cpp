@@ -16,7 +16,6 @@
  */
 
 #include "Metric.h"
-#include "Common.h"
 #include "Config.h"
 #include "DeadlineTimer.h"
 #include "Log.h"

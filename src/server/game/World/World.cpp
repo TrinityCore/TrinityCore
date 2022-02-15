@@ -1763,7 +1763,7 @@ void World::SetInitialWorldSettings()
     LoadGameTables(m_dataPath);
 
     //Load weighted graph on taxi nodes path
-    sTaxiPathGraph.Initialize();
+    TaxiPathGraph::Initialize();
     // Load IP Location Database
     sIPLocation->Load();
 
@@ -2149,6 +2149,8 @@ void World::SetInitialWorldSettings()
     sCriteriaMgr->LoadCriteriaData();
     TC_LOG_INFO("server.loading", "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
+    TC_LOG_INFO("server.loading", "Loading Achievements Scripts...");
+    sAchievementMgr->LoadAchievementScripts();
     TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
     TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");

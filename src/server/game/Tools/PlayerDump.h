@@ -20,7 +20,6 @@
 
 #include "ObjectGuid.h"
 #include <string>
-#include <map>
 #include <set>
 
 enum DumpTableType

@@ -16,16 +16,14 @@
  */
 
 #include "M2Stores.h"
-#include "Common.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "M2Structure.h"
-#include "World.h"
+#include "Timer.h"
 #include <boost/filesystem/path.hpp>
+#include <G3D/Vector4.h>
 #include <fstream>
-#include <iostream>
-#include <iomanip>
 
 typedef std::vector<FlyByCamera> FlyByCameraCollection;
 std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;

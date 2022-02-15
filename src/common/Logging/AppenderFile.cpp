@@ -19,7 +19,6 @@
 #include "Log.h"
 #include "LogMessage.h"
 #include "StringConvert.h"
-#include "Util.h"
 #include <algorithm>
 
 AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args) :

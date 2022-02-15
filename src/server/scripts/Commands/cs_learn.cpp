@@ -24,11 +24,10 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DB2Stores.h"
 #include "Language.h"
 #include "LanguageMgr.h"
-#include "ObjectMgr.h"
-#include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "SpellInfo.h"

@@ -20,7 +20,6 @@
 
 #include "Containers.h"
 #include "Errors.h"
-#include "EventMap.h"
 #include "ObjectGuid.h"
 #include "SpellDefines.h"
 #include "ThreatManager.h"

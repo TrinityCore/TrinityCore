@@ -16,9 +16,6 @@
  */
 
 #include "UpdateTime.h"
-#include "Timer.h"
-#include "Config.h"
-#include "Log.h"
 
 // create instance
 WorldUpdateTime sWorldUpdateTime;

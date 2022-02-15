@@ -144,10 +144,12 @@ struct BattlePet
     BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
 };
 
-class BattlePetMgr
+class TC_GAME_API BattlePetMgr
 {
 public:
     explicit BattlePetMgr(WorldSession* owner);
+    BattlePetMgr(BattlePetMgr const& right) = delete;
+    BattlePetMgr(BattlePetMgr&& right) = delete;
 
     static void Initialize();
 
@@ -183,6 +185,7 @@ public:
     void GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource);
     void GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels);
     void HealBattlePetsPct(uint8 pct);
+    void UpdateBattlePetData(ObjectGuid guid);
 
     void SummonPet(ObjectGuid guid);
     void DismissPet();

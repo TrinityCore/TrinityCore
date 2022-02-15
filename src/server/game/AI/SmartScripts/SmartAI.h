@@ -22,7 +22,6 @@
 #include "AreaTriggerAI.h"
 #include "CreatureAI.h"
 #include "GameObjectAI.h"
-#include "Position.h"
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 

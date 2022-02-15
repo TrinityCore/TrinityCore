@@ -19,6 +19,7 @@
 #define TRINITY_COMBATAI_H
 
 #include "CreatureAI.h"
+#include "EventMap.h"
 
 class Creature;
 

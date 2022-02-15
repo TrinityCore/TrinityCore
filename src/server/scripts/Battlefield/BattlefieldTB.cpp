@@ -34,7 +34,6 @@
 #include "Player.h"
 #include "Random.h"
 #include "ScriptMgr.h"
-#include "SpellAuras.h"
 #include "TemporarySummon.h"
 #include "World.h"
 #include "WorldStatePackets.h"

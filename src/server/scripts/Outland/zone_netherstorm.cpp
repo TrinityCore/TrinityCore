@@ -27,13 +27,11 @@ npc_commander_dawnforge
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
+#include "ScriptedCreature.h"
 
 /*######
 ## npc_commander_dawnforge

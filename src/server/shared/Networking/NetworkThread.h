@@ -23,13 +23,10 @@
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
-#include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <atomic>
-#include <chrono>
 #include <memory>
 #include <mutex>
-#include <set>
 #include <thread>
 
 using boost::asio::ip::tcp;

@@ -27,14 +27,11 @@ npc_unkor_the_ruthless
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "Group.h"
 #include "Map.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
-#include "Spell.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "WorldSession.h"
 
 /*######
 ## npc_unkor_the_ruthless

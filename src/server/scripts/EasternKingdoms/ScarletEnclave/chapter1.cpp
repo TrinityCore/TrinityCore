@@ -28,9 +28,8 @@
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Spell.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
@@ -388,8 +387,7 @@ class spell_death_knight_initiate_visual : public SpellScript
             default: return;
         }
 
-        target->CastSpell(target, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCastId(GetSpell()->m_castId));
+        target->CastSpell(target, spellId, GetSpell());
         target->LoadEquipment();
     }
 

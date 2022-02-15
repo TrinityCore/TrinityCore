@@ -23,7 +23,6 @@
 #include "magisters_terrace.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "TemporarySummon.h"
 #include <sstream>
 

@@ -19,22 +19,14 @@
 /// @{
 /// \file
 
-#include "Common.h"
-#include "ObjectMgr.h"
-#include "World.h"
-#include "WorldSession.h"
-#include "Configuration/Config.h"
-
-#include "AccountMgr.h"
-#include "Chat.h"
 #include "CliRunnable.h"
-#include "Language.h"
-#include "Log.h"
-#include "MapManager.h"
-#include "Player.h"
+#include "Config.h"
 #include "Util.h"
+#include "World.h"
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#include "Chat.h"
+#include "ChatCommand.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 #endif

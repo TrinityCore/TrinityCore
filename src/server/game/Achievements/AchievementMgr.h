@@ -19,6 +19,7 @@
 #define __TRINITY_ACHIEVEMENTMGR_H
 
 #include "CriteriaHandler.h"
+#include "DatabaseEnvFwd.h"
 
 class Guild;
 
@@ -146,10 +147,16 @@ private:
 
 class TC_GAME_API AchievementGlobalMgr
 {
-    AchievementGlobalMgr() { }
-    ~AchievementGlobalMgr() { }
+    AchievementGlobalMgr();
+    ~AchievementGlobalMgr();
 
 public:
+    AchievementGlobalMgr(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr(AchievementGlobalMgr&&) = delete;
+
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr&&) = delete;
+
     static AchievementGlobalMgr* Instance();
 
     std::vector<AchievementEntry const*> const* GetAchievementByReferencedId(uint32 id) const;
@@ -160,9 +167,12 @@ public:
     void SetRealmCompleted(AchievementEntry const* achievement);
 
     void LoadAchievementReferenceList();
+    void LoadAchievementScripts();
     void LoadCompletedAchievements();
     void LoadRewards();
     void LoadRewardLocales();
+
+    uint32 GetAchievementScriptId(uint32 achievementId) const;
 
 private:
     // store achievements by referenced achievement id to speed up lookup
@@ -175,6 +185,7 @@ private:
 
     std::unordered_map<uint32, AchievementReward> _achievementRewards;
     std::unordered_map<uint32, AchievementRewardLocale> _achievementRewardLocales;
+    std::unordered_map<uint32, uint32> _achievementScripts;
 };
 
 #define sAchievementMgr AchievementGlobalMgr::Instance()

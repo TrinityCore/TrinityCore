@@ -18,18 +18,20 @@
 #ifndef TRINITYCORE_GUILD_H
 #define TRINITYCORE_GUILD_H
 
-#include "AchievementMgr.h"
+#include "Common.h"
 #include "DatabaseEnvFwd.h"
+#include "DBCEnums.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include <set>
 #include <unordered_map>
-#include <unordered_set>
 
+class GuildAchievementMgr;
 class Item;
 class Player;
+class WorldObject;
 class WorldPacket;
 class WorldSession;
 struct ItemPosCount;
@@ -830,8 +832,8 @@ class TC_GAME_API Guild
         // Bank tabs
         void SetBankTabText(uint8 tabId, std::string_view text);
 
-        GuildAchievementMgr& GetAchievementMgr() { return m_achievementMgr; }
-        GuildAchievementMgr const& GetAchievementMgr() const { return m_achievementMgr; }
+        GuildAchievementMgr& GetAchievementMgr() { return *m_achievementMgr; }
+        GuildAchievementMgr const& GetAchievementMgr() const { return *m_achievementMgr; }
 
         // Pre-6.x guild leveling
         uint8 GetLevel() const { return GUILD_OLD_MAX_LEVEL; }
@@ -842,7 +844,7 @@ class TC_GAME_API Guild
         void ResetTimes(bool weekly);
 
         bool HasAchieved(uint32 achievementId) const;
-        void UpdateCriteria(CriteriaType type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject* ref, Player* player);
+        void UpdateCriteria(CriteriaType type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* player);
 
     protected:
         ObjectGuid::LowType m_id;
@@ -864,7 +866,7 @@ class TC_GAME_API Guild
         LogHolder<EventLogEntry> m_eventLog;
         std::array<LogHolder<BankEventLogEntry>, GUILD_BANK_MAX_TABS + 1> m_bankEventLog = {};
         LogHolder<NewsLogEntry> m_newsLog;
-        GuildAchievementMgr m_achievementMgr;
+        std::unique_ptr<GuildAchievementMgr> m_achievementMgr;
 
     private:
         inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
