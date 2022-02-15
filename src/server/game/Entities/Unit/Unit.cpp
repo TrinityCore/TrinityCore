@@ -927,6 +927,9 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         }
     }
 
+    if (spellProto && spellProto->HasAttribute(SPELL_ATTR3_NO_DURABILITY_LOSS))
+        durabilityLoss = false;
+
     if (killed)
         Unit::Kill(attacker, victim, durabilityLoss, skipSettingDeathState);
     else
@@ -951,7 +954,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         else                                                // victim is a player
         {
             // random durability for items (HIT TAKEN)
-            if (roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
+            if (durabilityLoss && roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
             {
                 EquipmentSlots slot = EquipmentSlots(urand(0, EQUIPMENT_SLOT_END-1));
                 victim->ToPlayer()->DurabilityPointLossForEquipSlot(slot);
@@ -961,7 +964,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         if (attacker && attacker->GetTypeId() == TYPEID_PLAYER)
         {
             // random durability for items (HIT DONE)
-            if (roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
+            if (durabilityLoss && roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
             {
                 EquipmentSlots slot = EquipmentSlots(urand(0, EQUIPMENT_SLOT_END-1));
                 attacker->ToPlayer()->DurabilityPointLossForEquipSlot(slot);
