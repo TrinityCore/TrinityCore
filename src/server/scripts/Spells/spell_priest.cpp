@@ -589,14 +589,15 @@ class spell_pri_penance : public SpellScript
 
     SpellCastResult CheckCast()
     {
+        Unit* caster = GetCaster();
         if (Unit* target = GetExplTargetUnit())
         {
-            if (!GetCaster()->IsFriendlyTo(target))
+            if (!caster->IsFriendlyTo(target))
             {
-                if (!GetCaster()->IsValidAttackTarget(target))
+                if (!caster->IsValidAttackTarget(target))
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (!GetCaster()->isInFront(target))
+                if (!caster->isInFront(target))
                     return SPELL_FAILED_UNIT_NOT_INFRONT;
             }
         }
@@ -611,9 +612,9 @@ class spell_pri_penance : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             if (caster->IsFriendlyTo(target))
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_HEALING, false);
+                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_HEALING, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
             else
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, false);
+                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
         }
     }
 
