@@ -359,10 +359,14 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         {
             return pet && pet->PetNumber == petInfo->PetNumber;
         });
-        ASSERT(!petStable->CurrentPetIndex);
         ASSERT(activePetItr != petStable->ActivePets.end());
 
-        petStable->SetCurrentActivePetIndex(std::distance(petStable->ActivePets.begin(), activePetItr));
+        uint32 newPetIndex = std::distance(petStable->ActivePets.begin(), activePetItr);
+
+        // Check that we either have no pet (unsummoned by player) or it matches temporarily unsummoned pet by server (for example on flying mount)
+        ASSERT(!petStable->CurrentPetIndex || petStable->CurrentPetIndex == newPetIndex);
+
+        petStable->SetCurrentActivePetIndex(newPetIndex);
     }
 
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
