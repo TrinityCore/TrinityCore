@@ -41,7 +41,7 @@ uint32 GroupMgr::GenerateNewGroupDbStoreId()
 
     for (uint32 i = ++NextGroupDbStoreId; i < 0xFFFFFFFF; ++i)
     {
-        if ((i < GroupDbStore.size() && GroupDbStore[i] == NULL) || i >= GroupDbStore.size())
+        if ((i < GroupDbStore.size() && GroupDbStore[i] == nullptr) || i >= GroupDbStore.size())
         {
             NextGroupDbStoreId = i;
             break;
@@ -73,7 +73,7 @@ void GroupMgr::FreeGroupDbStoreId(Group* group)
     if (storageId < NextGroupDbStoreId)
         NextGroupDbStoreId = storageId;
 
-    GroupDbStore[storageId] = NULL;
+    GroupDbStore[storageId] = nullptr;
 }
 
 Group* GroupMgr::GetGroupByDbStoreId(uint32 storageId) const
@@ -81,7 +81,7 @@ Group* GroupMgr::GetGroupByDbStoreId(uint32 storageId) const
     if (storageId < GroupDbStore.size())
         return GroupDbStore[storageId];
 
-    return NULL;
+    return nullptr;
 }
 
 ObjectGuid::LowType GroupMgr::GenerateGroupId()
@@ -106,7 +106,13 @@ Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
     if (itr != GroupStore.end())
         return itr->second;
 
-    return NULL;
+    return nullptr;
+}
+
+void GroupMgr::Update(uint32 diff)
+{
+    for (std::pair<ObjectGuid::LowType const, Group*> const& group : GroupStore)
+        group.second->Update(diff);
 }
 
 void GroupMgr::AddGroup(Group* group)
@@ -235,7 +241,7 @@ void GroupMgr::LoadGroups()
             if (!difficultyEntry || difficultyEntry->InstanceType != mapEntry->InstanceType)
                 continue;
 
-            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->ID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt32()), fields[6].GetUInt32(), fields[7].GetUInt64() == 0, true);
+            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->ID, fields[2].GetUInt32(), Difficulty(diff), fields[5].GetInt64(), fields[6].GetUInt32(), fields[7].GetUInt64() == 0, true);
             group->BindToInstance(save, fields[3].GetBool(), true);
             ++count;
         }
@@ -243,11 +249,4 @@ void GroupMgr::LoadGroups()
 
         TC_LOG_INFO("server.loading", ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
-}
-
-void GroupMgr::Update(uint32 diff)
-{
-    for (GroupContainer::iterator itr = GroupStore.begin(); itr != GroupStore.end(); itr++)
-        if (itr->second)
-            itr->second->Update(diff);
 }

@@ -71,7 +71,6 @@ class instance_deadmines : public InstanceMapScript
             ObjectGuid DoorLeverGUID;
             ObjectGuid DefiasPirate1GUID;
             ObjectGuid DefiasPirate2GUID;
-            ObjectGuid DefiasCompanionGUID;
 
             uint32 State;
             uint32 CannonBlast_Timer;
@@ -93,7 +92,7 @@ class instance_deadmines : public InstanceMapScript
                         CannonBlast_Timer = DATA_CANNON_BLAST_TIMER;
                         // it's a hack - Mr. Smite should do that but his too far away
                         //pIronCladDoor->SetName("Mr. Smite");
-                        //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, NULL);
+                        //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, nullptr);
                         pIronCladDoor->PlayDirectSound(SOUND_MR_SMITE_ALARM1);
                         State = CANNON_BLAST_INITIATED;
                         break;
@@ -105,7 +104,7 @@ class instance_deadmines : public InstanceMapScript
                             ShootCannon();
                             BlastOutDoor();
                             LeverStucked();
-                            //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, NULL);
+                            //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, nullptr);
                             pIronCladDoor->PlayDirectSound(SOUND_MR_SMITE_ALARM2);
                             State = PIRATES_ATTACK;
                         } else CannonBlast_Timer -= diff;
@@ -124,30 +123,26 @@ class instance_deadmines : public InstanceMapScript
             {
                 if (GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
                 {
-                    Creature* DefiasPirate1 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() - 2, pIronCladDoor->GetPositionY()-7, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                    Creature* DefiasPirate2 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() + 3, pIronCladDoor->GetPositionY()-6, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                    Creature* DefiasCompanion = pIronCladDoor->SummonCreature(3450, pIronCladDoor->GetPositionX() + 2, pIronCladDoor->GetPositionY()-6, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    Creature* DefiasPirate1 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() - 2, pIronCladDoor->GetPositionY()-7, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
+                    Creature* DefiasPirate2 = pIronCladDoor->SummonCreature(657, pIronCladDoor->GetPositionX() + 3, pIronCladDoor->GetPositionY()-6, pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
 
                     DefiasPirate1GUID = DefiasPirate1->GetGUID();
                     DefiasPirate2GUID = DefiasPirate2->GetGUID();
-                    DefiasCompanionGUID = DefiasCompanion->GetGUID();
                 }
             }
 
             void MoveCreaturesInside()
             {
-                if (!DefiasPirate1GUID || !DefiasPirate2GUID || !DefiasCompanionGUID)
+                if (!DefiasPirate1GUID || !DefiasPirate2GUID)
                     return;
 
                 Creature* pDefiasPirate1 = instance->GetCreature(DefiasPirate1GUID);
                 Creature* pDefiasPirate2 = instance->GetCreature(DefiasPirate2GUID);
-                Creature* pDefiasCompanion = instance->GetCreature(DefiasCompanionGUID);
-                if (!pDefiasPirate1 || !pDefiasPirate2 || !pDefiasCompanion)
+                if (!pDefiasPirate1 || !pDefiasPirate2)
                     return;
 
                 MoveCreatureInside(pDefiasPirate1);
                 MoveCreatureInside(pDefiasPirate2);
-                MoveCreatureInside(pDefiasCompanion);
             }
 
             void MoveCreatureInside(Creature* creature)
@@ -169,7 +164,7 @@ class instance_deadmines : public InstanceMapScript
             {
                 if (GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
                 {
-                    pIronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                    pIronCladDoor->SetGoState(GO_STATE_DESTROYED);
                     pIronCladDoor->PlayDirectSound(SOUND_DESTROYDOOR);
                 }
             }
@@ -196,15 +191,15 @@ class instance_deadmines : public InstanceMapScript
             {
                 switch (type)
                 {
-                case EVENT_STATE:
-                    if (!DefiasCannonGUID.IsEmpty() && !IronCladDoorGUID.IsEmpty())
-                        State = data;
-                    break;
-                case EVENT_RHAHKZOR:
-                    if (data == DONE)
-                        if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
-                            go->SetGoState(GO_STATE_ACTIVE);
-                    break;
+                    case EVENT_STATE:
+                        if (!DefiasCannonGUID.IsEmpty() && !IronCladDoorGUID.IsEmpty())
+                            State = data;
+                        break;
+                    case EVENT_RHAHKZOR:
+                        if (data == DONE)
+                            if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
+                                go->SetGoState(GO_STATE_ACTIVE);
+                        break;
                 }
             }
 

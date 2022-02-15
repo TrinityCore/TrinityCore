@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "molten_core.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
@@ -133,7 +133,7 @@ class instance_molten_core : public InstanceMapScript
                         SummonMajordomoExecutus();
 
                 if (bossId == BOSS_MAJORDOMO_EXECUTUS && state == DONE)
-                    DoRespawnGameObject(_cacheOfTheFirelordGUID, 7 * DAY);
+                    DoRespawnGameObject(_cacheOfTheFirelordGUID, 7_days);
 
                 return true;
             }

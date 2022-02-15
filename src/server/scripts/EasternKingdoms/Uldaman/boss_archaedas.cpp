@@ -26,14 +26,14 @@ On his death the vault door opens.
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "SpellInfo.h"
 #include "uldaman.h"
-#include "GameObject.h"
 
 enum Says
 {
@@ -121,14 +121,14 @@ class boss_archaedas : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 // Being woken up from the altar, start the awaken sequence
                 if (spellInfo->Id == SPELL_ARCHAEDAS_AWAKEN)
@@ -270,7 +270,7 @@ class npc_archaedas_minions : public CreatureScript
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveAllAuras();
@@ -279,7 +279,7 @@ class npc_archaedas_minions : public CreatureScript
                 bAmIAwake = true;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 // time to wake up, start animation
                 if (spellInfo->Id == SPELL_ARCHAEDAS_AWAKEN)
@@ -359,7 +359,7 @@ class npc_stonekeepers : public CreatureScript
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_FRIENDLY);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
@@ -375,7 +375,7 @@ class npc_stonekeepers : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*attacker*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 DoCast (me, SPELL_SELF_DESTRUCT, true);
                 instance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS);    // activate next stonekeeper
@@ -406,7 +406,7 @@ class go_altar_of_archaedas : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 player->CastSpell(player, SPELL_BOSS_OBJECT_VISUAL, false);
 

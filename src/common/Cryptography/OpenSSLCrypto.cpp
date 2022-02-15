@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <OpenSSLCrypto.h>
+#include "OpenSSLCrypto.h"
 #include <openssl/crypto.h>
+
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -24,7 +26,7 @@
 std::vector<std::mutex*> cryptoLocks;
 void ValgrindRandomSetup();
 
-static void lockingCallback(int mode, int type, const char* /*file*/, int /*line*/)
+static void lockingCallback(int mode, int type, char const* /*file*/, int /*line*/)
 {
     if (mode & CRYPTO_LOCK)
         cryptoLocks[type]->lock();
@@ -59,14 +61,15 @@ void OpenSSLCrypto::threadsSetup()
 
 void OpenSSLCrypto::threadsCleanup()
 {
-    CRYPTO_set_locking_callback(NULL);
-    CRYPTO_THREADID_set_callback(NULL);
+    CRYPTO_set_locking_callback(nullptr);
+    CRYPTO_THREADID_set_callback(nullptr);
     for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
     {
         delete cryptoLocks[i];
     }
     cryptoLocks.resize(0);
 }
+#endif
 
 #ifdef VALGRIND
 #include <openssl/rand.h>

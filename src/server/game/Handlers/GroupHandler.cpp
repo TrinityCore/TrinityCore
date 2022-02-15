@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -26,10 +27,7 @@
 #include "PartyPackets.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 
 class Aura;
 
@@ -101,13 +99,13 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
         return;
     }
 
-    if (invitedPlayer->GetSocial()->HasIgnore(invitingPlayer->GetGUID()))
+    if (invitedPlayer->GetSocial()->HasIgnore(invitingPlayer->GetGUID(), invitingPlayer->GetSession()->GetAccountGUID()))
     {
         SendPartyResult(PARTY_OP_INVITE, invitedPlayer->GetName(), ERR_IGNORING_YOU_S);
         return;
     }
 
-    if (!invitedPlayer->GetSocial()->HasFriend(invitingPlayer->GetGUID()) && invitingPlayer->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
+    if (!invitedPlayer->GetSocial()->HasFriend(invitingPlayer->GetGUID()) && invitingPlayer->GetLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
     {
         SendPartyResult(PARTY_OP_INVITE, invitedPlayer->GetName(), ERR_INVITE_RESTRICTED);
         return;
@@ -132,7 +130,7 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
             // tell the player that they were invited but it failed as they were already in a group
             WorldPackets::Party::PartyInvite partyInvite;
             partyInvite.Initialize(invitingPlayer, packet.ProposedRoles, false);
-            invitedPlayer->GetSession()->SendPacket(partyInvite.Write());
+            invitedPlayer->SendDirectMessage(partyInvite.Write());
         }
 
         return;
@@ -185,7 +183,7 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
 
     WorldPackets::Party::PartyInvite partyInvite;
     partyInvite.Initialize(invitingPlayer, packet.ProposedRoles, true);
-    invitedPlayer->GetSession()->SendPacket(partyInvite.Write());
+    invitedPlayer->SendDirectMessage(partyInvite.Write());
 
     SendPartyResult(PARTY_OP_INVITE, invitedPlayer->GetName(), ERR_PARTY_RESULT_OK);
 }
@@ -204,7 +202,7 @@ void WorldSession::HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInv
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
-            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player %s (%s) tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player %s %s tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
             return;
         }
 
@@ -253,7 +251,7 @@ void WorldSession::HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInv
 
         // report
         WorldPackets::Party::GroupDecline decline(GetPlayer()->GetName());
-        leader->GetSession()->SendPacket(decline.Write());
+        leader->SendDirectMessage(decline.Write());
     }
 }
 
@@ -262,7 +260,7 @@ void WorldSession::HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite&
     // can't uninvite yourself
     if (packet.TargetGUID == GetPlayer()->GetGUID())
     {
-        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader %s (%s) tried to uninvite himself from the group.",
+        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader %s %s tried to uninvite himself from the group.",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
         return;
     }
@@ -372,6 +370,9 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
+    if (group->isLFGGroup())
+        return;
+
     switch (packet.LootMethod)
     {
         case FREE_FOR_ALL:
@@ -408,10 +409,10 @@ void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
     switch (packet.RollType)
     {
         case ROLL_NEED:
-            GetPlayer()->UpdateCriteria(CRITERIA_TYPE_ROLL_NEED, 1);
+            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyNeed, 1);
             break;
         case ROLL_GREED:
-            GetPlayer()->UpdateCriteria(CRITERIA_TYPE_ROLL_GREED, 1);
+            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyGreed, 1);
             break;
     }
 }
@@ -559,6 +560,7 @@ void WorldSession::HandleSetPartyAssignment(WorldPackets::Party::SetPartyAssignm
         case GROUP_ASSIGN_MAINTANK:
             group->RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main assist flag from current if any.
             group->SetGroupMemberFlag(packet.Target, packet.Set, MEMBER_FLAG_MAINTANK);
+            break;
         default:
             break;
     }
@@ -593,7 +595,7 @@ void WorldSession::HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyChec
 
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet)
 {
-    WorldPackets::Party::PartyMemberState partyMemberStats;
+    WorldPackets::Party::PartyMemberFullState partyMemberStats;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
     if (!player)

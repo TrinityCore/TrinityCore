@@ -15,32 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "OutdoorPvPNA.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "MapManager.h"
+#include "Map.h"
 #include "ObjectMgr.h"
-#include "OutdoorPvPNA.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "WorldStatePackets.h"
 
- // kill credit for pks
-uint32 const NA_CREDIT_MARKER = 24867;
-
+uint32 const NA_CREDIT_MARKER = 24867; // kill credit for pks
 uint32 const NA_GUARDS_MAX = 15;
-
 uint32 const NA_BUFF_ZONE = 3518;
-
 uint32 const NA_HALAA_GRAVEYARD = 993;
-
 uint32 const NA_HALAA_GRAVEYARD_ZONE = 3518; // need to add zone id, not area id
-
 uint32 const NA_RESPAWN_TIME = 3600000; // one hour to capture after defeating all guards
-
 uint32 const NA_GUARD_CHECK_TIME = 500; // every half second
-
 uint32 const FLIGHT_NODES_NUM = 4;
-
 uint32 const FlightPathStartNodes[FLIGHT_NODES_NUM] = { 103, 105, 107, 109 };
 uint32 const FlightPathEndNodes[FLIGHT_NODES_NUM] = { 104, 106, 108, 110 };
 
@@ -133,7 +124,7 @@ creature_type const AllianceControlNPCs[NA_CONTROL_NPC_NUM] =
 OutdoorPvPNA::OutdoorPvPNA()
 {
     m_TypeId = OUTDOOR_PVP_NA;
-    m_obj = NULL;
+    m_obj = nullptr;
 }
 
 void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
@@ -155,30 +146,30 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
     {
         switch (itr->first)
         {
-        case NA_NPC_GUARD_01:
-        case NA_NPC_GUARD_02:
-        case NA_NPC_GUARD_03:
-        case NA_NPC_GUARD_04:
-        case NA_NPC_GUARD_05:
-        case NA_NPC_GUARD_06:
-        case NA_NPC_GUARD_07:
-        case NA_NPC_GUARD_08:
-        case NA_NPC_GUARD_09:
-        case NA_NPC_GUARD_10:
-        case NA_NPC_GUARD_11:
-        case NA_NPC_GUARD_12:
-        case NA_NPC_GUARD_13:
-        case NA_NPC_GUARD_14:
-        case NA_NPC_GUARD_15:
-        {
-            auto bounds = m_PvP->GetMap()->GetCreatureBySpawnIdStore().equal_range(itr->second);
-            for (auto itr2 = bounds.first; itr2 != bounds.second; ++itr2)
-                if (itr2->second->IsAlive())
-                    ++cnt;
-            break;
-        }
-        default:
-            break;
+            case NA_NPC_GUARD_01:
+            case NA_NPC_GUARD_02:
+            case NA_NPC_GUARD_03:
+            case NA_NPC_GUARD_04:
+            case NA_NPC_GUARD_05:
+            case NA_NPC_GUARD_06:
+            case NA_NPC_GUARD_07:
+            case NA_NPC_GUARD_08:
+            case NA_NPC_GUARD_09:
+            case NA_NPC_GUARD_10:
+            case NA_NPC_GUARD_11:
+            case NA_NPC_GUARD_12:
+            case NA_NPC_GUARD_13:
+            case NA_NPC_GUARD_14:
+            case NA_NPC_GUARD_15:
+            {
+                auto bounds = m_PvP->GetMap()->GetCreatureBySpawnIdStore().equal_range(itr->second);
+                for (auto itr2 = bounds.first; itr2 != bounds.second; ++itr2)
+                    if (itr2->second->IsAlive())
+                        ++cnt;
+                break;
+            }
+            default:
+                break;
         }
     }
     return cnt;
@@ -242,11 +233,11 @@ void OPvPCapturePointNA::DeSpawnGOs()
 void OPvPCapturePointNA::FactionTakeOver(uint32 team)
 {
     if (m_ControllingFaction)
-        sObjectMgr->RemoveGraveYardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
+        sObjectMgr->RemoveGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
 
     m_ControllingFaction = team;
     if (m_ControllingFaction)
-        sObjectMgr->AddGraveYardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
+        sObjectMgr->AddGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
     DeSpawnGOs();
     DeSpawnNPCs();
     SpawnGOsForTeam(team);
@@ -284,10 +275,8 @@ void OPvPCapturePointNA::FactionTakeOver(uint32 team)
     UpdateWyvernRoostWorldState(NA_ROOST_E);
 }
 
-OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP* pvp) :
-OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFaction(0),
-m_WyvernStateNorth(0), m_WyvernStateSouth(0), m_WyvernStateEast(0), m_WyvernStateWest(0),
-m_HalaaState(HALAA_N), m_RespawnTimer(NA_RESPAWN_TIME), m_GuardCheckTimer(NA_GUARD_CHECK_TIME)
+OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP* pvp) : OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFaction(0), m_WyvernStateNorth(0), m_WyvernStateSouth(0), m_WyvernStateEast(0),
+    m_WyvernStateWest(0), m_HalaaState(HALAA_N), m_RespawnTimer(NA_RESPAWN_TIME), m_GuardCheckTimer(NA_GUARD_CHECK_TIME)
 {
     SetCapturePointData(182210, 530, { -1572.57f, 7945.3f, -22.475f, 2.05949f }, { 0.0f, 0.0f, 0.857167f, 0.515038f });
 }
@@ -330,48 +319,43 @@ void OPvPCapturePointNA::FillInitialWorldStates(WorldPackets::WorldState::InitWo
 {
     if (m_ControllingFaction == ALLIANCE)
     {
-        packet.Worldstates.emplace_back(uint32(NA_UI_HORDE_GUARDS_SHOW), 0);
-        packet.Worldstates.emplace_back(uint32(NA_UI_ALLIANCE_GUARDS_SHOW), 1);
+        packet.Worldstates.emplace_back(NA_UI_HORDE_GUARDS_SHOW, 0);
+        packet.Worldstates.emplace_back(NA_UI_ALLIANCE_GUARDS_SHOW, 1);
     }
     else if (m_ControllingFaction == HORDE)
     {
-        packet.Worldstates.emplace_back(uint32(NA_UI_HORDE_GUARDS_SHOW), 1);
-        packet.Worldstates.emplace_back(uint32(NA_UI_ALLIANCE_GUARDS_SHOW), 1);
+        packet.Worldstates.emplace_back(NA_UI_HORDE_GUARDS_SHOW, 1);
+        packet.Worldstates.emplace_back(NA_UI_ALLIANCE_GUARDS_SHOW, 0);
     }
     else
     {
-        packet.Worldstates.emplace_back(uint32(NA_UI_HORDE_GUARDS_SHOW), 0);
-        packet.Worldstates.emplace_back(uint32(NA_UI_ALLIANCE_GUARDS_SHOW), 0);
+        packet.Worldstates.emplace_back(NA_UI_HORDE_GUARDS_SHOW, 0);
+        packet.Worldstates.emplace_back(NA_UI_ALLIANCE_GUARDS_SHOW, 0);
     }
 
-    packet.Worldstates.emplace_back(uint32(NA_UI_GUARDS_MAX), int32(NA_GUARDS_MAX));
-    packet.Worldstates.emplace_back(uint32(NA_UI_GUARDS_LEFT), int32(m_GuardsAlive));
-
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_NORTH_NEU_A), int32((m_WyvernStateNorth & WYVERN_NEU_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_NORTH_NEU_A), int32((m_WyvernStateNorth & WYVERN_NEU_ALLIANCE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_NORTH_H), int32((m_WyvernStateNorth & WYVERN_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_NORTH_A), int32((m_WyvernStateNorth & WYVERN_ALLIANCE) != 0));
-
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_SOUTH_NEU_H), int32((m_WyvernStateSouth & WYVERN_NEU_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_SOUTH_NEU_A), int32((m_WyvernStateSouth & WYVERN_NEU_ALLIANCE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_SOUTH_H), int32((m_WyvernStateSouth & WYVERN_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_SOUTH_A), int32((m_WyvernStateSouth & WYVERN_ALLIANCE) != 0));
-
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_WEST_NEU_H), int32((m_WyvernStateWest & WYVERN_NEU_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_WEST_NEU_A), int32((m_WyvernStateWest & WYVERN_NEU_ALLIANCE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_WEST_H), int32((m_WyvernStateWest & WYVERN_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_WEST_A), int32((m_WyvernStateWest & WYVERN_ALLIANCE) != 0));
-
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_EAST_NEU_H), int32((m_WyvernStateEast & WYVERN_NEU_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_EAST_NEU_A), int32((m_WyvernStateEast & WYVERN_NEU_ALLIANCE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_EAST_H), int32((m_WyvernStateEast & WYVERN_HORDE) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_WYVERN_EAST_A), int32((m_WyvernStateEast & WYVERN_ALLIANCE) != 0));
-
-    packet.Worldstates.emplace_back(uint32(NA_MAP_HALAA_NEUTRAL), int32((m_HalaaState & HALAA_N) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_HALAA_NEU_A), int32((m_HalaaState & HALAA_N_A) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_HALAA_NEU_H), int32((m_HalaaState & HALAA_N_H) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_HALAA_HORDE), int32((m_HalaaState & HALAA_H) != 0));
-    packet.Worldstates.emplace_back(uint32(NA_MAP_HALAA_ALLIANCE), int32((m_HalaaState & HALAA_A) != 0));
+    packet.Worldstates.emplace_back(NA_UI_GUARDS_MAX, NA_GUARDS_MAX);
+    packet.Worldstates.emplace_back(NA_UI_GUARDS_LEFT, m_GuardsAlive);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_NORTH_NEU_H, (m_WyvernStateNorth & WYVERN_NEU_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_NORTH_NEU_A, (m_WyvernStateNorth & WYVERN_NEU_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_NORTH_H, (m_WyvernStateNorth & WYVERN_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_NORTH_A, (m_WyvernStateNorth & WYVERN_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_SOUTH_NEU_H, (m_WyvernStateSouth & WYVERN_NEU_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_SOUTH_NEU_A, (m_WyvernStateSouth & WYVERN_NEU_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_SOUTH_H, (m_WyvernStateSouth & WYVERN_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_SOUTH_A, (m_WyvernStateSouth & WYVERN_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_WEST_NEU_H, (m_WyvernStateWest & WYVERN_NEU_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_WEST_NEU_A, (m_WyvernStateWest & WYVERN_NEU_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_WEST_H, (m_WyvernStateWest & WYVERN_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_WEST_A, (m_WyvernStateWest & WYVERN_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_EAST_NEU_H, (m_WyvernStateEast & WYVERN_NEU_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_EAST_NEU_A, (m_WyvernStateEast & WYVERN_NEU_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_EAST_H, (m_WyvernStateEast & WYVERN_HORDE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_WYVERN_EAST_A, (m_WyvernStateEast & WYVERN_ALLIANCE) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_HALAA_NEUTRAL, (m_HalaaState & HALAA_N) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_HALAA_NEU_A, (m_HalaaState & HALAA_N_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_HALAA_NEU_H, (m_HalaaState & HALAA_N_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_HALAA_HORDE, (m_HalaaState & HALAA_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(NA_MAP_HALAA_ALLIANCE, (m_HalaaState & HALAA_A) != 0 ? 1 : 0);
 }
 
 void OutdoorPvPNA::SendRemoveWorldStates(Player* player)
@@ -488,11 +472,11 @@ int32 OPvPCapturePointNA::HandleOpenGo(Player* player, GameObject* go)
     int32 retval = OPvPCapturePoint::HandleOpenGo(player, go);
     if (retval >= 0)
     {
-        const go_type * gos = NULL;
+        go_type const* gos = nullptr;
         if (m_ControllingFaction == ALLIANCE)
-            gos=AllianceControlGOs;
+            gos = AllianceControlGOs;
         else if (m_ControllingFaction == HORDE)
-            gos=HordeControlGOs;
+            gos = HordeControlGOs;
         else
             return -1;
 
@@ -503,101 +487,101 @@ int32 OPvPCapturePointNA::HandleOpenGo(Player* player, GameObject* go)
 
         switch (retval)
         {
-        case NA_DESTROYED_ROOST_S:
-            del = NA_DESTROYED_ROOST_S;
-            add = NA_ROOST_S;
-            add2 = NA_BOMB_WAGON_S;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateSouth = WYVERN_ALLIANCE;
-            else
-                m_WyvernStateSouth = WYVERN_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_S);
-            break;
-        case NA_DESTROYED_ROOST_N:
-            del = NA_DESTROYED_ROOST_N;
-            add = NA_ROOST_N;
-            add2 = NA_BOMB_WAGON_N;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateNorth = WYVERN_ALLIANCE;
-            else
-                m_WyvernStateNorth = WYVERN_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_N);
-            break;
-        case NA_DESTROYED_ROOST_W:
-            del = NA_DESTROYED_ROOST_W;
-            add = NA_ROOST_W;
-            add2 = NA_BOMB_WAGON_W;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateWest = WYVERN_ALLIANCE;
-            else
-                m_WyvernStateWest = WYVERN_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_W);
-            break;
-        case NA_DESTROYED_ROOST_E:
-            del = NA_DESTROYED_ROOST_E;
-            add = NA_ROOST_E;
-            add2 = NA_BOMB_WAGON_E;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateEast = WYVERN_ALLIANCE;
-            else
-                m_WyvernStateEast = WYVERN_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_E);
-            break;
-        case NA_BOMB_WAGON_S:
-            del = NA_BOMB_WAGON_S;
-            del2 = NA_ROOST_S;
-            add = NA_DESTROYED_ROOST_S;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateSouth = WYVERN_NEU_ALLIANCE;
-            else
-                m_WyvernStateSouth = WYVERN_NEU_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_S);
-            break;
-        case NA_BOMB_WAGON_N:
-            del = NA_BOMB_WAGON_N;
-            del2 = NA_ROOST_N;
-            add = NA_DESTROYED_ROOST_N;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateNorth = WYVERN_NEU_ALLIANCE;
-            else
-                m_WyvernStateNorth = WYVERN_NEU_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_N);
-            break;
-        case NA_BOMB_WAGON_W:
-            del = NA_BOMB_WAGON_W;
-            del2 = NA_ROOST_W;
-            add = NA_DESTROYED_ROOST_W;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateWest = WYVERN_NEU_ALLIANCE;
-            else
-                m_WyvernStateWest = WYVERN_NEU_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_W);
-            break;
-        case NA_BOMB_WAGON_E:
-            del = NA_BOMB_WAGON_E;
-            del2 = NA_ROOST_E;
-            add = NA_DESTROYED_ROOST_E;
-            if (m_ControllingFaction == HORDE)
-                m_WyvernStateEast = WYVERN_NEU_ALLIANCE;
-            else
-                m_WyvernStateEast = WYVERN_NEU_HORDE;
-            UpdateWyvernRoostWorldState(NA_ROOST_E);
-            break;
-        default:
-            return -1;
-            break;
+            case NA_DESTROYED_ROOST_S:
+                del = NA_DESTROYED_ROOST_S;
+                add = NA_ROOST_S;
+                add2 = NA_BOMB_WAGON_S;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateSouth = WYVERN_ALLIANCE;
+                else
+                    m_WyvernStateSouth = WYVERN_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_S);
+                break;
+            case NA_DESTROYED_ROOST_N:
+                del = NA_DESTROYED_ROOST_N;
+                add = NA_ROOST_N;
+                add2 = NA_BOMB_WAGON_N;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateNorth = WYVERN_ALLIANCE;
+                else
+                    m_WyvernStateNorth = WYVERN_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_N);
+                break;
+            case NA_DESTROYED_ROOST_W:
+                del = NA_DESTROYED_ROOST_W;
+                add = NA_ROOST_W;
+                add2 = NA_BOMB_WAGON_W;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateWest = WYVERN_ALLIANCE;
+                else
+                    m_WyvernStateWest = WYVERN_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_W);
+                break;
+            case NA_DESTROYED_ROOST_E:
+                del = NA_DESTROYED_ROOST_E;
+                add = NA_ROOST_E;
+                add2 = NA_BOMB_WAGON_E;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateEast = WYVERN_ALLIANCE;
+                else
+                    m_WyvernStateEast = WYVERN_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_E);
+                break;
+            case NA_BOMB_WAGON_S:
+                del = NA_BOMB_WAGON_S;
+                del2 = NA_ROOST_S;
+                add = NA_DESTROYED_ROOST_S;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateSouth = WYVERN_NEU_ALLIANCE;
+                else
+                    m_WyvernStateSouth = WYVERN_NEU_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_S);
+                break;
+            case NA_BOMB_WAGON_N:
+                del = NA_BOMB_WAGON_N;
+                del2 = NA_ROOST_N;
+                add = NA_DESTROYED_ROOST_N;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateNorth = WYVERN_NEU_ALLIANCE;
+                else
+                    m_WyvernStateNorth = WYVERN_NEU_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_N);
+                break;
+            case NA_BOMB_WAGON_W:
+                del = NA_BOMB_WAGON_W;
+                del2 = NA_ROOST_W;
+                add = NA_DESTROYED_ROOST_W;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateWest = WYVERN_NEU_ALLIANCE;
+                else
+                    m_WyvernStateWest = WYVERN_NEU_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_W);
+                break;
+            case NA_BOMB_WAGON_E:
+                del = NA_BOMB_WAGON_E;
+                del2 = NA_ROOST_E;
+                add = NA_DESTROYED_ROOST_E;
+                if (m_ControllingFaction == HORDE)
+                    m_WyvernStateEast = WYVERN_NEU_ALLIANCE;
+                else
+                    m_WyvernStateEast = WYVERN_NEU_HORDE;
+                UpdateWyvernRoostWorldState(NA_ROOST_E);
+                break;
+            default:
+                return -1;
+                break;
         }
 
-        if (del>-1)
+        if (del > -1)
             DelObject(del);
 
-        if (del2>-1)
+        if (del2 > -1)
             DelObject(del2);
 
-        if (add>-1)
+        if (add > -1)
             AddObject(add, gos[add].entry, gos[add].map, gos[add].pos, gos[add].rot);
 
-        if (add2>-1)
+        if (add2 > -1)
             AddObject(add2, gos[add2].entry, gos[add2].map, gos[add2].pos, gos[add2].rot);
 
         return retval;
@@ -678,7 +662,7 @@ void OPvPCapturePointNA::ChangeState()
         break;
     }
 
-    auto bounds = sMapMgr->FindMap(530, 0)->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
+    auto bounds = m_PvP->GetMap()->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
         itr->second->SetGoArtKit(artkit);
 

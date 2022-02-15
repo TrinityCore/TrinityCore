@@ -20,7 +20,9 @@
 #include "MessageBuffer.h"
 #include "Log.h"
 #include "Util.h"
+#include <utf8.h>
 #include <sstream>
+#include <cmath>
 #include <ctime>
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())
@@ -38,11 +40,16 @@ ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size
     message().assign(ss.str());
 }
 
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
+{
+    message().assign(Trinity::StringFormat("Invalid %s value (%s) found in ByteBuffer", type, value));
+}
+
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
     value = read<float>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("float", "infinity");
     return *this;
 }
 
@@ -50,8 +57,39 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
 {
     value = read<double>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("double", "infinity");
     return *this;
+}
+
+std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
+{
+    std::string value;
+    while (rpos() < size())                         // prevent crash at wrong string format in packet
+    {
+        char c = read<char>();
+        if (c == 0)
+            break;
+        value += c;
+    }
+    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
+        throw ByteBufferInvalidValueException("string", value.c_str());
+    return value;
+}
+
+std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
+{
+    if (_rpos + length > size())
+        throw ByteBufferPositionException(_rpos, length, size());
+
+    ResetBitPos();
+    if (!length)
+        return std::string();
+
+    std::string value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
+    _rpos += length;
+    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
+        throw ByteBufferInvalidValueException("string", value.c_str());
+    return value;
 }
 
 uint32 ByteBuffer::ReadPackedTime()
@@ -69,15 +107,31 @@ uint32 ByteBuffer::ReadPackedTime()
     return uint32(mktime(&lt));
 }
 
-void ByteBuffer::append(const uint8 *src, size_t cnt)
+void ByteBuffer::append(uint8 const* src, size_t cnt)
 {
     ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(size() < 10000000);
 
     FlushBits();
-    _storage.insert(_storage.begin() + _wpos, src, src + cnt);
-    _wpos += cnt;
+
+    size_t const newSize = _wpos + cnt;
+    if (_storage.capacity() < newSize) // custom memory allocation rules
+    {
+        if (newSize < 100)
+            _storage.reserve(300);
+        else if (newSize < 750)
+            _storage.reserve(2500);
+        else if (newSize < 6000)
+            _storage.reserve(10000);
+        else
+            _storage.reserve(400000);
+    }
+
+    if (_storage.size() < newSize)
+        _storage.resize(newSize);
+    std::memcpy(&_storage[_wpos], src, cnt);
+    _wpos = newSize;
 }
 
 void ByteBuffer::AppendPackedTime(time_t time)
@@ -87,7 +141,7 @@ void ByteBuffer::AppendPackedTime(time_t time)
     append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
 }
 
-void ByteBuffer::put(size_t pos, const uint8 *src, size_t cnt)
+void ByteBuffer::put(size_t pos, uint8 const* src, size_t cnt)
 {
     ASSERT(pos + cnt <= size(), "Attempted to put value with size: " SZFMTD " in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", cnt, pos, size());
     ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
@@ -156,7 +210,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[4];
-        snprintf(buf, 4, "%2X ", read<uint8>(i));
+        snprintf(buf, 4, "%2X", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";

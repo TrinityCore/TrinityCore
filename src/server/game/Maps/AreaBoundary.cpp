@@ -17,7 +17,6 @@
 
 #include "AreaBoundary.h"
 #include "Unit.h"
-#include "TemporarySummon.h"
 
 // ---== RECTANGLE ==---
 RectangleBoundary::RectangleBoundary(float southX, float northX, float eastY, float westY, bool isInverted) :
@@ -102,6 +101,11 @@ BoundaryUnionBoundary::BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundar
     AreaBoundary(isInverted), _b1(b1), _b2(b2)
 {
     ASSERT(b1 && b2);
+}
+BoundaryUnionBoundary::~BoundaryUnionBoundary()
+{
+    delete _b1;
+    delete _b2;
 }
 bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
 {

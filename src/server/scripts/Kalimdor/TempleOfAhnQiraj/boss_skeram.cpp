@@ -106,7 +106,7 @@ class boss_skeram : public CreatureScript
                 if (_flag & (1 << 7))
                     _flag = 0;
 
-                if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM))
+                if (Unit* Target = SelectTarget(SelectTargetMethod::Random))
                     creature->AI()->AttackStart(Target);
 
                 float ImageHealthPct;
@@ -120,25 +120,30 @@ class boss_skeram : public CreatureScript
 
                 creature->SetMaxHealth(me->GetMaxHealth() * ImageHealthPct);
                 creature->SetHealth(creature->GetMaxHealth() * (me->GetHealthPct() / 100.0f));
+
+                summons.Summon(creature);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* killer) override
             {
                 if (!me->IsSummon())
+                {
                     Talk(SAY_DEATH);
+                    BossAI::JustDied(killer);
+                }
                 else
                     me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(6000, 12000));
-                events.ScheduleEvent(EVENT_FULLFILMENT, 15000);
-                events.ScheduleEvent(EVENT_BLINK, urand(30000, 45000));
-                events.ScheduleEvent(EVENT_EARTH_SHOCK, 2000);
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6s, 12s);
+                events.ScheduleEvent(EVENT_FULLFILMENT, 15s);
+                events.ScheduleEvent(EVENT_BLINK, 30s, 45s);
+                events.ScheduleEvent(EVENT_EARTH_SHOCK, 2s);
 
                 Talk(SAY_AGGRO);
             }
@@ -156,38 +161,38 @@ class boss_skeram : public CreatureScript
                     {
                         case EVENT_ARCANE_EXPLOSION:
                             DoCastAOE(SPELL_ARCANE_EXPLOSION, true);
-                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 18000));
+                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 8s, 18s);
                             break;
                         case EVENT_FULLFILMENT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 45.0f, true))
                                 DoCast(target, SPELL_TRUE_FULFILLMENT);
-                            events.ScheduleEvent(EVENT_FULLFILMENT, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_FULLFILMENT, 20s, 30s);
                             break;
                         case EVENT_BLINK:
                             DoCast(me, BlinkSpells[urand(0, 2)]);
-                            DoResetThreat();
+                            ResetThreatList();
                             me->SetVisible(true);
-                            events.ScheduleEvent(EVENT_BLINK, urand(10000, 30000));
+                            events.ScheduleEvent(EVENT_BLINK, 10s, 30s);
                             break;
                         case EVENT_EARTH_SHOCK:
                             DoCastVictim(SPELL_EARTH_SHOCK);
-                            events.ScheduleEvent(EVENT_EARTH_SHOCK, 2000);
+                            events.ScheduleEvent(EVENT_EARTH_SHOCK, 2s);
                             break;
                     }
                 }
 
                 if (!me->IsSummon() && me->GetHealthPct() < _hpct)
                 {
-                    DoCast(me, SPELL_SUMMON_IMAGES);
+                    DoCastAOE(SPELL_SUMMON_IMAGES, true);
                     Talk(SAY_SPLIT);
                     _hpct -= 25.0f;
                     me->SetVisible(false);
-                    events.RescheduleEvent(EVENT_BLINK, 2000);
+                    events.RescheduleEvent(EVENT_BLINK, 2s);
                 }
 
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
-                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 2000);
+                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 2s);
                     DoMeleeAttackIfReady();
                 }
             }
@@ -215,9 +220,15 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if([](WorldObject* target)
+                targets.remove_if([](WorldObject* object) -> bool
                 {
-                    return target->GetTypeId() != TYPEID_PLAYER && (target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsPet());
+                    if (object->GetTypeId() == TYPEID_PLAYER)
+                        return false;
+
+                    if (Creature* creature = object->ToCreature())
+                        return !creature->IsPet();
+
+                    return true;
                 });
             }
 
@@ -242,10 +253,10 @@ public:
     class spell_skeram_true_fulfillment_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_skeram_true_fulfillment_SpellScript);
-        
+
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_GENERIC_DISMOUNT, SPELL_TRUE_FULFILLMENT_2 });
+            return ValidateSpellInfo({ SPELL_TRUE_FULFILLMENT_2, SPELL_GENERIC_DISMOUNT });
         }
 
         void HandleEffect(SpellEffIndex /*effIndex*/)

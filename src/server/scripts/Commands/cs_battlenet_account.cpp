@@ -18,6 +18,7 @@
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
@@ -51,8 +52,8 @@ public:
         {
             { "create",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,             true,  &HandleAccountCreateCommand,     ""                          },
             { "gameaccountcreate", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE_GAME,        true,  &HandleGameAccountCreateCommand, ""                          },
-            { "lock",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,                    false, NULL,                            "", accountLockCommandTable },
-            { "set",               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,                true,  NULL,                            "", accountSetCommandTable  },
+            { "lock",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,                    false, nullptr,                         "", accountLockCommandTable },
+            { "set",               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,                true,  nullptr,                         "", accountSetCommandTable  },
             { "password",          rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,           false, &HandleAccountPasswordCommand,   ""                          },
             { "link",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LINK,               true,  &HandleAccountLinkCommand,       ""                          },
             { "unlink",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_UNLINK,             true,  &HandleAccountUnlinkCommand,     ""                          },
@@ -61,52 +62,38 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "bnetaccount", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT, true,  NULL, "", accountCommandTable },
+            { "bnetaccount", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT, true,  nullptr, "", accountCommandTable },
         };
 
         return commandTable;
     }
 
     /// Create an account
-    static bool HandleAccountCreateCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountCreateCommand(ChatHandler* handler, std::string const& accountName, std::string const& password, Optional<bool> createGameAccount)
     {
-        if (!*args)
-            return false;
-
-        ///- %Parse the command line arguments
-        char* accountName = strtok((char*)args, " ");
-        char* password = strtok(NULL, " ");
-        if (!accountName || !password)
-            return false;
-
-        if (!strchr(accountName, '@'))
+        if (accountName.find('@') == std::string::npos)
         {
             handler->SendSysMessage(LANG_ACCOUNT_INVALID_BNET_NAME);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        char* createGameAccountParam = strtok(NULL, " ");
-        bool createGameAccount = true;
-        if (createGameAccountParam)
-            createGameAccount = StringToBool(createGameAccountParam);
-
         std::string gameAccountName;
-        switch (Battlenet::AccountMgr::CreateBattlenetAccount(std::string(accountName), std::string(password), createGameAccount, &gameAccountName))
+        switch (Battlenet::AccountMgr::CreateBattlenetAccount(accountName, password, createGameAccount.value_or(true), &gameAccountName))
         {
             case AccountOpResult::AOR_OK:
             {
-                if (createGameAccount)
-                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET_WITH_GAME, accountName, gameAccountName.c_str());
+                if (createGameAccount == true)
+                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET_WITH_GAME, accountName.c_str(), gameAccountName.c_str());
                 else
-                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET, accountName);
+                    handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET, accountName.c_str());
 
                 if (handler->GetSession())
                 {
                     TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) created Battle.net account %s%s%s",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                        accountName, createGameAccount ? " with game account " : "", createGameAccount ? gameAccountName.c_str() : "");
+                        accountName.c_str(), createGameAccount == true ? " with game account " : "", createGameAccount == true ? gameAccountName.c_str() : "");
                 }
                 break;
             }
@@ -224,8 +211,8 @@ public:
 
         // Command is supposed to be: .account password [$oldpassword] [$newpassword] [$newpasswordconfirmation] [$emailconfirmation]
         char* oldPassword = strtok((char*)args, " ");       // This extracts [$oldpassword]
-        char* newPassword = strtok(NULL, " ");              // This extracts [$newpassword]
-        char* passwordConfirmation = strtok(NULL, " ");     // This extracts [$newpasswordconfirmation]
+        char* newPassword = strtok(nullptr, " ");              // This extracts [$newpassword]
+        char* passwordConfirmation = strtok(nullptr, " ");     // This extracts [$newpasswordconfirmation]
 
         //Is any of those variables missing for any reason ? We return false.
         if (!oldPassword || !newPassword || !passwordConfirmation)
@@ -289,8 +276,8 @@ public:
 
         ///- Get the command line arguments
         char* account = strtok((char*)args, " ");
-        char* password = strtok(NULL, " ");
-        char* passwordConfirmation = strtok(NULL, " ");
+        char* password = strtok(nullptr, " ");
+        char* passwordConfirmation = strtok(nullptr, " ");
 
         if (!account || !password || !passwordConfirmation)
             return false;
@@ -339,19 +326,8 @@ public:
         return true;
     }
 
-    static bool HandleAccountLinkCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountLinkCommand(ChatHandler* handler, std::string const& bnetAccountName, std::string const& gameAccountName)
     {
-        Tokenizer tokens(args, ' ', 2);
-        if (tokens.size() != 2)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string bnetAccountName = tokens[0];
-        std::string gameAccountName = tokens[1];
-
         switch (Battlenet::AccountMgr::LinkWithGameAccount(bnetAccountName, gameAccountName))
         {
             case AccountOpResult::AOR_OK:
@@ -425,7 +401,7 @@ public:
         std::string accountName = std::to_string(accountId) + '#' + std::to_string(uint32(index));
 
         // Generate random hex string for password, these accounts must not be logged on with GRUNT
-        std::array<uint8, 16> randPassword = Trinity::Crypto::GetRandomBytes<16>();
+        std::array<uint8, 8> randPassword = Trinity::Crypto::GetRandomBytes<8>();
 
         switch (sAccountMgr->CreateAccount(accountName, ByteArrayToHexStr(randPassword), bnetAccountName, accountId, index))
         {

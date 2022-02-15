@@ -45,10 +45,10 @@ namespace WorldPackets
             WorldPackets::Spells::SpellCastRequest Cast;
         };
 
-        class AccountToysUpdate final : public ServerPacket
+        class AccountToyUpdate final : public ServerPacket
         {
         public:
-            AccountToysUpdate() : ServerPacket(SMSG_ACCOUNT_TOYS_UPDATE, 1 + 4 + 1) { }
+            AccountToyUpdate() : ServerPacket(SMSG_ACCOUNT_TOY_UPDATE, 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 

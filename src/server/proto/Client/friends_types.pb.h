@@ -24,6 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "global_extensions/field_options.pb.h"  // IWYU pragma: export
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "invitation_types.pb.h"

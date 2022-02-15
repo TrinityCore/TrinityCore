@@ -20,7 +20,6 @@
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
@@ -28,6 +27,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -172,7 +172,7 @@ public:
             if (!instance->GetCreature(DATA_GRAUF))
                 me->SummonCreature(NPC_GRAUF, GraufLoc);
 
-            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
+            instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override
@@ -200,14 +200,14 @@ public:
         void SpawnFirstWave()
         {
             for (uint8 i = 0; i < FIRST_WAVE_MAX_WARRIORS; i++)
-                if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                     summon->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[i]);
 
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[10]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[11]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[12]);
 
             firstWaveSummoned = true;
@@ -236,7 +236,7 @@ public:
                     SpawnFirstWave();
                     Talk(SAY_AGGRO);
                     _phase = PHASE_FLYING;
-                    instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
+                    instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
 
                     scheduler
                         .Schedule(Seconds(6), [this](TaskContext resetCheck)
@@ -263,11 +263,11 @@ public:
                     Talk(SAY_DRAKE_BREATH);
                     break;
                 case ACTION_GAUNTLET_END:
-                    me->ExitVehicle();
                     Talk(SAY_DRAKE_DEATH);
-                    DoCast(me, SPELL_SKADI_TELEPORT, true);
+                    DoCastSelf(SPELL_SKADI_TELEPORT);
                     summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetImmuneToPC(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     _phase = PHASE_GROUND;
 
@@ -279,7 +279,7 @@ public:
                         })
                         .Schedule(Seconds(11), [this](TaskContext poisonedSpear)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_POISONED_SPEAR);
                             poisonedSpear.Repeat();
                         })
@@ -343,14 +343,14 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             me->SetSpeedRate(MOVE_RUN, 2.5f);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
-                skadi->AI()->DoAction(ACTION_GAUNTLET_END);
+                skadi->ExitVehicle();
 
             me->DespawnOrUnsummon(Seconds(6));
         }
@@ -358,17 +358,21 @@ public:
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (!apply)
+            {
+                if (Creature * skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
+                    skadi->AI()->DoAction(ACTION_GAUNTLET_END);
                 return;
+            }
 
             Movement::MoveSplineInit init(who);
             init.DisableTransportPathTransformations();
             init.MoveTo(0.3320355f, 0.05355075f, 5.196949f, false);
-            init.Launch();
+            who->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
 
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
-            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
 
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
@@ -441,9 +445,9 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_LAUNCH_HARPOON)
+            if (spellInfo->Id == SPELL_LAUNCH_HARPOON)
                 if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                     skadi->AI()->DoAction(ACTION_HARPOON_HIT);
         }
@@ -476,13 +480,13 @@ struct npc_skadi_trashAI : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        CreatureAI::EnterCombat(who);
+        CreatureAI::JustEngagedWith(who);
         ScheduleTasks();
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
             skadi->AI()->JustSummoned(me);
@@ -605,7 +609,7 @@ public:
             _scheduler
                 .Schedule(Seconds(13), [this](TaskContext net)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30, true))
                         DoCast(target, SPELL_NET);
                     net.Repeat();
                 })
@@ -842,6 +846,28 @@ class spell_skadi_poisoned_spear : public SpellScriptLoader
         }
 };
 
+// 61791 - Ride Vehicle
+class spell_skadi_ride_vehicle : public AuraScript
+{
+    PrepareAuraScript(spell_skadi_ride_vehicle);
+
+    void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        PreventDefaultAction();
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        GetTarget()->GetVehicleKit()->RemovePassenger(caster);
+        caster->SetControlled(false, UNIT_STATE_ROOT);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_skadi_ride_vehicle::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class spell_summon_gauntlet_mobs_periodic : public SpellScriptLoader
 {
     public:
@@ -931,13 +957,10 @@ class at_skadi_gaunlet : public AreaTriggerScript
     public:
         at_skadi_gaunlet() : AreaTriggerScript("at_skadi_gaunlet") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || player->IsGameMaster())
-                return true;
-
-            if (!entered)
                 return true;
 
             if (instance->GetBossState(DATA_SKADI_THE_RUTHLESS) == NOT_STARTED)
@@ -964,6 +987,7 @@ void AddSC_boss_skadi()
     new spell_skadi_reset_check();
     new spell_skadi_launch_harpoon();
     new spell_skadi_poisoned_spear();
+    RegisterSpellScript(spell_skadi_ride_vehicle);
     new spell_summon_gauntlet_mobs_periodic();
     new achievement_girl_love_to_skadi();
     new at_skadi_gaunlet();

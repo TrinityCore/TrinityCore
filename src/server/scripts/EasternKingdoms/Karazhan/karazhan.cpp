@@ -1,4 +1,4 @@
- /*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -130,9 +130,9 @@ class npc_barnes : public CreatureScript
 public:
     npc_barnes() : CreatureScript("npc_barnes") { }
 
-    struct npc_barnesAI : public npc_escortAI
+    struct npc_barnesAI : public EscortAI
     {
-        npc_barnesAI(Creature* creature) : npc_escortAI(creature)
+        npc_barnesAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             RaidWiped = false;
@@ -181,9 +181,9 @@ public:
             Start(false, false);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -197,7 +197,7 @@ public:
 
                     if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT,
                         me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
-                        TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                        TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min))
                     {
                         spotlight->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
@@ -274,7 +274,7 @@ public:
                 uint32 entry = ((uint32)Spawns[index][0]);
                 float PosX = Spawns[index][1];
 
-                if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 2h))
                     creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
 
@@ -283,7 +283,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (HasEscortState(STATE_ESCORT_PAUSED))
             {
@@ -309,7 +309,7 @@ public:
                 {
                     if (WipeTimer <= diff)
                     {
-                        Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                        Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                         if (PlayerList.isEmpty())
                             return;
 
@@ -325,7 +325,6 @@ public:
 
                         if (RaidWiped)
                         {
-                            RaidWiped = true;
                             EnterEvadeMode();
                             return;
                         }
@@ -336,7 +335,7 @@ public:
             }
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -344,11 +343,12 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, GossipOptionIcon::None, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     SendGossipMenuFor(player, 8971, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
                     CloseGossipMenuFor(player);
+                    m_uiEventId = urand(EVENT_OZ, EVENT_RAJ);
                     StartEvent();
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
@@ -371,18 +371,18 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             // Check for death of Moroes and if opera event is not done already
             if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionIcon::None, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                 if (player->IsGameMaster())
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    AddGossipItemFor(player, GossipOptionIcon::Auctioneer, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    AddGossipItemFor(player, GossipOptionIcon::Auctioneer, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    AddGossipItemFor(player, GossipOptionIcon::Auctioneer, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 }
 
                 if (!RaidWiped)
@@ -476,7 +476,7 @@ public:
                 me->DespawnOrUnsummon();
             }
         }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MovementInform(uint32 type, uint32 id) override
         {
@@ -494,7 +494,7 @@ public:
         {
             Step = 1;
             EventStarted = true;
-            Creature* Arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+            Creature* Arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
             if (!Arcanagos)
                 return;
             ArcanagosGUID = Arcanagos->GetGUID();
@@ -554,6 +554,7 @@ public:
                 {
                     arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
                     arca->setActive(true);
+                    arca->SetFarVisible(true);
                     arca->InterruptNonMeleeSpells(true);
                     arca->SetSpeedRate(MOVE_FLIGHT, 2.0f);
                 }
@@ -566,7 +567,7 @@ public:
                 me->SetVisible(false);
                 me->ClearInCombat();
 
-                InstanceMap::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                InstanceMap::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                 for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
                     if (i->GetSource()->IsAlive())
@@ -579,7 +580,7 @@ public:
             }
             case 15:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->DealDamage(arca, arca->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    arca->KillSelf();
                 return 5000;
             default:
                 return 9999999;

@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #ifndef _WIN32
@@ -30,13 +31,18 @@
     #include <Windows.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
     #include <cerrno>
 #endif
 
+namespace VMAP
+{
+    class VMapManager2;
+}
+
 namespace MMAP
 {
-    inline bool matchWildcardFilter(const char* filter, const char* str)
+    inline bool matchWildcardFilter(char const* filter, char const* str)
     {
         if (!filter || !str)
             return false;
@@ -104,7 +110,7 @@ namespace MMAP
         while (dirp)
         {
             errno = 0;
-            if ((dp = readdir(dirp)) != NULL)
+            if ((dp = readdir(dirp)) != nullptr)
             {
                 if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && matchWildcardFilter(filter.c_str(), dp->d_name))
                     fileList.push_back(std::string(dp->d_name));
@@ -121,6 +127,21 @@ namespace MMAP
 
         return LISTFILE_OK;
     }
+
+    struct MapEntry
+    {
+        uint8 MapType = 0;
+        int8 InstanceType = 0;
+        int16 ParentMapID = -1;
+        int32 Flags = 0;
+    };
+
+    extern std::unordered_map<uint32, MapEntry> sMapStore;
+
+    namespace VMapFactory
+    {
+        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager();
+}
 }
 
 #endif

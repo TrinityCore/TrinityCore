@@ -67,14 +67,14 @@ class boss_hydromancer_thespia : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15000);
-                events.ScheduleEvent(EVENT_LUNG_BURST, 7000);
-                events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 9000);
+                events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15s);
+                events.ScheduleEvent(EVENT_LUNG_BURST, 7s);
+                events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 9s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -82,29 +82,29 @@ class boss_hydromancer_thespia : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_LIGHTNING_CLOUD:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                             DoCast(target, SPELL_LIGHTNING_CLOUD);
                         // cast twice in Heroic mode
                         if (IsHeroic())
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                                 DoCast(target, SPELL_LIGHTNING_CLOUD);
 
-                        events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15s, 25s);
                         break;
                     case EVENT_LUNG_BURST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                             DoCast(target, SPELL_LUNG_BURST);
-                        events.ScheduleEvent(EVENT_LUNG_BURST, urand(7000, 12000));
+                        events.ScheduleEvent(EVENT_LUNG_BURST, 7s, 12s);
                         break;
                     case EVENT_ENVELOPING_WINDS:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f, true))
                             DoCast(target, SPELL_ENVELOPING_WINDS);
                         // cast twice in Heroic mode
                         if (IsHeroic())
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f, true))
                                 DoCast(target, SPELL_ENVELOPING_WINDS);
 
-                        events.ScheduleEvent(EVENT_ENVELOPING_WINDS, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 10s, 15s);
                         break;
                     default:
                         break;
@@ -138,9 +138,9 @@ class npc_coilfang_waterelemental : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, urand(3000, 6000));
+                _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, 3s, 6s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -159,7 +159,7 @@ class npc_coilfang_waterelemental : public CreatureScript
                     {
                         case EVENT_WATER_BOLT_VOLLEY:
                             DoCast(me, SPELL_WATER_BOLT_VOLLEY);
-                            _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, urand(7000, 12000));
+                            _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, 7s, 12s);
                             break;
                         default:
                             break;

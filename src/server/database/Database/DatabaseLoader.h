@@ -25,7 +25,7 @@
 #include <stack>
 #include <string>
 
-template<class T>
+template <class T>
 class DatabaseWorkerPool;
 
 // A helper class to initiate all database worker pools,

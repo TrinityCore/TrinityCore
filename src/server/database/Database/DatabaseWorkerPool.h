@@ -68,7 +68,7 @@ class DatabaseWorkerPool
 
         //! Enqueues a one-way SQL operation in string format that will be executed asynchronously.
         //! This method should only be used for queries that are only executed once, e.g during startup.
-        void Execute(const char* sql);
+        void Execute(char const* sql);
 
         //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
         //! This method should only be used for queries that are only executed once, e.g during startup.
@@ -91,7 +91,7 @@ class DatabaseWorkerPool
 
         //! Directly executes a one-way SQL operation in string format, that will block the calling thread until finished.
         //! This method should only be used for queries that are only executed once, e.g during startup.
-        void DirectExecute(const char* sql);
+        void DirectExecute(char const* sql);
 
         //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
         //! This method should only be used for queries that are only executed once, e.g during startup.
@@ -114,7 +114,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult Query(const char* sql, T* connection = nullptr);
+        QueryResult Query(char const* sql, T* connection = nullptr);
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
@@ -149,7 +149,7 @@ class DatabaseWorkerPool
 
         //! Enqueues a query in string format that will set the value of the QueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
-        QueryCallback AsyncQuery(const char* sql);
+        QueryCallback AsyncQuery(char const* sql);
 
         //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
@@ -160,7 +160,7 @@ class DatabaseWorkerPool
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
-        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder<T>* holder);
+        SQLQueryHolderCallback DelayQueryHolder(SQLQueryHolder<T>* holder);
 
         /**
             Transaction context methods.
@@ -183,7 +183,7 @@ class DatabaseWorkerPool
 
         //! Method used to execute ad-hoc statements in a diverse context.
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
-        void ExecuteOrAppend(SQLTransaction<T>& trans, const char* sql);
+        void ExecuteOrAppend(SQLTransaction<T>& trans, char const* sql);
 
         //! Method used to execute prepared statements in a diverse context.
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
@@ -206,10 +206,17 @@ class DatabaseWorkerPool
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
         void KeepAlive();
 
+        void WarnAboutSyncQueries([[maybe_unused]] bool warn)
+        {
+#ifdef TRINITY_DEBUG
+            _warnSyncQueries = warn;
+#endif
+        }
+
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 
-        unsigned long EscapeString(char *to, const char *from, unsigned long length);
+        unsigned long EscapeString(char* to, char const* from, unsigned long length);
 
         void Enqueue(SQLOperation* op);
 
@@ -225,6 +232,9 @@ class DatabaseWorkerPool
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
+#ifdef TRINITY_DEBUG
+        static inline thread_local bool _warnSyncQueries = false;
+#endif
 };
 
 #endif

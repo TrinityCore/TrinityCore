@@ -23,6 +23,7 @@
 #include <cstdlib>
 
 #ifdef _MSC_VER
+#include <Windows.h>
     // disable: "C++ exception handler used"
 #   pragma warning (push)
 #   pragma warning (disable : 4530)
@@ -99,7 +100,7 @@ static void createErrorMessage(
         }
 
         // Make sure the message got translated into something.
-        LPTSTR realLastErr;
+        LPCTSTR realLastErr;
         if (NULL != formatMsg) {
             realLastErr = formatMsg;
         } else {

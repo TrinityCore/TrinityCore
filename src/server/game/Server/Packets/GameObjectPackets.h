@@ -19,9 +19,7 @@
 #define GOPackets_h__
 
 #include "Packet.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
-#include "WorldSession.h"
 
 namespace WorldPackets
 {
@@ -121,15 +119,27 @@ namespace WorldPackets
             bool PlayAsDespawn = false;
         };
 
-        class GameObjectUIAction final : public ServerPacket
+        class GameObjectUILink final : public ServerPacket
         {
         public:
-            GameObjectUIAction() : ServerPacket(SMSG_GAME_OBJECT_UI_ACTION, 16 + 4) { }
+            GameObjectUILink() : ServerPacket(SMSG_GAME_OBJECT_UI_LINK, 16 + 4) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid ObjectGUID;
             int32 UILink = 0;
+        };
+
+        class GameObjectPlaySpellVisual final : public ServerPacket
+        {
+        public:
+            GameObjectPlaySpellVisual() : ServerPacket(SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL, 16 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            ObjectGuid ActivatorGUID;
+            int32 SpellVisualID = 0;
         };
     }
 }

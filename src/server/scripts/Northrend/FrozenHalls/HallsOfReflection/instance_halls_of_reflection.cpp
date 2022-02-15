@@ -15,19 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "Containers.h"
-#include "Creature.h"
-#include "CreatureAI.h"
-#include "GameObject.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "WorldStatePackets.h"
+#include <sstream>
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
@@ -163,7 +161,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case NPC_WORLD_TRIGGER:
                         if (!creature->GetTransport())
                             break;
-                        /* fallthrough */
+                        [[fallthrough]];
                     case NPC_GUNSHIP_CANNON_HORDE:
                         GunshipCannonGUIDs.insert(creature->GetGUID());
                         break;
@@ -298,8 +296,8 @@ class instance_halls_of_reflection : public InstanceMapScript
 
             void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_HOR_WAVES_ENABLED), int32(_introState == DONE && GetBossState(DATA_MARWYN) != DONE));
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_HOR_WAVE_COUNT), int32(_waveCount));
+                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVES_ENABLED, (_introState == DONE && GetBossState(DATA_MARWYN) != DONE) ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -313,7 +311,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         if (state == DONE)
                         {
                             ++_waveCount;
-                            events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+                            events.ScheduleEvent(EVENT_NEXT_WAVE, 1min);
                         }
                         break;
                     case DATA_MARWYN:
@@ -352,15 +350,15 @@ class instance_halls_of_reflection : public InstanceMapScript
 
                                 if (Creature* lichking = instance->GetCreature(TheLichKingEscapeGUID))
                                 {
-                                    lichking->CastSpell((Unit*)NULL, SPELL_ACHIEV_CHECK, true);
-                                    lichking->DespawnOrUnsummon(1);
+                                    lichking->CastSpell(nullptr, SPELL_ACHIEV_CHECK, true);
+                                    lichking->DespawnOrUnsummon(1ms);
                                 }
                                 break;
                             case FAIL:
-                                DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                                DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_NOT_RETREATING_EVENT);
 
                                 if (Creature* jainaOrSylvanas = instance->GetCreature(JainaOrSylvanasEscapeGUID))
-                                    jainaOrSylvanas->DespawnOrUnsummon(10000);
+                                    jainaOrSylvanas->DespawnOrUnsummon(10s);
 
                                 if (Creature* icewallTarget = instance->GetCreature(IcewallTargetGUID))
                                     icewallTarget->DespawnOrUnsummon();
@@ -368,7 +366,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 if (GameObject* icewall = instance->GetGameObject(IcewallGUID))
                                     icewall->Delete();
 
-                                events.ScheduleEvent(EVENT_SPAWN_ESCAPE_EVENT, 30000);
+                                events.ScheduleEvent(EVENT_SPAWN_ESCAPE_EVENT, 30s);
                                 break;
                             default:
                                 break;
@@ -446,7 +444,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case DATA_WAVE_COUNT:
                         if (_waveCount && data == NOT_STARTED)
-                            ProcessEvent(NULL, EVENT_DO_WIPE);
+                            ProcessEvent(nullptr, EVENT_DO_WIPE, nullptr);
                         break;
                     case DATA_FROSTSWORN_GENERAL:
                         if (data == DONE)
@@ -459,8 +457,8 @@ class instance_halls_of_reflection : public InstanceMapScript
                             if (_quelDelarState == NOT_STARTED)
                             {
                                 if (Creature* bunny = instance->GetCreature(FrostmourneAltarBunnyGUID))
-                                    bunny->CastSpell((Unit*)NULL, SPELL_ESSENCE_OF_CAPTURED);
-                                events.ScheduleEvent(EVENT_QUEL_DELAR_SUMMON_UTHER, 2000);
+                                    bunny->CastSpell(nullptr, SPELL_ESSENCE_OF_CAPTURED);
+                                events.ScheduleEvent(EVENT_QUEL_DELAR_SUMMON_UTHER, 2s);
                             }
                         }
                         _quelDelarState = data;
@@ -508,7 +506,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         }
 
                         ++_waveCount;
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 3000);
+                        events.ScheduleEvent(EVENT_NEXT_WAVE, 3s);
                         break;
                     }
                 }
@@ -524,7 +522,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_NEXT_WAVE:
-                        ProcessEvent(NULL, EVENT_ADD_WAVE);
+                        ProcessEvent(nullptr, EVENT_ADD_WAVE, nullptr);
                         break;
                     case EVENT_SPAWN_ESCAPE_EVENT:
                         SpawnEscapeEvent();
@@ -535,7 +533,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 switch (eventId)
                 {
@@ -581,7 +579,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 }
                             }
                         }
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 5000);
+                        events.ScheduleEvent(EVENT_NEXT_WAVE, 5s);
                         break;
                     case EVENT_ADD_WAVE:
                         DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
@@ -596,8 +594,9 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 if (Creature* temp = instance->GetCreature(guid))
                                 {
                                     temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, false);
-                                    temp->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
-                                    temp->AI()->DoZoneInCombat(temp, 100.00f);
+                                    temp->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                                    temp->SetImmuneToAll(false);
+                                    temp->AI()->DoZoneInCombat(temp);
                                 }
                             }
                         }
@@ -612,7 +611,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             else if (_waveCount != 10)
                             {
                                 ++_waveCount;
-                                events.ScheduleEvent(EVENT_NEXT_WAVE, 5000);
+                                events.ScheduleEvent(EVENT_NEXT_WAVE, 5s);
                             }
                         }
                         break;
@@ -632,7 +631,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         {
                             for (ObjectGuid guid : waveGuidList[i])
                                 if (Creature* creature = instance->GetCreature(guid))
-                                    creature->DespawnOrUnsummon(1);
+                                    creature->DespawnOrUnsummon(1ms);
                             waveGuidList[i].clear();
                         }
                         break;

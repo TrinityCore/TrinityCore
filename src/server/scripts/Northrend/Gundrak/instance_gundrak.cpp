@@ -15,23 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "Creature.h"
 #include "EventMap.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "gundrak.h"
-#include "InstanceScript.h"
 #include "Map.h"
+#include "ScriptMgr.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
     { GO_GAL_DARAH_DOOR_1,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
     { GO_GAL_DARAH_DOOR_2,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
-    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM },
+    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM    },
     { GO_ECK_THE_FEROCIOUS_DOOR,        DATA_MOORABI,           DOOR_TYPE_PASSAGE },
     { GO_ECK_THE_FEROCIOUS_DOOR_BEHIND, DATA_ECK_THE_FEROCIOUS, DOOR_TYPE_PASSAGE },
-    { 0,                                0,                      DOOR_TYPE_ROOM } // END
+    { 0,                                0,                      DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const creatureData[] =
@@ -128,7 +129,7 @@ class instance_gundrak : public InstanceMapScript
                         go->SetGoState(MoorabiStatueState);
                         break;
                     case GO_GAL_DARAH_STATUE:
-                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
+                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_DESTROYED : GO_STATE_READY);
                         break;
                     case GO_DRAKKARI_COLOSSUS_STATUE:
                         go->SetGoState(DrakkariColossusStatueState);
@@ -158,7 +159,7 @@ class instance_gundrak : public InstanceMapScript
                     DwellerGUIDs.erase(unit->GetGUID());
 
                     if (DwellerGUIDs.empty())
-                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300s);
                 }
             }
 
@@ -203,9 +204,9 @@ class instance_gundrak : public InstanceMapScript
                             return false;
                         break;
                     case DATA_GAL_DARAH:
-                        if (SladRanStatueState != GO_STATE_ACTIVE_ALTERNATIVE
-                            || DrakkariColossusStatueState != GO_STATE_ACTIVE_ALTERNATIVE
-                            || MoorabiStatueState != GO_STATE_ACTIVE_ALTERNATIVE)
+                        if (SladRanStatueState != GO_STATE_DESTROYED
+                            || DrakkariColossusStatueState != GO_STATE_DESTROYED
+                            || MoorabiStatueState != GO_STATE_DESTROYED)
                             return false;
                         break;
                     default:
@@ -310,7 +311,7 @@ class instance_gundrak : public InstanceMapScript
                             break;
                         case DATA_BRIDGE:
                             for (uint32 type = DATA_SLAD_RAN_STATUE; type <= DATA_GAL_DARAH_STATUE; ++type)
-                                ToggleGameObject(type, GO_STATE_ACTIVE_ALTERNATIVE);
+                                ToggleGameObject(type, GO_STATE_DESTROYED);
                             ToggleGameObject(DATA_TRAPDOOR, GO_STATE_READY);
                             ToggleGameObject(DATA_COLLISION, GO_STATE_ACTIVE);
                             SaveToDB();
@@ -359,7 +360,7 @@ class go_gundrak_altar : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->AddFlag(GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);

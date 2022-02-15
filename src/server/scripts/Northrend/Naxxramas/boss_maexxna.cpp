@@ -22,7 +22,6 @@
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 
 enum Spells
 {
@@ -72,7 +71,7 @@ enum Events
 
 const float WEB_WRAP_MOVE_SPEED = 20.0f;
 
-struct WebTargetSelector : public std::unary_function<Unit*, bool>
+struct WebTargetSelector
 {
     WebTargetSelector(Unit* maexxna) : _maexxna(maexxna) {}
     bool operator()(Unit const* target) const
@@ -87,7 +86,7 @@ struct WebTargetSelector : public std::unary_function<Unit*, bool>
     }
 
     private:
-        const Unit* _maexxna;
+        Unit const* _maexxna;
 };
 
 class boss_maexxna : public CreatureScript
@@ -104,14 +103,14 @@ public:
     {
         boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)  {  }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_WRAP, Seconds(20));
-            events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_WRAP, 20s);
+            events.ScheduleEvent(EVENT_SPRAY, 40s);
             events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
             events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
-            events.ScheduleEvent(EVENT_SUMMON, Seconds(30));
+            events.ScheduleEvent(EVENT_SUMMON, 30s);
         }
 
         void Reset() override
@@ -139,7 +138,7 @@ public:
                     case EVENT_WRAP:
                     {
                         std::list<Unit*> targets;
-                        SelectTargetList(targets, WebTargetSelector(me), RAID_MODE(1, 2), SELECT_TARGET_RANDOM);
+                        SelectTargetList(targets, RAID_MODE(1, 2), SelectTargetMethod::Random, 1, WebTargetSelector(me));
                         if (!targets.empty())
                         {
                             Talk(EMOTE_WEB_WRAP);
@@ -152,7 +151,7 @@ public:
                                     wrapPos = (wrapPos + urand(1, MAX_WRAP_POSITION - 1)) % MAX_WRAP_POSITION;
 
                                 target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
-                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70 * IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70s, TEMPSUMMON_TIMED_DESPAWN))
                                 {
                                     wrap->AI()->SetGUID(target->GetGUID()); // handles application of debuff
                                     target->GetMotionMaster()->MoveJump(WrapPositions[wrapPos], WEB_WRAP_MOVE_SPEED, WEB_WRAP_MOVE_SPEED); // move after stun to avoid stun cancelling move
@@ -179,7 +178,7 @@ public:
                         Talk(EMOTE_SPIDERS);
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
-                            DoSummon(NPC_SPIDERLING, me, 4.0f, 5 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                            DoSummon(NPC_SPIDERLING, me, 4.0f, 5s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                         events.Repeat(Seconds(40));
                         break;
                 }
@@ -213,7 +212,7 @@ public:
             me->SetVisible(false);
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*param*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!guid)
                 return;
@@ -221,7 +220,8 @@ public:
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
             {
                 visibleTimer = (me->GetDistance2d(victim)/WEB_WRAP_MOVE_SPEED + 0.5f) * IN_MILLISECONDS;
-                victim->CastSpell(victim, SPELL_WEB_WRAP, true, NULL, NULL, me->GetGUID());
+                victim->CastSpell(victim, SPELL_WEB_WRAP, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                    .SetOriginalCaster(me->GetGUID()));
             }
         }
 
@@ -245,7 +245,7 @@ public:
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                     victim->RemoveAurasDueToSpell(SPELL_WEB_WRAP, me->GetGUID());
 
-            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
+            me->DespawnOrUnsummon(5s);
         }
     };
 

@@ -319,9 +319,9 @@ class boss_gothik : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON, Seconds(25), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DOORS_UNLOCK, Minutes(3) + Seconds(25), 0, PHASE_ONE);
@@ -393,7 +393,7 @@ class boss_gothik : public CreatureScript
                 switch (action)
                 {
                     case ACTION_MINION_EVADE:
-                        if (_gateIsOpen || me->getThreatManager().isThreatListEmpty())
+                        if (_gateIsOpen || me->GetThreatManager().IsThreatListEmpty())
                             return EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                         if (_gateCanOpen)
                             OpenGate();
@@ -419,8 +419,8 @@ class boss_gothik : public CreatureScript
                     // thus we only do a cursory check to make sure (edge cases?)
                     if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                     {
-                        me->getThreatManager().resetAllAggro();
-                        me->AddThreat(newTarget, 1.0f);
+                        ResetThreatList();
+                        AddThreat(newTarget, 1.0f);
                         AttackStart(newTarget);
                     }
                     else
@@ -473,7 +473,7 @@ class boss_gothik : public CreatureScript
                                     for (Creature* trigger : triggers)
                                         if (trigger && trigger->GetSpawnId() == targetDBGuid)
                                         {
-                                            DoSummon(entry.first, trigger, 1.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                                            DoSummon(entry.first, trigger, 1.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                                             break;
                                         }
                                 }
@@ -502,7 +502,7 @@ class boss_gothik : public CreatureScript
                             Talk(SAY_PHASE_TWO);
                             Talk(EMOTE_PHASE_TWO);
                             me->SetReactState(REACT_PASSIVE);
-                            me->getThreatManager().resetAllAggro();
+                            ResetThreatList();
                             DoCastAOE(SPELL_TELEPORT_LIVE);
                             break;
                         case EVENT_TELEPORT:
@@ -512,12 +512,12 @@ class boss_gothik : public CreatureScript
                                 me->AttackStop();
                                 me->StopMoving();
                                 me->SetReactState(REACT_PASSIVE);
-                                me->getThreatManager().resetAllAggro();
+                                ResetThreatList();
                                 DoCastAOE(_lastTeleportDead ? SPELL_TELEPORT_LIVE : SPELL_TELEPORT_DEAD);
                                 _lastTeleportDead = !_lastTeleportDead;
 
                                 events.CancelEvent(EVENT_BOLT);
-                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2 * IN_MILLISECONDS, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2s, 0, PHASE_TWO);
                                 events.Repeat(Seconds(20));
                             }
                             break;
@@ -528,7 +528,7 @@ class boss_gothik : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            events.ScheduleEvent(EVENT_BOLT, Seconds(0), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_BOLT, 0s, 0, PHASE_TWO);
                             // return to the start of this method so victim side etc is re-evaluated
                             return UpdateAI(0u); // tail recursion for efficiency
                         case EVENT_BOLT:
@@ -579,7 +579,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
 
         void DamageTaken(Unit* attacker, uint32 &damage) override
         { // do not allow minions to take damage before the gate is opened
-            if (!_gateIsOpen && !isOnSameSide(attacker))
+            if (!_gateIsOpen && (!attacker || !isOnSameSide(attacker)))
                 damage = 0;
         }
 
@@ -589,11 +589,11 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             {
                 case ACTION_GATE_OPENED:
                     _gateIsOpen = true;
-                    /* fallthrough */
+                    [[fallthrough]];
                 case ACTION_ACQUIRE_TARGET:
                     if (Player* target = FindEligibleTarget(me, _gateIsOpen))
                     {
-                        me->AddThreat(target, 1.0f);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
                     else
@@ -621,8 +621,8 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                 if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                 {
                     me->RemoveAurasByType(SPELL_AURA_MOD_TAUNT);
-                    me->getThreatManager().resetAllAggro();
-                    me->AddThreat(newTarget, 1.0f);
+                    ResetThreatList();
+                    AddThreat(newTarget, 1.0f);
                     AttackStart(newTarget);
                 }
                 else
@@ -895,7 +895,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override { }
         void UpdateAI(uint32 /*diff*/) override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0;  }
 
         Creature* SelectRandomSkullPile()
@@ -909,12 +909,10 @@ public:
 
             return nullptr;
         }
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-        {
-            if (!spell)
-                return;
 
-            switch (spell->Id)
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        {
+            switch (spellInfo->Id)
             {
                 case SPELL_ANCHOR_1_TRAINEE:
                     DoCastAOE(SPELL_ANCHOR_2_TRAINEE, true);
@@ -938,14 +936,14 @@ public:
                         DoCast(target, SPELL_SKULLS_RIDER, true);
                     break;
                 case SPELL_SKULLS_TRAINEE:
-                    DoSummon(NPC_DEAD_TRAINEE, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_TRAINEE, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
                 case SPELL_SKULLS_DK:
-                    DoSummon(NPC_DEAD_KNIGHT, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_KNIGHT, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
                 case SPELL_SKULLS_RIDER:
-                    DoSummon(NPC_DEAD_RIDER, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                    DoSummon(NPC_DEAD_HORSE, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_RIDER, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_HORSE, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
             }
         }

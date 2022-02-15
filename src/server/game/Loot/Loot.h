@@ -158,7 +158,7 @@ struct TC_GAME_API LootItem
                  freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false) { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-    bool AllowedForPlayer(Player const* player) const;
+    bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
 };
@@ -215,6 +215,7 @@ struct TC_GAME_API Loot
     uint32 gold;
     uint8 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    ObjectGuid lootOwnerGUID;
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
@@ -252,7 +253,7 @@ struct TC_GAME_API Loot
     void AddItem(LootStoreItem const & item);
 
     LootItem const* GetItemInSlot(uint32 lootSlot) const;
-    LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = NULL, NotNormalLootItem** ffaitem = NULL, NotNormalLootItem** conditem = NULL);
+    LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = nullptr, NotNormalLootItem** ffaitem = nullptr, NotNormalLootItem** conditem = nullptr);
     uint32 GetMaxSlotInLootFor(Player* player) const;
     bool hasItemForAll() const;
     bool hasItemFor(Player const* player) const;

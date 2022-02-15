@@ -65,7 +65,7 @@ class npc_dragonflayer_forge_master : public CreatureScript
                     _instance->SetData(DATA_FORGE_1 + _forgeId - 1, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (!_forgeId)
                     _forgeId = GetForgeMasterType();
@@ -219,11 +219,11 @@ class spell_uk_second_wind : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
-                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, aurEff);
             }
 
             void Register() override
@@ -274,16 +274,16 @@ class npc_enslaved_proto_drake : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
-                _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
-                _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
+                _events.ScheduleEvent(EVENT_REND, 2s, 3s);
+                _events.ScheduleEvent(EVENT_FLAME_BREATH, 5500ms, 7s);
+                _events.ScheduleEvent(EVENT_KNOCKAWAY, 3500ms, 6s);
             }
 
             void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
                 {
-                    me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
+                    me->SetAnimTier(AnimTier::Ground);
                 }
             }
 
@@ -292,7 +292,7 @@ class npc_enslaved_proto_drake : public CreatureScript
                 if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
                 {
                     _setData = true;
-                    me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
+                    me->SetAnimTier(AnimTier::Fly);
                     me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
                 }
             }
@@ -313,15 +313,15 @@ class npc_enslaved_proto_drake : public CreatureScript
                     {
                         case EVENT_REND:
                             DoCast(SPELL_REND);
-                            _events.ScheduleEvent(EVENT_REND, urand(15000, 20000));
+                            _events.ScheduleEvent(EVENT_REND, 15s, 20s);
                             break;
                         case EVENT_FLAME_BREATH:
                             DoCast(SPELL_FLAME_BREATH);
-                            _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(11000, 12000));
+                            _events.ScheduleEvent(EVENT_FLAME_BREATH, 11s, 12s);
                             break;
                         case EVENT_KNOCKAWAY:
                             DoCast(SPELL_KNOCK_AWAY);
-                            _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(7000, 8500));
+                            _events.ScheduleEvent(EVENT_KNOCKAWAY, 7s, 8500ms);
                             break;
                         default:
                             break;

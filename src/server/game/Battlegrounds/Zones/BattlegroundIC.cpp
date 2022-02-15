@@ -48,8 +48,8 @@ BattlegroundIC::BattlegroundIC(BattlegroundTemplate const* battlegroundTemplate)
 
     siegeEngineWorkshopTimer = WORKSHOP_UPDATE_TIME;
 
-    gunshipHorde = NULL;
-    gunshipAlliance = NULL;
+    gunshipHorde = nullptr;
+    gunshipAlliance = nullptr;
 }
 
 BattlegroundIC::~BattlegroundIC() { }
@@ -72,12 +72,12 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
     {
         if (closeFortressDoorsTimer <= diff)
         {
-            GetBGObject(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR02)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR02)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR03)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR03)->RemoveFromWorld();
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR02);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR02);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR03);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR03);
 
             GetBGObject(BG_IC_GO_ALLIANCE_GATE_1)->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
             GetBGObject(BG_IC_GO_HORDE_GATE_1)->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
@@ -137,7 +137,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     {
                         if (siege->IsAlive())
                         {
-                            if (siege->HasUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANNOT_SWIM | UNIT_FLAG_IMMUNE_TO_PC)))
+                            if (siege->HasUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANT_SWIM | UNIT_FLAG_IMMUNE_TO_PC)))
                                 // following sniffs the vehicle always has UNIT_FLAG_CANNOT_SWIM
                                 siege->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
                             else
@@ -287,19 +287,19 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 void BattlegroundIC::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(uint32(BG_IC_ALLIANCE_RENFORT_SET), 1);
-    packet.Worldstates.emplace_back(uint32(BG_IC_HORDE_RENFORT_SET), 1);
-    packet.Worldstates.emplace_back(uint32(BG_IC_ALLIANCE_RENFORT), int32(factionReinforcements[TEAM_ALLIANCE]));
-    packet.Worldstates.emplace_back(uint32(BG_IC_HORDE_RENFORT), int32(factionReinforcements[TEAM_HORDE]));
+    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT_SET, 1);
+    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT_SET, 1);
+    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT, factionReinforcements[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT, factionReinforcements[TEAM_HORDE]);
 
-    for (uint8 i = 0; i < MAX_FORTRESS_GATES_SPAWNS; ++i)
+    for (uint8 itr = 0; itr < MAX_FORTRESS_GATES_SPAWNS; ++itr)
     {
-        uint32 uws = GetWorldStateFromGateEntry(BG_IC_ObjSpawnlocs[i].entry, (GateStatus[GetGateIDFromEntry(BG_IC_ObjSpawnlocs[i].entry)] == BG_IC_GATE_DESTROYED ? true : false));
-        packet.Worldstates.emplace_back(uint32(uws), 1);
+        int32 worldState = GetWorldStateFromGateEntry(BG_IC_ObjSpawnlocs[itr].entry, (GateStatus[GetGateIDFromEntry(BG_IC_ObjSpawnlocs[itr].entry)] == BG_IC_GATE_DESTROYED ? true : false));
+        packet.Worldstates.emplace_back(worldState, 1);
     }
 
-    for (uint8 i = 0; i < MAX_NODE_TYPES; ++i)
-        packet.Worldstates.emplace_back(uint32(nodePoint[i].worldStates[nodePoint[i].nodeState]), 1);
+    for (uint8 itr = 0; itr < MAX_NODE_TYPES; ++itr)
+        packet.Worldstates.emplace_back(nodePoint[itr].worldStates[nodePoint[itr].nodeState], 1);
 }
 
 bool BattlegroundIC::SetupBattleground()
@@ -762,7 +762,8 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
                         if (Creature* siegeEngine = GetBGCreature(siegeType))
                         {
-                            siegeEngine->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANNOT_SWIM | UNIT_FLAG_IMMUNE_TO_PC));
+                            siegeEngine->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANT_SWIM));
+                            siegeEngine->SetImmuneToPC(true);
                             siegeEngine->SetFaction(BG_IC_Factions[(node->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         }
                     }
@@ -855,7 +856,7 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
     SendBroadcastText(textId, msgType);
 }
 
-WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
 {
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
@@ -865,7 +866,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
         if (nodePoint[i].faction == player->GetTeamId())
             nodes.push_back(i);
 
-    WorldSafeLocsEntry const* good_entry = NULL;
+    WorldSafeLocsEntry const* good_entry = nullptr;
     // If so, select the closest node to place ghost on
     if (!nodes.empty())
     {

@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectDefines.h"
-#include "Containers.h"
-#include "Group.h"
 #include "LFGQueue.h"
+#include "Containers.h"
+#include "GameTime.h"
+#include "Group.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include <sstream>
@@ -78,6 +78,10 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
             return "Unknown";
     }
 }
+
+LfgQueueData::LfgQueueData() : joinTime(GameTime::GetGameTime()), tanks(LFG_TANKS_NEEDED),
+healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
+{ }
 
 std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
 {
@@ -278,7 +282,7 @@ LfgCompatibilityData* LFGQueue::GetCompatibilityData(std::string const& key)
     if (itr != CompatibleMapStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
 uint8 LFGQueue::FindGroups()
@@ -503,7 +507,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     else
     {
         ObjectGuid gguid = *check.begin();
-        const LfgQueueData &queue = QueueDataStore[gguid];
+        LfgQueueData const& queue = QueueDataStore[gguid];
         proposalDungeons = queue.dungeons;
         proposalRoles = queue.roles;
         LFGMgr::CheckGroupRoles(proposalRoles);          // assing new roles
@@ -535,7 +539,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     }
 
     // Create a new proposal
-    proposal.cancelTime = time(NULL) + LFG_TIME_PROPOSAL;
+    proposal.cancelTime = GameTime::GetGameTime() + LFG_TIME_PROPOSAL;
     proposal.state = LFG_PROPOSAL_INITIATING;
     proposal.leader.Clear();
     proposal.dungeonId = Trinity::Containers::SelectRandomContainerElement(proposalDungeons);
@@ -673,7 +677,7 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
             {
                 o << " (";
                 bool first = true;
-                for (const auto& role : itr->second.roles)
+                for (auto const& role : itr->second.roles)
                 {
                     if (!first)
                         o << "|";

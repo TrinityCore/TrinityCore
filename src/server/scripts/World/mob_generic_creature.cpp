@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "Map.h"
 #include "PassiveAI.h"
-#include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 
 class trigger_periodic : public CreatureScript
@@ -30,20 +31,20 @@ public:
     {
         trigger_periodicAI(Creature* creature) : NullCreatureAI(creature)
         {
-            spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0], me->GetMap()->GetDifficultyID()) : NULL;
+            spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0], me->GetMap()->GetDifficultyID()) : nullptr;
             interval = me->GetBaseAttackTime(BASE_ATTACK);
             timer = interval;
         }
 
         uint32 timer, interval;
-        const SpellInfo* spell;
+        SpellInfo const* spell;
 
         void UpdateAI(uint32 diff) override
         {
             if (timer <= diff)
             {
                 if (spell)
-                    me->CastSpell(me, spell, true);
+                    me->CastSpell(me, spell->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spell->Difficulty));
                 timer = interval;
             }
             else

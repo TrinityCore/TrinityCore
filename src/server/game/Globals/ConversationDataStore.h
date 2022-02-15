@@ -28,18 +28,17 @@ enum ConversationLineFlags
     CONVERSATION_LINE_FLAG_NOTIFY_STARTED = 0x1 // Client will send CMSG_CONVERSATION_LINE_STARTED when it runs this line
 };
 
-struct ConversationActorTemplate
+struct ConversationActor
 {
-    uint32 Id;
+    uint32 ActorId;
     uint32 CreatureId;
-    uint32 CreatureModelId;
+    uint32 CreatureDisplayInfoId;
 };
 
 #pragma pack(push, 1)
 struct ConversationLineTemplate
 {
     uint32 Id;          // Link to ConversationLine.db2
-    uint32 StartTime;   // Time in ms after conversation creation the line is displayed
     uint32 UiCameraID;  // Link to UiCamera.db2
     uint8 ActorIdx;     // Index from conversation_actors
     uint8 Flags;
@@ -51,10 +50,9 @@ struct ConversationTemplate
 {
     uint32 Id;
     uint32 FirstLineId;     // Link to ConversationLine.db2
-    uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
     uint32 TextureKitId;    // Background texture
 
-    std::vector<ConversationActorTemplate const*> Actors;
+    std::vector<ConversationActor> Actors;
     std::vector<ObjectGuid::LowType> ActorGuids;
     std::vector<ConversationLineTemplate const*> Lines;
 
@@ -67,6 +65,7 @@ public:
     void LoadConversationTemplates();
 
     ConversationTemplate const* GetConversationTemplate(uint32 conversationId) const;
+    ConversationLineTemplate const* GetConversationLineTemplate(uint32 conversationLineId) const;
 
     static ConversationDataStore* Instance();
 };

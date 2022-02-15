@@ -106,9 +106,9 @@ public:
             SetBubbled(false);
         }
 
-        void EnterCombat(Unit* /* victim */) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
 
             SetCrystalsStatus(true);
@@ -153,12 +153,12 @@ public:
                 {
                     case EVENT_SUMMON_MINIONS:
                         DoCast(SPELL_SUMMON_MINIONS);
-                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
+                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
                         break;
                     case EVENT_ATTACK:
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* victim = SelectTarget(SelectTargetMethod::Random))
                             DoCast(victim, RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY));
-                        events.ScheduleEvent(EVENT_ATTACK, 3000);
+                        events.ScheduleEvent(EVENT_ATTACK, 3s);
                         break;
                     default:
                         break;
@@ -249,7 +249,7 @@ public:
             if (Creature* crystalChannelTarget = crystal->FindNearestCreature(NPC_CRYSTAL_CHANNEL_TARGET, 5.0f))
             {
                 if (active)
-                    crystalChannelTarget->CastSpell((Unit*)NULL, SPELL_BEAM_CHANNEL);
+                    crystalChannelTarget->CastSpell(nullptr, SPELL_BEAM_CHANNEL);
                 else if (crystalChannelTarget->HasUnitState(UNIT_STATE_CASTING))
                     crystalChannelTarget->CastStop();
             }
@@ -279,9 +279,9 @@ public:
                 Talk(SAY_ARCANE_FIELD);
                 SetSummonerStatus(false);
                 SetBubbled(false);
-                events.ScheduleEvent(EVENT_ATTACK, 3000);
+                events.ScheduleEvent(EVENT_ATTACK, 3s);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
+                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
             }
             else if (!guid.IsEmpty())
                 if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
@@ -401,7 +401,7 @@ class spell_novos_summon_minions : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 for (uint8 i = 0; i < 2; ++i)
-                    GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_COPY_OF_MINIONS, true);
+                    GetCaster()->CastSpell(nullptr, SPELL_SUMMON_COPY_OF_MINIONS, true);
             }
 
             void Register() override

@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -87,9 +86,9 @@ class boss_saviana_ragefire : public CreatureScript
                 me->SetDisableGravity(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.ScheduleEvent(EVENT_ENRAGE, Seconds(20), EVENT_GROUP_LAND_PHASE);
@@ -111,7 +110,7 @@ class boss_saviana_ragefire : public CreatureScript
                 switch (point)
                 {
                     case POINT_FLIGHT:
-                        events.ScheduleEvent(EVENT_CONFLAGRATION, Seconds(1));
+                        events.ScheduleEvent(EVENT_CONFLAGRATION, 1s);
                         Talk(SAY_CONFLAGRATION);
                         break;
                     case POINT_LAND:
@@ -120,7 +119,6 @@ class boss_saviana_ragefire : public CreatureScript
                     case POINT_LAND_GROUND:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.ScheduleEvent(EVENT_ENRAGE, Seconds(1), EVENT_GROUP_LAND_PHASE);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, Seconds(2), Seconds(4), EVENT_GROUP_LAND_PHASE);
@@ -163,7 +161,6 @@ class boss_saviana_ragefire : public CreatureScript
                         {
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
-                            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             Position pos;
@@ -232,10 +229,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_BEACON, DIFFICULTY_NONE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_CONFLAGRATION_2, DIFFICULTY_NONE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLAME_BEACON, SPELL_CONFLAGRATION_2 });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

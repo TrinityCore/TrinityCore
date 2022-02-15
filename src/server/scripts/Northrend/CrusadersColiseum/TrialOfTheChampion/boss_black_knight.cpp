@@ -195,9 +195,9 @@ public:
                         {
                             if (uiDeathRespiteTimer <= uiDiff)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 {
-                                    if (target && target->IsAlive())
+                                    if (target->IsAlive())
                                         DoCast(target, SPELL_DEATH_RESPITE);
                                 }
                                 uiDeathRespiteTimer = urand(15000, 16000);
@@ -223,9 +223,9 @@ public:
                             }
                             if (uiDesecration <= uiDiff)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 {
-                                    if (target && target->IsAlive())
+                                    if (target->IsAlive())
                                         DoCast(target, SPELL_DESECRATION);
                                 }
                                 uiDesecration = urand(15000, 16000);
@@ -250,9 +250,9 @@ public:
                     } else uiDeathBiteTimer -= uiDiff;
                     if (uiMarkedDeathTimer <= uiDiff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                         {
-                            if (target && target->IsAlive())
+                            if (target->IsAlive())
                                 DoCast(target, SPELL_MARKED_DEATH);
                         }
                         uiMarkedDeathTimer = urand(5000, 7000);
@@ -290,7 +290,7 @@ public:
         {
             DoCast(me, SPELL_KILL_CREDIT);
 
-            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            instance->SetBossState(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 
@@ -331,9 +331,9 @@ public:
 
             if (uiAttackTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, (SPELL_LEAP));
                 }
                 uiAttackTimer = 3500;
@@ -354,18 +354,16 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
 public:
     npc_black_knight_skeletal_gryphon() : CreatureScript("npc_black_knight_skeletal_gryphon") { }
 
-    struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+    struct npc_black_knight_skeletal_gryphonAI : public EscortAI
     {
-        npc_black_knight_skeletal_gryphonAI(Creature* creature) : npc_escortAI(creature)
+        npc_black_knight_skeletal_gryphonAI(Creature* creature) : EscortAI(creature)
         {
             Start(false, true);
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
-
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             UpdateVictim();
         }

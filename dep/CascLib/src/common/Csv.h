@@ -20,6 +20,13 @@
 #define CSV_HASH_TABLE_SIZE     0x80
 
 //-----------------------------------------------------------------------------
+// Interface for finding of next text element (line, column)
+
+// The function must find the next (line|column), put zero there and return begin
+// of the next (line|column). In case there is no next (line|column), the function returns NULL
+typedef char * (*CASC_CSV_NEXTPROC)(void * pvUserData, char * szLine);
+
+//-----------------------------------------------------------------------------
 // Class for CSV line
 
 class CASC_CSV;
@@ -69,6 +76,12 @@ class CASC_CSV
     CASC_CSV(size_t nLinesMax, bool bHasHeader);
     ~CASC_CSV();
 
+    DWORD SetNextLineProc(CASC_CSV_NEXTPROC PfnNextLineProc, CASC_CSV_NEXTPROC PfnNextColProc = NULL, void * pvUserData = NULL);
+    CASC_CSV_NEXTPROC GetNextColumnProc()
+    {
+        return PfnNextColumn;
+    }
+
     DWORD Load(LPBYTE pbData, size_t cbData);
     DWORD Load(LPCTSTR szFileName);
     bool LoadNextLine();
@@ -78,6 +91,11 @@ class CASC_CSV
 
     size_t GetHeaderColumns() const;
     size_t GetColumnIndex(const char * szColumnName) const;
+
+    void * GetUserData() const 
+    {
+        return m_pvUserData;
+    }
 
     size_t GetLineCount() const
     {
@@ -90,9 +108,13 @@ class CASC_CSV
     bool LoadNextLine(CASC_CSV_LINE & Line);
     bool ParseCsvData();
 
+    CASC_CSV_NEXTPROC PfnNextLine;
+    CASC_CSV_NEXTPROC PfnNextColumn;
+
     CASC_CSV_LINE * m_pLines;
     CASC_CSV_LINE Header;
     BYTE HashTable[CSV_HASH_TABLE_SIZE];
+    void * m_pvUserData;
     char * m_szCsvFile;
     char * m_szCsvPtr;
     size_t m_nCsvFile;

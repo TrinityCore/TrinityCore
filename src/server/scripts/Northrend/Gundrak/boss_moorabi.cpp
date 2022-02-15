@@ -20,7 +20,6 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "gundrak.h"
 
 enum Spells
 {
@@ -86,17 +85,17 @@ class boss_moorabi : public CreatureScript
                 events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 DoCastSelf(SPELL_MOJO_FRENZY, true);
 
                 events.SetPhase(PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, Seconds(18));
-                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, Seconds(10));
-                events.ScheduleEvent(EVENT_DETERMINED_STAB, Seconds(20));
-                events.ScheduleEvent(EVENT_TRANFORMATION, Seconds(12));
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, 18s);
+                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10s);
+                events.ScheduleEvent(EVENT_DETERMINED_STAB, 20s);
+                events.ScheduleEvent(EVENT_TRANFORMATION, 12s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -122,11 +121,11 @@ class boss_moorabi : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                Talk(SAY_DEATH);
                 Talk(EMOTE_ACTIVATE_ALTAR);
+                Talk(SAY_DEATH);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id == SPELL_TRANSFORMATION)
                 {
@@ -235,7 +234,9 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
 
                 Unit* owner = GetUnitOwner();
                 int32 castSpeedBonus = (100.0f - owner->GetHealthPct()) * 4; // between 0% and 400% cast speed bonus
-                owner->CastCustomSpell(SPELL_MOJO_FRENZY_CAST_SPEED, SPELLVALUE_BASE_POINT0, castSpeedBonus, owner, true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(castSpeedBonus);
+                owner->CastSpell(owner, SPELL_MOJO_FRENZY_CAST_SPEED, args);
             }
 
             void Register() override

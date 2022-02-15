@@ -24,13 +24,14 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
-#include "GameObjectAI.h"
+#include <sstream>
 
 #define MAX_ENCOUNTER 6
 
@@ -73,7 +74,7 @@ class go_bridge_console : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance)
                     instance->SetData(DATA_CONTROL_CONSOLE, DONE);
@@ -132,7 +133,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     else
                         Water = WATERSTATE_FRENZY;
 
-                    Map::PlayerList const &PlayerList = instance->GetPlayers();
+                    Map::PlayerList const& PlayerList = instance->GetPlayers();
                     if (PlayerList.isEmpty())
                         return;
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -143,17 +144,16 @@ class instance_serpent_shrine : public InstanceMapScript
                             {
                                 if (Water == WATERSTATE_SCALDING)
                                 {
-
                                     if (!player->HasAura(SPELL_SCALDINGWATER))
-                                    {
                                         player->CastSpell(player, SPELL_SCALDINGWATER, true);
-                                    }
-                                } else if (Water == WATERSTATE_FRENZY)
+
+                                }
+                                else
                                 {
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)
                                     {
-                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
+                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2s))
                                         {
                                             frenzy->Attack(player, false);
                                             frenzy->SetSwim(true);
@@ -189,18 +189,22 @@ class instance_serpent_shrine : public InstanceMapScript
                     case 184568:
                         ControlConsole = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184203:
                         BridgePart[0] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184204:
                         BridgePart[1] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184205:
                         BridgePart[2] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     default:
                         break;
@@ -392,7 +396,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 return stream.str();
             }
 
-            void Load(const char* in) override
+            void Load(char const* in) override
             {
                 if (!in)
                 {

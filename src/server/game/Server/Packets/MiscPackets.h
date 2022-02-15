@@ -21,9 +21,11 @@
 #include "Packet.h"
 #include "CollectionMgr.h"
 #include "CUFProfile.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "PacketUtilities.h"
+#include "Player.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include <array>
@@ -117,6 +119,7 @@ namespace WorldPackets
             Optional<int32> WeeklyQuantity;
             Optional<int32> TrackedQuantity;
             Optional<int32> MaxQuantity;
+            Optional<int32> Unused901;
             Optional<int32> QuantityChange;
             Optional<int32> QuantityGainSource;
             Optional<int32> QuantityLostSource;
@@ -144,6 +147,7 @@ namespace WorldPackets
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
                 Optional<int32> MaxQuantity;
+                Optional<int32> Unused901;
                 uint8 Flags = 0;                      // 0 = none,
             };
 
@@ -181,6 +185,8 @@ namespace WorldPackets
 
             void Read() override;
 
+            TimePoint GetReceivedTime() const { return _worldPacket.GetReceivedTime(); }
+
             uint32 ClientTime = 0; // Client ticks in ms
             uint32 SequenceIndex = 0; // Same index as in request
         };
@@ -193,6 +199,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 CinematicID = 0;
+            ObjectGuid ConversationGuid;
         };
 
         class TriggerMovie final : public ServerPacket
@@ -205,22 +212,22 @@ namespace WorldPackets
             uint32 MovieID = 0;
         };
 
-        class UITimeRequest final : public ClientPacket
+        class ServerTimeOffsetRequest final : public ClientPacket
         {
         public:
-            UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_UI_TIME_REQUEST, std::move(packet)) { }
+            ServerTimeOffsetRequest(WorldPacket&& packet) : ClientPacket(CMSG_SERVER_TIME_OFFSET_REQUEST, std::move(packet)) { }
 
             void Read() override { }
         };
 
-        class UITime final : public ServerPacket
+        class ServerTimeOffset final : public ServerPacket
         {
         public:
-            UITime() : ServerPacket(SMSG_UI_TIME, 4) { }
+            ServerTimeOffset() : ServerPacket(SMSG_SERVER_TIME_OFFSET, 4) { }
 
             WorldPacket const* Write() override;
 
-            uint32 Time = 0; ///< UnixTime
+            Timestamp<> Time;
         };
 
         class TutorialFlags : public ServerPacket
@@ -260,7 +267,7 @@ namespace WorldPackets
             bool BlockExitingLoadingScreen = false;     // when set to true, sending SMSG_UPDATE_OBJECT with CreateObject Self bit = true will not hide loading screen
                                                         // instead it will be done after this packet is sent again with false in this bit and SMSG_UPDATE_OBJECT Values for player
             Optional<uint32> RestrictedAccountMaxLevel;
-            Optional<uint32> RestrictedAccountMaxMoney;
+            Optional<uint64> RestrictedAccountMaxMoney;
             Optional<uint32> InstanceGroupSize;
         };
 
@@ -496,13 +503,13 @@ namespace WorldPackets
         class LevelUpInfo final : public ServerPacket
         {
         public:
-            LevelUpInfo() : ServerPacket(SMSG_LEVEL_UP_INFO, 56) { }
+            LevelUpInfo() : ServerPacket(SMSG_LEVEL_UP_INFO, 60) { }
 
             WorldPacket const* Write() override;
 
             int32 Level = 0;
             int32 HealthDelta = 0;
-            std::array<int32, 6> PowerDelta = { };
+            std::array<int32, MAX_POWERS_PER_CLASS> PowerDelta = { };
             std::array<int32, MAX_STATS> StatDelta = { };
             int32 NumNewTalents = 0;
             int32 NumNewPvpTalentSlots = 0;
@@ -631,18 +638,21 @@ namespace WorldPackets
             ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
             TaggedPosition<::Position::XYZ> Position;
+            int32 BroadcastTextID = 0;
         };
 
         class TC_GAME_API PlaySound final : public ServerPacket
         {
         public:
             PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 20) { }
-            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 20), SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID) { }
+            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID, int32 broadcastTextId) : ServerPacket(SMSG_PLAY_SOUND, 20),
+                SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID), BroadcastTextID(broadcastTextId) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid SourceObjectGuid;
             int32 SoundKitID = 0;
+            int32 BroadcastTextID = 0;
         };
 
         class TC_GAME_API PlaySpeakerbotSound final : public ServerPacket
@@ -690,16 +700,6 @@ namespace WorldPackets
             void Read() override;
 
             bool Enable = false;
-        };
-
-        class Dismount final : public ServerPacket
-        {
-        public:
-            Dismount() : ServerPacket(SMSG_DISMOUNT, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
         };
 
         class SaveCUFProfiles final : public ClientPacket
@@ -803,6 +803,16 @@ namespace WorldPackets
             bool EnablePVP = false;
         };
 
+        class SetWarMode final : public ClientPacket
+        {
+        public:
+            SetWarMode(WorldPacket&& packet) : ClientPacket(CMSG_SET_WAR_MODE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Enable = false;
+        };
+
         class AccountHeirloomUpdate final : public ServerPacket
         {
         public:
@@ -820,7 +830,9 @@ namespace WorldPackets
         public:
             MountSpecial(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SPECIAL_ANIM, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            Array<int32, 2> SpellVisualKitIDs;
         };
 
         class SpecialMountAnim final : public ServerPacket
@@ -831,6 +843,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UnitGUID;
+            std::vector<int32> SpellVisualKitIDs;
         };
 
         class CrossedInebriationThreshold final : public ServerPacket
@@ -921,8 +934,57 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 Type = 0;
-            int32 TimeLeft = 0;
-            int32 TotalTime = 0;
+            Duration<Seconds> TimeLeft;
+            Duration<Seconds> TotalTime;
+        };
+
+        class ConversationLineStarted final : public ClientPacket
+        {
+        public:
+            ConversationLineStarted(WorldPacket&& packet) : ClientPacket(CMSG_CONVERSATION_LINE_STARTED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ConversationGUID;
+            uint32 LineID = 0;
+        };
+
+        class RequestLatestSplashScreen final : public ClientPacket
+        {
+        public:
+            RequestLatestSplashScreen(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_LATEST_SPLASH_SCREEN, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SplashScreenShowLatest final : public ServerPacket
+        {
+        public:
+            SplashScreenShowLatest() : ServerPacket(SMSG_SPLASH_SCREEN_SHOW_LATEST, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 UISplashScreenID = 0;
+        };
+
+        class DisplayToast final : public ServerPacket
+        {
+        public:
+            DisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 Quantity = 0;
+            ::DisplayToastMethod DisplayToastMethod = ::DisplayToastMethod::DoNotDisplay;
+            bool Mailed = false;
+            DisplayToastType Type = DisplayToastType::Money;
+            uint32 QuestID = 0;
+            bool IsSecondaryResult = false;
+            Item::ItemInstance Item;
+            bool BonusRoll = false;
+            int32 LootSpec = 0;
+            ::Gender Gender = GENDER_NONE;
+            uint32 CurrencyID = 0;
         };
     }
 }

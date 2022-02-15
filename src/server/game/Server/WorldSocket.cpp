@@ -23,6 +23,7 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
+#include "GameTime.h"
 #include "HMAC.h"
 #include "IPLocation.h"
 #include "PacketLog.h"
@@ -30,7 +31,6 @@
 #include "RBAC.h"
 #include "ScriptMgr.h"
 #include "SessionKeyGenerator.h"
-#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -47,17 +47,6 @@ struct CompressedWorldPacket
 
 #pragma pack(pop)
 
-class EncryptablePacket : public WorldPacket
-{
-public:
-    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt) { }
-
-    bool NeedsEncryption() const { return _encrypt; }
-
-private:
-    bool _encrypt;
-};
-
 using boost::asio::ip::tcp;
 
 std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT - V2");
@@ -71,11 +60,12 @@ uint8 const WorldSocket::EncryptionKeySeed[16] = { 0xE9, 0x75, 0x3C, 0x50, 0x90,
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _key(0), _OverSpeedPings(0),
-    _worldSession(nullptr), _authed(false), _sendBufferSize(4096), _compressionStream(nullptr)
+    _worldSession(nullptr), _authed(false), _canRequestHotfixes(true), _sendBufferSize(4096), _compressionStream(nullptr)
 {
     Trinity::Crypto::GetRandomBytes(_serverChallenge);
+    _sessionKey.fill(0);
     _encryptKey.fill(0);
-    _headerBuffer.Resize(sizeof(PacketHeader));
+    _headerBuffer.Resize(sizeof(IncomingPacketHeader));
 }
 
 WorldSocket::~WorldSocket()
@@ -157,28 +147,38 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
                 return;
             }
 
-            ByteBuffer buffer(std::move(_packetBuffer));
-            std::string initializer = buffer.ReadString(ClientConnectionInitialize.length());
-            if (initializer != ClientConnectionInitialize)
+            try
             {
-                CloseSocket();
-                return;
-            }
+                ByteBuffer buffer(std::move(_packetBuffer));
+                std::string initializer = buffer.ReadString(ClientConnectionInitialize.length());
+                if (initializer != ClientConnectionInitialize)
+                {
+                    CloseSocket();
+                    return;
+                }
 
-            uint8 terminator;
-            buffer >> terminator;
-            if (terminator != '\n')
+                uint8 terminator;
+                buffer >> terminator;
+                if (terminator != '\n')
+                {
+                    CloseSocket();
+                    return;
+                }
+            }
+            catch (ByteBufferException const& ex)
             {
+                TC_LOG_ERROR("network", "WorldSocket::InitializeHandler ByteBufferException %s occured while parsing initial packet from %s",
+                    ex.what(), GetRemoteIpAddress().to_string().c_str());
                 CloseSocket();
                 return;
             }
 
             _compressionStream = new z_stream();
-            _compressionStream->zalloc = (alloc_func)NULL;
-            _compressionStream->zfree = (free_func)NULL;
-            _compressionStream->opaque = (voidpf)NULL;
+            _compressionStream->zalloc = (alloc_func)nullptr;
+            _compressionStream->zfree = (free_func)nullptr;
+            _compressionStream->opaque = (voidpf)nullptr;
             _compressionStream->avail_in = 0;
-            _compressionStream->next_in = NULL;
+            _compressionStream->next_in = nullptr;
             int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
             if (z_res != Z_OK)
             {
@@ -324,18 +324,26 @@ void WorldSocket::SetWorldSession(WorldSession* session)
 
 bool WorldSocket::ReadHeaderHandler()
 {
-    ASSERT(_headerBuffer.GetActiveSize() == sizeof(PacketHeader), "Header size " SZFMTD " different than expected " SZFMTD, _headerBuffer.GetActiveSize(), sizeof(PacketHeader));
+    ASSERT(_headerBuffer.GetActiveSize() == sizeof(IncomingPacketHeader), "Header size " SZFMTD " different than expected " SZFMTD, _headerBuffer.GetActiveSize(), sizeof(IncomingPacketHeader));
 
-    PacketHeader* header = reinterpret_cast<PacketHeader*>(_headerBuffer.GetReadPointer());
+    IncomingPacketHeader* header = reinterpret_cast<IncomingPacketHeader*>(_headerBuffer.GetReadPointer());
+    uint16 encryptedOpcode = header->EncryptedOpcode;
 
     if (!header->IsValidSize())
     {
-        TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %u)",
-            GetRemoteIpAddress().to_string().c_str(), header->Size);
-        return false;
+        _authCrypt.PeekDecryptRecv(reinterpret_cast<uint8*>(&header->EncryptedOpcode), sizeof(encryptedOpcode));
+
+        // CMSG_HOTFIX_REQUEST can be much larger than normal packets, allow receiving it once per session
+        if (header->EncryptedOpcode != CMSG_HOTFIX_REQUEST || header->Size > 0x100000 || !_canRequestHotfixes)
+        {
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %u, opcode %u)",
+                GetRemoteIpAddress().to_string().c_str(), header->Size, uint32(header->EncryptedOpcode));
+            return false;
+        }
     }
 
     _packetBuffer.Resize(header->Size);
+    _packetBuffer.Write(&encryptedOpcode, sizeof(encryptedOpcode));
     return true;
 }
 
@@ -449,12 +457,18 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             HandleConnectToFailed(connectToFailed);
             break;
         }
-        case CMSG_ENABLE_ENCRYPTION_ACK:
+        case CMSG_ENTER_ENCRYPTED_MODE_ACK:
             LogOpcodeText(opcode, sessionGuard);
-            HandleEnableEncryptionAck();
+            HandleEnterEncryptedModeAck();
             break;
+        case CMSG_HOTFIX_REQUEST:
+            _canRequestHotfixes = false;
+            [[fallthrough]];
         default:
         {
+            if (opcode == CMSG_TIME_SYNC_RESPONSE)
+                packet.SetReceiveTime(std::chrono::steady_clock::now());
+
             sessionGuard.lock();
 
             LogOpcodeText(opcode, sessionGuard);
@@ -799,7 +813,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(NULL) + llabs(mutetime);
+        mutetime = GameTime::GetGameTime() + llabs(mutetime);
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);
@@ -858,7 +872,7 @@ void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
     // RBAC must be loaded before adding session to check for skip queue permission
     _worldSession->GetRBACData()->LoadFromDBCallback(result);
 
-    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey.data(), true).Write());
+    SendPacketAndLogOpcode(*WorldPackets::Auth::EnterEncryptedMode(_encryptKey.data(), true).Write());
 }
 
 void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession)
@@ -921,7 +935,7 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
     // only first 16 bytes of the hmac are used
     memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
 
-    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey.data(), true).Write());
+    SendPacketAndLogOpcode(*WorldPackets::Auth::EnterEncryptedMode(_encryptKey.data(), true).Write());
     AsyncRead();
 }
 
@@ -963,7 +977,7 @@ void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& con
     }
 }
 
-void WorldSocket::HandleEnableEncryptionAck()
+void WorldSocket::HandleEnterEncryptedModeAck()
 {
     _authCrypt.Init(_encryptKey);
     if (_type == CONNECTION_TYPE_REALM)
@@ -1022,10 +1036,7 @@ bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
         std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
 
         if (_worldSession)
-        {
             _worldSession->SetLatency(ping.Latency);
-            _worldSession->ResetClientTimeDelay();
-        }
         else
         {
             TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s", GetRemoteIpAddress().to_string().c_str());

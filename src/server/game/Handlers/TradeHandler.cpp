@@ -63,20 +63,20 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
     {
         if (Item* item = view_trade->GetItem(TradeSlots(i)))
         {
-            WorldPackets::Trade::TradeUpdated::TradeItem tradeItem;
+            WorldPackets::Trade::TradeItem tradeItem;
             tradeItem.Slot = i;
             tradeItem.Item.Initialize(item);
             tradeItem.StackCount = item->GetCount();
             tradeItem.GiftCreator = item->GetGiftCreator();
-            if (!item->HasItemFlag(ITEM_FIELD_FLAG_WRAPPED))
+            if (!item->IsWrapped())
             {
-                tradeItem.Unwrapped = boost::in_place();
+                tradeItem.Unwrapped.emplace();
 
                 tradeItem.Unwrapped->EnchantID = item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
                 tradeItem.Unwrapped->OnUseEnchantmentID = item->GetEnchantmentId(USE_ENCHANTMENT_SLOT);
                 tradeItem.Unwrapped->Creator = item->GetCreator();
                 tradeItem.Unwrapped->Charges = item->GetSpellCharges();
-                tradeItem.Unwrapped->Lock = item->GetTemplate()->GetLockID() && !item->HasItemFlag(ITEM_FIELD_FLAG_UNLOCKED);
+                tradeItem.Unwrapped->Lock = item->GetTemplate()->GetLockID() && item->IsLocked();
                 tradeItem.Unwrapped->MaxDurability = item->m_itemData->MaxDurability;
                 tradeItem.Unwrapped->Durability = item->m_itemData->Durability;
 
@@ -114,8 +114,8 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
     {
         ItemPosCountVec traderDst;
         ItemPosCountVec playerDst;
-        bool traderCanTrade = (myItems[i] == NULL || trader->CanStoreItem(NULL_BAG, NULL_SLOT, traderDst, myItems[i], false) == EQUIP_ERR_OK);
-        bool playerCanTrade = (hisItems[i] == NULL || _player->CanStoreItem(NULL_BAG, NULL_SLOT, playerDst, hisItems[i], false) == EQUIP_ERR_OK);
+        bool traderCanTrade = (myItems[i] == nullptr || trader->CanStoreItem(NULL_BAG, NULL_SLOT, traderDst, myItems[i], false) == EQUIP_ERR_OK);
+        bool playerCanTrade = (hisItems[i] == nullptr || _player->CanStoreItem(NULL_BAG, NULL_SLOT, playerDst, hisItems[i], false) == EQUIP_ERR_OK);
         if (traderCanTrade && playerCanTrade)
         {
             // Ok, if trade item exists and can be stored
@@ -134,7 +134,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 }
 
                 // adjust time (depends on /played)
-                if (myItems[i]->HasItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE))
+                if (myItems[i]->IsBOPTradeable())
                     myItems[i]->SetCreatePlayedTime(trader->GetTotalPlayedTime() - (_player->GetTotalPlayedTime() - myItems[i]->m_itemData->CreatePlayedTime));
                 // store
                 trader->MoveItemToInventory(traderDst, myItems[i], true, true);
@@ -152,7 +152,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 }
 
                 // adjust time (depends on /played)
-                if (hisItems[i]->HasItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE))
+                if (hisItems[i]->IsBOPTradeable())
                     hisItems[i]->SetCreatePlayedTime(_player->GetTotalPlayedTime() - (trader->GetTotalPlayedTime() - hisItems[i]->m_itemData->CreatePlayedTime));
                 // store
                 _player->MoveItemToInventory(playerDst, hisItems[i], true, true);
@@ -197,15 +197,15 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "player trade %s bag: %u slot: %u", item->GetGUID().ToString().c_str(), item->GetBagSlot(), item->GetSlot());
-            //Can return NULL
+            TC_LOG_DEBUG("network", "player trade item %s bag: %u slot: %u", item->GetGUID().ToString().c_str(), item->GetBagSlot(), item->GetSlot());
+            //Can return nullptr
             myItems[i] = item;
             myItems[i]->SetInTrade();
         }
 
         if (Item* item = hisTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "partner trade %s bag: %u slot: %u", item->GetGUID().ToString().c_str(), item->GetBagSlot(), item->GetSlot());
+            TC_LOG_DEBUG("network", "partner trade item %s bag: %u slot: %u", item->GetGUID().ToString().c_str(), item->GetBagSlot(), item->GetSlot());
             hisItems[i] = item;
             hisItems[i]->SetInTrade();
         }
@@ -242,8 +242,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
     if (!his_trade)
         return;
 
-    Item* myItems[TRADE_SLOT_TRADED_COUNT]  = { NULL, NULL, NULL, NULL, NULL, NULL };
-    Item* hisItems[TRADE_SLOT_TRADED_COUNT] = { NULL, NULL, NULL, NULL, NULL, NULL };
+    Item* myItems[TRADE_SLOT_TRADED_COUNT]  = { };
+    Item* hisItems[TRADE_SLOT_TRADED_COUNT] = { };
 
     // set before checks for propertly undo at problems (it already set in to client)
     my_trade->SetAccepted(true);
@@ -345,10 +345,10 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
     {
         setAcceptTradeMode(my_trade, his_trade, myItems, hisItems);
 
-        Spell* my_spell = NULL;
+        Spell* my_spell = nullptr;
         SpellCastTargets my_targets;
 
-        Spell* his_spell = NULL;
+        Spell* his_spell = nullptr;
         SpellCastTargets his_targets;
 
         // not accept if spell can't be cast now (cheating)
@@ -509,17 +509,17 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
         trader->ModifyMoney(my_trade->GetMoney());
 
         if (my_spell)
-            my_spell->prepare(&my_targets);
+            my_spell->prepare(my_targets);
 
         if (his_spell)
-            his_spell->prepare(&his_targets);
+            his_spell->prepare(his_targets);
 
         // cleanup
         clearAcceptTradeMode(my_trade, his_trade);
         delete _player->m_trade;
-        _player->m_trade = NULL;
+        _player->m_trade = nullptr;
         delete trader->m_trade;
-        trader->m_trade = NULL;
+        trader->m_trade = nullptr;
 
         // desynchronized with the other saves here (SaveInventoryAndGoldToDB() not have own transaction guards)
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
@@ -610,9 +610,11 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
         return;
     }
 
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
+    if (GetPlayer()->GetLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_TRADE_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
+        info.Status = TRADE_STATUS_FAILED;
+        SendTradeStatus(info);
         return;
     }
 
@@ -659,7 +661,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
         return;
     }
 
-    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
+    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID(), GetPlayer()->GetSession()->GetAccountGUID()))
     {
         info.Status = TRADE_STATUS_PLAYER_IGNORED;
         SendTradeStatus(info);
@@ -684,9 +686,11 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
         return;
     }
 
-    if (pOther->getLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
+    if (pOther->GetLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_TRADE_OTHER_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
+        info.Status = TRADE_STATUS_FAILED;
+        SendTradeStatus(info);
         return;
     }
 
@@ -769,7 +773,7 @@ void WorldSession::HandleClearTradeItemOpcode(WorldPackets::Trade::ClearTradeIte
     if (clearTradeItem.TradeSlot >= TRADE_SLOT_COUNT)
         return;
 
-    my_trade->SetItem(TradeSlots(clearTradeItem.TradeSlot), NULL);
+    my_trade->SetItem(TradeSlots(clearTradeItem.TradeSlot), nullptr);
 }
 
 void WorldSession::HandleSetTradeCurrencyOpcode(WorldPackets::Trade::SetTradeCurrency& /*setTradeCurrency*/)

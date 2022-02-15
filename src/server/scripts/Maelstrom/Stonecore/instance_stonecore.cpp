@@ -93,7 +93,7 @@ class instance_stonecore : public InstanceMapScript
                 creature->SearchFormation();
                 if (CreatureGroup* group = creature->GetFormation())
                 {
-                    switch (group->GetId())
+                    switch (group->GetLeaderSpawnId())
                     {
                         case CREATURE_FORMATION_MILLHOUSE_EVENT_TRASH:
                             millhouseTrashGUIDs.push_back(creature->GetGUID());
@@ -198,13 +198,13 @@ class instance_stonecore : public InstanceMapScript
             void MillhouseEvent_Despawn()
             {
                 if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
-                    Millhouse->DespawnOrUnsummon(3000);
+                    Millhouse->DespawnOrUnsummon(3s);
                 for (GuidVector::const_iterator itr = millhouseTrashGUIDs.begin(); itr != millhouseTrashGUIDs.end(); ++itr)
                     if (Creature* creature = instance->GetCreature(*itr))
-                        creature->DespawnOrUnsummon(3000);
+                        creature->DespawnOrUnsummon(3s);
                 for (GuidVector::const_iterator itr = millhouseLastGroupGUIDs.begin(); itr != millhouseLastGroupGUIDs.end(); ++itr)
                     if (Creature* creature = instance->GetCreature(*itr))
-                        creature->DespawnOrUnsummon(3000);
+                        creature->DespawnOrUnsummon(3s);
             }
 
             void ActivateTeleporter(Creature* teleporter)

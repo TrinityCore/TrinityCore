@@ -23,11 +23,15 @@
 #include "Language.h"
 #include "Map.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PartyPackets.h"
 #include "PhaseShift.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
+#include "Vehicle.h"
+#include <boost/container/flat_set.hpp>
+#include <boost/container/small_vector.hpp>
 #include <sstream>
 
 namespace
@@ -38,40 +42,70 @@ inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
     if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
     {
-        if (phase->Flags & PHASE_FLAG_COSMETIC)
+        if (phase->GetFlags().HasFlag(PhaseEntryFlags::Cosmetic))
             return PhaseFlags::Cosmetic;
 
-        if (phase->Flags & PHASE_FLAG_PERSONAL)
+        if (phase->GetFlags().HasFlag(PhaseEntryFlags::Personal))
             return PhaseFlags::Personal;
     }
 
     return PhaseFlags::None;
 }
+}
 
-template<typename Func>
-inline void ForAllControlled(Unit* unit, Func&& func)
+class PhasingHandler::ControlledUnitVisitor
 {
-    for (Unit* controlled : unit->m_Controlled)
-        if (controlled->GetTypeId() != TYPEID_PLAYER)
-            func(controlled);
+public:
+    explicit ControlledUnitVisitor(WorldObject* owner)
+    {
+        _visited.insert(owner);
+    }
 
-    for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
-        if (!unit->m_SummonSlot[i].IsEmpty())
-            if (Creature* summon = unit->GetMap()->GetCreature(unit->m_SummonSlot[i]))
-                func(summon);
-}
-}
+    template<typename Func>
+    inline void VisitControlledOf(Unit* unit, Func&& func)
+    {
+        for (Unit* controlled : unit->m_Controlled)
+            if (controlled->GetTypeId() != TYPEID_PLAYER
+                && !controlled->GetVehicle())                   // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
+                if (_visited.insert(controlled).second)
+                    func(controlled);
+
+        for (ObjectGuid summonGuid : unit->m_SummonSlot)
+            if (!summonGuid.IsEmpty())
+                if (Creature* summon = unit->GetMap()->GetCreature(summonGuid))
+                    if (_visited.insert(summon).second)
+                        func(summon);
+
+        if (Vehicle const* vehicle = unit->GetVehicleKit())
+            for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); ++seat)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*unit, seat->second.Passenger.Guid); passenger && passenger != unit)
+                    if (_visited.insert(passenger).second)
+                        func(passenger);
+    }
+
+private:
+    boost::container::flat_set<WorldObject*, std::less<WorldObject*>, boost::container::small_vector<WorldObject*, 8>> _visited;
+};
 
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
 {
+    ControlledUnitVisitor visitor(object);
+    AddPhase(object, phaseId, object->GetGUID(), updateVisibility, visitor);
+}
+
+void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility, ControlledUnitVisitor& visitor)
+{
     bool changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
+
+    if (object->GetPhaseShift().PersonalReferences)
+        object->GetPhaseShift().PersonalGuid = personalGuid;
 
     if (Unit* unit = object->ToUnit())
     {
         unit->OnPhaseChange();
-        ForAllControlled(unit, [&](Unit* controlled)
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
-            AddPhase(controlled, phaseId, updateVisibility);
+            AddPhase(controlled, phaseId, personalGuid, updateVisibility, visitor);
         });
         unit->RemoveNotOwnSingleTargetAuras(true);
     }
@@ -81,14 +115,20 @@ void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVi
 
 void PhasingHandler::RemovePhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
 {
+    ControlledUnitVisitor visitor(object);
+    RemovePhase(object, phaseId, updateVisibility, visitor);
+}
+
+void PhasingHandler::RemovePhase(WorldObject* object, uint32 phaseId, bool updateVisibility, ControlledUnitVisitor& visitor)
+{
     bool changed = object->GetPhaseShift().RemovePhase(phaseId).Erased;
 
     if (Unit* unit = object->ToUnit())
     {
         unit->OnPhaseChange();
-        ForAllControlled(unit, [&](Unit* controlled)
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
-            RemovePhase(controlled, phaseId, updateVisibility);
+            RemovePhase(controlled, phaseId, updateVisibility, visitor);
         });
         unit->RemoveNotOwnSingleTargetAuras(true);
     }
@@ -102,16 +142,25 @@ void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, boo
     if (!phasesInGroup)
         return;
 
+    ControlledUnitVisitor visitor(object);
+    AddPhaseGroup(object, phasesInGroup, object->GetGUID(), updateVisibility, visitor);
+}
+
+void PhasingHandler::AddPhaseGroup(WorldObject* object, std::vector<uint32> const* phasesInGroup, ObjectGuid const& personalGuid, bool updateVisibility, ControlledUnitVisitor& visitor)
+{
     bool changed = false;
     for (uint32 phaseId : *phasesInGroup)
         changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
+    if (object->GetPhaseShift().PersonalReferences)
+        object->GetPhaseShift().PersonalGuid = personalGuid;
+
     if (Unit* unit = object->ToUnit())
     {
         unit->OnPhaseChange();
-        ForAllControlled(unit, [&](Unit* controlled)
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
-            AddPhaseGroup(controlled, phaseGroupId, updateVisibility);
+            AddPhaseGroup(controlled, phasesInGroup, personalGuid, updateVisibility, visitor);
         });
         unit->RemoveNotOwnSingleTargetAuras(true);
     }
@@ -125,6 +174,12 @@ void PhasingHandler::RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, 
     if (!phasesInGroup)
         return;
 
+    ControlledUnitVisitor visitor(object);
+    RemovePhaseGroup(object, phasesInGroup, updateVisibility, visitor);
+}
+
+void PhasingHandler::RemovePhaseGroup(WorldObject* object, std::vector<uint32> const* phasesInGroup, bool updateVisibility, ControlledUnitVisitor& visitor)
+{
     bool changed = false;
     for (uint32 phaseId : *phasesInGroup)
         changed = object->GetPhaseShift().RemovePhase(phaseId).Erased || changed;
@@ -132,9 +187,9 @@ void PhasingHandler::RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, 
     if (Unit* unit = object->ToUnit())
     {
         unit->OnPhaseChange();
-        ForAllControlled(unit, [&](Unit* controlled)
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
-            RemovePhaseGroup(controlled, phaseGroupId, updateVisibility);
+            RemovePhaseGroup(controlled, phasesInGroup, updateVisibility, visitor);
         });
         unit->RemoveNotOwnSingleTargetAuras(true);
     }
@@ -144,6 +199,12 @@ void PhasingHandler::RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, 
 
 void PhasingHandler::AddVisibleMapId(WorldObject* object, uint32 visibleMapId)
 {
+    ControlledUnitVisitor visitor(object);
+    AddVisibleMapId(object, visibleMapId, visitor);
+}
+
+void PhasingHandler::AddVisibleMapId(WorldObject* object, uint32 visibleMapId, ControlledUnitVisitor& visitor)
+{
     TerrainSwapInfo const* terrainSwapInfo = sObjectMgr->GetTerrainSwapInfo(visibleMapId);
     bool changed = object->GetPhaseShift().AddVisibleMapId(visibleMapId, terrainSwapInfo);
 
@@ -152,9 +213,9 @@ void PhasingHandler::AddVisibleMapId(WorldObject* object, uint32 visibleMapId)
 
     if (Unit* unit = object->ToUnit())
     {
-        ForAllControlled(unit, [&](Unit* controlled)
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
-            AddVisibleMapId(controlled, visibleMapId);
+            AddVisibleMapId(controlled, visibleMapId, visitor);
         });
     }
 
@@ -162,6 +223,12 @@ void PhasingHandler::AddVisibleMapId(WorldObject* object, uint32 visibleMapId)
 }
 
 void PhasingHandler::RemoveVisibleMapId(WorldObject* object, uint32 visibleMapId)
+{
+    ControlledUnitVisitor visitor(object);
+    RemoveVisibleMapId(object, visibleMapId, visitor);
+}
+
+void PhasingHandler::RemoveVisibleMapId(WorldObject* object, uint32 visibleMapId, ControlledUnitVisitor& visitor)
 {
     TerrainSwapInfo const* terrainSwapInfo = sObjectMgr->GetTerrainSwapInfo(visibleMapId);
     bool changed = object->GetPhaseShift().RemoveVisibleMapId(visibleMapId).Erased;
@@ -171,9 +238,9 @@ void PhasingHandler::RemoveVisibleMapId(WorldObject* object, uint32 visibleMapId
 
     if (Unit* unit = object->ToUnit())
     {
-        ForAllControlled(unit, [&](Unit* controlled)
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
-            RemoveVisibleMapId(controlled, visibleMapId);
+            RemoveVisibleMapId(controlled, visibleMapId, visitor);
         });
     }
 
@@ -269,16 +336,25 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
                 for (uint32 phaseId : *phasesInGroup)
                     changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
+        if (phaseShift.PersonalReferences)
+            phaseShift.PersonalGuid = unit->GetGUID();
+
         if (changed)
             unit->OnPhaseChange();
 
-        ForAllControlled(unit, [&](Unit* controlled)
+        ControlledUnitVisitor visitor(unit);
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
             InheritPhaseShift(controlled, unit);
         });
 
         if (changed)
             unit->RemoveNotOwnSingleTargetAuras(true);
+    }
+    else
+    {
+        if (phaseShift.PersonalReferences)
+            phaseShift.PersonalGuid = object->GetGUID();
     }
 
     UpdateVisibilityIfNeeded(object, true, changed);
@@ -371,19 +447,23 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
         }
     }
 
-    changed = changed || !newSuppressions.Phases.empty() || !newSuppressions.VisibleMapIds.empty();
-    for (auto itr = newSuppressions.Phases.begin(); itr != newSuppressions.Phases.end(); ++itr)
-        suppressedPhaseShift.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References);
+    if (phaseShift.PersonalReferences)
+        phaseShift.PersonalGuid = object->GetGUID();
 
-    for (auto itr = newSuppressions.VisibleMapIds.begin(); itr != newSuppressions.VisibleMapIds.end(); ++itr)
-        suppressedPhaseShift.AddVisibleMapId(itr->first, itr->second.VisibleMapInfo, itr->second.References);
+    changed = changed || !newSuppressions.Phases.empty() || !newSuppressions.VisibleMapIds.empty();
+    for (PhaseShift::PhaseRef const& phaseRef : newSuppressions.Phases)
+        suppressedPhaseShift.AddPhase(phaseRef.Id, phaseRef.Flags, phaseRef.AreaConditions, phaseRef.References);
+
+    for (std::pair<uint32 const, PhaseShift::VisibleMapIdRef> const& visibleMap : newSuppressions.VisibleMapIds)
+        suppressedPhaseShift.AddVisibleMapId(visibleMap.first, visibleMap.second.VisibleMapInfo, visibleMap.second.References);
 
     if (unit)
     {
         if (changed)
             unit->OnPhaseChange();
 
-        ForAllControlled(unit, [&](Unit* controlled)
+        ControlledUnitVisitor visitor(unit);
+        visitor.VisitControlledOf(unit, [&](Unit* controlled)
         {
             InheritPhaseShift(controlled, unit);
         });
@@ -461,6 +541,13 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
     phaseShift.Flags = flags;
 }
 
+void PhasingHandler::InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid)
+{
+    ASSERT(phaseShift.IsDbPhaseShift);
+    ASSERT(phaseShift.HasPersonalPhase());
+    phaseShift.PersonalGuid = personalGuid;
+}
+
 void PhasingHandler::InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId)
 {
     phaseShift.VisibleMapIds.clear();
@@ -494,27 +581,40 @@ uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* 
     return map->GetId();
 }
 
-void PhasingHandler::SetAlwaysVisible(PhaseShift& phaseShift, bool apply)
+void PhasingHandler::SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility)
 {
     if (apply)
-        phaseShift.Flags |= PhaseShiftFlags::AlwaysVisible;
+        object->GetPhaseShift().Flags |= PhaseShiftFlags::AlwaysVisible;
     else
-        phaseShift.Flags &= ~PhaseShiftFlags::AlwaysVisible;
+        object->GetPhaseShift().Flags &= ~PhaseShiftFlags::AlwaysVisible;
+
+    UpdateVisibilityIfNeeded(object, updateVisibility, true);
 }
 
-void PhasingHandler::SetInversed(PhaseShift& phaseShift, bool apply)
+void PhasingHandler::SetInversed(WorldObject* object, bool apply, bool updateVisibility)
 {
     if (apply)
-        phaseShift.Flags |= PhaseShiftFlags::Inverse;
+        object->GetPhaseShift().Flags |= PhaseShiftFlags::Inverse;
     else
-        phaseShift.Flags &= PhaseShiftFlags::Inverse;
+        object->GetPhaseShift().Flags &= PhaseShiftFlags::Inverse;
 
-    phaseShift.UpdateUnphasedFlag();
+    object->GetPhaseShift().UpdateUnphasedFlag();
+
+    UpdateVisibilityIfNeeded(object, updateVisibility, true);
 }
 
-void PhasingHandler::PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift)
+void PhasingHandler::PrintToChat(ChatHandler* chat, WorldObject const* target)
 {
-    chat->PSendSysMessage(LANG_PHASESHIFT_STATUS, phaseShift.Flags.AsUnderlyingType(), phaseShift.PersonalGuid.ToString().c_str());
+    PhaseShift const& phaseShift = target->GetPhaseShift();
+
+    std::string phaseOwnerName = "N/A";
+    if (phaseShift.HasPersonalPhase())
+        if (WorldObject* personalGuid = ObjectAccessor::GetWorldObject(*target, phaseShift.PersonalGuid))
+            phaseOwnerName = personalGuid->GetName();
+
+    chat->PSendSysMessage(LANG_PHASESHIFT_STATUS, phaseShift.Flags.AsUnderlyingType(),
+        phaseShift.PersonalGuid.ToString().c_str(), phaseOwnerName.c_str());
+
     if (!phaseShift.Phases.empty())
     {
         std::ostringstream phases;
@@ -522,12 +622,13 @@ void PhasingHandler::PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift
         std::string personal = sObjectMgr->GetTrinityString(LANG_PHASE_FLAG_PERSONAL, chat->GetSessionDbLocaleIndex());
         for (PhaseShift::PhaseRef const& phase : phaseShift.Phases)
         {
-            phases << phase.Id;
+            phases << "\r\n";
+            phases << ' ' << ' ' << ' ';
+            phases << phase.Id << ' ' << '(' << sObjectMgr->GetPhaseName(phase.Id) << ')';
             if (phase.Flags.HasFlag(PhaseFlags::Cosmetic))
                 phases << ' ' << '(' << cosmetic << ')';
             if (phase.Flags.HasFlag(PhaseFlags::Personal))
                 phases << ' ' << '(' << personal << ')';
-            phases << ", ";
         }
 
         chat->PSendSysMessage(LANG_PHASESHIFT_PHASES, phases.str().c_str());
@@ -559,6 +660,14 @@ std::string PhasingHandler::FormatPhases(PhaseShift const& phaseShift)
         phases << phase.Id << ',';
 
     return phases.str();
+}
+
+bool PhasingHandler::IsPersonalPhase(uint32 phaseId)
+{
+    if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
+        return phase->GetFlags().HasFlag(PhaseEntryFlags::Personal);
+
+    return false;
 }
 
 void PhasingHandler::UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed)

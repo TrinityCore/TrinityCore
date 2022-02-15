@@ -23,7 +23,6 @@
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <unordered_map>
 
 namespace
@@ -117,7 +116,7 @@ void CharacterCache::DeleteCharacterCacheEntry(ObjectGuid const& guid, std::stri
     _characterCacheByNameStore.erase(name);
 }
 
-void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8* gender /*= nullptr*/, uint8* race /*= nullptr*/)
+void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, Optional<uint8> gender /*= {}*/, Optional<uint8> race /*= {}*/)
 {
     auto itr = _characterCacheStore.find(guid);
     if (itr == _characterCacheStore.end())
@@ -139,6 +138,15 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     // Correct name -> pointer storage
     _characterCacheByNameStore.erase(oldName);
     _characterCacheByNameStore[name] = &itr->second;
+}
+
+void CharacterCache::UpdateCharacterGender(ObjectGuid const& guid, uint8 gender)
+{
+    auto itr = _characterCacheStore.find(guid);
+    if (itr == _characterCacheStore.end())
+        return;
+
+    itr->second.Sex = gender;
 }
 
 void CharacterCache::UpdateCharacterLevel(ObjectGuid const& guid, uint8 level)
@@ -174,6 +182,7 @@ void CharacterCache::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 sl
     if (itr == _characterCacheStore.end())
         return;
 
+    ASSERT(slot < 3);
     itr->second.ArenaTeamId[slot] = arenaTeamId;
 }
 
@@ -286,7 +295,9 @@ uint32 CharacterCache::GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type
     if (itr == _characterCacheStore.end())
         return 0;
 
-    return itr->second.ArenaTeamId[ArenaTeam::GetSlotByType(type)];
+    uint8 slot = ArenaTeam::GetSlotByType(type);
+    ASSERT(slot < 3);
+    return itr->second.ArenaTeamId[slot];
 }
 
 bool CharacterCache::GetCharacterNameAndClassByGUID(ObjectGuid guid, std::string& name, uint8& _class) const

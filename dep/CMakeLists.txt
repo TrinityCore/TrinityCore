@@ -12,7 +12,6 @@ add_subdirectory(threads)
 
 if(SERVERS OR TOOLS)
   add_subdirectory(boost)
-  add_subdirectory(process)
   add_subdirectory(zlib)
   add_subdirectory(g3dlite)
   add_subdirectory(recastnavigation)
@@ -22,6 +21,7 @@ if(SERVERS OR TOOLS)
   add_subdirectory(valgrind)
   add_subdirectory(openssl)
   add_subdirectory(jemalloc)
+  add_subdirectory(argon2)
 endif()
 
 if(SERVERS)
@@ -34,6 +34,14 @@ if(SERVERS)
 endif()
 
 if(TOOLS)
-  add_subdirectory(bzip2)
   add_subdirectory(CascLib)
+endif()
+
+if(BUILD_TESTING)
+  include(FetchContent)
+  FetchContent_Declare(Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG        v2.13.0
+    GIT_SHALLOW    1)
+  FetchContent_MakeAvailable(Catch2)
 endif()

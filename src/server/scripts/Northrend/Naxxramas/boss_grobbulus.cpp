@@ -56,18 +56,18 @@ class boss_grobbulus : public CreatureScript
         {
             boss_grobbulusAI(Creature* creature) : BossAI(creature, BOSS_GROBBULUS) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_CLOUD, Seconds(15));
-                events.ScheduleEvent(EVENT_INJECT, Seconds(20));
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_CLOUD, 15s);
+                events.ScheduleEvent(EVENT_INJECT, 20s);
                 events.ScheduleEvent(EVENT_SPRAY, randtime(Seconds(15), Seconds(30))); // not sure
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
+                events.ScheduleEvent(EVENT_BERSERK, 12min);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_SLIME_SPRAY)
+                if (spellInfo->Id == SPELL_SLIME_SPRAY)
                     me->SummonCreature(NPC_FALLOUT_SLIME, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
             }
 
@@ -94,7 +94,7 @@ class boss_grobbulus : public CreatureScript
                             events.Repeat(randtime(Seconds(15), Seconds(30)));
                             return;
                         case EVENT_INJECT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MUTATING_INJECTION))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_MUTATING_INJECTION))
                                 DoCast(target, SPELL_MUTATING_INJECTION);
                             events.Repeat(Seconds(8) + Milliseconds(uint32(std::round(120 * me->GetHealthPct()))));
                             return;
@@ -126,7 +126,7 @@ class npc_grobbulus_poison_cloud : public CreatureScript
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // no visual when casting in ctor or Reset()
                 DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
@@ -165,7 +165,9 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
-                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, true, NULL, aurEff, GetCasterGUID());
+                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                        .SetTriggeringAura(aurEff)
+                        .SetOriginalCaster(GetCasterGUID()));
                 }
             }
 
@@ -193,17 +195,22 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0);
-                return effect0 && ValidateSpellInfo({ effect0->TriggerSpell });
+                return !spellInfo->GetEffects().empty()
+                    && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
+                if (!aurEff->GetTotalTicks())
+                    return;
 
-                uint32 triggerSpell = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell;
+                uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
                 int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
-                GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, mod, (Unit*)NULL, TRIGGERED_FULL_MASK, NULL, aurEff);
+
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, mod);
+                GetTarget()->CastSpell(nullptr, triggerSpell, args);
             }
 
             void Register() override

@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
 
@@ -101,9 +100,9 @@ class boss_ichoron : public CreatureScript
                 DoCast(me, SPELL_THREAT_PROC, true);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -165,10 +164,10 @@ class boss_ichoron : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon) override
@@ -219,7 +218,7 @@ class boss_ichoron : public CreatureScript
 
                 scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                         DoCast(target, SPELL_WATER_BLAST);
                     task.Repeat(Seconds(6), Seconds(9));
                 });
@@ -249,13 +248,17 @@ class npc_ichor_globule : public CreatureScript
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
+                Unit* unitCaster = caster->ToUnit();
+                if (!unitCaster)
+                    return;
+
                 if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
                 {
                     DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
                     me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                    me->GetMotionMaster()->MoveFollow(caster, 0.0f, 0.0f);
+                    me->GetMotionMaster()->MoveFollow(unitCaster, 0.0f, 0.0f);
                 }
             }
 
@@ -268,7 +271,7 @@ class npc_ichor_globule : public CreatureScript
                     return;
 
                 me->CastSpell(me, SPELL_MERGE);
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
 
             // on retail spell casted on a creature's death are not casted after death but keeping mob at 1 health, casting it and then letting the mob die.
@@ -315,18 +318,18 @@ class spell_ichoron_drained : public SpellScriptLoader
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+                GetTarget()->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+                GetTarget()->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_DRAINED);
+                    if (UnitAI* ai = GetTarget()->GetAI())
+                        ai->DoAction(ACTION_DRAINED);
             }
 
             void Register() override
@@ -399,8 +402,8 @@ class spell_ichoron_protective_bubble : public SpellScriptLoader
             {
                 //if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                 if (GetAura()->GetCharges() <= 1)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
+                    if (UnitAI* targetAI = GetTarget()->GetAI())
+                        targetAI->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
             }
 
             void Register() override

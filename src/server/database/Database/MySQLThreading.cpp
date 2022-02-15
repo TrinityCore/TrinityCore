@@ -20,7 +20,7 @@
 
 void MySQL::Library_Init()
 {
-    mysql_library_init(-1, NULL, NULL);
+    mysql_library_init(-1, nullptr, nullptr);
 }
 
 void MySQL::Library_End()
@@ -28,7 +28,7 @@ void MySQL::Library_End()
     mysql_library_end();
 }
 
-char const* MySQL::GetLibraryVersion()
+uint32 MySQL::GetLibraryVersion()
 {
-    return MYSQL_SERVER_VERSION;
+    return MYSQL_VERSION_ID;
 }

@@ -102,7 +102,7 @@ class npc_ioc_gunship_captain : public CreatureScript
                 if (action == ACTION_GUNSHIP_READY)
                 {
                     DoCast(me, SPELL_SIMPLE_TELEPORT);
-                    _events.ScheduleEvent(EVENT_TALK, 3000);
+                    _events.ScheduleEvent(EVENT_TALK, 3s);
                 }
             }
 
@@ -114,13 +114,13 @@ class npc_ioc_gunship_captain : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TALK:
-                            _events.ScheduleEvent(EVENT_DESPAWN, 1000);
+                            _events.ScheduleEvent(EVENT_DESPAWN, 1s);
                             Talk(SAY_ONBOARD);
                             DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
                             break;
                         case EVENT_DESPAWN:
-                            if (me->GetMap()->ToBattlegroundMap())
-                                if (Battleground* bgIoC = me->GetMap()->ToBattlegroundMap()->GetBG())
+                            if (BattlegroundMap* iocMap = me->GetMap()->ToBattlegroundMap())
+                                if (Battleground* bgIoC = iocMap->GetBG())
                                     bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
                             break;
                         default:
@@ -190,6 +190,7 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
+                PreventDefaultAction();
                 if (Player* target = GetTarget()->ToPlayer())
                     if (target->m_movementInfo.GetFallTime() > 2000 && !target->GetTransport())
                         target->CastSpell(target, SPELL_PARACHUTE_IC, true);
@@ -248,7 +249,7 @@ class spell_ioc_launch : public SpellScriptLoader
                 if (!GetCaster()->ToCreature() || !GetExplTargetDest())
                     return;
 
-                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), GetHitPlayer()->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
+                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), GetHitPlayer()->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
             }
 
             void Register() override

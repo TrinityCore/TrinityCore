@@ -23,7 +23,12 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
+#include "AES.h"
+#include "Base32.h"
 #include "Chat.h"
+#include "ChatCommand.h"
+#include "CryptoGenerics.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
 #include "IPLocation.h"
@@ -31,8 +36,13 @@ EndScriptData */
 #include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SecretMgr.h"
+#include "TOTP.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <unordered_map>
+
+using namespace Trinity::ChatCommands;
 
 class account_commandscript : public CommandScript
 {
@@ -49,10 +59,16 @@ public:
         static std::vector<ChatCommand> accountSetCommandTable =
         {
             { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,       true,  &HandleAccountSetAddonCommand,     ""       },
-            { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  NULL,                "", accountSetSecTable },
+            { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
             { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },  // temp for a transition period
             { "seclevel",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },
             { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
+            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
+        };
+        static std::vector<ChatCommand> account2FACommandTable =
+        {
+            { "setup",          rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,       false,  &HandleAccount2FASetupCommand,     ""      },
+            { "remove",         rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,      false,  &HandleAccount2FARemoveCommand,     ""     },
         };
         static std::vector<ChatCommand> accountLockCommandTable =
         {
@@ -61,38 +77,159 @@ public:
         };
         static std::vector<ChatCommand> accountCommandTable =
         {
+            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA,             false, nullptr,           "", account2FACommandTable  },
             { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,           false, &HandleAccountAddonCommand,        ""       },
             { "create",         rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,          true,  &HandleAccountCreateCommand,       ""       },
             { "delete",         rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,          true,  &HandleAccountDeleteCommand,       ""       },
             { "email",          rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,           false, &HandleAccountEmailCommand,        ""       },
             { "onlinelist",     rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,     true,  &HandleAccountOnlineListCommand,   ""       },
-            { "lock",           rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,            false, NULL,           "", accountLockCommandTable },
-            { "set",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,             true,  NULL,            "", accountSetCommandTable },
+            { "lock",           rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,            false, nullptr,        "", accountLockCommandTable },
+            { "set",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,             true,  nullptr,         "", accountSetCommandTable },
             { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,        false, &HandleAccountPasswordCommand,     ""       },
             { "",               rbac::RBAC_PERM_COMMAND_ACCOUNT,                 false, &HandleAccountCommand,             ""       },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_ACCOUNT,                 true,  NULL,              "",  accountCommandTable },
+            { "account",        rbac::RBAC_PERM_COMMAND_ACCOUNT,                 true,  nullptr,              "",  accountCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleAccountAddonCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccount2FASetupCommand(ChatHandler* handler, Optional<uint32> token)
     {
-        if (!*args)
+        auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
+        if (!masterKey.IsAvailable())
         {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SendSysMessage(LANG_2FA_COMMANDS_NOT_SETUP);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        char* exp = strtok((char*)args, " ");
+        uint32 const accountId = handler->GetSession()->GetAccountId();
 
-        uint32 accountId = handler->GetSession()->GetAccountId();
+        { // check if 2FA already enabled
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            stmt->setUInt32(0, accountId);
+            PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-        int expansion = atoi(exp); //get int anyway (0 if error)
-        if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
+            if (!result)
+            {
+                TC_LOG_ERROR("misc", "Account %u not found in login database when processing .account 2fa setup command.", accountId);
+                handler->SendSysMessage(LANG_UNKNOWN_ERROR);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!result->Fetch()->IsNull())
+            {
+                handler->SendSysMessage(LANG_2FA_ALREADY_SETUP);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        // store random suggested secrets
+        static std::unordered_map<uint32, Trinity::Crypto::TOTP::Secret> suggestions;
+        auto pair = suggestions.emplace(std::piecewise_construct, std::make_tuple(accountId), std::make_tuple(Trinity::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH)); // std::vector 1-argument size_t constructor invokes resize
+        if (pair.second) // no suggestion yet, generate random secret
+            Trinity::Crypto::GetRandomBytes(pair.first->second);
+
+        if (!pair.second && token) // suggestion already existed and token specified - validate
+        {
+            if (Trinity::Crypto::TOTP::ValidateToken(pair.first->second, *token))
+            {
+                if (masterKey)
+                    Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(pair.first->second, *masterKey);
+
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                stmt->setBinary(0, pair.first->second);
+                stmt->setUInt32(1, accountId);
+                LoginDatabase.Execute(stmt);
+                suggestions.erase(pair.first);
+                handler->SendSysMessage(LANG_2FA_SETUP_COMPLETE);
+                return true;
+            }
+            else
+                handler->SendSysMessage(LANG_2FA_INVALID_TOKEN);
+        }
+
+        // new suggestion, or no token specified, output TOTP parameters
+        handler->PSendSysMessage(LANG_2FA_SECRET_SUGGESTION, Trinity::Encoding::Base32::Encode(pair.first->second).c_str());
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    static bool HandleAccount2FARemoveCommand(ChatHandler* handler, Optional<uint32> token)
+    {
+        auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
+        if (!masterKey.IsAvailable())
+        {
+            handler->SendSysMessage(LANG_2FA_COMMANDS_NOT_SETUP);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 const accountId = handler->GetSession()->GetAccountId();
+        Trinity::Crypto::TOTP::Secret secret;
+        { // get current TOTP secret
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            stmt->setUInt32(0, accountId);
+            PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+            if (!result)
+            {
+                TC_LOG_ERROR("misc", "Account %u not found in login database when processing .account 2fa setup command.", accountId);
+                handler->SendSysMessage(LANG_UNKNOWN_ERROR);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Field* field = result->Fetch();
+            if (field->IsNull())
+            { // 2FA not enabled
+                handler->SendSysMessage(LANG_2FA_NOT_SETUP);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            secret = field->GetBinary();
+        }
+
+        if (token)
+        {
+            if (masterKey)
+            {
+                bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(secret, *masterKey);
+                if (!success)
+                {
+                    TC_LOG_ERROR("misc", "Account %u has invalid ciphertext in TOTP token.", accountId);
+                    handler->SendSysMessage(LANG_UNKNOWN_ERROR);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+            }
+
+            if (Trinity::Crypto::TOTP::ValidateToken(secret, *token))
+            {
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                stmt->setNull(0);
+                stmt->setUInt32(1, accountId);
+                LoginDatabase.Execute(stmt);
+                handler->SendSysMessage(LANG_2FA_REMOVE_COMPLETE);
+                return true;
+            }
+            else
+                handler->SendSysMessage(LANG_2FA_INVALID_TOKEN);
+        }
+
+        handler->SendSysMessage(LANG_2FA_REMOVE_NEED_TOKEN);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    static bool HandleAccountAddonCommand(ChatHandler* handler, uint8 expansion)
+    {
+        if (expansion > sWorld->getIntConfig(CONFIG_EXPANSION))
         {
             handler->SendSysMessage(LANG_IMPROPER_VALUE);
             handler->SetSentErrorMessage(true);
@@ -101,8 +238,8 @@ public:
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
-        stmt->setUInt8(0, uint8(expansion));
-        stmt->setUInt32(1, accountId);
+        stmt->setUInt8(0, expansion);
+        stmt->setUInt32(1, handler->GetSession()->GetAccountId());
 
         LoginDatabase.Execute(stmt);
 
@@ -111,40 +248,25 @@ public:
     }
 
     /// Create an account
-    static bool HandleAccountCreateCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountCreateCommand(ChatHandler* handler, std::string const& accountName, std::string const& password, Optional<std::string> const& email)
     {
-        if (!*args)
-            return false;
-
-        std::string email;
-
-        ///- %Parse the command line arguments
-        char* accountName = strtok((char*)args, " ");
-        char* password = strtok(NULL, " ");
-        char* possibleEmail = strtok(NULL, " ' ");
-        if (possibleEmail)
-            email = possibleEmail;
-
-        if (!accountName || !password)
-            return false;
-
-        if (strchr(accountName, '@'))
+        if (accountName.find('@') != std::string::npos)
         {
             handler->PSendSysMessage(LANG_ACCOUNT_USE_BNET_COMMANDS);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        switch (sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email))
+        switch (sAccountMgr->CreateAccount(accountName, password, email.value_or("")))
         {
             case AccountOpResult::AOR_OK:
-                handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
+                handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) created Account %s (Email: '%s')",
+                    TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] %s) created Account %s (Email: '%s')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                        accountName, email.c_str());
+                        accountName.c_str(), email.value_or("").c_str());
                 }
                 break;
             case AccountOpResult::AOR_NAME_TOO_LONG:
@@ -160,11 +282,11 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             case AccountOpResult::AOR_DB_INTERNAL_ERROR:
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED_SQL_ERROR, accountName);
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED_SQL_ERROR, accountName.c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED, accountName);
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED, accountName.c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
         }
@@ -174,17 +296,8 @@ public:
 
     /// Delete a user account and all associated characters in this realm
     /// @todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm then delete account)
-    static bool HandleAccountDeleteCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountDeleteCommand(ChatHandler* handler, std::string accountName)
     {
-        if (!*args)
-            return false;
-
-        ///- Get the account name from the command line
-        char* account = strtok((char*)args, " ");
-        if (!account)
-            return false;
-
-        std::string accountName = account;
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
@@ -203,7 +316,7 @@ public:
         /// Commands not recommended call from chat, but support anyway
         /// can delete only for account with less security
         /// This is also reject self apply in fact
-        if (handler->HasLowerSecurityAccount(NULL, accountId, true))
+        if (handler->HasLowerSecurityAccount(nullptr, accountId, true))
             return false;
 
         AccountOpResult result = AccountMgr::DeleteAccount(accountId);
@@ -230,7 +343,7 @@ public:
     }
 
     /// Display info on users currently in the realm
-    static bool HandleAccountOnlineListCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleAccountOnlineListCommand(ChatHandler* handler)
     {
         ///- Get the list of accounts ID logged to the realm
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE));
@@ -276,131 +389,83 @@ public:
         return true;
     }
 
-    static bool HandleAccountLockCountryCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountLockCountryCommand(ChatHandler* handler, bool state)
     {
-        if (!*args)
+        if (state)
         {
-            handler->SendSysMessage(LANG_USE_BOL);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-        std::string param = (char*)args;
-
-        if (!param.empty())
-        {
-            if (param == "on")
-            {
-                if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
-                {
-                    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-                    stmt->setString(0, location->CountryCode);
-                    stmt->setUInt32(1, handler->GetSession()->GetAccountId());
-                    LoginDatabase.Execute(stmt);
-                    handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
-                }
-                else
-                {
-                    handler->PSendSysMessage("IP2Location] No information");
-                    TC_LOG_DEBUG("server.bnetserver", "IP2Location] No information");
-                }
-            }
-            else if (param == "off")
+            if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
             {
                 LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-                stmt->setString(0, "00");
+                stmt->setString(0, location->CountryCode);
                 stmt->setUInt32(1, handler->GetSession()->GetAccountId());
                 LoginDatabase.Execute(stmt);
-                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
-            }
-            return true;
-        }
-        handler->SendSysMessage(LANG_USE_BOL);
-        handler->SetSentErrorMessage(true);
-        return false;
-    }
-
-    static bool HandleAccountLockIpCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_USE_BOL);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string param = (char*)args;
-
-        if (!param.empty())
-        {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
-
-            if (param == "on")
-            {
-                stmt->setBool(0, true);                                     // locked
                 handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
             }
-            else if (param == "off")
+            else
             {
-                stmt->setBool(0, false);                                    // unlocked
-                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+                handler->PSendSysMessage("No IP2Location information - account not locked");
+                handler->SetSentErrorMessage(true);
+                return false;
             }
-
-            stmt->setUInt32(1, handler->GetSession()->GetAccountId());
-
-            LoginDatabase.Execute(stmt);
-            return true;
         }
-
-        handler->SendSysMessage(LANG_USE_BOL);
-        handler->SetSentErrorMessage(true);
-        return false;
+        else
+        {
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+            stmt->setString(0, "00");
+            stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+            LoginDatabase.Execute(stmt);
+            handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+        }
+        return true;
     }
 
-    static bool HandleAccountEmailCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountLockIpCommand(ChatHandler* handler, bool state)
     {
-        if (!*args)
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
+
+        if (state)
         {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
+            stmt->setBool(0, true);                                     // locked
+            handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
+        }
+        else
+        {
+            stmt->setBool(0, false);                                    // unlocked
+            handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
         }
 
-        char* oldEmail = strtok((char*)args, " ");
-        char* password = strtok(NULL, " ");
-        char* email = strtok(NULL, " ");
-        char* emailConfirmation = strtok(NULL, " ");
+        stmt->setUInt32(1, handler->GetSession()->GetAccountId());
 
-        if (!oldEmail || !password || !email || !emailConfirmation)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        LoginDatabase.Execute(stmt);
+        return true;
+    }
 
-        if (!AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(oldEmail)))
+    static bool HandleAccountEmailCommand(ChatHandler* handler, std::string const& oldEmail, std::string const& password, std::string const& email, std::string const& emailConfirm)
+    {
+        if (!AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), oldEmail))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) Tried to change email, but the provided email [%s] is not equal to registration email [%s].",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change email, but the provided email [%s] is not equal to registration email [%s].",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                email, oldEmail);
+                email.c_str(), oldEmail.c_str());
             return false;
         }
 
-        if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(password)))
+        if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), password))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) Tried to change email, but the provided password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change email, but the provided password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
         }
 
-        if (strcmp(email, oldEmail) == 0)
+        if (email == oldEmail)
         {
             handler->SendSysMessage(LANG_OLD_EMAIL_IS_NEW_EMAIL);
             sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
@@ -408,28 +473,27 @@ public:
             return false;
         }
 
-        if (strcmp(email, emailConfirmation) != 0)
+        if (email != emailConfirm)
         {
             handler->SendSysMessage(LANG_NEW_EMAILS_NOT_MATCH);
             sScriptMgr->OnFailedEmailChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) Tried to change email, but the provided password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change email, but the confirm email does not match.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
         }
 
-
-        AccountOpResult result = AccountMgr::ChangeEmail(handler->GetSession()->GetAccountId(), std::string(email));
+        AccountOpResult result = AccountMgr::ChangeEmail(handler->GetSession()->GetAccountId(), email);
         switch (result)
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_EMAIL);
                 sScriptMgr->OnEmailChange(handler->GetSession()->GetAccountId());
-                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) Changed Email from [%s] to [%s].",
+                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Changed Email from [%s] to [%s].",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                    oldEmail, email);
+                    oldEmail.c_str(), email.c_str());
                 break;
             case AccountOpResult::AOR_EMAIL_TOO_LONG:
                 handler->SendSysMessage(LANG_EMAIL_TOO_LONG);
@@ -445,42 +509,18 @@ public:
         return true;
     }
 
-    static bool HandleAccountPasswordCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountPasswordCommand(ChatHandler* handler, std::string const& oldPassword, std::string const& newPassword, std::string const& confirmPassword, Optional<std::string> const& confirmEmail)
     {
-        // If no args are given at all, we can return false right away.
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         // First, we check config. What security type (sec type) is it ? Depending on it, the command branches out
-        uint32 pwConfig = sWorld->getIntConfig(CONFIG_ACC_PASSCHANGESEC); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
-
-        // Command is supposed to be: .account password [$oldpassword] [$newpassword] [$newpasswordconfirmation] [$emailconfirmation]
-        char* oldPassword = strtok((char*)args, " ");       // This extracts [$oldpassword]
-        char* newPassword = strtok(NULL, " ");              // This extracts [$newpassword]
-        char* passwordConfirmation = strtok(NULL, " ");     // This extracts [$newpasswordconfirmation]
-        char const* emailConfirmation = strtok(NULL, " ");  // This defines the emailConfirmation variable, which is optional depending on sec type.
-        if (!emailConfirmation)                             // This extracts [$emailconfirmation]. If it doesn't exist, however...
-            emailConfirmation = "";                         // ... it's simply "" for emailConfirmation.
-
-        //Is any of those variables missing for any reason ? We return false.
-        if (!oldPassword || !newPassword || !passwordConfirmation)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        uint32 const pwConfig = sWorld->getIntConfig(CONFIG_ACC_PASSCHANGESEC); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
         // We compare the old, saved password to the entered old password - no chance for the unauthorized.
-        if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
+        if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), oldPassword))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) Tried to change password, but the provided old password is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
@@ -488,20 +528,20 @@ public:
 
         // This compares the old, current email to the entered email - however, only...
         if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
-            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation))) // ... and returns false if the comparison fails.
+            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), confirmEmail.value_or(""))) // ... and returns false if the comparison fails.
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) Tried to change password, but the entered email [%s] is wrong.",
+            TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change password, but the entered email [%s] is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                emailConfirmation);
+                confirmEmail.value_or("").c_str());
             return false;
         }
 
         // Making sure that newly entered password is correctly entered.
-        if (strcmp(newPassword, passwordConfirmation) != 0)
+        if (newPassword != confirmPassword)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
             sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
@@ -510,13 +550,13 @@ public:
         }
 
         // Changes password and prints result.
-        AccountOpResult result = AccountMgr::ChangePassword(handler->GetSession()->GetAccountId(), std::string(newPassword));
+        AccountOpResult result = AccountMgr::ChangePassword(handler->GetSession()->GetAccountId(), newPassword);
         switch (result)
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
                 sScriptMgr->OnPasswordChange(handler->GetSession()->GetAccountId());
-                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) Changed Password.",
+                TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s changed password.",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
                 break;
@@ -534,7 +574,7 @@ public:
         return true;
     }
 
-    static bool HandleAccountCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleAccountCommand(ChatHandler* handler)
     {
         // GM Level
         AccountTypes securityLevel = handler->GetSession()->GetSecurity();
@@ -546,8 +586,8 @@ public:
 
         handler->PSendSysMessage(LANG_ACCOUNT_SEC_TYPE, (pwConfig == PW_NONE  ? "Lowest level: No Email input required." :
                                                          pwConfig == PW_EMAIL ? "Highest level: Email input required." :
-                                                         pwConfig == PW_RBAC  ? "Special level: Your account may require email input depending on settings. That is the case if another lien is printed." :
-                                                                                "Unknown security level: Notify technician for details."));
+                                                         pwConfig == PW_RBAC  ? "Special level: Your account may require email input depending on settings. That is the case if another line is printed." :
+                                                                                "Unknown security level: Config error?"));
 
         // RBAC required display - is not displayed for console
         if (pwConfig == PW_RBAC && handler->GetSession() && hasRBAC)
@@ -574,55 +614,44 @@ public:
     }
 
     /// Set/Unset the expansion level for an account
-    static bool HandleAccountSetAddonCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSetAddonCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 expansion)
     {
-        ///- Get the command line arguments
-        char* account = strtok((char*)args, " ");
-        char* exp = strtok(NULL, " ");
-
-        if (!account)
-            return false;
-
-        std::string accountName;
         uint32 accountId;
+        if (accountName)
+        {
+            ///- Convert Account name to Upper Format
+            if (!Utf8ToUpperOnlyLatin(*accountName))
+            {
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName->c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
 
-        if (!exp)
+            accountId = AccountMgr::GetId(*accountName);
+            if (!accountId)
+            {
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName->c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+        else
         {
             Player* player = handler->getSelectedPlayer();
             if (!player)
                 return false;
 
             accountId = player->GetSession()->GetAccountId();
-            AccountMgr::GetName(accountId, accountName);
-            exp = account;
-        }
-        else
-        {
-            ///- Convert Account name to Upper Format
-            accountName = account;
-            if (!Utf8ToUpperOnlyLatin(accountName))
-            {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            accountId = AccountMgr::GetId(accountName);
-            if (!accountId)
-            {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
+            accountName.emplace();
+            AccountMgr::GetName(accountId, *accountName);
         }
 
         // Let set addon state only for lesser (strong) security level
         // or to self account
         if (handler->GetSession() && handler->GetSession()->GetAccountId() != accountId &&
-            handler->HasLowerSecurityAccount(NULL, accountId, true))
+            handler->HasLowerSecurityAccount(nullptr, accountId, true))
             return false;
 
-        uint8 expansion = static_cast<uint8>(atoul(exp));
         if (expansion > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
@@ -633,62 +662,52 @@ public:
 
         LoginDatabase.Execute(stmt);
 
-        handler->PSendSysMessage(LANG_ACCOUNT_SETADDON, accountName.c_str(), accountId, expansion);
+        handler->PSendSysMessage(LANG_ACCOUNT_SETADDON, accountName->c_str(), accountId, expansion);
         return true;
     }
 
-    static bool HandleAccountSetSecLevelCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSetSecLevelCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 securityLevel, Optional<int32> realmId)
     {
-        if (!*args)
+        uint32 accountId;
+        if (accountName)
         {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string accountName;
-        uint32 accountId = 0;
-        uint8 securityLevel = 0;
-        char* arg1 = strtok((char*)args, " ");
-        char* arg2 = strtok(NULL, " ");
-        char* arg3 = strtok(NULL, " ");
-        bool isAccountNameGiven = true;
-
-        if (!arg3)
-        {
-            if (!handler->getSelectedPlayer())
-                return false;
-            isAccountNameGiven = false;
-        }
-
-        // Check for second parameter
-        if (!isAccountNameGiven && !arg2)
-            return false;
-
-        // Check for account
-        if (isAccountNameGiven)
-        {
-            accountName = arg1;
-            if (!Utf8ToUpperOnlyLatin(accountName) || !AccountMgr::GetId(accountName))
+            if (!Utf8ToUpperOnlyLatin(*accountName))
             {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName->c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            accountId = AccountMgr::GetId(*accountName);
+            if (!accountId)
+            {
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName->c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
         }
+        else
+        {
+            Player* player = handler->getSelectedPlayer();
+            if (!player)
+                return false;
+            accountId = player->GetSession()->GetAccountId();
+            accountName.emplace();
+            AccountMgr::GetName(accountId, *accountName);
+        }
 
-        // Check for invalid specified GM level.
-        securityLevel = (isAccountNameGiven) ? atoi(arg2) : atoi(arg1);
-        if (securityLevel > SEC_CONSOLE)
+        if (securityLevel >= SEC_CONSOLE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        // handler->getSession() == NULL only for console
-        accountId = (isAccountNameGiven) ? AccountMgr::GetId(accountName) : handler->getSelectedPlayer()->GetSession()->GetAccountId();
-        int32 realmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);
+        int32 realmID = -1;
+        if (realmId)
+            realmID = *realmId;
+
+        // handler->getSession() == nullptr only for console
         uint32 playerSecurity;
         if (handler->GetSession())
             playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
@@ -731,32 +750,15 @@ public:
             return false;
         }
 
-        rbac::RBACData* rbac = isAccountNameGiven ? NULL : handler->getSelectedPlayer()->GetSession()->GetRBACData();
-        sAccountMgr->UpdateAccountAccess(rbac, accountId, securityLevel, realmID);
+        sAccountMgr->UpdateAccountAccess(nullptr, accountId, securityLevel, realmID);
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName.c_str(), securityLevel);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), securityLevel);
         return true;
     }
 
     /// Set password for account
-    static bool HandleAccountSetPasswordCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSetPasswordCommand(ChatHandler* handler, std::string accountName, std::string const& password, std::string const& confirmPassword)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        ///- Get the command line arguments
-        char* account = strtok((char*)args, " ");
-        char* password = strtok(NULL, " ");
-        char* passwordConfirmation = strtok(NULL, " ");
-
-        if (!account || !password || !passwordConfirmation)
-            return false;
-
-        std::string accountName = account;
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
@@ -774,10 +776,10 @@ public:
 
         /// can set password only for target with less security
         /// This also restricts setting handler's own password
-        if (handler->HasLowerSecurityAccount(NULL, targetAccountId, true))
+        if (handler->HasLowerSecurityAccount(nullptr, targetAccountId, true))
             return false;
 
-        if (strcmp(password, passwordConfirmation) != 0)
+        if (password != confirmPassword)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
             handler->SetSentErrorMessage(true);
@@ -785,7 +787,6 @@ public:
         }
 
         AccountOpResult result = AccountMgr::ChangePassword(targetAccountId, password);
-
         switch (result)
         {
             case AccountOpResult::AOR_OK:
@@ -807,25 +808,72 @@ public:
         return true;
     }
 
-    /// Set normal email for account
-    static bool HandleAccountSetEmailCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSet2FACommand(ChatHandler* handler, std::string accountName, std::string secret)
     {
-        if (!*args)
-            return false;
-
-        ///- Get the command line arguments
-        char* account = strtok((char*)args, " ");
-        char* email = strtok(NULL, " ");
-        char* emailConfirmation = strtok(NULL, " ");
-
-        if (!account || !email || !emailConfirmation)
+        if (!Utf8ToUpperOnlyLatin(accountName))
         {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        std::string accountName = account;
+        uint32 targetAccountId = AccountMgr::GetId(accountName);
+        if (!targetAccountId)
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (handler->HasLowerSecurityAccount(nullptr, targetAccountId, true))
+            return false;
+
+        if (secret == "off")
+        {
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+            stmt->setNull(0);
+            stmt->setUInt32(1, targetAccountId);
+            LoginDatabase.Execute(stmt);
+            handler->PSendSysMessage(LANG_2FA_REMOVE_COMPLETE);
+            return true;
+        }
+
+        auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
+        if (!masterKey.IsAvailable())
+        {
+            handler->SendSysMessage(LANG_2FA_COMMANDS_NOT_SETUP);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Optional<std::vector<uint8>> decoded = Trinity::Encoding::Base32::Decode(secret);
+        if (!decoded)
+        {
+            handler->SendSysMessage(LANG_2FA_SECRET_INVALID);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        if (128 < (decoded->size() + Trinity::Crypto::AES::IV_SIZE_BYTES + Trinity::Crypto::AES::TAG_SIZE_BYTES))
+        {
+            handler->SendSysMessage(LANG_2FA_SECRET_TOO_LONG);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (masterKey)
+            Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(*decoded, *masterKey);
+
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+        stmt->setBinary(0, *decoded);
+        stmt->setUInt32(1, targetAccountId);
+        LoginDatabase.Execute(stmt);
+        handler->PSendSysMessage(LANG_2FA_SECRET_SET_COMPLETE, accountName.c_str());
+        return true;
+    }
+
+    /// Set normal email for account
+    static bool HandleAccountSetEmailCommand(ChatHandler* handler, std::string accountName, std::string const& email, std::string const& confirmEmail)
+    {
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
@@ -843,10 +891,10 @@ public:
 
         /// can set email only for target with less security
         /// This also restricts setting handler's own email.
-        if (handler->HasLowerSecurityAccount(NULL, targetAccountId, true))
+        if (handler->HasLowerSecurityAccount(nullptr, targetAccountId, true))
             return false;
 
-        if (strcmp(email, emailConfirmation) != 0)
+        if (email != confirmEmail)
         {
             handler->SendSysMessage(LANG_NEW_EMAILS_NOT_MATCH);
             handler->SetSentErrorMessage(true);
@@ -859,7 +907,7 @@ public:
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_EMAIL);
                 TC_LOG_INFO("entities.player.character", "ChangeEmail: Account %s [Id: %u] had it's email changed to %s.",
-                    accountName.c_str(), targetAccountId, email);
+                    accountName.c_str(), targetAccountId, email.c_str());
                 break;
             case AccountOpResult::AOR_NAME_NOT_EXIST:
                 handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
@@ -879,29 +927,8 @@ public:
     }
 
     /// Change registration email for account
-    static bool HandleAccountSetRegEmailCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSetRegEmailCommand(ChatHandler* handler, std::string accountName, std::string const& email, std::string const& confirmEmail)
     {
-        if (!*args)
-            return false;
-
-        //- We do not want anything short of console to use this by default.
-        //- So we force that.
-        if (handler->GetSession())
-            return false;
-
-        ///- Get the command line arguments
-        char* account = strtok((char*)args, " ");
-        char* email = strtok(NULL, " ");
-        char* emailConfirmation = strtok(NULL, " ");
-
-        if (!account || !email || !emailConfirmation)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string accountName = account;
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
@@ -919,10 +946,10 @@ public:
 
         /// can set email only for target with less security
         /// This also restricts setting handler's own email.
-        if (handler->HasLowerSecurityAccount(NULL, targetAccountId, true))
+        if (handler->HasLowerSecurityAccount(nullptr, targetAccountId, true))
             return false;
 
-        if (strcmp(email, emailConfirmation) != 0)
+        if (email != confirmEmail)
         {
             handler->SendSysMessage(LANG_NEW_EMAILS_NOT_MATCH);
             handler->SetSentErrorMessage(true);
@@ -935,7 +962,7 @@ public:
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_EMAIL);
                 TC_LOG_INFO("entities.player.character", "ChangeRegEmail: Account %s [Id: %u] had it's Registration Email changed to %s.",
-                    accountName.c_str(), targetAccountId, email);
+                    accountName.c_str(), targetAccountId, email.c_str());
                 break;
             case AccountOpResult::AOR_NAME_NOT_EXIST:
                 handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());

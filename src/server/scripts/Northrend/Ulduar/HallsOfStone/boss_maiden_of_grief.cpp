@@ -63,20 +63,20 @@ class boss_maiden_of_grief : public CreatureScript
                 _Reset();
 
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_PARTING_SORROW, urand(25000, 30000));
-                events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 10000);
-                events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_PILLAR_OF_WOE, urand(5000, 15000));
+                    events.ScheduleEvent(EVENT_PARTING_SORROW, 25s, 30s);
+                events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 10s);
+                events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 20s, 25s);
+                events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 15s);
 
-                instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
 
-                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
 
             void KilledUnit(Unit* who) override
@@ -106,26 +106,26 @@ class boss_maiden_of_grief : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_PARTING_SORROW:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_PARTING_SORROW);
-                            events.ScheduleEvent(EVENT_PARTING_SORROW, urand(30000, 40000));
+                            events.ScheduleEvent(EVENT_PARTING_SORROW, 30s, 40s);
                             break;
                         case EVENT_STORM_OF_GRIEF:
                             DoCastVictim(SPELL_STORM_OF_GRIEF, true);
-                            events.ScheduleEvent(EVENT_STORM_OF_GRIEF, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 15s, 20s);
                             break;
                         case EVENT_SHOCK_OF_SORROW:
-                            DoResetThreat();
+                            ResetThreatList();
                             Talk(SAY_STUN);
                             DoCastAOE(SPELL_SHOCK_OF_SORROW);
-                            events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 20s, 30s);
                             break;
                         case EVENT_PILLAR_OF_WOE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_PILLAR_OF_WOE);
                             else
                                 DoCastVictim(SPELL_PILLAR_OF_WOE);
-                            events.ScheduleEvent(EVENT_PILLAR_OF_WOE, urand(5000, 25000));
+                            events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 25s);
                             break;
                         default:
                             break;

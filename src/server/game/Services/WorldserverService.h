@@ -45,7 +45,7 @@ namespace Battlenet
     class WorldserverService : public T
     {
     public:
-        WorldserverService(WorldSession* session) : T(false), _session(session) { }
+        WorldserverService(WorldSession* session) : T(true), _session(session) { }
 
     protected:
         void SendRequest(uint32 serviceHash, uint32 methodId, google::protobuf::Message const* request, std::function<void(MessageBuffer)> callback) override { _session->SendBattlenetRequest(serviceHash, methodId, request, std::move(callback)); }

@@ -74,7 +74,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
         struct npc_millhouse_manastormAI : public ScriptedAI
         {
-            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
+            npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature), Init(false)
             {
                 Initialize();
                 instance = creature->GetInstanceScript();
@@ -84,7 +84,6 @@ class npc_millhouse_manastorm : public CreatureScript
             {
                 EventProgress_Timer = 2000;
                 LowHp = false;
-                Init = false;
                 Phase = 1;
 
                 Pyroblast_Timer = 1000;
@@ -106,7 +105,10 @@ class npc_millhouse_manastorm : public CreatureScript
                 Initialize();
 
                 if (instance->GetData(DATA_WARDEN_2) == DONE)
+                {
                     Init = true;
+                    me->SetImmuneToNPC(false);
+                }
 
                 if (instance->GetBossState(DATA_HARBINGER_SKYRISS) == DONE)
                     Talk(SAY_COMPLETE);
@@ -116,7 +118,7 @@ class npc_millhouse_manastorm : public CreatureScript
             {
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     me->GetMotionMaster()->MoveChase(who, 25.0f);
@@ -178,6 +180,7 @@ class npc_millhouse_manastorm : public CreatureScript
                             case 7:
                                 instance->SetData(DATA_WARDEN_2, DONE);
                                 Init = true;
+                                me->SetImmuneToNPC(false);
                                 break;
                             }
                             ++Phase;
@@ -325,11 +328,11 @@ class npc_warden_mellichar : public CreatureScript
 
                     float attackRadius = me->GetAttackDistance(who)/10;
                     if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
-                        EnterCombat(who);
+                        JustEngagedWith(who);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(YELL_INTRO1);
                 DoCast(me, SPELL_BUBBLE_VISUAL);
@@ -342,7 +345,7 @@ class npc_warden_mellichar : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 DoZoneInCombat(summon);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     summon->AI()->AttackStart(target);
             }
 
@@ -422,15 +425,15 @@ class npc_warden_mellichar : public CreatureScript
                             switch (urand(0, 1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_TRICKSTER, 478.326f, -148.505f, 42.56f, 3.19f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                                me->SummonCreature(ENTRY_TRICKSTER, 478.326f, -148.505f, 42.56f, 3.19f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_PH_HUNTER, 478.326f, -148.505f, 42.56f, 3.19f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                                me->SummonCreature(ENTRY_PH_HUNTER, 478.326f, -148.505f, 42.56f, 3.19f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                                 break;
                             }
                             break;
                         case 3:
-                            me->SummonCreature(ENTRY_MILLHOUSE, 413.292f, -148.378f, 42.56f, 6.27f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            me->SummonCreature(ENTRY_MILLHOUSE, 413.292f, -148.378f, 42.56f, 6.27f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                             break;
                         case 4:
                             Talk(YELL_RELEASE2B);
@@ -439,10 +442,10 @@ class npc_warden_mellichar : public CreatureScript
                             switch (urand(0, 1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_AKKIRIS, 420.179f, -174.396f, 42.58f, 0.02f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                                me->SummonCreature(ENTRY_AKKIRIS, 420.179f, -174.396f, 42.58f, 0.02f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_SULFURON, 420.179f, -174.396f, 42.58f, 0.02f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                                me->SummonCreature(ENTRY_SULFURON, 420.179f, -174.396f, 42.58f, 0.02f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                                 break;
                             }
                             break;
@@ -450,15 +453,15 @@ class npc_warden_mellichar : public CreatureScript
                             switch (urand(0, 1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_TW_DRAK, 471.795f, -174.58f, 42.58f, 3.06f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                                me->SummonCreature(ENTRY_TW_DRAK, 471.795f, -174.58f, 42.58f, 3.06f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_BL_DRAK, 471.795f, -174.58f, 42.58f, 3.06f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                                me->SummonCreature(ENTRY_BL_DRAK, 471.795f, -174.58f, 42.58f, 3.06f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                                 break;
                             }
                             break;
                         case 7:
-                            me->SummonCreature(ENTRY_SKYRISS, 445.763f, -191.639f, 44.64f, 1.60f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            me->SummonCreature(ENTRY_SKYRISS, 445.763f, -191.639f, 44.64f, 1.60f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                             Talk(YELL_WELCOME);
                             break;
                         }
@@ -545,7 +548,7 @@ class npc_zerekethvoidzone : public CreatureScript
                 DoCast(me, SPELL_VOID_ZONE_DAMAGE);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

@@ -53,12 +53,12 @@ public:
             //DoCast(me, SPELL_ICEARMOR, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 2 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_HEX,     8 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 14 * IN_MILLISECONDS);
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 2s);
+            events.ScheduleEvent(EVENT_HEX, 8s);
+            events.ScheduleEvent(EVENT_CLEAVE, 14s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -82,16 +82,16 @@ public:
                 {
                     case EVENT_CURSE_OF_BLOOD:
                         DoCastVictim(SPELL_CURSEOFBLOOD);
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45s);
                         break;
                     case EVENT_HEX:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                             DoCast(target, SPELL_HEX);
-                        events.ScheduleEvent(EVENT_HEX, 15 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_HEX, 15s);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7s);
                         break;
                 }
 

@@ -63,7 +63,7 @@ struct BattlegroundScore
 
         virtual void UpdateScore(uint32 type, uint32 value);
 
-        virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const;
+        virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
@@ -82,7 +82,7 @@ struct BattlegroundScore
         virtual uint32 GetAttr5() const { return 0; }
 
         ObjectGuid PlayerGuid;
-        uint8 TeamId; // BattlegroundTeamId
+        uint8 TeamId; // PvPTeamId
 
         // Default score, present in every type
         uint32 KillingBlows;

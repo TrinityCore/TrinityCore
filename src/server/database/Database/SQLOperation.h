@@ -25,7 +25,7 @@
 union SQLElementUnion
 {
     PreparedStatementBase* stmt;
-    const char* query;
+    char const* query;
 };
 
 //- Type specifier of our element data
@@ -54,7 +54,7 @@ class MySQLConnection;
 class TC_DATABASE_API SQLOperation
 {
     public:
-        SQLOperation(): m_conn(NULL) { }
+        SQLOperation(): m_conn(nullptr) { }
         virtual ~SQLOperation() { }
 
         virtual int call()

@@ -213,25 +213,25 @@ void protobuf_AddDesc_presence_5ftypes_2eproto() {
     "types.proto\032\023channel_types.proto\"W\n\033Rich"
     "PresenceLocalizationKey\022\017\n\007program\030\001 \002(\007"
     "\022\016\n\006stream\030\002 \002(\007\022\027\n\017localization_id\030\003 \002("
-    "\r\"O\n\010FieldKey\022\017\n\007program\030\001 \002(\r\022\r\n\005group\030"
-    "\002 \002(\r\022\r\n\005field\030\003 \002(\r\022\024\n\tunique_id\030\004 \001(\004:"
-    "\0010\"^\n\005Field\022/\n\003key\030\001 \002(\0132\".bgs.protocol."
-    "presence.v1.FieldKey\022$\n\005value\030\002 \002(\0132\025.bg"
-    "s.protocol.Variant\"\265\001\n\016FieldOperation\022.\n"
-    "\005field\030\001 \002(\0132\037.bgs.protocol.presence.v1."
-    "Field\022N\n\toperation\030\002 \001(\01626.bgs.protocol."
-    "presence.v1.FieldOperation.OperationType"
-    ":\003SET\"#\n\rOperationType\022\007\n\003SET\020\000\022\t\n\005CLEAR"
-    "\020\001\"}\n\rPresenceState\022)\n\tentity_id\030\001 \001(\0132\026"
-    ".bgs.protocol.EntityId\022A\n\017field_operatio"
-    "n\030\002 \003(\0132(.bgs.protocol.presence.v1.Field"
-    "Operation\"\365\001\n\014ChannelState\022)\n\tentity_id\030"
-    "\001 \001(\0132\026.bgs.protocol.EntityId\022A\n\017field_o"
-    "peration\030\002 \003(\0132(.bgs.protocol.presence.v"
-    "1.FieldOperation\022\026\n\007healing\030\003 \001(\010:\005false"
-    "2_\n\010presence\022%.bgs.protocol.channel.v1.C"
-    "hannelState\030e \001(\0132&.bgs.protocol.presenc"
-    "e.v1.ChannelStateB\002H\001", 941);
+    "\r\"L\n\010FieldKey\022\017\n\007program\030\001 \002(\r\022\r\n\005group\030"
+    "\002 \002(\r\022\r\n\005field\030\003 \002(\r\022\021\n\tunique_id\030\004 \001(\004\""
+    "^\n\005Field\022/\n\003key\030\001 \002(\0132\".bgs.protocol.pre"
+    "sence.v1.FieldKey\022$\n\005value\030\002 \002(\0132\025.bgs.p"
+    "rotocol.Variant\"\265\001\n\016FieldOperation\022.\n\005fi"
+    "eld\030\001 \002(\0132\037.bgs.protocol.presence.v1.Fie"
+    "ld\022N\n\toperation\030\002 \001(\01626.bgs.protocol.pre"
+    "sence.v1.FieldOperation.OperationType:\003S"
+    "ET\"#\n\rOperationType\022\007\n\003SET\020\000\022\t\n\005CLEAR\020\001\""
+    "}\n\rPresenceState\022)\n\tentity_id\030\001 \001(\0132\026.bg"
+    "s.protocol.EntityId\022A\n\017field_operation\030\002"
+    " \003(\0132(.bgs.protocol.presence.v1.FieldOpe"
+    "ration\"\356\001\n\014ChannelState\022)\n\tentity_id\030\001 \001"
+    "(\0132\026.bgs.protocol.EntityId\022A\n\017field_oper"
+    "ation\030\002 \003(\0132(.bgs.protocol.presence.v1.F"
+    "ieldOperation\022\017\n\007healing\030\003 \001(\0102_\n\010presen"
+    "ce\022%.bgs.protocol.channel.v1.ChannelStat"
+    "e\030e \001(\0132&.bgs.protocol.presence.v1.Chann"
+    "elStateB\002H\001", 931);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_types.proto", &protobuf_RegisterTypes);
   RichPresenceLocalizationKey::default_instance_ = new RichPresenceLocalizationKey();
@@ -708,7 +708,7 @@ bool FieldKey::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint64 unique_id = 4 [default = 0];
+      // optional uint64 unique_id = 4;
       case 4: {
         if (tag == 32) {
          parse_unique_id:
@@ -763,7 +763,7 @@ void FieldKey::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->field(), output);
   }
 
-  // optional uint64 unique_id = 4 [default = 0];
+  // optional uint64 unique_id = 4;
   if (has_unique_id()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->unique_id(), output);
   }
@@ -793,7 +793,7 @@ void FieldKey::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->field(), target);
   }
 
-  // optional uint64 unique_id = 4 [default = 0];
+  // optional uint64 unique_id = 4;
   if (has_unique_id()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->unique_id(), target);
   }
@@ -831,7 +831,7 @@ int FieldKey::ByteSize() const {
           this->field());
     }
 
-    // optional uint64 unique_id = 4 [default = 0];
+    // optional uint64 unique_id = 4;
     if (has_unique_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
@@ -1887,7 +1887,7 @@ bool ChannelState::MergePartialFromCodedStream(
         break;
       }
 
-      // optional bool healing = 3 [default = false];
+      // optional bool healing = 3;
       case 3: {
         if (tag == 24) {
          parse_healing:
@@ -1939,7 +1939,7 @@ void ChannelState::SerializeWithCachedSizes(
       2, this->field_operation(i), output);
   }
 
-  // optional bool healing = 3 [default = false];
+  // optional bool healing = 3;
   if (has_healing()) {
     ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->healing(), output);
   }
@@ -1968,7 +1968,7 @@ void ChannelState::SerializeWithCachedSizes(
         2, this->field_operation(i), target);
   }
 
-  // optional bool healing = 3 [default = false];
+  // optional bool healing = 3;
   if (has_healing()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->healing(), target);
   }
@@ -1992,7 +1992,7 @@ int ChannelState::ByteSize() const {
           this->entity_id());
     }
 
-    // optional bool healing = 3 [default = false];
+    // optional bool healing = 3;
     if (has_healing()) {
       total_size += 1 + 1;
     }

@@ -17,10 +17,22 @@
 
 #include "PassiveAI.h"
 #include "Creature.h"
+#include "MovementDefines.h"
 
-PassiveAI::PassiveAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-PossessedAI::PossessedAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-NullCreatureAI::NullCreatureAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+PassiveAI::PassiveAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+{
+    me->SetReactState(REACT_PASSIVE);
+}
+
+PossessedAI::PossessedAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+{
+    me->SetReactState(REACT_PASSIVE);
+}
+
+NullCreatureAI::NullCreatureAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+{
+    me->SetReactState(REACT_PASSIVE);
+}
 
 int32 NullCreatureAI::Permissible(Creature const* creature)
 {
@@ -28,14 +40,14 @@ int32 NullCreatureAI::Permissible(Creature const* creature)
         return PERMIT_BASE_PROACTIVE + 50;
 
     if (creature->IsTrigger())
-        return PERMIT_BASE_REACTIVE;
+        return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_IDLE;
 }
 
 void PassiveAI::UpdateAI(uint32)
 {
-    if (me->IsInCombat() && me->getAttackers().empty())
+    if (me->IsEngaged() && !me->IsInCombat())
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 }
 
@@ -61,23 +73,16 @@ void PossessedAI::JustDied(Unit* /*u*/)
     me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 }
 
-void PossessedAI::KilledUnit(Unit* victim)
-{
-    // We killed a creature, disable victim's loot
-    if (victim->GetTypeId() == TYPEID_UNIT)
-        me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
-}
-
-void PossessedAI::OnCharmed(bool /*apply*/)
-{
-    me->NeedChangeAI = true;
-    me->IsAIEnabled = false;
-}
-
-void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
+void CritterAI::JustEngagedWith(Unit* /*who*/)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(true, UNIT_STATE_FLEEING);
+}
+
+void CritterAI::OnMovementGeneratorFinalized(MovementGeneratorType type)
+{
+    if (type == TIMED_FLEEING_MOTION_TYPE)
+        EnterEvadeMode(EVADE_REASON_OTHER);
 }
 
 void CritterAI::EnterEvadeMode(EvadeReason why)
@@ -95,16 +100,20 @@ int32 CritterAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-void TriggerAI::IsSummonedBy(Unit* summoner)
+void TriggerAI::IsSummonedBy(WorldObject* summoner)
 {
     if (me->m_spells[0])
-        me->CastSpell(me, me->m_spells[0], false, nullptr, nullptr, summoner->GetGUID());
+    {
+        CastSpellExtraArgs extra;
+        extra.OriginalCaster = summoner->GetGUID();
+        me->CastSpell(me, me->m_spells[0], extra);
+    }
 }
 
 int32 TriggerAI::Permissible(Creature const* creature)
 {
     if (creature->IsTrigger() && creature->m_spells[0])
-        return PERMIT_BASE_PROACTIVE;
+        return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
 }

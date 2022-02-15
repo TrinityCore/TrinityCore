@@ -84,17 +84,17 @@ class boss_varos : public CreatureScript
             {
                 _Reset();
 
-                events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
+                events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, 20s, 25s);
+                events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5s);
                 // not sure if this is handled by a timer or hp percentage
-                events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_CALL_AZURE, 15s, 30s);
 
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
 
                 Talk(SAY_AGGRO);
             }
@@ -132,19 +132,19 @@ class boss_varos : public CreatureScript
                                 coreEnergizeOrientation = Position::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
 
                             DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
-                            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
-                            events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5s);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4s);
                             break;
                         case EVENT_CALL_AZURE:
                             // not sure how blizz handles this, i cant see any pattern between the differnt spells
                             DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
                             Talk(SAY_AZURE);
                             Talk(SAY_AZURE_EMOTE);
-                            events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_CALL_AZURE, 20s, 25s);
                             break;
                         case EVENT_AMPLIFY_MAGIC:
                             DoCastVictim(SPELL_CALL_AMPLIFY_MAGIC);
-                            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, 17s, 20s);
                             break;
                         default:
                             break;
@@ -203,9 +203,9 @@ class npc_azure_ring_captain : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_ICE_BEAM)
+                if (spellInfo->Id == SPELL_ICE_BEAM)
                 {
                     target->CastSpell(target, SPELL_SUMMON_ARCANE_BEAM, true);
                     me->DespawnOrUnsummon();
@@ -236,10 +236,10 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 switch (action)
                 {
-                   case ACTION_CALL_DRAGON_EVENT:
+                    case ACTION_CALL_DRAGON_EVENT:
                         if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROS)))
                         {
-                            if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* victim = varos->AI()->SelectTarget(SelectTargetMethod::Random, 0))
                             {
                                 me->SetReactState(REACT_PASSIVE);
                                 me->SetWalk(false);
@@ -282,10 +282,11 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // flags taken from sniffs
-                    if (caster->HasUnitFlag(UnitFlags(UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6)))
+                    if (caster->HasUnitFlag(UnitFlags(UNIT_FLAG_CAN_SWIM | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6)))
                     {
                         caster->ToCreature()->SetReactState(REACT_PASSIVE);
-                        caster->AddUnitFlag(UnitFlags(UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6));
+                        caster->AddUnitFlag(UnitFlags(UNIT_FLAG_CAN_SWIM | UNIT_FLAG_UNK_6));
+                        caster->SetImmuneToAll(true, true);
                     }
                 }
             }
@@ -295,7 +296,8 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                    caster->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6));
+                    caster->RemoveUnitFlag(UnitFlags(UNIT_FLAG_CAN_SWIM | UNIT_FLAG_UNK_6));
+                    caster->SetImmuneToAll(false);
                 }
             }
 
@@ -334,7 +336,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
+                    float angle = varos->GetAbsoluteAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
@@ -378,7 +380,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
+                    float angle = varos->GetAbsoluteAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)

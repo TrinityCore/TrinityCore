@@ -26,16 +26,15 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DisableMgr.h"
 #include "GridNotifiersImpl.h"
-#include "Map.h"
 #include "MMapFactory.h"
 #include "PathGenerator.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "PointMovementGenerator.h"
 #include "RBAC.h"
-#include "TargetedMovementGenerator.h"
 #include "WorldSession.h"
 
 class mmaps_commandscript : public CommandScript
@@ -56,7 +55,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable },
+            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, nullptr, "", mmapCommandTable },
         };
         return commandTable;
     }
@@ -86,9 +85,9 @@ public:
         if (para && strcmp(para, "true") == 0)
             useStraightPath = true;
 
-        bool useStraightLine = false;
-        if (para && strcmp(para, "line") == 0)
-            useStraightLine = true;
+        bool useRaycast = false;
+        if (para && (strcmp(para, "line") == 0 || strcmp(para, "ray") == 0 || strcmp(para, "raycast") == 0))
+            useRaycast = true;
 
         // unit locations
         float x, y, z;
@@ -97,16 +96,17 @@ public:
         // path
         PathGenerator path(target);
         path.SetUseStraightPath(useStraightPath);
-        bool result = path.CalculatePath(x, y, z, false, useStraightLine);
+        path.SetUseRaycast(useRaycast);
+        bool result = path.CalculatePath(x, y, z, false);
 
         Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
-        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useStraightLine ? "Raycast" : "SmoothPath");
+        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
         handler->PSendSysMessage("Result: %s - Length: %zu - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
-        G3D::Vector3 const &start = path.GetStartPosition();
-        G3D::Vector3 const &end = path.GetEndPosition();
-        G3D::Vector3 const &actualEnd = path.GetActualEndPosition();
+        G3D::Vector3 const& start = path.GetStartPosition();
+        G3D::Vector3 const& end = path.GetEndPosition();
+        G3D::Vector3 const& actualEnd = path.GetActualEndPosition();
 
         handler->PSendSysMessage("StartPosition     (%.3f, %.3f, %.3f)", start.x, start.y, start.z);
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
@@ -116,7 +116,7 @@ public:
             handler->PSendSysMessage("Enable GM mode to see the path points.");
 
         for (uint32 i = 0; i < pointPath.size(); ++i)
-            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9s);
 
         return true;
     }
@@ -159,7 +159,7 @@ public:
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
         dtPolyRef polyRef = INVALID_POLYREF;
-        if (dtStatusFailed(navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL)))
+        if (dtStatusFailed(navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, nullptr)))
         {
             handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
             return true;
@@ -176,7 +176,7 @@ public:
                 if (tile)
                 {
                     handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
-                    return false;
+                    return true;
                 }
             }
 

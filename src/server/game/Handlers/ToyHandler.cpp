@@ -81,7 +81,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
 
     SpellCastTargets targets(_player, packet.Cast);
 
-    Spell* spell = new Spell(_player, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    Spell* spell = new Spell(_player, spellInfo, TRIGGERED_NONE);
 
     WorldPackets::Spells::SpellPrepare spellPrepare;
     spellPrepare.ClientCastID = packet.Cast.CastID;
@@ -93,7 +93,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     spell->m_misc.Raw.Data[0] = packet.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = packet.Cast.Misc[1];
     spell->m_castFlagsEx |= CAST_FLAG_EX_USE_TOY_SPELL;
-    spell->prepare(&targets);
+    spell->prepare(targets);
 }
 
 void WorldSession::HandleToyClearFanfare(WorldPackets::Toy::ToyClearFanfare& toyClearFanfare)

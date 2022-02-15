@@ -16,15 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "Containers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "GameObjectAI.h"
-#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -237,7 +236,7 @@ Position const FifthPortalWPs[] =
     //{1827.100342f, 801.605957f, 44.363358f}
 };
 
-Position const SixthPoralWPs[] =
+Position const SixthPortalWPs[] =
 {
     {1888.861084f, 805.074768f, 38.375790f},
     {1869.793823f, 804.135804f, 38.647018f},
@@ -345,7 +344,7 @@ class npc_sinclari_vh : public CreatureScript
                 }
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // override default gossip
                 switch (_instance->GetData(DATA_MAIN_EVENT_STATE))
@@ -366,7 +365,7 @@ class npc_sinclari_vh : public CreatureScript
                 return false;
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_START_ENCOUNTER && gossipListId == 0)
                 {
@@ -473,12 +472,12 @@ class npc_sinclari_vh : public CreatureScript
                             task.Repeat(Seconds(5));
                             break;
                         case 8:
-                            me->SetVisible(false);
+                            _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
                             task.Repeat(Seconds(1));
                             break;
                         case 9:
-                            _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
-                            // [1] GUID: Full: 0xF1300077C202E6DD Type: Creature Entry: 30658 Low: 190173
+                            // We should teleport inside if event is in progress with GOSSIP_MENU_SEND_ME_IN
+                            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             break;
                         default:
                             break;
@@ -542,7 +541,7 @@ class npc_azure_saboteur : public CreatureScript
                     _bossId = _instance->GetData(DATA_2ND_BOSS);
             }
 
-            template<size_t N>
+            template <size_t N>
             void StartSmoothPath(Position const (&path)[N])
             {
                 me->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, &path[0], N, false);
@@ -586,7 +585,7 @@ class npc_azure_saboteur : public CreatureScript
             {
                 if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
                 {
-                    _scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                    _scheduler.Schedule(0s, [this](TaskContext task)
                     {
                         me->CastSpell(me, SPELL_SHIELD_DISRUPTION, false);
 
@@ -598,7 +597,7 @@ class npc_azure_saboteur : public CreatureScript
                             {
                                 _instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
                                 me->CastSpell(me, SPELL_TELEPORT_VISUAL, false);
-                                me->DespawnOrUnsummon(1000);
+                                me->DespawnOrUnsummon(1s);
                             });
                         }
                     });
@@ -645,7 +644,7 @@ struct npc_violet_hold_teleportation_portal_commonAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* /*who*/) override { }
 
-    void EnterCombat(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 
     void JustSummoned(Creature* summon) override
     {
@@ -698,7 +697,7 @@ class npc_violet_hold_teleportation_portal : public CreatureScript
                     if (data == 1)
                     {
                         uint32 entry = RAND(NPC_PORTAL_GUARDIAN, NPC_PORTAL_KEEPER);
-                        if (Creature* portalKeeper = DoSummon(entry, me, 2.0f, 0, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* portalKeeper = DoSummon(entry, me, 2.0f, 0s, TEMPSUMMON_DEAD_DESPAWN))
                             me->CastSpell(portalKeeper, SPELL_PORTAL_CHANNEL, false);
 
                         if (Creature* sinclariTrigger = _instance->GetCreature(DATA_SINCLARI_TRIGGER))
@@ -715,7 +714,7 @@ class npc_violet_hold_teleportation_portal : public CreatureScript
                         while (k--)
                         {
                             uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_INVADER_2, NPC_AZURE_SPELLBREAKER_1, NPC_AZURE_SPELLBREAKER_2, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_MAGE_SLAYER_2, NPC_AZURE_BINDER_1, NPC_AZURE_BINDER_2);
-                            DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                            DoSummon(entry, me, 2.0f, 20s, TEMPSUMMON_DEAD_DESPAWN);
                         }
                     }
                 }
@@ -758,7 +757,7 @@ class npc_violet_hold_teleportation_portal_elite : public CreatureScript
                     while (k--)
                     {
                         uint32 entry = RAND(NPC_AZURE_CAPTAIN_1, NPC_AZURE_RAIDER_1, NPC_AZURE_STALKER_1, NPC_AZURE_SORCEROR_1);
-                        DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                        DoSummon(entry, me, 2.0f, 20s, TEMPSUMMON_DEAD_DESPAWN);
                     }
 
                     if (Creature* sinclariTrigger = _instance->GetCreature(DATA_SINCLARI_TRIGGER))
@@ -807,8 +806,12 @@ class npc_violet_hold_teleportation_portal_intro : public CreatureScript
 
                 _scheduler.Schedule(Seconds(15), [this](TaskContext task)
                 {
-                    uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
-                    DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
+                    // Limit the number of current summons
+                    if (_summons.size() < 3)
+                    {
+                        uint32 entry = RAND(NPC_AZURE_INVADER_1, NPC_AZURE_MAGE_SLAYER_1, NPC_AZURE_BINDER_1);
+                        DoSummon(entry, me, 2.0f, 20s, TEMPSUMMON_DEAD_DESPAWN);
+                    }
 
                     task.Repeat();
                 });
@@ -821,9 +824,9 @@ class npc_violet_hold_teleportation_portal_intro : public CreatureScript
         }
 };
 
-struct violet_hold_trashAI : public npc_escortAI
+struct violet_hold_trashAI : public EscortAI
 {
-    violet_hold_trashAI(Creature* creature) : npc_escortAI(creature)
+    violet_hold_trashAI(Creature* creature) : EscortAI(creature)
     {
         _instance = creature->GetInstanceScript();
 
@@ -842,7 +845,7 @@ struct violet_hold_trashAI : public npc_escortAI
         _scheduler.CancelAll();
     }
 
-    template<size_t N>
+    template <size_t N>
     Position const* GetPathAndInitLastWaypointFrom(Position const (&path)[N])
     {
         _lastWaypointId = N - 1;
@@ -881,7 +884,7 @@ struct violet_hold_trashAI : public npc_escortAI
                     path = GetPathAndInitLastWaypointFrom(FifthPortalWPs);
                     break;
                 case 5:
-                    path = GetPathAndInitLastWaypointFrom(SixthPoralWPs);
+                    path = GetPathAndInitLastWaypointFrom(SixthPortalWPs);
                     break;
                 default:
                     path = GetPathAndInitLastWaypointFrom(DefaultPortalWPs);
@@ -899,15 +902,15 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void WaypointReached(uint32 waypointId) override
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
         if (waypointId == _lastWaypointId)
             CreatureStartAttackDoor();
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        npc_escortAI::EnterCombat(who);
+        EscortAI::JustEngagedWith(who);
         ScheduledTasks();
     }
 
@@ -920,7 +923,7 @@ struct violet_hold_trashAI : public npc_escortAI
             return;
 
         _scheduler.Update(diff,
-            std::bind(&npc_escortAI::DoMeleeAttackIfReady, this));
+            std::bind(&EscortAI::DoMeleeAttackIfReady, this));
     }
 
     virtual void ScheduledTasks() { }
@@ -1007,7 +1010,7 @@ class npc_azure_binder : public CreatureScript
 
                     _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_ARCANE_BARRAGE);
                         task.Repeat(Seconds(6));
                     });
@@ -1022,7 +1025,7 @@ class npc_azure_binder : public CreatureScript
 
                     _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                             DoCast(target, SPELL_FROSTBOLT);
                         task.Repeat(Seconds(6));
                     });
@@ -1060,7 +1063,7 @@ class npc_azure_mage_slayer : public CreatureScript
                     _scheduler.Schedule(Seconds(5), [this](TaskContext task)
                     {
                         // wrong spellid?
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_SPELL_LOCK);
                         task.Repeat(Seconds(9));
                     });
@@ -1118,12 +1121,12 @@ class npc_azure_stalker : public CreatureScript
             {
                 _scheduler.Schedule(Seconds(8), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                         DoCast(target, SPELL_TACTICAL_BLINK);
 
                     task.Schedule(Milliseconds(1300), [this](TaskContext /*task*/)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 5.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 5.0f))
                             DoCast(target, SPELL_BACKSTAB);
                     });
 
@@ -1153,14 +1156,14 @@ class npc_azure_spellbreaker : public CreatureScript
                 {
                     _scheduler.Schedule(Seconds(5), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_ARCANE_BLAST);
                         task.Repeat(Seconds(6));
                     });
 
                     _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_SLOW);
                         task.Repeat(Seconds(5));
                     });
@@ -1169,7 +1172,7 @@ class npc_azure_spellbreaker : public CreatureScript
                 {
                     _scheduler.Schedule(Seconds(5), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f))
                             DoCast(target, SPELL_CHAINS_OF_ICE);
                         task.Repeat(Seconds(7));
                     });
@@ -1233,7 +1236,7 @@ class npc_azure_sorceror : public CreatureScript
             {
                 _scheduler.Schedule(Seconds(4), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 35.0f))
                         DoCast(target, SPELL_ARCANE_STREAM);
                     task.Repeat(Seconds(5), Seconds(10));
                 });
@@ -1264,7 +1267,7 @@ class npc_violet_hold_defense_system : public CreatureScript
             void Reset() override
             {
                 ScheduledTasks();
-                me->DespawnOrUnsummon(7000);
+                me->DespawnOrUnsummon(7s);
             }
 
             void ScheduledTasks()
@@ -1291,7 +1294,7 @@ class npc_violet_hold_defense_system : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_violet_hold_defense_systemAI(creature);
+            return GetVioletHoldAI<npc_violet_hold_defense_systemAI>(creature);
         }
 };
 
@@ -1304,7 +1307,7 @@ class go_activation_crystal : public GameObjectScript
         {
             go_activation_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 player->CastSpell(player, SPELL_CRYSTAL_ACTIVATION, true);
                 return false;
@@ -1368,8 +1371,8 @@ class spell_violet_hold_portal_periodic : public SpellScriptLoader
             void PeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                if (GetTarget()->IsAIEnabled)
-                    GetTarget()->GetAI()->SetData(DATA_PORTAL_PERIODIC_TICK, aurEff->GetTickNumber());
+                if (UnitAI* targetAI = GetTarget()->GetAI())
+                    targetAI->SetData(DATA_PORTAL_PERIODIC_TICK, aurEff->GetTickNumber());
             }
 
             void Register() override

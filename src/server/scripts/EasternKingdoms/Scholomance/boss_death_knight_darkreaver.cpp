@@ -50,7 +50,7 @@ public:
                 DoCast(me, 23261, true);   //Summon Darkreaver's Fallen Charger
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
     };

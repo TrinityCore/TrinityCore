@@ -18,6 +18,7 @@
 #ifndef ViewerDependentValues_h__
 #define ViewerDependentValues_h__
 
+#include "Conversation.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "Map.h"
@@ -26,6 +27,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 namespace UF
 {
@@ -38,10 +40,11 @@ template<>
 class ViewerDependentValue<UF::ObjectData::DynamicFlagsTag>
 {
 public:
-    using ValueType = UF::ObjectData::DynamicFlagsTag::ValueType;
+    using value_type = UF::ObjectData::DynamicFlagsTag::value_type;
 
-    static ValueType GetValue(ValueType dynamicFlags, Object const* object, Player const* receiver)
+    static value_type GetValue(UF::ObjectData const* objectData, Object const* object, Player const* receiver)
     {
+        value_type dynamicFlags = objectData->DynamicFlags;
         if (Unit const* unit = object->ToUnit())
         {
             dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
@@ -73,13 +76,13 @@ public:
                 case GAMEOBJECT_TYPE_CHEST:
                 case GAMEOBJECT_TYPE_GOOBER:
                     if (gameObject->ActivateToQuest(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     else if (receiver->IsGameMaster())
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
                 case GAMEOBJECT_TYPE_GENERIC:
                     if (gameObject->ActivateToQuest(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_SPARKLE;
+                        dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
@@ -106,23 +109,30 @@ template<>
 class ViewerDependentValue<UF::UnitData::DisplayIDTag>
 {
 public:
-    using ValueType = UF::UnitData::DisplayIDTag::ValueType;
+    using value_type = UF::UnitData::DisplayIDTag::value_type;
 
-    static ValueType GetValue(ValueType displayId, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
     {
+        value_type displayId = unitData->DisplayID;
         if (unit->IsCreature())
         {
             CreatureTemplate const* cinfo = unit->ToCreature()->GetCreatureTemplate();
 
             // this also applies for transform auras
-            if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->getTransForm(), unit->GetMap()->GetDifficultyID()))
-                for (SpellEffectInfo const* effect : transform->GetEffects())
-                    if (effect && effect->IsAura(SPELL_AURA_TRANSFORM))
-                        if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(effect->MiscValue))
+            if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->GetTransformSpell(), unit->GetMap()->GetDifficultyID()))
+            {
+                for (SpellEffectInfo const& spellEffectInfo : transform->GetEffects())
+                {
+                    if (spellEffectInfo.IsAura(SPELL_AURA_TRANSFORM))
+                    {
+                        if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(spellEffectInfo.MiscValue))
                         {
                             cinfo = transformInfo;
                             break;
                         }
+                    }
+                }
+            }
 
             if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 if (receiver->IsGameMaster())
@@ -137,10 +147,11 @@ template<>
 class ViewerDependentValue<UF::UnitData::FactionTemplateTag>
 {
 public:
-    using ValueType = UF::UnitData::FactionTemplateTag::ValueType;
+    using value_type = UF::UnitData::FactionTemplateTag::value_type;
 
-    static ValueType GetValue(ValueType factionTemplate, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
     {
+        value_type factionTemplate = unitData->FactionTemplate;
         if (unit->IsControlledByPlayer() && receiver != unit && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(receiver))
         {
             FactionTemplateEntry const* ft1 = unit->GetFactionTemplateEntry();
@@ -158,10 +169,11 @@ template<>
 class ViewerDependentValue<UF::UnitData::FlagsTag>
 {
 public:
-    using ValueType = UF::UnitData::FlagsTag::ValueType;
+    using value_type = UF::UnitData::FlagsTag::value_type;
 
-    static ValueType GetValue(ValueType flags, Unit const* /*unit*/, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* /*unit*/, Player const* receiver)
     {
+        value_type flags = unitData->Flags;
         // Gamemasters should be always able to select units - remove not selectable flag
         if (receiver->IsGameMaster())
             flags &= ~UNIT_FLAG_NOT_SELECTABLE;
@@ -174,9 +186,9 @@ template<>
 class ViewerDependentValue<UF::UnitData::AuraStateTag>
 {
 public:
-    using ValueType = UF::UnitData::AuraStateTag::ValueType;
+    using value_type = UF::UnitData::AuraStateTag::value_type;
 
-    static ValueType GetValue(ValueType /*auraState*/, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* /*unitData*/, Unit const* unit, Player const* receiver)
     {
         // Check per caster aura states to not enable using a spell in client if specified aura is not by target
         return unit->BuildAuraStateUpdateForTarget(receiver);
@@ -187,10 +199,11 @@ template<>
 class ViewerDependentValue<UF::UnitData::PvpFlagsTag>
 {
 public:
-    using ValueType = UF::UnitData::PvpFlagsTag::ValueType;
+    using value_type = UF::UnitData::PvpFlagsTag::value_type;
 
-    static ValueType GetValue(ValueType pvpFlags, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
     {
+        value_type pvpFlags = unitData->PvpFlags;
         if (unit->IsControlledByPlayer() && receiver != unit && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(receiver))
         {
             FactionTemplateEntry const* ft1 = unit->GetFactionTemplateEntry();
@@ -208,10 +221,11 @@ template<>
 class ViewerDependentValue<UF::UnitData::NpcFlagsTag>
 {
 public:
-    using ValueType = UF::UnitData::NpcFlagsTag::ValueType;
+    using value_type = UF::UnitData::NpcFlagsTag::value_type;
 
-    static ValueType GetValue(ValueType npcFlag, uint32 i, Unit const* unit, Player const* receiver)
+    static value_type GetValue(UF::UnitData const* unitData, uint32 i, Unit const* unit, Player const* receiver)
     {
+        value_type npcFlag = unitData->NpcFlags[i];
         if (i == 0 && unit->IsCreature() && !receiver->CanSeeSpellClickOn(unit->ToCreature()))
             npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
 
@@ -223,10 +237,11 @@ template<>
 class ViewerDependentValue<UF::GameObjectData::FlagsTag>
 {
 public:
-    using ValueType = UF::GameObjectData::FlagsTag::ValueType;
+    using value_type = UF::GameObjectData::FlagsTag::value_type;
 
-    static ValueType GetValue(ValueType flags, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
     {
+        value_type flags = gameObjectData->Flags;
         if (gameObject->GetGoType() == GAMEOBJECT_TYPE_CHEST)
             if (gameObject->GetGOInfo()->chest.usegrouplootrules && !gameObject->IsLootAllowedFor(receiver))
                 flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
@@ -239,10 +254,11 @@ template<>
 class ViewerDependentValue<UF::GameObjectData::LevelTag>
 {
 public:
-    using ValueType = UF::GameObjectData::LevelTag::ValueType;
+    using value_type = UF::GameObjectData::LevelTag::value_type;
 
-    static ValueType GetValue(ValueType level, GameObject const* gameObject, Player const* /*receiver*/)
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* /*receiver*/)
     {
+        value_type level = gameObjectData->Level;
         bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
         return isStoppableTransport ? gameObject->GetGOValue()->Transport.PathProgress : level;
     }
@@ -252,16 +268,48 @@ template<>
 class ViewerDependentValue<UF::GameObjectData::StateTag>
 {
 public:
-    using ValueType = UF::GameObjectData::StateTag::ValueType;
+    using value_type = UF::GameObjectData::StateTag::value_type;
 
-    static ValueType GetValue(ValueType state, GameObject const* gameObject, Player const* /*receiver*/)
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* /*receiver*/)
     {
+        value_type state = gameObjectData->State;
         bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
         if (isStoppableTransport && gameObject->GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
             if ((gameObject->GetGOValue()->Transport.StateUpdateTimer / 20000) & 1)
                 state = GO_STATE_TRANSPORT_STOPPED;
 
         return state;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::ConversationData::LastLineEndTimeTag>
+{
+public:
+    using value_type = UF::ConversationData::LastLineEndTimeTag::value_type;
+
+    static value_type GetValue(UF::ConversationData const* /*conversationData*/, Conversation const* conversation, Player const* receiver)
+    {
+        LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
+        return conversation->GetLastLineEndTime(locale).count();
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::ConversationLine::StartTimeTag>
+{
+public:
+    using value_type = UF::ConversationLine::StartTimeTag::value_type;
+
+    static value_type GetValue(UF::ConversationLine const* conversationLineData, Conversation const* conversation, Player const* receiver)
+    {
+        value_type startTime = conversationLineData->StartTime;
+        LocaleConstant locale = receiver->GetSession()->GetSessionDbLocaleIndex();
+
+        if (Milliseconds const* localizedStartTime = conversation->GetLineStartTime(locale, conversationLineData->ConversationLineID))
+            startTime = localizedStartTime->count();
+
+        return startTime;
     }
 };
 }

@@ -18,6 +18,14 @@
 #include "ZoneScript.h"
 #include "Creature.h"
 
+ZoneScript::ZoneScript()
+{
+}
+
+ZoneScript::~ZoneScript()
+{
+}
+
 uint32 ZoneScript::GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data)
 {
     return data->id;

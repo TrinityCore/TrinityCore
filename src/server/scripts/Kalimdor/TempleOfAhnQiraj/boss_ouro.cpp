@@ -45,9 +45,9 @@ public:
         return GetAQ40AI<boss_ouroAI>(creature);
     }
 
-    struct boss_ouroAI : public ScriptedAI
+    struct boss_ouroAI : public BossAI
     {
-        boss_ouroAI(Creature* creature) : ScriptedAI(creature)
+        boss_ouroAI(Creature* creature) : BossAI(creature, DATA_OURO)
         {
             Initialize();
         }
@@ -78,11 +78,13 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             DoCastVictim(SPELL_BIRTH);
+            BossAI::JustEngagedWith(who);
         }
 
         void UpdateAI(uint32 diff) override
@@ -121,10 +123,7 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-
-                if (target)
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
                 ChangeTarget_Timer = urand(10000, 20000);

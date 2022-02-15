@@ -96,7 +96,7 @@ inline void KillRewarder::_InitGroupData()
             if (Player* member = itr->GetSource())
                 if (_killer == member || (member->IsAtGroupRewardDistance(_victim) && member->IsAlive()))
                 {
-                    const uint8 lvl = member->getLevel();
+                    const uint8 lvl = member->GetLevel();
                     // 2.1. _count - number of alive group members within reward distance;
                     ++_count;
                     // 2.2. _sumLevel - sum of levels of alive group members within reward distance;
@@ -107,12 +107,12 @@ inline void KillRewarder::_InitGroupData()
                     // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
                     //      for whom victim is not gray;
                     uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
-                    if (_victim->GetLevelForTarget(member) > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
+                    if (_victim->GetLevelForTarget(member) > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->GetLevel() < lvl))
                         _maxNotGrayMember = member;
                 }
         // 2.5. _isFullXP - flag identifying that for all group members victim is not gray,
         //      so 100% XP will be rewarded (50% otherwise).
-        _isFullXP = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember->getLevel());
+        _isFullXP = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember->GetLevel());
     }
     else
         _count = 1;
@@ -145,7 +145,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
         if (_maxNotGrayMember && player->IsAlive() &&
-            _maxNotGrayMember->getLevel() >= player->getLevel())
+            _maxNotGrayMember->GetLevel() >= player->GetLevel())
             xp = _isFullXP ?
             uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
             uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
@@ -180,7 +180,7 @@ inline void KillRewarder::_RewardKillCredit(Player* player)
         if (Creature* target = _victim->ToCreature())
         {
             player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID());
-            player->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE_TYPE, target->GetCreatureType(), 1, 0, target);
+            player->UpdateCriteria(CriteriaType::KillAnyCreature, target->GetCreatureType(), 1, 0, target);
         }
 }
 
@@ -193,14 +193,14 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
         _RewardHonor(player);
         // 4.1.1 Send player killcredit for quests with PlayerSlain
         if (_victim->GetTypeId() == TYPEID_PLAYER)
-            player->KilledPlayerCredit();
+            player->KilledPlayerCredit(_victim->GetGUID());
     }
     // Give XP only in PvE or in battlegrounds.
     // Give reputation and kill credit only in PvE.
     if (!_isPvP || _isBattleGround)
     {
         float const rate = _group ?
-            _groupRate * float(player->getLevel()) / _sumLevel : // Group rate depends on summary level.
+            _groupRate * float(player->GetLevel()) / _sumLevel : // Group rate depends on summary level.
             1.0f;                                                // Personal rate is 100%.
         if (_xp)
             // 4.2. Give XP.
@@ -244,7 +244,6 @@ void KillRewarder::_RewardGroup()
                     if (_killer == member || member->IsAtGroupRewardDistance(_victim))
                     {
                         _RewardPlayer(member, isDungeon);
-                        member->UpdateCriteria(CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
                     }
                 }
             }
@@ -282,9 +281,9 @@ void KillRewarder::Reward()
 
         if (ObjectGuid::LowType guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                guild->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+                guild->UpdateCriteria(CriteriaType::KillCreature, victim->GetEntry(), 1, 0, victim, _killer);
 
         if (Scenario* scenario = victim->GetScenario())
-            scenario->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+            scenario->UpdateCriteria(CriteriaType::KillCreature, victim->GetEntry(), 1, 0, victim, _killer);
     }
 }

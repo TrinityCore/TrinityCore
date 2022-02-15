@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "UpdateData.h"
 #include "Player.h"
+#include <sstream>
 
 Bag::Bag(): Item()
 {
@@ -98,13 +99,13 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, ItemContext context
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
         SetSlot(i, ObjectGuid::Empty);
-        m_bagslot[i] = NULL;
+        m_bagslot[i] = nullptr;
     }
 
     return true;
 }
 
-void Bag::SaveToDB(CharacterDatabaseTransaction& trans)
+void Bag::SaveToDB(CharacterDatabaseTransaction trans)
 {
     Item::SaveToDB(trans);
 }
@@ -121,13 +122,13 @@ bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fie
     {
         SetSlot(i, ObjectGuid::Empty);
         delete m_bagslot[i];
-        m_bagslot[i] = NULL;
+        m_bagslot[i] = nullptr;
     }
 
     return true;
 }
 
-void Bag::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void Bag::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
         if (m_bagslot[i])
@@ -151,9 +152,9 @@ void Bag::RemoveItem(uint8 slot, bool /*update*/)
     ASSERT(slot < MAX_BAG_SIZE);
 
     if (m_bagslot[slot])
-        m_bagslot[slot]->SetContainer(NULL);
+        m_bagslot[slot]->SetContainer(nullptr);
 
-    m_bagslot[slot] = NULL;
+    m_bagslot[slot] = nullptr;
     SetSlot(slot, ObjectGuid::Empty);
 }
 
@@ -161,7 +162,7 @@ void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
 {
     ASSERT(slot < MAX_BAG_SIZE);
 
-    if (pItem && pItem->GetGUID() != this->GetGUID())
+    if (pItem && pItem->GetGUID() != GetGUID())
     {
         m_bagslot[slot] = pItem;
         SetSlot(slot, pItem->GetGUID());
@@ -263,47 +264,10 @@ bool Bag::IsEmpty() const
     return true;
 }
 
-uint32 Bag::GetItemCount(uint32 item, Item* eItem) const
-{
-    Item* pItem;
-    uint32 count = 0;
-    for (uint32 i=0; i < GetBagSize(); ++i)
-    {
-        pItem = m_bagslot[i];
-        if (pItem && pItem != eItem && pItem->GetEntry() == item)
-            count += pItem->GetCount();
-    }
-
-    if (eItem && eItem->GetTemplate()->GetGemProperties())
-    {
-        for (uint32 i=0; i < GetBagSize(); ++i)
-        {
-            pItem = m_bagslot[i];
-            if (pItem && pItem != eItem && pItem->GetSocketColor(0))
-                count += pItem->GetGemCountWithID(item);
-        }
-    }
-
-    return count;
-}
-
-uint32 Bag::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) const
-{
-    uint32 count = 0;
-    for (uint32 i = 0; i < GetBagSize(); ++i)
-        if (Item* pItem = m_bagslot[i])
-            if (pItem != skipItem)
-                if (ItemTemplate const* pProto = pItem->GetTemplate())
-                    if (pProto->GetItemLimitCategory() == limitCategory)
-                        count += m_bagslot[i]->GetCount();
-
-    return count;
-}
-
 uint8 Bag::GetSlotByItemGUID(ObjectGuid guid) const
 {
     for (uint32 i = 0; i < GetBagSize(); ++i)
-        if (m_bagslot[i] != 0)
+        if (m_bagslot[i] != nullptr)
             if (m_bagslot[i]->GetGUID() == guid)
                 return i;
 
@@ -315,5 +279,22 @@ Item* Bag::GetItemByPos(uint8 slot) const
     if (slot < GetBagSize())
         return m_bagslot[slot];
 
-    return NULL;
+    return nullptr;
+}
+
+std::string Bag::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Item::GetDebugInfo();
+    return sstr.str();
+}
+
+uint32 GetBagSize(Bag const* bag)
+{
+    return bag->GetBagSize();
+}
+
+Item* GetItemInBag(Bag const* bag, uint8 slot)
+{
+    return bag->GetItemByPos(slot);
 }

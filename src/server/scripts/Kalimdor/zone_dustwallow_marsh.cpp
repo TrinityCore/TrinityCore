@@ -26,10 +26,9 @@ EndScriptData */
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "MotionMaster.h"
 #include "Player.h"
 #include "QuestDef.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -53,7 +52,7 @@ public:
     {
         npc_nat_pagleAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -63,14 +62,14 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (me->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
             {
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
                 SendGossipMenuFor(player, 7640, me->GetGUID());
             }
             else
@@ -84,144 +83,6 @@ public:
     {
         return new npc_nat_pagleAI(creature);
     }
-};
-
-/*######
-## npc_private_hendel
-######*/
-
-enum Hendel
-{
-    SAY_PROGRESS_1_TER          = 0,
-    SAY_PROGRESS_2_HEN          = 1,
-    SAY_PROGRESS_3_TER          = 2,
-    SAY_PROGRESS_4_TER          = 3,
-    EMOTE_SURRENDER             = 4,
-
-    QUEST_MISSING_DIPLO_PT16    = 1324,
-
-    NPC_SENTRY                  = 5184,                     //helps hendel
-    NPC_JAINA                   = 4968,                     //appears once hendel gives up
-    NPC_TERVOSH                 = 4967
-};
-
-/// @todo develop this further, end event not created
-class npc_private_hendel : public CreatureScript
-{
-public:
-    npc_private_hendel() : CreatureScript("npc_private_hendel") { }
-
-    struct npc_private_hendelAI : public ScriptedAI
-    {
-        npc_private_hendelAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            me->RestoreFaction();
-        }
-
-        void DamageTaken(Unit* pDoneBy, uint32 &Damage) override
-        {
-            if (Damage > me->GetHealth() || me->HealthBelowPctDamaged(20, Damage))
-            {
-                Damage = 0;
-
-                if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
-
-                Talk(EMOTE_SURRENDER);
-                EnterEvadeMode();
-            }
-        }
-
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-                me->SetFaction(FACTION_ENEMY);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_private_hendelAI(creature);
-    }
-};
-
-/*######
-## npc_zelfrax
-######*/
-
-Position const MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
-
-enum Zelfrax
-{
-    SAY_ZELFRAX1     = 0,
-    SAY_ZELFRAX2     = 1
-};
-
-class npc_zelfrax : public CreatureScript
-{
-public:
-    npc_zelfrax() : CreatureScript("npc_zelfrax") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_zelfraxAI(creature);
-    }
-
-    struct npc_zelfraxAI : public ScriptedAI
-    {
-        npc_zelfraxAI(Creature* creature) : ScriptedAI(creature)
-        {
-            MoveToDock();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-
-                if (IsCombatMovementAllowed())
-                    me->GetMotionMaster()->MoveChase(who);
-            }
-        }
-
-        void MovementInform(uint32 Type, uint32 /*Id*/) override
-        {
-            if (Type != POINT_MOTION_TYPE)
-                return;
-
-            me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            SetCombatMovement(true);
-
-            if (me->IsInCombat())
-                if (Unit* unit = me->GetVictim())
-                    me->GetMotionMaster()->MoveChase(unit);
-        }
-
-        void MoveToDock()
-        {
-            SetCombatMovement(false);
-            me->GetMotionMaster()->MovePoint(0, MovePosition);
-            Talk(SAY_ZELFRAX1);
-            Talk(SAY_ZELFRAX2);
-        }
-
-        void UpdateAI(uint32 /*Diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
 };
 
 enum SpellScripts
@@ -241,14 +102,14 @@ class spell_ooze_zap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ooze_zap_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ SPELL_OOZE_ZAP });
+                return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_OOZE_ZAP });
             }
 
             SpellCastResult CheckRequirement()
             {
-                if (!GetCaster()->HasAura(GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue()))
+                if (!GetCaster()->HasAura(GetEffectInfo(EFFECT_1).CalcValue()))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; // This is actually correct
 
                 if (!GetExplTargetUnit())
@@ -329,7 +190,7 @@ class spell_energize_aoe : public SpellScriptLoader
             {
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue()) == QUEST_STATUS_INCOMPLETE)
+                    if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetEffectInfo(EFFECT_1).CalcValue()) == QUEST_STATUS_INCOMPLETE)
                         ++itr;
                     else
                         targets.erase(itr++);

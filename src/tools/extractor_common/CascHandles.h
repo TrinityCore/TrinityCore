@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include <CascPort.h>
-#include <memory>
 
 namespace boost
 {
@@ -52,6 +51,8 @@ namespace CASC
 
     private:
         Storage(HANDLE handle);
+
+        bool LoadOnlineTactKeys();
 
         HANDLE _handle;
     };

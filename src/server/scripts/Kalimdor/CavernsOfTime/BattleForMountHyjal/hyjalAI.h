@@ -114,7 +114,7 @@ enum YellId
     DEATH        = 6,                                       // Used on death
 };
 
-struct hyjalAI : public npc_escortAI
+struct hyjalAI : public EscortAI
 {
     hyjalAI(Creature* creature);
 
@@ -124,7 +124,7 @@ struct hyjalAI : public npc_escortAI
 
     void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;    // Send creature back to spawn location and evade.
 
-    void EnterCombat(Unit* /*who*/) override;               // Used to reset cooldowns for our spells and to inform the raid that we're under attack
+    void JustEngagedWith(Unit* /*who*/) override;               // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 
     void UpdateAI(uint32 diff) override;                    // Called to summon waves, check for boss deaths and to cast our spells.
 
@@ -143,7 +143,7 @@ struct hyjalAI : public npc_escortAI
     void SummonedCreatureDespawn(Creature* summoned) override;
     void HideNearPos(float x, float y);
     void RespawnNearPos(float x, float y);
-    void WaypointReached(uint32 waypointId) override;
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override;
     void DoOverrun(uint32 faction, const uint32 diff);
     void MoveInLineOfSight(Unit* who) override;
 
@@ -203,6 +203,5 @@ struct hyjalAI : public npc_escortAI
 
     private:
         uint32 SpellTimer[3];
-        //std::list<uint64> CreatureList;
 };
 #endif

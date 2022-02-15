@@ -59,7 +59,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
 
@@ -67,6 +67,9 @@ public:
 
         void JustDied(Unit* killer) override
         {
+            if (!killer)
+                return;
+
             uint32 spawnCreatureID = 0;
 
             switch (urand(0, 2))
@@ -82,7 +85,7 @@ public:
                     break;
             }
 
-            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1min);
         }
     };
 
@@ -250,17 +253,21 @@ public:
             me->SetDisplayFromModel(1);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_UPPERCUT,      15 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_IMMOLATE,      10 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_UPPERCUT, 15s);
+            _events.ScheduleEvent(EVENT_IMMOLATE, 10s);
+            _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5s);
         }
 
         void JustDied(Unit* killer) override
         {
             me->SetObjectScale(1.0f);
             _events.Reset();
+
+            if (!killer)
+                return;
+
             if (Creature* legoso = me->FindNearestCreature(NPC_LEGOSO, SIZE_OF_GRIDS))
             {
                 Group* group = me->GetLootRecipientGroup();
@@ -285,15 +292,15 @@ public:
                 {
                     case EVENT_UPPERCUT:
                         DoCastVictim(SPELL_UPPERCUT);
-                        _events.ScheduleEvent(EVENT_UPPERCUT, urand(10, 12) * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_UPPERCUT, 10s, 12s);
                         break;
                     case EVENT_IMMOLATE:
                         DoCastVictim(SPELL_IMMOLATE);
-                        _events.ScheduleEvent(EVENT_IMMOLATE, urand(15, 20) * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_IMMOLATE, 15s, 20s);
                         break;
                     case EVENT_CURSE_OF_BLOOD:
                         DoCastVictim(SPELL_CURSE_OF_BLOOD);
-                        _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(20, 25) * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 20s, 25s);
                         break;
                     default:
                         break;
@@ -323,8 +330,11 @@ public:
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLOODMYST_TESLA_COIL, 500.0f);
                     if (!creatureList.empty())
+                    {
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                             (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
+                    }
+                    break;
                 }
                 default:
                     break;
@@ -350,9 +360,9 @@ class npc_demolitionist_legoso : public CreatureScript
 public:
     npc_demolitionist_legoso() : CreatureScript("npc_demolitionist_legoso") { }
 
-    struct npc_demolitionist_legosoAI : public npc_escortAI
+    struct npc_demolitionist_legosoAI : public EscortAI
     {
-        npc_demolitionist_legosoAI(Creature* creature) : npc_escortAI(creature)
+        npc_demolitionist_legosoAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -363,7 +373,7 @@ public:
             _moveTimer = 0;
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
             {
@@ -380,7 +390,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 type) override
         {
             switch (type)
             {
@@ -397,10 +407,10 @@ public:
             me->SetCanDualWield(true);
             Initialize();
             _events.Reset();
-            _events.ScheduleEvent(EVENT_FROST_SHOCK, 1 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_HEALING_SURGE, 5 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 15 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 20 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_FROST_SHOCK, 1s);
+            _events.ScheduleEvent(EVENT_HEALING_SURGE, 5s);
+            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 15s);
+            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 20s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -415,22 +425,22 @@ public:
                     {
                         case EVENT_FROST_SHOCK:
                             DoCastVictim(SPELL_FROST_SHOCK);
-                            _events.DelayEvents(1 * IN_MILLISECONDS);
-                            _events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10, 15) * IN_MILLISECONDS);
+                            _events.DelayEvents(1s);
+                            _events.ScheduleEvent(EVENT_FROST_SHOCK, 10s, 15s);
                             break;
                         case EVENT_SEARING_TOTEM:
                             DoCast(me, SPELL_SEARING_TOTEM);
-                            _events.DelayEvents(1 * IN_MILLISECONDS);
-                            _events.ScheduleEvent(EVENT_SEARING_TOTEM, urand(110, 130) * IN_MILLISECONDS);
+                            _events.DelayEvents(1s);
+                            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 110s, 130s);
                             break;
                         case EVENT_STRENGTH_OF_EARTH_TOTEM:
                             DoCast(me, SPELL_STRENGTH_OF_EARTH_TOTEM);
-                            _events.DelayEvents(1 * IN_MILLISECONDS);
-                            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, urand(110, 130) * IN_MILLISECONDS);
+                            _events.DelayEvents(1s);
+                            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 110s, 130s);
                             break;
                         case EVENT_HEALING_SURGE:
                         {
-                            Unit* target = NULL;
+                            Unit* target = nullptr;
                             if (me->GetHealthPct() < 85)
                                 target = me;
                             else if (Player* player = GetPlayerForEscort())
@@ -439,10 +449,10 @@ public:
                             if (target)
                             {
                                 DoCast(target, SPELL_HEALING_SURGE);
-                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 10 * IN_MILLISECONDS);
+                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 10s);
                             }
                             else
-                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 2 * IN_MILLISECONDS);
+                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 2s);
                             break;
                         }
                         default:
@@ -456,7 +466,7 @@ public:
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (_phase)
             {
@@ -499,7 +509,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -595,7 +605,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             Talk(SAY_LEGOSO_15);
@@ -630,7 +640,7 @@ public:
                             _explosivesGuids.clear();
                             if (Creature* sironas = me->FindNearestCreature(NPC_SIRONAS, SIZE_OF_GRIDS))
                             {
-                                sironas->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                sironas->SetImmuneToAll(false);
                                 me->SetFacingToObject(sironas);
                             }
                             _moveTimer = 1 * IN_MILLISECONDS;
@@ -662,7 +672,7 @@ public:
                                 if (!target)
                                     target = me;
 
-                                target->AddThreat(sironas, 0.001f);
+                                AddThreat(sironas, 0.001f, target);
                                 sironas->Attack(target, true);
                                 sironas->GetMotionMaster()->MoveChase(target);
                             }
@@ -700,7 +710,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -740,7 +750,7 @@ public:
                     SetEscortPaused(true);
 
                     //Find Sironas and make it respawn if needed
-                    Creature* sironas = NULL;
+                    Creature* sironas = nullptr;
                     Trinity::AllCreaturesOfEntryInRange check(me, NPC_SIRONAS, SIZE_OF_GRIDS);
                     Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, sironas, check);
                     Cell::VisitAllObjects(me, searcher, SIZE_OF_GRIDS);

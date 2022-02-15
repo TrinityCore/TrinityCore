@@ -19,10 +19,10 @@
 #define TRINITYCORE_CHAT_H
 
 #include "ObjectGuid.h"
-#include "SharedDefines.h"
 #include "StringFormat.h"
 #include <vector>
 
+class ChatCommand;
 class ChatHandler;
 class Creature;
 class GameObject;
@@ -36,33 +36,19 @@ struct GameTele;
 
 enum LocaleConstant : uint8;
 
-class TC_GAME_API ChatCommand
-{
-    typedef bool(*pHandler)(ChatHandler*, char const*);
-
-    public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
-
-        char const* Name;
-        uint32 Permission;                   // function pointer required correct align (use uint32)
-        bool AllowConsole;
-        pHandler Handler;
-        std::string Help;
-        std::vector<ChatCommand> ChildCommands;
-};
-
 class TC_GAME_API ChatHandler
 {
     public:
         WorldSession* GetSession() { return m_session; }
+        Player* GetPlayer();
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
+        static char* LineFromMessage(char*& pos);
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
-        virtual void SendSysMessage(char const* str, bool escapeCharacters = false);
+        virtual void SendSysMessage(std::string_view str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
 
@@ -84,18 +70,20 @@ class TC_GAME_API ChatHandler
             return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
-        bool ParseCommands(const char* text);
+        bool _ParseCommands(char const* text);
+        virtual bool ParseCommands(char const* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
+        static void InitializeCommandTable();
         static void invalidateCommandTable();
 
-        bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(const char* name, const char* part);
 
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
+        virtual bool IsHumanReadable() const { return true; }
         virtual bool HasPermission(uint32 permission) const;
         virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
@@ -106,29 +94,24 @@ class TC_GAME_API ChatHandler
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalGMSysMessage(const char *str);
-        Player*   getSelectedPlayer();
+        Player* getSelectedPlayer();
         Creature* getSelectedCreature();
-        Unit*     getSelectedUnit();
+        Unit* getSelectedUnit();
         WorldObject* getSelectedObject();
         // Returns either the selected player or self if there is no selected player
-        Player*   getSelectedPlayerOrSelf();
+        Player* getSelectedPlayerOrSelf();
 
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
-
-        // if args have single value then it return in arg2 and arg1 == nullptr
-        void      extractOptFirstArg(char* args, char** arg1, char** arg2);
-        char*     extractQuotedArg(char* args);
-
-        uint32    extractSpellIdFromLink(char* text);
+        char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
+        char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
+        char* extractQuotedArg(char* args);
+        uint32 extractSpellIdFromLink(char* text);
         ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
-        GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
         bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
 
-        std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
+        std::string playerLink(std::string const& name) const;
         std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
@@ -154,14 +137,15 @@ class TC_GAME_API ChatHandler
 class TC_GAME_API CliHandler : public ChatHandler
 {
     public:
-        typedef void Print(void*, char const*);
+        using Print = void(void*, std::string_view);
         explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
 
         // overwrite functions
         char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str, bool escapeCharacters) override;
+        void SendSysMessage(std::string_view, bool escapeCharacters) override;
+        bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
@@ -170,6 +154,28 @@ class TC_GAME_API CliHandler : public ChatHandler
     private:
         void* m_callbackArg;
         Print* m_print;
+};
+
+class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
+{
+    public:
+        static std::string const PREFIX;
+
+        using ChatHandler::ChatHandler;
+        bool ParseCommands(char const* str) override;
+        void SendSysMessage(std::string_view, bool escapeCharacters) override;
+        using ChatHandler::SendSysMessage;
+        bool IsHumanReadable() const override { return humanReadable; }
+
+    private:
+        void Send(std::string const& msg);
+        void SendAck();
+        void SendOK();
+        void SendFailed();
+
+        char const* echo = nullptr;
+        bool hadAck = false;
+        bool humanReadable = false;
 };
 
 #endif

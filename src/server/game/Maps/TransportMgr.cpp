@@ -16,7 +16,9 @@
  */
 
 #include "TransportMgr.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -27,13 +29,16 @@
 #include "Spline.h"
 #include "Transport.h"
 
-TransportTemplate::~TransportTemplate()
+bool KeyFrame::IsStopFrame() const
 {
+    return (Node->Flags & TAXI_PATH_NODE_FLAG_STOP) != 0;
 }
 
-TransportMgr::TransportMgr() { }
+TransportTemplate::~TransportTemplate() = default;
 
-TransportMgr::~TransportMgr() { }
+TransportMgr::TransportMgr() = default;
+
+TransportMgr::~TransportMgr() = default;
 
 TransportMgr* TransportMgr::instance()
 {
@@ -65,7 +70,7 @@ void TransportMgr::LoadTransportTemplates()
         Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
-        if (goInfo == NULL)
+        if (goInfo == nullptr)
         {
             TC_LOG_ERROR("sql.sql", "Transport %u has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
             continue;
@@ -102,6 +107,83 @@ void TransportMgr::LoadTransportAnimationAndRotation()
 
     for (TransportRotationEntry const* rot : sTransportRotationStore)
         AddPathRotationToTransport(rot->GameObjectsID, rot->TimeIndex, rot);
+}
+
+void TransportMgr::LoadTransportSpawns()
+{
+    if (_transportTemplates.empty())
+        return;
+
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
+
+    uint32 count = 0;
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            ObjectGuid::LowType guid = fields[0].GetUInt64();
+            uint32 entry = fields[1].GetUInt32();
+            uint8 phaseUseFlags = fields[2].GetUInt8();
+            uint32 phaseId = fields[3].GetUInt32();
+            uint32 phaseGroupId = fields[4].GetUInt32();
+
+            if (!GetTransportTemplate(entry))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown gameobject `entry` set, skipped.", guid, entry);
+                continue;
+            }
+
+            if (phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
+                phaseUseFlags &= PHASE_USE_FLAGS_ALL;
+            }
+
+            if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
+                    " removing PHASE_USE_FLAGS_INVERSE.", guid, entry);
+                phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
+            }
+
+            if (phaseGroupId && phaseId)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
+                phaseGroupId = 0;
+            }
+
+            if (phaseId)
+            {
+                if (!sPhaseStore.LookupEntry(phaseId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
+                    phaseId = 0;
+                }
+            }
+
+            if (phaseGroupId)
+            {
+                if (!sDB2Manager.GetPhasesForGroup(phaseGroupId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
+                    phaseGroupId = 0;
+                }
+            }
+
+            TransportSpawn& spawn = _transportSpawns[guid];
+            spawn.SpawnId = guid;
+            spawn.TransportGameObjectId = entry;
+            spawn.PhaseUseFlags = phaseUseFlags;
+            spawn.PhaseId = phaseId;
+            spawn.PhaseGroup = phaseGroupId;
+
+        } while (result->NextRow());
+    }
+
+    TC_LOG_INFO("server.loading", ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 class SplineRawInitializer
@@ -376,14 +458,14 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
                 entry = instance->GetGameObjectEntry(0, entry);
 
         if (!entry)
-            return NULL;
+            return nullptr;
     }
 
     TransportTemplate const* tInfo = GetTransportTemplate(entry);
     if (!tInfo)
     {
         TC_LOG_ERROR("sql.sql", "Transport %u will not be loaded, `transport_template` missing", entry);
-        return NULL;
+        return nullptr;
     }
 
     // create transport...
@@ -402,7 +484,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
     if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;
-        return NULL;
+        return nullptr;
     }
 
     PhasingHandler::InitDbPhaseShift(trans->GetPhaseShift(), phaseUseFlags, phaseId, phaseGroupId);
@@ -413,12 +495,12 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
         {
             TC_LOG_ERROR("entities.transport", "Transport %u (name: %s) attempted creation in instance map (id: %u) but it is not an instanced transport!", entry, trans->GetName().c_str(), mapId);
             delete trans;
-            return NULL;
+            return nullptr;
         }
     }
 
     // use preset map for instances (need to know which instance)
-    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, NULL));
+    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, nullptr));
     if (map && map->IsDungeon())
         trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
 
@@ -430,84 +512,43 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
 
 void TransportMgr::SpawnContinentTransports()
 {
-    if (_transportTemplates.empty())
-        return;
-
     uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
-
     uint32 count = 0;
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            ObjectGuid::LowType guid = fields[0].GetUInt64();
-            uint32 entry = fields[1].GetUInt32();
-            uint8 phaseUseFlags = fields[2].GetUInt8();
-            uint32 phaseId = fields[3].GetUInt32();
-            uint32 phaseGroupId = fields[4].GetUInt32();
 
-            if (phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
-            {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
-                phaseUseFlags &= PHASE_USE_FLAGS_ALL;
-            }
-
-            if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
-            {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
-                    " removing PHASE_USE_FLAGS_INVERSE.", guid, entry);
-                phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
-            }
-
-            if (phaseGroupId && phaseId)
-            {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
-                phaseGroupId = 0;
-            }
-
-            if (phaseId)
-            {
-                if (!sPhaseStore.LookupEntry(phaseId))
-                {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
-                    phaseId = 0;
-                }
-            }
-
-            if (phaseGroupId)
-            {
-                if (!sDB2Manager.GetPhasesForGroup(phaseGroupId))
-                {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
-                    phaseGroupId = 0;
-                }
-            }
-
-            if (TransportTemplate const* tInfo = GetTransportTemplate(entry))
-                if (!tInfo->inInstance)
-                    if (CreateTransport(entry, guid, nullptr, phaseUseFlags, phaseId, phaseGroupId))
-                        ++count;
-
-        } while (result->NextRow());
-    }
+    for (auto itr = _transportSpawns.begin(); itr != _transportSpawns.end(); ++itr)
+        if (!ASSERT_NOTNULL(GetTransportTemplate(itr->second.TransportGameObjectId))->inInstance)
+            if (CreateTransport(itr->second.TransportGameObjectId, itr->second.SpawnId, nullptr, itr->second.PhaseUseFlags, itr->second.PhaseId, itr->second.PhaseGroup))
+                ++count;
 
     TC_LOG_INFO("server.loading", ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void TransportMgr::CreateInstanceTransports(Map* map)
 {
-    TransportInstanceMap::const_iterator mapTransports = _instanceTransports.find(map->GetId());
+    auto mapTransports = _instanceTransports.find(map->GetId());
 
     // no transports here
-    if (mapTransports == _instanceTransports.end() || mapTransports->second.empty())
+    if (mapTransports == _instanceTransports.end())
         return;
 
     // create transports
-    for (std::set<uint32>::const_iterator itr = mapTransports->second.begin(); itr != mapTransports->second.end(); ++itr)
-        CreateTransport(*itr, UI64LIT(0), map);
+    for (uint32 transportGameObjectId : mapTransports->second)
+        CreateTransport(transportGameObjectId, UI64LIT(0), map);
+}
+
+TransportTemplate const* TransportMgr::GetTransportTemplate(uint32 entry) const
+{
+    return Trinity::Containers::MapGetValuePtr(_transportTemplates, entry);
+}
+
+TransportAnimation const* TransportMgr::GetTransportAnimInfo(uint32 entry) const
+{
+    return Trinity::Containers::MapGetValuePtr(_transportAnimations, entry);
+}
+
+TransportSpawn const* TransportMgr::GetTransportSpawn(ObjectGuid::LowType spawnId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_transportSpawns, spawnId);
 }
 
 TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const

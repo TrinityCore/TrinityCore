@@ -20,6 +20,7 @@
 #include "BattlenetRpcErrorCodes.h"
 #include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
+#include "DisableMgr.h"
 #include "GameTime.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
@@ -34,7 +35,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 
     if (code == ERROR_OK)
     {
-        response.SuccessInfo = boost::in_place();
+        response.SuccessInfo.emplace();
 
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
@@ -49,11 +50,15 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
                 response.SuccessInfo->Templates.push_back(&templ.second);
 
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+
+        // TEMPORARY - prevent creating characters in uncompletable zone
+        // This has the side effect of disabling Exile's Reach choice clientside without actually forcing character templates
+        response.SuccessInfo->ForceCharacterTemplate = DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, 2175 /*Exile's Reach*/, nullptr);
     }
 
     if (queued)
     {
-        response.WaitInfo = boost::in_place();
+        response.WaitInfo.emplace();
         response.WaitInfo->WaitCount = queuePos;
     }
 
@@ -102,6 +107,16 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.MaxCharactersPerRealm = sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM);
     features.MinimumExpansionLevel = EXPANSION_CLASSIC;
     features.MaximumExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
+
+    features.EuropaTicketSystemStatus.emplace();
+    features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
+    features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
+    features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
+    features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
+    features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
+    features.EuropaTicketSystemStatus->BugsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED);
+    features.EuropaTicketSystemStatus->ComplaintsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED);
+    features.EuropaTicketSystemStatus->SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
 
     SendPacket(features.Write());
 }

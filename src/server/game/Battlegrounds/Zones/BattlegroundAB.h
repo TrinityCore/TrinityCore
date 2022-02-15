@@ -245,11 +245,11 @@ const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 89
 // x, y, z, o
 const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
 {
-    {1185.71f, 1185.24f, -56.36f, 2.56f},                   // stables
-    {990.75f, 1008.18f, -42.60f, 2.43f},                    // blacksmith
-    {817.66f, 843.34f, -56.54f, 3.01f},                     // farm
-    {807.46f, 1189.16f, 11.92f, 5.44f},                     // lumber mill
-    {1146.62f, 816.94f, -98.49f, 6.14f}                     // gold mine
+    {1185.566f, 1184.629f, -56.36329f, 2.303831f},         // stables
+    {990.1131f, 1008.73f,  -42.60328f, 0.8203033f},         // blacksmith
+    {818.0089f, 842.3543f, -56.54062f, 3.176533f},         // farm
+    {808.8463f, 1185.417f,  11.92161f, 5.619962f},         // lumber mill
+    {1147.091f, 816.8362f, -98.39896f, 6.056293f}          // gold mine
 };
 
 Position const BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT] =
@@ -293,7 +293,7 @@ struct BattlegroundABScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
@@ -322,7 +322,7 @@ class BattlegroundAB : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         /* Scorekeeping */
@@ -360,13 +360,13 @@ class BattlegroundAB : public Battleground
         uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
         BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
         uint32              m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_lastTick[BG_TEAMS_COUNT];
-        uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
-        uint32              m_ReputationScoreTics[BG_TEAMS_COUNT];
+        uint32              m_lastTick[PVP_TEAMS_COUNT];
+        uint32              m_HonorScoreTics[PVP_TEAMS_COUNT];
+        uint32              m_ReputationScoreTics[PVP_TEAMS_COUNT];
         bool                m_IsInformedNearVictory;
         uint32              m_HonorTics;
         uint32              m_ReputationTics;
         // need for achievements
-        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool                m_TeamScores500Disadvantage[PVP_TEAMS_COUNT];
 };
 #endif

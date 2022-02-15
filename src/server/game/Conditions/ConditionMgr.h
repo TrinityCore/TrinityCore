@@ -23,6 +23,7 @@
 #include <array>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 class Creature;
@@ -32,6 +33,7 @@ class WorldObject;
 class LootTemplate;
 struct Condition;
 struct PlayerConditionEntry;
+struct UnitConditionEntry;
 struct WorldStateExpressionEntry;
 enum class PlayerConditionLfgStatus : uint8;
 
@@ -102,10 +104,12 @@ enum ConditionTypes
     CONDITION_PET_TYPE                 = 45,                   // mask             0              0                  true if player has a pet of given type(s)
     CONDITION_TAXI                     = 46,                   // 0                0              0                  true if player is on taxi
     CONDITION_QUESTSTATE               = 47,                   // quest_id         state_mask     0                  true if player is in any of the provided quest states for the quest (1 = not taken, 2 = completed, 8 = in progress, 32 = failed, 64 = rewarded)
-    CONDITION_QUEST_OBJECTIVE_COMPLETE = 48,                   // ID               0              0                  true if player has ID objective complete, but quest not yet rewarded
+    CONDITION_QUEST_OBJECTIVE_PROGRESS = 48,                   // ID               0              0                  true if player has ID objective complete, but quest not yet rewarded
     CONDITION_DIFFICULTY_ID            = 49,                   // Difficulty       0              0                  true is map has difficulty id
+    CONDITION_GAMEMASTER               = 50,                   // canBeGM          0              0                  true if player is gamemaster (or can be gamemaster)
     CONDITION_OBJECT_ENTRY_GUID        = 51,                   // TypeID           entry          guid               true if object is type TypeID and the entry is 0 or matches entry of the object or matches guid of the object
     CONDITION_TYPE_MASK                = 52,                   // TypeMask         0              0                  true if object is type object's TypeMask matches provided TypeMask
+    CONDITION_BATTLE_PET_COUNT         = 53,                   // SpecieId         count          ComparisonType     true if player has `count` of battle pet species
     CONDITION_MAX
 };
 
@@ -168,7 +172,12 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25,
     CONDITION_SOURCE_TYPE_PHASE                          = 26,
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27,
-    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
+    CONDITION_SOURCE_TYPE_AREATRIGGER                    = 28,
+    CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29,
+    CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30,
+    CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31,
+    CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32,
+    CONDITION_SOURCE_TYPE_MAX                            = 33  // MAX
 };
 
 enum RelationType
@@ -259,6 +268,7 @@ typedef std::array<ConditionsByEntryMap, CONDITION_SOURCE_TYPE_MAX> ConditionEnt
 typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
 typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
 typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
+typedef std::unordered_map<std::pair<int32, bool>, ConditionContainer> ConditionEntriesByAreaTriggerIdMap;
 
 class TC_GAME_API ConditionMgr
 {
@@ -287,9 +297,16 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
 
+        bool IsSpellUsedInSpellClickConditions(uint32 spellId) const;
+
+        ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
+        bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
+        bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject* seer) const;
+
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
         static bool IsPlayerMeetingExpression(Player const* player, WorldStateExpressionEntry const* expression);
+        static bool IsUnitMeetingCondition(Unit const* unit, Unit const* otherUnit, UnitConditionEntry const* condition);
 
         struct ConditionTypeInfo
         {
@@ -321,6 +338,11 @@ class TC_GAME_API ConditionMgr
         ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
         ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
         SmartEventConditionContainer    SmartEventConditionStore;
+
+        std::unordered_set<uint32> SpellsUsedInSpellClickConditions;
+        ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
+        ConditionEntriesByCreatureIdMap TrainerSpellConditionContainerStore;
+        std::unordered_map<std::pair<uint32 /*object type*/, uint32 /*object id*/>, ConditionContainer> ObjectVisibilityConditionStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()

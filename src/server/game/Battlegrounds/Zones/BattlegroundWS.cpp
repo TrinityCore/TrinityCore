@@ -17,7 +17,6 @@
 
 #include "BattlegroundWS.h"
 #include "BattlegroundMgr.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
@@ -194,29 +193,6 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const
-{
-    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeepers[TEAM_ALLIANCE]))
-    {
-        WorldPackets::Battleground::BattlegroundPlayerPosition position;
-        position.Guid = player->GetGUID();
-        position.Pos = player->GetPosition();
-        position.IconID = PLAYER_POSITION_ICON_ALLIANCE_FLAG;
-        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
-        positions->push_back(position);
-    }
-
-    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeepers[TEAM_HORDE]))
-    {
-        WorldPackets::Battleground::BattlegroundPlayerPosition position;
-        position.Guid = player->GetGUID();
-        position.Pos = player->GetPosition();
-        position.IconID = PLAYER_POSITION_ICON_HORDE_FLAG;
-        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
-        positions->push_back(position);
-    }
-}
-
 void BattlegroundWS::StartingEventCloseDoors()
 {
     for (uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_H_4; ++i)
@@ -247,7 +223,7 @@ void BattlegroundWS::StartingEventOpenDoors()
     SpawnBGObject(BG_WS_OBJECT_DOOR_H_4, RESPAWN_ONE_DAY);
 
     // players joining later are not eligibles
-    StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
+    StartCriteriaTimer(CriteriaStartEvent::SendEvent, WS_EVENT_START_BATTLE);
 }
 
 void BattlegroundWS::AddPlayer(Player* player)
@@ -310,7 +286,7 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* player)
 
     uint32 winner = 0;
 
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
     if (player->GetTeam() == ALLIANCE)
     {
         if (!IsHordeFlagPickedup())
@@ -497,7 +473,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
         UpdateFlagState(HORDE, BG_WS_FLAG_STATE_ON_PLAYER);
         UpdateWorldState(BG_WS_FLAG_UNK_ALLIANCE, 1);
         player->CastSpell(player, BG_WS_SPELL_SILVERWING_FLAG, true);
-        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
+        player->StartCriteriaTimer(CriteriaStartEvent::BeSpellTarget, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
         if (_flagState[1] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
     }
@@ -515,7 +491,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
         UpdateFlagState(ALLIANCE, BG_WS_FLAG_STATE_ON_PLAYER);
         UpdateWorldState(BG_WS_FLAG_UNK_HORDE, 1);
         player->CastSpell(player, BG_WS_SPELL_WARSONG_FLAG, true);
-        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_WARSONG_FLAG_PICKED);
+        player->StartCriteriaTimer(CriteriaStartEvent::BeSpellTarget, BG_WS_SPELL_WARSONG_FLAG_PICKED);
         if (_flagState[0] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
     }
@@ -586,7 +562,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
         //target_obj->Delete();
     }
 
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
 }
 
 void BattlegroundWS::RemovePlayer(Player* player, ObjectGuid guid, uint32 /*team*/)
@@ -803,10 +779,10 @@ bool BattlegroundWS::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     switch (type)
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_CAPTURE_FLAG);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, WS_OBJECTIVE_CAPTURE_FLAG);
             break;
         case SCORE_FLAG_RETURNS:                            // flags returned
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_RETURN_FLAG);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, WS_OBJECTIVE_RETURN_FLAG);
             break;
         default:
             break;
@@ -814,7 +790,7 @@ bool BattlegroundWS::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     return true;
 }
 
-WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveyard(Player* player)
 {
     //if status in progress, it returns main graveyards with spiritguides
     //else it will return the graveyard in the flagroom - this is especially good
@@ -844,42 +820,42 @@ WorldSafeLocsEntry const* BattlegroundWS::GetExploitTeleportLocation(Team team)
 
 void BattlegroundWS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_CAPTURES_ALLIANCE), int32(GetTeamScore(TEAM_ALLIANCE)));
-    packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_CAPTURES_HORDE), int32(GetTeamScore(TEAM_HORDE)));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_ALLIANCE, GetTeamScore(TEAM_ALLIANCE));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_HORDE, GetTeamScore(TEAM_HORDE));
 
     if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_GROUND)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_ALLIANCE), -1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, uint32(-1)); // ??
     else if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_ALLIANCE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, 1);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_ALLIANCE), 0);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, 0);
 
     if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_GROUND)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_HORDE), -1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, uint32(-1)); // ??
     else if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_HORDE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, 1);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_UNK_HORDE), 0);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, 0);
 
-    packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_CAPTURES_MAX), int32(BG_WS_MAX_TEAM_SCORE));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_MAX, BG_WS_MAX_TEAM_SCORE);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER_ACTIVE), 1);
-        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER), int32(25 - _minutesElapsed));
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 1);
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
     }
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_STATE_TIMER_ACTIVE), 0);
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 0);
 
     if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_HORDE), 2);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_HORDE, 2);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_HORDE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_HORDE, 1);
 
     if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_ALLIANCE), 2);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_ALLIANCE, 2);
     else
-        packet.Worldstates.emplace_back(uint32(BG_WS_FLAG_STATE_ALLIANCE), 1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_ALLIANCE, 1);
 }
 
 uint32 BattlegroundWS::GetPrematureWinner()

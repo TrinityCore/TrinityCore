@@ -111,12 +111,12 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                         dalliah->AI()->SetData(1, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_FELFIRE_SHOCK, urand(12000, 14000));
-                events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(11000, 12000));
-                events.ScheduleEvent(EVENT_ME_FIRST, 6000);
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 12s, 14s);
+                events.ScheduleEvent(EVENT_KNOCK_AWAY, 11s, 12s);
+                events.ScheduleEvent(EVENT_ME_FIRST, 6s);
                 Talk(SAY_AGGRO);
                 preFight = false;
             }
@@ -134,7 +134,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                     instance->SetData(DATA_CONVERSATION, DONE);
 
                     preFight = true;
-                    events.ScheduleEvent(EVENT_PREFIGHT_1, 2000);
+                    events.ScheduleEvent(EVENT_PREFIGHT_1, 2s);
                 }
             }
 
@@ -143,7 +143,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 switch (data)
                 {
                     case 1:
-                        events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6000);
+                        events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6s);
                         dalliahDeath = true;
                         break;
                     default:
@@ -166,38 +166,38 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                                 case EVENT_PREFIGHT_1:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->AI()->Talk(SAY_DALLIAH_CONVO_1);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_2, 3000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_2, 3s);
                                     break;
                                 case EVENT_PREFIGHT_2:
                                     Talk(SAY_SOCCOTHRATES_CONVO_2);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_3, 3000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_3, 3s);
                                     break;
                                 case EVENT_PREFIGHT_3:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->AI()->Talk(SAY_DALLIAH_CONVO_2);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_4, 6000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_4, 6s);
                                     break;
                                 case EVENT_PREFIGHT_4:
                                     Talk(SAY_SOCCOTHRATES_CONVO_3);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_5, 2000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_5, 2s);
                                     break;
                                 case EVENT_PREFIGHT_5:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->AI()->Talk(SAY_DALLIAH_CONVO_3);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_6, 3000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_6, 3s);
                                     break;
                                 case EVENT_PREFIGHT_6:
                                     Talk(SAY_SOCCOTHRATES_CONVO_4);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_7, 2000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_7, 2s);
                                     break;
                                 case EVENT_PREFIGHT_7:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->GetMotionMaster()->MovePoint(0, 118.6048f, 96.84852f, 22.44115f);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_8, 4000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_8, 4s);
                                     break;
                                 case EVENT_PREFIGHT_8:
                                     me->GetMotionMaster()->MovePoint(0, 122.1035f, 192.7203f, 22.44115f);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_9, 4000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_9, 4s);
                                     break;
                                 case EVENT_PREFIGHT_9:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
@@ -246,12 +246,12 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                     {
                         case EVENT_FELFIRE_SHOCK:
                             DoCastVictim(SPELL_FELFIRE_SHOCK, true);
-                            events.ScheduleEvent(EVENT_FELFIRE_SHOCK, urand(12000, 14000));
+                            events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 12s, 14s);
                             break;
                         case EVENT_KNOCK_AWAY:
                             DoCast(me, SPELL_KNOCK_AWAY);
                             Talk(SAY_KNOCK_AWAY);
-                            events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(11000, 12000));
+                            events.ScheduleEvent(EVENT_KNOCK_AWAY, 11s, 12s);
                             break;
                         case EVENT_ME_FIRST:
                             if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))

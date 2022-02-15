@@ -18,10 +18,8 @@
 #include "DynamicTree.h"
 #include "BoundingIntervalHierarchyWrapper.h"
 #include "GameObjectModel.h"
-#include "Log.h"
 #include "MapTree.h"
 #include "ModelIgnoreFlags.h"
-#include "ModelInstance.h"
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
@@ -40,20 +38,20 @@ int CHECK_TREE_PERIOD = 200;
 } // namespace
 
 template<> struct HashTrait< GameObjectModel>{
-    static size_t hashCode(const GameObjectModel& g) { return (size_t)(void*)&g; }
+    static size_t hashCode(GameObjectModel const& g) { return (size_t)(void*)&g; }
 };
 
 template<> struct PositionTrait< GameObjectModel> {
-    static void getPosition(const GameObjectModel& g, G3D::Vector3& p) { p = g.getPosition(); }
+    static void getPosition(GameObjectModel const& g, G3D::Vector3& p) { p = g.getPosition(); }
 };
 
 template<> struct BoundsTrait< GameObjectModel> {
-    static void getBounds(const GameObjectModel& g, G3D::AABox& out) { out = g.getBounds();}
-    static void getBounds2(const GameObjectModel* g, G3D::AABox& out) { out = g->getBounds();}
+    static void getBounds(GameObjectModel const& g, G3D::AABox& out) { out = g.getBounds();}
+    static void getBounds2(GameObjectModel const* g, G3D::AABox& out) { out = g->getBounds();}
 };
 
 /*
-static bool operator == (const GameObjectModel& mdl, const GameObjectModel& mdl2){
+static bool operator==(GameObjectModel const& mdl, GameObjectModel const& mdl2){
     return &mdl == &mdl2;
 }
 */
@@ -71,13 +69,13 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
     {
     }
 
-    void insert(const Model& mdl)
+    void insert(Model const& mdl)
     {
         base::insert(mdl);
         ++unbalanced_times;
     }
 
-    void remove(const Model& mdl)
+    void remove(Model const& mdl)
     {
         base::remove(mdl);
         ++unbalanced_times;
@@ -103,7 +101,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
         }
     }
 
-    TimeTrackerSmall rebalance_timer;
+    TimeTracker rebalance_timer;
     int unbalanced_times;
 };
 
@@ -114,17 +112,17 @@ DynamicMapTree::~DynamicMapTree()
     delete impl;
 }
 
-void DynamicMapTree::insert(const GameObjectModel& mdl)
+void DynamicMapTree::insert(GameObjectModel const& mdl)
 {
     impl->insert(mdl);
 }
 
-void DynamicMapTree::remove(const GameObjectModel& mdl)
+void DynamicMapTree::remove(GameObjectModel const& mdl)
 {
     impl->remove(mdl);
 }
 
-bool DynamicMapTree::contains(const GameObjectModel& mdl) const
+bool DynamicMapTree::contains(GameObjectModel const& mdl) const
 {
     return impl->contains(mdl);
 }
@@ -255,7 +253,7 @@ bool DynamicMapTree::isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 
 
 float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, PhaseShift const& phaseShift) const
 {
-    G3D::Vector3 v(x, y, z + 0.5f);
+    G3D::Vector3 v(x, y, z);
     G3D::Ray r(v, G3D::Vector3(0, 0, -1));
     DynamicTreeIntersectionCallback callback(phaseShift);
     impl->intersectZAllignedRay(r, callback, maxSearchDist);
@@ -293,11 +291,11 @@ void DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, PhaseShift 
         data.floorZ = intersectionCallBack.GetLocationInfo().ground_Z;
         uint32 liquidType = intersectionCallBack.GetLocationInfo().hitModel->GetLiquidType();
         float liquidLevel;
-        if (!reqLiquidType || (dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr(liquidType) & reqLiquidType))
+        if (!reqLiquidType || VMAP::VMapFactory::createOrGetVMapManager()->GetLiquidFlagsPtr(liquidType) & reqLiquidType)
             if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, intersectionCallBack.GetLocationInfo(), liquidLevel))
-                data.liquidInfo = boost::in_place(liquidType, liquidLevel);
+                data.liquidInfo.emplace(liquidType, liquidLevel);
 
-        data.areaInfo = boost::in_place(intersectionCallBack.GetHitModel()->GetNameSetId(),
+        data.areaInfo.emplace(intersectionCallBack.GetHitModel()->GetNameSetId(),
             intersectionCallBack.GetLocationInfo().rootId,
             intersectionCallBack.GetLocationInfo().hitModel->GetWmoID(),
             intersectionCallBack.GetLocationInfo().hitModel->GetMogpFlags());

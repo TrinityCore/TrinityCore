@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "AchievementMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Language.h"
@@ -35,8 +36,6 @@ EndScriptData */
 #include "RBAC.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
 
 class reset_commandscript : public CommandScript
 {
@@ -57,7 +56,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, NULL, "", resetCommandTable },
+            { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, nullptr, "", resetCommandTable },
         };
         return commandTable;
     }
@@ -84,17 +83,17 @@ public:
             return false;
 
         target->ResetHonorStats();
-        target->UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);
+        target->UpdateCriteria(CriteriaType::HonorableKills);
 
         return true;
     }
 
     static bool HandleResetStatsOrLevelHelper(Player* player)
     {
-        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->getClass());
+        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->GetClass());
         if (!classEntry)
         {
-            TC_LOG_ERROR("misc", "Class %u not found in DBC (Wrong DBC files?)", player->getClass());
+            TC_LOG_ERROR("misc", "Class %u not found in DBC (Wrong DBC files?)", player->GetClass());
             return false;
         }
 
@@ -104,7 +103,7 @@ public:
         if (!player->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
             player->SetShapeshiftForm(FORM_NONE);
 
-        player->setFactionForRace(player->getRace());
+        player->SetFactionForRace(player->GetRace());
         player->SetPowerType(Powers(powerType));
 
         // reset only if player not in some form;
@@ -113,7 +112,7 @@ public:
 
         player->SetPvpFlags(UNIT_BYTE2_FLAG_PVP);
 
-        player->SetUnitFlags(UNIT_FLAG_PVP_ATTACKABLE);
+        player->SetUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED);
 
         //-1 is default value
         player->SetWatchedFactionIndex(-1);
@@ -129,12 +128,10 @@ public:
         if (!HandleResetStatsOrLevelHelper(target))
             return false;
 
-        uint8 oldLevel = target->getLevel();
+        uint8 oldLevel = target->GetLevel();
 
         // set starting level
-        uint32 startLevel = target->getClass() != CLASS_DEATH_KNIGHT
-            ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
-            : sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
+        uint8 startLevel = target->GetStartLevel(target->GetRace(), target->GetClass(), {});
 
         target->_ApplyAllLevelScaleItemMods(false);
         target->SetLevel(startLevel);
@@ -302,7 +299,7 @@ public:
         stmt->setUInt16(0, uint16(atLogin));
         CharacterDatabase.Execute(stmt);
 
-        boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+        std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
         HashMapHolder<Player>::MapType const& plist = ObjectAccessor::GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
             itr->second->SetAtLoginFlag(atLogin);

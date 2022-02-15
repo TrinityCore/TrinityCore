@@ -104,9 +104,9 @@ class boss_gruul : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -122,29 +122,31 @@ class boss_gruul : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* pSpell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
                 //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
                 //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
-                if (pSpell->Id == SPELL_GROUND_SLAM)
+                if (spellInfo->Id == SPELL_GROUND_SLAM)
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
                         switch (urand(0, 1))
                         {
                             case 0:
-                                target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID());
+                                target->CastSpell(target, SPELL_MAGNETIC_PULL, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(me->GetGUID()));
                                 break;
 
                             case 1:
-                                target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID());
+                                target->CastSpell(target, SPELL_KNOCK_BACK, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(me->GetGUID()));
                                 break;
                         }
                     }
                 }
 
                 //this part should be in the core
-                if (pSpell->Id == SPELL_SHATTER)
+                if (spellInfo->Id == SPELL_SHATTER)
                 {
                     /// @todo use eventmap to kill this stuff
                     //clear this, if we are still performing
@@ -205,7 +207,7 @@ class boss_gruul : public CreatureScript
                     // Hurtful Strike
                     if (m_uiHurtfulStrike_Timer <= diff)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                        Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 1);
 
                         if (target && me->IsWithinMeleeRange(me->GetVictim()))
                             DoCast(target, SPELL_HURTFUL_STRIKE);
@@ -229,7 +231,7 @@ class boss_gruul : public CreatureScript
                     // Cave In
                     if (m_uiCaveIn_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_CAVE_IN);
 
                         if (m_uiCaveIn_StaticTimer >= 4000)
@@ -284,7 +286,7 @@ class spell_gruul_shatter : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     target->RemoveAurasDueToSpell(SPELL_STONED);
-                    target->CastSpell((Unit*)NULL, SPELL_SHATTER_EFFECT, true);
+                    target->CastSpell(nullptr, SPELL_SHATTER_EFFECT, true);
                 }
             }
 
@@ -309,12 +311,17 @@ class spell_gruul_shatter_effect : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gruul_shatter_effect_SpellScript);
 
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return !spellInfo->GetEffects().empty();
+            }
+
             void CalculateDamage()
             {
                 if (!GetHitUnit())
                     return;
 
-                float radius = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(GetCaster());
+                float radius = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
                 if (!radius)
                     return;
 

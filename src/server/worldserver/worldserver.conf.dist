@@ -11,11 +11,13 @@
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
+#    CRYPTOGRAPHY
 #    UPDATE SETTINGS
 #    HOTSWAP SETTINGS
 #    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
+#    SPAWN/RESPAWN SETTINGS
 #    CHAT SETTINGS
 #    GAME MASTER SETTINGS
 #    SUPPORT SETTINGS
@@ -38,6 +40,7 @@
 #    CURRENCIES SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#    PVP SETTINGS
 #
 ###################################################################################################
 
@@ -90,8 +93,8 @@ LogsDir = ""
 #    CharacterDatabaseInfo
 #    HotfixDatabaseInfo
 #        Description: Database connection settings for the world server.
-#        Example:     "hostname;port;username;password;database"
-#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#        Example:     "hostname;port;username;password;database;ssl"
+#                     ".;some_number;username;password;database" - (Use named pipes on Windows
 #                                                                 "enable-named-pipe" to [mysqld]
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
@@ -101,11 +104,13 @@ LogsDir = ""
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;hotfixes"   - (HotfixDatabaseInfo)
 #
-#    Don't change hostname unless you are hosting mysql on a different machine, if you need help
-#    with configuration allowing to connect from diferent machine than the one running server
+#    Don't change hostname unless you are hosting MySQL on a different machine, if you need help
+#    with configuration allowing to connect from different machine than the one running server
 #    search for TCE00016 on forum.
-#    Don't open port on firewall to external connections (it belongs to mysql, not to wow server).
-#    The username you choose must have permisions to create/alter/rename tables.
+#    Don't open port on firewall to external connections (it belongs to MySQL, not to wow server).
+#    The username you choose must have permissions to create/alter/rename tables.
+#    The SSL option will enable TLS when connecting to the specified database. If not provided or
+#    any value other than 'ssl' is set, TLS will not be used.
 
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
@@ -217,7 +222,7 @@ SourceDirectory  = ""
 
 #
 #    MySQLExecutable
-#        Description: The path to your mysql cli binary.
+#        Description: The path to your MySQL CLI binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
 #                     "mysql.exe"
@@ -288,14 +293,6 @@ Compression = 1
 PlayerLimit = 0
 
 #
-#    SaveRespawnTimeImmediately
-#        Description: Save respawn time for creatures at death and gameobjects at use/open.
-#        Default:     1 - (Enabled, Save respawn time immediately)
-#                     0 - (Disabled, Save respawn time at grid unloading)
-
-SaveRespawnTimeImmediately = 1
-
-#
 #    MaxOverspeedPings
 #        Description: Maximum overspeed ping count before character is disconnected.
 #        Default:     2  - (Enabled, Minimum value)
@@ -318,7 +315,7 @@ GridUnload = 1
 #        Description: Load all grids for base maps upon load. Requires GridUnload to be 0.
 #                     This will take around 5GB of ram upon server load, and will take some time
 #                     to initially load the server.
-#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#        Default:     0 - (Don't preload all base maps, dynamically load as used)
 #                     1 - (Preload all grids in all base maps upon load)
 
 BaseMapLoadAllGrids = 0
@@ -327,7 +324,7 @@ BaseMapLoadAllGrids = 0
 #    InstanceMapLoadAllGrids
 #        Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.
 #                     Upon loading an instance map, all creatures/objects in the map will be pre-loaded
-#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#        Default:     0 - (Don't preload all base maps, dynamically load as used)
 #                     1 - (Preload all grids in the instance upon load)
 
 InstanceMapLoadAllGrids = 0
@@ -367,9 +364,9 @@ GridCleanUpDelay = 300000
 #
 #    MapUpdateInterval
 #        Description: Time (milliseconds) for map update interval.
-#        Default:     100 - (0.1 second)
+#        Default:     10 - (0.01 second)
 
-MapUpdateInterval = 100
+MapUpdateInterval = 10
 
 #
 #    ChangeWeatherInterval
@@ -411,10 +408,10 @@ DisconnectToleranceInterval = 0
 #
 #    mmap.enablePathFinding
 #        Description: Enable/Disable pathfinding using mmaps - recommended.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
-mmap.enablePathFinding = 0
+mmap.enablePathFinding = 1
 
 #
 #    vmap.enableLOS
@@ -454,17 +451,6 @@ DetectPosCollision = 1
 CheckGameObjectLoS = 1
 
 #
-#    TargetPosRecalculateRange
-#        Description: Max distance from movement target point (+moving unit size) and targeted
-#                     object (+size) after that new target movement point calculated.
-#        Range:       0.5-5.0
-#        Default:     1.5
-#                     0.5 - (Minimum, Contact Range, More sensitive reaction to target movement)
-#                     5.0 - (Maximum, Melee attack range, Less CPU usage)
-
-TargetPosRecalculateRange = 1.5
-
-#
 #    UpdateUptimeInterval
 #        Description: Update realm uptime period (in minutes).
 #        Default:     10 - (10 minutes)
@@ -492,10 +478,10 @@ LogDB.Opt.ClearTime = 1209600
 #
 #    MaxCoreStuckTime
 #        Description: Time (in seconds) before the server is forced to crash if it is frozen.
-#        Default:     0   - (Disabled)
-#                     10+ - (Enabled, Recommended 10+)
+#        Default:     60 - (Enabled, Recommended 10+)
+#                      0 - (Disabled)
 
-MaxCoreStuckTime = 0
+MaxCoreStuckTime = 60
 
 #
 #    AddonChannel
@@ -594,7 +580,7 @@ PacketLogFile = ""
 #                     4  - (NORMAL)
 #                     6  - (RP)
 #                     8  - (RPPVP)
-#                     16 - (FFA_PVP, Free for all pvp mode like arena PvP in all zones except rest
+#                     16 - (FFA_PVP, Free for all PvP mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
 GameType = 0
@@ -706,7 +692,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     7 - (Expansion 7)
+#        Default:     8 - (Expansion 8)
+#                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
 #                     5 - (Expansion 5)
 #                     4 - (Expansion 4)
@@ -715,7 +702,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 7
+Expansion = 8
 
 #
 #    MinPlayerName
@@ -839,28 +826,27 @@ CharactersPerAccount = 50
 #
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
-#        Range:       1-16
-#        Default:     16 - (Client limitation)
+#        Range:       1-200
+#        Default:     50
 
-CharactersPerRealm = 16
-
-#
-#    DemonHuntersPerRealm
-#        Description: Limit number of demon hunter characters per account on this realm.
-#        Range:       1-16
-#        Default:     1
-
-DemonHuntersPerRealm = 1
+CharactersPerRealm = 50
 
 #
 #    CharacterCreating.MinLevelForDemonHunter
 #        Description: Limit creating demon hunters only for account with another
 #                     character of specific level.
-#        Default:     70 - (Enabled, Requires at least another level 70 character)
-#                     0  - (Disabled)
+#        Default:     0  - (Disabled, No requirement)
 #                     1  - (Enabled, Requires at least another level 1 character)
 
-CharacterCreating.MinLevelForDemonHunter = 70
+CharacterCreating.MinLevelForDemonHunter = 0
+
+#
+#    CharacterCreating.DisableAlliedRaceAchievementRequirement
+#        Description: Disable achievement requirements for allied race character creation
+#        Default:     0 (Keep requirements active)
+#                     1 (Disable requirements)
+
+CharacterCreating.DisableAlliedRaceAchievementRequirement = 0
 
 #
 #    SkipCinematics
@@ -877,9 +863,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     120
+#        Default:     60
 
-MaxPlayerLevel = 120
+MaxPlayerLevel = 60
 
 #
 #    MinDualSpecLevel
@@ -900,17 +886,25 @@ StartPlayerLevel = 1
 #    StartDeathKnightPlayerLevel
 #        Description: Starting level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     55
+#        Default:     8
 
-StartDeathKnightPlayerLevel = 55
+StartDeathKnightPlayerLevel = 8
 
 #
 #    StartDemonHunterPlayerLevel
 #        Description: Staring level for demon hunters after creation.
-#        Range:       98-MaxPlayerLevel
-#        Default:     98
+#        Range:       1-MaxPlayerLevel
+#        Default:     8
 
-StartDemonHunterPlayerLevel = 98
+StartDemonHunterPlayerLevel = 8
+
+#
+#    StartAlliedRacePlayerLevel
+#        Description: Staring level for allied races after creation.
+#        Range:       1-MaxPlayerLevel
+#        Default:     10
+
+StartAlliedRacePlayerLevel = 10
 
 #
 #    StartPlayerMoney
@@ -924,9 +918,9 @@ StartPlayerMoney = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     85
+#        Default:     60
 
-RecruitAFriend.MaxLevel = 85
+RecruitAFriend.MaxLevel = 60
 
 #
 #    RecruitAFriend.MaxDifference
@@ -1018,14 +1012,14 @@ Instance.UnloadDelay = 1800000
 #
 #    InstancesResetAnnounce
 #        Description: Announce the reset of one instance to whole party.
-#        Default:     false - (Disabled, don't show, blizzlike)
+#        Default:     false - (Disabled, don't show, Blizzlike)
 #                     true  - (Enabled, show)
 
 InstancesResetAnnounce = false
 
 #
 #    Quests.EnableQuestTracker
-#        Description: Store datas in the database about quest completion and abandonment to help finding out bugged quests.
+#        Description: Store data in the database about quest completion and abandonment to help finding bugged quests.
 #        Default:     0  - (Disabled)
 #                     1  - (Enabled)
 
@@ -1083,6 +1077,23 @@ Quests.IgnoreAutoComplete = 0
 #
 
 Quests.DailyResetTime = 3
+
+#
+#    Quests.WeeklyResetWDay
+#        Description: Day of the week when weekly quest reset occurs.
+#        Range:       0 (Sunday) to 6 (Saturday)
+#        Default:     3 - (Wednesday)
+#
+
+Quests.WeeklyResetWDay = 3
+
+#
+#    Calendar.DeleteOldEventsHour
+#        Description: Hour of the day when the daily deletion of old calendar events occurs.
+#        Range:       0-23
+#        Default:     6 - (06:00 AM)
+
+Calendar.DeleteOldEventsHour = 6
 
 #
 #    Guild.EventLogRecordsCount
@@ -1154,11 +1165,47 @@ MaxGroupXPDistance = 74
 MaxRecruitAFriendBonusDistance = 100
 
 #
+#    MinQuestScaledXPRatio
+#        Description: Min ratio of experience that a quest can grant when player level scaling is factored.
+#        Example:     50 (No less than 50% experience granted from a lower leveled quests completion)
+#                     100 (Quests always grant full experience upon completion)
+#        Default:     0 - (Quests too low may grant no experience)
+
+MinQuestScaledXPRatio = 0
+
+#
+#    MinCreatureScaledXPRatio
+#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This
+#                     will also allow spell procs to trigger, such as Drain Soul, if > 0 and exp is grantable.
+#        Example:     50 (No less than 50% experience granted from a lower leveled creature kill)
+#                     100 (Creature kills always grant full experience upon kill)
+#        Default:     0 - (Creatures too low may grant no experience)
+
+MinCreatureScaledXPRatio = 0
+
+#
+#    MinDiscoveredScaledXPRatio
+#        Description: Min ratio of experience that an area discovery event will grant when player level scaling is factored.
+#        Example:     50 (No less than 50% experience granted from discovering a new section of map)
+#                     100 (Map exploration always grant full experience upon discovery)
+#        Default:     0 - (No experience granted when discovered area is too low level)
+
+MinDiscoveredScaledXPRatio = 0
+
+#
 #    MailDeliveryDelay
 #        Description: Time (in seconds) mail delivery is delayed when sending items.
 #        Default:     3600 - (1 hour)
 
 MailDeliveryDelay = 3600
+
+#
+#    CleanOldMailTime
+#        Description: The hour at which old mails will be returned or deleted by the server.
+#                     This can be any integer number from 0 to 23. 20 will be 8pm server time.
+#        Default:     4 - 4am
+
+CleanOldMailTime = 4
 
 #
 #    SkillChance.Prospecting
@@ -1192,14 +1239,6 @@ OffhandCheckAtSpellUnlearn = 1
 #        Default:     0 - (Use DB value from world DB version.cache_id field)
 
 ClientCacheVersion = 0
-
-#
-#    HotfixCacheVersion
-#        Description: Hotfix cache version for hotfix cache data reset. Use any value different
-#                     from DB and not recently been used to trigger client side cache reset.
-#        Default:     0 - (Use DB value from world DB version.hotfix_id field)
-
-HotfixCacheVersion = 0
 
 #
 #    Event.Announce
@@ -1316,6 +1355,25 @@ FeatureSystem.CharacterUndelete.Enabled = 0
 #        Default:     2592000 (30 days)
 
 FeatureSystem.CharacterUndelete.Cooldown = 2592000
+
+#
+###################################################################################################
+
+###################################################################################################
+# CRYPTOGRAPHY
+#
+#    TOTPMasterSecret
+#        Description: The key used by authserver to decrypt TOTP secrets from database storage.
+#                     You only need to set this here if you plan to use the in-game 2FA
+#                     management commands (.account 2fa), otherwise this can be left blank.
+#
+#                     The server will auto-detect if this does not match your authserver setting,
+#                     in which case any commands reliant on the secret will be disabled.
+#
+#        Default:     <blank>
+#
+
+TOTPMasterSecret =
 
 #
 ###################################################################################################
@@ -1442,7 +1500,7 @@ HotSwap.EnableInstall = 1
 #
 #    HotSwap.EnablePrefixCorrection
 #        Description: Allows the core to automatic set the CMAKE_INSTALL_PREFIX
-#                     to it's current location in the filesystem.
+#                     to its current location in the file system.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
@@ -1463,28 +1521,25 @@ HotSwap.ReCompilerBuildType = ""
 # WARDEN SETTINGS
 #
 #    Warden.Enabled
-#        Description: Enable Warden anticheat system.
+#        Description: Enable Warden anti-cheat system.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
 Warden.Enabled = 0
 
 #
-#    Warden.NumMemChecks
-#        Description: Number of Warden memory checks that are sent to the client each cycle.
-#        Default:     3 - (Enabled)
-#                     0 - (Disabled)
+#    Warden.NumInjectionChecks
+#    Warden.NumLuaSandboxChecks
+#    Warden.NumClientModChecks
+#        Description: Number of Warden checks of the respective category that are sent per cycle.
+#        Default:     9 - (Warden.NumInjectionChecks)
+#        Default:     1 - (Warden.NumLuaSandboxChecks)
+#        Default:     1 - (Warden.NumClientModChecks)
+#                     0 - (Disable category)
 
-Warden.NumMemChecks = 3
-
-#
-#    Warden.NumOtherChecks
-#        Description: Number of Warden checks other than memory checks that are added to request
-#                     each checking cycle.
-#        Default:     7 - (Enabled)
-#                     0 - (Disabled)
-
-Warden.NumOtherChecks = 7
+Warden.NumInjectionChecks = 9
+Warden.NumLuaSandboxChecks = 1
+Warden.NumClientModChecks = 1
 
 #
 #    Warden.ClientResponseDelay
@@ -1563,6 +1618,15 @@ AllowTwoSide.Interaction.Guild = 0
 #
 #    AllowTwoSide.Interaction.Auction
 #        Description: Allow auctions between factions.
+#                     This results in all auctions being handled as if placed in the neutral
+#                     auction house and will intentionally lock acces to the Horde and Alliance AH.
+#                     Deposit fee and auction cut values will be taken from neutral auction house.
+#                     If used in combination with the AH-Bot, settings should be set for neutral
+#                     auction house only.
+#
+#                     Warning: changing this in production results in players loosing access to their
+#                     already placed auctions in the faction houses - these auctions will expire after
+#                     their regular timings.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
@@ -1655,13 +1719,13 @@ WorldBossLevelDiff = 3
 #    Corpse.Decay.RAREELITE
 #    Corpse.Decay.WORLDBOSS
 #        Description: Time (in seconds) until creature corpse will decay if not looted or skinned.
-#        Default:     60   - (1 Minute, Corpse.Decay.NORMAL)
+#        Default:     300  - (5 Minutes, Corpse.Decay.NORMAL)
 #                     300  - (5 Minutes, Corpse.Decay.RARE)
 #                     300  - (5 Minutes, Corpse.Decay.ELITE)
 #                     300  - (5 Minutes, Corpse.Decay.RAREELITE)
 #                     3600 - (1 Hour, Corpse.Decay.WORLDBOSS)
 
-Corpse.Decay.NORMAL    = 60
+Corpse.Decay.NORMAL    = 300
 Corpse.Decay.RARE      = 300
 Corpse.Decay.ELITE     = 300
 Corpse.Decay.RAREELITE = 300
@@ -1681,7 +1745,7 @@ Rate.Corpse.Decay.Looted = 0.5
 #    Rate.Creature.Elite.RARE.Damage
 #    Rate.Creature.Elite.RAREELITE.Damage
 #    Rate.Creature.Elite.WORLDBOSS.Damage
-#        Description: Mulitplier for creature melee damage.
+#        Description: Multiplier for creature melee damage.
 #        Default:     1 - (Rate.Creature.Normal.Damage)
 #                     1 - (Rate.Creature.Elite.Elite.Damage)
 #                     1 - (Rate.Creature.Elite.RARE.Damage)
@@ -1701,7 +1765,7 @@ Rate.Creature.Elite.WORLDBOSS.Damage = 1
 #    Rate.Creature.Elite.RARE.SpellDamage
 #    Rate.Creature.Elite.RAREELITE.SpellDamage
 #    Rate.Creature.Elite.WORLDBOSS.SpellDamage
-#        Description: Mulitplier for creature spell damage.
+#        Description: Multiplier for creature spell damage.
 #        Default:     1 - (Rate.Creature.Normal.SpellDamage)
 #                     1 - (Rate.Creature.Elite.Elite.SpellDamage)
 #                     1 - (Rate.Creature.Elite.RARE.SpellDamage)
@@ -1720,7 +1784,7 @@ Rate.Creature.Elite.WORLDBOSS.SpellDamage = 1
 #    Rate.Creature.Elite.RARE.HP
 #    Rate.Creature.Elite.RAREELITE.HP
 #    Rate.Creature.Elite.WORLDBOSS.HP
-#        Description: Mulitplier for creature health.
+#        Description: Multiplier for creature health.
 #        Default:     1 - (Rate.Creature.Normal.HP)
 #                     1 - (Rate.Creature.Elite.Elite.HP)
 #                     1 - (Rate.Creature.Elite.RARE.HP)
@@ -1781,15 +1845,140 @@ Creature.MovingStopTimeForPlayer = 180000
 MonsterSight = 50.000000
 
 #
+#    Creature.RegenHPCannotReachTargetInRaid
+#        Description: Regenerates HP for Creatures in Raids if they cannot reach the target.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Creature.RegenHPCannotReachTargetInRaid = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# SPAWN/RESPAWN SETTINGS
+#
+#    Respawn.MinCheckIntervalMS
+#        Description: Minimum time that needs to pass between respawn checks for any given map.
+#        Default:     5000 - 5 seconds
+
+Respawn.MinCheckIntervalMS = 5000
+
+#
+#    Respawn.GuidWarnLevel
+#        Description: The point at which the highest guid for creatures or gameobjects in any map must reach
+#                     before the warning logic is enabled. A restart will then be queued at the next quiet time
+#                     The maximum guid per map is 16,777,216. So, it must be less than this value.
+#        Default:     12000000 - 12 million
+
+Respawn.GuidWarnLevel = 12000000
+
+#
+#    Respawn.WarningMessage
+#        Description: This message will be periodically shown (Frequency specified by Respawn.WarningFrequency) to
+#                     all users of the server, once the Respawn.GuidWarnLevel has been passed, and a restart scheduled.
+#                     It's used to warn users that there will be an out of schedule server restart soon.
+#        Default:     "There will be an unscheduled server restart at 03:00 server time. The server will be available again shortly after."
+
+Respawn.WarningMessage = "There will be an unscheduled server restart at 03:00. The server will be available again shortly after."
+
+#
+#    Respawn.WarningFrequency
+#        Description: The frequency (in seconds) that the warning message will be sent to users after a quiet time restart is triggered.
+#                     The message will repeat each time this many seconds passed until the server is restarted.
+#                     If set to 0, no warnings will be sent.
+#        Default:     1800 - (30 minutes)
+
+Respawn.WarningFrequency = 1800
+
+#
+#    Respawn.GuidAlertLevel
+#        Description: The point at which the highest guid for creatures or gameobjects in any map must reach
+#                     before the alert logic is enabled. A restart will then be triggered for 30 min. from that
+#                     point. The maximum guid per map is 16,777,216. So, it must be less than this value.
+#        Default:     16000000 - 16 million
+
+Respawn.GuidAlertLevel = 16000000
+
+#
+#    Respawn.AlertRestartReason
+#        Description: The shutdown reason given when the alert level is reached. The server will use a fixed time of
+#                     5 minutes and the reason for shutdown will be this message
+#        Default:     "Urgent Maintenance"
+
+Respawn.AlertRestartReason = "Urgent Maintenance"
+
+#
+#    Respawn.RestartQuietTime
+#        Description: The hour at which the server will be restarted after the Respawn.GuidWarnLevel
+#                     threshold has been reached. This can be between 0 and 23. 20 will be 8pm server time
+#        Default:     3 - 3am
+
+Respawn.RestartQuietTime = 3
+
+#
+#    Respawn.DynamicMode
+#        Description: Select which mode (if any) should be used to adjust respawn of creatures.
+#                     This will only affect creatures that have dynamic spawn rate scaling enabled in
+#                     the spawn group table (by default, gathering nodes and quest targets with respawn time <30min
+#                     1 - Use number of players in zone
+#        Default:     0 - No dynamic respawn function
+
+Respawn.DynamicMode = 0
+
+#
+#    Respawn.DynamicEscortNPC
+#        Description: This switch controls the dynamic respawn system for escort NPCs not in instanceable maps (base maps only).
+#                     This will cause the respawn timer to begin when an escort event begins, and potentially
+#                     allow multiple instances of the NPC to be alive at the same time (when combined with Respawn.DynamicMode > 0)
+#                     1 - Enabled
+#        Default:     0 - Disabled
+
+Respawn.DynamicEscortNPC = 0
+
+#
+#    Respawn.DynamicRateCreature
+#        Description: The rate at which the respawn time is adjusted for high player counts in a zone (for creatures).
+#                     Up to this number of players, the respawn rate is unchanged.
+#                     At double this number in players, you get twice as many respawns, at three times this number, three times the respawns, and so forth.
+#        Default:     10
+
+Respawn.DynamicRateCreature = 10
+
+#
+#    Respawn.DynamicMinimumCreature
+#        Description: The minimum respawn time for a creature under dynamic scaling.
+#        Default:     10 - (10 seconds)
+
+Respawn.DynamicMinimumCreature = 10
+
+#
+#    Respawn.DynamicRateGameObject
+#        Description: The rate at which the respawn time is adjusted for high player counts in a zone (for gameobjects).
+#                     Up to this number of players, the respawn rate is unchanged.
+#                     At double this number in players, you get twice as many respawns, at three times this number, three times the respawns, and so forth.
+#        Default:     10
+
+Respawn.DynamicRateGameObject = 10
+
+#
+#    Respawn.DynamicMinimumGameObject
+#        Description: The minimum respawn time for a GameObject under dynamic scaling.
+#        Default:     10 - (10 seconds)
+
+Respawn.DynamicMinimumGameObject = 10
+
+#
 ###################################################################################################
 
 ###################################################################################################
 # CHAT SETTINGS
 #
 #    ChatFakeMessagePreventing
-#        Description: Chat protection from creating fake messages using a lot spaces or other
-#                     invisible symbols. Not applied to the addon language, but may break old
-#                     addons that use normal languages for sending data to other clients.
+#        Description: Additional protection from creating fake chat messages using spaces.
+#                     Collapses multiple subsequent whitespaces into a single whitespace.
+#                     Not applied to the addon language, but may break old addons that use
+#                     "normal" chat messages for sending data to other clients.
 #        Default:     1 - (Enabled, Blizzlike)
 #                     0 - (Disabled)
 
@@ -1797,23 +1986,24 @@ ChatFakeMessagePreventing = 1
 
 #
 #    ChatStrictLinkChecking.Severity
-#        Description: Check chat messages for ingame links to spells, items, quests, etc.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled, Check if only valid pipe commands are used, Prevents posting
-#                         pictures.)
-#                     2 - (Enabled, Verify that pipe commands are used in a correct order)
-#                     3 - (Check if color, entry and name don't contradict each other. For this to
-#                         work correctly, please assure that you have extracted locale DBCs of
-#                         every language specific client playing on this server)
+#        Description: Check chat messages for in-game links to spells, items, quests, etc.
+#                     -1 - (Only verify validity of link data, but permit use of custom colors)
+#        Default:      0 - (Only verify that link data and color are valid without checking text)
+#                      1 - (Additionally verifies that the link text matches the provided data)
+#
+#        Note:        If this is set to '1', you must additionally provide .dbc files for all
+#                     client locales that are in use on your server.
+#                     If any files are missing, messages with links from clients using those
+#                     locales will likely be blocked by the server.
 
 ChatStrictLinkChecking.Severity = 0
 
 #
 #    ChatStrictLinkChecking.Kick
-#        Description: Defines what should be done if a message is considered to contain invalid
-#                     pipe commands.
+#        Description: Defines what should be done if a message containing invalid control characters
+#                     is received.
 #        Default:     0 - (Silently ignore message)
-#                     1 - (Disconnect players who sent malformed messages)
+#                     1 - (Ignore message and kick player)
 
 ChatStrictLinkChecking.Kick = 0
 
@@ -1881,6 +2071,13 @@ PartyLevelReq = 1
 #                     1 - (Enabled)
 
 PreserveCustomChannels = 1
+
+#
+#    PreserveCustomChannelInterval
+#        Description: Interval (in minutes) at which custom channel data is saved to the database
+#        Default:     5 minutes
+
+PreserveCustomChannelInterval = 5
 
 #
 #    PreserveCustomChannelDuration
@@ -2734,7 +2931,7 @@ Arena.RatingDiscardTimer = 600000
 
 #
 #    Arena.RatedUpdateTimer
-#        Description: Time (in milliseconds) between checks for matchups in rated arena.
+#        Description: Time (in milliseconds) between checks for match-ups in rated arena.
 #        Default:     5000 - (5 seconds)
 
 Arena.RatedUpdateTimer = 5000
@@ -2950,7 +3147,7 @@ SOAP.Port = 7878
 #        Description: Character deletion behavior.
 #        Default:     0 - (Completely remove character from the database)
 #                     1 - (Unlink the character from account and free up the name, Appears as
-#                         deleted ingame)
+#                         deleted in-game)
 
 CharDelete.Method = 0
 
@@ -2992,20 +3189,6 @@ CharDelete.KeepDays = 30
 ###################################################################################################
 # CUSTOM SERVER OPTIONS
 #
-#     AllowTrackBothResources
-#        Description: Allows players to track herbs and minerals at the same time (if they have the skills)
-#        Default:     0 - (Do not allow)
-#                     1 - (Allow)
-#
-#        Note:        The following are client limitations and cannot be coded for:
-#                     * The minimap tracking icon will display whichever skill is activated second.
-#                     * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
-#                       bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
-#                     * The minimap dots are yellow for both resources.
-
-AllowTrackBothResources = 0
-
-#
 #    PlayerStart.AllReputation
 #        Description: Players will start with most of the high level reputations that are needed
 #                     for items, mounts etc.
@@ -3013,6 +3196,30 @@ AllowTrackBothResources = 0
 #                     1 - (Enabled)
 
 PlayerStart.AllReputation = 0
+
+#
+#    XP.Boost.Daymask
+#        Description: Enables experience boost during the defined days. This field is a bitmask.
+#
+#        Default:     0 - (Disabled)
+#                     1 - (Sunday)
+#                     2 - (Monday)
+#                     4 - (Tuesday)
+#                     8 - (Wednesday)
+#                     16 - (Thursday)
+#                     32 - (Friday)
+#                     64 - (Saturday)
+#                     65 - (Weekend only)
+#                     127 - (Always active)
+
+XP.Boost.Daymask = 0
+
+#
+#    XP.Boost.Rate
+#        Description: The boost multiplier for experience gain during XP boosted days.
+#        Default:     2.0 - (Double experience)
+
+XP.Boost.Rate = 2.0
 
 #
 #    PlayerStart.AllSpells
@@ -3109,7 +3316,7 @@ Guild.AllowMultipleGuildMaster = 0
 
 #
 #     ShowKickInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
+#        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets kicked.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
@@ -3117,7 +3324,7 @@ Guild.AllowMultipleGuildMaster = 0
 ShowKickInWorld = 0
 
 #     ShowMuteInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
+#        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets muted.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
@@ -3126,29 +3333,12 @@ ShowMuteInWorld = 0
 
 #
 #     ShowBanInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
+#        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets banned.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
 ShowBanInWorld = 0
-
-#
-#     RecordUpdateTimeDiffInterval
-#        Description: Time (in milliseconds) update time diff is written to the log file.
-#                     Update diff can be used as a performance indicator. Diff < 300: good
-#                     performance. Diff > 600 bad performance, may be caused by high CPU usage.
-#        Default:     60000 - (Enabled, 1 minute)
-#                     0     - (Disabled)
-
-RecordUpdateTimeDiffInterval = 60000
-
-#
-#     MinRecordUpdateTimeDiff
-#        Description: Only record update time diff which is greater than this value.
-#        Default:     100
-
-MinRecordUpdateTimeDiff = 100
 
 #
 #     PlayerStart.String
@@ -3191,14 +3381,6 @@ PlayerDump.DisallowPaths = 1
 #        Default:     1
 
 PlayerDump.DisallowOverwrite = 1
-
-#
-#     UI.ShowQuestLevelsInDialogs
-#        Description: Show quest levels next to quest titles in UI dialogs
-#        Example:     [13] Westfall Stew
-#        Default:     0  - (Do not show)
-
-UI.ShowQuestLevelsInDialogs = 0
 
 #
 #     Calculate.Creature.Zone.Area.Data
@@ -3382,7 +3564,7 @@ AuctionHouseBot.Bind.Quest = 0
 
 #
 #    AuctionHouseBot.LockBox.Enabled
-#       Description: Enable or not lockbox in auctionhouse
+#       Description: Enable or disable lockboxes in the AuctionHouse.
 #       Default      0 - (Disabled)
 #                    1 - (Enabled)
 
@@ -3406,11 +3588,11 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 
 #
 #    AuctionHouseBot.BuyPrice.Seller
-#       Description: Should the Seller use BuyPrice or SellPrice to determine Bid Prices
-#       Default:     1 - (use SellPrice)
-#                    0 - (use BuyPrice)
+#       Description: Should the Seller use the items BuyPrice or SellPrice to determine Bid Prices
+#       Default:     0 - (use BuyPrice - results in higher prices)
+#                    1 - (use SellPrice - results in lower prices)
 
-AuctionHouseBot.BuyPrice.Seller = 1
+AuctionHouseBot.BuyPrice.Seller = 0
 
 #
 #    AuctionHouseBot.BidPrice.*
@@ -3423,21 +3605,21 @@ AuctionHouseBot.BidPrice.Max = 0.9
 
 #
 #    AuctionHouseBot.Alliance.Price.Ratio
-#       Description: Percentage by which the price of items selled on Alliance Auction House is incremented / decreased
+#       Description: Percentage by which the price of items sold on Alliance Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
 AuctionHouseBot.Alliance.Price.Ratio = 100
 
 #
 #    AuctionHouseBot.Horde.Price.Ratio
-#       Description: Percentage by which the price of items selled on Horde Auction House is incremented / decreased
+#       Description: Percentage by which the price of items sold on Horde Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
 AuctionHouseBot.Horde.Price.Ratio = 100
 
 #
 #    AuctionHouseBot.Neutral.Price.Ratio
-#       Description: Percentage by which the price of items selled on Neutral Auction House is incremented / decreased
+#       Description: Percentage by which the price of items sold on Neutral Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
 AuctionHouseBot.Neutral.Price.Ratio = 100
@@ -3518,8 +3700,8 @@ AuctionHouseBot.Items.Amount.Yellow = 0
 
 #
 #    AuctionHouseBot.Class.*
-#       Description: Here you can set the class of items you prefer to be show on AH
-#                    These value are sorted by preference, from 0 (disabled) to 10 (max. preference)
+#       Description: Here you can set the class of items you prefer to be shown on AH
+#                    These values are sorted by preference, from 0 (disabled) to 10 (max. preference)
 #       Default:     Consumable: 6
 #                    Container: 4
 #                    Weapon: 8
@@ -3558,8 +3740,8 @@ AuctionHouseBot.Class.Glyph = 3
 ###################################################################################################
 # AUCTION HOUSE BOT ITEM FINE TUNING
 #
-#    The following are usefull for limiting what character levels can
-#    benefit from the auction house
+#    The following settings are useful for limiting which character levels
+#    can benefit from the auction house
 #
 #    AuctionHouseBot.Class.Misc.Mount.ReqLevel.*
 #       Description: Prevent seller from listing mounts below/above this required level
@@ -3602,7 +3784,7 @@ AuctionHouseBot.Class.TradeGood.ItemLevel.Max = 0
 
 #
 #    AuctionHouseBot.Class.Container.ItemLevel.*
-#       Description: Prevent seller from listing contianers below/above this item level
+#       Description: Prevent seller from listing containers below/above this item level
 #       Default:     0
 
 AuctionHouseBot.Class.Container.ItemLevel.Min = 0
@@ -3632,7 +3814,7 @@ AuctionHouseBot.forceExcludeItems = ""
 #                    Value needs to be between 0 and 100, no decimal.  Anything higher than 100 will be treated as 100
 #       Examples:    100 = stacks will always be random in size
 #                    50 = half the time the stacks are random, the other half being single stack
-#                    0 = stacks will always single size
+#                    0 = stacks will always be single size
 #       Default:     Consumable: 20 (20% random stack size, 80% single stack size)
 #                    Container: 0 (100% single stack size)
 #                    Weapon: 0 (100% single stack size)
@@ -3698,7 +3880,7 @@ AuctionHouseBot.Buyer.ChanceFactor = 2
 
 #
 #    AuctionHouseBot.Buyer.Baseprice.QUALITY
-#       Description: Base sellprices in copper for non priced items for each quality.
+#       Description: Base sell prices in copper for non priced items for each quality.
 #                    The default values are based on average item prices of each quality.
 #       Defaults:    Gray   3504
 #                    White  5429
@@ -3739,7 +3921,7 @@ AuctionHouseBot.Buyer.ChanceMultiplier.Yellow = 100
 #
 #    AuctionHouseBot.Buyer.Recheck.Interval
 #       Description: This specifies the time interval (in minutes) between two evaluations of the same sold item.
-#                    The smaller this value is, the more chances you give for an item to be bought by ahbot.
+#                    The smaller this value is, the more chances you give for an item to be bought by AHBot.
 #       Default:     20 (20min.)
 
 AuctionHouseBot.Buyer.Recheck.Interval = 20
@@ -3781,7 +3963,7 @@ BlackMarket.UpdatePeriod = 24
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS
 #
-#  Appender config values: Given a appender "name"
+#  Appender config values: Given an appender "name"
 #    Appender.name
 #        Description: Defines 'where to log'.
 #        Format:      Type,LogLevel,Flags,optional1,optional2,optional3
@@ -3840,9 +4022,9 @@ BlackMarket.UpdatePeriod = 24
 #                     MaxFileSize: Maximum file size of the log file before creating a new log file
 #                     (read as optional3 if Type = File)
 #                         Size is measured in bytes expressed in a 64-bit unsigned integer.
-#                         Maximum value is 4294967295 (4 gb). Leave blank for no limit.
+#                         Maximum value is 4294967295 (4 GB). Leave blank for no limit.
 #                         NOTE: Does not work with dynamic filenames.
-#                         Example:  536870912 (512 mb)
+#                         Example:  536870912 (512 MB)
 #
 
 Appender.Console=1,3,0
@@ -3892,15 +4074,18 @@ Logger.mmaps=3,Server
 #Logger.criteria=3,Console Server
 #Logger.criteria.achievement=3,Console Server
 #Logger.entities.areatrigger=3,Console Server
+#Logger.entities.faction=3,Console Server
+#Logger.entities.gameobject=3,Console Server
 #Logger.entities.pet=3,Console Server
+#Logger.entities.player=3,Console Server
 #Logger.entities.player.character=3,Console Server
 #Logger.entities.player.dump=3,Console Server
-#Logger.entities.player=3,Console Server
 #Logger.entities.player.items=3,Console Server
 #Logger.entities.player.loading=3,Console Server
 #Logger.entities.player.skills=3,Console Server
 #Logger.entities.transport=3,Console Server
 #Logger.entities.unit=3,Console Server
+#Logger.entities.unit.ai=3,Console Server
 #Logger.entities.vehicle=3,Console Server
 #Logger.gameevent=3,Console Server
 #Logger.guild=3,Console Server
@@ -3909,7 +4094,12 @@ Logger.mmaps=3,Server
 #Logger.maps.script=3,Console Server
 #Logger.maps=3,Console Server
 #Logger.misc=3,Console Server
+#Logger.mmaps.tiles=3,Console Server
+#Logger.movement.flightpath=3,Console Server
+#Logger.movement.motionmaster=3,Console Server
+#Logger.movement.splinechain=3,Console Server
 #Logger.network=3,Console Server
+#Logger.network.kick=3,Console Server
 #Logger.network.opcode=3,Console Server
 #Logger.network.soap=3,Console Server
 #Logger.outdoorpvp=3,Console Server
@@ -3919,16 +4109,23 @@ Logger.mmaps=3,Server
 #Logger.scenes=3,Console Server
 #Logger.scripts=3,Console Server
 #Logger.scripts.ai=3,Console Server
+#Logger.scripts.ai.escortai=3,Console Server
+#Logger.scripts.ai.followerai=3,Console Server
+#Logger.scripts.ai.petai=3,Console Server
+#Logger.scripts.ai.sai=3,Console Server
 #Logger.server.bnetserver=3,Console Server
 #Logger.spells=3,Console Server
-#Logger.spells.periodic=3,Console Server
+#Logger.spells.aura.effect=3,Console Server
+#Logger.spells.aura.effect.nospell=3,Console Server
+#Logger.spells.effect=3,Console Server
+#Logger.spells.effect.nospell=3,Console Server
 #Logger.sql.dev=3,Console Server
 #Logger.sql.driver=3,Console Server
 #Logger.warden=3,Console Server
 
 #
 #    Log.Async.Enable
-#        Description: Enables asyncronous message logging.
+#        Description: Enables asynchronous message logging.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -4077,6 +4274,57 @@ Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
 #
 
 Metric.OverallStatusInterval = 1
+
+#
+#  Metric threshold values: Given a metric "name"
+#    Metric.Threshold.name
+#        Description: Skips sending statistics with a value lower than the config value.
+#                     If the threshold is commented out, the metric will be ignored.
+#                     Only metrics logged with TC_METRIC_DETAILED_TIMER in the sources are affected.
+#                     Disabled by default. Requires WITH_DETAILED_METRICS CMake flag.
+#
+#        Format:      Value as integer
+#
+
+#Metric.Threshold.world_update_sessions_time = 100
+#Metric.Threshold.worldsession_update_opcode_time = 50
+
+#
+###################################################################################################
+
+###################################################################################################
+# PVP SETTINGS
+#
+#
+#    Pvp.FactionBalance.LevelCheckDiff
+#        Description: The amount of levels below the maximum level that accounts people for faction balance.
+#                     That is, if max level is 60 and this has a value of 5, all players that are level 55 and above (including) will be included in the check
+#        Default:     0
+
+Pvp.FactionBalance.LevelCheckDiff = 0
+
+#    Pvp.FactionBalance.Pct5
+#        Description: The percentage at which a faction will receive an extra % percentage on their enlisted buff. Value range: [0...1]
+#                     That is, if value is 0.6, and alliance outnumber horde by 60%, horde will get 15% bonus (5% + base 10%)
+#        Default:     0.6
+
+Pvp.FactionBalance.Pct5 = 0.6
+
+#    Pvp.FactionBalance.Pct10
+#        Description: The percentage at which a faction will receive an extra % percentage on their enlisted buff. Value range: [0...1]
+#                     Does not stack with previous pct. Pct5 will not be checked if faction percentage is higher than this value.
+#                     That is, if value is 0.7, and alliance outnumber horde by 70%, horde will get 20% bonus (10% + base 10%)
+#        Default:     0.7
+
+Pvp.FactionBalance.Pct10 = 0.7
+
+#    Pvp.FactionBalance.Pct20
+#        Description: The percentage at which a faction will receive an extra % percentage on their enlisted buff. Value range: [0...1]
+#                     Does not stack with previous pct. Pct10 will not be checked if faction percentage is higher than this value.
+#                     That is, if value is 0.8, and alliance outnumber horde by 80%, horde will get 30% bonus (20% + base 10%)
+#        Default:     0.8
+
+Pvp.FactionBalance.Pct20 = 0.8
 
 #
 ###################################################################################################

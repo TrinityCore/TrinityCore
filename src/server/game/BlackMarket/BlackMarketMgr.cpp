@@ -21,6 +21,7 @@
 #include "CharacterCache.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -29,6 +30,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Realm.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -110,7 +112,7 @@ void BlackMarketMgr::LoadAuctions()
         return;
     }
 
-    _lastUpdate = time(nullptr); //Set update time before loading
+    _lastUpdate = GameTime::GetGameTime(); //Set update time before loading
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     do
@@ -143,7 +145,7 @@ void BlackMarketMgr::LoadAuctions()
 void BlackMarketMgr::Update(bool updateTime)
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     for (BlackMarketEntryMap::iterator itr = _auctions.begin(); itr != _auctions.end(); ++itr)
     {
         BlackMarketEntry* entry = itr->second;
@@ -258,7 +260,7 @@ void BlackMarketMgr::AddTemplate(BlackMarketTemplate* templ)
     _templates[templ->MarketID] = templ;
 }
 
-void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDatabaseTransaction& trans)
+void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDatabaseTransaction trans)
 {
     // Mail already sent
     if (entry->GetMailSent())
@@ -318,7 +320,7 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDataba
     entry->MailSent();
 }
 
-void BlackMarketMgr::SendAuctionOutbidMail(BlackMarketEntry* entry, CharacterDatabaseTransaction& trans)
+void BlackMarketMgr::SendAuctionOutbidMail(BlackMarketEntry* entry, CharacterDatabaseTransaction trans)
 {
     ObjectGuid oldBidder_guid = ObjectGuid::Create<HighGuid::Player>(entry->GetBidder());
     Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
@@ -367,14 +369,14 @@ bool BlackMarketTemplate::LoadFromDB(Field* fields)
     Duration = static_cast<time_t>(fields[5].GetUInt32());
     Chance = fields[6].GetFloat();
 
-    Tokenizer bonusListIDsTok(fields[7].GetString(), ' ');
     std::vector<int32> bonusListIDs;
-    for (char const* token : bonusListIDsTok)
-        bonusListIDs.push_back(int32(atol(token)));
+    for (std::string_view token : Trinity::Tokenize(fields[7].GetStringView(), ' ', false))
+        if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+            bonusListIDs.push_back(*bonusListID);
 
     if (!bonusListIDs.empty())
     {
-        Item.ItemBonus = boost::in_place();
+        Item.ItemBonus.emplace();
         Item.ItemBonus->BonusListIDs = bonusListIDs;
     }
 
@@ -405,12 +407,12 @@ BlackMarketTemplate const* BlackMarketEntry::GetTemplate() const
 
 uint32 BlackMarketEntry::GetSecondsRemaining() const
 {
-    return _secondsRemaining - (time(nullptr) - sBlackMarketMgr->GetLastUpdate());
+    return _secondsRemaining - (GameTime::GetGameTime() - sBlackMarketMgr->GetLastUpdate());
 }
 
 time_t BlackMarketEntry::GetExpirationTime() const
 {
-    return time(nullptr) + GetSecondsRemaining();
+    return GameTime::GetGameTime() + GetSecondsRemaining();
 }
 
 bool BlackMarketEntry::IsCompleted() const
@@ -431,7 +433,7 @@ bool BlackMarketEntry::LoadFromDB(Field* fields)
     }
 
     _currentBid = fields[1].GetUInt64();
-    _secondsRemaining =  static_cast<time_t>(fields[2].GetInt32()) - sBlackMarketMgr->GetLastUpdate();
+    _secondsRemaining =  static_cast<time_t>(fields[2].GetInt64()) - sBlackMarketMgr->GetLastUpdate();
     _numBids = fields[3].GetInt32();
     _bidder = fields[4].GetUInt64();
 
@@ -445,20 +447,20 @@ bool BlackMarketEntry::LoadFromDB(Field* fields)
     return true;
 }
 
-void BlackMarketEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
+void BlackMarketEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BLACKMARKET_AUCTIONS);
 
     stmt->setInt32(0, _marketId);
     stmt->setUInt64(1, _currentBid);
-    stmt->setInt32(2, GetExpirationTime());
+    stmt->setInt64(2, GetExpirationTime());
     stmt->setInt32(3, _numBids);
     stmt->setUInt64(4, _bidder);
 
     trans->Append(stmt);
 }
 
-void BlackMarketEntry::DeleteFromDB(CharacterDatabaseTransaction& trans) const
+void BlackMarketEntry::DeleteFromDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BLACKMARKET_AUCTIONS);
     stmt->setInt32(0, _marketId);
@@ -479,7 +481,7 @@ bool BlackMarketEntry::ValidateBid(uint64 bid) const
     return true;
 }
 
-void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, CharacterDatabaseTransaction& trans)   //Updated
+void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, CharacterDatabaseTransaction trans)   //Updated
 {
     if (bid < _currentBid)
         return;
@@ -498,7 +500,7 @@ void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, CharacterDatabaseTra
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BLACKMARKET_AUCTIONS);
 
     stmt->setUInt64(0, _currentBid);
-    stmt->setInt32(1, GetExpirationTime());
+    stmt->setInt64(1, GetExpirationTime());
     stmt->setInt32(2, _numBids);
     stmt->setUInt64(3, _bidder);
     stmt->setInt32(4, _marketId);

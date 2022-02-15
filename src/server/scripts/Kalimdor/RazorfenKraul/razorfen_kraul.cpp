@@ -48,11 +48,11 @@ class npc_willix : public CreatureScript
 public:
     npc_willix() : CreatureScript("npc_willix") { }
 
-    struct npc_willixAI : public npc_escortAI
+    struct npc_willixAI : public EscortAI
     {
-        npc_willixAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_willixAI(Creature* creature) : EscortAI(creature) { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
             {
@@ -62,7 +62,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -75,7 +75,7 @@ public:
                     Talk(SAY_POINT, player);
                     break;
                 case 4:
-                    me->SummonCreature(ENTRY_BOAR, 2137.66f, 1843.98f, 48.08f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(ENTRY_BOAR, 2137.66f, 1843.98f, 48.08f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
                     break;
                 case 8:
                     Talk(SAY_BLUELEAF, player);
@@ -87,7 +87,7 @@ public:
                     Talk(SAY_BAD, player);
                     break;
                 case 14:
-                    me->SummonCreature(ENTRY_BOAR, 2078.91f, 1704.54f, 56.77f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(ENTRY_BOAR, 2078.91f, 1704.54f, 56.77f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
                     break;
                 case 25:
                     Talk(SAY_THINK, player);
@@ -99,7 +99,7 @@ public:
                     Talk(SAY_FINALY, player);
                     break;
                 case 43:
-                    me->SummonCreature(ENTRY_BOAR, 1956.43f, 1596.97f, 81.75f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(ENTRY_BOAR, 1956.43f, 1596.97f, 81.75f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
                     break;
                 case 45:
                     Talk(SAY_WIN, player);
@@ -114,7 +114,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO1, who);
         }

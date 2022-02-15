@@ -21,8 +21,6 @@ Quest support: 3628.
 */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "Player.h"
 #include "Group.h"
@@ -57,7 +55,7 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
                 {
                     if (Group* group = player->GetGroup())
                     {
-                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                             if (Player* member = itr->GetSource())
                                 if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
                                     member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);

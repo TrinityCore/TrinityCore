@@ -88,7 +88,7 @@ namespace VMAP
         class WmoLiquid* liquid;
 
         GroupModel_Raw() : mogpflags(0), GroupWMOID(0), liquidflags(0),
-            liquid(NULL) { }
+            liquid(nullptr) { }
         ~GroupModel_Raw();
 
         bool Read(FILE* f);

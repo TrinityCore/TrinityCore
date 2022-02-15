@@ -47,9 +47,6 @@ enum NAXEncounter
 enum NAXData
 {
     DATA_GOTHIK_GATE,
-    DATA_HAD_ANUBREKHAN_GREET,
-    DATA_HAD_FAERLINA_GREET,
-    DATA_HAD_THADDIUS_GREET,
     DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
@@ -111,7 +108,7 @@ enum NAXCreaturesIds
     NPC_BIGGLESWORTH            = 16998,
     NPC_LICH_KING               = 16980,
     NPC_OLD_WORLD_TRIGGER       = 15384,
-    NPC_FROGGER                 = 16027
+    NPC_LIVING_POISON           = 16027
 };
 
 enum NAXGameObjectsIds
@@ -186,9 +183,6 @@ enum NAXInstanceEvents
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
 
-    // Periodic Frogger summon
-    EVENT_SUMMON_FROGGER_WAVE,
-
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,
     EVENT_DIALOGUE_SAPPHIRON_LICHKING,
@@ -218,7 +212,8 @@ enum NAXInstanceTexts
     SAY_DIALOGUE_SAPPHIRON_LICH_KING2 = 2
 };
 
-template<typename AI, typename T>
+
+template <class AI, class T>
 inline AI* GetNaxxramasAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, NaxxramasScriptName);

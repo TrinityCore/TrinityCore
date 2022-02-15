@@ -31,9 +31,10 @@
 #include "UpdateData.h"
 #include "Vehicle.h"
 #include <G3D/Vector3.h>
+#include <sstream>
 
 Transport::Transport() : GameObject(),
-    _transportInfo(NULL), _isMoving(true), _pendingStop(false),
+    _transportInfo(nullptr), _isMoving(true), _pendingStop(false),
     _triggeredArrivalEvent(false), _triggeredDepartureEvent(false),
     _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false), _delayedTeleport(false)
 {
@@ -86,10 +87,10 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     _triggeredArrivalEvent = false;
     _triggeredDepartureEvent = false;
 
-    if (m_goTemplateAddon)
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
-        SetFaction(m_goTemplateAddon->faction);
-        SetFlags(GameObjectFlags(m_goTemplateAddon->flags));
+        SetFaction(goOverride->Faction);
+        SetFlags(GameObjectFlags(goOverride->Flags));
     }
 
     m_goValue.Transport.PathProgress = 0;
@@ -101,7 +102,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetGoType(GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
-    SetWorldRotation(0.0f, 0.0f, 0.0f, 1.0f);
+    SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
     SetParentRotation(QuaternionData());
 
     CreateModel();
@@ -284,7 +285,7 @@ void Transport::RemovePassenger(WorldObject* passenger)
 
     if (erased || _staticPassengers.erase(passenger)) // static passenger can remove itself in case of grid unload
     {
-        passenger->SetTransport(NULL);
+        passenger->SetTransport(nullptr);
         passenger->m_movementInfo.transport.Reset();
         TC_LOG_DEBUG("entities.transport", "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
@@ -299,17 +300,17 @@ void Transport::RemovePassenger(WorldObject* passenger)
 Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)
 {
     Map* map = GetMap();
+    if (map->GetCreatureRespawnTime(guid))
+        return nullptr;
 
-    Creature* creature = Creature::CreateCreatureFromDB(guid, map, false);
+    Creature* creature = Creature::CreateCreatureFromDB(guid, map, false, true);
     if (!creature)
         return nullptr;
 
     ASSERT(data);
 
-    float x = data->posX;
-    float y = data->posY;
-    float z = data->posZ;
-    float o = data->orientation;
+    float x, y, z, o;
+    data->spawnPoint.GetPosition(x, y, z, o);
 
     creature->SetTransport(this);
     creature->m_movementInfo.transport.guid = GetGUID();
@@ -348,6 +349,8 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
 GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     Map* map = GetMap();
+    if (map->GetGORespawnTime(guid))
+        return nullptr;
 
     GameObject* go = GameObject::CreateGameObjectFromDB(guid, map, false);
     if (!go)
@@ -355,10 +358,8 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
 
     ASSERT(data);
 
-    float x = data->posX;
-    float y = data->posY;
-    float z = data->posZ;
-    float o = data->orientation;
+    float x, y, z, o;
+    data->spawnPoint.GetPosition(x, y, z, o);
 
     go->SetTransport(this);
     go->m_movementInfo.transport.guid = GetGUID();
@@ -388,11 +389,11 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     return go;
 }
 
-TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/)
+TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, Unit* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/)
 {
     Map* map = FindMap();
     if (!map)
-        return NULL;
+        return nullptr;
 
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
@@ -431,14 +432,14 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
                         mask = UNIT_MASK_MINION;
                         break;
                     default:
-                        if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
+                        if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup)) // Mirror Image, Summon Gargoyle
                             mask = UNIT_MASK_GUARDIAN;
                         break;
                 }
                 break;
             }
             default:
-                return NULL;
+                return nullptr;
         }
     }
 
@@ -466,13 +467,18 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, entry, x, y, z, o, nullptr, vehId))
+    if (!summon->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, entry, { x, y, z, o }, nullptr, vehId))
     {
         delete summon;
         return nullptr;
     }
 
-    PhasingHandler::InheritPhaseShift(summon, summoner ? static_cast<WorldObject*>(summoner) : static_cast<WorldObject*>(this));
+    WorldObject* phaseShiftOwner = this;
+    if (summoner && !(properties && properties->GetFlags().HasFlag(SummonPropertiesFlags::IgnoreSummonerPhase)))
+        phaseShiftOwner = summoner;
+
+    if (phaseShiftOwner)
+        PhasingHandler::InheritPhaseShift(summon, phaseShiftOwner);
 
     summon->SetCreatedBySpell(spellId);
 
@@ -545,7 +551,7 @@ void Transport::LoadStaticPassengers()
             // GameObjects on transport
             guidEnd = cellItr->second.gameobjects.end();
             for (CellGuidSet::const_iterator guidItr = cellItr->second.gameobjects.begin(); guidItr != guidEnd; ++guidItr)
-                CreateGOPassenger(*guidItr, sObjectMgr->GetGOData(*guidItr));
+                CreateGOPassenger(*guidItr, sObjectMgr->GetGameObjectData(*guidItr));
         }
     }
 }
@@ -768,4 +774,11 @@ void Transport::BuildUpdate(UpdateDataMapType& data_map)
         BuildFieldsUpdate(itr->GetSource(), data_map);
 
     ClearUpdateMask(true);
+}
+
+std::string Transport::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << GameObject::GetDebugInfo();
+    return sstr.str();
 }

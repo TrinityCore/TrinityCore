@@ -164,14 +164,14 @@ class boss_laj : public CreatureScript
                 CanSummon = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
             void JustSummoned(Creature* summon) override
             {
                 if (summon && me->GetVictim())
-                    summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                    summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random, 0));
             }
 
             void UpdateAI(uint32 diff) override

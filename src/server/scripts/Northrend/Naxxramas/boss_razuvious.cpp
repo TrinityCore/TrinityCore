@@ -79,7 +79,7 @@ public:
 
         void InitializeAI() override
         {
-            if (!me->isDead())
+            if (!me->isDead() && instance->GetBossState(BOSS_RAZUVIOUS) != DONE)
             {
                 Reset();
                 SummonAdds();
@@ -99,9 +99,9 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_UNDERSTUDY_TAUNT)
+            if (spellInfo->Id == SPELL_UNDERSTUDY_TAUNT)
                 Talk(SAY_TAUNTED, caster);
         }
 
@@ -117,16 +117,16 @@ public:
             instance->SetBossState(BOSS_RAZUVIOUS, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             me->StopMoving();
             summons.DoZoneInCombat();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_ATTACK, Seconds(7));
-            events.ScheduleEvent(EVENT_STRIKE, Seconds(21));
-            events.ScheduleEvent(EVENT_SHOUT, Seconds(16));
-            events.ScheduleEvent(EVENT_KNIFE, Seconds(10));
+            events.ScheduleEvent(EVENT_ATTACK, 7s);
+            events.ScheduleEvent(EVENT_STRIKE, 21s);
+            events.ScheduleEvent(EVENT_SHOUT, 16s);
+            events.ScheduleEvent(EVENT_KNIFE, 10s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -154,7 +154,7 @@ public:
                         events.Repeat(Seconds(16));
                         return;
                     case EVENT_KNIFE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f))
                             DoCast(target, SPELL_JAGGED_KNIFE);
                         events.Repeat(randtime(Seconds(10), Seconds(15)));
                         return;
@@ -185,11 +185,11 @@ class npc_dk_understudy : public CreatureScript
                 creature->LoadEquipment(1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
                 if (Creature* razuvious = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAZUVIOUS)))
-                    razuvious->AI()->DoZoneInCombat(nullptr, 250.0f);
+                    razuvious->AI()->DoZoneInCombat();
             }
 
             void JustReachedHome() override
@@ -216,24 +216,11 @@ class npc_dk_understudy : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void OnCharmed(bool apply) override
+            void OnCharmed(bool isNew) override
             {
-                ScriptedAI::OnCharmed(apply);
-                if (apply)
-                {
-                    if (!me->IsInCombat())
-                        EnterCombat(nullptr);
-                    me->StopMoving();
-                    me->SetReactState(REACT_PASSIVE);
-                    _charmer = me->GetCharmerGUID();
-                }
-                else
-                {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    if (Unit* charmer = ObjectAccessor::GetUnit(*me, _charmer))
-                        me->AddThreat(charmer, 100000.0f);
-                    DoZoneInCombat(nullptr, 250.0f);
-                }
+                if (me->IsCharmed() && !me->IsEngaged())
+                    JustEngagedWith(nullptr);
+                ScriptedAI::OnCharmed(isNew);
             }
         private:
             InstanceScript* const _instance;

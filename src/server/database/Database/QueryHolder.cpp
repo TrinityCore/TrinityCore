@@ -47,7 +47,7 @@ void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* resu
     if (result && !result->GetRowCount())
     {
         delete result;
-        result = NULL;
+        result = nullptr;
     }
 
     /// store the result in the holder
@@ -57,11 +57,11 @@ void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* resu
 
 SQLQueryHolderBase::~SQLQueryHolderBase()
 {
-    for (size_t i = 0; i < m_queries.size(); i++)
+    for (std::pair<PreparedStatementBase*, PreparedQueryResult>& query : m_queries)
     {
         /// if the result was never used, free the resources
         /// results used already (getresult called) are expected to be deleted
-        delete m_queries[i].first;
+        delete query.first;
     }
 }
 
@@ -85,10 +85,21 @@ bool SQLQueryHolderTask::Execute()
         return false;
 
     /// execute all queries in the holder and pass the results
-    for (size_t i = 0; i < m_holder->m_queries.size(); i++)
+    for (size_t i = 0; i < m_holder->m_queries.size(); ++i)
         if (PreparedStatementBase* stmt = m_holder->m_queries[i].first)
             m_holder->SetPreparedResult(i, m_conn->Query(stmt));
 
     m_result.set_value(m_holder);
     return true;
+}
+
+bool SQLQueryHolderCallback::InvokeIfReady()
+{
+    if (m_future.valid() && m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    {
+        m_callback(m_future.get());
+        return true;
+    }
+
+    return false;
 }

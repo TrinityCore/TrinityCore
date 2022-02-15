@@ -18,17 +18,16 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
-#include "Common.h"
 #include "AsyncCallbackProcessor.h"
 #include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "MessageBuffer.h"
 #include "Socket.h"
+#include "WorldPacket.h"
 #include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
 #include <array>
-#include <chrono>
-#include <functional>
+#include <boost/asio/ip/tcp.hpp>
 #include <mutex>
 
 typedef struct z_stream_s z_stream;
@@ -37,6 +36,22 @@ class WorldPacket;
 class WorldSession;
 enum ConnectionType : int8;
 enum OpcodeClient : uint16;
+
+class EncryptablePacket : public WorldPacket
+{
+public:
+    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt)
+    {
+        SocketQueueLink.store(nullptr, std::memory_order_relaxed);
+    }
+
+    bool NeedsEncryption() const { return _encrypt; }
+
+    std::atomic<EncryptablePacket*> SocketQueueLink;
+
+private:
+    bool _encrypt;
+};
 
 namespace WorldPackets
 {
@@ -57,7 +72,12 @@ struct PacketHeader
     uint32 Size;
     uint8 Tag[12];
 
-    bool IsValidSize() { return Size < 0x40000; }
+    bool IsValidSize() { return Size < 0x10000; }
+};
+
+struct IncomingPacketHeader : PacketHeader
+{
+    uint16 EncryptedOpcode;
 };
 
 #pragma pack(pop)
@@ -126,7 +146,7 @@ private:
     void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
     bool HandlePing(WorldPackets::Auth::Ping& ping);
-    void HandleEnableEncryptionAck();
+    void HandleEnterEncryptedModeAck();
 
     ConnectionType _type;
     uint64 _key;
@@ -136,16 +156,17 @@ private:
     SessionKey _sessionKey;
     std::array<uint8, 16> _encryptKey;
 
-    std::chrono::steady_clock::time_point _LastPingTime;
+    TimePoint _LastPingTime;
     uint32 _OverSpeedPings;
 
     std::mutex _worldSessionLock;
     WorldSession* _worldSession;
     bool _authed;
+    bool _canRequestHotfixes;
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
-    MPSCQueue<EncryptablePacket> _bufferQueue;
+    MPSCQueue<EncryptablePacket, &EncryptablePacket::SocketQueueLink> _bufferQueue;
     std::size_t _sendBufferSize;
 
     z_stream* _compressionStream;

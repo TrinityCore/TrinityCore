@@ -109,7 +109,7 @@ public:
 
             scheduler.Schedule(Seconds(25), Seconds(45), [this](TaskContext task)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target,SPELL_INTANGIBLE_PRESENCE);
 
                 task.Repeat(Seconds(25), Seconds(45));
@@ -159,7 +159,7 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->GetEntry() == NPC_MIDNIGHT)
                 _phase = PHASE_ATTUMEN_ENGAGES;
@@ -172,12 +172,11 @@ public:
                 scheduler.Schedule(Seconds(10), Seconds(25), [this](TaskContext task)
                 {
                     Unit* target = nullptr;
-                    ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
                     std::vector<Unit*> target_list;
 
-                    for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
+                    for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
+                        target = ref->GetVictim();
                         if (target && !target->IsWithinDist(me, 8.00f, false) && target->IsWithinDist(me, 25.0f, false))
                             target_list.push_back(target);
 
@@ -199,18 +198,18 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             if (Unit* midnight = ObjectAccessor::GetUnit(*me, _midnightGUID))
                 midnight->KillSelf();
 
-            BossAI::JustDied(killer);
+            _JustDied();
         }
 
-        void SetGUID(ObjectGuid guid, int32 data) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (data == NPC_MIDNIGHT)
+            if (id == NPC_MIDNIGHT)
                 _midnightGUID = guid;
         }
 
@@ -223,12 +222,12 @@ public:
                 std::bind(&BossAI::DoMeleeAttackIfReady, this));
         }
 
-        void SpellHit(Unit* /*source*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Mechanic == MECHANIC_DISARM)
+            if (spellInfo->Mechanic == MECHANIC_DISARM)
                 Talk(SAY_DISARMED);
 
-            if (spell->Id == SPELL_MOUNT)
+            if (spellInfo->Id == SPELL_MOUNT)
             {
                 if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
                 {
@@ -238,30 +237,31 @@ public:
                     midnight->AttackStop();
                     midnight->RemoveAllAttackers();
                     midnight->SetReactState(REACT_PASSIVE);
-                    midnight->GetMotionMaster()->MoveChase(me);
+                    midnight->GetMotionMaster()->MoveFollow(me, 2.0f, 0.0f);
                     midnight->AI()->Talk(EMOTE_MOUNT_UP);
 
                     me->AttackStop();
                     me->RemoveAllAttackers();
                     me->SetReactState(REACT_PASSIVE);
-                    me->GetMotionMaster()->MoveChase(midnight);
+                    me->GetMotionMaster()->MoveFollow(midnight, 2.0f, 0.0f);
                     Talk(SAY_MOUNT);
 
-                    scheduler.Schedule(Seconds(3), [this](TaskContext task)
+                    scheduler.Schedule(Seconds(1), [this](TaskContext task)
                     {
                         if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
                         {
-                            if (me->IsWithinMeleeRange(midnight))
+                            if (me->IsWithinDist2d(midnight, 5.0f))
                             {
                                 DoCastAOE(SPELL_SUMMON_ATTUMEN_MOUNTED);
                                 me->SetVisible(false);
+                                me->GetMotionMaster()->Clear();
                                 midnight->SetVisible(false);
                             }
                             else
                             {
-                                midnight->GetMotionMaster()->MoveChase(me);
-                                me->GetMotionMaster()->MoveChase(midnight);
-                                task.Repeat(Seconds(3));
+                                midnight->GetMotionMaster()->MoveFollow(me, 2.0f, 0.0f);
+                                me->GetMotionMaster()->MoveFollow(midnight, 2.0f, 0.0f);
+                                task.Repeat();
                             }
                         }
                     });
@@ -337,9 +337,9 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
             {

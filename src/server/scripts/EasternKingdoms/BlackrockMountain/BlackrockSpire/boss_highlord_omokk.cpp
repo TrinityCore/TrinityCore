@@ -50,11 +50,11 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_FRENZY,      20000);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY,  18000);
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_FRENZY, 20s);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 18s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -78,11 +78,11 @@ public:
                 {
                     case EVENT_FRENZY:
                         DoCastVictim(SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 60000);
+                        events.ScheduleEvent(EVENT_FRENZY, 1min);
                         break;
                     case EVENT_KNOCK_AWAY:
                         DoCastVictim(SPELL_KNOCK_AWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12000);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s);
                         break;
                     default:
                         break;

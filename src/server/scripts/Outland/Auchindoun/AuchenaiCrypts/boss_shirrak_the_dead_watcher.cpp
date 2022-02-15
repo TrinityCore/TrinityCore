@@ -58,7 +58,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_shirrak_the_dead_watcherAI(creature);
+        return GetAuchenaiCryptsAI<boss_shirrak_the_dead_watcherAI>(creature);
     }
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
@@ -89,7 +89,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void JustSummoned(Creature* summoned) override
@@ -98,7 +98,7 @@ public:
             {
                 summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
                 summoned->SetFaction(me->GetFaction());
-                summoned->SetLevel(me->getLevel());
+                summoned->SetLevel(me->GetLevel());
                 summoned->AddUnitState(UNIT_STATE_ROOT);
 
                 if (Unit* pFocusedTarget = ObjectAccessor::GetUnit(*me, FocusedTargetGUID))
@@ -111,7 +111,7 @@ public:
             //Inhibitmagic_Timer
             if (Inhibitmagic_Timer <= diff)
             {
-                me->GetInstanceScript()->DoOnPlayers([this](Player* player)
+                me->GetMap()->DoOnPlayers([this](Player* player)
                 {
                     float dist = player->GetDistance(me);
 
@@ -127,7 +127,6 @@ public:
                             me->AddAura(SPELL_INHIBITMAGIC, player);
                     }
                 });
-
                 Inhibitmagic_Timer = 3000 + (rand32() % 1000);
             } else Inhibitmagic_Timer -= diff;
 
@@ -154,11 +153,11 @@ public:
             if (FocusFire_Timer <= diff)
             {
                 // Summon Focus Fire & Emote
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                 {
                     FocusedTargetGUID = target->GetGUID();
-                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
+                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500ms);
                     Talk(EMOTE_FOCUSED, target);
                 }
                 FocusFire_Timer = 15000 + (rand32() % 5000);
@@ -177,7 +176,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_focus_fireAI(creature);
+        return GetAuchenaiCryptsAI<npc_focus_fireAI>(creature);
     }
 
     struct npc_focus_fireAI : public ScriptedAI
@@ -201,7 +200,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void UpdateAI(uint32 diff) override

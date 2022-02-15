@@ -50,7 +50,7 @@ enum CreatureIds
 class instance_sunken_temple : public InstanceMapScript
 {
 public:
-    instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
+    instance_sunken_temple() : InstanceMapScript(STScriptName, 109) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -166,7 +166,7 @@ public:
 
         void UseStatue(GameObject* go)
         {
-            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 0);
+            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 0s);
             go->AddFlag(GO_FLAG_INTERACT_COND);
         }
 
@@ -174,9 +174,9 @@ public:
         void UseLastStatue(GameObject* go)
         {
             for (uint8 i = 0; i < nStatues; ++i)
-                go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], G3D::Quat(), 0);
+                go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], QuaternionData(), 0s);
 
-            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200);
+            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
         }
         */
 

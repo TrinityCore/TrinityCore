@@ -78,7 +78,9 @@ class LinkedListElement
 
     private:
         LinkedListElement(LinkedListElement const&) = delete;
+        LinkedListElement(LinkedListElement&&) = delete;
         LinkedListElement& operator=(LinkedListElement const&) = delete;
+        LinkedListElement& operator=(LinkedListElement&&) = delete;
 
     protected:
         ~LinkedListElement()
@@ -164,7 +166,7 @@ class LinkedListHead
                 {                                           // construct with node pointer _Pnode
                 }
 
-                Iterator& operator=(const_pointer const &_Right)
+                Iterator& operator=(const_pointer const& _Right)
                 {
                     _Ptr = pointer(_Right);
                     return *this;
@@ -206,22 +208,22 @@ class LinkedListHead
                     return (_Tmp);
                 }
 
-                bool operator==(Iterator const &_Right) const
+                bool operator==(Iterator const& _Right) const
                 {                                           // test for iterator equality
                     return (_Ptr == _Right._Ptr);
                 }
 
-                bool operator!=(Iterator const &_Right) const
+                bool operator!=(Iterator const& _Right) const
                 {                                           // test for iterator inequality
                     return (!(*this == _Right));
                 }
 
-                bool operator==(pointer const &_Right) const
+                bool operator==(pointer const& _Right) const
                 {                                           // test for pointer equality
                     return (_Ptr != _Right);
                 }
 
-                bool operator!=(pointer const &_Right) const
+                bool operator!=(pointer const& _Right) const
                 {                                           // test for pointer equality
                     return (!(*this == _Right));
                 }
@@ -249,7 +251,9 @@ class LinkedListHead
 
     private:
         LinkedListHead(LinkedListHead const&) = delete;
+        LinkedListHead(LinkedListHead&&) = delete;
         LinkedListHead& operator=(LinkedListHead const&) = delete;
+        LinkedListHead& operator=(LinkedListHead&&) = delete;
 
     protected:
         ~LinkedListHead() { }

@@ -15,14 +15,7 @@
 //-----------------------------------------------------------------------------
 // Local structures
 
-#define CASC_EXTRA_KEYS 0x80
-
-typedef struct _CASC_ENCRYPTION_KEY
-{
-    ULONGLONG KeyName;                  // "Name" of the key
-    BYTE Key[CASC_KEY_LENGTH];          // The key itself
-} CASC_ENCRYPTION_KEY, *PCASC_ENCRYPTION_KEY;
-
+// For Salsa20 decryption process
 typedef struct _CASC_SALSA20
 {
     DWORD Key[CASC_KEY_LENGTH];
@@ -30,26 +23,40 @@ typedef struct _CASC_SALSA20
 
 } CASC_SALSA20, *PCASC_SALSA20;
 
+// For static-stored keys
+struct CASC_ENCRYPTION_KEY
+{
+    ULONGLONG KeyName;                          // "Name" of the key
+    BYTE Key[CASC_KEY_LENGTH];                  // The key itself
+};
+
+// For keys inside the key map
+struct CASC_ENCRYPTION_KEY2 : public CASC_ENCRYPTION_KEY
+{
+    CASC_ENCRYPTION_KEY2 * pNext;               // Pointer to the next key wihh the same hash
+};
+typedef CASC_ENCRYPTION_KEY2 * PCASC_ENCRYPTION_KEY2;
+
 //-----------------------------------------------------------------------------
 // Known encryption keys. See https://wowdev.wiki/CASC for updates
 
 static const char * szKeyConstant16 = "expand 16-byte k";
 static const char * szKeyConstant32 = "expand 32-byte k";
 
-static CASC_ENCRYPTION_KEY CascKeys[] =
+static CASC_ENCRYPTION_KEY StaticCascKeys[] =
 {
     // Key Name               Encryption key                                                                                         Seen in
-    // ---------------------- ------------------------------------------------------------------------------------------------       -----------
+    // ---------------------- ---------------------------------------------------------------------------------------------------    -----------
 
     // Battle.net app
     { 0x2C547F26A2613E01ULL, { 0x37, 0xC5, 0x0C, 0x10, 0x2D, 0x4C, 0x9E, 0x3A, 0x5A, 0xC0, 0x69, 0xF0, 0x72, 0xB1, 0x41, 0x7D } },   // Battle.net App Alpha 1.5.0
 
     // Starcraft
-//  { 0xD0CAE11366CEEA83ULL, { 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x?? }},    // 1.12.3.2609 (build 45364)
+//  { 0xD0CAE11366CEEA83ULL, { 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x??, 0x?? } },   // 1.12.3.2609 (build 45364)
 
     // Warcraft III Reforged beta (build)
-    { 0x6E4296823E7D561EULL, { 0xC0, 0xBF, 0xA2, 0x94, 0x3A, 0xC3, 0xE9, 0x22, 0x86, 0xE4, 0x44, 0x3E, 0xE3, 0x56, 0x0D, 0x65 }},    // 1.32.0.13369 Base content (Beta Week 0)
-    { 0xE04D60E31DDEBF63ULL, { 0x26, 0x3D, 0xB5, 0xC4, 0x02, 0xDA, 0x8D, 0x4D, 0x68, 0x63, 0x09, 0xCB, 0x2E, 0x32, 0x54, 0xD0 }},    // 1.32.0.13445 Base content (Beta Week 1)
+    { 0x6E4296823E7D561EULL, { 0xC0, 0xBF, 0xA2, 0x94, 0x3A, 0xC3, 0xE9, 0x22, 0x86, 0xE4, 0x44, 0x3E, 0xE3, 0x56, 0x0D, 0x65 } },   // 1.32.0.13369 Base content (Beta Week 0)
+    { 0xE04D60E31DDEBF63ULL, { 0x26, 0x3D, 0xB5, 0xC4, 0x02, 0xDA, 0x8D, 0x4D, 0x68, 0x63, 0x09, 0xCB, 0x2E, 0x32, 0x54, 0xD0 } },   // 1.32.0.13445 Base content (Beta Week 1)
 
     // Overwatch
     { 0xFB680CB6A8BF81F3ULL, { 0x62, 0xD9, 0x0E, 0xFA, 0x7F, 0x36, 0xD7, 0x1C, 0x39, 0x8A, 0xE2, 0xF1, 0xFE, 0x37, 0xBD, 0xB9 } },   // 0.8.0.24919_retailx64 (hardcoded)
@@ -644,12 +651,98 @@ static int Decrypt_Salsa20(LPBYTE pbOutBuffer, LPBYTE pbInBuffer, size_t cbInBuf
     return Decrypt(&SalsaState, pbOutBuffer, pbInBuffer, cbInBuffer);
 }
 
-static LPBYTE CascFindKey(TCascStorage * hs, ULONGLONG KeyName)
-{
-    PCASC_ENCRYPTION_KEY pKey;
+//-----------------------------------------------------------------------------
+// Key map implementation
 
-    pKey = (PCASC_ENCRYPTION_KEY)hs->EncryptionKeys.FindObject(&KeyName);
-    return (pKey != NULL) ? pKey->Key : NULL;
+static PCASC_ENCRYPTION_KEY2 CreateKeyItem(ULONGLONG KeyName, LPBYTE Key)
+{
+    PCASC_ENCRYPTION_KEY2 pNewItem;
+
+    if((pNewItem = new CASC_ENCRYPTION_KEY2) != NULL)
+    {
+        memset(pNewItem, 0, sizeof(CASC_ENCRYPTION_KEY2));
+        pNewItem->KeyName = KeyName;
+        memcpy(pNewItem->Key, Key, CASC_KEY_LENGTH);
+    }
+
+    return pNewItem;
+}
+
+CASC_KEY_MAP::CASC_KEY_MAP()
+{
+    memset(HashTable, 0, sizeof(HashTable));
+}
+
+CASC_KEY_MAP::~CASC_KEY_MAP()
+{
+    PCASC_ENCRYPTION_KEY2 pNextItem;
+    PCASC_ENCRYPTION_KEY2 pKeyItem;
+
+    for(size_t i = 0; i < CASC_KEY_TABLE_SIZE; i++)
+    {
+        if((pKeyItem = (PCASC_ENCRYPTION_KEY2)HashTable[i]) != NULL)
+        {
+            while(pKeyItem != NULL)
+            {
+                pNextItem = pKeyItem->pNext;
+                delete pKeyItem;
+                pKeyItem = pNextItem;
+            }
+        }
+    }
+}
+
+LPBYTE CASC_KEY_MAP::FindKey(ULONGLONG KeyName)
+{
+    PCASC_ENCRYPTION_KEY2 pKeyItem = NULL;
+    size_t HashIndex = (size_t)(KeyName & CASC_KEY_TABLE_MASK);
+
+    // Check the key chain beginning at the hash table
+    pKeyItem = (PCASC_ENCRYPTION_KEY2)HashTable[HashIndex];
+    while(pKeyItem != NULL)
+    {
+        if(pKeyItem->KeyName == KeyName)
+            return pKeyItem->Key;
+        pKeyItem = pKeyItem->pNext;
+    }
+
+    // Not found
+    return NULL;
+}
+
+bool CASC_KEY_MAP::AddKey(ULONGLONG KeyName, LPBYTE Key)
+{
+    PCASC_ENCRYPTION_KEY2 pKeyItem;
+    PCASC_ENCRYPTION_KEY2 pNewItem;
+    size_t HashIndex = (size_t)(KeyName & CASC_KEY_TABLE_MASK);
+
+    // Is the key already there?
+    if(FindKey(KeyName) == NULL)
+    {
+        // Create new key item
+        if((pNewItem = CreateKeyItem(KeyName, Key)) == NULL)
+            return false;
+
+        if(HashTable[HashIndex] != NULL)
+        {
+            // Get the last-in-chain key item
+            pKeyItem = (PCASC_ENCRYPTION_KEY2)(HashTable[HashIndex]);
+            while(pKeyItem->pNext != NULL)
+                pKeyItem = pKeyItem->pNext;
+
+            // Insert the key to the chain
+            pKeyItem->pNext = pNewItem;
+            return true;
+        }
+        else
+        {
+            HashTable[HashIndex] = pNewItem;
+            return true;
+        }
+    }
+
+    // Already exists, it's OK
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -657,22 +750,197 @@ static LPBYTE CascFindKey(TCascStorage * hs, ULONGLONG KeyName)
 
 DWORD CascLoadEncryptionKeys(TCascStorage * hs)
 {
-    size_t nKeyCount = (sizeof(CascKeys) / sizeof(CASC_ENCRYPTION_KEY));
-    size_t nMaxItems = nKeyCount + CASC_EXTRA_KEYS;
-    DWORD dwErrCode;
+    for(size_t i = 0; i < _countof(StaticCascKeys); i++)
+    {
+        if(!hs->KeyMap.AddKey(StaticCascKeys[i].KeyName, StaticCascKeys[i].Key))
+        {
+            return ERROR_NOT_ENOUGH_MEMORY;
+        }
+    }
 
-    // Create fast map of KeyName -> Key
-    dwErrCode = hs->EncryptionKeys.Create(nMaxItems, sizeof(ULONGLONG), FIELD_OFFSET(CASC_ENCRYPTION_KEY, KeyName));
-    if(dwErrCode != ERROR_SUCCESS)
-        return dwErrCode;
+    return ERROR_SUCCESS;
+}
 
-    // Insert all static keys
-    for (size_t i = 0; i < nKeyCount; i++)
-        hs->EncryptionKeys.InsertObject(&CascKeys[i], &CascKeys[i].KeyName);
+bool WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key)
+{
+    TCascStorage * hs;
 
-    // Create array for extra keys
-    dwErrCode = hs->ExtraKeysList.Create<CASC_ENCRYPTION_KEY>(CASC_EXTRA_KEYS);
-    return dwErrCode;
+    // Validate the storage handle
+    hs = TCascStorage::IsValid(hStorage);
+    if (hs == NULL)
+    {
+        SetCascError(ERROR_INVALID_HANDLE);
+        return false;
+    }
+
+    // Add the key to the map and return result
+    return hs->KeyMap.AddKey(KeyName, Key);
+}
+
+bool WINAPI CascAddStringEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPCSTR szKey)
+{
+    BYTE Key[CASC_KEY_LENGTH];
+
+    // Check the length of the string key
+    if(strlen(szKey) != CASC_KEY_LENGTH * 2)
+    {
+        SetCascError(ERROR_INVALID_PARAMETER);
+        return false;
+    }
+
+    // Convert the string key to the binary array
+    if(BinaryFromString(szKey, CASC_KEY_LENGTH * 2, Key) != ERROR_SUCCESS)
+    {
+        SetCascError(ERROR_INVALID_PARAMETER);
+        return false;
+    }
+
+    return CascAddEncryptionKey(hStorage, KeyName, Key);
+}
+
+LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName)
+{
+    TCascStorage * hs;
+
+    // Validate the storage handle
+    hs = TCascStorage::IsValid(hStorage);
+    if (hs == NULL)
+    {
+        SetCascError(ERROR_INVALID_HANDLE);
+        return NULL;
+    }
+
+    // Return the result from the map's search function
+    return hs->KeyMap.FindKey(KeyName);
+}
+
+bool WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName)
+{
+    TCascStorage * hs;
+
+    // Validate the storage handle
+    if ((hs = TCascStorage::IsValid(hStorage)) == NULL)
+    {
+        SetCascError(ERROR_INVALID_HANDLE);
+        return false;
+    }
+
+    // If there was no decryption key error, just return false with ERROR_SUCCESS
+    if(hs->LastFailKeyName == 0)
+    {
+        SetCascError(ERROR_SUCCESS);
+        return false;
+    }
+
+    // Give the name of the key that failed most recently
+    KeyName[0] = hs->LastFailKeyName;
+    return true;
+}
+
+bool WINAPI CascImportKeysFromString(HANDLE hStorage, LPCSTR szKeyList)
+{
+    // Verify parameters
+    if(TCascStorage::IsValid(hStorage) == NULL || szKeyList == NULL || szKeyList[0] == 0)
+    {
+        SetCascError(ERROR_INVALID_PARAMETER);
+        return false;
+    }
+
+    // Parse text file
+    while(szKeyList[0])
+    {
+        ULONGLONG KeyName = 0;
+        DWORD dwErrCode;
+        BYTE KeyValue[CASC_KEY_LENGTH];
+
+        // Capture key name
+        dwErrCode = ConvertStringToInt(szKeyList, 0, KeyName, &szKeyList);
+        if(dwErrCode != ERROR_SUCCESS)
+        {
+            SetCascError(dwErrCode);
+            return false;
+        }
+
+        // TACT key list downloaded from https://wow.tools/api.php?type=tactkeys ends with a single zero
+        if(KeyName == 0)
+            break;
+
+        // We only expect spaces and tabs at this point. Anything else will lead
+        // to end of the loop.
+        while(szKeyList[0] == 0x09 || szKeyList[0] == 0x20)
+            szKeyList++;
+        if(szKeyList[0] == 0x0A || szKeyList[0] == 0x0D)
+            break;
+
+        // Convert the string to binary
+        dwErrCode = BinaryFromString(szKeyList, CASC_KEY_LENGTH * 2, KeyValue);
+        if(dwErrCode != ERROR_SUCCESS)
+        {
+            SetCascError(dwErrCode);
+            return false;
+        }
+
+        // Add the encryption key. Note that if the key already exists with the same value,
+        // CascAddEncryptionKey will consider it success.
+        if(!CascAddEncryptionKey(hStorage, KeyName, KeyValue))
+            return false;
+
+        // Move to the next key
+        while(szKeyList[0] != 0 && szKeyList[0] != 0x0A && szKeyList[0] != 0x0D)
+            szKeyList++;
+        while(szKeyList[0] == 0x0A || szKeyList[0] == 0x0D)
+            szKeyList++;
+    }
+
+    return true;
+}
+
+bool WINAPI CascImportKeysFromFile(HANDLE hStorage, LPCTSTR szFileName)
+{
+    TFileStream * pFileStream;
+    ULONGLONG FileSize = 0;
+    LPSTR szKeyList;
+    bool bResult = false;
+
+    // Open the file
+    if((pFileStream = FileStream_OpenFile(szFileName, STREAM_FLAG_READ_ONLY)) != NULL)
+    {
+        // Load the entire file to memory, up to 10 MB
+        if(FileStream_GetSize(pFileStream, &FileSize) && FileSize < 0xA00000)
+        {
+            DWORD FileSize32 = (DWORD)FileSize;
+
+            // Allocate buffer for the key stream
+            if((szKeyList = CASC_ALLOC<char>(FileSize32 + 1)) != NULL)
+            {
+                // Read the entire file and terminate it with zero
+                FileStream_Read(pFileStream, NULL, szKeyList, FileSize32);
+                szKeyList[FileSize] = 0;
+
+                // Import the buffer
+                bResult = CascImportKeysFromString(hStorage, szKeyList);
+                CASC_FREE(szKeyList);
+            }
+        }
+        else
+            SetCascError(ERROR_FILE_TOO_LARGE);
+
+        FileStream_Close(pFileStream);
+    }
+
+    return bResult;
+}
+
+DWORD CascDirectCopy(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer)
+{
+    // Check the buffer size
+    if((cbInBuffer - 1) > pcbOutBuffer[0])
+        return ERROR_INSUFFICIENT_BUFFER;
+
+    // Copy the data
+    memcpy(pbOutBuffer, pbInBuffer, cbInBuffer);
+    pcbOutBuffer[0] = cbInBuffer;
+    return ERROR_SUCCESS;
 }
 
 DWORD CascDecrypt(TCascStorage * hs, LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer, DWORD dwFrameIndex)
@@ -726,7 +994,7 @@ DWORD CascDecrypt(TCascStorage * hs, LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LP
         return ERROR_INSUFFICIENT_BUFFER;
 
     // Check if we know the key
-    pbKey = CascFindKey(hs, KeyName);
+    pbKey = hs->KeyMap.FindKey(KeyName);
     if(pbKey == NULL)
     {
         hs->LastFailKeyName = KeyName;
@@ -754,126 +1022,10 @@ DWORD CascDecrypt(TCascStorage * hs, LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LP
             pcbOutBuffer[0] = (DWORD)(pbBufferEnd - pbInBuffer);
             return ERROR_SUCCESS;
 
-//      case 'A':
-//          return ERROR_NOT_SUPPORTED;
+            //      case 'A':
+            //          return ERROR_NOT_SUPPORTED;
     }
 
     assert(false);
     return ERROR_NOT_SUPPORTED;
-}
-
-DWORD CascDirectCopy(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer)
-{
-    // Check the buffer size
-    if((cbInBuffer - 1) > pcbOutBuffer[0])
-        return ERROR_INSUFFICIENT_BUFFER;
-
-    // Copy the data
-    memcpy(pbOutBuffer, pbInBuffer, cbInBuffer);
-    pcbOutBuffer[0] = cbInBuffer;
-    return ERROR_SUCCESS;
-}
-
-//-----------------------------------------------------------------------------
-// Public functions
-
-bool WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key)
-{
-    PCASC_ENCRYPTION_KEY pEncKey;
-    TCascStorage * hs;
-
-    // Validate the storage handle
-    hs = TCascStorage::IsValid(hStorage);
-    if (hs == NULL)
-    {
-        SetLastError(ERROR_INVALID_HANDLE);
-        return false;
-    }
-
-    // Don't allow more than CASC_EXTRA_KEYS keys
-    if (hs->ExtraKeysList.ItemCount() >= CASC_EXTRA_KEYS)
-    {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return false;
-    }
-
-    // Insert the key to the array
-    pEncKey = (PCASC_ENCRYPTION_KEY)hs->ExtraKeysList.Insert(1);
-    if (pEncKey == NULL)
-    {
-        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-        return false;
-    }
-
-    // Fill the key
-    memcpy(pEncKey->Key, Key, sizeof(pEncKey->Key));
-    pEncKey->KeyName = KeyName;
-
-    // Also insert the key to the map
-    if (!hs->EncryptionKeys.InsertObject(pEncKey, &pEncKey->KeyName))
-    {
-        SetLastError(ERROR_ALREADY_EXISTS);
-        return false;
-    }
-
-    return true;
-}
-
-bool WINAPI CascAddStringEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPCSTR szKey)
-{
-    BYTE Key[CASC_KEY_LENGTH];
-
-    // Check the length of the string key
-    if(strlen(szKey) != CASC_KEY_LENGTH * 2)
-    {
-        SetLastError(ERROR_INVALID_PARAMETER);
-        return false;
-    }
-
-    // Convert the string key to the binary array
-    if(ConvertStringToBinary(szKey, CASC_KEY_LENGTH * 2, Key) != ERROR_SUCCESS)
-    {
-        SetLastError(ERROR_INVALID_PARAMETER);
-        return false;
-    }
-
-    return CascAddEncryptionKey(hStorage, KeyName, Key);
-}
-
-LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName)
-{
-    TCascStorage * hs;
-
-    // Validate the storage handle
-    hs = TCascStorage::IsValid(hStorage);
-    if (hs == NULL)
-    {
-        SetLastError(ERROR_INVALID_HANDLE);
-        return NULL;
-    }
-
-    return CascFindKey(hs, KeyName);
-}
-
-bool WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName)
-{
-    TCascStorage * hs;
-
-    // Validate the storage handle
-    if ((hs = TCascStorage::IsValid(hStorage)) == NULL)
-    {
-        SetLastError(ERROR_INVALID_HANDLE);
-        return false;
-    }
-
-    // If there was no decryption key error, just return false with ERROR_SUCCESS
-    if(hs->LastFailKeyName == 0)
-    {
-        SetLastError(ERROR_SUCCESS);
-        return false;
-    }
-
-    // Give the name of the key that failed most recently
-    KeyName[0] = hs->LastFailKeyName;
-    return true;
 }

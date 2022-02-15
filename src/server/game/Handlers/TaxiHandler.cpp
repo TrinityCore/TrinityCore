@@ -19,15 +19,17 @@
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "Containers.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "FlightPathMovementGenerator.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "TaxiPackets.h"
 #include "TaxiPathGraph.h"
-#include "WaypointMovementGenerator.h"
 
 void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode)
 {
@@ -42,23 +44,24 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeS
 
 void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
-    // cheating checks
-    Creature* unit = ObjectAccessor::GetCreature(*GetPlayer(), guid);
-    if (!unit)
+    Player* const player = GetPlayer();
+    Creature* unit = ObjectAccessor::GetCreature(*player, guid);
+    if (!unit || unit->IsHostileTo(player) || !unit->HasNpcFlag(UNIT_NPC_FLAG_FLIGHTMASTER))
     {
-        TC_LOG_DEBUG("network", "WorldSession::SendTaxiStatus - %s not found.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WorldSession::SendTaxiStatus - %s not found or you can't interact with him.", guid.ToString().c_str());
         return;
     }
 
-    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
+    // find taxi node
+    uint32 nearest = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), player->GetTeam());
 
     WorldPackets::Taxi::TaxiNodeStatus data;
     data.Unit = guid;
 
-    if (!curloc)
+    if (!nearest)
         data.Status = TAXISTATUS_NONE;
     else if (unit->GetReactionTo(GetPlayer()) >= REP_NEUTRAL)
-        data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
+        data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(nearest) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
     else
         data.Status = TAXISTATUS_NOT_ELIGIBLE;
 
@@ -100,7 +103,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     TC_LOG_DEBUG("network", "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", curloc);
 
     WorldPackets::Taxi::ShowTaxiNodes data;
-    data.WindowInfo = boost::in_place();
+    data.WindowInfo.emplace();
     data.WindowInfo->UnitGUID = unit->GetGUID();
     data.WindowInfo->CurrentNode = curloc;
 
@@ -108,7 +111,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
     TaxiMask reachableNodes;
     std::fill(reachableNodes.begin(), reachableNodes.end(), 0);
-    sTaxiPathGraph.GetReachableNodesMask(sTaxiNodesStore.LookupEntry(curloc), &reachableNodes);
+    TaxiPathGraph::GetReachableNodesMask(sTaxiNodesStore.LookupEntry(curloc), &reachableNodes);
 
     for (std::size_t i = 0; i < TaxiMaskSize; ++i)
     {
@@ -126,9 +129,6 @@ void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathN
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    while (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
-        GetPlayer()->GetMotionMaster()->MovementExpired(false);
 
     if (mountDisplayId)
         GetPlayer()->Mount(mountDisplayId);
@@ -216,7 +216,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
     }
 
     std::vector<uint32> nodes;
-    sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
+    TaxiPathGraph::GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
     GetPlayer()->ActivateTaxiPathTo(nodes, unit, 0, preferredMountDisplay);
 }
 
@@ -229,11 +229,10 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
 
 void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /*taxiRequestEarlyLanding*/)
 {
-    if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+    if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator()))
     {
         if (GetPlayer()->m_taxi.RequestEarlyLanding())
         {
-            FlightPathMovementGenerator* flight = static_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->top());
             flight->LoadPath(GetPlayer(), flight->GetPath()[flight->GetCurrentNode()]->NodeIndex);
             flight->Reset(GetPlayer());
         }

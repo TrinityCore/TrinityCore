@@ -24,8 +24,10 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -48,12 +50,12 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "quest", rbac::RBAC_PERM_COMMAND_QUEST,  false, NULL, "", questCommandTable },
+            { "quest", rbac::RBAC_PERM_COMMAND_QUEST,  false, nullptr, "", questCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleQuestAdd(ChatHandler* handler, const char* args)
+    static bool HandleQuestAdd(ChatHandler* handler, char const* args)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
@@ -73,7 +75,7 @@ public:
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
-        if (!quest)
+        if (!quest || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -81,27 +83,30 @@ public:
         }
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
-        ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
-        ItemTemplateContainer::const_iterator result = std::find_if(itc->begin(), itc->end(), [quest](ItemTemplateContainer::value_type const& value)
+        ItemTemplateContainer const& itc = sObjectMgr->GetItemTemplateStore();
+        auto itr = std::find_if(std::begin(itc), std::end(itc), [quest](ItemTemplateContainer::value_type const& value)
         {
             return value.second.GetStartQuest() == quest->GetQuestId();
         });
 
-        if (result != itc->end())
+        if (itr != std::end(itc))
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, result->second.GetId());
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, itr->first);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
+        if (player->IsActiveQuest(entry))
+            return false;
+
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
-            player->AddQuestAndCheckCompletion(quest, NULL);
+            player->AddQuestAndCheckCompletion(quest, nullptr);
 
         return true;
     }
 
-    static bool HandleQuestRemove(ChatHandler* handler, const char* args)
+    static bool HandleQuestRemove(ChatHandler* handler, char const* args)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -130,36 +135,44 @@ public:
 
         QuestStatus oldStatus = player->GetQuestStatus(entry);
 
-        // remove all quest entries for 'entry' from quest log
-        for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+        if (player->GetQuestStatus(entry) != QUEST_STATUS_NONE)
         {
-            uint32 logQuest = player->GetQuestSlotQuestId(slot);
-            if (logQuest == entry)
+            // remove all quest entries for 'entry' from quest log
+            for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
             {
-                player->SetQuestSlot(slot, 0);
-
-                // we ignore unequippable quest items in this case, its' still be equipped
-                player->TakeQuestSourceItem(logQuest, false);
-
-                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+                uint32 logQuest = player->GetQuestSlotQuestId(slot);
+                if (logQuest == entry)
                 {
-                    player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                    player->UpdatePvPState();
+                    player->SetQuestSlot(slot, 0);
+
+                    // we ignore unequippable quest items in this case, its' still be equipped
+                    player->TakeQuestSourceItem(logQuest, false);
+
+                    if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+                    {
+                        player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+                        player->UpdatePvPState();
+                    }
                 }
             }
+            player->RemoveActiveQuest(entry, false);
+            player->RemoveRewardedQuest(entry);
+
+            sScriptMgr->OnQuestStatusChange(player, entry);
+            sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
+
+            handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
+            return true;
         }
-
-        player->RemoveActiveQuest(entry, false);
-        player->RemoveRewardedQuest(entry);
-
-        sScriptMgr->OnQuestStatusChange(player, entry);
-        sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
-
-        handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
-        return true;
+        else
+        {
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
     }
 
-    static bool HandleQuestComplete(ChatHandler* handler, const char* args)
+    static bool HandleQuestComplete(ChatHandler* handler, char const* args)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
@@ -180,7 +193,8 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -239,6 +253,12 @@ public:
                     player->ModifyMoney(obj.Amount);
                     break;
                 }
+                case QUEST_OBJECTIVE_PLAYERKILLS:
+                {
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        player->KilledPlayerCredit(ObjectGuid::Empty);
+                    break;
+                }
             }
         }
 
@@ -278,14 +298,15 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE)
+        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        player->RewardQuest(quest, 0, player);
+        player->RewardQuest(quest, LootItemType::Item, 0, player);
         return true;
     }
 };

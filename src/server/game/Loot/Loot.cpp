@@ -23,7 +23,6 @@
 #include "Log.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
-#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -41,8 +40,8 @@ LootItem::LootItem(LootStoreItem const& li)
     conditions   = li.conditions;
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-    freeforall = proto && (proto->GetFlags() & ITEM_FLAG_MULTI_DROP);
-    follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
+    freeforall = proto && proto->HasFlag(ITEM_FLAG_MULTI_DROP);
+    follow_loot_rules = proto && (proto->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES));
 
     needs_quest = li.needs_quest;
 
@@ -57,7 +56,7 @@ LootItem::LootItem(LootStoreItem const& li)
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-bool LootItem::AllowedForPlayer(Player const* player) const
+bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
 {
     // DB conditions check
     if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
@@ -67,19 +66,54 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!pProto)
         return false;
 
-    // not show loot for players without profession or those who already know the recipe
-    if ((pProto->GetFlags() & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->GetRequiredSkill()) || player->HasSpell(pProto->Effects[1]->SpellID)))
-        return false;
-
     // not show loot for not own team
-    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
+    if (pProto->HasFlag(ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
         return false;
 
-    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
+    if (pProto->HasFlag(ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
         return false;
+
+    // Master looter can see certain items even if the character can't loot them
+    if (!isGivenByMasterLooter && player->GetGroup() && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID())
+    {
+        // check quest requirements
+        if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && (needs_quest || pProto->GetStartQuest()))
+            return false;
+
+        return true;
+    }
+
+    // Don't allow loot for players without profession or those who already know the recipe
+    if (pProto->HasFlag(ITEM_FLAG_HIDE_UNUSABLE_RECIPE))
+    {
+        if (!player->HasSkill(pProto->GetRequiredSkill()))
+            return false;
+
+        for (ItemEffectEntry const* itemEffect : pProto->Effects)
+        {
+            if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                continue;
+
+            if (player->HasSpell(itemEffect->SpellID))
+                return false;
+        }
+    }
+
+    // Don't allow to loot soulbound recipes that the player has already learned
+    if (pProto->GetClass() == ITEM_CLASS_RECIPE && pProto->GetBonding() == BIND_ON_ACQUIRE)
+    {
+        for (ItemEffectEntry const* itemEffect : pProto->Effects)
+        {
+            if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                continue;
+
+            if (player->HasSpell(itemEffect->SpellID))
+                return false;
+        }
+    }
 
     // check quest requirements
-    if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
+    if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
 
     return true;
@@ -213,6 +247,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     if (!lootOwner)
         return false;
 
+    lootOwnerGUID = lootOwner->GetGUID();
+
     LootTemplate const* tab = store.GetLootFor(lootId);
 
     if (!tab)
@@ -235,7 +271,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     {
         roundRobinPlayer = lootOwner->GetGUID();
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             if (Player* player = itr->GetSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
                 if (player->IsInMap(lootOwner))
                     FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
@@ -281,10 +317,28 @@ void Loot::AddItem(LootStoreItem const& item)
         lootItems.push_back(generatedLoot);
         count -= proto->GetMaxStackSize();
 
+        // In some cases, a dropped item should be visible/lootable only for some players in group
+        bool canSeeItemInLootWindow = false;
+        if (Player* player = ObjectAccessor::FindPlayer(lootOwnerGUID))
+        {
+            if (Group* group = player->GetGroup())
+            {
+                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    if (Player* member = itr->GetSource())
+                        if (generatedLoot.AllowedForPlayer(member))
+                            canSeeItemInLootWindow = true;
+            }
+            else if (generatedLoot.AllowedForPlayer(player))
+                canSeeItemInLootWindow = true;
+        }
+
+        if (!canSeeItemInLootWindow)
+            continue;
+
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
         // non-ffa conditionals are counted in FillNonQuestNonFFAConditionalLoot()
-        if (!item.needs_quest && item.conditions.empty() && !(proto->GetFlags() & ITEM_FLAG_MULTI_DROP))
+        if (!item.needs_quest && item.conditions.empty() && !proto->HasFlag(ITEM_FLAG_MULTI_DROP))
             ++unlootedCount;
     }
 }
@@ -303,7 +357,7 @@ LootItem const* Loot::GetItemInSlot(uint32 lootSlot) const
 
 LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootItem* *qitem, NotNormalLootItem* *ffaitem, NotNormalLootItem* *conditem)
 {
-    LootItem* item = NULL;
+    LootItem* item = nullptr;
     bool is_looted = true;
     if (lootSlot >= items.size())
     {
@@ -359,7 +413,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootIte
     }
 
     if (is_looted)
-        return NULL;
+        return nullptr;
 
     return item;
 }
@@ -660,7 +714,7 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 
     // Process currency items
     uint32 max_slot = GetMaxSlotInLootFor(player);
-    LootItem const* item = NULL;
+    LootItem const* item = nullptr;
     uint32 itemsSize = uint32(items.size());
     for (uint32 i = 0; i < max_slot; ++i)
     {
@@ -692,7 +746,7 @@ NotNormalLootItemList* Loot::FillFFALoot(Player* player)
     if (ql->empty())
     {
         delete ql;
-        return NULL;
+        return nullptr;
     }
 
     PlayerFFAItems[player->GetGUID()] = ql;
@@ -702,7 +756,7 @@ NotNormalLootItemList* Loot::FillFFALoot(Player* player)
 NotNormalLootItemList* Loot::FillQuestLoot(Player* player)
 {
     if (items.size() == MAX_NR_LOOT_ITEMS)
-        return NULL;
+        return nullptr;
 
     NotNormalLootItemList* ql = new NotNormalLootItemList();
 
@@ -730,7 +784,7 @@ NotNormalLootItemList* Loot::FillQuestLoot(Player* player)
     if (ql->empty())
     {
         delete ql;
-        return NULL;
+        return nullptr;
     }
 
     PlayerQuestItems[player->GetGUID()] = ql;
@@ -762,7 +816,7 @@ NotNormalLootItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, b
     if (ql->empty())
     {
         delete ql;
-        return NULL;
+        return nullptr;
     }
 
     PlayerNonQuestNonFFAConditionalItems[player->GetGUID()] = ql;

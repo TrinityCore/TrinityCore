@@ -38,14 +38,14 @@ class spell_mark_of_malice : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_MARK_OF_MALICE_TRIGGERED });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 // just drop charges
                 if (GetCharges() > 1)
                     return;
 
-                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_MALICE_TRIGGERED, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_MALICE_TRIGGERED, aurEff);
             }
 
             void Register() override

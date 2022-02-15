@@ -104,13 +104,13 @@ class boss_garfrost : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_PERMAFROST);
                 me->CallForHelp(70.0f);
-                events.ScheduleEvent(EVENT_THROW_SARONITE, 7000);
+                events.ScheduleEvent(EVENT_THROW_SARONITE, 7s);
             }
 
             void KilledUnit(Unit* victim) override
@@ -135,9 +135,9 @@ class boss_garfrost : public CreatureScript
                 {
                     events.SetPhase(PHASE_TWO);
                     Talk(SAY_PHASE2);
-                    events.DelayEvents(8000);
+                    events.DelayEvents(8s);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
                     return;
                 }
 
@@ -145,9 +145,9 @@ class boss_garfrost : public CreatureScript
                 {
                     events.SetPhase(PHASE_THREE);
                     Talk(SAY_PHASE3);
-                    events.DelayEvents(8000);
+                    events.DelayEvents(8s);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
                     return;
                 }
             }
@@ -168,14 +168,18 @@ class boss_garfrost : public CreatureScript
                     DoCast(me, SPELL_FORGE_MACE);
                     SetEquipmentSlots(false, EQUIP_ID_MACE);
                 }
-                events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
+                events.ScheduleEvent(EVENT_RESUME_ATTACK, 5s);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_PERMAFROST_HELPER)
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
+                if (spellInfo->Id == SPELL_PERMAFROST_HELPER)
                 {
-                    if (Aura* aura = target->GetAura(SPELL_PERMAFROST_HELPER))
+                    if (Aura* aura = unitTarget->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
             }
@@ -200,24 +204,24 @@ class boss_garfrost : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_THROW_SARONITE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             {
                                 Talk(SAY_THROW_SARONITE, target);
                                 DoCast(target, SPELL_THROW_SARONITE);
                             }
-                            events.ScheduleEvent(EVENT_THROW_SARONITE, urand(12500, 20000));
+                            events.ScheduleEvent(EVENT_THROW_SARONITE, 12500ms, 20s);
                             break;
                         case EVENT_CHILLING_WAVE:
                             DoCast(me, SPELL_CHILLING_WAVE);
-                            events.ScheduleEvent(EVENT_CHILLING_WAVE, 40000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_CHILLING_WAVE, 4s, 0, PHASE_TWO);
                             break;
                         case EVENT_DEEP_FREEZE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             {
                                 Talk(SAY_CAST_DEEP_FREEZE, target);
                                 DoCast(target, SPELL_DEEP_FREEZE);
                             }
-                            events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_DEEP_FREEZE, 35s, 0, PHASE_THREE);
                             break;
                         case EVENT_FORGE_JUMP:
                             me->AttackStop();
@@ -228,9 +232,9 @@ class boss_garfrost : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             if (events.IsInPhase(PHASE_TWO))
-                                events.ScheduleEvent(EVENT_CHILLING_WAVE, 5000, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_CHILLING_WAVE, 5s, 0, PHASE_TWO);
                             else if (events.IsInPhase(PHASE_THREE))
-                                events.ScheduleEvent(EVENT_DEEP_FREEZE, 10000, 0, PHASE_THREE);
+                                events.ScheduleEvent(EVENT_DEEP_FREEZE, 10s, 0, PHASE_THREE);
                             AttackStart(me->GetVictim());
                             break;
                         default:

@@ -20,6 +20,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridStates.h"
 #include "Group.h"
@@ -78,24 +79,24 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
     if (InstanceSave* old_save = GetInstanceSave(instanceId))
         return old_save;
 
-    const MapEntry* entry = sMapStore.LookupEntry(mapId);
+    MapEntry const* entry = sMapStore.LookupEntry(mapId);
     if (!entry)
     {
         TC_LOG_ERROR("misc", "InstanceSaveManager::AddInstanceSave: wrong mapid = %d, instanceid = %d!", mapId, instanceId);
-        return NULL;
+        return nullptr;
     }
 
     if (instanceId == 0)
     {
         TC_LOG_ERROR("misc", "InstanceSaveManager::AddInstanceSave: mapid = %d, wrong instanceid = %d!", mapId, instanceId);
-        return NULL;
+        return nullptr;
     }
 
     DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!difficultyEntry || difficultyEntry->InstanceType != entry->InstanceType)
     {
         TC_LOG_ERROR("misc", "InstanceSaveManager::AddInstanceSave: mapid = %d, instanceid = %d, wrong dificalty %u!", mapId, instanceId, difficulty);
-        return NULL;
+        return nullptr;
     }
 
     if (entranceId && !sObjectMgr->GetWorldSafeLoc(entranceId))
@@ -112,7 +113,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
             resetTime = GetResetTimeFor(mapId, difficulty);
         else
         {
-            resetTime = time(NULL) + 2 * HOUR;
+            resetTime = GameTime::GetGameTime() + 2 * HOUR;
             // normally this will be removed soon after in InstanceMap::Add, prevent error
             ScheduleReset(true, resetTime, InstResetEvent(0, mapId, difficulty, instanceId));
         }
@@ -131,7 +132,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
 InstanceSave* InstanceSaveManager::GetInstanceSave(uint32 InstanceId)
 {
     InstanceSaveHashMap::iterator itr = m_instanceSaveById.find(InstanceId);
-    return itr != m_instanceSaveById.end() ? itr->second : NULL;
+    return itr != m_instanceSaveById.end() ? itr->second : nullptr;
 }
 
 void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
@@ -168,7 +169,7 @@ void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_RESETTIME);
 
-            stmt->setUInt64(0, uint64(resettime));
+            stmt->setInt64(0, resettime);
             stmt->setUInt32(1, InstanceId);
 
             CharacterDatabase.Execute(stmt);
@@ -233,7 +234,7 @@ void InstanceSave::SaveToDB()
 time_t InstanceSave::GetResetTimeForDB()
 {
     // only save the reset time for normal instances
-    const MapEntry* entry = sMapStore.LookupEntry(GetMapId());
+    MapEntry const* entry = sMapStore.LookupEntry(GetMapId());
     if (!entry || entry->IsRaid() || GetDifficultyID() == DIFFICULTY_HEROIC)
         return 0;
     else
@@ -291,8 +292,7 @@ void InstanceSaveManager::LoadInstances()
     CharacterDatabase.DirectExecute("DELETE i.* FROM instance AS i LEFT JOIN character_instance AS ci ON i.id = ci.instance LEFT JOIN group_instance AS gi ON i.id = gi.instance WHERE ci.guid IS NULL AND gi.guid IS NULL");
 
     // Delete invalid references to instance
-    CharacterDatabase.DirectExecute("DELETE FROM creature_respawn WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
-    CharacterDatabase.DirectExecute("DELETE FROM gameobject_respawn WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
+    CharacterDatabase.DirectExecute("DELETE FROM respawn WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
     CharacterDatabase.DirectExecute("DELETE tmp.* FROM character_instance AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
     CharacterDatabase.DirectExecute("DELETE tmp.* FROM group_instance     AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
 
@@ -312,7 +312,7 @@ void InstanceSaveManager::LoadInstances()
 
 void InstanceSaveManager::LoadResetTimes()
 {
-    time_t now = time(NULL);
+    time_t now = GameTime::GetGameTime();
     time_t today = (now / DAY) * DAY;
 
     // NOTE: Use DirectPExecute for tables that will be queried later
@@ -358,7 +358,7 @@ void InstanceSaveManager::LoadResetTimes()
     }
 
     // load the global respawn times for raid/heroic instances
-    uint32 diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
+    uint32 resetHour = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR);
     if (QueryResult result = CharacterDatabase.Query("SELECT mapid, difficulty, resettime FROM instance_reset"))
     {
         do
@@ -381,7 +381,7 @@ void InstanceSaveManager::LoadResetTimes()
             }
 
             // update the reset time if the hour in the configs changes
-            uint64 newresettime = (oldresettime / DAY) * DAY + diff;
+            uint64 newresettime = GetLocalHourTimestamp(oldresettime, resetHour, false);
             if (oldresettime != newresettime)
             {
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
@@ -417,12 +417,12 @@ void InstanceSaveManager::LoadResetTimes()
             if (!t)
             {
                 // initialize the reset time
-                t = today + period + diff;
+                t = GetLocalHourTimestamp(today + period, resetHour);
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GLOBAL_INSTANCE_RESETTIME);
                 stmt->setUInt16(0, uint16(mapid));
                 stmt->setUInt8(1, uint8(difficulty));
-                stmt->setUInt64(2, uint64(t));
+                stmt->setInt64(2, t);
                 CharacterDatabase.DirectExecute(stmt);
             }
 
@@ -430,11 +430,11 @@ void InstanceSaveManager::LoadResetTimes()
             {
                 // assume that expired instances have already been cleaned
                 // calculate the next reset time
-                t = (t / DAY) * DAY;
-                t += ((today - t) / period + 1) * period + diff;
+                time_t day = (t / DAY) * DAY;
+                t = GetLocalHourTimestamp(day + ((today - day) / period + 1) * period, resetHour);
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
-                stmt->setUInt64(0, uint64(t));
+                stmt->setInt64(0, t);
                 stmt->setUInt16(1, uint16(mapid));
                 stmt->setUInt8(2, uint8(difficulty));
                 CharacterDatabase.DirectExecute(stmt);
@@ -466,12 +466,12 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
         return 0;
     }
 
-    time_t diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
+    time_t resetHour = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR);
     time_t period = uint32(((mapDiff->GetRaidDuration() * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
     if (period < DAY)
         period = DAY;
 
-    return ((resetTime + MINUTE) / DAY * DAY) + period + diff;
+    return GetLocalHourTimestamp(((resetTime + MINUTE) / DAY * DAY) + period, resetHour);
 }
 
 void InstanceSaveManager::SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
@@ -526,12 +526,12 @@ void InstanceSaveManager::ForceGlobalReset(uint32 mapId, Difficulty difficulty)
     ScheduleReset(false, 0, InstResetEvent(1, mapId, difficulty, 0));
     ScheduleReset(false, 0, InstResetEvent(4, mapId, difficulty, 0));
     // force global reset on the instance
-    _ResetOrWarnAll(mapId, difficulty, false, time(nullptr));
+    _ResetOrWarnAll(mapId, difficulty, false, GameTime::GetGameTime());
 }
 
 void InstanceSaveManager::Update()
 {
-    time_t now = time(NULL);
+    time_t now = GameTime::GetGameTime();
     time_t t;
 
     while (!m_resetTimeQueue.empty())
@@ -648,7 +648,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         return;
     TC_LOG_DEBUG("misc", "InstanceSaveManager::ResetOrWarnAll: Processing map %s (%u) on difficulty %u (warn? %u)", mapEntry->MapName[sWorld->GetDefaultDbcLocale()], mapid, uint8(difficulty), warn);
 
-    time_t now = time(NULL);
+    time_t now = GameTime::GetGameTime();
 
     if (!warn)
     {

@@ -27,38 +27,58 @@ uint32 const EncounterCount = 4;
 
 enum MTDataTypes
 {
-    DATA_SELIN,
+    // Encounter states
+    DATA_SELIN_FIREHEART = 0,
     DATA_VEXALLUS,
-    DATA_DELRISSA,
-    DATA_KAELTHAS,
+    DATA_PRIESTESS_DELRISSA,
+    DATA_KAELTHAS_SUNSTRIDER,
 
-    DATA_KAEL_STATUE_LEFT,
-    DATA_KAEL_STATUE_RIGHT,
-
+    // Encounter related
+    DATA_KAELTHAS_INTRO,
     DATA_DELRISSA_DEATH_COUNT,
-    DATA_KAELTHAS_STATUES,
+
+    // Additional data
+    DATA_KALECGOS,
     DATA_ESCAPE_ORB
 };
 
 enum MTCreatureIds
 {
-    NPC_SELIN               = 24723,
-    NPC_DELRISSA            = 24560,
-    NPC_FEL_CRYSTAL         = 24722,
-    NPC_KALECGOS            = 24844,
-    NPC_HUMAN_KALECGOS      = 24848
+    // Bosses
+    BOSS_KAELTHAS_SUNSTRIDER    = 24664,
+    BOSS_SELIN_FIREHEART        = 24723,
+    BOSS_VEXALLUS               = 24744,
+    BOSS_PRIESTESS_DELRISSA     = 24560,
+
+    // Encounter related
+    /*Kael'thas Sunstrider*/
+    NPC_ARCANE_SPHERE           = 24708,
+    NPC_FLAME_STRIKE            = 24666,
+    NPC_PHOENIX                 = 24674,
+    NPC_PHOENIX_EGG             = 24675,
+
+    /*Selin Fireheart*/
+    NPC_FEL_CRYSTAL             = 24722,
+
+    // Event related
+    NPC_KALECGOS                = 24844,
+    NPC_HUMAN_KALECGOS          = 24848,
+    NPC_COILSKAR_WITCH          = 24696,
+    NPC_SUNBLADE_WARLOCK        = 24686,
+    NPC_SUNBLADE_MAGE_GUARD     = 24683,
+    NPC_SISTER_OF_TORMENT       = 24697,
+    NPC_ETHEREUM_SMUGGLER       = 24698,
+    NPC_SUNBLADE_BLOOD_KNIGHT   = 24684
 };
 
 enum MTGameObjectIds
 {
-    GO_VEXALLUS_DOOR        = 187896,
-    GO_SELIN_DOOR           = 187979,
-    GO_SELIN_ENCOUNTER_DOOR = 188065,
-    GO_DELRISSA_DOOR        = 187770,
-    GO_KAEL_DOOR            = 188064,
-    GO_KAEL_STATUE_1        = 188165,
-    GO_KAEL_STATUE_2        = 188166,
-    GO_ESCAPE_ORB           = 188173
+    GO_ASSEMBLY_CHAMBER_DOOR    = 188065,
+    GO_SUNWELL_RAID_GATE_2      = 187979,
+    GO_SUNWELL_RAID_GATE_4      = 187770,
+    GO_SUNWELL_RAID_GATE_5      = 187896,
+    GO_ASYLUM_DOOR              = 188064,
+    GO_ESCAPE_ORB               = 188173
 };
 
 enum MTInstanceEventIds
@@ -76,10 +96,12 @@ enum MTMovementData
     PATH_KALECGOS_FLIGHT    = 248440
 };
 
-template<typename AI>
-inline AI* GetMagistersTerraceAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetMagistersTerraceAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, MGTScriptName);
+    return GetInstanceAI<AI>(obj, MGTScriptName);
 }
+
+#define RegisterMagistersTerraceCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMagistersTerraceAI)
 
 #endif

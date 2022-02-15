@@ -15,16 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SkillDiscovery.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
-#include "World.h"
-#include "Util.h"
-#include "SkillDiscovery.h"
-#include "SpellMgr.h"
 #include "Player.h"
 #include "Random.h"
+#include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "World.h"
 #include <map>
 #include <sstream>
 
@@ -57,7 +56,7 @@ void LoadSkillDiscoveryTable()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         return;
     }
 
@@ -205,6 +204,19 @@ bool HasDiscoveredAllSpells(uint32 spellId, Player* player)
             return false;
 
     return true;
+}
+
+bool HasDiscoveredAnySpell(uint32 spellId, Player* player)
+{
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(int32(spellId));
+    if (tab == SkillDiscoveryStore.end())
+        return false;
+
+    for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        if (player->HasSpell(item_iter->spellId))
+            return true;
+
+    return false;
 }
 
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)

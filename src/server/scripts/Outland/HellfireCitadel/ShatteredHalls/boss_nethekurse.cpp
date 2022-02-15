@@ -200,7 +200,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -213,7 +213,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
                 //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
                 summoned->CastSpell(summoned, SPELL_TEMPORARY_VISUAL, true);
-                summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, 0, 0, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_CONSUMPTION, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -260,7 +260,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 {
                     if (ShadowFissure_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_SHADOW_FISSURE);
                         ShadowFissure_Timer = urand(7500, 15000);
                     }
@@ -269,7 +269,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
                     if (DeathCoil_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_DEATH_COIL);
                         DeathCoil_Timer = urand(15000, 20000);
                     }
@@ -327,9 +327,9 @@ class npc_fel_orc_convert : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
+                events.ScheduleEvent(EVENT_HEMORRHAGE, 3s);
 
                 if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
                     if (me->IsWithinDist(Kurse, 45.0f))
@@ -355,7 +355,7 @@ class npc_fel_orc_convert : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_HEMORRHAGE)
                 {
                     DoCastVictim(SPELL_HEMORRHAGE);
-                    events.ScheduleEvent(EVENT_HEMORRHAGE, 15000);
+                    events.ScheduleEvent(EVENT_HEMORRHAGE, 15s);
                 }
 
                 DoMeleeAttackIfReady();
@@ -388,7 +388,7 @@ class npc_lesser_shadow_fissure : public CreatureScript
             void Reset() override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override

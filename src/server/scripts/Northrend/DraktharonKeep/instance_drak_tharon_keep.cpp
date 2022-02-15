@@ -16,12 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "Creature.h"
-#include "CreatureAI.h"
 #include "drak_tharon_keep.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "ScriptedCreature.h"
 
 class instance_drak_tharon_keep : public InstanceMapScript
 {

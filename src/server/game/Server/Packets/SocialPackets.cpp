@@ -16,7 +16,6 @@
  */
 
 #include "SocialPackets.h"
-#include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "World.h"
 
@@ -64,8 +63,8 @@ WorldPacket const* WorldPackets::Social::ContactList::Write()
     _worldPacket.WriteBits(Contacts.size(), 8);
     _worldPacket.FlushBits();
 
-    for (size_t i = 0; i < Contacts.size(); ++i)
-        _worldPacket << Contacts[i];
+    for (ContactInfo const& contact : Contacts)
+        _worldPacket << contact;
 
     return &_worldPacket;
 }
@@ -130,7 +129,9 @@ void WorldPackets::Social::SetContactNotes::Read()
 
 void WorldPackets::Social::AddIgnore::Read()
 {
-    Name = _worldPacket.ReadString(_worldPacket.ReadBits(9));
+    uint32 nameLength = _worldPacket.ReadBits(9);
+    _worldPacket >> AccountGUID;
+    Name = _worldPacket.ReadString(nameLength);
 }
 
 void WorldPackets::Social::DelIgnore::Read()

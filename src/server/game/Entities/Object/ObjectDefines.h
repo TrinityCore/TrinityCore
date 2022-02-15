@@ -66,18 +66,18 @@ enum TempSummonType
     TEMPSUMMON_MANUAL_DESPAWN              = 8              // despawns when UnSummon() is called
 };
 
-enum PhaseMasks
-{
-    PHASEMASK_NORMAL   = 0x00000001,
-    PHASEMASK_ANYWHERE = 0xFFFFFFFF
-};
-
 enum NotifyFlags
 {
     NOTIFY_NONE                     = 0x00,
     NOTIFY_AI_RELOCATION            = 0x01,
     NOTIFY_VISIBILITY_CHANGED       = 0x02,
     NOTIFY_ALL                      = 0xFF
+};
+
+enum GOSummonType
+{
+   GO_SUMMON_TIMED_OR_CORPSE_DESPAWN = 0,    // despawns after a specified time OR when the summoner dies
+   GO_SUMMON_TIMED_DESPAWN = 1     // despawns after a specified time
 };
 
 inline uint64 MAKE_PAIR64(uint32 l, uint32 h)

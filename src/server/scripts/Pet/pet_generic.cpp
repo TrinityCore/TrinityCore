@@ -21,151 +21,16 @@
  */
 
  /* ContentData
- npc_pet_gen_baby_blizzard_bear     100%    Baby Blizzard Bear sits down occasionally
- npc_pet_gen_egbert                 100%    Egbert run's around
  npc_pet_gen_pandaren_monk          100%    Pandaren Monk drinks and bows with you
  npc_pet_gen_mojo                   100%    Mojo follows you when you kiss it
  EndContentData */
 
 #include "ScriptMgr.h"
-#include "DB2Structure.h"
-#include "Map.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "PetDefines.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-
-enum BabyBlizzardBearMisc
-{
-    SPELL_BBB_PET_SIT = 61853,
-    EVENT_BBB_PET_SIT = 1,
-    EVENT_BBB_PET_SIT_INTER = 2
-};
-
-class npc_pet_gen_baby_blizzard_bear : public CreatureScript
-{
-public:
-    npc_pet_gen_baby_blizzard_bear() : CreatureScript("npc_pet_gen_baby_blizzard_bear") {}
-
-    struct npc_pet_gen_baby_blizzard_bearAI : public NullCreatureAI
-    {
-        npc_pet_gen_baby_blizzard_bearAI(Creature* creature) : NullCreatureAI(creature)
-        {
-            if (Unit* owner = me->GetCharmerOrOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-            _events.ScheduleEvent(EVENT_BBB_PET_SIT, urandms(10, 30));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (Unit* owner = me->GetCharmerOrOwner())
-                if (!me->IsWithinDist(owner, 25.f))
-                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_BBB_PET_SIT:
-                    me->CastSpell(me, SPELL_BBB_PET_SIT, false);
-                    _events.ScheduleEvent(EVENT_BBB_PET_SIT_INTER, urandms(15, 30));
-                    break;
-                case EVENT_BBB_PET_SIT_INTER:
-                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                    _events.ScheduleEvent(EVENT_BBB_PET_SIT, urandms(10, 30));
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-
-    private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_pet_gen_baby_blizzard_bearAI(creature);
-    }
-};
-
-enum EgbertMisc
-{
-    SPELL_EGBERT = 40669,
-    EVENT_RETURN = 3
-};
-
-class npc_pet_gen_egbert : public CreatureScript
-{
-public:
-    npc_pet_gen_egbert() : CreatureScript("npc_pet_gen_egbert") {}
-
-    struct npc_pet_gen_egbertAI : public NullCreatureAI
-    {
-        npc_pet_gen_egbertAI(Creature* creature) : NullCreatureAI(creature)
-        {
-            if (Unit* owner = me->GetCharmerOrOwner())
-                if (owner->GetMap()->GetEntry()->ExpansionID > 1)
-                    me->SetCanFly(true);
-        }
-
-        void Reset() override
-        {
-            _events.Reset();
-            if (Unit* owner = me->GetCharmerOrOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (!_EnterEvadeMode(why))
-                return;
-
-            Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (Unit* owner = me->GetCharmerOrOwner())
-            {
-                if (!me->IsWithinDist(owner, 40.f))
-                {
-                    me->RemoveAura(SPELL_EGBERT);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-                }
-            }
-
-            if (me->HasAura(SPELL_EGBERT))
-                _events.ScheduleEvent(EVENT_RETURN, urandms(5, 20));
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_RETURN:
-                    me->RemoveAura(SPELL_EGBERT);
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-    private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_pet_gen_egbertAI(creature);
-    }
-};
 
 enum PandarenMonkMisc
 {
@@ -188,7 +53,7 @@ public:
         void Reset() override
         {
             _events.Reset();
-            _events.ScheduleEvent(EVENT_FOCUS, 1000);
+            _events.ScheduleEvent(EVENT_FOCUS, 1s);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -207,10 +72,10 @@ public:
             switch (emote)
             {
             case TEXT_EMOTE_BOW:
-                _events.ScheduleEvent(EVENT_FOCUS, 1000);
+                _events.ScheduleEvent(EVENT_FOCUS, 1s);
                 break;
             case TEXT_EMOTE_DRINK:
-                _events.ScheduleEvent(EVENT_DRINK, 1000);
+                _events.ScheduleEvent(EVENT_DRINK, 1s);
                 break;
             }
         }
@@ -230,11 +95,11 @@ public:
                 case EVENT_FOCUS:
                     if (Unit* owner = me->GetCharmerOrOwner())
                         me->SetFacingToObject(owner);
-                    _events.ScheduleEvent(EVENT_EMOTE, 1000);
+                    _events.ScheduleEvent(EVENT_EMOTE, 1s);
                     break;
                 case EVENT_EMOTE:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                    _events.ScheduleEvent(EVENT_FOLLOW, 1000);
+                    _events.ScheduleEvent(EVENT_FOLLOW, 1s);
                     break;
                 case EVENT_FOLLOW:
                     if (Unit* owner = me->GetCharmerOrOwner())
@@ -258,73 +123,62 @@ public:
     }
 };
 
-enum Mojo
+enum SoulTrader
 {
-    SAY_MOJO                = 0,
+    SAY_SOUL_TRADER_INTRO           = 0,
 
-    SPELL_FEELING_FROGGY    = 43906,
-    SPELL_SEDUCTION_VISUAL  = 43919
+    SPELL_ETHEREAL_ONSUMMON         = 50052,
+    SPELL_ETHEREAL_PET_REMOVE_AURA  = 50055
 };
 
-class npc_pet_gen_mojo : public CreatureScript
+struct npc_pet_gen_soul_trader : public ScriptedAI
 {
-    public:
-        npc_pet_gen_mojo() : CreatureScript("npc_pet_gen_mojo") { }
+    npc_pet_gen_soul_trader(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_pet_gen_mojoAI : public ScriptedAI
-        {
-            npc_pet_gen_mojoAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+    void LeavingWorld() override
+    {
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_ETHEREAL_PET_REMOVE_AURA);
+    }
 
-            void Reset() override
-            {
-                _victimGUID.Clear();
+    void JustAppeared() override
+    {
+        Talk(SAY_SOUL_TRADER_INTRO);
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_ETHEREAL_ONSUMMON);
 
-                if (Unit* owner = me->GetOwner())
-                    me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
-            }
+        CreatureAI::JustAppeared();
+    }
+};
 
-            void EnterCombat(Unit* /*who*/) override { }
-            void UpdateAI(uint32 /*diff*/) override { }
+enum LichPet
+{
+    SPELL_LICH_ONSUMMON     = 69735,
+    SPELL_LICH_REMOVE_AURA  = 69736
+};
 
-            void ReceiveEmote(Player* player, uint32 emote) override
-            {
-                me->HandleEmoteCommand(emote);
-                Unit* owner = me->GetOwner();
-                if (emote != TEXT_EMOTE_KISS || !owner || owner->GetTypeId() != TYPEID_PLAYER ||
-                    owner->ToPlayer()->GetTeam() != player->GetTeam())
-                {
-                    return;
-                }
+struct npc_pet_lich : public ScriptedAI
+{
+    npc_pet_lich(Creature* creature) : ScriptedAI(creature) { }
 
-                Talk(SAY_MOJO, player);
+    void LeavingWorld() override
+    {
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_LICH_REMOVE_AURA);
+    }
 
-                if (!_victimGUID.IsEmpty())
-                    if (Player* victim = ObjectAccessor::GetPlayer(*me, _victimGUID))
-                        victim->RemoveAura(SPELL_FEELING_FROGGY);
+    void JustAppeared() override
+    {
+        if (Unit* owner = me->GetOwner())
+            DoCast(owner, SPELL_LICH_ONSUMMON);
 
-                _victimGUID = player->GetGUID();
-
-                DoCast(player, SPELL_FEELING_FROGGY, true);
-                DoCast(me, SPELL_SEDUCTION_VISUAL, true);
-                me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
-            }
-
-        private:
-            ObjectGuid _victimGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_pet_gen_mojoAI(creature);
-        }
+        CreatureAI::JustAppeared();
+    }
 };
 
 void AddSC_generic_pet_scripts()
 {
-    new npc_pet_gen_baby_blizzard_bear();
-    new npc_pet_gen_egbert();
     new npc_pet_gen_pandaren_monk();
-    new npc_pet_gen_mojo();
+    RegisterCreatureAI(npc_pet_gen_soul_trader);
+    RegisterCreatureAI(npc_pet_lich);
 }

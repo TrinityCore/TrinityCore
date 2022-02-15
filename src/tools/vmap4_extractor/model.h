@@ -36,14 +36,14 @@ private:
     {
         delete[] vertices;
         delete[] indices;
-        vertices = NULL;
-        indices = NULL;
+        vertices = nullptr;
+        indices = nullptr;
     }
     std::string filename;
 public:
     ModelHeader header;
     Vec3D* vertices;
-    uint16* indices;
+    uint32* indices;
     AaBox3D bounds;
 
     bool open();

@@ -89,7 +89,7 @@ public:
                 instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
@@ -102,13 +102,13 @@ public:
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
-                    me->AddThreat(target, 0.0f);
+                    AddThreat(target, 0.0f);
             }
         }
 
@@ -124,8 +124,8 @@ public:
         {
             if (IsEvent)
             {
-                //Must update npc_escortAI
-                npc_escortAI::UpdateAI(diff);
+                //Must update EscortAI
+                EscortAI::UpdateAI(diff);
                 if (!go)
                 {
                     go = true;
@@ -148,13 +148,13 @@ public:
 
             if (RainTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), SPELL_RAIN_OF_FIRE);
+                DoCast(SelectTarget(SelectTargetMethod::Random, 0, 30, true), SPELL_RAIN_OF_FIRE);
                 RainTimer = 20000 + rand32() % 15000;
             } else RainTimer -= diff;
 
             if (DoomTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true), SPELL_DOOM);//never on tank
+                DoCast(SelectTarget(SelectTargetMethod::Random, 1, 100, true), SPELL_DOOM);//never on tank
                 DoomTimer = 45000 + rand32() % 5000;
             } else DoomTimer -= diff;
 
@@ -217,15 +217,11 @@ public:
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
         void KilledUnit(Unit* /*victim*/) override
-        {
-        }
-
-        void WaypointReached(uint32 /*waypointId*/) override
         {
         }
 
@@ -268,7 +264,7 @@ public:
 
             if (CrippleTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_CRIPPLE);
+                DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CRIPPLE);
                 CrippleTimer = 25000 + rand32() % 5000;
             } else CrippleTimer -= diff;
 

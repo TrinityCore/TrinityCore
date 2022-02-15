@@ -48,10 +48,10 @@ enum SHGameObjectIds
     GO_TALON_KING_COFFER                = 187372
 };
 
-template<typename AI>
-inline AI* GetSethekkHallsAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetSethekkHallsAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SHScriptName);
+    return GetInstanceAI<AI>(obj, SHScriptName);
 }
 
 #endif // SETHEKK_HALLS_H_

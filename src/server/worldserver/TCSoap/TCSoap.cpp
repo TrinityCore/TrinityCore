@@ -18,6 +18,7 @@
 #include "TCSoap.h"
 #include "soapH.h"
 #include "soapStub.h"
+#include "Realm.h"
 #include "World.h"
 #include "AccountMgr.h"
 #include "Log.h"
@@ -28,6 +29,10 @@ void TCSoapThread(const std::string& host, uint16 port)
     soap_init(&soap);
     soap_set_imode(&soap, SOAP_C_UTFSTRING);
     soap_set_omode(&soap, SOAP_C_UTFSTRING);
+
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+    soap.bind_flags = SO_REUSEADDR;
+#endif
 
     // check every 3 seconds if world ended
     soap.accept_timeout = 3;
@@ -91,7 +96,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         return 401;
     }
 
-    if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
+    if (AccountMgr::GetSecurity(accountId, realm.Id.Realm) < SEC_ADMINISTRATOR)
     {
         TC_LOG_INFO("network.soap", "%s's gmlevel is too low", soap->userid);
         return 403;
@@ -137,10 +142,10 @@ void SOAPCommand::commandFinished(void* soapconnection, bool success)
 ////////////////////////////////////////////////////////////////////////////////
 
 struct Namespace namespaces[] =
-{   { "SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", NULL, NULL }, // must be first
-    { "SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", NULL, NULL }, // must be second
-    { "xsi", "http://www.w3.org/1999/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL },
-    { "xsd", "http://www.w3.org/1999/XMLSchema",          "http://www.w3.org/*/XMLSchema", NULL },
-    { "ns1", "urn:TC", NULL, NULL },     // "ns1" namespace prefix
-    { NULL, NULL, NULL, NULL }
+{   { "SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", nullptr, nullptr }, // must be first
+    { "SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", nullptr, nullptr }, // must be second
+    { "xsi", "http://www.w3.org/1999/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", nullptr },
+    { "xsd", "http://www.w3.org/1999/XMLSchema",          "http://www.w3.org/*/XMLSchema", nullptr },
+    { "ns1", "urn:TC", nullptr, nullptr },     // "ns1" namespace prefix
+    { nullptr, nullptr, nullptr, nullptr }
 };

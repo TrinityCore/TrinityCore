@@ -19,7 +19,6 @@
 #define _TCSOAP_H
 
 #include "Define.h"
-#include <mutex>
 #include <future>
 #include <string>
 
@@ -38,7 +37,7 @@ class SOAPCommand
         {
         }
 
-        void appendToPrintBuffer(const char* msg)
+        void appendToPrintBuffer(std::string_view msg)
         {
             m_printBuffer += msg;
         }
@@ -54,7 +53,7 @@ class SOAPCommand
             return m_success;
         }
 
-        static void print(void* callbackArg, const char* msg)
+        static void print(void* callbackArg, std::string_view msg)
         {
             ((SOAPCommand*)callbackArg)->appendToPrintBuffer(msg);
         }

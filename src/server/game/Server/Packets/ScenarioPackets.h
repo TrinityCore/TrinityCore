@@ -22,7 +22,7 @@
 #include "PacketUtilities.h"
 #include "AchievementPackets.h"
 
-#define MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE 50
+#define MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE 66
 
 struct ScenarioPOI;
 
@@ -82,10 +82,10 @@ namespace WorldPackets
             uint32 ScenarioID = 0;
         };
 
-        class ScenarioBoot final : public ServerPacket
+        class ScenarioVacate final : public ServerPacket
         {
         public:
-            ScenarioBoot() : ServerPacket(SMSG_SCENARIO_BOOT, 4 + 4 + 1) { }
+            ScenarioVacate() : ServerPacket(SMSG_SCENARIO_VACATE, 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 

@@ -23,8 +23,6 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
-#include "GridNotifiersImpl.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
@@ -236,7 +234,7 @@ public:
             me->AddAura(id, me);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (gatherOthersWhenAggro)
                 GetOtherSentinels(who);

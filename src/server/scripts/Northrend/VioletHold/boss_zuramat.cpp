@@ -71,9 +71,9 @@ class boss_zuramat : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -104,10 +104,10 @@ class boss_zuramat : public CreatureScript
                 return 0;
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void KilledUnit(Unit* victim) override
@@ -135,7 +135,7 @@ class boss_zuramat : public CreatureScript
 
                 scheduler.Schedule(Seconds(9), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                         DoCast(target, SPELL_VOID_SHIFT);
                     task.Repeat(Seconds(15));
                 });
@@ -169,7 +169,7 @@ class npc_void_sentry : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 me->CastSpell(me, SPELL_SUMMON_VOID_SENTRY_BALL, true);
             }

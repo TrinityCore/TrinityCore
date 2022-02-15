@@ -15,11 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "InstanceScript.h"
 #include "zulgurub.h"
+#include "Creature.h"
+#include "InstanceScript.h"
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {
@@ -78,38 +77,6 @@ class instance_zulgurub : public InstanceMapScript
                         break;
                     case NPC_JINDO_TRIGGER:
                         jindoTiggerGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_VENOXIS_COIL:
-                    case GO_ARENA_DOOR_1:
-                    case GO_FORCEFIELD:
-                    case GO_ZANZIL_DOOR:
-                    case GO_THE_CACHE_OF_MADNESS_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_VENOXIS_COIL:
-                    case GO_ARENA_DOOR_1:
-                    case GO_FORCEFIELD:
-                    case GO_ZANZIL_DOOR:
-                    case GO_THE_CACHE_OF_MADNESS_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

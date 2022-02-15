@@ -28,8 +28,8 @@ CASCFile::CASCFile(std::shared_ptr<CASC::Storage const> casc, const char* filena
     std::unique_ptr<CASC::File> file(casc->OpenFile(filename, CASC_LOCALE_ALL_WOW, false));
     if (!file)
     {
-        if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
-            fprintf(stderr, "Can't open %s: %s\n", filename, CASC::HumanReadableCASCError(GetLastError()));
+        if (warnNoExist || GetCascError() != ERROR_FILE_NOT_FOUND)
+            fprintf(stderr, "Can't open %s: %s\n", filename, CASC::HumanReadableCASCError(GetCascError()));
         eof = true;
         return;
     }
@@ -46,8 +46,8 @@ CASCFile::CASCFile(std::shared_ptr<CASC::Storage const> casc, uint32 fileDataId,
     std::unique_ptr<CASC::File> file(casc->OpenFile(fileDataId, CASC_LOCALE_ALL_WOW, false));
     if (!file)
     {
-        if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
-            fprintf(stderr, "Can't open %s: %s\n", description.c_str(), CASC::HumanReadableCASCError(GetLastError()));
+        if (warnNoExist || GetCascError() != ERROR_FILE_NOT_FOUND)
+            fprintf(stderr, "Can't open %s: %s\n", description.c_str(), CASC::HumanReadableCASCError(GetCascError()));
         eof = true;
         return;
     }
@@ -60,7 +60,7 @@ void CASCFile::init(CASC::File* file, const char* description)
     int64 fileSize = file->GetSize();
     if (fileSize == -1)
     {
-        fprintf(stderr, "Can't open %s, failed to get size: %s!\n", description, CASC::HumanReadableCASCError(GetLastError()));
+        fprintf(stderr, "Can't open %s, failed to get size: %s!\n", description, CASC::HumanReadableCASCError(GetCascError()));
         eof = true;
         return;
     }
@@ -71,7 +71,7 @@ void CASCFile::init(CASC::File* file, const char* description)
     buffer = new char[size];
     if (!file->ReadFile(buffer, size, &read) || size != read)
     {
-        fprintf(stderr, "Can't read %s, size=%u read=%u: %s\n", description, uint32(size), uint32(read), CASC::HumanReadableCASCError(GetLastError()));
+        fprintf(stderr, "Can't read %s, size=%u read=%u: %s\n", description, uint32(size), uint32(read), CASC::HumanReadableCASCError(GetCascError()));
         eof = true;
         return;
     }
@@ -111,6 +111,6 @@ void CASCFile::seekRelative(int offset)
 void CASCFile::close()
 {
     delete[] buffer;
-    buffer = 0;
+    buffer = nullptr;
     eof = true;
 }

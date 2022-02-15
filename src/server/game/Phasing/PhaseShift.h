@@ -65,6 +65,7 @@ public:
         std::vector<Condition*> const* AreaConditions;
         bool operator<(PhaseRef const& right) const { return Id < right.Id; }
         bool operator==(PhaseRef const& right) const { return Id == right.Id; }
+        bool IsPersonal() const { return Flags.HasFlag(PhaseFlags::Personal); }
     };
     struct VisibleMapIdRef
     {
@@ -81,11 +82,18 @@ public:
         typename Container::iterator Iterator;
         bool Erased;
     };
-    typedef boost::container::flat_set<PhaseRef> PhaseContainer;
-    typedef std::map<uint32, VisibleMapIdRef> VisibleMapIdContainer;
-    typedef std::map<uint32, UiMapPhaseIdRef> UiMapPhaseIdContainer;
+    using PhaseContainer = boost::container::flat_set<PhaseRef>;
+    using VisibleMapIdContainer = std::map<uint32, VisibleMapIdRef>;
+    using UiMapPhaseIdContainer = std::map<uint32, UiMapPhaseIdRef>;
 
-    PhaseShift() : Flags(PhaseShiftFlags::Unphased), NonCosmeticReferences(0), CosmeticReferences(0), DefaultReferences(0), IsDbPhaseShift(false) { }
+    PhaseShift();
+    PhaseShift(PhaseShift const& right);
+    PhaseShift(PhaseShift&& right) noexcept;
+    PhaseShift& operator=(PhaseShift const& right);
+    PhaseShift& operator=(PhaseShift&& right) noexcept;
+    ~PhaseShift();
+
+    ObjectGuid GetPersonalGuid() const { return PersonalGuid; }
 
     bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);
     EraseResult<PhaseContainer> RemovePhase(uint32 phaseId);
@@ -100,17 +108,19 @@ public:
     bool AddUiMapPhaseId(uint32 uiMapPhaseId, int32 references = 1);
     EraseResult<UiMapPhaseIdContainer> RemoveUiMapPhaseId(uint32 uiMapPhaseId);
     bool HasUiMapPhaseId(uint32 uiMapPhaseId) const { return UiMapPhaseIds.find(uiMapPhaseId) != UiMapPhaseIds.end(); }
-    UiMapPhaseIdContainer const& GetUiWorldMapAreaIdSwaps() const { return UiMapPhaseIds; }
+    UiMapPhaseIdContainer const& GetUiMapPhaseIds() const { return UiMapPhaseIds; }
 
     void Clear();
     void ClearPhases();
 
     bool CanSee(PhaseShift const& other) const;
 
+    bool HasPersonalPhase() const;
+
 protected:
     friend class PhasingHandler;
 
-    EnumFlag<PhaseShiftFlags> Flags;
+    EnumFlag<PhaseShiftFlags> Flags = PhaseShiftFlags::Unphased;
     ObjectGuid PersonalGuid;
     PhaseContainer Phases;
     VisibleMapIdContainer VisibleMapIds;
@@ -118,10 +128,12 @@ protected:
 
     void ModifyPhasesReferences(PhaseContainer::iterator itr, int32 references);
     void UpdateUnphasedFlag();
-    int32 NonCosmeticReferences;
-    int32 CosmeticReferences;
-    int32 DefaultReferences;
-    bool IsDbPhaseShift;
+    void UpdatePersonalGuid();
+    int32 NonCosmeticReferences = 0;
+    int32 CosmeticReferences = 0;
+    int32 PersonalReferences = 0;
+    int32 DefaultReferences = 0;
+    bool IsDbPhaseShift = false;
 };
 
 #endif // PhaseShift_h__

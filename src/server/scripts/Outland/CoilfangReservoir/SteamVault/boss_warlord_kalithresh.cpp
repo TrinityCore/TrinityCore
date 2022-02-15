@@ -76,7 +76,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void StartRageGen(Unit* /*caster*/)
         {
@@ -137,7 +137,7 @@ public:
             instance->SetBossState(DATA_WARLORD_KALITHRESH, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -149,10 +149,10 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             //hack :(
-            if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
+            if (spellInfo->Id == SPELL_WARLORDS_RAGE_PROC)
                 if (instance->GetData(DATA_DISTILLER) == DONE)
                     me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
         }
@@ -190,7 +190,7 @@ public:
             //Impale_Timer
             if (Impale_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_IMPALE);
 
                 Impale_Timer = 7500 + rand32() % 5000;

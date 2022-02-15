@@ -84,15 +84,15 @@ class boss_buru : public CreatureScript
                 Eggs.clear();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(EMOTE_TARGET, who);
                 DoCast(me, SPELL_THORNS);
 
-                events.ScheduleEvent(EVENT_DISMEMBER, 5000);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 60000);
+                events.ScheduleEvent(EVENT_DISMEMBER, 5s);
+                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
 
                 _phase = PHASE_EGG;
             }
@@ -101,7 +101,7 @@ class boss_buru : public CreatureScript
             {
                 if (action == ACTION_EXPLODE)
                     if (_phase == PHASE_EGG)
-                        me->DealDamage(me, 45000);
+                        Unit::DealDamage(me, me, 45000);
             }
 
             void KilledUnit(Unit* victim) override
@@ -117,12 +117,12 @@ class boss_buru : public CreatureScript
 
                 me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 60000);
+                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
 
-                if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 {
-                    DoResetThreat();
+                    ResetThreatList();
                     AttackStart(victim);
                     Talk(EMOTE_TARGET, victim);
                 }
@@ -132,7 +132,7 @@ class boss_buru : public CreatureScript
             {
                 ChaseNewVictim();
                 Eggs.push_back(EggGUID);
-                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100000);
+                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -148,18 +148,18 @@ class boss_buru : public CreatureScript
                     {
                         case EVENT_DISMEMBER:
                             DoCastVictim(SPELL_DISMEMBER);
-                            events.ScheduleEvent(EVENT_DISMEMBER, 5000);
+                            events.ScheduleEvent(EVENT_DISMEMBER, 5s);
                             break;
                         case EVENT_GATHERING_SPEED:
                             DoCast(me, SPELL_GATHERING_SPEED);
-                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
+                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
                             break;
                         case EVENT_FULL_SPEED:
                             DoCast(me, SPELL_FULL_SPEED);
                             break;
                         case EVENT_CREEPING_PLAGUE:
                             DoCast(me, SPELL_CREEPING_PLAGUE);
-                            events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 6000);
+                            events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 6s);
                             break;
                         case EVENT_RESPAWN_EGG:
                             if (Creature* egg = ObjectAccessor::GetCreature(*me, Eggs.front()))
@@ -207,7 +207,7 @@ class npc_buru_egg : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* attacker) override
+            void JustEngagedWith(Unit* attacker) override
             {
                 if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
                     if (!buru->IsInCombat())
@@ -218,7 +218,7 @@ class npc_buru_egg : public CreatureScript
             {
                 if (who->GetEntry() == NPC_HATCHLING)
                     if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
-                        if (Unit* target = buru->AI()->SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* target = buru->AI()->SelectTarget(SelectTargetMethod::Random))
                             who->AI()->AttackStart(target);
             }
 
@@ -261,8 +261,9 @@ class spell_egg_explosion : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    int32 damage = std::max<int32>(0, -16 * GetCaster()->GetDistance(target) + 500);
-                    GetCaster()->CastCustomSpell(SPELL_EXPLOSION_DAMAGE, SPELLVALUE_BASE_POINT0, damage, target, true);
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.AddSpellBP0(std::max<int32>(0, -16 * GetCaster()->GetDistance(target) + 500));
+                    GetCaster()->CastSpell(target, SPELL_EXPLOSION_DAMAGE, args);
                 }
             }
 

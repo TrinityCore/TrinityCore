@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GossipDef.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Item.h"
@@ -31,10 +32,8 @@
 #include "MailPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {
@@ -76,9 +75,12 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     if (packet.Info.Target.empty())
         return;
 
+    if (!ValidateHyperlinksAndMaybeKick(packet.Info.Subject) || !ValidateHyperlinksAndMaybeKick(packet.Info.Body))
+        return;
+
     Player* player = _player;
 
-    if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
+    if (player->GetLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
         return;
@@ -90,7 +92,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 
     if (!receiverGuid)
     {
-        TC_LOG_INFO("network", "Player %s is sending mail to %s (GUID: not existing!) with subject %s "
+        TC_LOG_INFO("network", "Player %s is sending mail to %s (GUID: non-existing!) with subject %s "
             "and body %s includes " SZFMTD " items, " SI64FMTD " copper and " SI64FMTD " COD copper with StationeryID = %d",
             GetPlayerInfo().c_str(), packet.Info.Target.c_str(), packet.Info.Subject.c_str(), packet.Info.Body.c_str(),
             packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID);
@@ -154,7 +156,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     {
         receiverTeam = receiver->GetTeam();
         mailsCount = receiver->GetMailSize();
-        receiverLevel = receiver->getLevel();
+        receiverLevel = receiver->GetLevel();
         receiverAccountId = receiver->GetSession()->GetAccountId();
         receiverBnetAccountId = receiver->GetSession()->GetBattlenetAccountId();
     }
@@ -194,7 +196,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
         if (Item* item = player->GetItemByGuid(att.ItemGUID))
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if (!itemProto || !(itemProto->GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT))
+            if (!itemProto || !itemProto->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT))
             {
                 accountBound = false;
                 break;
@@ -248,13 +250,13 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
             }
         }
 
-        if (item->GetTemplate()->GetFlags() & ITEM_FLAG_CONJURED || *item->m_itemData->Expiration)
+        if (item->GetTemplate()->HasFlag(ITEM_FLAG_CONJURED) || *item->m_itemData->Expiration)
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
             return;
         }
 
-        if (packet.Info.Cod && item->HasItemFlag(ITEM_FIELD_FLAG_WRAPPED))
+        if (packet.Info.Cod && item->IsWrapped())
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
             return;
@@ -272,7 +274,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     player->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
     player->ModifyMoney(-reqmoney);
-    player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
+    player->UpdateCriteria(CriteriaType::MoneySpentOnPostage, cost);
 
     bool needItemDelay = false;
 
@@ -384,7 +386,7 @@ void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSend
 
     Player* player = _player;
     Mail* m = player->GetMail(packet.MailID);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr) || m->sender != packet.SenderGUID.GetCounter())
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime() || m->sender != packet.SenderGUID.GetCounter())
     {
         player->SendMailResult(packet.MailID, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -438,7 +440,7 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
     Player* player = _player;
 
     Mail* m = player->GetMail(packet.MailID);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime())
     {
         player->SendMailResult(packet.MailID, MAIL_ITEM_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -534,7 +536,7 @@ void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& packet
     Player* player = _player;
 
     Mail* m = player->GetMail(packet.MailID);
-    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL)) ||
+    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime()) ||
         (packet.Money > 0 && m->money != uint64(packet.Money)))
     {
         player->SendMailResult(packet.MailID, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
@@ -568,12 +570,8 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
 
     Player* player = _player;
 
-    //load players mails, and mailed items
-    if (!player->m_mailsLoaded)
-        player->_LoadMail();
-
     WorldPackets::Mail::MailListResult response;
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     for (Mail* m : player->GetMails())
     {
@@ -605,7 +603,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     Player* player = _player;
 
     Mail* m = player->GetMail(packet.MailID);
-    if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr) || (m->checked & MAIL_CHECK_MASK_COPIED))
+    if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime() || (m->checked & MAIL_CHECK_MASK_COPIED))
     {
         player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -651,19 +649,15 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     }
 }
 
-/// @todo Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& /*packet*/)
 {
     WorldPackets::Mail::MailQueryNextTimeResult result;
-
-    if (!_player->m_mailsLoaded)
-        _player->_LoadMail();
 
     if (_player->unReadMails > 0)
     {
         result.NextMailTime = 0.0f;
 
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
         std::set<ObjectGuid::LowType> sentSenders;
 
         for (Mail* mail : _player->GetMails())

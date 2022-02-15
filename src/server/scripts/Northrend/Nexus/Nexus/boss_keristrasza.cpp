@@ -17,12 +17,12 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "nexus.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -33,7 +33,7 @@ enum Spells
     SPELL_CRYSTAL_CHAINS                          = 50997,
     SPELL_ENRAGE                                  = 8599,
     SPELL_CRYSTALFIRE_BREATH                      = 48096,
-    SPELL_CRYSTALIZE                              = 48179,
+    SPELL_CRYSTALLIZE                             = 48179,
     SPELL_INTENSE_COLD                            = 48094,
     SPELL_INTENSE_COLD_TRIGGERED                  = 48095
 };
@@ -41,7 +41,7 @@ enum Spells
 enum Events
 {
     EVENT_CRYSTAL_FIRE_BREATH                     = 1,
-    EVENT_CRYSTAL_CHAINS_CRYSTALIZE,
+    EVENT_CRYSTAL_CHAINS_CRYSTALLIZE,
     EVENT_TAIL_SWEEP
 };
 
@@ -91,15 +91,15 @@ class boss_keristrasza : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
                 DoCastAOE(SPELL_INTENSE_COLD);
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
-                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, DUNGEON_MODE(30000, 11000));
-                events.ScheduleEvent(EVENT_TAIL_SWEEP, 5000);
+                events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
+                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, DUNGEON_MODE(30s, 11s));
+                events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -116,7 +116,7 @@ class boss_keristrasza : public CreatureScript
 
             bool CheckContainmentSpheres(bool removePrison = false)
             {
-                for (uint32 i = ANOMALUS_CONTAINMET_SPHERE; i < (ANOMALUS_CONTAINMET_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
+                for (uint32 i = ANOMALUS_CONTAINMENT_SPHERE; i < (ANOMALUS_CONTAINMENT_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
                 {
                     GameObject* containmentSpheres = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(i));
                     if (!containmentSpheres || containmentSpheres->GetGoState() != GO_STATE_ACTIVE)
@@ -131,20 +131,20 @@ class boss_keristrasza : public CreatureScript
             {
                 if (remove)
                 {
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     if (me->HasAura(SPELL_FROZEN_PRISON))
                         me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
                 }
                 else
                 {
-                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
                     me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     DoCast(me, SPELL_FROZEN_PRISON, false);
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
                 if (id == DATA_INTENSE_COLD)
                     _intenseColdList.push_back(guid);
@@ -177,19 +177,19 @@ class boss_keristrasza : public CreatureScript
                     {
                         case EVENT_CRYSTAL_FIRE_BREATH:
                             DoCastVictim(SPELL_CRYSTALFIRE_BREATH);
-                            events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
+                            events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
                             break;
-                        case EVENT_CRYSTAL_CHAINS_CRYSTALIZE:
+                        case EVENT_CRYSTAL_CHAINS_CRYSTALLIZE:
                             DoCast(me, SPELL_TAIL_SWEEP);
-                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, 5000);
+                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, 5s);
                             break;
                         case EVENT_TAIL_SWEEP:
                             Talk(SAY_CRYSTAL_NOVA);
                             if (IsHeroic())
-                                DoCast(me, SPELL_CRYSTALIZE);
-                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(me, SPELL_CRYSTALLIZE);
+                            else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_CHAINS);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30000, 11000));
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30s, 11s));
                             break;
                         default:
                             break;
@@ -227,7 +227,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             Creature* keristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
             if (keristrasza && keristrasza->IsAlive())

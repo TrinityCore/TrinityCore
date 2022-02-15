@@ -23,8 +23,8 @@ Category: Scholomance
 */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -53,12 +53,12 @@ class boss_doctor_theolen_krastinov : public CreatureScript
         {
             boss_theolenkrastinovAI(Creature* creature) : BossAI(creature, DATA_DOCTORTHEOLENKRASTINOV) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_REND, 8000);
-                events.ScheduleEvent(EVENT_BACKHAND, 9000);
-                events.ScheduleEvent(EVENT_FRENZY, 1000);
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_REND, 8s);
+                events.ScheduleEvent(EVENT_BACKHAND, 9s);
+                events.ScheduleEvent(EVENT_FRENZY, 1s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -77,16 +77,16 @@ class boss_doctor_theolen_krastinov : public CreatureScript
                     {
                         case EVENT_REND:
                             DoCastVictim(SPELL_REND, true);
-                            events.ScheduleEvent(EVENT_REND, 10000);
+                            events.ScheduleEvent(EVENT_REND, 10s);
                             break;
                         case EVENT_BACKHAND:
                             DoCastVictim(SPELL_BACKHAND, true);
-                            events.ScheduleEvent(EVENT_BACKHAND, 10000);
+                            events.ScheduleEvent(EVENT_BACKHAND, 10s);
                             break;
                         case EVENT_FRENZY:
                             DoCast(me, SPELL_FRENZY, true);
                             Talk(EMOTE_FRENZY_KILL);
-                            events.ScheduleEvent(EVENT_FRENZY, 120000);
+                            events.ScheduleEvent(EVENT_FRENZY, 120s);
                             break;
                         default:
                             break;

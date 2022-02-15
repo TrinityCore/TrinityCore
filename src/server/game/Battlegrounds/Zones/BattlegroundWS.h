@@ -192,7 +192,7 @@ struct BattlegroundWGScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
@@ -245,7 +245,7 @@ class BattlegroundWS : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         void UpdateFlagState(uint32 team, uint32 value);
@@ -273,7 +273,6 @@ class BattlegroundWS : public Battleground
 
     protected:
         void PostUpdateImpl(uint32 diff) override;
-        void GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const override;
 
     private:
         ObjectGuid m_FlagKeepers[2];                            // 0 - alliance, 1 - horde

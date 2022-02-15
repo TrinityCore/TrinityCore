@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "zulgurub.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "zulgurub.h"
 
 enum Yells
 {
@@ -130,9 +130,9 @@ class boss_mandokir : public CreatureScript
                 _reviveGUID.Clear();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
 
                 DoCastAOE(SPELL_BLOODLORD_AURA);
@@ -147,10 +147,10 @@ class boss_mandokir : public CreatureScript
                     }
                 }
 
-                events.ScheduleEvent(EVENT_DECAPITATE, 10000);
-                events.ScheduleEvent(EVENT_BLOODLETTING, 15000);
-                events.ScheduleEvent(EVENT_SUMMON_OHGAN, 20000);
-                events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 25000);
+                events.ScheduleEvent(EVENT_DECAPITATE, 10s);
+                events.ScheduleEvent(EVENT_BLOODLETTING, 15s);
+                events.ScheduleEvent(EVENT_SUMMON_OHGAN, 20s);
+                events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 25s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -186,7 +186,7 @@ class boss_mandokir : public CreatureScript
                 switch (action)
                 {
                     case ACTION_OHGAN_IS_DEATH:
-                        events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 4000);
+                        events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 4s);
                         _ohganotSoFast = false;
                         break;
                     case ACTION_START_REVIVE:
@@ -224,7 +224,7 @@ class boss_mandokir : public CreatureScript
                 return 0;
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
             {
                 _reviveGUID = guid;
             }
@@ -249,26 +249,26 @@ class boss_mandokir : public CreatureScript
                             break;
                         case EVENT_DECAPITATE:
                             DoCastAOE(SPELL_DECAPITATE);
-                            events.ScheduleEvent(EVENT_DECAPITATE, me->HasAura(SPELL_FRENZY) ? 17500 : 35000);
+                            events.ScheduleEvent(EVENT_DECAPITATE, me->HasAura(SPELL_FRENZY) ? (17s + 500ms) : 35s);
                             break;
                         case EVENT_BLOODLETTING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 DoCast(target, SPELL_BLOODLETTING, true);
                                 me->ClearUnitState(UNIT_STATE_CASTING);
                             }
-                            events.ScheduleEvent(EVENT_BLOODLETTING, 25000);
+                            events.ScheduleEvent(EVENT_BLOODLETTING, 25s);
                             break;
                         case EVENT_REANIMATE_OHGAN:
                             if (_reanimateOhganCooldown)
-                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 1000);
+                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 1s);
                             else
                             {
                                 DoCastAOE(SPELL_REANIMATE_OHGAN);
                                 Talk(SAY_REANIMATE_OHGAN);
                                 // Cooldown
                                 _reanimateOhganCooldown = true;
-                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN_COOLDOWN, 20000);
+                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN_COOLDOWN, 20s);
                             }
                             break;
                         case EVENT_REANIMATE_OHGAN_COOLDOWN:
@@ -276,7 +276,7 @@ class boss_mandokir : public CreatureScript
                             break;
                         case EVENT_DEVASTATING_SLAM:
                             DoCastAOE(SPELL_DEVASTATING_SLAM_TRIGGER);
-                            events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 30000);
+                            events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 30s);
                             break;
                         default:
                             break;
@@ -313,7 +313,7 @@ class npc_ohgan : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastAOE(SPELL_OHGAN_ORDERS, true);
             }
@@ -380,7 +380,7 @@ class npc_chained_spirit : public CreatureScript
                 _revivePlayerGUID.Clear();
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
             {
                 _revivePlayerGUID = guid;
             }
@@ -392,7 +392,7 @@ class npc_chained_spirit : public CreatureScript
                     Position pos;
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
                     {
-                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 5.0f, target->GetAngle(me));
+                        target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 5.0f, target->GetAbsoluteAngle(me));
                         me->GetMotionMaster()->MovePoint(POINT_START_REVIVE, pos);
                     }
                 }
@@ -408,7 +408,7 @@ class npc_chained_spirit : public CreatureScript
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
                         DoCast(target, SPELL_REVIVE);
 
-                    me->DespawnOrUnsummon(2000);
+                    me->DespawnOrUnsummon(2s);
                 }
             }
 
@@ -500,10 +500,12 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                int32 damage = std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount()));
+                CastSpellExtraArgs args;
+                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount())));
 
-                caster->CastCustomSpell(target, SPELL_BLOODLETTING_DAMAGE, &damage, 0, 0, true);
-                target->CastCustomSpell(caster, SPELL_BLOODLETTING_HEAL, &damage, 0, 0, true);
+                caster->CastSpell(target, SPELL_BLOODLETTING_DAMAGE, args);
+                target->CastSpell(caster, SPELL_BLOODLETTING_HEAL, args);
             }
 
             void Register() override
@@ -546,14 +548,14 @@ class spell_mandokir_spirit_vengeance_cancel : public SpellScriptLoader
         }
 };
 
-class DevastatingSlamTargetSelector : public std::unary_function<Unit *, bool>
+class DevastatingSlamTargetSelector
 {
     public:
         DevastatingSlamTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
 
         bool operator() (WorldObject* target)
         {
-            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                 return true;
 
             if (target->GetTypeId() != TYPEID_PLAYER)
@@ -595,8 +597,8 @@ class spell_mandokir_devastating_slam : public SpellScriptLoader
                 if (Player* target = GetHitPlayer())
                 {
                     caster->AttackStop();
-                    caster->SetOrientation(caster->GetAngle(target));
-                    caster->SetFacingTo(caster->GetAngle(target));
+                    caster->SetOrientation(caster->GetAbsoluteAngle(target));
+                    caster->SetFacingTo(caster->GetAbsoluteAngle(target));
 
                     caster->CastSpell(caster, SPELL_DEVASTATING_SLAM, false);
 
@@ -606,7 +608,7 @@ class spell_mandokir_devastating_slam : public SpellScriptLoader
                         angle = float(rand_norm()) * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
                         caster->GetClosePoint(x, y, z, 4.0f, frand(-2.5f, 50.0f), angle);
 
-                        caster->CastSpell(x, y, z, SPELL_DEVASTATING_SLAM_DAMAGE, true);
+                        caster->CastSpell(Position{ x, y, z }, SPELL_DEVASTATING_SLAM_DAMAGE, true);
                     }
                 }
             }
@@ -680,9 +682,9 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScriptLoader
                     // HACK: research better way
                     caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->GetMotionMaster()->Clear();
-                    caster->DeleteThreatList();
-                    caster->AddThreat(target, 50000000.0f);
-                    caster->TauntApply(target);
+                    caster->GetThreatManager().ResetAllThreat();
+                    caster->GetThreatManager().AddThreat(target, 50000000.0f);
+                    // TODO: Fixate mechanic
                 }
             }
 
@@ -713,7 +715,7 @@ class spell_mandokir_reanimate_ohgan : public SpellScriptLoader
                 {
                     target->RemoveAura(SPELL_PERMANENT_FEIGN_DEATH);
                     target->CastSpell(target, SPELL_OHGAN_HEART_VISUAL, true);
-                    target->CastSpell((Unit*)NULL, SPELL_OHGAN_ORDERS, true);
+                    target->CastSpell(nullptr, SPELL_OHGAN_ORDERS, true);
                 }
             }
 

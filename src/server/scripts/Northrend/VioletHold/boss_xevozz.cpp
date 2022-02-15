@@ -91,9 +91,9 @@ class boss_xevozz : public CreatureScript
                 BossAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -115,15 +115,15 @@ class boss_xevozz : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
-            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_ARCANE_POWER || spell->Id == H_SPELL_ARCANE_POWER)
+                if (spellInfo->Id == SPELL_ARCANE_POWER || spellInfo->Id == H_SPELL_ARCANE_POWER)
                     Talk(SAY_SUMMON_ENERGY);
             }
 
@@ -146,7 +146,7 @@ class boss_xevozz : public CreatureScript
 
                 scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                         DoCast(target, SPELL_ARCANE_BUFFET);
                     task.Repeat(Seconds(15), Seconds(20));
                 });
@@ -207,7 +207,7 @@ class npc_ethereal_sphere : public CreatureScript
                 DoCast(me, SPELL_POWER_BALL_VISUAL);
                 DoCast(me, DUNGEON_MODE(SPELL_POWER_BALL_DAMAGE_TRIGGER, SPELL_POWER_BALL_DAMAGE_TRIGGER_H));
 
-                me->DespawnOrUnsummon(40000);
+                me->DespawnOrUnsummon(40s);
             }
 
             void DoAction(int32 action) override
@@ -233,7 +233,7 @@ class npc_ethereal_sphere : public CreatureScript
                         if (me->IsWithinDist(xevozz, 3.0f))
                         {
                             DoCastAOE(SPELL_ARCANE_POWER);
-                            me->DespawnOrUnsummon(8000);
+                            me->DespawnOrUnsummon(8s);
                             return;
                         }
                     }

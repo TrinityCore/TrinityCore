@@ -25,10 +25,10 @@
 
 #define EVENT_WARD_KEEPER 1
 
-template<typename AI>
-inline AI* GetRazorfenKraulAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetRazorfenKraulAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, RFKScriptName);
+    return GetInstanceAI<AI>(obj, RFKScriptName);
 }
 
 #endif

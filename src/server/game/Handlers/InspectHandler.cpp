@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "AchievementMgr.h"
 #include "AzeriteItem.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -59,13 +60,13 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
 
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
     {
-        inspectResult.GuildData = boost::in_place();
+        inspectResult.GuildData.emplace();
         inspectResult.GuildData->GuildGUID = guild->GetGUID();
         inspectResult.GuildData->NumGuildMembers = guild->GetMembersCount();
         inspectResult.GuildData->AchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();
     }
 
-    if (Item const* heartOfAzeroth = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE))
+    if (Item const* heartOfAzeroth = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
         if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
             inspectResult.AzeriteLevel = azeriteItem->GetEffectiveLevel();
 

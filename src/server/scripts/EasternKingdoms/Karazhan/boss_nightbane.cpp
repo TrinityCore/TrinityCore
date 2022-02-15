@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameObject.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "karazhan.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum NightbaneSpells
 {
@@ -119,11 +119,6 @@ class boss_nightbane : public CreatureScript
 public:
     boss_nightbane() : CreatureScript("boss_nightbane") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetKarazhanAI<boss_nightbaneAI>(creature);
-    }
-
     struct boss_nightbaneAI : public BossAI
     {
         boss_nightbaneAI(Creature* creature) : BossAI(creature, DATA_NIGHTBANE), _flyCount(0) { }
@@ -162,6 +157,7 @@ public:
                 Talk(EMOTE_SUMMON);
                 events.SetPhase(PHASE_INTRO);
                 me->setActive(true);
+                me->SetFarVisible(true);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
@@ -171,7 +167,7 @@ public:
         void SetupGroundPhase()
         {
             events.SetPhase(PHASE_GROUND);
-            events.ScheduleEvent(EVENT_CLEAVE, Seconds(0), Seconds(15), GROUP_GROUND);
+            events.ScheduleEvent(EVENT_CLEAVE, 0s, Seconds(15), GROUP_GROUND);
             events.ScheduleEvent(EVENT_TAIL_SWEEP, Seconds(4), Seconds(23), GROUP_GROUND);
             events.ScheduleEvent(EVENT_BELLOWING_ROAR, Seconds(48), GROUP_GROUND);
             events.ScheduleEvent(EVENT_CHARRED_EARTH, Seconds(12), Seconds(18), GROUP_GROUND);
@@ -185,9 +181,9 @@ public:
             instance->HandleGameObject(instance->GetGuidData(DATA_MASTERS_TERRACE_DOOR_2), open);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             Talk(YELL_AGGRO);
             SetupGroundPhase();
         }
@@ -215,22 +211,22 @@ public:
                 switch (pointId)
                 {
                     case POINT_INTRO_START:
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.ScheduleEvent(EVENT_START_INTRO_PATH, Milliseconds(1));
                         break;
                     case POINT_INTRO_END:
-                        events.ScheduleEvent(EVENT_END_INTRO, Seconds(2));
+                        events.ScheduleEvent(EVENT_END_INTRO, 2s);
                         break;
                     case POINT_INTRO_LANDING:
                         me->SetDisableGravity(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                        events.ScheduleEvent(EVENT_INTRO_LANDING, Seconds(3));
+                        events.ScheduleEvent(EVENT_INTRO_LANDING, 3s);
                         break;
                     case POINT_PHASE_TWO_LANDING:
                         events.SetPhase(PHASE_GROUND);
                         me->SetDisableGravity(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                        events.ScheduleEvent(EVENT_LANDED, Seconds(3));
+                        events.ScheduleEvent(EVENT_LANDED, 3s);
                         break;
                     case POINT_PHASE_TWO_END:
                         events.ScheduleEvent(EVENT_END_PHASE_TWO, Milliseconds(1));
@@ -280,7 +276,7 @@ public:
                     DoCastAOE(SPELL_BELLOWING_ROAR);
                     break;
                 case EVENT_CHARRED_EARTH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_CHARRED_EARTH);
                     events.Repeat(Seconds(18), Seconds(21));
                     break;
@@ -289,7 +285,7 @@ public:
                     events.Repeat(Seconds(6), Seconds(15));
                     break;
                 case EVENT_DISTRACTING_ASH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_DISTRACTING_ASH);
                     break;
                 case EVENT_EMOTE_BREATH:
@@ -303,8 +299,8 @@ public:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_LANDING, SPLINE_CHAIN_SECOND_LANDING, false);
                     break;
                 case EVENT_INTRO_LANDING:
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    me->SetInCombatWithZone();
+                    me->SetImmuneToPC(false);
+                    DoZoneInCombat();
                     break;
                 case EVENT_LAND:
                     Talk(YELL_LAND_PHASE);
@@ -326,8 +322,8 @@ public:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_END, SPLINE_CHAIN_INTRO_END, false);
                     break;
                 case EVENT_RAIN_OF_BONES:
-                    DoResetThreat();
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    ResetThreatList();
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     {
                         me->SetFacingToObject(target);
                         DoCast(target, SPELL_RAIN_OF_BONES);
@@ -338,17 +334,17 @@ public:
                     events.Repeat(Seconds(28), Seconds(40));
                     break;
                 case EVENT_SMOKING_BLAST:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_SMOKING_BLAST);
                     events.Repeat(Milliseconds(1400));
                     break;
                 case EVENT_SMOKING_BLAST_T:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_SMOKING_BLAST_T);
                     events.Repeat(Seconds(5), Seconds(7));
                     break;
                 case EVENT_TAIL_SWEEP:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         if (!me->HasInArc(float(M_PI), target))
                             DoCast(target, SPELL_TAIL_SWEEP);
                     events.Repeat(Seconds(20), Seconds(30));
@@ -381,6 +377,11 @@ public:
         private:
             uint8 _flyCount;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_nightbaneAI>(creature);
+    }
 };
 
 // 37098 - Rain of Bones
@@ -427,7 +428,7 @@ class go_blackened_urn : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (me->HasFlag(GO_FLAG_IN_USE))
                     return false;

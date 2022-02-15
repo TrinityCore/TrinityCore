@@ -85,11 +85,11 @@ class boss_anzu : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14000);
-                events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5000);
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14s);
+                events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -103,14 +103,14 @@ class boss_anzu : public CreatureScript
                 {
                     _under33Percent = true;
                     Talk(SAY_SUMMON_BROOD);
-                    events.ScheduleEvent(EVENT_SUMMON, 3000);
+                    events.ScheduleEvent(EVENT_SUMMON, 3s);
                 }
 
                 if (me->HealthBelowPctDamaged(66, damage) && !_under66Percent)
                 {
                     _under66Percent = true;
                     Talk(SAY_SUMMON_BROOD);
-                    events.ScheduleEvent(EVENT_SUMMON, 3000);
+                    events.ScheduleEvent(EVENT_SUMMON, 3s);
                 }
             }
 
@@ -127,23 +127,23 @@ class boss_anzu : public CreatureScript
                     {
                         case EVENT_PARALYZING_SCREECH:
                             DoCastVictim(SPELL_PARALYZING_SCREECH);
-                            events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 26000);
+                            events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 25s);
                             break;
                         case EVENT_CYCLONE_OF_FEATHERS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
-                            events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21000);
+                            events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21s);
                             break;
                         case EVENT_SUMMON:
                             // TODO: Add pathing for Brood of Anzu
                             for (uint8 i = 0; i < 7; i++)
-                                me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
+                                me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
 
                             DoCast(me, SPELL_BANISH_SELF);
-                            events.ScheduleEvent(EVENT_SPELL_BOMB, 12000);
+                            events.ScheduleEvent(EVENT_SPELL_BOMB, 12s);
                             break;
                         case EVENT_SPELL_BOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             {
                                 if (target->GetPowerType() == POWER_MANA)
                                 {

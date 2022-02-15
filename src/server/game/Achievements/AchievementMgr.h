@@ -19,6 +19,7 @@
 #define __TRINITY_ACHIEVEMENTMGR_H
 
 #include "CriteriaHandler.h"
+#include "DatabaseEnvFwd.h"
 
 class Guild;
 
@@ -56,6 +57,7 @@ public:
     virtual void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) = 0;
     bool HasAchieved(uint32 achievementId) const;
     uint32 GetAchievementPoints() const;
+    std::vector<uint32> GetCompletedAchievementIds() const;
 
 protected:
     bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const override;
@@ -81,9 +83,9 @@ public:
 
     static void DeleteFromDB(ObjectGuid const& guid);
     void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
-    void SaveToDB(CharacterDatabaseTransaction& trans);
+    void SaveToDB(CharacterDatabaseTransaction trans);
 
-    void ResetCriteria(CriteriaCondition condition, int32 failAsset, bool evenIfCriteriaComplete = false);
+    void ResetCriteria(CriteriaFailEvent failEvent, int32 failAsset, bool evenIfCriteriaComplete = false);
 
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
@@ -94,7 +96,7 @@ public:
     bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
 protected:
-    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
     void SendCriteriaProgressRemoved(uint32 criteriaId) override;
 
     void SendAchievementEarned(AchievementEntry const* achievement) const;
@@ -102,7 +104,7 @@ protected:
     void SendPacket(WorldPacket const* data) const override;
 
     std::string GetOwnerInfo() const override;
-    CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const override;
+    CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const override;
 
 private:
     Player* _owner;
@@ -117,7 +119,7 @@ public:
 
     static void DeleteFromDB(ObjectGuid const& guid);
     void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
-    void SaveToDB(CharacterDatabaseTransaction& trans);
+    void SaveToDB(CharacterDatabaseTransaction trans);
 
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
@@ -127,7 +129,7 @@ public:
     void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;
 
 protected:
-    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
     void SendCriteriaProgressRemoved(uint32 criteriaId) override;
 
     void SendAchievementEarned(AchievementEntry const* achievement) const;
@@ -135,18 +137,26 @@ protected:
     void SendPacket(WorldPacket const* data) const override;
 
     std::string GetOwnerInfo() const override;
-    CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const override;
+    CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const override;
 
 private:
     Guild* _owner;
+
+        friend class UnitTestDataLoader;
 };
 
 class TC_GAME_API AchievementGlobalMgr
 {
-    AchievementGlobalMgr() { }
-    ~AchievementGlobalMgr() { }
+    AchievementGlobalMgr();
+    ~AchievementGlobalMgr();
 
 public:
+    AchievementGlobalMgr(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr(AchievementGlobalMgr&&) = delete;
+
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr&&) = delete;
+
     static AchievementGlobalMgr* Instance();
 
     std::vector<AchievementEntry const*> const* GetAchievementByReferencedId(uint32 id) const;
@@ -157,21 +167,25 @@ public:
     void SetRealmCompleted(AchievementEntry const* achievement);
 
     void LoadAchievementReferenceList();
+    void LoadAchievementScripts();
     void LoadCompletedAchievements();
     void LoadRewards();
     void LoadRewardLocales();
+
+    uint32 GetAchievementScriptId(uint32 achievementId) const;
 
 private:
     // store achievements by referenced achievement id to speed up lookup
     std::unordered_map<uint32, std::vector<AchievementEntry const*>> _achievementListByReferencedId;
 
     // store realm first achievements
-    // std::chrono::system_clock::time_point::min() is a placeholder value for realm firsts not yet completed
-    // std::chrono::system_clock::time_point::max() is a value assigned to realm firsts complete before worldserver started
-    std::unordered_map<uint32 /*achievementId*/, std::chrono::system_clock::time_point /*completionTime*/> _allCompletedAchievements;
+    // SystemTimePoint::min() is a placeholder value for realm firsts not yet completed
+    // SystemTimePoint::max() is a value assigned to realm firsts complete before worldserver started
+    std::unordered_map<uint32 /*achievementId*/, SystemTimePoint /*completionTime*/> _allCompletedAchievements;
 
     std::unordered_map<uint32, AchievementReward> _achievementRewards;
     std::unordered_map<uint32, AchievementRewardLocale> _achievementRewardLocales;
+    std::unordered_map<uint32, uint32> _achievementScripts;
 };
 
 #define sAchievementMgr AchievementGlobalMgr::Instance()

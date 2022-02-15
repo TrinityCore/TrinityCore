@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "shadowfang_keep.h"
+#include "ScriptMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -25,8 +25,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
-#include "SpellAuraEffects.h"
+#include "shadowfang_keep.h"
 #include "SpellScript.h"
 
 enum ApothecarySpells
@@ -101,7 +100,7 @@ class boss_apothecary_hummel : public CreatureScript
         {
             boss_apothecary_hummelAI(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_HUMMEL && gossipListId == GOSSIP_OPTION_START)
                 {
@@ -136,7 +135,7 @@ class boss_apothecary_hummel : public CreatureScript
                     events.SetPhase(PHASE_INTRO);
                     events.ScheduleEvent(EVENT_HUMMEL_SAY_0, Milliseconds(1));
 
-                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
                     me->SetFaction(FACTION_MONSTER);
                     DummyEntryCheckPredicate pred;
                     summons.DoAction(ACTION_START_EVENT, pred);
@@ -213,17 +212,16 @@ class boss_apothecary_hummel : public CreatureScript
                             break;
                         case EVENT_HUMMEL_SAY_2:
                             Talk(SAY_INTRO_2);
-                            events.ScheduleEvent(EVENT_START_FIGHT, Seconds(4));
+                            events.ScheduleEvent(EVENT_START_FIGHT, 4s);
                             break;
                         case EVENT_START_FIGHT:
                         {
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-                            me->SetInCombatWithZone();
-                            events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
-                            events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
+                            me->SetImmuneToAll(false);
+                            DoZoneInCombat();
+                            events.ScheduleEvent(EVENT_CALL_BAXTER, 6s);
+                            events.ScheduleEvent(EVENT_CALL_FRYE, 14s);
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
-                            events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(15));
+                            events.ScheduleEvent(EVENT_CHAIN_REACTION, 15s);
 
                             Talk(SAY_SUMMON_ADDS);
                             std::vector<Creature*> trashs;
@@ -268,7 +266,7 @@ class boss_apothecary_hummel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+            void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
             {
                 if (quest->GetQuestId() == QUEST_YOUVE_BEEN_SERVED)
                     DoAction(ACTION_START_EVENT);
@@ -293,15 +291,14 @@ struct npc_apothecary_genericAI : public ScriptedAI
     {
         if (action == ACTION_START_EVENT)
         {
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->SetFaction(FACTION_MONSTER);
             me->GetMotionMaster()->MovePoint(1, _movePos);
         }
         else if (action == ACTION_START_FIGHT)
         {
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-            me->SetInCombatWithZone();
+            me->SetImmuneToAll(false);
+            DoZoneInCombat();
         }
     }
 
@@ -324,7 +321,7 @@ class npc_apothecary_frye : public CreatureScript
         {
             npc_apothecary_fryeAI(Creature* creature) : npc_apothecary_genericAI(creature, FryeMovePos) { }
 
-            void JustDied(Unit* /*who*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_FRYE_DEATH);
             }
@@ -348,11 +345,11 @@ class npc_apothecary_baxter : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_COLOGNE_SPRAY, Seconds(7));
-                _events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(12));
+                _events.ScheduleEvent(EVENT_COLOGNE_SPRAY, 7s);
+                _events.ScheduleEvent(EVENT_CHAIN_REACTION, 12s);
             }
 
-            void JustDied(Unit* /*who*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _events.Reset();
                 Talk(SAY_BAXTER_DEATH);
@@ -417,6 +414,9 @@ class spell_apothecary_lingering_fumes : public SpellScriptLoader
 
                 std::list<Creature*> triggers;
                 caster->GetCreatureListWithEntryInGrid(triggers, NPC_VIAL_BUNNY, 100.0f);
+                if (triggers.empty())
+                    return;
+
                 Creature* trigger = Trinity::Containers::SelectRandomContainerElement(triggers);
                 caster->GetMotionMaster()->MovePoint(0, trigger->GetPosition());
 

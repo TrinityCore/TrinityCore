@@ -20,13 +20,13 @@
 #include "Corpse.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Map.h"
-#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "StringConvert.h"
 #include "UpdateData.h"
-#include "World.h"
 #include <sstream>
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
@@ -36,7 +36,7 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
 
     m_updateFlag.Stationary = true;
 
-    m_time = time(NULL);
+    m_time = GameTime::GetGameTime();
 
     lootRecipient = nullptr;
 }
@@ -102,9 +102,6 @@ void Corpse::SaveToDB()
     for (uint16 index = 0; index < EQUIPMENT_SLOT_END; ++index)
         items << m_corpseData->Items[index] << ' ';
 
-    uint32 bytes1 = (uint32(*m_corpseData->RaceID) << 8) | (uint32(*m_corpseData->Sex) << 16) | (uint32(*m_corpseData->SkinID) << 24);
-    uint32 bytes2 = (uint32(*m_corpseData->FaceID)) | (uint32(*m_corpseData->HairStyleID) << 8) | (uint32(*m_corpseData->HairColorID) << 16) | (uint32(*m_corpseData->FacialHairStyleID) << 24);
-
     uint16 index = 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
     stmt->setUInt64(index++, GetOwnerGUID().GetCounter());                            // guid
@@ -115,8 +112,9 @@ void Corpse::SaveToDB()
     stmt->setUInt16(index++, GetMapId());                                             // mapId
     stmt->setUInt32(index++, m_corpseData->DisplayID);                                // displayId
     stmt->setString(index++, items.str());                                            // itemCache
-    stmt->setUInt32(index++, bytes1);                                                 // bytes1
-    stmt->setUInt32(index++, bytes2);                                                 // bytes2
+    stmt->setUInt8 (index++, m_corpseData->RaceID);                                   // race
+    stmt->setUInt8 (index++, m_corpseData->Class);                                    // class
+    stmt->setUInt8 (index++, m_corpseData->Sex);                                      // gender
     stmt->setUInt8 (index++, m_corpseData->Flags);                                    // flags
     stmt->setUInt8 (index++, m_corpseData->DynamicFlags);                             // dynFlags
     stmt->setUInt32(index++, uint32(m_time));                                         // time
@@ -133,15 +131,25 @@ void Corpse::SaveToDB()
         trans->Append(stmt);
     }
 
+    for (UF::ChrCustomizationChoice customization : m_corpseData->Customizations)
+    {
+        index = 0;
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_CUSTOMIZATIONS);
+        stmt->setUInt64(index++, GetOwnerGUID().GetCounter());                        // OwnerGuid
+        stmt->setUInt32(index++, customization.ChrCustomizationOptionID);
+        stmt->setUInt32(index++, customization.ChrCustomizationChoiceID);
+        trans->Append(stmt);
+    }
+
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Corpse::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void Corpse::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromDB(GetOwnerGUID(), trans);
 }
 
-void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction& trans)
+void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
     stmt->setUInt64(0, ownerGuid.GetCounter());
@@ -150,12 +158,21 @@ void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransact
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
     stmt->setUInt64(0, ownerGuid.GetCounter());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_CUSTOMIZATIONS);
+    stmt->setUInt64(0, ownerGuid.GetCounter());
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+}
+
+void Corpse::ResetGhostTime()
+{
+    m_time = GameTime::GetGameTime();
 }
 
 bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 {
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
+    //        0     1     2     3            4      5          6          7     8      9       10     11        12    13          14          15
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, race, class, gender, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
 
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
@@ -167,28 +184,22 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
-    Tokenizer items(fields[6].GetString(), ' ', EQUIPMENT_SLOT_END);
+    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     if (items.size() == EQUIPMENT_SLOT_END)
         for (uint32 index = 0; index < EQUIPMENT_SLOT_END; ++index)
-            SetItem(index, atoul(items[index]));
+            SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
 
-    uint32 bytes1 = fields[7].GetUInt32();
-    uint32 bytes2 = fields[8].GetUInt32();
-    SetRace((bytes1 >> 8) & 0xFF);
-    SetSex((bytes1 >> 16) & 0xFF);
-    SetSkin((bytes1 >> 24) & 0xFF);
-    SetFace(bytes2 & 0xFF);
-    SetHairStyle((bytes2 >> 8) & 0xFF);
-    SetHairColor((bytes2 >> 16) & 0xFF);
-    SetFacialHairStyle((bytes2 >> 24) & 0xFF);
-    SetFlags(fields[9].GetUInt8());
-    SetCorpseDynamicFlags(CorpseDynFlags(fields[10].GetUInt8()));
-    SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[14].GetUInt64()));
+    SetRace(fields[7].GetUInt8());
+    SetClass(fields[8].GetUInt8());
+    SetSex(fields[9].GetUInt8());
+    SetFlags(fields[10].GetUInt8());
+    SetCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
+    SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[15].GetUInt64()));
     SetFactionTemplate(sChrRacesStore.AssertEntry(m_corpseData->RaceID)->FactionID);
 
-    m_time = time_t(fields[11].GetUInt32());
+    m_time = time_t(fields[12].GetUInt32());
 
-    uint32 instanceId  = fields[13].GetUInt32();
+    uint32 instanceId  = fields[14].GetUInt32();
 
     // place
     SetLocationInstanceId(instanceId);

@@ -57,7 +57,7 @@ public:
             _tapped = false;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (_tapped)
                 return;
@@ -151,7 +151,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(_percentHP));
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (!_hitBySpell)
             {
@@ -272,7 +272,7 @@ public:
         {
             if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
             {
-                if (Creature* milo = passenger->SummonCreature(NPC_MILO, me->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                if (Creature* milo = passenger->SummonCreature(NPC_MILO, me->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 0s))
                 {
                     _waitBeforePath = false;
                     _miloGUID = milo->GetGUID();
@@ -380,7 +380,7 @@ public:
         void HandleForceCast(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
-            GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true);
+            GetHitUnit()->CastSpell(GetHitUnit(), GetEffectInfo().TriggerSpell, true);
         }
 
         void Register() override
@@ -412,7 +412,7 @@ public:
         void HandleForceCast(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
-            GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true);
+            GetHitUnit()->CastSpell(GetHitUnit(), GetEffectInfo().TriggerSpell, true);
         }
 
         void Register() override
@@ -445,7 +445,7 @@ public:
         {
             if (Creature* target = GetHitCreature())
             {
-                target->setRegeneratingHealth(false);
+                target->SetRegenerateHealth(false);
                 target->SetHealth(target->CountPctFromMaxHealth(10));
             }
         }

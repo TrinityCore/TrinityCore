@@ -49,9 +49,9 @@ public:
         return GetAQ40AI<boss_huhuranAI>(creature);
     }
 
-    struct boss_huhuranAI : public ScriptedAI
+    struct boss_huhuranAI : public BossAI
     {
-        boss_huhuranAI(Creature* creature) : ScriptedAI(creature)
+        boss_huhuranAI(Creature* creature) : BossAI(creature, DATA_HUHURAN)
         {
             Initialize();
         }
@@ -82,10 +82,7 @@ public:
         void Reset() override
         {
             Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
+            _Reset();
         }
 
         void UpdateAI(uint32 diff) override
@@ -107,7 +104,7 @@ public:
             // Wyvern Timer
             if (Wyvern_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_WYVERNSTING);
                 Wyvern_Timer = urand(15000, 32000);
             } else Wyvern_Timer -= diff;

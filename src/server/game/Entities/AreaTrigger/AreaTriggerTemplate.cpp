@@ -26,66 +26,42 @@ AreaTriggerScaleInfo::AreaTriggerScaleInfo()
     memset(Data.Raw, 0, sizeof(Data.Raw));
 }
 
+AreaTriggerShapeInfo::AreaTriggerShapeInfo()
+{
+    Type = AREATRIGGER_TYPE_MAX;
+    memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
+}
+
+float AreaTriggerShapeInfo::GetMaxSearchRadius() const
+{
+    switch (Type)
+    {
+        case AREATRIGGER_TYPE_SPHERE:
+            return std::max(SphereDatas.Radius, SphereDatas.RadiusTarget);
+        case AREATRIGGER_TYPE_BOX:
+            return std::sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] / 4 + BoxDatas.Extents[1] * BoxDatas.Extents[1] / 4);
+        case AREATRIGGER_TYPE_CYLINDER:
+            return CylinderDatas.Radius;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
 AreaTriggerTemplate::AreaTriggerTemplate()
 {
-    Id = 0;
-    Type = AREATRIGGER_TYPE_MAX;
+    Id = { 0, false };
     Flags = 0;
-    ScriptId = 0;
-    MaxSearchRadius = 0.0f;
-
-    memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
 }
 
 AreaTriggerTemplate::~AreaTriggerTemplate()
 {
 }
 
-// Init the MaxSearchRadius that will be used in TrinitySearcher, avoiding calculate it at each update
-void AreaTriggerTemplate::InitMaxSearchRadius()
+AreaTriggerCreateProperties::AreaTriggerCreateProperties()
 {
-    switch (Type)
-    {
-        case AREATRIGGER_TYPE_SPHERE:
-        {
-            MaxSearchRadius = std::max(SphereDatas.Radius, SphereDatas.RadiusTarget);
-            break;
-        }
-        case AREATRIGGER_TYPE_BOX:
-        {
-            MaxSearchRadius = std::sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] / 4 + BoxDatas.Extents[1] * BoxDatas.Extents[1] / 4);
-            break;
-        }
-        case AREATRIGGER_TYPE_POLYGON:
-        {
-            if (PolygonDatas.Height <= 0.0f)
-                PolygonDatas.Height = 1.0f;
-
-            Position center(0.0f, 0.0f);
-            for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
-            {
-                float pointDist = center.GetExactDist2d(vertice);
-
-                if (pointDist > MaxSearchRadius)
-                    MaxSearchRadius = pointDist;
-            }
-
-            break;
-        }
-        case AREATRIGGER_TYPE_CYLINDER:
-        {
-            MaxSearchRadius = CylinderDatas.Radius;
-            break;
-        }
-        default:
-            break;
-    }
-}
-
-AreaTriggerMiscTemplate::AreaTriggerMiscTemplate()
-{
-    MiscId = 0;
-    AreaTriggerEntry = 0;
+    Id = 0;
 
     MoveCurveId = 0;
     ScaleCurveId = 0;
@@ -108,13 +84,36 @@ AreaTriggerMiscTemplate::AreaTriggerMiscTemplate()
     ExtraScale.Data.Structured.OverrideActive = 1;
 
     Template = nullptr;
+
+    ScriptId = 0;
 }
 
-AreaTriggerMiscTemplate::~AreaTriggerMiscTemplate()
+AreaTriggerCreateProperties::~AreaTriggerCreateProperties()
 {
 }
 
-bool AreaTriggerMiscTemplate::HasSplines() const
+bool AreaTriggerCreateProperties::HasSplines() const
 {
     return SplinePoints.size() >= 2;
+}
+
+float AreaTriggerCreateProperties::GetMaxSearchRadius() const
+{
+    if (Shape.Type == AREATRIGGER_TYPE_POLYGON)
+    {
+        Position center(0.0f, 0.0f);
+        float maxSearchRadius = 0.0f;
+
+        for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
+        {
+            float pointDist = center.GetExactDist2d(vertice);
+
+            if (pointDist > maxSearchRadius)
+                maxSearchRadius = pointDist;
+        }
+
+        return maxSearchRadius;
+    }
+
+    return Shape.GetMaxSearchRadius();
 }

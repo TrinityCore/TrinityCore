@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameTime.h"
 #include "ScriptMgr.h"
-#include "Player.h"
+#include "GameTime.h"
 #include "Pet.h"
+#include "Player.h"
 #include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -78,11 +78,11 @@ class DuelResetScript : public PlayerScript
                     loser->RestoreHealthAfterDuel();
 
                     // check if player1 class uses mana
-                    if (winner->GetPowerType() == POWER_MANA || winner->getClass() == CLASS_DRUID)
+                    if (winner->GetPowerType() == POWER_MANA || winner->GetClass() == CLASS_DRUID)
                         winner->RestoreManaAfterDuel();
 
                     // check if player2 class uses mana
-                    if (loser->GetPowerType() == POWER_MANA || loser->getClass() == CLASS_DRUID)
+                    if (loser->GetPowerType() == POWER_MANA || loser->GetClass() == CLASS_DRUID)
                         loser->RestoreManaAfterDuel();
                 }
             }
@@ -90,33 +90,37 @@ class DuelResetScript : public PlayerScript
 
         static void ResetSpellCooldowns(Player* player, bool onStartDuel)
         {
-            if (onStartDuel)
+            // remove cooldowns on spells that have < 10 min CD > 30 sec and has no onHold
+            player->GetSpellHistory()->ResetCooldowns([player, onStartDuel](SpellHistory::CooldownStorageType::iterator itr) -> bool
             {
-                // remove cooldowns on spells that have < 10 min CD > 30 sec and has no onHold
-                player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
+                Milliseconds remainingCooldown = player->GetSpellHistory()->GetRemainingCooldown(spellInfo);
+                Milliseconds totalCooldown = Milliseconds(spellInfo->RecoveryTime);
+                Milliseconds categoryCooldown = Milliseconds(spellInfo->CategoryRecoveryTime);
+
+                auto applySpellMod = [&](Milliseconds& value)
                 {
-                    SpellHistory::Clock::time_point now = GameTime::GetGameTimeSystemPoint();
-                    uint32 cooldownDuration = itr->second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.CooldownEnd - now).count() : 0;
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
-                    return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS
-                           && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS
-                           && !itr->second.OnHold
-                           && cooldownDuration > 0
-                           && ( spellInfo->RecoveryTime - cooldownDuration ) > (MINUTE / 2) * IN_MILLISECONDS
-                           && ( spellInfo->CategoryRecoveryTime - cooldownDuration ) > (MINUTE / 2) * IN_MILLISECONDS;
-                }, true);
-            }
-            else
-            {
-                // remove cooldowns on spells that have < 10 min CD and has no onHold
-                player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
-                    return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS
-                           && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS
-                           && !itr->second.OnHold;
-                }, true);
-            }
+                    int32 intValue = value.count();
+                    player->ApplySpellMod(spellInfo, SpellModOp::Cooldown, intValue, nullptr);
+                    value = Milliseconds(intValue);
+                };
+
+                applySpellMod(totalCooldown);
+
+                if (int32 cooldownMod = player->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
+                    totalCooldown += Milliseconds(cooldownMod);
+
+                if (!spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+                    applySpellMod(categoryCooldown);
+
+                return remainingCooldown > 0ms
+                    && !itr->second.OnHold
+                    && Milliseconds(totalCooldown) < 10min
+                    && Milliseconds(categoryCooldown) < 10min
+                    && Milliseconds(remainingCooldown) < 10min
+                    && (onStartDuel ? totalCooldown - remainingCooldown > 30s : true)
+                    && (onStartDuel ? categoryCooldown - remainingCooldown > 30s : true);
+            }, true);
 
             // pet cooldowns
             if (Pet* pet = player->GetPet())

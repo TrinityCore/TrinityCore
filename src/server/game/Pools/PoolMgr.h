@@ -19,6 +19,7 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
+#include "SpawnData.h"
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -30,13 +31,13 @@ class Quest;
 
 struct PoolTemplateData
 {
-    uint32  MaxLimit;
+    uint32 MaxLimit;
 };
 
 struct PoolObject
 {
-    uint64  guid;
-    float   chance;
+    uint64 guid;
+    float chance;
     PoolObject(uint64 _guid, float _chance);
 };
 
@@ -50,6 +51,14 @@ typedef std::map<uint64, uint32> ActivePoolPools;
 class TC_GAME_API ActivePoolData
 {
     public:
+        explicit ActivePoolData();
+        ~ActivePoolData();
+
+        ActivePoolData(ActivePoolData const& right) = delete;
+        ActivePoolData(ActivePoolData&& right) = delete;
+        ActivePoolData& operator=(ActivePoolData const& right) = delete;
+        ActivePoolData& operator=(ActivePoolData&& right) = delete;
+
         template<typename T>
         bool IsActiveObject(uint64 db_guid_or_pool_id) const;
 
@@ -60,12 +69,9 @@ class TC_GAME_API ActivePoolData
 
         template<typename T>
         void RemoveObject(uint64 db_guid_or_pool_id, uint32 pool_id);
-
-        ActivePoolObjects GetActiveQuests() const { return mActiveQuests; } // a copy of the set
     private:
         ActivePoolObjects mSpawnedCreatures;
         ActivePoolObjects mSpawnedGameobjects;
-        ActivePoolObjects mActiveQuests;
         ActivePoolPools   mSpawnedPools;
 };
 
@@ -74,16 +80,22 @@ class TC_GAME_API PoolGroup
 {
     typedef std::vector<PoolObject> PoolObjectList;
     public:
-        explicit PoolGroup() : poolId(0) { }
+        explicit PoolGroup();
+        ~PoolGroup();
+
+        PoolGroup(PoolGroup const& right) = delete;
+        PoolGroup(PoolGroup&& right) = delete;
+        PoolGroup& operator=(PoolGroup const& right) = delete;
+        PoolGroup& operator=(PoolGroup&& right) = delete;
+
         void SetPoolId(uint32 pool_id) { poolId = pool_id; }
-        ~PoolGroup() { };
         bool isEmpty() const { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
-        PoolObject* RollOne(ActivePoolData& spawns, uint64 triggerFrom);
-        void DespawnObject(ActivePoolData& spawns, uint64 guid=0);
-        void Despawn1Object(uint64 guid);
+        void DespawnObject(ActivePoolData& spawns, uint64 guid=0, bool alwaysDeleteRespawnTime = false);
+        void Despawn1Object(uint64 guid, bool alwaysDeleteRespawnTime = false);
         void SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 triggerFrom);
+        void RemoveRespawnTimeFromDB(uint64 guid);
 
         void Spawn1Object(PoolObject* obj);
         void ReSpawn1Object(PoolObject* obj);
@@ -101,27 +113,27 @@ class TC_GAME_API PoolGroup
         PoolObjectList EqualChanced;
 };
 
-typedef std::multimap<uint32, uint32> PooledQuestRelation;
-typedef std::pair<PooledQuestRelation::const_iterator, PooledQuestRelation::const_iterator> PooledQuestRelationBounds;
-typedef std::pair<PooledQuestRelation::iterator, PooledQuestRelation::iterator> PooledQuestRelationBoundsNC;
-
 class TC_GAME_API PoolMgr
 {
     private:
         PoolMgr();
-        ~PoolMgr() { };
+        ~PoolMgr();
 
     public:
+        PoolMgr(PoolMgr const& right) = delete;
+        PoolMgr(PoolMgr&& right) = delete;
+        PoolMgr& operator=(PoolMgr const& right) = delete;
+        PoolMgr& operator=(PoolMgr&& right) = delete;
+
         static PoolMgr* instance();
 
         void LoadFromDB();
-        void LoadQuestPools();
-        void SaveQuestsToDB();
 
         void Initialize();
 
         template<typename T>
         uint32 IsPartOfAPool(uint64 db_guid_or_pool_id) const;
+        uint32 IsPartOfAPool(SpawnObjectType type, uint64 spawnId) const;
 
         template<typename T>
         bool IsSpawnedObject(uint64 db_guid_or_pool_id) const { return mSpawnedData.IsActiveObject<T>(db_guid_or_pool_id); }
@@ -129,16 +141,10 @@ class TC_GAME_API PoolMgr
         bool CheckPool(uint32 pool_id) const;
 
         void SpawnPool(uint32 pool_id);
-        void DespawnPool(uint32 pool_id);
+        void DespawnPool(uint32 pool_id, bool alwaysDeleteRespawnTime = false);
 
         template<typename T>
         void UpdatePool(uint32 pool_id, uint64 db_guid_or_pool_id);
-
-        void ChangeDailyQuests();
-        void ChangeWeeklyQuests();
-
-        PooledQuestRelation mQuestCreatureRelation;
-        PooledQuestRelation mQuestGORelation;
 
     private:
         template<typename T>
@@ -148,7 +154,6 @@ class TC_GAME_API PoolMgr
         typedef std::unordered_map<uint32, PoolGroup<Creature>>   PoolGroupCreatureMap;
         typedef std::unordered_map<uint32, PoolGroup<GameObject>> PoolGroupGameObjectMap;
         typedef std::unordered_map<uint32, PoolGroup<Pool>>       PoolGroupPoolMap;
-        typedef std::unordered_map<uint32, PoolGroup<Quest>>      PoolGroupQuestMap;
         typedef std::pair<uint64, uint32> SearchPair;
         typedef std::map<uint64, uint32> SearchMap;
 
@@ -156,11 +161,9 @@ class TC_GAME_API PoolMgr
         PoolGroupCreatureMap   mPoolCreatureGroups;
         PoolGroupGameObjectMap mPoolGameobjectGroups;
         PoolGroupPoolMap       mPoolPoolGroups;
-        PoolGroupQuestMap      mPoolQuestGroups;
         SearchMap mCreatureSearchMap;
         SearchMap mGameobjectSearchMap;
         SearchMap mPoolSearchMap;
-        SearchMap mQuestSearchMap;
 
         // dynamic data
         ActivePoolData mSpawnedData;
@@ -185,17 +188,6 @@ inline uint32 PoolMgr::IsPartOfAPool<GameObject>(uint64 db_guid) const
 {
     SearchMap::const_iterator itr = mGameobjectSearchMap.find(db_guid);
     if (itr != mGameobjectSearchMap.end())
-        return itr->second;
-
-    return 0;
-}
-
-// Method that tell if the quest is part of another pool and return the pool id if yes
-template<>
-inline uint32 PoolMgr::IsPartOfAPool<Quest>(uint64 pool_id) const
-{
-    SearchMap::const_iterator itr = mQuestSearchMap.find(pool_id);
-    if (itr != mQuestSearchMap.end())
         return itr->second;
 
     return 0;

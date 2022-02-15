@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "karazhan.h"
 #include "ScriptedCreature.h"
-#include "karazhan.h"
 
 enum CuratorSays
 {
@@ -78,14 +77,14 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
 
-            events.ScheduleEvent(EVENT_HATEFUL_BOLT, Seconds(12));
-            events.ScheduleEvent(EVENT_SUMMON_ASTRAL_FLARE, Seconds(10));
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
+            events.ScheduleEvent(EVENT_HATEFUL_BOLT, 12s);
+            events.ScheduleEvent(EVENT_SUMMON_ASTRAL_FLARE, 10s);
+            events.ScheduleEvent(EVENT_BERSERK, 12min);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -103,7 +102,7 @@ public:
             switch (eventId)
             {
                 case EVENT_HATEFUL_BOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 1))
                         DoCast(target, SPELL_HATEFUL_BOLT);
                     events.Repeat(Seconds(7), Seconds(15));
                     break;

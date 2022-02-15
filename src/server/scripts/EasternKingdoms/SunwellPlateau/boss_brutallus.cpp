@@ -24,7 +24,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 
@@ -116,7 +115,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
 
@@ -135,7 +134,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, DONE);
             float x, y, z;
             me->GetPosition(x, y, z);
-            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -153,6 +152,7 @@ public:
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
+                Madrigosa->SetFarVisible(true);
                 IsIntro = true;
                 Madrigosa->SetMaxHealth(me->GetMaxHealth());
                 Madrigosa->SetHealth(me->GetMaxHealth());
@@ -234,7 +234,7 @@ public:
                     ++IntroPhase;
                     break;
                 case 7:
-                    me->Kill(Madrigosa);
+                    Unit::Kill(me, Madrigosa);
                     Madrigosa->AI()->Talk(YELL_MADR_DEATH);
                     me->SetFullHealth();
                     me->AttackStop();
@@ -321,14 +321,8 @@ public:
 
             if (BurnTimer <= diff)
             {
-                std::list<Unit*> targets;
-                SelectTargetList(targets, 10, SELECT_TARGET_RANDOM, 100, true);
-                for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
-                    if (!(*i)->HasAura(SPELL_BURN))
-                    {
-                        (*i)->CastSpell((*i), SPELL_BURN, true);
-                        break;
-                    }
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_BURN))
+                    target->CastSpell(target, SPELL_BURN, true);
                 BurnTimer = urand(60000, 180000);
             } else BurnTimer -= diff;
 

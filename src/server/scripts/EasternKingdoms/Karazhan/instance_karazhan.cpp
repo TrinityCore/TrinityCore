@@ -163,12 +163,12 @@ public:
                         HandleGameObject(StageDoorRightGUID, true);
                         if (GameObject* sideEntrance = instance->GetGameObject(SideEntranceDoor))
                             sideEntrance->RemoveFlag(GO_FLAG_LOCKED);
-                        UpdateEncounterStateForKilledCreature(16812, NULL);
+                        UpdateEncounterStateForKilledCreature(16812, nullptr);
                     }
                     break;
                 case DATA_CHESS:
                     if (state == DONE)
-                        DoRespawnGameObject(DustCoveredChest, DAY);
+                        DoRespawnGameObject(DustCoveredChest, 24h);
                     break;
                 default:
                     break;

@@ -197,10 +197,12 @@ std::vector<TableStruct> CharacterTables;
 inline bool StringsEqualCaseInsensitive(std::string const& left, std::string const& right)
 {
     std::string upperLeftString = left;
-    ASSERT(Utf8ToUpperOnlyLatin(upperLeftString));
+    bool leftResult = Utf8ToUpperOnlyLatin(upperLeftString);
+    ASSERT(leftResult);
 
     std::string upperRightString = right;
-    ASSERT(Utf8ToUpperOnlyLatin(upperRightString));
+    bool rightResult = Utf8ToUpperOnlyLatin(upperRightString);
+    ASSERT(rightResult);
 
     return upperLeftString == upperRightString;
 }
@@ -301,7 +303,8 @@ void PlayerDump::InitializeTables()
             f.FieldName = columnName;
             f.IsBinaryField = !boost::ifind_first(typeName, "binary").empty() || !boost::ifind_first(typeName, "blob").empty();
 
-            ASSERT(Utf8ToUpperOnlyLatin(columnName));
+            bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
+            ASSERT(toUpperResult);
 
             t.TableFields.emplace_back(std::move(f));
         } while (result->NextRow());
@@ -520,7 +523,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
     s = str.find("` (`");
     if (s == std::string::npos)
     {
-        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") dump format not recognized.", lineNumber);
+        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") dump format not recognized.", lineNumber);
         return false;
     }
     s += 4;
@@ -529,7 +532,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
     std::string::size_type e = str.find('`', s);
     if (e == std::string::npos || valPos == std::string::npos)
     {
-        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") unexpected end of line", lineNumber);
+        TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") unexpected end of line", lineNumber);
         return false;
     }
 
@@ -539,7 +542,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
         int32 columnIndex = GetColumnIndexByName(ts, column);
         if (columnIndex == -1)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") unknown column name `%s` for table `%s`, aborting due to incompatible DB structure.", lineNumber, column.c_str(), ts.TableName.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") unknown column name `%s` for table `%s`, aborting due to incompatible DB structure.", lineNumber, column.c_str(), ts.TableName.c_str());
             return false;
         }
 
@@ -703,16 +706,16 @@ void PlayerDumpWriter::PopulateGuids(ObjectGuid::LowType guid)
             switch (baseTable.StoredType)
             {
                 case GUID_TYPE_ITEM:
-                    if (ObjectGuid::LowType guid = (*result)[0].GetUInt64())
-                        _items.insert(guid);
+                    if (ObjectGuid::LowType itemLowGuid = (*result)[0].GetUInt32())
+                        _items.insert(itemLowGuid);
                     break;
                 case GUID_TYPE_MAIL:
-                    if (uint32 guid = (*result)[0].GetUInt32())
-                        _mails.insert(guid);
+                    if (uint32 mailLowGuid = (*result)[0].GetUInt32())
+                        _mails.insert(mailLowGuid);
                     break;
                 case GUID_TYPE_PET:
-                    if (uint32 guid = (*result)[0].GetUInt32())
-                        _pets.insert(guid);
+                    if (uint32 petLowGuid = (*result)[0].GetUInt32())
+                        _pets.insert(petLowGuid);
                     break;
                 case GUID_TYPE_EQUIPMENT_SET:
                     if (uint64 eqSetId = (*result)[0].GetUInt64())
@@ -941,7 +944,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         std::string tn = GetTableName(line);
         if (tn.empty())
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") Can't extract table name!", lineNumber);
+            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") Can't extract table name!", lineNumber);
             return DUMP_FILE_BROKEN;
         }
 
@@ -958,7 +961,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") Unknown table: `%s`!", lineNumber, tn.c_str());
+            TC_LOG_ERROR("misc", "LoadPlayerDump: (line " SZFMTD ") Unknown table: `%s`!", lineNumber, tn.c_str());
             return DUMP_FILE_BROKEN;
         }
 
@@ -1031,7 +1034,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                     if (!ChangeColumn(ts, line, "at_login", "1"))
                         return DUMP_FILE_BROKEN;
                 }
-                else if (!ChangeColumn(ts, line, "name", name.c_str())) // characters.name
+                else if (!ChangeColumn(ts, line, "name", name)) // characters.name
                     return DUMP_FILE_BROKEN;
                 break;
             }
@@ -1056,6 +1059,8 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
     if (incHighest)
         sObjectMgr->GetGenerator<HighGuid::Player>().Generate();
+
+    sWorld->UpdateRealmCharCount(account);
 
     return DUMP_SUCCESS;
 }

@@ -19,56 +19,57 @@
 #define TokenPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
     namespace Token
     {
-        class UpdateListedAuctionableTokens final : public ClientPacket
+        class CommerceTokenGetLog final : public ClientPacket
         {
         public:
-            UpdateListedAuctionableTokens(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST, std::move(packet)) { }
+            CommerceTokenGetLog(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_LOG, std::move(packet)) { }
 
             void Read() override;
 
             uint32 UnkInt   = 0;
         };
 
-        class UpdateListedAuctionableTokensResponse final : public ServerPacket
+        class CommerceTokenGetLogResponse final : public ServerPacket
         {
         public:
-            UpdateListedAuctionableTokensResponse() : ServerPacket(SMSG_WOW_TOKEN_UPDATE_AUCTIONABLE_LIST_RESPONSE, 12) { }
+            CommerceTokenGetLogResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_LOG_RESPONSE, 12) { }
 
             WorldPacket const* Write() override;
 
-            struct AuctionableTokenAuctionable
+            struct AuctionableTokenInfo
             {
                 uint64 UnkInt1      = 0;
-                uint32 UnkInt2      = 0;
-                uint32 Owner        = 0;
+                Timestamp<> UnkInt2;
+                int32 Owner         = 0;
                 uint64 BuyoutPrice  = 0;
-                uint32 EndTime      = 0;
+                uint32 DurationLeft = 0;
             };
 
             uint32 UnkInt           = 0; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
             uint32 Result           = 0;
-            std::vector<AuctionableTokenAuctionable> AuctionableTokenAuctionableList;
+            std::vector<AuctionableTokenInfo> AuctionableTokenAuctionableList;
         };
 
-        class RequestWowTokenMarketPrice final : public ClientPacket
+        class CommerceTokenGetMarketPrice final : public ClientPacket
         {
         public:
-            RequestWowTokenMarketPrice(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE, std::move(packet)) { }
+            CommerceTokenGetMarketPrice(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_MARKET_PRICE, std::move(packet)) { }
 
             void Read() override;
 
             uint32 UnkInt = 0;
         };
 
-        class WowTokenMarketPriceResponse final : public ServerPacket
+        class CommerceTokenGetMarketPriceResponse final : public ServerPacket
         {
         public:
-            WowTokenMarketPriceResponse() : ServerPacket(SMSG_WOW_TOKEN_MARKET_PRICE_RESPONSE, 20) { }
+            CommerceTokenGetMarketPriceResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_MARKET_PRICE_RESPONSE, 20) { }
 
             WorldPacket const* Write() override;
 

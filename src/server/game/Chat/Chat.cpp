@@ -19,7 +19,7 @@
 #include "AccountMgr.h"
 #include "CellImpl.h"
 #include "CharacterCache.h"
-#include "ChatLink.h"
+#include "ChatCommand.h"
 #include "ChatPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -36,10 +36,16 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <boost/algorithm/string/replace.hpp>
+#include <sstream>
 
-ChatCommand::ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands /*= std::vector<ChatCommand>()*/)
-    : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands))
+Player* ChatHandler::GetPlayer() { return m_session ? m_session->GetPlayer() : nullptr; }
+
+char* ChatHandler::LineFromMessage(char*& pos)
 {
+    char* start = strtok(pos, "\n");
+    pos = nullptr;
+    return start;
 }
 
 // Lazy loading of the command table cache from commands and the
@@ -51,27 +57,30 @@ static Optional<std::vector<ChatCommand>> commandTableCache;
 std::vector<ChatCommand> const& ChatHandler::getCommandTable()
 {
     if (!commandTableCache)
-    {
-        // We need to initialize this at top since SetDataForCommandInTable
-        // calls getCommandTable() recursively.
-        commandTableCache = sScriptMgr->GetChatCommands();
-
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
-        if (result)
-        {
-            do
-            {
-                Field* fields = result->Fetch();
-                std::string name = fields[0].GetString();
-
-                SetDataForCommandInTable(*commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
-            }
-            while (result->NextRow());
-        }
-    }
+        InitializeCommandTable();
 
     return *commandTableCache;
+}
+
+void ChatHandler::InitializeCommandTable()
+{
+    // We need to initialize this at top since SetDataForCommandInTable
+    // calls getCommandTable() recursively.
+    commandTableCache = sScriptMgr->GetChatCommands();
+
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            std::string name = fields[0].GetString();
+
+            SetDataForCommandInTable(*commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
+        }
+        while (result->NextRow());
+    }
 }
 
 void ChatHandler::invalidateCommandTable()
@@ -160,7 +169,7 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
 
         while (true)
         {
-            if (!*part)
+            if (!*part || *part == ' ')
                 return true;
             else if (!*name)
                 return false;
@@ -174,77 +183,48 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
     return true;
 }
 
-void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
+void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
 {
+    std::string msg{ str };
+
+    // Replace every "|" with "||" in msg
+    if (escapeCharacters && msg.find('|') != std::string::npos)
+    {
+        std::vector<std::string_view> tokens = Trinity::Tokenize(msg, '|', true);
+        std::ostringstream stream;
+        for (size_t i = 0; i < tokens.size() - 1; ++i)
+            stream << tokens[i] << "||";
+        stream << tokens[tokens.size() - 1];
+
+        msg = stream.str();
+    }
+
     WorldPackets::Chat::Chat packet;
-
-    // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf;
-    char* pos;
-
-    if (escapeCharacters && strchr(str, '|'))
-    {
-        size_t startPos = 0;
-        std::ostringstream o;
-        while (const char* charPos = strchr(str + startPos, '|'))
-        {
-            o.write(str + startPos, charPos - str - startPos);
-            o << "||";
-            startPos = charPos - str + 1;
-        }
-        o.write(str + startPos, strlen(str) - startPos);
-        buf = strdup(o.str().c_str());
-    }
-    else
-    {
-        buf = strdup(str);
-    }
-
-    pos = buf;
-
-    while (char* line = LineFromMessage(pos))
+    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
         packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         m_session->SendPacket(packet.Write());
     }
-
-    free(buf);
 }
 
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
-    // Chat output
     WorldPackets::Chat::Chat packet;
-
-    // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf = strdup(str);
-    char* pos = buf;
-
-    while (char* line = LineFromMessage(pos))
+    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
         packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalMessage(packet.Write());
     }
-
-    free(buf);
 }
 
 void ChatHandler::SendGlobalGMSysMessage(const char *str)
 {
-    // Chat output
     WorldPackets::Chat::Chat packet;
-
-    // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf = strdup(str);
-    char* pos = buf;
-
-    while (char* line = LineFromMessage(pos))
+    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
     {
         packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalGMMessage(packet.Write());
     }
-
-    free(buf);
 }
 
 void ChatHandler::SendSysMessage(uint32 entry)
@@ -308,12 +288,12 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
         }
 
         // must be available and have handler
-        if (!table[i].Handler || !isAvailable(table[i]))
+        if (!table[i].HasHandler() || !isAvailable(table[i]))
             continue;
 
         SetSentErrorMessage(false);
         // table[i].Name == "" is special case: send original command to handler
-        if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
+        if (table[i](this, table[i].Name[0] != '\0' ? text : oldtext))
         {
             if (!m_session) // ignore console
                 return true;
@@ -350,6 +330,7 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                 SendSysMessage(table[i].Help.c_str());
             else
                 SendSysMessage(LANG_CMD_SYNTAX);
+            SetSentErrorMessage(true);
         }
 
         return true;
@@ -413,101 +394,39 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
     return false;
 }
 
+bool ChatHandler::_ParseCommands(char const* text)
+{
+    if (ExecuteCommandInTable(getCommandTable(), text, text))
+        return true;
+
+    // Pretend commands don't exist for regular players
+    if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
+        return false;
+
+    // Send error message for GMs
+    SendSysMessage(LANG_NO_CMD);
+    SetSentErrorMessage(true);
+    return true;
+}
+
 bool ChatHandler::ParseCommands(char const* text)
 {
     ASSERT(text);
     ASSERT(*text);
 
-    std::string fullcmd = text;
-
     /// chat case (.command or !command format)
-    if (m_session)
-    {
-        if (text[0] != '!' && text[0] != '.')
-            return false;
-    }
+    if (text[0] != '!' && text[0] != '.')
+        return false;
 
     /// ignore single . and ! in line
-    if (strlen(text) < 2)
+    if (!text[1])
         return false;
-    // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
-    if ((text[0] == '.' && text[1] == '.') || (text[0] == '!' && text[1] == '!'))
+    if (text[1] == '!' || text[1] == '.')
         return false;
 
-    /// skip first . or ! (in console allowed use command with . and ! and without its)
-    if (text[0] == '!' || text[0] == '.')
-        ++text;
-
-    if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
-    {
-        if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
-            return false;
-
-        SendSysMessage(LANG_NO_CMD);
-    }
-    return true;
-}
-
-bool ChatHandler::isValidChatMessage(char const* message)
-{
-/*
-Valid examples:
-|cffa335ee|Hitem:812:0:0:0:0:0:0:0:70|h[Glowing Brightwood Staff]|h|r
-|cffffff00|Hquest:51101:-1:110:120:5|h[The Wounded King]|h|r
-|cffffd000|Htrade:4037:1:150:1:6AAAAAAAAAAAAAAAAAAAAAAOAADAAAAAAAAAAAAAAAAIAAAAAAAAA|h[Engineering]|h|r
-|cff4e96f7|Htalent:2232:-1|h[Taste for Blood]|h|r
-|cff71d5ff|Hspell:21563|h[Command]|h|r
-|cffffd000|Henchant:3919|h[Engineering: Rough Dynamite]|h|r
-|cffffff00|Hachievement:546:0000000000000001:0:0:0:-1:0:0:0:0|h[Safe Deposit]|h|r
-|cff66bbff|Hglyph:21:762|h[Glyph of Bladestorm]|h|r
-
-| will be escaped to ||
-*/
-
-    if (strlen(message) > 255)
-        return false;
-
-    // more simple checks
-    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) < 3)
-    {
-        const char validSequence[6] = "cHhhr";
-        const char* validSequenceIterator = validSequence;
-        const std::string validCommands = "cHhr|";
-
-        while (*message)
-        {
-            // find next pipe command
-            message = strchr(message, '|');
-
-            if (!message)
-                return true;
-
-            ++message;
-            char commandChar = *message;
-            if (validCommands.find(commandChar) == std::string::npos)
-                return false;
-
-            ++message;
-            // validate sequence
-            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) == 2)
-            {
-                if (commandChar == *validSequenceIterator)
-                {
-                    if (validSequenceIterator == validSequence + 4)
-                        validSequenceIterator = validSequence;
-                    else
-                        ++validSequenceIterator;
-                }
-                else
-                    return false;
-            }
-        }
-        return true;
-    }
-
-    return LinkExtractor(message).IsValidMessage();
+    return _ParseCommands(text+1);
 }
 
 bool ChatHandler::ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd)
@@ -552,6 +471,10 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
 {
     if (*cmd)
     {
+        std::string subcmd;
+        if (size_t n = std::string_view(cmd).find(' '); n != std::string_view::npos)
+            subcmd.assign(cmd+n+1);
+
         for (uint32 i = 0; i < table.size(); ++i)
         {
             // must be available (ignore handler existence to show command with possible available subcommands)
@@ -562,11 +485,9 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
                 continue;
 
             // have subcommand
-            char const* subcmd = (*cmd) ? strtok(nullptr, " ") : "";
-
-            if (!table[i].ChildCommands.empty() && subcmd && *subcmd)
+            if (!table[i].ChildCommands.empty() && !subcmd.empty())
             {
-                if (ShowHelpForCommand(table[i].ChildCommands, subcmd))
+                if (ShowHelpForCommand(table[i].ChildCommands, subcmd.c_str()))
                     return true;
             }
 
@@ -574,7 +495,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
                 SendSysMessage(table[i].Help.c_str());
 
             if (!table[i].ChildCommands.empty())
-                if (ShowHelpForSubCommands(table[i].ChildCommands, table[i].Name, subcmd ? subcmd : ""))
+                if (ShowHelpForSubCommands(table[i].ChildCommands, table[i].Name, subcmd.c_str()))
                     return true;
 
             return !table[i].Help.empty();
@@ -884,21 +805,6 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
     return 0;
 }
 
-GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
-{
-    // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-    char* cId = extractKeyFromLink(text, "Htele");
-    if (!cId)
-        return nullptr;
-
-    // id case (explicit or from shift link)
-    if (cId[0] >= '0' && cId[0] <= '9')
-        if (uint32 id = atoi(cId))
-            return sObjectMgr->GetGameTele(id);
-
-    return sObjectMgr->GetGameTele(cId);
-}
-
 enum GuidLinkType
 {
     GUID_LINK_PLAYER     = 0,                              // must be first for selection in not link case
@@ -1028,24 +934,6 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
     return true;
 }
 
-void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
-{
-    char* p1 = strtok(args, " ");
-    char* p2 = strtok(nullptr, " ");
-
-    if (!p2)
-    {
-        p2 = p1;
-        p1 = nullptr;
-    }
-
-    if (arg1)
-        *arg1 = p1;
-
-    if (arg2)
-        *arg2 = p2;
-}
-
 char* ChatHandler::extractQuotedArg(char* args)
 {
     if (!args || !*args)
@@ -1102,6 +990,11 @@ LocaleConstant ChatHandler::GetSessionDbLocaleIndex() const
     return m_session->GetSessionDbLocaleIndex();
 }
 
+std::string ChatHandler::playerLink(std::string const& name) const
+{
+    return m_session ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name;
+}
+
 std::string ChatHandler::GetNameLink(Player* chr) const
 {
     return playerLink(chr->GetName());
@@ -1118,10 +1011,20 @@ bool CliHandler::isAvailable(ChatCommand const& cmd) const
     return cmd.AllowConsole;
 }
 
-void CliHandler::SendSysMessage(const char *str, bool /*escapeCharacters*/)
+void CliHandler::SendSysMessage(std::string_view str, bool /*escapeCharacters*/)
 {
     m_print(m_callbackArg, str);
     m_print(m_callbackArg, "\r\n");
+}
+
+bool CliHandler::ParseCommands(char const* str)
+{
+    if (!str[0])
+        return false;
+    // Console allows using commands both with and without leading indicator
+    if (str[0] == '.' || str[0] == '!')
+        ++str;
+    return _ParseCommands(str);
 }
 
 std::string CliHandler::GetNameLink() const
@@ -1186,4 +1089,103 @@ LocaleConstant CliHandler::GetSessionDbcLocale() const
 LocaleConstant CliHandler::GetSessionDbLocaleIndex() const
 {
     return sObjectMgr->GetDBCLocaleIndex();
+}
+
+std::string const AddonChannelCommandHandler::PREFIX = "TrinityCore";
+
+bool AddonChannelCommandHandler::ParseCommands(char const* str)
+{
+    char opcode = str[0];
+    if (!opcode) // str[0] is opcode
+        return false;
+    if (!str[1] || !str[2] || !str[3] || !str[4]) // str[1] through str[4] is 4-character command counter
+        return false;
+    echo = str+1;
+
+    switch (opcode)
+    {
+        case 'p': // p Ping
+            SendAck();
+            return true;
+        case 'h': // h Issue human-readable command
+        case 'i': // i Issue command
+            if (!str[5])
+                return false;
+            humanReadable = (opcode == 'h');
+            if (_ParseCommands(str + 5)) // actual command starts at str[5]
+            {
+                if (!hadAck)
+                    SendAck();
+                if (HasSentErrorMessage())
+                    SendFailed();
+                else
+                    SendOK();
+            }
+            else
+            {
+                SendSysMessage(LANG_NO_CMD);
+                SendFailed();
+            }
+            return true;
+        default:
+            return false;
+    }
+}
+
+void AddonChannelCommandHandler::Send(std::string const& msg)
+{
+    WorldPackets::Chat::Chat chat;
+    chat.Initialize(CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg, 0, "", LOCALE_enUS, PREFIX);
+    GetSession()->SendPacket(chat.Write());
+}
+
+void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
+{
+    ASSERT(echo);
+    char ack[6] = "a";
+    memcpy(ack + 1, echo, 4);
+    ack[5] = '\0';
+    Send(ack);
+    hadAck = true;
+}
+
+void AddonChannelCommandHandler::SendOK() // o Command OK, no body
+{
+    ASSERT(echo);
+    char ok[6] = "o";
+    memcpy(ok + 1, echo, 4);
+    ok[5] = '\0';
+    Send(ok);
+}
+
+void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
+{
+    ASSERT(echo);
+    char fail[6] = "f";
+    memcpy(fail + 1, echo, 4);
+    fail[5] = '\0';
+    Send(fail);
+}
+
+// m Command message, message in body
+void AddonChannelCommandHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
+{
+    ASSERT(echo);
+    if (!hadAck)
+        SendAck();
+
+    std::string msg = "m";
+    msg.append(echo, 4);
+    std::string body(str);
+    if (escapeCharacters)
+        boost::replace_all(body, "|", "||");
+    size_t pos, lastpos;
+    for (lastpos = 0, pos = body.find('\n', lastpos); pos != std::string::npos; lastpos = pos + 1, pos = body.find('\n', lastpos))
+    {
+        std::string line(msg);
+        line.append(body, lastpos, pos - lastpos);
+        Send(line);
+    }
+    msg.append(body, lastpos, pos - lastpos);
+    Send(msg);
 }

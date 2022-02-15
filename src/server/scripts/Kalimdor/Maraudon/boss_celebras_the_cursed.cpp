@@ -23,6 +23,7 @@ SDCategory: Maraudon
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "maraudon.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -39,7 +40,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new celebras_the_cursedAI(creature);
+        return GetMaraudonAI<celebras_the_cursedAI>(creature);
     }
 
     struct celebras_the_cursedAI : public ScriptedAI
@@ -65,11 +66,11 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 600000);
+            me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10min);
         }
 
         void UpdateAI(uint32 diff) override
@@ -80,7 +81,7 @@ public:
             //Wrath
             if (WrathTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_WRATH);
                 WrathTimer = 8000;
             }

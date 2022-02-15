@@ -20,10 +20,10 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
+#include "Duration.h"
+#include <iosfwd>
 #include <map>
-#include <memory>
 #include <set>
-#include <sstream>
 
 #define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -38,8 +38,9 @@ class InstanceMap;
 class ModuleReference;
 class Player;
 class Unit;
-enum CriteriaTypes : uint8;
-enum CriteriaTimedTypes : uint8;
+struct InstanceSpawnGroupInfo;
+enum class CriteriaType : uint8;
+enum class CriteriaStartEvent : uint8;
 enum EncounterCreditType : uint8;
 namespace WorldPackets
 {
@@ -64,6 +65,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT    = 10
 };
 
+// EnumUtils: DESCRIBE THIS
 enum EncounterState
 {
     NOT_STARTED   = 0,
@@ -156,16 +158,14 @@ class TC_GAME_API InstanceScript : public ZoneScript
     public:
         explicit InstanceScript(InstanceMap* map);
 
-        virtual ~InstanceScript() { }
+        virtual ~InstanceScript();
 
         InstanceMap* instance;
 
-        // On creation, NOT load.
-        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
-        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
-        virtual void Initialize() { }
-
-        // On load
+        // On instance load, exactly ONE of these methods will ALWAYS be called:
+        // if we're starting without any saved instance data
+        virtual void Create();
+        // if we're loading existing instance save data
         virtual void Load(char const* data);
 
         // When save is needed, this function generates the data
@@ -196,10 +196,12 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
+        // Called when a player successfully leaves the instance.
+        virtual void OnPlayerLeave(Player* /*player*/) { }
 
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
-        // * use HandleGameObject(GUID, boolen, NULL); in any other script
+        // * use HandleGameObject(GUID, boolen, nullptr); in any other script
         void HandleGameObject(ObjectGuid guid, bool open, GameObject* go = nullptr);
 
         // Change active state of doors or buttons
@@ -207,10 +209,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoCloseDoorOrButton(ObjectGuid guid);
 
         // Respawns a GO having negative spawntimesecs in gameobject-table
-        void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
-
-        // Execute the parameter function for all players in instance
-        void DoOnPlayers(std::function<void(Player*)>&& function);
+        void DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn = 1min);
 
         // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
@@ -219,29 +218,31 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoSendNotifyToInstance(char const* format, ...);
 
         // Update Achievement Criteria for all players in instance
-        void DoUpdateCriteria(CriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
+        void DoUpdateCriteria(CriteriaType type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
 
         // Start/Stop Timed Achievement Criteria for all players in instance
-        void DoStartCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
-        void DoStopCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
+        void DoStartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
+        void DoStopCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
 
         // Remove Auras due to Spell on all players in instance
-        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
+        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Cast spell on all players in instance
-        void DoCastSpellOnPlayers(uint32 spell);
+        void DoCastSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Return wether server allow two side groups or not
-        bool ServerAllowsTwoSideGroups();
+        static bool ServerAllowsTwoSideGroups();
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
-        static std::string GetBossStateName(uint8 state);
-        CreatureBoundary const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
+        static char const* GetBossStateName(uint8 state);
+        CreatureBoundary const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : nullptr; }
 
         // Achievement criteria additional requirements check
         // NOTE: not use this if same can be checked existed requirement types from AchievementCriteriaRequirementType
-        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
+        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = nullptr, uint32 /*miscvalue1*/ = 0);
 
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
@@ -256,6 +257,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+
+        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
+
         // Sets the entrance location (WorldSafeLoc) id
         void SetEntranceLocation(uint32 worldSafeLocationId);
 
@@ -265,18 +270,19 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Get's the current entrance id
         uint32 GetEntranceLocation() const { return _temporaryEntranceId ? _temporaryEntranceId : _entranceId; }
 
-        void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 priority = 0);
+        // Only used by areatriggers that inherit from OnlyOnceAreaTriggerScript
+        void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }
+        void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
+        bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
+
+        void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 priority = 0);
         void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);
         void SendEncounterEnd();
 
         void SendBossKillCredit(uint32 encounterId);
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
-
         // ReCheck PhaseTemplate related conditions
         void UpdatePhasing();
-
-        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
 
         void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
         void AddCombatResurrectionCharge();
@@ -302,6 +308,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         virtual void UpdateDoorState(GameObject* door);
         void UpdateMinionState(Creature* minion, EncounterState state);
+
+        void UpdateSpawnGroups();
 
         // Exposes private data that should never be modified unless exceptional cases.
         // Pay very much attention at how the returned BossInfo data is modified to avoid issues.
@@ -329,6 +337,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
+        std::unordered_set<uint32> _activatedAreaTriggers;
         uint32 _entranceId;
         uint32 _temporaryEntranceId;
         uint32 _combatResurrectionTimer;
@@ -339,6 +349,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Strong reference to the associated script module
         std::shared_ptr<ModuleReference> module_reference;
     #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+
+        friend class debug_commandscript;
 };
 
 #endif // TRINITY_INSTANCE_DATA_H

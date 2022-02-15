@@ -61,10 +61,18 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerAI* AI() { return _ai.get(); }
 
+        bool IsServerSide() const { return _areaTriggerTemplate->Id.IsServerSide; }
+
+        bool IsNeverVisibleFor(WorldObject const* seer) const override { return WorldObject::IsNeverVisibleFor(seer) || IsServerSide(); }
+
     private:
-        bool Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId, AuraEffect const* aurEff);
+        bool Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId, AuraEffect const* aurEff);
+        bool CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerSpawn const& position);
+
     public:
-        static AreaTrigger* CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+        static AreaTrigger* CreateAreaTrigger(uint32 areaTriggerCreatePropertiesId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+        static ObjectGuid CreateNewMovementForceId(Map* map, uint32 areaTriggerId);
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
 
         void Update(uint32 diff) override;
         void Remove();
@@ -81,14 +89,19 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         GuidUnorderedSet const& GetInsideUnits() const { return _insideUnits; }
 
-        AreaTriggerMiscTemplate const* GetMiscTemplate() const { return _areaTriggerMiscTemplate; }
+        AreaTriggerCreateProperties const* GetCreateProperties() const { return _areaTriggerCreateProperties; }
         AreaTriggerTemplate const* GetTemplate() const;
         uint32 GetScriptId() const;
 
+        ObjectGuid GetOwnerGUID() const override { return GetCasterGuid(); }
         ObjectGuid const& GetCasterGuid() const { return m_areaTriggerData->Caster; }
         Unit* GetCaster() const;
         Unit* GetTarget() const;
 
+        uint32 GetFaction() const override;
+
+        AreaTriggerShapeInfo const& GetShape() const { return _shape; }
+        float GetMaxSearchRadius() const { return _maxSearchRadius; }
         Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
         Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
         void InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget);
@@ -97,9 +110,9 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
-        void InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget);
-        bool HasCircularMovement() const;
-        Optional<AreaTriggerCircularMovementInfo> const& GetCircularMovementInfo() const { return _circularMovementInfo; }
+        void InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarget);
+        bool HasOrbit() const;
+        Optional<AreaTriggerOrbitInfo> const& GetCircularMovementInfo() const { return _orbitInfo; }
 
         void UpdateShape();
 
@@ -110,29 +123,34 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         float GetProgress() const;
 
         void UpdateTargetList();
-        void SearchUnitInSphere(std::list<Unit*>& targetList);
-        void SearchUnitInBox(std::list<Unit*>& targetList);
-        void SearchUnitInPolygon(std::list<Unit*>& targetList);
-        void SearchUnitInCylinder(std::list<Unit*>& targetList);
+        void SearchUnits(std::vector<Unit*>& targetList, float radius, bool check3D);
+        void SearchUnitInSphere(std::vector<Unit*>& targetList);
+        void SearchUnitInBox(std::vector<Unit*>& targetList);
+        void SearchUnitInPolygon(std::vector<Unit*>& targetList);
+        void SearchUnitInCylinder(std::vector<Unit*>& targetList);
         bool CheckIsInPolygon2D(Position const* pos) const;
-        void HandleUnitEnterExit(std::list<Unit*> const& targetList);
+        void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
 
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
 
         void UpdatePolygonOrientation();
-        void UpdateCircularMovementPosition(uint32 diff);
+        void UpdateOrbitPosition(uint32 diff);
         void UpdateSplinePosition(uint32 diff);
 
-        Position const* GetCircularMovementCenterPosition() const;
-        Position CalculateCircularMovementPosition() const;
+        Position const* GetOrbitCenterPosition() const;
+        Position CalculateOrbitPosition() const;
 
         void DebugVisualizePosition(); // Debug purpose only
+
+        ObjectGuid::LowType _spawnId;
 
         ObjectGuid _targetGuid;
 
         AuraEffect const* _aurEff;
 
+        AreaTriggerShapeInfo _shape;
+        float _maxSearchRadius;
         int32 _duration;
         int32 _totalDuration;
         uint32 _timeSinceCreated;
@@ -148,9 +166,10 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 _lastSplineIndex;
         uint32 _movementTime;
 
-        Optional<AreaTriggerCircularMovementInfo> _circularMovementInfo;
+        Optional<AreaTriggerOrbitInfo> _orbitInfo;
 
-        AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
+        AreaTriggerCreateProperties const* _areaTriggerCreateProperties;
+        AreaTriggerTemplate const* _areaTriggerTemplate;
         GuidUnorderedSet _insideUnits;
 
         std::unique_ptr<AreaTriggerAI> _ai;

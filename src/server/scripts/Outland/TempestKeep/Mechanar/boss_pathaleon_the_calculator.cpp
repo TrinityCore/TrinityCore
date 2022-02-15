@@ -75,14 +75,14 @@ class boss_pathaleon_the_calculator : public CreatureScript
         {
             boss_pathaleon_the_calculatorAI(Creature* creature) : BossAI(creature, DATA_PATHALEON_THE_CALCULATOR) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_SUMMON, 30000);
-                events.ScheduleEvent(EVENT_MANA_TAP, urand(12000, 20000));
-                events.ScheduleEvent(EVENT_ARCANE_TORRENT, urand(16000, 25000));
-                events.ScheduleEvent(EVENT_DOMINATION, urand(25000, 40000));
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 13000));
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_SUMMON, 30s);
+                events.ScheduleEvent(EVENT_MANA_TAP, 12s, 20s);
+                events.ScheduleEvent(EVENT_ARCANE_TORRENT, 16s, 25s);
+                events.ScheduleEvent(EVENT_DOMINATION, 25s, 40s);
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 8s, 13s);
                 Talk(SAY_AGGRO);
             }
 
@@ -123,31 +123,31 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         case EVENT_SUMMON:
                             for (uint8 i = 0; i < 3; ++i)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 {
-                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s))
                                         Wraith->AI()->AttackStart(target);
                                 }
                             }
                             Talk(SAY_SUMMON);
-                            events.ScheduleEvent(EVENT_SUMMON, urand(30000, 45000));
+                            events.ScheduleEvent(EVENT_SUMMON, 30s, 45s);
                             break;
                         case EVENT_MANA_TAP:
                             DoCastVictim(SPELL_MANA_TAP, true);
-                            events.ScheduleEvent(EVENT_MANA_TAP, urand(14000, 22000));
+                            events.ScheduleEvent(EVENT_MANA_TAP, 14s, 22s);
                             break;
                         case EVENT_ARCANE_TORRENT:
                             DoCastVictim(SPELL_ARCANE_TORRENT, true);
-                            events.ScheduleEvent(EVENT_ARCANE_TORRENT, urand(12000, 18000));
+                            events.ScheduleEvent(EVENT_ARCANE_TORRENT, 12s, 18s);
                             break;
                         case EVENT_DOMINATION:
                             Talk(SAY_DOMINATION);
                             DoCastVictim(SPELL_DOMINATION, true);
-                            events.ScheduleEvent(EVENT_DOMINATION, urand(25000, 30000));
+                            events.ScheduleEvent(EVENT_DOMINATION, 25s, 30s);
                             break;
                         case EVENT_ARCANE_EXPLOSION: // Heroic only
                             DoCastVictim(H_SPELL_ARCANE_EXPLOSION, true);
-                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(10000, 14000));
+                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 10s, 14s);
                             break;
                         default:
                             break;
@@ -198,7 +198,7 @@ class npc_nether_wraith : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -207,7 +207,7 @@ class npc_nether_wraith : public CreatureScript
 
                 if (ArcaneMissiles_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_ARCANE_MISSILES);
                     else
                         DoCastVictim(SPELL_ARCANE_MISSILES);

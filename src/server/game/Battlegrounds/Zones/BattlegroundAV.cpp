@@ -193,7 +193,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
         case AV_QUEST_A_BOSS1:
         case AV_QUEST_H_BOSS1:
             m_Team_QuestStatus[team][4] += 9; //you can turn in 10 or 1 item..
-            /* fallthrough */
+            [[fallthrough]];
         case AV_QUEST_A_BOSS2:
         case AV_QUEST_H_BOSS2:
             m_Team_QuestStatus[team][4]++;
@@ -276,8 +276,8 @@ void BattlegroundAV::UpdateScore(uint16 team, int16 points)
 Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
 {
     bool isStatic = false;
-    Creature* creature = NULL;
-    ASSERT(type <= AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
+    Creature* creature = nullptr;
+    ASSERT(type < AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
     if (type >= AV_CPLACE_MAX) //static
     {
         type -= AV_CPLACE_MAX;
@@ -295,20 +295,19 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         creature = AddCreature(BG_AV_CreatureInfo[cinfoid], type, BG_AV_CreaturePos[type]);
     }
     if (!creature)
-        return NULL;
+        return nullptr;
     if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN] || creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN])
         creature->SetRespawnDelay(RESPAWN_ONE_DAY); /// @todo look if this can be done by database + also add this for the wingcommanders
 
-    if ((isStatic && cinfoid >= 10 && cinfoid <= 14) || (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3) ||
-        (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))))
+    if ((isStatic && cinfoid >= 10 && cinfoid <= 14) || (!isStatic && (cinfoid <= AV_NPC_A_GRAVEDEFENSE3 || (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))))
     {
-        if (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3)
-            || (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3)))
+        if (!isStatic && (cinfoid <= AV_NPC_A_GRAVEDEFENSE3 || (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3)))
         {
             CreatureData &data = sObjectMgr->NewOrExistCreatureData(creature->GetSpawnId());
-            data.spawndist = 5;
+            data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
+            data.wander_distance = 5;
         }
-        //else spawndist will be 15, so creatures move maximum=10
+        //else wander_distance will be 15, so creatures move maximum=10
         //creature->SetDefaultMovementType(RANDOM_MOTION_TYPE);
         creature->GetMotionMaster()->Initialize();
         creature->setDeathState(JUST_DIED);
@@ -395,7 +394,7 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
             }
         }
         if (m_Mine_Timer <= 0)
-            m_Mine_Timer=AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
+            m_Mine_Timer = AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
 
         //looks for all timers of the nodes and destroy the building (for graveyards the building wont get destroyed, it goes just to the other team
         for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
@@ -432,7 +431,7 @@ void BattlegroundAV::StartingEventOpenDoors()
     DoorOpen(BG_AV_OBJECT_DOOR_A);
 
     // Achievement: The Alterac Blitz
-    StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, BG_AV_EVENT_START_BATTLE);
+    StartCriteriaTimer(CriteriaStartEvent::SendEvent, BG_AV_EVENT_START_BATTLE);
 }
 
 void BattlegroundAV::AddPlayer(Player* player)
@@ -538,16 +537,16 @@ bool BattlegroundAV::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     switch (type)
     {
         case SCORE_GRAVEYARDS_ASSAULTED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
             break;
         case SCORE_GRAVEYARDS_DEFENDED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_DEFEND_GRAVEYARD);
             break;
         case SCORE_TOWERS_ASSAULTED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_ASSAULT_TOWER);
             break;
         case SCORE_TOWERS_DEFENDED:
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
+            player->UpdateCriteria(CriteriaType::TrackedWorldStateUIModified, AV_OBJECTIVE_DEFEND_TOWER);
             break;
         default:
             break;
@@ -1025,30 +1024,30 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 
 void BattlegroundAV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+    for (uint8 itr = BG_AV_NODES_FIRSTAID_STATION; itr < BG_AV_NODES_MAX; ++itr)
     {
-        uint16 owner = m_Nodes[i].Owner;
-        BG_AV_States state = m_Nodes[i].State;
+        uint16 owner = m_Nodes[itr].Owner;
+        BG_AV_States state = m_Nodes[itr].State;
 
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.AllianceAssault), int32(owner == ALLIANCE && state == POINT_ASSAULTED));
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.AllianceControl), int32(owner == ALLIANCE && state >= POINT_DESTROYED));
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.HordeAssault), int32(owner == HORDE && state == POINT_ASSAULTED));
-        packet.Worldstates.emplace_back(uint32(BGAVNodeInfo[i].WorldStateIds.HordeControl), int32(owner == HORDE && state >= POINT_DESTROYED));
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceAssault, (owner == ALLIANCE && state == POINT_ASSAULTED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceControl, (owner == ALLIANCE && state >= POINT_DESTROYED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeAssault, (owner == HORDE && state == POINT_ASSAULTED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeControl, (owner == HORDE && state >= POINT_DESTROYED) ? 1 : 0);
     }
 
-    packet.Worldstates.emplace_back(uint32(AV_SNOWFALL_N), int32(m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM));
+    packet.Worldstates.emplace_back(AV_SNOWFALL_N, (m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM ? 1 : 0));
+    packet.Worldstates.emplace_back(AV_Alliance_Score, m_Team_Scores[0]);
+    packet.Worldstates.emplace_back(AV_Horde_Score, m_Team_Scores[1]);
 
-    packet.Worldstates.emplace_back(uint32(AV_Alliance_Score), int32(m_Team_Scores[0]));
-    packet.Worldstates.emplace_back(uint32(AV_Horde_Score), int32(m_Team_Scores[1]));
-
-    if (GetStatus() == STATUS_IN_PROGRESS){ //only if game started the teamscores are displayed
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_A_SCORE), 1);
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_H_SCORE), 1);
+    // only if game started the teamscores are displayed
+    if (GetStatus() == STATUS_IN_PROGRESS) {
+        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 1);
+        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 1);
     }
     else
     {
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_A_SCORE), 0);
-        packet.Worldstates.emplace_back(uint32(AV_SHOW_H_SCORE), 0);
+        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 0);
+        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 0);
     }
 
     SendMineWorldStates(AV_NORTH_MINE);
@@ -1099,10 +1098,10 @@ void BattlegroundAV::SendMineWorldStates(uint32 mine)
         UpdateWorldState(BG_AV_MineWorldStates[mine2][prevowner], 0);
 }
 
-WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveyard(Player* player)
 {
-    WorldSafeLocsEntry const* pGraveyard = NULL;
-    WorldSafeLocsEntry const* entry = NULL;
+    WorldSafeLocsEntry const* pGraveyard = nullptr;
+    WorldSafeLocsEntry const* entry = nullptr;
     float dist = 0;
     float minDist = 0;
     float x, y;
@@ -1138,9 +1137,9 @@ bool BattlegroundAV::SetupBattleground()
 {
     // Create starting objects
     if (// alliance gates
-        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0], 0, 0, std::sin(BG_AV_DoorPositons[0].GetOrientation()/2), std::cos(BG_AV_DoorPositons[0].GetOrientation()/2), RESPAWN_IMMEDIATELY)
+        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0], BG_AV_DoorRotation[0].x, BG_AV_DoorRotation[0].y, BG_AV_DoorRotation[0].z, BG_AV_DoorRotation[0].w, RESPAWN_IMMEDIATELY)
         // horde gates
-        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1], 0, 0, std::sin(BG_AV_DoorPositons[1].GetOrientation()/2), std::cos(BG_AV_DoorPositons[1].GetOrientation()/2), RESPAWN_IMMEDIATELY))
+        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1], BG_AV_DoorRotation[1].x, BG_AV_DoorRotation[1].y, BG_AV_DoorRotation[1].z, BG_AV_DoorRotation[1].w, RESPAWN_IMMEDIATELY))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundAV: Failed to spawn some object Battleground not created!1");
         return false;
@@ -1498,7 +1497,7 @@ void BattlegroundAV::ResetBGSubclass()
         InitNode(i, HORDE, true);
     InitNode(BG_AV_NODES_SNOWFALL_GRAVE, AV_NEUTRAL_TEAM, false); //give snowfall neutral owner
 
-    m_Mine_Timer=AV_MINE_TICK_TIMER;
+    m_Mine_Timer = AV_MINE_TICK_TIMER;
     for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
         if (!BgCreatures[i].IsEmpty())
             DelCreature(i);

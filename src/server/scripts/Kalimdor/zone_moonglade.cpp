@@ -19,7 +19,7 @@
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 /*####
@@ -52,7 +52,7 @@ public:
     {
         npc_omenAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
         }
 
@@ -66,17 +66,17 @@ public:
             if (pointId == 1)
             {
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 if (Player* player = me->SelectNearestPlayer(40.0f))
                     AttackStart(player);
             }
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void JustEngagedWith(Unit* /*attacker*/) override
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(3000, 5000));
-            events.ScheduleEvent(EVENT_CAST_STARFALL, urand(8000, 10000));
+            events.ScheduleEvent(EVENT_CAST_CLEAVE, 3s, 5s);
+            events.ScheduleEvent(EVENT_CAST_STARFALL, 8s, 10s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -84,14 +84,14 @@ public:
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_ELUNE_CANDLE)
+            if (spellInfo->Id == SPELL_ELUNE_CANDLE)
             {
                 if (me->HasAura(SPELL_OMEN_STARFALL))
                     me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);
 
-                events.RescheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                events.RescheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
             }
         }
 
@@ -106,12 +106,12 @@ public:
             {
                 case EVENT_CAST_CLEAVE:
                     DoCastVictim(SPELL_OMEN_CLEAVE);
-                    events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(8000, 10000));
+                    events.ScheduleEvent(EVENT_CAST_CLEAVE, 8s, 10s);
                     break;
                 case EVENT_CAST_STARFALL:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_OMEN_STARFALL);
-                    events.ScheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                    events.ScheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
                     break;
             }
 
@@ -139,7 +139,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_DESPAWN, 5min);
         }
 
         void UpdateAI(uint32 diff) override

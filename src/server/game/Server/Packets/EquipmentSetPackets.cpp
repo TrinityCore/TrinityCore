@@ -37,13 +37,18 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
         _worldPacket << uint32(equipSet->SetID);
         _worldPacket << uint32(equipSet->IgnoreMask);
 
-        for (std::size_t i = 0; i < EQUIPEMENT_SET_SLOTS; ++i)
+        for (std::size_t i = 0; i < EQUIPMENT_SET_SLOTS; ++i)
         {
             _worldPacket << equipSet->Pieces[i];
             _worldPacket << int32(equipSet->Appearances[i]);
         }
 
         _worldPacket.append(equipSet->Enchants.data(), equipSet->Enchants.size());
+
+        _worldPacket << int32(equipSet->SecondaryShoulderApparanceID);
+        _worldPacket << int32(equipSet->SecondaryShoulderSlot);
+        _worldPacket << int32(equipSet->SecondaryWeaponAppearanceID);
+        _worldPacket << int32(equipSet->SecondaryWeaponSlot);
 
         _worldPacket.WriteBit(equipSet->AssignedSpecIndex != -1);
         _worldPacket.WriteBits(equipSet->SetName.length(), 8);
@@ -62,12 +67,12 @@ WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 
 void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
 {
-    Set.Type = EquipmentSetInfo::EquipmentSetType(_worldPacket.read<int32>());
+    Set.Type = _worldPacket.read<EquipmentSetInfo::EquipmentSetType, int32>();
     _worldPacket >> Set.Guid;
     _worldPacket >> Set.SetID;
     _worldPacket >> Set.IgnoreMask;
 
-    for (uint8 i = 0; i < EQUIPEMENT_SET_SLOTS; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SET_SLOTS; ++i)
     {
         _worldPacket >> Set.Pieces[i];
         _worldPacket >> Set.Appearances[i];
@@ -75,6 +80,11 @@ void WorldPackets::EquipmentSet::SaveEquipmentSet::Read()
 
     _worldPacket >> Set.Enchants[0];
     _worldPacket >> Set.Enchants[1];
+
+    _worldPacket >> Set.SecondaryShoulderApparanceID;
+    _worldPacket >> Set.SecondaryShoulderSlot;
+    _worldPacket >> Set.SecondaryWeaponAppearanceID;
+    _worldPacket >> Set.SecondaryWeaponSlot;
 
     bool hasSpecIndex = _worldPacket.ReadBit();
 
@@ -97,7 +107,7 @@ void WorldPackets::EquipmentSet::UseEquipmentSet::Read()
 {
     _worldPacket >> Inv;
 
-    for (uint8 i = 0; i < EQUIPEMENT_SET_SLOTS; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SET_SLOTS; ++i)
     {
         _worldPacket >> Items[i].Item;
         _worldPacket >> Items[i].ContainerSlot;

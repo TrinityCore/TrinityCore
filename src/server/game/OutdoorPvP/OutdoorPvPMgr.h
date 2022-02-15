@@ -21,6 +21,7 @@
 #define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
 
 #include "OutdoorPvP.h"
+#include <array>
 #include <unordered_map>
 
 class Player;
@@ -80,16 +81,16 @@ class TC_GAME_API OutdoorPvPMgr
 
     private:
         typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
-        typedef std::unordered_map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
+        typedef std::unordered_map<uint32 /*zoneid*/, OutdoorPvP*> OutdoorPvPMap;
         typedef std::array<uint32, MAX_OUTDOORPVP_TYPES> OutdoorPvPScriptIds;
 
         // contains all initiated outdoor pvp events
         // used when initing / cleaning up
-        OutdoorPvPSet  m_OutdoorPvPSet;
+        OutdoorPvPSet m_OutdoorPvPSet;
 
         // maps the zone ids to an outdoor pvp event
         // used in player event handling
-        OutdoorPvPMap   m_OutdoorPvPMap;
+        OutdoorPvPMap m_OutdoorPvPMap;
 
         // Holds the outdoor PvP templates
         OutdoorPvPScriptIds m_OutdoorPvPDatas;

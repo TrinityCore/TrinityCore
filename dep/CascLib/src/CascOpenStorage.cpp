@@ -135,6 +135,11 @@ TCascStorage * TCascStorage::Release()
     // Need this to be atomic to make multi-threaded file opens work
     if(CascInterlockedDecrement(&dwRefCount) == 0)
     {
+        // Release all references in the socket cache
+        if(dwFeatures & CASC_FEATURE_ONLINE)
+            sockets_set_caching(false);
+
+        // Delete the object and return NULL
         delete this;
         return NULL;
     }
@@ -150,7 +155,7 @@ void * ProbeOutputBuffer(void * pvBuffer, size_t cbLength, size_t cbMinLength, s
     // Verify the output length
     if(cbLength < cbMinLength)
     {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        SetCascError(ERROR_INSUFFICIENT_BUFFER);
         pvBuffer = NULL;
     }
 
@@ -162,16 +167,16 @@ void * ProbeOutputBuffer(void * pvBuffer, size_t cbLength, size_t cbMinLength, s
 
 static LPTSTR CheckForIndexDirectory(TCascStorage * hs, LPCTSTR szSubDir)
 {
-    LPTSTR szIndexPath;
+    TCHAR szIndexPath[MAX_PATH];
 
     // Combine the index path
-    szIndexPath = CombinePath(hs->szDataPath, szSubDir);
-    if (!DirectoryExists(szIndexPath))
-    {
-        CASC_FREE(szIndexPath);
-    }
+    CombinePath(szIndexPath, _countof(szIndexPath), hs->szDataPath, szSubDir, NULL);
 
-    return szIndexPath;
+    // Check whether the path exists
+    if(!DirectoryExists(szIndexPath))
+        return NULL;
+
+    return CascNewStr(szIndexPath);
 }
 
 // Inserts an entry from the text build file
@@ -519,7 +524,7 @@ static int LoadEncodingManifest(TCascStorage * hs)
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
@@ -810,7 +815,7 @@ static int LoadInstallManifest(TCascStorage * hs)
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
@@ -929,7 +934,7 @@ static int LoadBuildManifest(TCascStorage * hs, DWORD dwLocaleMask)
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
@@ -990,7 +995,7 @@ static bool GetStorageTags(TCascStorage * hs, void * pvStorageInfo, size_t cbSto
     // Does the storage support tags?
     if(hs->TagsArray.IsInitialized() == false)
     {
-        SetLastError(ERROR_NOT_SUPPORTED);
+        SetCascError(ERROR_NOT_SUPPORTED);
         return false;
     }
 
@@ -1168,9 +1173,14 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szBuildKey), &szBuildKey) && szBuildKey != NULL)
         hs->szBuildKey = CascNewStrT2A(szBuildKey);
 
-    // For online storages, we need to load CDN servers
-    if ((dwErrCode == ERROR_SUCCESS) && (hs->dwFeatures & CASC_FEATURE_ONLINE))
+    // Special handling to online storages
+    if(hs->dwFeatures & CASC_FEATURE_ONLINE)
     {
+        // Enable caching of the sockets. This will add references
+        // to all existing and all future sockets
+        sockets_set_caching(true);
+
+        // For online storages, we need to load CDN servers
         dwErrCode = LoadCdnsFile(hs);
     }
 
@@ -1274,14 +1284,14 @@ static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
     // The 'szParams' must not be empty
     if(szParams == NULL || pArgs == NULL || szParams[0] == 0)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
 
     // The 'pArgs' must be valid but must not contain 'szLocalPath', 'szCodeName' or 'szRegion'
     if(pArgs->szLocalPath != NULL || pArgs->szCodeName != NULL || pArgs->szRegion != NULL)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
 
@@ -1321,7 +1331,7 @@ static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
     }
     else
     {
-        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        SetCascError(ERROR_NOT_ENOUGH_MEMORY);
     }
 
     return szParamsCopy;
@@ -1353,7 +1363,7 @@ bool WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, b
         // The arguments and the local path must be entered
         if(pArgs == NULL || pArgs->szLocalPath == NULL || pArgs->szLocalPath[0] == 0)
         {
-            SetLastError(ERROR_INVALID_PARAMETER);
+            SetCascError(ERROR_INVALID_PARAMETER);
             return false;
         }
     }
@@ -1382,7 +1392,7 @@ bool WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, b
 
     // Return the result
     if(dwErrCode != ERROR_SUCCESS)
-        SetLastError(dwErrCode);
+        SetCascError(dwErrCode);
     return (dwErrCode == ERROR_SUCCESS);
 }
 
@@ -1425,7 +1435,7 @@ bool WINAPI CascGetStorageInfo(
     hs = TCascStorage::IsValid(hStorage);
     if(hs == NULL)
     {
-        SetLastError(ERROR_INVALID_HANDLE);
+        SetCascError(ERROR_INVALID_HANDLE);
         return false;
     }
 
@@ -1460,7 +1470,7 @@ bool WINAPI CascGetStorageInfo(
             return GetStoragePathProduct(hs, pvStorageInfo, cbStorageInfo, pcbLengthNeeded);
 
         default:
-            SetLastError(ERROR_INVALID_PARAMETER);
+            SetCascError(ERROR_INVALID_PARAMETER);
             return false;
     }
 
@@ -1482,7 +1492,7 @@ bool WINAPI CascCloseStorage(HANDLE hStorage)
     hs = TCascStorage::IsValid(hStorage);
     if(hs == NULL)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return false;
     }
 

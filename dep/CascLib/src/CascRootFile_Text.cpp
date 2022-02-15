@@ -67,7 +67,7 @@ struct TRootHandler_SC1 : public TFileTreeRoot
                 const CASC_CSV_COLUMN & CKeyStr = Csv[CSV_ZERO][1];
 
                 // Convert the CKey to binary
-                if(ConvertStringToBinary(CKeyStr.szValue, MD5_STRING_SIZE, CKey) == ERROR_SUCCESS)
+                if(BinaryFromString(CKeyStr.szValue, MD5_STRING_SIZE, CKey) == ERROR_SUCCESS)
                 {
                     // Verify whether it is a known entry
                     if((pCKeyEntry = FindCKeyEntry_CKey(hs, CKey)) != NULL)

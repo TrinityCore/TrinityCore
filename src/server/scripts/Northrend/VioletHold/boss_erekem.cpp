@@ -68,9 +68,9 @@ class boss_erekem : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_EARTH_SHIELD);
             }
@@ -93,10 +93,10 @@ class boss_erekem : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             bool CheckGuardAuras(Creature* guard) const
@@ -200,7 +200,7 @@ class boss_erekem : public CreatureScript
 
                 scheduler.Schedule(Seconds(2), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                         DoCast(target, SPELL_LIGHTNING_BOLT);
 
                     task.Repeat(Milliseconds(2500));
@@ -223,7 +223,7 @@ class boss_erekem : public CreatureScript
                     task.Repeat(Seconds(8), Seconds(13));
                 });
 
-                scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                scheduler.Schedule(0s, [this](TaskContext task)
                 {
                     for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
                     {
@@ -271,7 +271,7 @@ class npc_erekem_guard : public CreatureScript
                 scheduler.CancelAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }

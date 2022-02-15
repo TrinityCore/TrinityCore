@@ -43,10 +43,10 @@ enum BCCreatureIds
     NPC_WARP_SPLINTER                   = 17977
 };
 
-template<typename AI>
-inline AI* GetBotanicaAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetBotanicaAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, BotanicaScriptName);
+    return GetInstanceAI<AI>(obj, BotanicaScriptName);
 }
 
 #endif

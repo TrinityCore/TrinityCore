@@ -84,15 +84,15 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
-            events.ScheduleEvent(EVENT_TRAMPLE, 10000);
-            events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+            events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
+            events.ScheduleEvent(EVENT_TRAMPLE, 10s);
+            events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
+                events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 15s);
 
             Talk(SAY_AGGRO);
         }
@@ -135,22 +135,22 @@ public:
                 {
                     case EVENT_TRAMPLE:
                         DoCast(me, SPELL_TRAMPLE);
-                        events.ScheduleEvent(EVENT_TRAMPLE, 10000);
+                        events.ScheduleEvent(EVENT_TRAMPLE, 10s);
                         break;
                     case EVENT_SPELL_REFLECTION:
                         Talk(SAY_REFLECT);
                         DoCast(me, SPELL_SPELL_REFLECTION);
-                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
                         break;
                     case EVENT_CRYSTAL_SPIKES:
                         Talk(SAY_CRYSTAL_SPIKES);
                         DoCast(SPELL_CRYSTAL_SPIKES);
-                        events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
+                        events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
                         break;
                     case EVENT_CRYSTALLINE_TANGLER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, OrmorokTanglerPredicate(me)))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, OrmorokTanglerPredicate(me)))
                             DoCast(target, SPELL_SUMMON_CRYSTALLINE_TANGLER);
-                        events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
+                        events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 15s);
                         break;
                     default:
                         break;
@@ -183,6 +183,7 @@ enum CrystalSpikes
     MAX_COUNT                        = 5,
 
     SPELL_CRYSTAL_SPIKE_DAMAGE       = 47944,
+    SPELL_CRYSTAL_SPIKE_AURA         = 47941,
 
     GO_CRYSTAL_SPIKE_TRAP            = 188537,
 };
@@ -207,15 +208,17 @@ public:
             _despawntimer = 0;
         }
 
-        void IsSummonedBy(Unit* owner) override
+        void IsSummonedBy(WorldObject* owner) override
         {
             switch (me->GetEntry())
             {
                 case NPC_CRYSTAL_SPIKE_INITIAL:
-                     _count = 0;
-                     me->SetFacingToObject(owner);
-                     break;
+                    _count = 0;
+                    me->SetFacingToObject(owner);
+                    me->CastSpell(me, SPELL_CRYSTAL_SPIKE_AURA, true);
+                    break;
                 case NPC_CRYSTAL_SPIKE_TRIGGER:
+                    me->CastSpell(me, SPELL_CRYSTAL_SPIKE_AURA, true);
                     if (Creature* trigger = owner->ToCreature())
                         _count = trigger->AI()->GetData(DATA_COUNT) + 1;
                     break;

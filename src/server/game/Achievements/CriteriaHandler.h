@@ -18,17 +18,17 @@
 #ifndef CriteriaHandler_h__
 #define CriteriaHandler_h__
 
-#include "DBCEnums.h"
-#include "ObjectGuid.h"
-#include "DatabaseEnvFwd.h"
 #include "Common.h"
+#include "DBCEnums.h"
+#include "Duration.h"
+#include "ObjectGuid.h"
 #include <map>
 #include <unordered_map>
 #include <vector>
 #include <ctime>
 
 class Player;
-class Unit;
+class WorldObject;
 class WorldPacket;
 struct AchievementEntry;
 struct CriteriaEntry;
@@ -238,14 +238,14 @@ struct CriteriaData
     }
 
     bool IsValid(Criteria const* criteria);
-    bool Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
+    bool Meets(uint32 criteriaId, Player const* source, WorldObject const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
 };
 
 struct CriteriaDataSet
 {
     CriteriaDataSet() : _criteriaId(0) { }
     void Add(CriteriaData const& data) { _storage.push_back(data); }
-    bool Meets(Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
+    bool Meets(Player const* source, WorldObject const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
     void SetCriteriaId(uint32 id) { _criteriaId = id; }
 private:
     uint32 _criteriaId;
@@ -268,18 +268,23 @@ public:
     CriteriaHandler();
     virtual ~CriteriaHandler();
 
+    CriteriaHandler(CriteriaHandler const& right) = delete;
+    CriteriaHandler(CriteriaHandler&& right) = delete;
+    CriteriaHandler& operator=(CriteriaHandler const& right) = delete;
+    CriteriaHandler& operator=(CriteriaHandler&& right) = delete;
+
     virtual void Reset();
 
-    void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = nullptr, Player* referencePlayer = nullptr);
+    void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
 
     virtual void SendAllData(Player const* receiver) const = 0;
 
     void UpdateTimedCriteria(uint32 timeDiff);
-    void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
-    void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed s
+    void StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry, uint32 timeLost = 0);
+    void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);   // used for quest and scripted timed s
 
 protected:
-    virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const = 0;
+    virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const = 0;
 
     CriteriaProgress* GetCriteriaProgress(Criteria const* entry);
     void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);
@@ -293,18 +298,18 @@ protected:
     virtual void AfterCriteriaTreeUpdate(CriteriaTree const* /*tree*/, Player* /*referencePlayer*/) { }
 
     bool IsCompletedCriteria(Criteria const* criteria, uint64 requiredAmount);
-    bool CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
+    bool CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* referencePlayer);
 
     virtual void SendPacket(WorldPacket const* data) const = 0;
 
     bool ConditionsSatisfied(Criteria const* criteria, Player* referencePlayer) const;
-    bool RequirementsSatisfied(Criteria const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer) const;
+    bool RequirementsSatisfied(Criteria const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject const* ref, Player* referencePlayer) const;
     virtual bool RequiredAchievementSatisfied(uint32 /*achievementId*/) const { return false; }
-    bool ModifierTreeSatisfied(ModifierTreeNode const* parent, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
-    bool ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
+    bool ModifierTreeSatisfied(ModifierTreeNode const* parent, uint64 miscValue1, uint64 miscValue2, WorldObject const* ref, Player* referencePlayer) const;
+    bool ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, WorldObject const* ref, Player* referencePlayer) const;
 
     virtual std::string GetOwnerInfo() const = 0;
-    virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const = 0;
+    virtual CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const = 0;
 
     CriteriaProgressMap _criteriaProgress;
     std::map<uint32, uint32 /*ms time left*/> _timeCriteriaTrees;
@@ -312,30 +317,35 @@ protected:
 
 class TC_GAME_API CriteriaMgr
 {
-    CriteriaMgr() { }
+    CriteriaMgr();
     ~CriteriaMgr();
 
 public:
-    static char const* GetCriteriaTypeString(CriteriaTypes type);
+    CriteriaMgr(CriteriaMgr const& right) = delete;
+    CriteriaMgr(CriteriaMgr&& right) = delete;
+    CriteriaMgr& operator=(CriteriaMgr const& right) = delete;
+    CriteriaMgr& operator=(CriteriaMgr&& right) = delete;
+
+    static char const* GetCriteriaTypeString(CriteriaType type);
     static char const* GetCriteriaTypeString(uint32 type);
 
     static CriteriaMgr* Instance();
 
-    CriteriaList const& GetPlayerCriteriaByType(CriteriaTypes type, uint32 asset) const;
+    CriteriaList const& GetPlayerCriteriaByType(CriteriaType type, uint32 asset) const;
 
-    CriteriaList const& GetGuildCriteriaByType(CriteriaTypes type) const
+    CriteriaList const& GetGuildCriteriaByType(CriteriaType type) const
     {
-        return _guildCriteriasByType[type];
+        return _guildCriteriasByType[size_t(type)];
     }
 
-    CriteriaList const& GetScenarioCriteriaByType(CriteriaTypes type) const
+    CriteriaList const& GetScenarioCriteriaByType(CriteriaType type) const
     {
-        return _scenarioCriteriasByType[type];
+        return _scenarioCriteriasByType[size_t(type)];
     }
 
-    CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaTypes type) const
+    CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaType type) const
     {
-        return _questObjectiveCriteriasByType[type];
+        return _questObjectiveCriteriasByType[size_t(type)];
     }
 
     CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const
@@ -344,33 +354,33 @@ public:
         return itr != _criteriaTreeByCriteria.end() ? &itr->second : nullptr;
     }
 
-    CriteriaList const& GetTimedCriteriaByType(CriteriaTimedTypes type) const
+    CriteriaList const& GetTimedCriteriaByType(CriteriaStartEvent startEvent) const
     {
-        return _criteriasByTimedType[type];
+        return _criteriasByTimedType[size_t(startEvent)];
     }
 
-    CriteriaList const* GetCriteriaByFailEvent(CriteriaCondition condition, int32 asset)
+    CriteriaList const* GetCriteriaByFailEvent(CriteriaFailEvent condition, int32 asset)
     {
-        auto itr = _criteriasByFailEvent[condition].find(asset);
-        return itr != _criteriasByFailEvent[condition].end() ? &itr->second : nullptr;
+        auto itr = _criteriasByFailEvent[size_t(condition)].find(asset);
+        return itr != _criteriasByFailEvent[size_t(condition)].end() ? &itr->second : nullptr;
     }
 
     CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const
     {
         CriteriaDataMap::const_iterator iter = _criteriaDataMap.find(Criteria->ID);
-        return iter != _criteriaDataMap.end() ? &iter->second : NULL;
+        return iter != _criteriaDataMap.end() ? &iter->second : nullptr;
     }
 
-    static bool IsGroupCriteriaType(CriteriaTypes type)
+    static bool IsGroupCriteriaType(CriteriaType type)
     {
         switch (type)
         {
-            case CRITERIA_TYPE_KILL_CREATURE:
-            case CRITERIA_TYPE_WIN_BG:
-            case CRITERIA_TYPE_BE_SPELL_TARGET:         // NYI
-            case CRITERIA_TYPE_WIN_RATED_ARENA:
-            case CRITERIA_TYPE_BE_SPELL_TARGET2:        // NYI
-            case CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:  // NYI
+            case CriteriaType::KillCreature:
+            case CriteriaType::WinBattleground:
+            case CriteriaType::BeSpellTarget:       // NYI
+            case CriteriaType::WinAnyRankedArena:
+            case CriteriaType::GainAura:            // NYI
+            case CriteriaType::WinAnyBattleground:  // NYI
                 return true;
             default:
                 break;
@@ -405,14 +415,14 @@ private:
     std::unordered_map<uint32, CriteriaTreeList> _criteriaTreeByCriteria;
 
     // store criterias by type to speed up lookup
-    CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
-    CriteriaListByAsset _criteriasByAsset[CRITERIA_TYPE_TOTAL];
-    CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
-    CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
-    CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaList _criteriasByType[size_t(CriteriaType::Count)];
+    CriteriaListByAsset _criteriasByAsset[size_t(CriteriaType::Count)];
+    CriteriaList _guildCriteriasByType[size_t(CriteriaType::Count)];
+    CriteriaList _scenarioCriteriasByType[size_t(CriteriaType::Count)];
+    CriteriaList _questObjectiveCriteriasByType[size_t(CriteriaType::Count)];
 
-    CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
-    std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[CRITERIA_CONDITION_MAX];
+    CriteriaList _criteriasByTimedType[size_t(CriteriaStartEvent::Count)];
+    std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[size_t(CriteriaFailEvent::Count)];
 };
 
 #define sCriteriaMgr CriteriaMgr::Instance()

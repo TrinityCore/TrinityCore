@@ -113,15 +113,15 @@ public:
             me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_WOUND, Seconds(10));
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_WOUND, 10s);
             events.ScheduleEvent(EVENT_ENRAGE, randtime(Seconds(16), Seconds(22)));
             events.ScheduleEvent(EVENT_DECIMATE, randtime(Minutes(1)+Seconds(50), Minutes(2)));
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(8));
-            events.ScheduleEvent(EVENT_SUMMON, Seconds(15));
-            events.ScheduleEvent(EVENT_SEARCH_ZOMBIE_SINGLE, Seconds(12));
+            events.ScheduleEvent(EVENT_BERSERK, 8min);
+            events.ScheduleEvent(EVENT_SUMMON, 15s);
+            events.ScheduleEvent(EVENT_SEARCH_ZOMBIE_SINGLE, 12s);
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /* who */) override
@@ -194,7 +194,7 @@ public:
                         Creature* zombie = nullptr;
                         for (SummonList::const_iterator itr = summons.begin(); !zombie && itr != summons.end(); ++itr)
                         {
-                            zombie=ObjectAccessor::GetCreature(*me, *itr);
+                            zombie = ObjectAccessor::GetCreature(*me, *itr);
                             if (!zombie || !zombie->IsAlive() || !zombie->IsWithinDistInMap(me, 10.0))
                                 zombie = nullptr;
                         }
@@ -272,7 +272,7 @@ public:
         {
             if (id == 1){
                 me->GetMotionMaster()->MoveIdle();
-                events.ScheduleEvent(EVENT_KILL_ZOMBIE_SINGLE, Seconds(1));
+                events.ScheduleEvent(EVENT_KILL_ZOMBIE_SINGLE, 1s);
             }
 
         }
@@ -316,7 +316,11 @@ public:
             {
                 int32 damage = int32(unit->GetHealth()) - int32(unit->CountPctFromMaxHealth(5));
                 if (damage > 0)
-                    GetCaster()->CastCustomSpell(SPELL_DECIMATE_DMG, SPELLVALUE_BASE_POINT0, damage, unit);
+                {
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.AddSpellBP0(damage);
+                    GetCaster()->CastSpell(unit, SPELL_DECIMATE_DMG, args);
+                }
             }
         }
 

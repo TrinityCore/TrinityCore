@@ -97,25 +97,25 @@ public:
         {
             Initialize();
             _Reset();
-            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+            instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15000);
-            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20000);
-            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1000);
-            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+            events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15s);
+            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s);
+            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1s);
+            instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             _JustDied();
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA, true, true);
         }
 
         void KilledUnit(Unit* who) override
@@ -130,7 +130,7 @@ public:
             {
                 _isIntroDone = true;
                 Talk(SAY_INTRO_1);
-                events.ScheduleEvent(EVENT_INTRO_DIALOGUE, 20000, 0, PHASE_INTRO);
+                events.ScheduleEvent(EVENT_INTRO_DIALOGUE, 20s, 0, PHASE_INTRO);
             }
             BossAI::MoveInLineOfSight(who);
         }
@@ -147,17 +147,17 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ARC_LIGHTNING:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_ARC_LIGHTNING);
-                        events.ScheduleEvent(EVENT_ARC_LIGHTNING, urand(15000, 16000));
+                        events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15s, 16s);
                         break;
                     case EVENT_LIGHTNING_NOVA:
                         Talk(SAY_NOVA);
                         Talk(EMOTE_NOVA);
                         DoCastAOE(SPELL_LIGHTNING_NOVA);
                         me->RemoveAurasDueToSpell(SPELL_PULSING_SHOCKWAVE);
-                        events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, DUNGEON_MODE(5000, 4000)); // Pause Pulsing Shockwave aura
-                        events.ScheduleEvent(EVENT_LIGHTNING_NOVA, urand(20000, 21000));
+                        events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, DUNGEON_MODE(5s, 4s)); // Pause Pulsing Shockwave aura
+                        events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s, 21s);
                         break;
                     case EVENT_RESUME_PULSING_SHOCKWAVE:
                         DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);

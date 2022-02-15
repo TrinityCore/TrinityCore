@@ -22,10 +22,9 @@ SDComment: Adds MC NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -52,12 +51,12 @@ class boss_gehennas : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
-                events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 12000);
-                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10000);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 6000);
+                BossAI::JustEngagedWith(victim);
+                events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 12s);
+                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 6s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -76,17 +75,17 @@ class boss_gehennas : public CreatureScript
                     {
                         case EVENT_GEHENNAS_CURSE:
                             DoCastVictim(SPELL_GEHENNAS_CURSE);
-                            events.ScheduleEvent(EVENT_GEHENNAS_CURSE, urand(22000, 30000));
+                            events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 22s, 30s);
                             break;
                         case EVENT_RAIN_OF_FIRE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_RAIN_OF_FIRE);
-                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(4000, 12000));
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 4s, 12s);
                             break;
                         case EVENT_SHADOW_BOLT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                 DoCast(target, SPELL_SHADOW_BOLT);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 7000);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 7s);
                             break;
                         default:
                             break;

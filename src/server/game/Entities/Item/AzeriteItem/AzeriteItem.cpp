@@ -45,7 +45,7 @@ bool AzeriteItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext
     return true;
 }
 
-void AzeriteItem::SaveToDB(CharacterDatabaseTransaction& trans)
+void AzeriteItem::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE);
     stmt->setUInt64(0, GetGUID().GetCounter());
@@ -76,7 +76,7 @@ void AzeriteItem::SaveToDB(CharacterDatabaseTransaction& trans)
                 for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
                     stmt->setUInt32(5 + specIndex * 5 + j, m_azeriteItemData->SelectedEssences[specIndex].AzeriteEssenceID[j]);
             }
-            for (; specIndex < MAX_SPECIALIZATIONS; ++specIndex)
+            for (; specIndex < 4; ++specIndex)
             {
                 stmt->setUInt32(4 + specIndex * 5, 0);
                 for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
@@ -189,7 +189,7 @@ void AzeriteItem::LoadAzeriteItemData(Player const* owner, AzeriteItemData& azer
     }
 }
 
-void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE);
     stmt->setUInt64(0, itemGuid);
@@ -204,7 +204,7 @@ void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     AzeriteItem::DeleteFromDB(trans, GetGUID().GetCounter());
     Item::DeleteFromDB(trans);
@@ -258,7 +258,7 @@ void AzeriteItem::GiveXP(uint64 xp)
 
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Xp), currentXP);
 
-        owner->UpdateCriteria(CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED, xp);
+        owner->UpdateCriteria(CriteriaType::EarnArtifactXPForAzeriteItem, xp);
 
         // changing azerite level changes item level, need to update stats
         if (m_azeriteItemData->Level != level)
@@ -268,7 +268,7 @@ void AzeriteItem::GiveXP(uint64 xp)
 
             SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Level), level);
             UnlockDefaultMilestones();
-            owner->UpdateCriteria(CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED, level);
+            owner->UpdateCriteria(CriteriaType::AzeriteLevelReached, level);
 
             if (IsEquipped())
                 owner->_ApplyItemBonuses(this, GetSlot(), true);
@@ -277,7 +277,7 @@ void AzeriteItem::GiveXP(uint64 xp)
         SetState(ITEM_CHANGED, owner);
     }
 
-    WorldPackets::Azerite::AzeriteXpGain xpGain;
+    WorldPackets::Azerite::PlayerAzeriteItemGains xpGain;
     xpGain.ItemGUID = GetGUID();
     xpGain.XP = xp;
     owner->SendDirectMessage(xpGain.Write());

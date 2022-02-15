@@ -80,7 +80,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.RequiredExpansion);
         _worldPacket << int32(Stats.VignetteID);
         _worldPacket << int32(Stats.Class);
-        _worldPacket << float(Stats.FadeRegionRadius);
+        _worldPacket << int32(Stats.CreatureDifficultyID);
         _worldPacket << int32(Stats.WidgetSetID);
         _worldPacket << int32(Stats.WidgetSetUnitConditionID);
 
@@ -107,8 +107,8 @@ void WorldPackets::Query::QueryPlayerName::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
 {
-    data.WriteBit(lookupHint.VirtualRealmAddress.is_initialized());
-    data.WriteBit(lookupHint.NativeRealmAddress.is_initialized());
+    data.WriteBit(lookupHint.VirtualRealmAddress.has_value());
+    data.WriteBit(lookupHint.NativeRealmAddress.has_value());
     data.FlushBits();
 
     if (lookupHint.VirtualRealmAddress)
@@ -133,10 +133,10 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         AccountID     = player->GetSession()->GetAccountGUID();
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
         Name          = player->GetName();
-        Race          = player->getRace();
-        Sex           = player->m_playerData->NativeSex;
-        ClassID       = player->getClass();
-        Level         = player->getLevel();
+        Race          = player->GetRace();
+        Sex           = player->GetNativeGender();
+        ClassID       = player->GetClass();
+        Level         = player->GetLevel();
 
         if (DeclinedName const* names = player->GetDeclinedNames())
             DeclinedNames = *names;
@@ -182,6 +182,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << uint8(lookupData.Sex);
     data << uint8(lookupData.ClassID);
     data << uint8(lookupData.Level);
+    data << uint8(lookupData.Unused915);
     data.WriteString(lookupData.Name);
 
     return data;
@@ -203,7 +204,6 @@ void WorldPackets::Query::QueryPageText::Read()
     _worldPacket >> PageTextID;
     _worldPacket >> ItemGUID;
 }
-
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::QueryPageTextResponse::PageTextInfo const& page)
 {
@@ -293,7 +293,7 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
         if (!Stats.QuestItems.empty())
             statsData.append(Stats.QuestItems.data(), Stats.QuestItems.size());
 
-        statsData << int32(Stats.RequiredLevel);
+        statsData << int32(Stats.ContentTuningId);
     }
 
     _worldPacket << uint32(statsData.size());
@@ -339,7 +339,7 @@ WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
 
 WorldPacket const* WorldPackets::Query::QueryTimeResponse::Write()
 {
-    _worldPacket << int32(CurrentTime);
+    _worldPacket << CurrentTime;
 
     return &_worldPacket;
 }
@@ -355,9 +355,9 @@ void WorldPackets::Query::QuestPOIQuery::Read()
 ByteBuffer& operator<<(ByteBuffer& data, QuestPOIData const& questPOIData)
 {
     data << int32(questPOIData.QuestID);
-    data << int32(questPOIData.QuestPOIBlobDataStats.size());
+    data << int32(questPOIData.Blobs.size());
 
-    for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
+    for (QuestPOIBlobData const& questPOIBlobData : questPOIData.Blobs)
     {
         data << int32(questPOIBlobData.BlobIndex);
         data << int32(questPOIBlobData.ObjectiveIndex);
@@ -369,13 +369,15 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestPOIData const& questPOIData)
         data << int32(questPOIBlobData.Flags);
         data << int32(questPOIBlobData.WorldEffectID);
         data << int32(questPOIBlobData.PlayerConditionID);
+        data << int32(questPOIBlobData.NavigationPlayerConditionID);
         data << int32(questPOIBlobData.SpawnTrackingID);
-        data << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
+        data << int32(questPOIBlobData.Points.size());
 
-        for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)
+        for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.Points)
         {
-            data << int32(questPOIBlobPoint.X);
-            data << int32(questPOIBlobPoint.Y);
+            data << int16(questPOIBlobPoint.X);
+            data << int16(questPOIBlobPoint.Y);
+            data << int16(questPOIBlobPoint.Z);
         }
 
         data.WriteBit(questPOIBlobData.AlwaysAllowMergingBlobs);

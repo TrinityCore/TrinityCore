@@ -18,10 +18,10 @@
 #include "InstanceScenario.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "Map.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 
 InstanceScenario::InstanceScenario(Map const* map, ScenarioData const* scenarioData) : Scenario(scenarioData), _map(map)
@@ -58,10 +58,10 @@ void InstanceScenario::SaveToDB()
             continue;
 
         Criteria const* criteria = sCriteriaMgr->GetCriteria(iter->first);
-        switch (CriteriaTypes(criteria->Entry->Type))
+        switch (CriteriaType(criteria->Entry->Type))
         {
             // Blizzard only appears to store creature kills
-            case CRITERIA_TYPE_KILL_CREATURE:
+            case CriteriaType::KillCreature:
                 break;
             default:
                 continue;
@@ -78,7 +78,7 @@ void InstanceScenario::SaveToDB()
             stmt->setUInt32(0, id);
             stmt->setUInt32(1, iter->first);
             stmt->setUInt64(2, iter->second.Counter);
-            stmt->setUInt32(3, uint32(iter->second.Date));
+            stmt->setInt64(3, iter->second.Date);
             trans->Append(stmt);
         }
 
@@ -97,7 +97,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
     if (result)
     {
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
 
         std::vector<CriteriaTree const*> criteriaTrees;
         do
@@ -105,7 +105,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
             Field* fields = result->Fetch();
             uint32 id = fields[0].GetUInt32();
             uint64 counter = fields[1].GetUInt64();
-            time_t date = time_t(fields[2].GetUInt32());
+            time_t date = fields[2].GetInt64();
 
             Criteria const* criteria = sCriteriaMgr->GetCriteria(id);
             if (!criteria)
@@ -123,10 +123,10 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
             if (criteria->Entry->StartTimer && time_t(date + criteria->Entry->StartTimer) < now)
                 continue;
 
-            switch (CriteriaTypes(criteria->Entry->Type))
+            switch (CriteriaType(criteria->Entry->Type))
             {
                 // Blizzard appears to only stores creatures killed progress for unknown reasons. Either technical shortcoming or intentional
-                case CRITERIA_TYPE_KILL_CREATURE:
+                case CriteriaType::KillCreature:
                     break;
                 default:
                     continue;

@@ -23,11 +23,12 @@
 #include "ScriptedCreature.h"
 #include "WorldStatePackets.h"
 #include "zulaman.h"
+#include <sstream>
 
 class instance_zulaman : public InstanceMapScript
 {
     public:
-        instance_zulaman() : InstanceMapScript(ZulAmanScriptName, 568) { }
+        instance_zulaman() : InstanceMapScript(ZulamanScriptName, 568) { }
 
         struct instance_zulaman_InstanceScript : public InstanceScript
         {
@@ -149,7 +150,7 @@ class instance_zulaman : public InstanceMapScript
                         {
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, 15);
-                            events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                            events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                             SpeedRunTimer = 15;
                             ZulAmanState = data;
                             SaveToDB();
@@ -218,14 +219,14 @@ class instance_zulaman : public InstanceMapScript
                 return true;
             }
 
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 switch (eventId)
                 {
                     case EVENT_START_ZULAMAN:
                         if (Creature* voljin = instance->GetCreature(VoljinGUID))
                         {
-                            if (voljin->IsAIEnabled)
+                            if (voljin->IsAIEnabled())
                                 voljin->AI()->DoAction(ACTION_START_ZULAMAN);
                         }
                         break;
@@ -249,7 +250,7 @@ class instance_zulaman : public InstanceMapScript
                             SaveToDB();
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, --SpeedRunTimer);
                             if (SpeedRunTimer)
-                                events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                                events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                             else
                             {
                                 DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 0);
@@ -278,7 +279,7 @@ class instance_zulaman : public InstanceMapScript
 
                 if (ZulAmanState == IN_PROGRESS && SpeedRunTimer && SpeedRunTimer <= 15)
                 {
-                    events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                    events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                     DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
                     DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, SpeedRunTimer);
                 }

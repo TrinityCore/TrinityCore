@@ -20,9 +20,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "the_black_morass.h"
 
@@ -97,8 +95,6 @@ public:
                 DoCast(me, SPELL_CHANNEL, true);
             else if (me->HasAura(SPELL_CHANNEL))
                 me->RemoveAura(SPELL_CHANNEL);
-
-            DoCast(me, SPELL_PORTAL_RUNE, true);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -140,23 +136,23 @@ public:
             //ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             if (SpellCorrupt_Timer)
                 return;
 
-            if (spell->Id == SPELL_CORRUPT_AEONUS)
+            if (spellInfo->Id == SPELL_CORRUPT_AEONUS)
                 SpellCorrupt_Timer = 1000;
 
-            if (spell->Id == SPELL_CORRUPT)
+            if (spellInfo->Id == SPELL_CORRUPT)
                 SpellCorrupt_Timer = 3000;
         }
 
         void JustDied(Unit* killer) override
         {
-            if (killer->GetEntry() == me->GetEntry())
+            if (killer && killer->GetEntry() == me->GetEntry())
                 return;
 
             Talk(SAY_DEATH);
@@ -290,7 +286,7 @@ public:
             else mWaveId = 1;
 
         }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoSummonAtRift(uint32 creature_entry)
         {
@@ -309,9 +305,9 @@ public:
             //normalize Z-level if we can, if rift is not at ground level.
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(me->GetPhaseShift(), pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(me->GetPhaseShift(), pos.m_positionX, pos.m_positionY));
 
-            if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
+            if (Unit* Summon = DoSummon(creature_entry, pos, 30s, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                 if (Unit* temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MEDIVH)))
-                    Summon->AddThreat(temp, 0.0f);
+                    AddThreat(temp, 0.0f, Summon);
         }
 
         void DoSelectSummon()
