@@ -554,7 +554,7 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
                     // When the script Id of the script isn't removed in this
                     // context change, do nothing.
                     uint32 aiId = object.second->AI() ? object.second->AI()->GetId() : 0;
-                    if (idsToRemove.find(aiId) != idsToRemove.end())
+                    if (idsToRemove.find(aiId) != idsToRemove.end() || (aiId == 0 && object.second->GetScriptId()))
                         visitor(object.second);
                 }
             };
