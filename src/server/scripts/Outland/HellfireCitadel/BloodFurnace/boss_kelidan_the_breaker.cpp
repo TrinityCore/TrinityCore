@@ -19,8 +19,6 @@
 #include "blood_furnace.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
-#include "SpellAuras.h"
 #include "TemporarySummon.h"
 
 enum Kelidan

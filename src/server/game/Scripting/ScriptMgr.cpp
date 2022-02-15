@@ -20,6 +20,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Conversation.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -553,7 +554,7 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
                     // When the script Id of the script isn't removed in this
                     // context change, do nothing.
                     uint32 aiId = object.second->AI() ? object.second->AI()->GetId() : 0;
-                    if (idsToRemove.find(aiId) != idsToRemove.end())
+                    if (idsToRemove.find(aiId) != idsToRemove.end() || (aiId == 0 && object.second->GetScriptId()))
                         visitor(object.second);
                 }
             };
@@ -1195,7 +1196,7 @@ ScriptMgr::ScriptMgr()
 {
 }
 
-ScriptMgr::~ScriptMgr() { }
+ScriptMgr::~ScriptMgr() = default;
 
 ScriptMgr* ScriptMgr::instance()
 {
@@ -2373,11 +2374,15 @@ ServerScript::ServerScript(char const* name)
     ScriptRegistry<ServerScript>::Instance()->AddScript(this);
 }
 
+ServerScript::~ServerScript() = default;
+
 WorldScript::WorldScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<WorldScript>::Instance()->AddScript(this);
 }
+
+WorldScript::~WorldScript() = default;
 
 FormulaScript::FormulaScript(char const* name)
     : ScriptObject(name)
@@ -2385,11 +2390,15 @@ FormulaScript::FormulaScript(char const* name)
     ScriptRegistry<FormulaScript>::Instance()->AddScript(this);
 }
 
+FormulaScript::~FormulaScript() = default;
+
 UnitScript::UnitScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<UnitScript>::Instance()->AddScript(this);
 }
+
+UnitScript::~UnitScript() = default;
 
 WorldMapScript::WorldMapScript(char const* name, uint32 mapId)
     : ScriptObject(name), MapScript<Map>(sMapStore.LookupEntry(mapId))
@@ -2403,6 +2412,8 @@ WorldMapScript::WorldMapScript(char const* name, uint32 mapId)
     ScriptRegistry<WorldMapScript>::Instance()->AddScript(this);
 }
 
+WorldMapScript::~WorldMapScript() = default;
+
 InstanceMapScript::InstanceMapScript(char const* name, uint32 mapId)
     : ScriptObject(name), MapScript<InstanceMap>(sMapStore.LookupEntry(mapId))
 {
@@ -2414,6 +2425,8 @@ InstanceMapScript::InstanceMapScript(char const* name, uint32 mapId)
 
     ScriptRegistry<InstanceMapScript>::Instance()->AddScript(this);
 }
+
+InstanceMapScript::~InstanceMapScript() = default;
 
 BattlegroundMapScript::BattlegroundMapScript(char const* name, uint32 mapId)
     : ScriptObject(name), MapScript<BattlegroundMap>(sMapStore.LookupEntry(mapId))
@@ -2427,11 +2440,15 @@ BattlegroundMapScript::BattlegroundMapScript(char const* name, uint32 mapId)
     ScriptRegistry<BattlegroundMapScript>::Instance()->AddScript(this);
 }
 
+BattlegroundMapScript::~BattlegroundMapScript() = default;
+
 ItemScript::ItemScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<ItemScript>::Instance()->AddScript(this);
 }
+
+ItemScript::~ItemScript() = default;
 
 CreatureScript::CreatureScript(char const* name)
     : ScriptObject(name)
@@ -2439,17 +2456,25 @@ CreatureScript::CreatureScript(char const* name)
     ScriptRegistry<CreatureScript>::Instance()->AddScript(this);
 }
 
+CreatureScript::~CreatureScript() = default;
+
 GameObjectScript::GameObjectScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<GameObjectScript>::Instance()->AddScript(this);
 }
 
+GameObjectScript::~GameObjectScript() = default;
+
 AreaTriggerScript::AreaTriggerScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<AreaTriggerScript>::Instance()->AddScript(this);
 }
+
+AreaTriggerScript::~AreaTriggerScript() = default;
+
+OnlyOnceAreaTriggerScript::~OnlyOnceAreaTriggerScript() = default;
 
 bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
 {
@@ -2472,11 +2497,15 @@ BattlefieldScript::BattlefieldScript(char const* name)
     ScriptRegistry<BattlefieldScript>::Instance()->AddScript(this);
 }
 
+BattlefieldScript::~BattlefieldScript() = default;
+
 BattlegroundScript::BattlegroundScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<BattlegroundScript>::Instance()->AddScript(this);
 }
+
+BattlegroundScript::~BattlegroundScript() = default;
 
 OutdoorPvPScript::OutdoorPvPScript(char const* name)
     : ScriptObject(name)
@@ -2484,11 +2513,15 @@ OutdoorPvPScript::OutdoorPvPScript(char const* name)
     ScriptRegistry<OutdoorPvPScript>::Instance()->AddScript(this);
 }
 
+OutdoorPvPScript::~OutdoorPvPScript() = default;
+
 CommandScript::CommandScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<CommandScript>::Instance()->AddScript(this);
 }
+
+CommandScript::~CommandScript() = default;
 
 WeatherScript::WeatherScript(char const* name)
     : ScriptObject(name)
@@ -2496,11 +2529,15 @@ WeatherScript::WeatherScript(char const* name)
     ScriptRegistry<WeatherScript>::Instance()->AddScript(this);
 }
 
+WeatherScript::~WeatherScript() = default;
+
 AuctionHouseScript::AuctionHouseScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<AuctionHouseScript>::Instance()->AddScript(this);
 }
+
+AuctionHouseScript::~AuctionHouseScript() = default;
 
 ConditionScript::ConditionScript(char const* name)
     : ScriptObject(name)
@@ -2508,11 +2545,15 @@ ConditionScript::ConditionScript(char const* name)
     ScriptRegistry<ConditionScript>::Instance()->AddScript(this);
 }
 
+ConditionScript::~ConditionScript() = default;
+
 VehicleScript::VehicleScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<VehicleScript>::Instance()->AddScript(this);
 }
+
+VehicleScript::~VehicleScript() = default;
 
 DynamicObjectScript::DynamicObjectScript(char const* name)
     : ScriptObject(name)
@@ -2520,11 +2561,15 @@ DynamicObjectScript::DynamicObjectScript(char const* name)
     ScriptRegistry<DynamicObjectScript>::Instance()->AddScript(this);
 }
 
+DynamicObjectScript::~DynamicObjectScript() = default;
+
 TransportScript::TransportScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<TransportScript>::Instance()->AddScript(this);
 }
+
+TransportScript::~TransportScript() = default;
 
 AchievementScript::AchievementScript(char const* name)
     : ScriptObject(name)
@@ -2532,11 +2577,15 @@ AchievementScript::AchievementScript(char const* name)
     ScriptRegistry<AchievementScript>::Instance()->AddScript(this);
 }
 
+AchievementScript::~AchievementScript() = default;
+
 AchievementCriteriaScript::AchievementCriteriaScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<AchievementCriteriaScript>::Instance()->AddScript(this);
 }
+
+AchievementCriteriaScript::~AchievementCriteriaScript() = default;
 
 PlayerScript::PlayerScript(char const* name)
     : ScriptObject(name)
@@ -2544,23 +2593,15 @@ PlayerScript::PlayerScript(char const* name)
     ScriptRegistry<PlayerScript>::Instance()->AddScript(this);
 }
 
+PlayerScript::~PlayerScript() = default;
+
 AccountScript::AccountScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<AccountScript>::Instance()->AddScript(this);
 }
 
-SceneScript::SceneScript(char const* name)
-    : ScriptObject(name)
-{
-    ScriptRegistry<SceneScript>::Instance()->AddScript(this);
-}
-
-QuestScript::QuestScript(char const* name)
-    : ScriptObject(name)
-{
-    ScriptRegistry<QuestScript>::Instance()->AddScript(this);
-}
+AccountScript::~AccountScript() = default;
 
 GuildScript::GuildScript(char const* name)
     : ScriptObject(name)
@@ -2568,11 +2609,15 @@ GuildScript::GuildScript(char const* name)
     ScriptRegistry<GuildScript>::Instance()->AddScript(this);
 }
 
+GuildScript::~GuildScript() = default;
+
 GroupScript::GroupScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<GroupScript>::Instance()->AddScript(this);
 }
+
+GroupScript::~GroupScript() = default;
 
 AreaTriggerEntityScript::AreaTriggerEntityScript(char const* name)
     : ScriptObject(name)
@@ -2580,11 +2625,31 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(char const* name)
     ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
 }
 
+AreaTriggerEntityScript::~AreaTriggerEntityScript() = default;
+
 ConversationScript::ConversationScript(char const* name)
     : ScriptObject(name)
 {
     ScriptRegistry<ConversationScript>::Instance()->AddScript(this);
 }
+
+ConversationScript::~ConversationScript() = default;
+
+SceneScript::SceneScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<SceneScript>::Instance()->AddScript(this);
+}
+
+SceneScript::~SceneScript() = default;
+
+QuestScript::QuestScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<QuestScript>::Instance()->AddScript(this);
+}
+
+QuestScript::~QuestScript() = default;
 
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;

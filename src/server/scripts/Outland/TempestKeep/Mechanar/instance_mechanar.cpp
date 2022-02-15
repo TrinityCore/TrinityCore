@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
 #include "mechanar.h"
 

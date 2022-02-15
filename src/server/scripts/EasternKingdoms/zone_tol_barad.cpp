@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "Battlefield.h"
-#include "BattlefieldMgr.h"
 #include "Battlefield/BattlefieldTB.h"
 #include "DB2Stores.h"
 #include "ObjectMgr.h"
@@ -26,7 +25,6 @@
 #include "ScriptedGossip.h"
 #include "ScriptSystem.h"
 #include "SpellScript.h"
-#include "WorldSession.h"
 
 enum TBSpiritGuide
 {

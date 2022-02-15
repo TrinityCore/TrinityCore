@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
@@ -32,8 +33,6 @@ EndScriptData */
 #include "Language.h"
 #include "Log.h"
 #include "MySQLThreading.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
 #include "RBAC.h"
 #include "Realm.h"
 #include "UpdateTime.h"
@@ -42,12 +41,10 @@ EndScriptData */
 #include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
-
-#include <numeric>
-
 #include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
+#include <numeric>
 
 class server_commandscript : public CommandScript
 {

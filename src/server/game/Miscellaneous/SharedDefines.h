@@ -19,8 +19,6 @@
 #define TRINITY_SHAREDDEFINES_H
 
 #include "Define.h"
-#include "DetourNavMesh.h"
-#include "SmartEnum.h"
 
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
 
@@ -520,7 +518,7 @@ enum SpellAttr3 : uint32
     SPELL_ATTR3_UNK2                             = 0x00000004, // TITLE Unknown attribute 2@Attr3
     SPELL_ATTR3_BLOCKABLE_SPELL                  = 0x00000008, // TITLE Blockable spell
     SPELL_ATTR3_IGNORE_RESURRECTION_TIMER        = 0x00000010, // TITLE Ignore resurrection timer
-    SPELL_ATTR3_UNK5                             = 0x00000020, // TITLE Unknown attribute 5@Attr3
+    SPELL_ATTR3_NO_DURABILITY_LOSS               = 0x00000020, // TITLE No Durability Loss
     SPELL_ATTR3_UNK6                             = 0x00000040, // TITLE Unknown attribute 6@Attr3
     SPELL_ATTR3_STACK_FOR_DIFF_CASTERS           = 0x00000080, // TITLE Stack separately for each caster
     SPELL_ATTR3_ONLY_TARGET_PLAYERS              = 0x00000100, // TITLE Can only target players

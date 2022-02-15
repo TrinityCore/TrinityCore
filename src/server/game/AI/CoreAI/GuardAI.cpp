@@ -17,7 +17,6 @@
 
 #include "GuardAI.h"
 #include "Creature.h"
-#include "Errors.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "Player.h"

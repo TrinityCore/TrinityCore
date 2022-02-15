@@ -30,11 +30,12 @@ EndScriptData */
 #include "Channel.h"
 #include "ChannelPackets.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "ChatPackets.h"
 #include "Conversation.h"
+#include "CreatureAI.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
-#include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Language.h"
@@ -46,7 +47,6 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
-#include "QuestPools.h"
 #include "RBAC.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -909,7 +909,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage("Threat info for %s (%s):", target->GetName(), target->GetGUID().ToString().c_str());
+        handler->PSendSysMessage("Threat info for %s (%s):", target->GetName().c_str(), target->GetGUID().ToString().c_str());
 
         ThreatManager const& mgr = target->GetThreatManager();
 
@@ -1468,7 +1468,7 @@ public:
             ASSERT(groupData); // checked by objectmgr on load
             if (explain)
             {
-                handler->PSendSysMessage(" |-- '%s' (%u)", groupData->name, pair.first);
+                handler->PSendSysMessage(" |-- '%s' (%u)", groupData->name.c_str(), pair.first);
                 bool isBlocked = false, isSpawned = false;
                 for (auto const& tuple : pair.second)
                 {
@@ -1481,29 +1481,29 @@ public:
                         {
                             isSpawned = true;
                             if (isBlocked)
-                                handler->PSendSysMessage(" | |-- '%s' would be allowed to spawn by boss state %u being %s, but this is overruled", groupData->name, bossStateId, InstanceScript::GetBossStateName(actualState));
+                                handler->PSendSysMessage(" | |-- '%s' would be allowed to spawn by boss state %u being %s, but this is overruled", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(actualState));
                             else
-                                handler->PSendSysMessage(" | |-- '%s' is allowed to spawn because boss state %u is %s.", groupData->name, bossStateId, InstanceScript::GetBossStateName(bossStateId));
+                                handler->PSendSysMessage(" | |-- '%s' is allowed to spawn because boss state %u is %s.", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(bossStateId));
                         }
                         else
                         {
                             isBlocked = true;
-                            handler->PSendSysMessage(" | |-- '%s' is blocked from spawning because boss state %u is %s.", groupData->name, bossStateId, InstanceScript::GetBossStateName(bossStateId));
+                            handler->PSendSysMessage(" | |-- '%s' is blocked from spawning because boss state %u is %s.", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(bossStateId));
                         }
                     }
                     else
                         handler->PSendSysMessage(" | |-- '%s' could've been %s if boss state %u matched mask 0x%02x; but it is %s -> 0x%02x, which does not match.",
-                            groupData->name, isSpawn ? "allowed to spawn" : "blocked from spawning", bossStateId, std::get<2>(tuple), InstanceScript::GetBossStateName(actualState), (1 << actualState));
+                            groupData->name.c_str(), isSpawn ? "allowed to spawn" : "blocked from spawning", bossStateId, std::get<2>(tuple), InstanceScript::GetBossStateName(actualState), (1 << actualState));
                 }
                 if (isBlocked)
-                    handler->PSendSysMessage(" | |=> '%s' is not active due to a blocking rule being matched", groupData->name);
+                    handler->PSendSysMessage(" | |=> '%s' is not active due to a blocking rule being matched", groupData->name.c_str());
                 else if (isSpawned)
-                    handler->PSendSysMessage(" | |=> '%s' is active due to a spawn rule being matched", groupData->name);
+                    handler->PSendSysMessage(" | |=> '%s' is active due to a spawn rule being matched", groupData->name.c_str());
                 else
-                    handler->PSendSysMessage(" | |=> '%s' is not active due to none of its rules being matched", groupData->name);
+                    handler->PSendSysMessage(" | |=> '%s' is not active due to none of its rules being matched", groupData->name.c_str());
             }
             else
-                handler->PSendSysMessage(" - '%s' (%u) is %sactive", groupData->name, pair.first, map->IsSpawnGroupActive(pair.first) ? "" : "not ");
+                handler->PSendSysMessage(" - '%s' (%u) is %sactive", groupData->name.c_str(), pair.first, map->IsSpawnGroupActive(pair.first) ? "" : "not ");
         }
         return true;
     }

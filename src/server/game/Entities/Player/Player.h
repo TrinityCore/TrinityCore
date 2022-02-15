@@ -32,7 +32,6 @@
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
 #include "SceneMgr.h"
-#include <queue>
 
 struct AccessRequirement;
 struct AchievementEntry;

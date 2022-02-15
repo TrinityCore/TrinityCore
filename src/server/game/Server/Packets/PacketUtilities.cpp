@@ -17,7 +17,6 @@
 
 #include "PacketUtilities.h"
 #include "Hyperlinks.h"
-#include "Errors.h"
 #include <utf8.h>
 #include <sstream>
 

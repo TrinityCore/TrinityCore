@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameEventMgr.h"
@@ -35,7 +36,6 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "PoolMgr.h"
@@ -321,12 +321,12 @@ public:
 
         if (GameObject::DeleteFromDB(spawnId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, std::to_string(spawnId));
+            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, std::to_string(spawnId).c_str());
             return true;
         }
         else
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(spawnId));
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(spawnId).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -560,7 +560,7 @@ public:
         {
             float yaw, pitch, roll;
             spawnData->rotation.toEulerAnglesZYX(yaw, pitch, roll);
-            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, std::to_string(spawnData->spawnId), spawnData->spawnPoint.GetPositionX(), spawnData->spawnPoint.GetPositionY(), spawnData->spawnPoint.GetPositionZ());
+            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, std::to_string(spawnData->spawnId).c_str(), spawnData->spawnPoint.GetPositionX(), spawnData->spawnPoint.GetPositionY(), spawnData->spawnPoint.GetPositionZ());
             handler->PSendSysMessage(LANG_SPAWNINFO_ROTATION, yaw, pitch, roll);
         }
 

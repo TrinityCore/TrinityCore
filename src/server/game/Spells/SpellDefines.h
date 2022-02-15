@@ -19,6 +19,7 @@
 #define TRINITY_SPELLDEFINES_H
 
 #include "Define.h"
+#include "FlagsArray.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -34,6 +35,8 @@ class Spell;
 class Unit;
 class WorldObject;
 enum Difficulty : uint8;
+enum ProcFlags : uint32;
+enum ProcFlags2 : int32;
 
 namespace UF
 {
@@ -482,6 +485,51 @@ struct SpellCastVisual
 
     operator UF::SpellCastVisual() const;
     operator WorldPackets::Spells::SpellCastVisual() const;
+};
+
+class ProcFlagsInit : public FlagsArray<int32, 2>
+{
+    using Base = FlagsArray<int32, 2>;
+
+public:
+    constexpr ProcFlagsInit(ProcFlags procFlags = {}, ProcFlags2 procFlags2 = {})
+    {
+        _storage[0] = int32(procFlags);
+        _storage[1] = int32(procFlags2);
+    }
+
+    constexpr ProcFlagsInit& operator|=(ProcFlags procFlags)
+    {
+        _storage[0] |= int32(procFlags);
+        return *this;
+    }
+
+    constexpr ProcFlagsInit& operator|=(ProcFlags2 procFlags2)
+    {
+        _storage[1] |= int32(procFlags2);
+        return *this;
+    }
+
+    using Base::operator&;
+
+    constexpr ProcFlags operator&(ProcFlags procFlags) const
+    {
+        return static_cast<ProcFlags>(_storage[0] & procFlags);
+    }
+
+    constexpr ProcFlags2 operator&(ProcFlags2 procFlags2) const
+    {
+        return static_cast<ProcFlags2>(_storage[1] & procFlags2);
+    }
+
+    using Base::operator=;
+
+    constexpr ProcFlagsInit& operator=(Base const& right)
+    {
+        _storage[0] = right[0];
+        _storage[1] = right[1];
+        return *this;
+    }
 };
 
 #endif

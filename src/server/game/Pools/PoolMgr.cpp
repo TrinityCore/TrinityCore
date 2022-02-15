@@ -32,6 +32,9 @@ PoolObject::PoolObject(uint64 _guid, float _chance) : guid(_guid), chance(std::f
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
 
+ActivePoolData::ActivePoolData() = default;
+ActivePoolData::~ActivePoolData() = default;
+
 // Method that tell amount spawned objects/subpools
 uint32 ActivePoolData::GetActiveObjectCount(uint32 pool_id) const
 {
@@ -110,6 +113,14 @@ void ActivePoolData::RemoveObject<Pool>(uint64 sub_pool_id, uint32 pool_id)
 
 ////////////////////////////////////////////////////////////
 // Methods of template class PoolGroup
+
+template <class T>
+PoolGroup<T>::PoolGroup(): poolId(0)
+{
+}
+
+template <class T>
+PoolGroup<T>::~PoolGroup() = default;
 
 // Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
 template <class T>
@@ -422,7 +433,8 @@ void PoolGroup<Pool>::RemoveRespawnTimeFromDB(uint64 /*guid*/) { }
 ////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
 
-PoolMgr::PoolMgr() { }
+PoolMgr::PoolMgr() = default;
+PoolMgr::~PoolMgr() = default;
 
 void PoolMgr::Initialize()
 {

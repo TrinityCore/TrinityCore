@@ -21,6 +21,7 @@
 #include "DB2Meta.h"
 #include "Errors.h"
 #include "Log.h"
+#include <cstring>
 
 DB2LoadInfo::DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement)
     : DB2FileLoadInfo(fields, fieldCount, meta), Statement(statement)

@@ -20,9 +20,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "the_black_morass.h"
 

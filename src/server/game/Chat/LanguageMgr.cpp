@@ -22,6 +22,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Timer.h"
+#include "Util.h"
 #include <sstream>
 
 LanguageMgr::LanguageMgr() : _langsMap(), _wordsMap() { }

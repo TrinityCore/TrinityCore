@@ -26,13 +26,10 @@ EndScriptData */
 #include "ArenaTeamMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Language.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"
-
 
 using namespace Trinity::ChatCommands;
 class arena_commandscript : public CommandScript
@@ -62,7 +59,7 @@ public:
     {
         if (sArenaTeamMgr->GetArenaTeamByName(name))
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, name);
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, name.c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }

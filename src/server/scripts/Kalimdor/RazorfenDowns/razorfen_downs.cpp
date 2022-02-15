@@ -35,7 +35,6 @@ EndContentData */
 #include "Player.h"
 #include "razorfen_downs.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
 /*###

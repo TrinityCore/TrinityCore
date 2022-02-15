@@ -254,6 +254,16 @@ namespace WorldPackets
 
             ObjectGuid PetGuid;
         };
+
+        class BattlePetUpdateNotify final : public ClientPacket
+        {
+        public:
+            BattlePetUpdateNotify(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_UPDATE_NOTIFY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGuid;
+        };
     }
 }
 

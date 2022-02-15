@@ -31,7 +31,6 @@
 #include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
@@ -46,7 +45,6 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "Weather.h"
-#include "WeatherMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <G3D/g3dmath.h>
@@ -5324,13 +5322,13 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     Unit::DealDamageMods(caster, target, damage, &absorb);
 
     // Set trigger flag
-    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask = damageInfo.GetHitMask();
+    ProcFlagsInit procAttacker = PROC_FLAG_DEAL_HARMFUL_PERIODIC;
+    ProcFlagsInit procVictim   = PROC_FLAG_TAKE_HARMFUL_PERIODIC;
+    ProcFlagsHit hitMask = damageInfo.GetHitMask();
     if (damage)
     {
         hitMask |= crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
-        procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+        procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
     }
 
     int32 overkill = damage - target->GetHealth();
@@ -5420,13 +5418,13 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         log.HitInfo |= SPELL_HIT_TYPE_CRIT;
 
     // Set trigger flag
-    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask = damageInfo.GetHitMask();
+    ProcFlagsInit procAttacker = PROC_FLAG_DEAL_HARMFUL_PERIODIC;
+    ProcFlagsInit procVictim   = PROC_FLAG_TAKE_HARMFUL_PERIODIC;
+    ProcFlagsHit hitMask = damageInfo.GetHitMask();
     if (damage)
     {
         hitMask |= crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
-        procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+        procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
     }
 
     int32 new_damage = Unit::DealDamage(caster, target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), false);
@@ -5445,7 +5443,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     caster->HealBySpell(healInfo);
 
     caster->GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal() * 0.5f, GetSpellInfo());
-    Unit::ProcSkillsAndAuras(caster, caster, PROC_FLAG_DONE_PERIODIC, PROC_FLAG_TAKEN_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
+    Unit::ProcSkillsAndAuras(caster, caster, PROC_FLAG_DEAL_HARMFUL_PERIODIC, PROC_FLAG_TAKE_HARMFUL_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
 
     caster->SendSpellNonMeleeDamageLog(&log);
 }
@@ -5477,7 +5475,7 @@ void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) 
 
     HealInfo healInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
     caster->HealBySpell(healInfo);
-    Unit::ProcSkillsAndAuras(caster, target, PROC_FLAG_DONE_PERIODIC, PROC_FLAG_TAKEN_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, PROC_HIT_NORMAL, nullptr, nullptr, &healInfo);
+    Unit::ProcSkillsAndAuras(caster, target, PROC_FLAG_DEAL_HARMFUL_PERIODIC, PROC_FLAG_TAKE_HARMFUL_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, PROC_HIT_NORMAL, nullptr, nullptr, &healInfo);
 }
 
 void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
@@ -5534,9 +5532,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
         return;
 
-    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask = crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
+    ProcFlagsInit procAttacker = PROC_FLAG_DEAL_HARMFUL_PERIODIC;
+    ProcFlagsInit procVictim   = PROC_FLAG_TAKE_HARMFUL_PERIODIC;
+    ProcFlagsHit hitMask = crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
     // ignore item heals
     if (GetBase()->GetCastItemGUID().IsEmpty())
         Unit::ProcSkillsAndAuras(caster, target, procAttacker, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
@@ -5696,13 +5694,13 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     Unit::DealDamageMods(damageInfo.attacker, damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
     // Set trigger flag
-    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
-    uint32 hitMask      = createProcHitMask(&damageInfo, SPELL_MISS_NONE);
-    uint32 spellTypeMask = PROC_SPELL_TYPE_NO_DMG_HEAL;
+    ProcFlagsInit procAttacker = PROC_FLAG_DEAL_HARMFUL_PERIODIC;
+    ProcFlagsInit procVictim   = PROC_FLAG_TAKE_HARMFUL_PERIODIC;
+    ProcFlagsHit hitMask       = createProcHitMask(&damageInfo, SPELL_MISS_NONE);
+    ProcFlagsSpellType spellTypeMask = PROC_SPELL_TYPE_NO_DMG_HEAL;
     if (damageInfo.damage)
     {
-        procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+        procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
         spellTypeMask |= PROC_SPELL_TYPE_DAMAGE;
     }
 

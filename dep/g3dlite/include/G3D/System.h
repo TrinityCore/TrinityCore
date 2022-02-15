@@ -21,6 +21,10 @@
 #include "G3D/FileNotFound.h"
 #include <string>
 
+#ifdef G3D_WINDOWS
+#include <Windows.h>
+#endif
+
 #if defined(__aarch64__)
 #include <sys/time.h>
 #endif

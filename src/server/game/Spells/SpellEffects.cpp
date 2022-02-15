@@ -2928,18 +2928,10 @@ void Spell::EffectInterruptCast()
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
                 && curSpellInfo->CanBeInterrupted(m_caster, unitTarget))
             {
-                if (Unit* unitCaster = GetUnitCasterForEffectHandlers())
-                {
-                    int32 duration = m_spellInfo->GetDuration();
-                    duration = unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effectInfo->EffectIndex);
-                    unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), Milliseconds(duration));
-                    if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
-                        Unit::ProcSkillsAndAuras(unitCaster, unitTarget, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG,
-                            PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_INTERRUPT, nullptr, nullptr, nullptr);
-                    else if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE)
-                        Unit::ProcSkillsAndAuras(unitCaster, unitTarget, PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS, PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS,
-                            PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_INTERRUPT, nullptr, nullptr, nullptr);
-                }
+                int32 duration = m_spellInfo->GetDuration();
+                duration = unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effectInfo->EffectIndex);
+                unitTarget->GetSpellHistory()->LockSpellSchool(curSpellInfo->GetSchoolMask(), Milliseconds(duration));
+                m_hitMask |= PROC_HIT_INTERRUPT;
                 SendSpellInterruptLog(unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
             }
@@ -4079,6 +4071,9 @@ void Spell::EffectKnockBack()
         origin = m_caster->GetPosition();
 
     unitTarget->KnockbackFrom(origin, speedxy, speedz);
+
+    Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, PROC_FLAG_NONE, { PROC_FLAG_NONE, PROC_FLAG_2_KNOCKBACK },
+        PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }
 
 void Spell::EffectLeapBack()
@@ -4092,7 +4087,7 @@ void Spell::EffectLeapBack()
     float speedxy = effectInfo->MiscValue / 10.f;
     float speedz = damage / 10.f;
     // Disengage
-    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->IconFileDataId != 132572);
+    unitTarget->JumpTo(speedxy, speedz, effectInfo->PositionFacing);
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4185,7 +4180,7 @@ void Spell::EffectPullTowards()
         return;
     }
 
-    unitTarget->JumpTo(speedXY, speedZ, true, pos);
+    unitTarget->JumpTo(speedXY, speedZ, 0.0f, pos);
 }
 
 void Spell::EffectPullTowardsDest()
@@ -4221,7 +4216,7 @@ void Spell::EffectPullTowardsDest()
         return;
     }
 
-    unitTarget->JumpTo(speedXY, speedZ, true, *pos);
+    unitTarget->JumpTo(speedXY, speedZ, 0.0f, *pos);
 }
 
 void Spell::EffectChangeRaidMarker()

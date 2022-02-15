@@ -23,6 +23,7 @@
 #include <mysqld_error.h>
 #include <sstream>
 #include <thread>
+#include <cstring>
 
 std::mutex TransactionTask::_deadlockLock;
 

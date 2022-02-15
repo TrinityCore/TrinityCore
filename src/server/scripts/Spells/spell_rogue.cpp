@@ -229,7 +229,7 @@ class spell_rog_deadly_poison : public SpellScript
                         continue;
 
                     // Do not reproc deadly
-                    if (spellInfo->SpellFamilyFlags == flag128(0x10000, 0x80000, 0, 0))
+                    if (spellInfo->SpellFamilyFlags & flag128(0x10000))
                         continue;
 
                     if (spellInfo->IsPositive())

@@ -23,7 +23,6 @@
 #include "ObjectGuid.h"
 #include <list>
 #include <string>
-#include <map>
 
 class WorldSession;
 class WorldPacket;

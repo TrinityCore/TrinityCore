@@ -23,12 +23,10 @@
 #include "GameTime.h"
 #include "Log.h"
 #include "Map.h"
-#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "StringConvert.h"
 #include "UpdateData.h"
-#include "World.h"
 #include <sstream>
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)

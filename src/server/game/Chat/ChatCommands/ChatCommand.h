@@ -23,7 +23,6 @@
 #include "ChatCommandTags.h"
 #include "Define.h"
 #include "Errors.h"
-#include "ObjectGuid.h"
 #include "Optional.h"
 #include "StringFormat.h"
 #include <cstddef>

@@ -19,6 +19,7 @@
 #define __TRINITY_ACHIEVEMENTMGR_H
 
 #include "CriteriaHandler.h"
+#include "DatabaseEnvFwd.h"
 
 class Guild;
 
@@ -146,10 +147,16 @@ private:
 
 class TC_GAME_API AchievementGlobalMgr
 {
-    AchievementGlobalMgr() { }
-    ~AchievementGlobalMgr() { }
+    AchievementGlobalMgr();
+    ~AchievementGlobalMgr();
 
 public:
+    AchievementGlobalMgr(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr(AchievementGlobalMgr&&) = delete;
+
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr const&) = delete;
+    AchievementGlobalMgr& operator=(AchievementGlobalMgr&&) = delete;
+
     static AchievementGlobalMgr* Instance();
 
     std::vector<AchievementEntry const*> const* GetAchievementByReferencedId(uint32 id) const;

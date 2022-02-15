@@ -17,7 +17,6 @@
 
 #include "WorldSession.h"
 #include "Battleground.h"
-#include "Common.h"
 #include "Corpse.h"
 #include "DB2Stores.h"
 #include "FlightPathMovementGenerator.h"
@@ -30,7 +29,6 @@
 #include "MiscPackets.h"
 #include "MovementPackets.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "MotionMaster.h"

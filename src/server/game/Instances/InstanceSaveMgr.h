@@ -24,7 +24,6 @@
 #include <unordered_map>
 
 #include "Define.h"
-#include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
 
@@ -53,6 +52,11 @@ class TC_GAME_API InstanceSave
         /* Unloaded when m_playerList and m_groupList become empty
            or when the instance is reset */
         ~InstanceSave();
+
+        InstanceSave(InstanceSave const& right) = delete;
+        InstanceSave(InstanceSave&& right) = delete;
+        InstanceSave& operator=(InstanceSave const& right) = delete;
+        InstanceSave& operator=(InstanceSave&& right) = delete;
 
         uint32 GetPlayerCount() const { return uint32(m_playerList.size()); }
         uint32 GetGroupCount() const { return uint32(m_groupList.size()); }

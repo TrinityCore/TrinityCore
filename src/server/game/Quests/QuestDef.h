@@ -19,8 +19,8 @@
 #define TRINITYCORE_QUEST_H
 
 #include "Common.h"
-#include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumFlag.h"
 #include "LootItemType.h"
 #include "Optional.h"
 #include "RaceMask.h"
@@ -30,6 +30,7 @@
 #include <vector>
 
 class Player;
+enum Difficulty : uint8;
 
 namespace WorldPackets
 {
