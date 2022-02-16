@@ -8,6 +8,12 @@
 #include "Errors.h"
 #include "GitRevision.h"
 #include <algorithm>
+
+#ifdef __clang__
+// clang-cl doesn't have these hardcoded types available, correct ehdata_forceinclude.h that relies on it
+#define _ThrowInfo ThrowInfo
+#endif
+
 #include <ehdata.h>
 #include <rttidata.h>
 #include <tlhelp32.h>
