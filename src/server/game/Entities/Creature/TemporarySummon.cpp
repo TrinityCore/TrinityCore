@@ -256,7 +256,7 @@ void TempSummon::UpdateObjectVisibilityOnCreate()
         SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(GetDemonCreatorGUID());
         if (infoForSeer && infoForSeer->ReplaceObject && smoothPhasing->IsReplacing(*infoForSeer->ReplaceObject))
             if (WorldObject* original = ObjectAccessor::GetWorldObject(*this, *infoForSeer->ReplaceObject))
-			{
+            {
                 objectsToUpdate.push_back(original);
 
                 if (WorldObject* invoker = ObjectAccessor::GetWorldObject(*this, *infoForSeer->Invoker))
