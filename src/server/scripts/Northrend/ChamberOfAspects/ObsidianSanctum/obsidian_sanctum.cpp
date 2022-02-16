@@ -653,21 +653,16 @@ class npc_acolyte_of_shadron : public CreatureScript
                 if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                instance->instance->DoOnPlayers([](Player* player)
                 {
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
+                    if (player->IsAlive() && player->HasAura(SPELL_TWILIGHT_SHIFT) && !player->GetVictim())
                     {
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
+                        player->CastSpell(player, SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
+                        player->CastSpell(player, SPELL_TWILIGHT_RESIDUE, true);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
                     }
-                }
+                });
 
                 // not solo fight, so main boss has debuff
                 if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
@@ -737,23 +732,19 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                instance->instance->DoOnPlayers([](Player* player)
                 {
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
+                    if (player->IsAlive() && player->HasAura(SPELL_TWILIGHT_SHIFT) && !player->GetVictim())
                     {
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
+                        player->CastSpell(player, SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
+                        player->CastSpell(player, SPELL_TWILIGHT_RESIDUE, true);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
                     }
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_TORMENT_VESP) && !i->GetSource()->GetVictim())
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
-                }
+
+                    if (player->IsAlive() && player->HasAura(SPELL_TWILIGHT_TORMENT_VESP) && !player->GetVictim())
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
+                });
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO, true, true);
                 instance->DoRemoveAurasDueToSpellOnPlayers(57935, true, true);

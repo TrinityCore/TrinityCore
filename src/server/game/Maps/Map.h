@@ -26,6 +26,7 @@
 #include "GridDefines.h"
 #include "GridRefManager.h"
 #include "MapDefines.h"
+#include "MapReference.h"
 #include "MapRefManager.h"
 #include "MPSCQueue.h"
 #include "ObjectGuid.h"
@@ -432,6 +433,14 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
+
+        template <typename T>
+        void DoOnPlayers(T&& fn)
+        {
+            for (MapReference const& ref : GetPlayers())
+                if (Player* player = ref.GetSource())
+                    fn(player);
+        }
 
         //per-map script storage
         void ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo>> const& scripts, uint32 id, Object* source, Object* target);

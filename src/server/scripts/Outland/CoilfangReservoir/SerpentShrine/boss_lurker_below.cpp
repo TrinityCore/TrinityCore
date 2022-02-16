@@ -285,12 +285,11 @@ public:
 
                 if (RotTimer)
                 {
-                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                    instance->instance->DoOnPlayers([this, diff](Player* player)
                     {
-                        if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
-                            DoCast(i->GetSource(), SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
-                    }
+                        if (player->IsAlive() && me->HasInArc(diff / 20000.f * float(M_PI) * 2.f, player) && me->IsWithinDist(player, SPOUT_DIST) && !player->IsInWater())
+                            DoCast(player, SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
+                    });
 
                     if (SpoutAnimTimer <= diff)
                     {

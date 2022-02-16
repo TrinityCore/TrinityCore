@@ -28,6 +28,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "InstanceScript.h"
 
 enum Spells
 {
@@ -110,21 +111,22 @@ public:
             //Inhibitmagic_Timer
             if (Inhibitmagic_Timer <= diff)
             {
-                float dist;
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* i_pl = i->GetSource())
-                        if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
-                        {
-                            i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
-                            me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                            if (dist < 35)
-                                me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                            if (dist < 25)
-                                me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                            if (dist < 15)
-                                me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        }
+                me->GetMap()->DoOnPlayers([this](Player* player)
+                {
+                    float dist = player->GetDistance(me);
+
+                    if (player->IsAlive() && dist < 45.f)
+                    {
+                        player->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
+                        me->AddAura(SPELL_INHIBITMAGIC, player);
+                        if (dist < 35)
+                            me->AddAura(SPELL_INHIBITMAGIC, player);
+                        if (dist < 25)
+                            me->AddAura(SPELL_INHIBITMAGIC, player);
+                        if (dist < 15)
+                            me->AddAura(SPELL_INHIBITMAGIC, player);
+                    }
+                });
                 Inhibitmagic_Timer = 3000 + (rand32() % 1000);
             } else Inhibitmagic_Timer -= diff;
 
