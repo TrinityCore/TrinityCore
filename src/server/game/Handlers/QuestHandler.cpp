@@ -383,7 +383,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
     {
         if (_player->CanRewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, true)) // Then check if player can receive the reward item (if inventory is not full, if player doesn't have too many unique items, and so on). If not, the client will close the gossip window
         {
-            _player->RewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, object);
+            _player->RewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, object, true, false);
 
             switch (object->GetTypeId())
             {
@@ -432,6 +432,9 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                 default:
                     break;
             }
+
+            _player->GetMap()->SendUpdateTransportVisibility(_player);
+            _player->UpdateObjectVisibility();
         }
     }
     else

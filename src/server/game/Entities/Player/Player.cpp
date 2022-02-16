@@ -15614,7 +15614,7 @@ void Player::RewardQuestPackage(uint32 questPackageId, uint32 onlyItemId /*= 0*/
     }
 }
 
-void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rewardId, Object* questGiver, bool announce)
+void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rewardId, Object* questGiver, bool announce, bool updateVisibility /*= true*/)
 {
     //this THING should be here to protect code from quest, which cast on player far teleport as a reward
     //should work fine, cause far teleport will be executed in Player::Update()
@@ -15833,9 +15833,9 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         UpdatePvPState();
     }
 
-    SendQuestUpdate(quest_id);
-
     SendQuestGiverStatusMultiple();
+
+    SendQuestUpdate(quest_id, updateVisibility);
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -16533,7 +16533,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SendQuestUpdate(questId);
 }
 
-void Player::SendQuestUpdate(uint32 questId)
+void Player::SendQuestUpdate(uint32 questId, bool updateVisibility /*= true*/)
 {
     SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(questId);
 
@@ -16582,7 +16582,7 @@ void Player::SendQuestUpdate(uint32 questId)
     }
 
     UpdateVisibleGameobjectsOrSpellClicks();
-    PhasingHandler::OnConditionChange(this);
+    PhasingHandler::OnConditionChange(this, updateVisibility);
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
@@ -25401,6 +25401,10 @@ void Player::UpdateVisibleGameobjectsOrSpellClicks()
             }
         }
     }
+
+    if (!udata.HasData())
+        return;
+
     udata.BuildPacket(&packet);
     SendDirectMessage(&packet);
 }

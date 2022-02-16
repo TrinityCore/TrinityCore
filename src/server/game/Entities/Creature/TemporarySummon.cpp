@@ -248,7 +248,7 @@ void TempSummon::InitSummon()
 
 void TempSummon::UpdateObjectVisibilityOnCreate()
 {
-    boost::container::small_vector<WorldObject*, 2> objectsToUpdate;
+    boost::container::small_vector<WorldObject*, 3> objectsToUpdate;
     objectsToUpdate.push_back(this);
 
     if (SmoothPhasing const* smoothPhasing = GetSmoothPhasing())
@@ -256,8 +256,12 @@ void TempSummon::UpdateObjectVisibilityOnCreate()
         SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(GetDemonCreatorGUID());
         if (infoForSeer && infoForSeer->ReplaceObject && smoothPhasing->IsReplacing(*infoForSeer->ReplaceObject))
             if (WorldObject* original = ObjectAccessor::GetWorldObject(*this, *infoForSeer->ReplaceObject))
+			{
                 objectsToUpdate.push_back(original);
-    }
+
+                if (WorldObject* invoker = ObjectAccessor::GetWorldObject(*this, *infoForSeer->Invoker))
+                    objectsToUpdate.push_back(invoker);
+            }
 
     Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
     Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());

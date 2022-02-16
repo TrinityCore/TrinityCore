@@ -32,6 +32,7 @@ struct SmoothPhasingInfo
 
     // Serverside fields
     bool Disabled = false;
+    Optional<ObjectGuid> Invoker;
 };
 
 class TC_GAME_API SmoothPhasing
