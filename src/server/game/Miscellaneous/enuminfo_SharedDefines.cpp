@@ -639,7 +639,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr3>::ToString(SpellAttr3 value)
         case SPELL_ATTR3_UNK2: return { "SPELL_ATTR3_UNK2", "Unknown attribute 2@Attr3", "" };
         case SPELL_ATTR3_BLOCKABLE_SPELL: return { "SPELL_ATTR3_BLOCKABLE_SPELL", "Blockable spell", "" };
         case SPELL_ATTR3_IGNORE_RESURRECTION_TIMER: return { "SPELL_ATTR3_IGNORE_RESURRECTION_TIMER", "Ignore resurrection timer", "" };
-        case SPELL_ATTR3_UNK5: return { "SPELL_ATTR3_UNK5", "Unknown attribute 5@Attr3", "" };
+        case SPELL_ATTR3_NO_DURABILITY_LOSS: return { "SPELL_ATTR3_NO_DURABILITY_LOSS", "No Durability Loss", "" };
         case SPELL_ATTR3_UNK6: return { "SPELL_ATTR3_UNK6", "Unknown attribute 6@Attr3", "" };
         case SPELL_ATTR3_STACK_FOR_DIFF_CASTERS: return { "SPELL_ATTR3_STACK_FOR_DIFF_CASTERS", "Stack separately for each caster", "" };
         case SPELL_ATTR3_ONLY_TARGET_PLAYERS: return { "SPELL_ATTR3_ONLY_TARGET_PLAYERS", "Can only target players", "" };
@@ -683,7 +683,7 @@ TC_API_EXPORT SpellAttr3 EnumUtils<SpellAttr3>::FromIndex(size_t index)
         case 2: return SPELL_ATTR3_UNK2;
         case 3: return SPELL_ATTR3_BLOCKABLE_SPELL;
         case 4: return SPELL_ATTR3_IGNORE_RESURRECTION_TIMER;
-        case 5: return SPELL_ATTR3_UNK5;
+        case 5: return SPELL_ATTR3_NO_DURABILITY_LOSS;
         case 6: return SPELL_ATTR3_UNK6;
         case 7: return SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
         case 8: return SPELL_ATTR3_ONLY_TARGET_PLAYERS;
@@ -724,7 +724,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr3>::ToIndex(SpellAttr3 value)
         case SPELL_ATTR3_UNK2: return 2;
         case SPELL_ATTR3_BLOCKABLE_SPELL: return 3;
         case SPELL_ATTR3_IGNORE_RESURRECTION_TIMER: return 4;
-        case SPELL_ATTR3_UNK5: return 5;
+        case SPELL_ATTR3_NO_DURABILITY_LOSS: return 5;
         case SPELL_ATTR3_UNK6: return 6;
         case SPELL_ATTR3_STACK_FOR_DIFF_CASTERS: return 7;
         case SPELL_ATTR3_ONLY_TARGET_PLAYERS: return 8;
