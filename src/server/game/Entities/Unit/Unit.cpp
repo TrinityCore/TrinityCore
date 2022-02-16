@@ -1250,7 +1250,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
     uint32 damage = 0;
     damage += CalculateDamage(damageInfo->AttackType, false, true);
     // Add melee damage bonus
-    damage = MeleeDamageBonusDone(damageInfo->Target, damage, damageInfo->AttackType, DIRECT_DAMAGE, nullptr, SpellSchoolMask(damageInfo->DamageSchoolMask));
+    damage = MeleeDamageBonusDone(damageInfo->Target, damage, damageInfo->AttackType, DIRECT_DAMAGE, nullptr, nullptr, SpellSchoolMask(damageInfo->DamageSchoolMask));
     damage = damageInfo->Target->MeleeDamageBonusTaken(this, damage, damageInfo->AttackType, DIRECT_DAMAGE, nullptr, SpellSchoolMask(damageInfo->DamageSchoolMask));
 
     // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
@@ -6368,7 +6368,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             return owner->SpellDamageBonusDone(victim, spellProto, pdamage, damagetype, spellEffectInfo, stack);
 
     int32 DoneTotal = 0;
-    float DoneTotalMod = SpellDamagePctDone(victim, spellProto, damagetype);
+    float DoneTotalMod = SpellDamagePctDone(victim, spellProto, damagetype, spellEffectInfo);
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
@@ -6435,7 +6435,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
-float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const
+float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype, SpellEffectInfo const& effect) const
 {
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
         return 1.0f;
@@ -6451,7 +6451,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // For totems get damage bonus from owner
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
         if (Unit* owner = GetOwner())
-            return owner->SpellDamagePctDone(victim, spellProto, damagetype);
+            return owner->SpellDamagePctDone(victim, spellProto, damagetype, effect);
 
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
@@ -6489,13 +6489,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     });
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
-    for (SpellEffectInfo const& spellEffectInfo : spellProto->GetEffects())
-    {
-        if (spellProto->Mechanic)
-            AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
-        else if (spellEffectInfo.Mechanic)            
-            AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellEffectInfo.Mechanic));
-    }
+    AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, effect.Mechanic));
 
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
@@ -7267,7 +7261,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
     return false;
 }
 
-uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto /*= nullptr*/, SpellSchoolMask damageSchoolMask /*= SPELL_SCHOOL_MASK_NORMAL*/)
+uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto /*= nullptr*/, SpellEffectInfo const* effect /*= nullptr*/, SpellSchoolMask damageSchoolMask /*= SPELL_SCHOOL_MASK_NORMAL*/)
 {
     if (!pVictim || damage == 0)
         return 0;
@@ -7350,16 +7344,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType
     });
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
-    if (spellProto)
-    {
-        for (SpellEffectInfo const& spellEffectInfo : spellProto->GetEffects())
-        {
-            if (spellProto->Mechanic)
-                AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
-            else if (spellEffectInfo.Mechanic)            
-                AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellEffectInfo.Mechanic));
-        }
-    }
+    if (effect)
+        AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, effect->Mechanic));
 
     float damageF = damage;
 
