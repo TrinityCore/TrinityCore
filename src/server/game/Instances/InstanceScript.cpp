@@ -589,7 +589,7 @@ void InstanceScript::DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn 
 
 void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 {
-    instance->DoOnPlayers([uiStateId, uiStateData](Player* player)
+    instance->DoOnPlayers([uiStateId, uiStateData](Player const* player)
     {
         player->SendUpdateWorldState(uiStateId, uiStateData);
     });
@@ -604,10 +604,9 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
     vsnprintf(buff, 1024, format, ap);
     va_end(ap);
 
-    instance->DoOnPlayers([buff](Player* player)
+    instance->DoOnPlayers([&buff](Player const* player)
     {
-        if (WorldSession * session = player->GetSession())
-            session->SendNotification("%s", buff);
+        player->GetSession()->SendNotification("%s", buff);
     });
 }
 
@@ -852,7 +851,7 @@ void InstanceScript::UpdateEncounterStateForSpellCast(uint32 spellId, Unit* sour
 
 void InstanceScript::UpdatePhasing()
 {
-    instance->DoOnPlayers([](Player* player)
+    instance->DoOnPlayers([](Player const* player)
     {
         PhasingHandler::SendToPlayer(player);
     });
