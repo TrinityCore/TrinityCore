@@ -18,6 +18,7 @@
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
@@ -108,7 +109,7 @@ class spell_ahnkahet_yogg_saron_whisper : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
+        if (Creature* caster = GetCaster()->ToCreature())
             if (Player* player = GetHitPlayer())
                 caster->Unit::Whisper(uint32(GetEffectValue()), player, false);
     }
