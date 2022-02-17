@@ -248,7 +248,7 @@ CREATE TABLE `broadcast_text` (
   `SoundEntriesID` mediumint unsigned NOT NULL DEFAULT '0',
   `EmotesID` mediumint unsigned NOT NULL DEFAULT '0',
   `Flags` mediumint unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1161,7 +1161,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1433 DEFAULT CHARSET=utf8mb3 COMMENT='Tele Command';
+) ENGINE=MyISAM AUTO_INCREMENT=1517 DEFAULT CHARSET=utf8mb3 COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2091,7 +2091,7 @@ CREATE TABLE `page_text` (
   `ID` mediumint unsigned NOT NULL DEFAULT '0',
   `Text` longtext NOT NULL,
   `NextPageID` mediumint unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COMMENT='Item System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2539,7 +2539,7 @@ CREATE TABLE `quest_details` (
   `EmoteDelay2` int unsigned NOT NULL DEFAULT '0',
   `EmoteDelay3` int unsigned NOT NULL DEFAULT '0',
   `EmoteDelay4` int unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2611,7 +2611,7 @@ CREATE TABLE `quest_offer_reward` (
   `EmoteDelay3` int unsigned NOT NULL DEFAULT '0',
   `EmoteDelay4` int unsigned NOT NULL DEFAULT '0',
   `RewardText` text,
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2716,7 +2716,7 @@ CREATE TABLE `quest_request_items` (
   `EmoteOnComplete` smallint unsigned NOT NULL DEFAULT '0',
   `EmoteOnIncomplete` smallint unsigned NOT NULL DEFAULT '0',
   `CompletionText` text,
-  `VerifiedBuild` smallint NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4061,4 +4061,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-15 18:06:00
+-- Dump completed on 2022-02-16 21:52:05
