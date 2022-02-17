@@ -18,7 +18,7 @@
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
