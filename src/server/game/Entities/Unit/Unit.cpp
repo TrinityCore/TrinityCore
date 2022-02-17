@@ -11579,7 +11579,7 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, S
 
     // melee attacks while dual wielding have +19% chance to miss
     if (!spellInfo && haveOffhandWeapon() && !IsInFeralForm() && !HasAuraType(SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY))
-        missChance += 19;
+        missChance += 19.0f;
 
     // Spellmod from SpellModOp::HitChance
     float resistMissChance = 100.0f;
