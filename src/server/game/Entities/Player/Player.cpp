@@ -873,6 +873,7 @@ void Player::StartBreathTimer()
 
 void Player::StopBreathTimer()
 {
+    m_MirrorTimerFlags &= ~UNDERWATER_INWATER;
     StopMirrorTimer(BREATH_TIMER);
 }
 
