@@ -17,14 +17,10 @@
 
 #include "ahnkahet.h"
 #include "AreaBoundary.h"
-#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptMgr.h"
-#include "SpellInfo.h"
-#include "SpellScript.h"
-#include "UnitAI.h"
 #include <sstream>
 
 DoorData const doorData[] =
@@ -153,66 +149,7 @@ class instance_ahnkahet : public InstanceMapScript
         }
 };
 
-// 56584 - Combined Toxins
-class spell_combined_toxins : public AuraScript
-{
-    PrepareAuraScript(spell_combined_toxins);
-
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        // only procs on poisons (damage class check to exclude stuff like Envenom)
-        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        return (spellInfo && spellInfo->Dispel == DISPEL_POISON && spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE);
-    }
-
-    void Register() override
-    {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_combined_toxins::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_DAMAGE);
-    }
-};
-
-// 56702, 59103 - Shadow Sickle
-class spell_shadow_sickle : public AuraScript
-{
-    PrepareAuraScript(spell_shadow_sickle);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHADOW_SICKLE_TRIGGERED, SPELL_SHADOW_SICKLE_TRIGGERED_H });
-    }
-
-    void HandlePeriodic(AuraEffect const* aurEff)
-    {
-        Unit* owner = GetUnitOwner();
-
-        uint32 spellId = 0;
-
-        switch (GetId())
-        {
-            case 56702:
-                spellId = SPELL_SHADOW_SICKLE_TRIGGERED;
-                break;
-            case 59103:
-                spellId = SPELL_SHADOW_SICKLE_TRIGGERED_H;
-                break;
-            default:
-                return;
-        }
-
-        if (owner->IsAIEnabled())
-            if (Unit* target = owner->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 40.f))
-                owner->CastSpell(target, spellId, CastSpellExtraArgs(aurEff).SetTriggerFlags(TriggerCastFlags::TRIGGERED_FULL_MASK));
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadow_sickle::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
 void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
-    RegisterSpellScript(spell_combined_toxins);
-    RegisterSpellScript(spell_shadow_sickle);
 }

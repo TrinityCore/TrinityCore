@@ -78,12 +78,6 @@ enum AKGameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-enum AKSpellIds
-{
-    SPELL_SHADOW_SICKLE_TRIGGERED   = 56701,
-    SPELL_SHADOW_SICKLE_TRIGGERED_H = 59104,
-};
-
 template <class AI, class T>
 inline AI* GetAhnKahetAI(T* obj)
 {
