@@ -860,6 +860,22 @@ void Player::HandleDrowning(uint32 time_diff)
     m_MirrorTimerFlagsLast = m_MirrorTimerFlags;
 }
 
+void Player::StartBreathTimer()
+{
+    uint32 maxValue = getMaxTimer(BREATH_TIMER);
+    uint32 currentValue = maxValue;
+
+    m_MirrorTimerFlags |= UNDERWATER_INWATER;
+    m_MirrorTimer[BREATH_TIMER] = maxValue;
+
+    SendMirrorTimer(BREATH_TIMER, maxValue, currentValue, -1);
+}
+
+void Player::StopBreathTimer()
+{
+    StopMirrorTimer(BREATH_TIMER);
+}
+
 ///The player sobers by 1% every 9 seconds
 void Player::HandleSobering()
 {
