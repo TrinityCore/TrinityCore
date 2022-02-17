@@ -1405,6 +1405,7 @@ class spell_gen_despawn_aura : public AuraScript
     }
 };
 
+/// @todo: migrate spells to spell_gen_despawn_target, then remove this
 class spell_gen_despawn_self : public SpellScript
 {
     PrepareSpellScript(spell_gen_despawn_self);
@@ -1423,6 +1424,23 @@ class spell_gen_despawn_self : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
+    }
+};
+
+class spell_gen_despawn_target : public SpellScript
+{
+    PrepareSpellScript(spell_gen_despawn_target);
+
+    void HandleDespawn(SpellEffIndex /*effIndex*/)
+    {
+        if (GetEffectInfo().IsEffect(SPELL_EFFECT_DUMMY) || GetEffectInfo().IsEffect(SPELL_EFFECT_SCRIPT_EFFECT))
+            if (Creature* target = GetHitCreature())
+                target->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_target::HandleDespawn, EFFECT_ALL, SPELL_EFFECT_ANY);
     }
 };
 
@@ -4568,6 +4586,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_defend);
     RegisterSpellScript(spell_gen_despawn_aura);
     RegisterSpellScript(spell_gen_despawn_self);
+    RegisterSpellScript(spell_gen_despawn_target);
     RegisterSpellScript(spell_gen_divine_storm_cd_reset);
     RegisterSpellScript(spell_gen_ds_flush_knockback);
     RegisterSpellScript(spell_gen_dungeon_credit);
