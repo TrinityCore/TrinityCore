@@ -20,7 +20,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
@@ -122,9 +121,9 @@ struct boss_exarch_maladaar : public BossAI
         }
     }
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    void OnSpellCast(SpellInfo const* spell) override
     {
-        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && spell->Id == SPELL_STOLEN_SOUL)
+        if (spell->Id == SPELL_STOLEN_SOUL)
             if (roll_chance_i(25))
                 Talk(SAY_SOUL_CLEAVE);
     }

@@ -24,7 +24,6 @@
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -247,11 +246,8 @@ struct boss_garothi_worldbreaker : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    void OnSpellCast(SpellInfo const* spell) override
     {
-        if (reason != SPELL_FINISHED_SUCCESSFUL_CAST)
-            return;
-
         switch (spell->Id)
         {
             case SPELL_APOCALYPSE_DRIVE_FINAL_DAMAGE:

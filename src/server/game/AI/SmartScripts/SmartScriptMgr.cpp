@@ -841,6 +841,9 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_SCENE_CANCEL: return NO_PARAMS;
             case SMART_EVENT_SCENE_COMPLETE: return NO_PARAMS;
             case SMART_EVENT_SUMMONED_UNIT_DIES: return sizeof(SmartEvent::summoned);
+            case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1172,6 +1175,17 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 if (!IsMinMaxValid(e, e.event.spellHit.cooldownMin, e.event.spellHit.cooldownMax))
                     return false;
                 break;
+            case SMART_EVENT_ON_SPELL_CAST:
+            case SMART_EVENT_ON_SPELL_FAILED:
+            case SMART_EVENT_ON_SPELL_START:
+            {
+                if (!IsSpellValid(e, e.event.spellCast.spell))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.spellCast.cooldownMin, e.event.spellCast.cooldownMax))
+                    return false;
+                break;
+            }
             case SMART_EVENT_OOC_LOS:
             case SMART_EVENT_IC_LOS:
                 if (!IsMinMaxValid(e, e.event.los.cooldownMin, e.event.los.cooldownMax))

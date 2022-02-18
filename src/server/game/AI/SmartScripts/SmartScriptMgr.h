@@ -181,8 +181,11 @@ enum SMART_EVENT
     SMART_EVENT_SCENE_CANCEL             = 80,      // none
     SMART_EVENT_SCENE_COMPLETE           = 81,      // none
     SMART_EVENT_SUMMONED_UNIT_DIES       = 82,      // CreatureId(0 all), CooldownMin, CooldownMax
+    SMART_EVENT_ON_SPELL_CAST            = 83,      // SpellID, CooldownMin, CooldownMax
+    SMART_EVENT_ON_SPELL_FAILED          = 84,      // SpellID, CooldownMin, CooldownMax
+    SMART_EVENT_ON_SPELL_START           = 85,      // SpellID, CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 83
+    SMART_EVENT_END                      = 86
 };
 
 struct SmartEvent
@@ -411,6 +414,13 @@ struct SmartEvent
             uint32 cooldownMin;
             uint32 cooldownMax;
         } counter;
+
+        struct
+        {
+            uint32 spell;
+            uint32 cooldownMin;
+            uint32 cooldownMax;
+        } spellCast;
 
         struct
         {
@@ -1543,6 +1553,9 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_SCENE_CANCEL,              SMART_SCRIPT_TYPE_MASK_SCENE },
     {SMART_EVENT_SCENE_COMPLETE,            SMART_SCRIPT_TYPE_MASK_SCENE },
     {SMART_EVENT_SUMMONED_UNIT_DIES,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_EVENT_ON_SPELL_CAST,             SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_ON_SPELL_FAILED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
 };
 
 enum SmartEventFlags

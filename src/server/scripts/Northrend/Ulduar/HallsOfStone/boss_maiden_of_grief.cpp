@@ -19,7 +19,6 @@
 #include "halls_of_stone.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
@@ -83,9 +82,9 @@ struct boss_maiden_of_grief : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    void OnSpellCast(SpellInfo const* spell) override
     {
-        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && spell->Id == SPELL_SHOCK_OF_SORROW)
+        if (spell->Id == SPELL_SHOCK_OF_SORROW)
             Talk(SAY_STUN);
     }
 
