@@ -22,10 +22,6 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptMgr.h"
-#include "SpellInfo.h"
-#include "SpellScript.h"
-#include "SpellMgr.h"
-#include "UnitAI.h"
 
 DoorData const doorData[] =
 {
@@ -153,77 +149,7 @@ class instance_ahnkahet : public InstanceMapScript
         }
 };
 
-// 56584 - Combined Toxins
-class spell_combined_toxins : public AuraScript
-{
-    PrepareAuraScript(spell_combined_toxins);
-
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        // only procs on poisons (damage class check to exclude stuff like Envenom)
-        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        return (spellInfo && spellInfo->Dispel == DISPEL_POISON && spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE);
-    }
-
-    void Register() override
-    {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_combined_toxins::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_DAMAGE);
-    }
-};
-
-// 56698, 59102 - Shadow Blast
-class spell_shadow_blast : public SpellScript
-{
-    PrepareSpellScript(spell_shadow_blast);
-
-    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-        if (!target)
-            return;
-
-        SetHitDamage(target->GetMaxHealth() * GetEffectInfo().BasePoints / 100);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_shadow_blast::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-// 56702, 59103 - Shadow Sickle
-class spell_shadow_sickle : public AuraScript
-{
-    PrepareAuraScript(spell_shadow_sickle);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHADOW_SICKLE_TRIGGERED });
-    }
-
-    void HandlePeriodic(AuraEffect const* aurEff)
-    {
-        Unit* owner = GetUnitOwner();
-
-        uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SHADOW_SICKLE_TRIGGERED, owner);
-        if (!spellId)
-            return;
-
-        if (owner->IsAIEnabled())
-            if (Unit* target = owner->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 40.f))
-                owner->CastSpell(target, spellId, CastSpellExtraArgs(aurEff).SetTriggerFlags(TriggerCastFlags::TRIGGERED_FULL_MASK));
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadow_sickle::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
 void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
-    RegisterSpellScript(spell_combined_toxins);
-    RegisterSpellScript(spell_shadow_blast);
-    RegisterSpellScript(spell_shadow_sickle);
 }
