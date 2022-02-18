@@ -1345,9 +1345,9 @@ struct npc_shambling_horror_icc : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    void OnSpellFailed(SpellInfo const* spell) override
     {
-        if (reason == SPELL_FINISHED_CANCELED && spell->Id == ENRAGE)
+        if (spell->Id == ENRAGE)
             _events.RescheduleEvent(EVENT_ENRAGE, 1s);
     }
 
