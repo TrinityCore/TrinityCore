@@ -67,6 +67,8 @@
 #include "TSSpellInfo.h"
 #include "TSUnit.h"
 #include "TSCreature.h"
+#include "TSCorpse.h"
+#include "TSGameObject.h"
 #include "TSWorldObject.h"
 #include "TSMacros.h"
 // @tswow-end
@@ -5102,7 +5104,26 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
     // we do not need DamageMultiplier here.
     damage = CalculateDamage(spellEffectInfo);
 
-    bool preventDefault = CallScriptEffectHandlers(spellEffectInfo.EffectIndex, mode);
+    // @tswow-begin
+    bool preventDefault = false;
+    FIRE_MAP(
+        this->m_spellInfo->events
+        , SpellOnEffect
+        , TSSpell(this)
+        , TSMutable<bool>(&preventDefault)
+        , TSSpellEffectInfo(&spellEffectInfo)
+        , static_cast<uint32>(mode)
+        , TSUnit(pUnitTarget)
+        , TSItem(pItemTarget)
+        , TSGameObject(pGoTarget)
+        , TSCorpse(pCorpseTarget)
+    );
+    if (preventDefault)
+    {
+        return;
+    }
+    preventDefault = CallScriptEffectHandlers(spellEffectInfo.EffectIndex, mode);
+    // @tswow-end
 
     if (!preventDefault)
         (this->*SpellEffectHandlers[spellEffectInfo.Effect])();
