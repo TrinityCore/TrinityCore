@@ -38,6 +38,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
 #include "UpdateFields.h"
 #include "G3D/Vector2.h"
 #include "sanctum_of_domination.h"
@@ -866,13 +867,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         {
             case ACTION_CALCULATE_ARROWS:
             {
-                uint8 arrowsToSpawn;
-
                 // Number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive)
-                if (_onDominationChainsBeforeRive)
-                    arrowsToSpawn = me->GetMap()->GetPlayersCountExceptGMs();
-                else
-                    arrowsToSpawn = std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3.0f)), 4), 10);
+                uint8 arrowsToSpawn = _onDominationChainsBeforeRive ? me->GetMap()->GetPlayersCountExceptGMs() : std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3.0f)), 4), 10);
 
                 _selectedArrowCountsPerJump = SplitArrowCasts(arrowsToSpawn);
 
@@ -1190,14 +1186,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
         DoCastSelf(SPELL_DUAL_WIELD, true);
         DoCastSelf(SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING, true);
-
-        scheduler.Schedule(2s, [this](TaskContext task)
-        {
-            if (Unit* target = me->SelectNearestPlayer(50.0f))
-                me->SendPlaySpellVisual(*target, 1.0f, 106009, 0, 0, 2.0f, true);
-
-            task.Repeat(6s);
-        });
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
