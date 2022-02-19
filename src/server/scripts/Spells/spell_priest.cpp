@@ -1004,7 +1004,7 @@ class spell_pri_rapture : public SpellScript
         Unit* caster = GetCaster();
 
         if (Unit* target = ObjectAccessor::GetUnit(*caster, _raptureTarget))
-            caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_SHIELD, CastSpellExtraArgs(TRIGGERED_NONE).SetTriggeringSpell(GetSpell()));
+            caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_SHIELD, CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS).SetTriggeringSpell(GetSpell()));
     }
 
     void Register() override
