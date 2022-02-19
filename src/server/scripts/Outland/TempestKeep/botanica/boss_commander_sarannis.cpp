@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "the_botanica.h"
@@ -97,9 +96,9 @@ struct boss_commander_sarannis : public BossAI
         }
     }
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    void OnSpellCast(SpellInfo const* spell) override
     {
-        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && spell->Id == SPELL_SUMMON_REINFORCEMENTS)
+        if (spell->Id == SPELL_SUMMON_REINFORCEMENTS)
             Talk(SAY_SUMMON);
     }
 
