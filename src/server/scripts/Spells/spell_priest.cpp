@@ -63,6 +63,7 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE                            = 47540,
     SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE             = 47758,
     SPELL_PRIEST_PENANCE_CHANNEL_HEALING            = 47757,
+    SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
     SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE         = 129253,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
     SPELL_PRIEST_RAPTURE                            = 47536,
@@ -937,7 +938,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
     }
 };
 
-// 155793 - prayer of mending (Jump) - SPELL_PRIEST_PRAYER_OF_MENDING_JUMP
+// 155793 - Prayer of Mending (Jump) - SPELL_PRIEST_PRAYER_OF_MENDING_JUMP
 class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_SpellScriptBase
 {
     PrepareSpellScript(spell_pri_prayer_of_mending_jump);
@@ -981,6 +982,39 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_prayer_of_mending_jump::OnTargetSelect, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_jump::HandleJump, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+};
+
+// 47536 - Rapture
+class spell_pri_rapture : public SpellScript
+{
+    PrepareSpellScript(spell_pri_rapture);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_POWER_WORD_SHIELD });
+    }
+
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+    {
+        _raptureTarget = GetHitUnit()->GetGUID();
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+
+        if (Unit* target = ObjectAccessor::GetUnit(*caster, _raptureTarget))
+            caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_SHIELD, CastSpellExtraArgs(TRIGGERED_NONE).SetTriggeringSpell(GetSpell()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_rapture::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_pri_rapture::HandleAfterCast);
+    }
+
+private:
+    ObjectGuid _raptureTarget;
 };
 
 // 20711 - Spirit of Redemption
@@ -1487,6 +1521,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_rapture);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
