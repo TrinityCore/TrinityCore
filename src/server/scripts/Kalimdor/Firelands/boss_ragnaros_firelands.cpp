@@ -901,7 +901,7 @@ private:
         {
             DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
             DoCastAOE(SPELL_AWARD_REPUTATION_BOSS_KILL);
-            DoCastAOE(SPELL_HEART_OF_RAGNAROS);
+            //DoCastAOE(SPELL_HEART_OF_RAGNAROS);
 
             if (!IsHeroic())
             {
