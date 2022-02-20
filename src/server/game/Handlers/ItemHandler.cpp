@@ -1256,7 +1256,7 @@ namespace
         uint16 src = item->GetPos();
 
         ItemPosCountVec dest;
-        InventoryResult result = player->CanBankItem(reagent ? NULL_BAG : bag, NULL_SLOT, dest, item, false, true, reagent);
+        InventoryResult result = player->CanBankItem(reagent ? bag == NULL_BAG : bag, NULL_SLOT, dest, item, false, true, reagent);
 
         if (result == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == src))
         {
