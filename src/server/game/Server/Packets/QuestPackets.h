@@ -734,7 +734,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 ChoiceID = 0;
-            int32 ResponseID = 0;
+            int32 ResponseIdentifier = 0;
             bool IsReroll = false;
         };
     }
