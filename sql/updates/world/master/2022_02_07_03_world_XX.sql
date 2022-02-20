@@ -3,7 +3,7 @@ SET @GARRICKGUID = -1050145;
 
 -- Captain Garrick (Remove SmartAI and add ScriptName)
 UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_captain_garrick' WHERE `entry` = @GARRICK;
-DELETE FROM `smart_scripts` WHERE `entryorguid` = @GARRICKGUID AND `SourceType` = 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = @GARRICKGUID AND `source_type` = 0;
 
 DELETE FROM `script_waypoint` WHERE `entry` = @GARRICK;
 INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) VALUES
