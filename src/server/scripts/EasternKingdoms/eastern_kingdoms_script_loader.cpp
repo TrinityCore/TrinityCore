@@ -195,6 +195,7 @@ void AddSC_goldshire();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
 void AddSC_redridge_mountains();
+void AddSC_north_sea();
 //void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
 //void AddSC_swamp_of_sorrows();
@@ -387,6 +388,7 @@ void AddEasternKingdomsScripts()
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
     AddSC_redridge_mountains();
+    AddSC_north_sea();
     //AddSC_silverpine_forest();
     AddSC_stormwind_city();
     //AddSC_swamp_of_sorrows();
