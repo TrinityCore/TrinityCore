@@ -262,6 +262,7 @@ void TempSummon::UpdateObjectVisibilityOnCreate()
                 if (WorldObject* invoker = ObjectAccessor::GetWorldObject(*this, *infoForSeer->Invoker))
                     objectsToUpdate.push_back(invoker);
             }
+    }
 
     Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
     Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
