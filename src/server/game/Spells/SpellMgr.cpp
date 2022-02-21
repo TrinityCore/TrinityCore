@@ -5950,6 +5950,20 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
     });
 
+    // Expose Armor
+    ApplySpellFix({ 8647 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx |= SPELL_ATTR1_FINISHING_MOVE_DURATION;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_FINISHING_MOVE_DAMAGE;
+    });
+
+    // Rupture
+    ApplySpellFix({ 1943 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx |= SPELL_ATTR1_FINISHING_MOVE_DURATION;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_FINISHING_MOVE_DAMAGE;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
