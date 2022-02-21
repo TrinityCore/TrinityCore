@@ -330,6 +330,12 @@ typedef std::set <uint8> SlotIds;
 
 struct GuildMemberProfessionData
 {
+    GuildMemberProfessionData()
+        : SkillId(0), Rank(0), Step(0), RecipeUniqueBits({ }) { }
+
+    GuildMemberProfessionData(uint32 skillId, uint32 rank, uint32 step)
+        : SkillId(skillId), Rank(rank), Step(step), RecipeUniqueBits({ }) { }
+
     uint32 SkillId;
     uint32 Rank;
     uint32 Step;

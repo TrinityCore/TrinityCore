@@ -587,14 +587,6 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_totalReputation(0),
     m_weekReputation(0)
 {
-    for (uint8 i = 0; i < 2; i++)
-    {
-        m_professions[i].Rank = 0;
-        m_professions[i].Step = 0;
-        m_professions[i].SkillId = 0;
-        m_professions[i].RecipeUniqueBits.fill(0);
-    }
-
     memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS) * sizeof(uint32));
 }
 
@@ -746,11 +738,7 @@ void Guild::Member::LoadProfessionDataFromDB(ObjectGuid guid)
             if (!skillLine || skillLine->CategoryID != SKILL_CATEGORY_PROFESSION)
                 continue;
 
-            GuildMemberProfessionData profession;
-            profession.SkillId = skill;
-            profession.Step = max / 75;
-            profession.Rank = value;
-            profession.RecipeUniqueBits.fill(0);
+            GuildMemberProfessionData profession(skill, max / 75, value);
 
             CharacterDatabasePreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
             stmt2->setUInt32(0, guid.GetCounter());
@@ -1539,9 +1527,9 @@ void Guild::HandleRoster(WorldSession* session)
     roster.WeeklyRepCap = sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP);
     roster.MemberData.reserve(m_members.size());
 
-    for (auto itr : m_members)
+    for (std::pair<uint32 const, Guild::Member*> const& memberPair : m_members)
     {
-        Member* member = itr.second;
+        Member* member = memberPair.second;
 
         WorldPackets::Guild::GuildRosterMemberData memberData;
 
@@ -4022,9 +4010,9 @@ void Guild::SendKnownRecipes(Player const* player)
     std::set<uint32> uniqueProfessions;
     std::unordered_map<uint32, std::array<uint8, GUILD_RECIPES_COUNT>> uniqueBitsMap;
 
-    for (auto itr : m_members)
+    for (std::pair<uint32 const, Guild::Member*> const& memberPair : m_members)
     {
-        Member* member = itr.second;
+        Member* member = memberPair.second;
 
         for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
         {
@@ -4052,9 +4040,9 @@ void Guild::SendKnownRecipes(Player const* player)
 void Guild::SendMembersForRecipe(Player const* player, uint32 skillLineId, uint32 spellId, uint32 uniqueBit)
 {
     WorldPackets::Guild::GuildMembersWithRecipe packet;
-    for (auto itr : m_members)
+    for (std::pair<uint32 const, Guild::Member*> const& memberPair : m_members)
     {
-        Member* member = itr.second;
+        Member* member = memberPair.second;
         for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
         {
             GuildMemberProfessionData const& prof = member->GetProfessionData(i);
