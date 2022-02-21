@@ -303,9 +303,6 @@ Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorl
 {
     ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
-
-    /// @todo: Find correct way
-    InitCharmInfo();
 }
 
 void Minion::InitStats(uint32 duration)
