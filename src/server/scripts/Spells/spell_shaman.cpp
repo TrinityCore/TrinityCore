@@ -48,6 +48,7 @@ enum ShamanSpells
     SPELL_SHAMAN_EARTHQUAKE_DAMAGE              = 77478,
     SPELL_SHAMAN_EARTHQUAKE_STUN                = 77505,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
+    SPELL_SHAMAN_ELEMENTAL_OATH                 = 51466,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_DAMAGE               = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
@@ -1742,6 +1743,28 @@ class spell_sha_maelstrom_weapon : public AuraScript
     }
 };
 
+// 16246 - Clearcasting
+class spell_sha_clearcasting : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_OATH });
+    }
+
+    // Elemental Oath bonus
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Unit const* owner = GetUnitOwner();
+        if (Aura const* aura = owner->GetAuraOfRankedSpell(SPELL_SHAMAN_ELEMENTAL_OATH, owner->GetGUID()))
+            amount = aura->GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount.Register(&spell_sha_clearcasting::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     RegisterSpellScript(spell_sha_ancestral_awakening);
@@ -1750,6 +1773,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_ancestral_resolve);
     RegisterSpellScript(spell_sha_bloodlust);
     RegisterSpellScript(spell_sha_cleanse_spirit);
+    RegisterSpellScript(spell_sha_clearcasting);
     RegisterSpellScript(spell_sha_chain_heal);
     RegisterSpellScript(spell_sha_earth_shield);
     RegisterSpellScript(spell_sha_earth_shock);
