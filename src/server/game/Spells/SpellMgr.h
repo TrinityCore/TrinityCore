@@ -277,10 +277,12 @@ enum EnchantProcAttributes
 
 struct SpellEnchantProcEntry
 {
-    float       Chance;         // if nonzero - overwrite SpellItemEnchantment value
-    float       ProcsPerMinute; // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
-    uint32      HitMask;        // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
-    uint32      AttributesMask; // bitmask, see EnchantProcAttributes
+    SpellEnchantProcEntry() : Chance(0.f), ProcsPerMinute(0.f), HitMask(0), AttributesMask(0.f) { }
+
+    float   Chance;         // if nonzero - overwrite SpellItemEnchantment value
+    float   ProcsPerMinute; // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
+    uint32  HitMask;        // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    uint32  AttributesMask; // bitmask, see EnchantProcAttributes
 };
 
 typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
@@ -343,9 +345,11 @@ typedef std::unordered_map<SpellGroup, std::unordered_set<uint32 /*auraName*/>> 
 
 struct SpellThreatEntry
 {
-    int32       flatMod;                                    // flat threat-value for this Spell  - default: 0
-    float       pctMod;                                     // threat-multiplier for this Spell  - default: 1.0f
-    float       apPctMod;                                   // Pct of AP that is added as Threat - default: 0.0f
+    SpellThreatEntry() : flatMod(0), pctMod(1.f), apPctMod(0.f) { }
+
+    int32 flatMod;  // flat threat-value for this Spell  - default: 0
+    float pctMod;   // threat-multiplier for this Spell  - default: 1.0f
+    float apPctMod; // Pct of AP that is added as Threat - default: 0.0f
 };
 
 typedef std::unordered_map<uint32, SpellThreatEntry> SpellThreatMap;
@@ -353,6 +357,8 @@ typedef std::unordered_map<uint32, SpellThreatEntry> SpellThreatMap;
 // coordinates for spells (accessed using SpellMgr functions)
 struct SpellTargetPosition
 {
+    SpellTargetPosition() : target_mapId(0), target_X(0.f), target_Y(0.f), target_Z(0.f), target_Orientation(0.f) { }
+
     uint32 target_mapId;
     float  target_X;
     float  target_Y;
@@ -509,6 +515,8 @@ typedef std::pair<SpellAreaForAreaMap::const_iterator, SpellAreaForAreaMap::cons
 // Spell rank chain  (accessed using SpellMgr functions)
 struct SpellChainNode
 {
+    SpellChainNode() : prev(nullptr), next(nullptr), first(nullptr), last(nullptr), rank(0) { }
+
     SpellInfo const* prev;
     SpellInfo const* next;
     SpellInfo const* first;
@@ -529,6 +537,8 @@ typedef std::pair<SpellsRequiringSpellMap::const_iterator, SpellsRequiringSpellM
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode
 {
+    SpellLearnSkillNode() : skill(0), step(0), value(0), maxvalue(0) { }
+
     uint16 skill;
     uint16 step;
     uint16 value;                                           // 0  - max skill value for player level
@@ -539,6 +549,8 @@ typedef std::unordered_map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;
 
 struct SpellLearnSpellNode
 {
+    SpellLearnSpellNode() : spell(0), active(false), autoLearned(false) { }
+
     uint32 spell;
     bool active;                                            // show in spellbook or not
     bool autoLearned;
@@ -557,7 +569,9 @@ typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
 struct PetDefaultSpellsEntry
 {
-    uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];
+    PetDefaultSpellsEntry() : spellid({ }) { }
+
+    std::array<uint32, MAX_CREATURE_SPELL_DATA_SLOT> spellid;
 };
 
 // < 0 for petspelldata id, > 0 for creature_id

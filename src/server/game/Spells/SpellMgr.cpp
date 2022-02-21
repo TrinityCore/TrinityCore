@@ -1710,24 +1710,18 @@ void SpellMgr::LoadSpellProcs()
     TC_LOG_INFO("server.loading", ">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     // Define can trigger auras
-    bool isTriggerAura[TOTAL_AURAS];
+    bool isTriggerAura[TOTAL_AURAS] = { };
     // Triggered always, even from triggered spells
-    bool isAlwaysTriggeredAura[TOTAL_AURAS];
+    bool isAlwaysTriggeredAura[TOTAL_AURAS] = { };
     // SpellTypeMask to add to the proc
-    uint32 spellTypeMask[TOTAL_AURAS];
+    std::array<uint32, TOTAL_AURAS> spellTypeMask = { };
+    spellTypeMask.fill(PROC_SPELL_TYPE_MASK_ALL);
 
     // List of auras that CAN trigger but may not exist in spell_proc
     // in most cases needed to drop charges
 
     // some aura types need additional checks (eg SPELL_AURA_MECHANIC_IMMUNITY needs mechanic check)
     // see AuraEffect::CheckEffectProc
-    for (uint16 i = 0; i < TOTAL_AURAS; ++i)
-    {
-        isTriggerAura[i] = false;
-        isAlwaysTriggeredAura[i] = false;
-        spellTypeMask[i] = PROC_SPELL_TYPE_MASK_ALL;
-    }
-
     isTriggerAura[SPELL_AURA_DUMMY] = true;                                 // Most dummy auras should require scripting, but there are some exceptions (ie 12311)
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;                           // "Any direct damaging attack will revive targets"
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;                            // Only one spell: 28762 part of Mage T3 8p bonus
@@ -2624,7 +2618,7 @@ void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 
 void SpellMgr::UnloadSpellAreaConditions()
 {
-    for (auto spellAreaData : mSpellAreaForAreaMap)
+    for (auto& spellAreaData : mSpellAreaForAreaMap)
         spellAreaData.second->Conditions.clear();
 }
 
@@ -3252,13 +3246,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Tree of Life passives
-
     ApplySpellFix({
         5420,
         81097 
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Stances = 1 << (FORM_TREE - 1);
+        spellInfo->Stances = uint64(1 << (FORM_TREE - 1));
     });
 
     // Elemental Oath
