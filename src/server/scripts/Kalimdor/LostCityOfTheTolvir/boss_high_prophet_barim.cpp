@@ -274,6 +274,7 @@ struct boss_high_prophet_barim : public BossAI
                 case EVENT_REPENTANCE:
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
+                    me->StopMoving();
                     DoCastSelf(SPELL_REPENTANCE);
                     events.ScheduleEvent(EVENT_REPENTANCE_PULL, 1s);
 
