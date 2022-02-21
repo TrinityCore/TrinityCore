@@ -4339,6 +4339,16 @@ void Unit::_ApplyAllAuraStatMods()
         (*i).second->GetBase()->HandleAllEffects(i->second, AURA_EFFECT_HANDLE_STAT, true);
 }
 
+bool Unit::HasLimitedTargetAuraForSpell(uint32 spellId) const
+{
+    AurasBySpellIdMap::const_iterator itr = m_ltAuras.find(spellId);
+
+    if (itr == m_ltAuras.end())
+        return false;
+
+    return !itr->second.empty();
+}
+
 AuraEffect* Unit::GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster) const
 {
     AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);

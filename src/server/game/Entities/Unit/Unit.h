@@ -1403,6 +1403,7 @@ class TC_GAME_API Unit : public WorldObject
         AuraEffectList const& GetAuraEffectsByType(AuraType type) const { return m_modAuras[type]; }
         AuraList& GetLimitedCastAuras(uint32 spellId) { return m_ltAuras[spellId]; }
         AurasBySpellIdMap& GetAllLimitedCastAuras() { return m_ltAuras; }
+        bool HasLimitedTargetAuraForSpell(uint32 spellId) const;
 
         AuraEffect* GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
         AuraEffect* GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
