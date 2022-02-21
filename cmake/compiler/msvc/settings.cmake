@@ -105,8 +105,9 @@ message(STATUS "MSVC: Disabled POSIX warnings")
 # Ignore specific warnings
 target_compile_options(trinity-compile-option-interface
   INTERFACE
-    /wd4351  # C4351: new behavior: elements of array 'x' will be default initialized
-    /wd4091) # C4091: 'typedef ': ignored on left of '' when no variable is declared
+    /wd4351   # C4351: new behavior: elements of array 'x' will be default initialized
+    /wd4091   # C4091: 'typedef ': ignored on left of '' when no variable is declared
+    /wd26812) # C26812: The enum type 'type-name' is unscoped. Prefer enum class over enum
 
 if(NOT WITH_WARNINGS)
   target_compile_options(trinity-compile-option-interface
