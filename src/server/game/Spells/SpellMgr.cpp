@@ -3251,7 +3251,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         81097 
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Stances = uint64(1 << (FORM_TREE - 1));
+        spellInfo->Stances = UI64LIT(1) << (FORM_TREE - 1);
     });
 
     // Elemental Oath
