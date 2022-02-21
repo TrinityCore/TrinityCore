@@ -3596,18 +3596,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Stances = UI64LIT(1) << (FORM_TREE - 1);
     });
 
-    // Elemental Oath
-    ApplySpellFix({
-        51466, // (Rank 1)
-        51470  // (Rank 2)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->_GetEffect(EFFECT_1).Effect = SPELL_EFFECT_APPLY_AURA;
-        spellInfo->_GetEffect(EFFECT_1).ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-        spellInfo->_GetEffect(EFFECT_1).MiscValue = SPELLMOD_EFFECT2;
-        spellInfo->_GetEffect(EFFECT_1).SpellClassMask = flag96(0x00000000, 0x00004000, 0x00000000);
-    });
-
     // Improved Shadowform (Rank 1)
     ApplySpellFix({ 47569 }, [](SpellInfo* spellInfo)
     {
