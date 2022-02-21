@@ -72,6 +72,8 @@ enum DruidSpells
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
     SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE = 102543,
+    SPELL_DRUID_INNERVATE                      = 29166,
+    SPELL_DRUID_INNERVATE_RANK_2               = 326228,
     SPELL_DRUID_INFUSION                       = 37238,
     SPELL_DRUID_LANGUISH                       = 71023,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE             = 64372,
@@ -718,23 +720,17 @@ class spell_dru_innervate : public AuraScript
 {
     PrepareAuraScript(spell_dru_innervate);
 
-    void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!aurEff->GetTotalTicks())
-        {
-            amount = 0;
-            return;
-        }
-
-        if (Unit* caster = GetCaster())
-            amount = int32(CalculatePct(caster->GetCreatePowerValue(POWER_MANA), amount) / aurEff->GetTotalTicks());
-        else
-            amount = 0;
+        if (AuraEffect const* innervateR2 = GetCaster()->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
+            if (GetTarget() != GetCaster())
+                GetCaster()->CastSpell(GetCaster(), SPELL_DRUID_INNERVATE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
+                        .AddSpellBP0(-innervateR2->GetAmount()));
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_innervate::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_innervate::AfterApply, EFFECT_0, SPELL_AURA_MOD_MANA_COST_PCT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
