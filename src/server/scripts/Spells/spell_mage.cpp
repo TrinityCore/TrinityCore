@@ -980,13 +980,9 @@ class spell_mage_nether_vortex : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_SLOW });
     }
 
-    bool DoCheck(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
-        if (Aura* aura = eventInfo.GetProcTarget()->GetAura(SPELL_MAGE_SLOW))
-            if (aura->GetCasterGUID() != GetTarget()->GetGUID())
-                return false;
-
-        return true;
+        return GetTarget()->GetLimitedCastAuras(SPELL_MAGE_SLOW).empty();
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -997,7 +993,7 @@ class spell_mage_nether_vortex : public AuraScript
 
     void Register() override
     {
-        DoCheckProc.Register(&spell_mage_nether_vortex::DoCheck);
+        DoCheckProc.Register(&spell_mage_nether_vortex::CheckProc);
         OnEffectProc.Register(&spell_mage_nether_vortex::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
