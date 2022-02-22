@@ -459,7 +459,7 @@ class spell_the_cleansing_mirror_image_script_effect : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA, true);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA);
     }
 
     void Register() override
@@ -480,10 +480,9 @@ class spell_the_cleansing_on_death_cast_on_master : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            if (TempSummon* casterSummon = caster->ToTempSummon())
-                if (Unit* summoner = casterSummon->GetSummonerUnit())
-                    summoner->CastSpell(summoner, GetEffectInfo().CalcValue(), true);
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()));
     }
 
     void Register() override

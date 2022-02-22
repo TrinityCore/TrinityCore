@@ -611,8 +611,8 @@ class spell_warsong_battle_standard : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            caster->Unit::Say(RAND(TEXT_TAUNT_1, TEXT_TAUNT_2, TEXT_TAUNT_3, TEXT_TAUNT_4, TEXT_TAUNT_5, TEXT_TAUNT_6, TEXT_TAUNT_7), caster);
+        Unit* caster = GetCaster();
+        caster->Unit::Say(RAND(TEXT_TAUNT_1, TEXT_TAUNT_2, TEXT_TAUNT_3, TEXT_TAUNT_4, TEXT_TAUNT_5, TEXT_TAUNT_6, TEXT_TAUNT_7), caster);
     }
 
     void Register() override
@@ -663,10 +663,9 @@ class spell_moti_hourglass_cast_see_invis_on_master : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            if (TempSummon* casterSummon = caster->ToTempSummon())
-                if (Unit* summoner = casterSummon->GetSummonerUnit())
-                    summoner->CastSpell(summoner, uint32(GetEffectValue()));
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()));
     }
 
     void Register() override
