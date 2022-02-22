@@ -1387,8 +1387,8 @@ class spell_sha_flametongue_weapon : public AuraScript
         if (attType != BASE_ATTACK && attType != OFF_ATTACK)
             return false;
 
-        if (((attType == BASE_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)) ||
-            ((attType == OFF_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)))
+        if (((attType == BASE_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_MAIN_HAND_WEAPON_SWING)) ||
+            ((attType == OFF_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_OFF_HAND_WEAPON_SWING)))
             return false;
 
         return true;
@@ -1401,7 +1401,7 @@ class spell_sha_flametongue_weapon : public AuraScript
         Player* player = eventInfo.GetActor()->ToPlayer();
         Unit* target = eventInfo.GetProcTarget();
         WeaponAttackType attType = BASE_ATTACK;
-        if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)
+        if (eventInfo.GetTypeMask() & PROC_FLAG_OFF_HAND_WEAPON_SWING)
             attType = OFF_ATTACK;
 
         Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
@@ -1461,8 +1461,8 @@ class spell_sha_windfury_weapon : public AuraScript
         if (attType != BASE_ATTACK && attType != OFF_ATTACK)
             return false;
 
-        if (((attType == BASE_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK)) ||
-            ((attType == OFF_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)))
+        if (((attType == BASE_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_MAIN_HAND_WEAPON_SWING)) ||
+            ((attType == OFF_ATTACK) && !(eventInfo.GetTypeMask() & PROC_FLAG_OFF_HAND_WEAPON_SWING)))
             return false;
 
         return true;
@@ -1475,7 +1475,7 @@ class spell_sha_windfury_weapon : public AuraScript
         Player* player = eventInfo.GetActor()->ToPlayer();
         Unit* target = eventInfo.GetProcTarget();
         WeaponAttackType attType = BASE_ATTACK;
-        if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)
+        if (eventInfo.GetTypeMask() & PROC_FLAG_OFF_HAND_WEAPON_SWING)
             attType = OFF_ATTACK;
 
         Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));

@@ -1304,7 +1304,7 @@ class spell_item_mark_of_conquest : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetTypeMask() & (PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS))
+                if (eventInfo.GetTypeMask() & (PROC_FLAG_DEAL_RANGED_ATTACK | PROC_FLAG_DEAL_RANGED_ABILITY))
                 {
                     // in that case, do not cast heal spell
                     PreventDefaultAction();
@@ -3627,10 +3627,10 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
 
-                if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+                if (eventInfo.GetTypeMask() & PROC_FLAG_DEAL_HELPFUL_SPELL)
                     caster->CastSpell(target, HealProc, aurEff);
 
-                if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
+                if (eventInfo.GetTypeMask() & PROC_FLAG_DEAL_HARMFUL_SPELL)
                     caster->CastSpell(target, DamageProc, aurEff);
             }
 

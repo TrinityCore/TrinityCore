@@ -1015,7 +1015,7 @@ class spell_rog_main_gauche : public AuraScript
         if (!item || !item->IsEquipped())
             return false;
 
-        if (!(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK))
+        if (!(eventInfo.GetTypeMask() & PROC_FLAG_MAIN_HAND_WEAPON_SWING))
             return false;
 
         return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());

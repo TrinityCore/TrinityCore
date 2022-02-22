@@ -2088,24 +2088,24 @@ void Spell::prepareDataForTriggerSystem()
     switch (m_spellInfo->DmgClass)
     {
         case SPELL_DAMAGE_CLASS_MELEE:
-            m_procAttacker = PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS;
+            m_procAttacker = PROC_FLAG_DEAL_MELEE_ABILITY;
             if (m_attackType == OFF_ATTACK)
-                m_procAttacker |= PROC_FLAG_DONE_OFFHAND_ATTACK;
+                m_procAttacker |= PROC_FLAG_OFF_HAND_WEAPON_SWING;
             else
-                m_procAttacker |= PROC_FLAG_DONE_MAINHAND_ATTACK;
-            m_procVictim   = PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS;
+                m_procAttacker |= PROC_FLAG_MAIN_HAND_WEAPON_SWING;
+            m_procVictim   = PROC_FLAG_TAKE_MELEE_ABILITY;
             break;
         case SPELL_DAMAGE_CLASS_RANGED:
             // Auto attack
             if (m_spellInfo->HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG))
             {
-                m_procAttacker = PROC_FLAG_DONE_RANGED_AUTO_ATTACK;
-                m_procVictim   = PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK;
+                m_procAttacker = PROC_FLAG_DEAL_RANGED_ATTACK;
+                m_procVictim   = PROC_FLAG_TAKE_RANGED_ATTACK;
             }
             else // Ranged spell attack
             {
-                m_procAttacker = PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS;
-                m_procVictim   = PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS;
+                m_procAttacker = PROC_FLAG_DEAL_RANGED_ABILITY;
+                m_procVictim   = PROC_FLAG_TAKE_RANGED_ABILITY;
             }
             break;
         default:
@@ -2113,31 +2113,11 @@ void Spell::prepareDataForTriggerSystem()
                 m_spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_WEAPON_WAND)
                 && m_spellInfo->HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG)) // Wands auto attack
             {
-                m_procAttacker = PROC_FLAG_DONE_RANGED_AUTO_ATTACK;
-                m_procVictim   = PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK;
+                m_procAttacker = PROC_FLAG_DEAL_RANGED_ATTACK;
+                m_procVictim   = PROC_FLAG_TAKE_RANGED_ATTACK;
             }
             // For other spells trigger procflags are set in Spell::DoAllEffectOnTarget
             // Because spell positivity is dependant on target
-    }
-
-    // Hunter trap spells - activation proc for Lock and Load, Entrapment and Misdirection
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
-        (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||         // Freezing and Frost Trap, Freezing Arrow
-            m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
-            m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
-    {
-        m_procAttacker |= PROC_FLAG_DONE_TRAP_ACTIVATION;
-
-        // also fill up other flags (DoAllEffectOnTarget only fills up flag if both are not set)
-        m_procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
-        m_procVictim |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
-    }
-
-    // Hellfire Effect - trigger as DOT
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[0] & 0x00000040)
-    {
-        m_procAttacker = PROC_FLAG_DONE_PERIODIC;
-        m_procVictim   = PROC_FLAG_TAKEN_PERIODIC;
     }
 
     // Some spells may not trigger any procs at all.
@@ -2167,7 +2147,7 @@ class ProcReflectDelayed : public BasicEvent
                 return true;
 
             uint32 const typeMaskActor = PROC_FLAG_NONE;
-            uint32 const typeMaskActionTarget = PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
+            uint32 const typeMaskActionTarget = PROC_FLAG_TAKE_HARMFUL_SPELL | PROC_FLAG_TAKE_HARMFUL_ABILITY;
             uint32 const spellTypeMask = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
             uint32 const spellPhaseMask = PROC_SPELL_PHASE_NONE;
             uint32 const hitMask = PROC_HIT_REFLECT;
@@ -2614,17 +2594,22 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         {
             switch (m_spellInfo->DmgClass)
             {
-                case SPELL_DAMAGE_CLASS_MAGIC:
-                    if (positive)
-                        procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
-                    else
-                        procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
-                    break;
                 case SPELL_DAMAGE_CLASS_NONE:
-                    if (positive)
-                        procAttacker |= PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS;
-                    else
-                        procAttacker |= PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+                case SPELL_DAMAGE_CLASS_MAGIC:
+                    if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
+                    {
+                        if (positive)
+                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
+                        else
+                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
+                    }
+                    else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
+                    {
+                        if (positive)
+                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
+                        else
+                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
+                    }
                     break;
                 default:
                     break;
@@ -2635,17 +2620,20 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         {
             switch (m_spellInfo->DmgClass)
             {
-                case SPELL_DAMAGE_CLASS_MAGIC:
-                    if (positive)
-                        procVictim   |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
-                    else
-                        procVictim   |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
-                    break;
                 case SPELL_DAMAGE_CLASS_NONE:
-                    if (positive)
-                        procVictim   |= PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS;
-                    else
-                        procVictim   |= PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
+                case SPELL_DAMAGE_CLASS_MAGIC:
+                    if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
+                    {
+                        if (!positive)
+                            procVictim |= PROC_FLAG_TAKE_HARMFUL_PERIODIC;
+                    }
+                    else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
+                    {
+                        if (positive)
+                            procVictim |= PROC_FLAG_TAKE_HELPFUL_ABILITY;
+                        else
+                            procVictim |= PROC_FLAG_TAKE_HARMFUL_ABILITY;
+                    }
                     break;
                 default:
                     break;
@@ -2708,7 +2696,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             caster->SendSpellNonMeleeDamageLog(&damageInfo);
 
             hitMask |= createProcHitMask(&damageInfo, missInfo);
-            procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+            procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
 
             m_damage = damageInfo.damage;
             caster->DealSpellDamage(&damageInfo, true);
@@ -3690,10 +3678,27 @@ void Spell::_cast(bool skipCheck)
     uint32 procAttacker = m_procAttacker;
     if (!procAttacker && !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
     {
-        if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
+        {
+            if (m_spellInfo->IsPositive())
+                procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
+            else
+                procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
+        }
+        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
+        {
+            if (m_spellInfo->IsPositive())
+                procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
+            else
+                procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
+        }
         else
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+        {
+            if (m_spellInfo->IsPositive())
+                procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
+            else
+                procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
+        }
     }
 
     uint32 hitMask = m_hitMask;
@@ -3901,10 +3906,27 @@ void Spell::_handle_finish_phase()
     uint32 procAttacker = m_procAttacker;
     if (!procAttacker && !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
     {
-        if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
+        {
+            if (m_spellInfo->IsPositive())
+                procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
+            else
+                procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
+        }
+        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
+        {
+            if (m_spellInfo->IsPositive())
+                procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
+            else
+                procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
+        }
         else
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+        {
+            if (m_spellInfo->IsPositive())
+                procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
+            else
+                procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
+        }
     }
 
     m_originalCaster->ProcSkillsAndAuras(nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_FINISH, m_hitMask, this, nullptr, nullptr);
