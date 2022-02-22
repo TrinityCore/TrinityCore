@@ -799,7 +799,7 @@ class spell_the_ocular_on_death : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
-            target->CastSpell(target, GetEffectInfo().CalcValue(), true);
+            target->CastSpell(target, uint32(GetEffectValue()));
     }
 
     void Register() override
