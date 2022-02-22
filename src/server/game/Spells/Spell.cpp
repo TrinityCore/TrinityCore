@@ -2610,6 +2610,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                         else
                             procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
                     }
+                    else
+                        if (positive)
+                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
+                        else
+                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
                     break;
                 default:
                     break;
@@ -2633,6 +2638,13 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                             procVictim |= PROC_FLAG_TAKE_HELPFUL_ABILITY;
                         else
                             procVictim |= PROC_FLAG_TAKE_HARMFUL_ABILITY;
+                    }
+                    else
+                    {
+                        if (positive)
+                            procVictim |= PROC_FLAG_TAKE_HELPFUL_SPELL;
+                        else
+                            procVictim |= PROC_FLAG_TAKE_HARMFUL_SPELL;
                     }
                     break;
                 default:
