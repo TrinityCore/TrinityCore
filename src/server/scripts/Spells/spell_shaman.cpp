@@ -343,6 +343,30 @@ class spell_sha_cleansing_totem_pulse : public SpellScript
     }
 };
 
+// 16246 - Clearcasting
+class spell_sha_clearcasting : public AuraScript
+{
+    PrepareAuraScript(spell_sha_clearcasting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_OATH });
+    }
+
+    // Elemental Oath bonus
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Unit const* owner = GetUnitOwner();
+        if (Aura const* aura = owner->GetAuraOfRankedSpell(SPELL_SHAMAN_ELEMENTAL_OATH, owner->GetGUID()))
+            amount = aura->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_clearcasting::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+    }
+};
+
 // -974 - Earth Shield
 class spell_sha_earth_shield : public AuraScript
 {
@@ -1878,30 +1902,6 @@ class spell_sha_windfury_weapon : public AuraScript
     {
         DoCheckProc += AuraCheckProcFn(spell_sha_windfury_weapon::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_sha_windfury_weapon::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-// 16246 - Clearcasting
-class spell_sha_clearcasting : public AuraScript
-{
-    PrepareAuraScript(spell_sha_clearcasting);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_OATH });
-    }
-
-    // Elemental Oath bonus
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-    {
-        Unit const* owner = GetUnitOwner();
-        if (Aura const* aura = owner->GetAuraOfRankedSpell(SPELL_SHAMAN_ELEMENTAL_OATH, owner->GetGUID()))
-            amount = aura->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
-    }
-
-    void Register() override
-    {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_clearcasting::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     }
 };
 
