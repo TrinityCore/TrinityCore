@@ -3146,7 +3146,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
             TriggerGlobalCooldown();
 
         // Call CreatureAI hook OnSpellStart
-        if (Creature* caster = m_originalCaster->ToCreature())
+        if (Creature* caster = m_caster->ToCreature())
             if (caster->IsAIEnabled())
                 caster->AI()->OnSpellStart(GetSpellInfo());
 
