@@ -782,23 +782,9 @@ class spell_volazj_whisper : public SpellScript
 {
     PrepareSpellScript(spell_volazj_whisper);
 
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_WHISPER_AGGRO,
-            SPELL_WHISPER_INSANITY,
-            SPELL_WHISPER_SLAY_1,
-            SPELL_WHISPER_SLAY_2,
-            SPELL_WHISPER_SLAY_3,
-            SPELL_WHISPER_DEATH_1,
-            SPELL_WHISPER_DEATH_2
-        });
-    }
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
-        Unit* target = GetHitPlayer();
+        Player* target = GetHitPlayer();
         Creature* caster = GetCaster()->ToCreature();
         if (!target || !caster)
             return;

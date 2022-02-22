@@ -1072,8 +1072,8 @@ class spell_gen_consumption : public SpellScript
 
     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster || caster->GetTypeId() != TYPEID_UNIT)
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
             return;
 
         uint32 damage = 0;
@@ -1960,7 +1960,7 @@ class spell_gen_injured : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_injured::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_gen_injured::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -3725,10 +3725,9 @@ class spell_gen_whisper_to_controller : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            if (TempSummon* casterSummon = caster->ToTempSummon())
-                if (Player* target = casterSummon->GetSummonerUnit()->ToPlayer())
-                    casterSummon->Unit::Whisper(uint32(GetEffectValue()), target, false);
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Player* target = casterSummon->GetSummonerUnit()->ToPlayer())
+                casterSummon->Unit::Whisper(uint32(GetEffectValue()), target, false);
     }
 
     void Register() override

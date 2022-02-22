@@ -1365,8 +1365,8 @@ class spell_kaelthas_flame_strike : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* target = GetTarget())
-            target->CastSpell(target, SPELL_FLAME_STRIKE_DAMAGE);
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_FLAME_STRIKE_DAMAGE);
     }
 
     void Register() override
@@ -1387,14 +1387,14 @@ class spell_kaelthas_summon_weapons : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            for (uint32 spells : SummonWeaponsSpells)
-                caster->CastSpell(caster, spells, true);
+        Unit* caster = GetCaster();
+        for (uint32 spells : SummonWeaponsSpells)
+            caster->CastSpell(caster, spells, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_kaelthas_summon_weapons::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_kaelthas_summon_weapons::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
