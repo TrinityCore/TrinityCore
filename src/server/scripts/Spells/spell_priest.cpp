@@ -71,6 +71,7 @@ enum PriestSpells
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTUARY                = 88686,
+    SPELL_PRIEST_IMPROVED_DEVOURING_PLAGUE_DAMAGE   = 63675,
     SPELL_PRIEST_INDULGENCE_OF_THE_PENITENT         = 89913,
     SPELL_PRIEST_INNER_FOCUS                        = 89485,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
@@ -116,7 +117,8 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_IMPROVED_MIND_BLAST              = 95,
     PRIEST_ICON_ID_MIND_MELT                        = 3139,
     PRIEST_ICON_ID_SHADOW_ORB                       = 4941,
-    PRIEST_ICON_ID_GLYPH_OF_SHADOW_WORD_DEATH       = 1980
+    PRIEST_ICON_ID_GLYPH_OF_SHADOW_WORD_DEATH       = 1980,
+    PRIEST_ICON_ID_IMPROVED_DEVOURING_PLAGUE        = 3790
 };
 
 enum MiscSpells
@@ -1782,6 +1784,34 @@ class spell_pri_harnessed_shadows : public AuraScript
     }
 };
 
+// 2944 - Devouring Plague 
+class spell_pri_devouring_plague : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_IMPROVED_DEVOURING_PLAGUE_DAMAGE });
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        // Improved Devouring Plague
+        if (AuraEffect const* improvedDevouringPlague = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_IMPROVED_DEVOURING_PLAGUE, EFFECT_0))
+        {
+            int32 bp = CalculatePct(aurEff->GetAmount() * aurEff->GetTotalTicks(), improvedDevouringPlague->GetAmount());
+            caster->CastSpell(GetTarget(), SPELL_PRIEST_IMPROVED_DEVOURING_PLAGUE_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(bp));
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_pri_devouring_plague::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_LEECH, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
@@ -1793,6 +1823,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_chakra_serenity_script);
     RegisterSpellScript(spell_pri_chakra_flow_removal);
     RegisterSpellScript(spell_pri_circle_of_healing);
+    RegisterSpellScript(spell_pri_devouring_plague);
     RegisterSpellScript(spell_pri_dispel_magic);
     RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_hymn);

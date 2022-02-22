@@ -1320,30 +1320,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (!caster)
                     break;
 
-                // Devouring Plague
-                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x02000000)
-                {
-                    AuraEffect const* devouringPlague = GetEffect(EFFECT_0);
-                    if (!devouringPlague)
-                        break;
-
-                    // Improved Devouring Plague
-                    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 3790, 0))
-                    {
-                        int32 damage = (devouringPlague->GetAmount() + devouringPlague->GetBonusAmount()) * devouringPlague->GetDonePct();
-                        if (Player* modOwner = caster->GetSpellModOwner())
-                            modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DOT, damage);
-
-                        damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
-
-                        CastSpellExtraArgs args(devouringPlague), args2(devouringPlague);
-                        int32 basepoints0 = CalculatePct(devouringPlague->GetTotalTicks() * static_cast<int32>(damage), aurEff->GetAmount());
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, basepoints0);
-                        args2.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, CalculatePct(basepoints0, 15));
-                        caster->CastSpell(target, 63675, args);
-                        caster->CastSpell(nullptr, 75999, args2);
-                    }
-                }
                 // Power Word: Shield
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x1 && m_spellInfo->SpellFamilyFlags[2] & 0x400 && GetEffect(0))
                 {
