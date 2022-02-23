@@ -107,6 +107,7 @@ struct SpawnData : public SpawnMetadata
     int32 terrainSwapMap = -1;
     int32 spawntimesecs = 0;
     std::vector<Difficulty> spawnDifficulties;
+    TeamId teamId = TEAM_NEUTRAL;
     uint32 scriptId = 0;
 
     protected:

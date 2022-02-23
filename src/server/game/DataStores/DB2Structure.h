@@ -2534,6 +2534,12 @@ struct MapEntry
         return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116 || ID == 1220;
     }
 
+    bool IsFactioned() const
+    {
+        // 9.0 NPE (New Player Experience) - Exile's Reach
+        return ID == 2175;
+    }
+
     bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
     bool IsGarrison() const { return (Flags[0] & MAP_FLAG_GARRISON) != 0; }
 };

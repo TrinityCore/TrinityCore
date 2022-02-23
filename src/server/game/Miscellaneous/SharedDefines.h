@@ -1111,7 +1111,7 @@ enum Language
     LANG_VULPERA           = 285
 };
 
-enum TeamId
+enum TeamId : uint8
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,

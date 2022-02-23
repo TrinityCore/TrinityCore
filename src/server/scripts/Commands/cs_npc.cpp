@@ -45,6 +45,7 @@ EndScriptData */
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "SmoothPhasing.h"
 
 using namespace Trinity::ChatCommands;
 using CreatureSpawnId = Variant<Hyperlink<creature>, ObjectGuid::LowType>;
@@ -140,9 +141,10 @@ public:
             data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
             data.id = id;
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+            data.teamId = TeamId(map->GetTeamId());
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
             {
-                creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() });
+                creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() }, TeamId(map->GetTeamId()));
                 sObjectMgr->AddCreatureToGrid(&data);
             }
             return true;
@@ -153,7 +155,7 @@ public:
             return false;
 
         PhasingHandler::InheritPhaseShift(creature, chr);
-        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
+        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() }, TeamId(map->GetTeamId()));
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 
@@ -567,6 +569,10 @@ public:
         for (Mechanics m : EnumUtils::Iterate<Mechanics>())
             if (m && (mechanicImmuneMask & (1 << (m - 1))))
                 handler->PSendSysMessage("%s (0x%X)", EnumUtils::ToTitle(m), m);
+
+        if (SmoothPhasing* smoothPhasing = target->GetSmoothPhasing())
+            if (SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(handler->GetSession()->GetPlayer()->GetGUID()))
+                handler->PSendSysMessage("Is Personal Clone: %s", infoForSeer->ReplaceActive);
 
         return true;
     }

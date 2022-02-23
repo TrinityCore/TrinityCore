@@ -85,13 +85,25 @@ void MapInstanced::DelayedUpdate(uint32 diff)
     Map::DelayedUpdate(diff); // this may be removed
 }
 
-/*
-void MapInstanced::RelocationNotify()
+void MapInstanced::RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans, bool alwaysDeleteFromDB)
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        i->second->RelocationNotify();
+        i->second->RemoveRespawnTime(type, spawnId, dbTrans, alwaysDeleteFromDB);
 }
-*/
+
+void MapInstanced::CreateGameobject(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint)
+{
+    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+        if (i->second->IsGridLoaded(spawnPoint))
+            i->second->CreateGameobject(spawnId, addToMap, spawnPoint);
+}
+
+void MapInstanced::CreateCreature(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint)
+{
+    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+        if (i->second->IsGridLoaded(spawnPoint))
+            i->second->CreateCreature(spawnId, addToMap, spawnPoint);
+}
 
 void MapInstanced::UnloadAll()
 {

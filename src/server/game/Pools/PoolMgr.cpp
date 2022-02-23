@@ -346,8 +346,8 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         // Spawn if necessary (loaded grids only)
         Map* map = sMapMgr->FindMap(data->mapId, 0);
         // We use spawn coords to spawn
-        if (map && !map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
-            Creature::CreateCreatureFromDB(obj->guid, map);
+        if (map)
+            map->CreateCreature(obj->guid, true, data->spawnPoint);
     }
 }
 
@@ -362,17 +362,8 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
         // this base map checked as non-instanced and then only existed
         Map* map = sMapMgr->FindMap(data->mapId, 0);
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
-        if (map && !map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
-        {
-            if (GameObject* go = GameObject::CreateGameObjectFromDB(obj->guid, map, false))
-            {
-                if (go->isSpawnedByDefault())
-                {
-                    if (!map->AddToMap(go))
-                        delete go;
-                }
-            }
-        }
+        if (map)
+            map->CreateGameobject(obj->guid, false, data->spawnPoint);
     }
 }
 
@@ -407,10 +398,7 @@ void PoolGroup<Creature>::RemoveRespawnTimeFromDB(uint64 guid)
     if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
     {
         Map* map = sMapMgr->CreateBaseMap(data->mapId);
-        if (!map->Instanceable())
-        {
-            map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, guid, nullptr, true);
-        }
+        map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, guid, nullptr, true);
     }
 }
 
@@ -420,10 +408,7 @@ void PoolGroup<GameObject>::RemoveRespawnTimeFromDB(uint64 guid)
     if (GameObjectData const* data = sObjectMgr->GetGameObjectData(guid))
     {
         Map* map = sMapMgr->CreateBaseMap(data->mapId);
-        if (!map->Instanceable())
-        {
-            map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, guid, nullptr, true);
-        }
+        map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, guid, nullptr, true);
     }
 }
 

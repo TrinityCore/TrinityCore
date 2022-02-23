@@ -147,7 +147,7 @@ public:
             object->SetRespawnTime(*spawnTimeSecs);
 
         // fill the gameobject data and save to the db
-        object->SaveToDB(map->GetId(), { map->GetDifficultyID() });
+        object->SaveToDB(map->GetId(), { map->GetDifficultyID() }, TeamId(map->GetTeamId()));
         ObjectGuid::LowType spawnId = object->GetSpawnId();
 
         // delete the old object and do a clean load from DB with a fresh new GameObject instance.

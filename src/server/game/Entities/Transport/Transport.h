@@ -27,7 +27,7 @@ struct SummonPropertiesEntry;
 
 class TC_GAME_API Transport : public GameObject, public TransportBase
 {
-        friend Transport* TransportMgr::CreateTransport(uint32, ObjectGuid::LowType, Map*, uint8, uint32, uint32);
+        friend Transport* TransportMgr::CreateTransport(uint32, ObjectGuid::LowType, Map*, uint8, uint32, uint32, TeamId);
 
         Transport();
     public:

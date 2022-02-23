@@ -213,7 +213,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
+        virtual void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties, TeamId teamId);
         static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
         Loot loot;
