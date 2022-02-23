@@ -2120,6 +2120,19 @@ void Spell::prepareDataForTriggerSystem()
             // Because spell positivity is dependant on target
     }
 
+    // Hunter trap spells - activation proc for Lock and Load, Entrapment and Misdirection
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
+        (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||         // Freezing and Frost Trap, Freezing Arrow
+        m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
+        m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
+    {
+        m_procAttacker |= PROC_FLAG_TRAP_ACTIVATION;
+
+        // also fill up other flags (DoAllEffectOnTarget only fills up flag if both are not set)
+        m_procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
+        m_procVictim |= PROC_FLAG_TAKE_HARMFUL_SPELL;
+    }
+
     // Some spells may not trigger any procs at all.
     if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
         m_procAttacker = PROC_FLAG_NONE;
@@ -2597,12 +2610,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 case SPELL_DAMAGE_CLASS_NONE:
                 case SPELL_DAMAGE_CLASS_MAGIC:
                     if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-                    {
-                        if (positive)
-                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
-                        else
-                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
-                    }
+                        procAttacker |= PROC_FLAG_DEAL_PERIODIC;
                     else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
                     {
                         if (positive)
@@ -2628,10 +2636,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 case SPELL_DAMAGE_CLASS_NONE:
                 case SPELL_DAMAGE_CLASS_MAGIC:
                     if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-                    {
-                        if (!positive)
-                            procVictim |= PROC_FLAG_TAKE_HARMFUL_PERIODIC;
-                    }
+                        procVictim |= PROC_FLAG_TAKE_PERIODIC;
                     else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
                     {
                         if (positive)
@@ -3691,12 +3696,7 @@ void Spell::_cast(bool skipCheck)
     if (!procAttacker && !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
     {
         if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
-        }
+            procAttacker |= PROC_FLAG_DEAL_PERIODIC;
         else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
         {
             if (IsPositive())
@@ -3919,12 +3919,7 @@ void Spell::_handle_finish_phase()
     if (!procAttacker && !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
     {
         if (m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-        {
-            if (IsPositive())
-                procAttacker |= PROC_FLAG_DEAL_HELPFUL_PERIODIC;
-            else
-                procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
-        }
+            procAttacker |= PROC_FLAG_DEAL_PERIODIC;
         else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
         {
             if (IsPositive())

@@ -137,12 +137,12 @@ enum ProcFlags
     PROC_FLAG_DEAL_HARMFUL_SPELL                = 0x00010000,    // 16 Done negative spell that has dmg class magic
     PROC_FLAG_TAKE_HARMFUL_SPELL                = 0x00020000,    // 17 Taken negative spell that has dmg class magic
 
-    PROC_FLAG_DEAL_HARMFUL_PERIODIC             = 0x00040000,    // 18 Successful do periodic (damage)
-    PROC_FLAG_TAKE_HARMFUL_PERIODIC             = 0x00080000,    // 19 Taken spell periodic (damage)
+    PROC_FLAG_DEAL_PERIODIC                     = 0x00040000,    // 18 Successful do periodic (damage/heal)
+    PROC_FLAG_TAKE_PERIODIC                     = 0x00080000,    // 19 Taken spell periodic (damage/heal)
 
     PROC_FLAG_TAKE_ANY_DAMAGE                   = 0x00100000,    // 20 Taken any damage
 
-    PROC_FLAG_DEAL_HELPFUL_PERIODIC             = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
+    PROC_FLAG_TRAP_ACTIVATION                   = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
 
     PROC_FLAG_MAIN_HAND_WEAPON_SWING            = 0x00400000,    // 22 Done main-hand melee attacks (spell and autoattack)
     PROC_FLAG_OFF_HAND_WEAPON_SWING             = 0x00800000,    // 23 Done off-hand melee attacks (spell and autoattack)
@@ -173,21 +173,21 @@ enum ProcFlags
                                                 | PROC_FLAG_DEAL_HARMFUL_ABILITY | PROC_FLAG_TAKE_HARMFUL_ABILITY
                                                 | PROC_FLAG_DEAL_HELPFUL_SPELL | PROC_FLAG_TAKE_HELPFUL_SPELL
                                                 | PROC_FLAG_DEAL_HARMFUL_SPELL | PROC_FLAG_TAKE_HARMFUL_SPELL
-                                                | PROC_FLAG_DEAL_HARMFUL_PERIODIC | PROC_FLAG_TAKE_HARMFUL_PERIODIC
-                                                | PROC_FLAG_DEAL_HELPFUL_PERIODIC,
+                                                | PROC_FLAG_DEAL_PERIODIC | PROC_FLAG_TAKE_PERIODIC
+                                                | PROC_FLAG_TRAP_ACTIVATION,
 
     DONE_HIT_PROC_FLAG_MASK                     = PROC_FLAG_DEAL_MELEE_SWING | PROC_FLAG_DEAL_RANGED_ATTACK
                                                 | PROC_FLAG_DEAL_MELEE_ABILITY | PROC_FLAG_DEAL_RANGED_ABILITY
                                                 | PROC_FLAG_DEAL_HELPFUL_ABILITY | PROC_FLAG_DEAL_HARMFUL_ABILITY
                                                 | PROC_FLAG_DEAL_HELPFUL_SPELL | PROC_FLAG_DEAL_HARMFUL_SPELL
-                                                | PROC_FLAG_DEAL_HARMFUL_PERIODIC | PROC_FLAG_DEAL_HELPFUL_PERIODIC
+                                                | PROC_FLAG_DEAL_PERIODIC | PROC_FLAG_TRAP_ACTIVATION
                                                 | PROC_FLAG_MAIN_HAND_WEAPON_SWING | PROC_FLAG_OFF_HAND_WEAPON_SWING,
 
     TAKEN_HIT_PROC_FLAG_MASK                    = PROC_FLAG_TAKE_MELEE_SWING | PROC_FLAG_TAKE_RANGED_ATTACK
                                                 | PROC_FLAG_TAKE_MELEE_ABILITY | PROC_FLAG_TAKE_RANGED_ABILITY
                                                 | PROC_FLAG_TAKE_HELPFUL_ABILITY | PROC_FLAG_TAKE_HARMFUL_ABILITY
                                                 | PROC_FLAG_TAKE_HELPFUL_SPELL | PROC_FLAG_TAKE_HARMFUL_SPELL
-                                                | PROC_FLAG_TAKE_HARMFUL_PERIODIC | PROC_FLAG_TAKE_ANY_DAMAGE,
+                                                | PROC_FLAG_TAKE_PERIODIC | PROC_FLAG_TAKE_ANY_DAMAGE,
 
     REQ_SPELL_PHASE_PROC_FLAG_MASK             = SPELL_PROC_FLAG_MASK & DONE_HIT_PROC_FLAG_MASK
 };
