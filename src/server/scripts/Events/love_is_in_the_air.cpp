@@ -124,30 +124,28 @@ std::array<uint32, 8> const CreateHeartCandySpells =
 };
 
 // 26678 - Create Heart Candy
-class spell_item_create_heart_candy : public SpellScript
+class spell_love_is_in_the_air_create_heart_candy : public SpellScript
 {
-    PrepareSpellScript(spell_item_create_heart_candy);
+    PrepareSpellScript(spell_love_is_in_the_air_create_heart_candy);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CreateHeartCandySpells);
     }
 
-    void HandleScript(SpellEffIndex effIndex)
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        PreventHitDefaultEffect(effIndex);
-        if (Player* target = GetHitPlayer())
-            target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(CreateHeartCandySpells), true);
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CreateHeartCandySpells), true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_item_create_heart_candy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_love_is_in_the_air_create_heart_candy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 void AddSC_event_love_is_in_the_air()
 {
     RegisterSpellScript(spell_love_is_in_the_air_romantic_picnic);
-    RegisterSpellScript(spell_item_create_heart_candy);
+    RegisterSpellScript(spell_love_is_in_the_air_create_heart_candy);
 }
