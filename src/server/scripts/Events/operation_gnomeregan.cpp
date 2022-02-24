@@ -34,9 +34,9 @@ enum BasicOrdersEmote
    73836 - [DND] Test Roar
    73837 - [DND] Test Dance
    73886 - [DND] Test Stop Dance */
-class spell_q25199_emote : public AuraScript
+class spell_operation_gnomeregan_basic_orders_emote : public AuraScript
 {
-    PrepareAuraScript(spell_q25199_emote);
+    PrepareAuraScript(spell_operation_gnomeregan_basic_orders_emote);
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -67,11 +67,11 @@ class spell_q25199_emote : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q25199_emote::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_operation_gnomeregan_basic_orders_emote::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 void AddSC_event_operation_gnomeregan()
 {
-    RegisterSpellScript(spell_q25199_emote);
+    RegisterSpellScript(spell_operation_gnomeregan_basic_orders_emote);
 }
