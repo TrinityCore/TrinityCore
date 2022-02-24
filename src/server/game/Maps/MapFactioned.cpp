@@ -15,11 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFactioned.h"
 #include "Log.h"
+#include "MapFactioned.h"
 #include "MapManager.h"
-#include "MMapFactory.h"
-#include "VMapManager2.h"
 #include "World.h"
 
 MapFactioned::MapFactioned(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NONE)
