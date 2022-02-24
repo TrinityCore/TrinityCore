@@ -3493,7 +3493,7 @@ CREATE TABLE `respawn` (
   `mapId` smallint unsigned NOT NULL,
   `instanceId` int unsigned NOT NULL,
   `teamId` tinyint(3) unsigned NOT NULL,
-  PRIMARY KEY (`type`,`spawnId`,`instanceId`),
+  PRIMARY KEY (`type`,`spawnId`,`instanceId`,`teamId`),
   KEY `idx_instance` (`instanceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Stored respawn times';
 /*!40101 SET character_set_client = @saved_cs_client */;
