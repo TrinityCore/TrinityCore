@@ -1173,7 +1173,7 @@ void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiff
     }());
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
-    stmt->setUInt8(index++, teamId);
+    stmt->setUInt8(index++, data.teamId);
     stmt->setFloat(index++, GetPositionX());
     stmt->setFloat(index++, GetPositionY());
     stmt->setFloat(index++, GetPositionZ());
