@@ -140,7 +140,7 @@ public:
             data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
             data.id = id;
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
-            data.teamId = TeamId(map->GetTeamId());
+            data.teamId = map->GetTeamId();
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
             {
                 creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() }, map->GetTeamId());
