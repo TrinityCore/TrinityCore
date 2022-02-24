@@ -16,18 +16,9 @@
  */
 
 #include "MapFactioned.h"
-#include "Battleground.h"
-#include "DB2Stores.h"
-#include "GarrisonMap.h"
-#include "Group.h"
-#include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "MMapFactory.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "ScenarioMgr.h"
-#include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "World.h"
 
@@ -136,7 +127,7 @@ Map* MapFactioned::CreateFactionMap(TeamId teamId)
     map->LoadRespawnTimes();
     map->LoadCorpseData();
 
-    if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
+    if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
         map->LoadAllCells();
 
     _factionedMaps[teamId] = map;
