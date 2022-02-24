@@ -570,10 +570,6 @@ public:
             if (m && (mechanicImmuneMask & (1 << (m - 1))))
                 handler->PSendSysMessage("%s (0x%X)", EnumUtils::ToTitle(m), m);
 
-        if (SmoothPhasing* smoothPhasing = target->GetSmoothPhasing())
-            if (SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(handler->GetSession()->GetPlayer()->GetGUID()))
-                handler->PSendSysMessage("Is Personal Clone: %s", infoForSeer->ReplaceActive);
-
         return true;
     }
 
