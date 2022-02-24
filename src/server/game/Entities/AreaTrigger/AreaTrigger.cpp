@@ -374,6 +374,9 @@ void AreaTrigger::UpdateTargetList()
         case AREATRIGGER_TYPE_CYLINDER:
             SearchUnitInCylinder(targetList);
             break;
+        case AREATRIGGER_TYPE_DISK:
+            SearchUnitInDisk(targetList);
+            break;
         default:
             break;
     }
@@ -466,6 +469,21 @@ void AreaTrigger::SearchUnitInCylinder(std::vector<Unit*>& targetList)
     {
         return unit->GetPositionZ() < minZ
             || unit->GetPositionZ() > maxZ;
+    }), targetList.end());
+}
+
+void AreaTrigger::SearchUnitInDisk(std::vector<Unit*>& targetList)
+{
+    SearchUnits(targetList, GetMaxSearchRadius(), false);
+
+    float innerRadius = _shape.DiskDatas.InnerRadius;
+    float height = _shape.DiskDatas.Height;
+    float minZ = GetPositionZ() - height;
+    float maxZ = GetPositionZ() + height;
+
+    targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [this, innerRadius, minZ, maxZ](Unit const* unit) -> bool
+    {
+        return unit->IsInDist2d(this, innerRadius) ||  unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
     }), targetList.end());
 }
 

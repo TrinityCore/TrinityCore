@@ -28,7 +28,7 @@ namespace WorldPackets
         struct DungeonScoreMapSummary
         {
             int32 ChallengeModeID = 0;
-            float MapScore = 0;
+            float MapScore = 0.0f;
             int32 BestRunLevel = 0;
             int32 BestRunDurationMS = 0;
             bool FinishedSuccess = false;
@@ -36,7 +36,8 @@ namespace WorldPackets
 
         struct DungeonScoreSummary
         {
-            float CurrentSeasonScore = 0;
+            float CurrentSeasonScore = 0.0f;
+            float LifetimeBestSeasonScore = 0.0f;
             std::vector<DungeonScoreMapSummary> Runs;
         };
 
@@ -48,7 +49,7 @@ namespace WorldPackets
             ObjectGuid GuildGUID;
             uint32 NativeRealmAddress = 0;
             uint32 VirtualRealmAddress = 0;
-            int16 ChrSpecializationID = 0;
+            int32 ChrSpecializationID = 0;
             int16 RaceID = 0;
             int32 ItemLevel = 0;
             int32 CovenantID = 0;
@@ -63,9 +64,9 @@ namespace WorldPackets
             int32 DurationMs = 0;
             Timestamp<> StartDate;
             Timestamp<> CompletionDate;
-            int32 Season;
+            int32 Season = 0;
             std::vector<MythicPlusMember> Members;
-            float RunScore;
+            float RunScore = 0.0f;
             std::array<int32, 4> KeystoneAffixIDs;
         };
 
@@ -73,14 +74,14 @@ namespace WorldPackets
         {
             int32 KeystoneAffixID = 0;
             MythicPlusRun Run;
-            float Score = 0;
+            float Score = 0.0f;
         };
 
         struct DungeonScoreMapData
         {
             int32 MapChallengeModeID = 0;
             std::vector<DungeonScoreBestRunForAffix> BestRuns;
-            float OverAllScore = 0;
+            float OverAllScore = 0.0f;
 
         };
 
@@ -88,7 +89,7 @@ namespace WorldPackets
         {
             int32 Season = 0;
             std::vector<DungeonScoreMapData> Maps;
-            float SeasonScore = 0;
+            float SeasonScore = 0.0f;
         };
 
         struct DungeonScoreData

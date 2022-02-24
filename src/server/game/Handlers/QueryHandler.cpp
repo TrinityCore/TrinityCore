@@ -32,24 +32,26 @@
 #include "Realm.h"
 #include "World.h"
 
-void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
+void WorldSession::BuildNameQueryData(ObjectGuid guid, WorldPackets::Query::NameCacheLookupResult& lookupData)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
 
-    WorldPackets::Query::QueryPlayerNameResponse response;
-    response.Player = guid;
+    lookupData.Player = guid;
 
-    if (response.Data.Initialize(guid, player))
-        response.Result = RESPONSE_SUCCESS; // name known
+    lookupData.Data.emplace();
+    if (lookupData.Data->Initialize(guid, player))
+        lookupData.Result = RESPONSE_SUCCESS; // name known
     else
-        response.Result = RESPONSE_FAILURE; // name unknown
-
-    SendPacket(response.Write());
+        lookupData.Result = RESPONSE_FAILURE; // name unknown
 }
 
 void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet)
 {
-    SendNameQueryOpcode(packet.Player);
+    WorldPackets::Query::QueryPlayerNameResponse response;
+    for (ObjectGuid guid : packet.Players)
+        BuildNameQueryData(guid, response.Players.emplace_back());
+
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& /*queryTime*/)

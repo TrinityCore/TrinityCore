@@ -36,6 +36,7 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreMapSummary const& dungeonSc
 ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSummary const& dungeonScoreSummary)
 {
     data << float(dungeonScoreSummary.CurrentSeasonScore);
+    data << float(dungeonScoreSummary.LifetimeBestSeasonScore);
     data << uint32(dungeonScoreSummary.Runs.size());
     for (DungeonScoreMapSummary const& dungeonScoreMapSummary : dungeonScoreSummary.Runs)
         data << dungeonScoreMapSummary;
@@ -51,7 +52,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MythicPlusMember const& mythicPlusMembe
     data << mythicPlusMember.GuildGUID;
     data << uint32(mythicPlusMember.NativeRealmAddress);
     data << uint32(mythicPlusMember.VirtualRealmAddress);
-    data << int16(mythicPlusMember.ChrSpecializationID);
+    data << int32(mythicPlusMember.ChrSpecializationID);
     data << int16(mythicPlusMember.RaceID);
     data << int32(mythicPlusMember.ItemLevel);
     data << int32(mythicPlusMember.CovenantID);
@@ -104,7 +105,12 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSeasonData const& dungeonSc
 {
     data << int32(dungeonScoreSeasonData.Season);
     data << uint32(dungeonScoreSeasonData.Maps.size());
+    data << uint32(0);
     data << float(dungeonScoreSeasonData.SeasonScore);
+    data << float(0);
+    for (DungeonScoreMapData const& map : dungeonScoreSeasonData.Maps)
+        data << map;
+
     for (DungeonScoreMapData const& map : dungeonScoreSeasonData.Maps)
         data << map;
 

@@ -1142,6 +1142,7 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial
     WorldPackets::Misc::SpecialMountAnim specialMountAnim;
     specialMountAnim.UnitGUID = _player->GetGUID();
     std::copy(mountSpecial.SpellVisualKitIDs.begin(), mountSpecial.SpellVisualKitIDs.end(), std::back_inserter(specialMountAnim.SpellVisualKitIDs));
+    specialMountAnim.SequenceVariation = mountSpecial.SequenceVariation;
     GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
 }
 

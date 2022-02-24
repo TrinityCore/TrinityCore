@@ -756,7 +756,7 @@ namespace UF
             return Size;
         }
 
-        T const& operator[](uint32 index) const
+        T const& operator[](std::size_t index) const
         {
             return _values[index];
         }

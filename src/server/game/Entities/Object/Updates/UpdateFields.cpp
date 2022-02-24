@@ -328,13 +328,13 @@ void ItemData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void ItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void ItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         allowedMaskForTarget |= { 0x03FB1B00u, 0x00000000u };
 }
 
-void ItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void ItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     Mask allowedMaskForTarget({ 0xFC04E4FFu, 0x000000FFu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
@@ -713,13 +713,13 @@ void AzeriteItemData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void AzeriteItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void AzeriteItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
         allowedMaskForTarget |= { 0x000003E2u };
 }
 
-void AzeriteItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void AzeriteItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     Mask allowedMaskForTarget({ 0x0000001Du });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
@@ -1114,7 +1114,6 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << uint32(PassiveSpells.size());
     data << uint32(WorldEffects.size());
     data << uint32(ChannelObjects.size());
-    data << SkinningOwnerGUID;
     data << uint32(SilencedSchoolMask);
     data << NameplateAttachToGUID;
     for (std::size_t i = 0; i < PassiveSpells.size(); ++i)
@@ -1133,24 +1132,24 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
 
 void UnitData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
-    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFFFFFF81u, 0xFE0007FFu, 0x00000000u, 0x00000000u });
+    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFFFFFF81u, 0x7F0003FFu, 0x00000000u, 0x00000000u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void UnitData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void UnitData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x00002000u, 0x1E008000u, 0xFFE10000u, 0x1000007Eu, 0x01FFF800u, 0xFFFFFFFFu, 0x00000007u };
+        allowedMaskForTarget |= { 0x00002000u, 0x1E008000u, 0xFFE10000u, 0x0800007Eu, 0x80FFFC00u, 0xFFFFFFFFu, 0x00000003u };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::UnitAll))
-        allowedMaskForTarget |= { 0x00000000u, 0x00000000u, 0x00000000u, 0x10000000u, 0x01FFF800u, 0x00000000u, 0x00000000u };
+        allowedMaskForTarget |= { 0x00000000u, 0x00000000u, 0x00000000u, 0x08000000u, 0x00FFFC00u, 0x00000000u, 0x00000000u };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
-        allowedMaskForTarget |= { 0x00000000u, 0x1E000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x001FE000u, 0x00000000u };
+        allowedMaskForTarget |= { 0x00000000u, 0x1E000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x000FF000u, 0x00000000u };
 }
 
-void UnitData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void UnitData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
-    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFFFFFF81u, 0xFE0007FFu, 0x00000000u, 0x00000000u });
+    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFFFFFF81u, 0x7F0003FFu, 0x00000000u, 0x00000000u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     changesMask &= allowedMaskForTarget;
 }
@@ -1682,100 +1681,96 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[118])
         {
-            data << SkinningOwnerGUID;
-        }
-        if (changesMask[119])
-        {
             data << uint32(SilencedSchoolMask);
         }
-        if (changesMask[120])
+        if (changesMask[119])
         {
             data << NameplateAttachToGUID;
         }
     }
-    if (changesMask[121])
+    if (changesMask[120])
     {
         for (std::size_t i = 0; i < 2; ++i)
         {
-            if (changesMask[122 + i])
+            if (changesMask[121 + i])
             {
                 data << uint32(ViewerDependentValue<NpcFlagsTag>::GetValue(this, i, owner, receiver));
             }
         }
     }
-    if (changesMask[124])
+    if (changesMask[123])
     {
         for (std::size_t i = 0; i < 7; ++i)
         {
-            if (changesMask[125 + i])
+            if (changesMask[124 + i])
             {
                 data << int32(Power[i]);
             }
-            if (changesMask[132 + i])
+            if (changesMask[131 + i])
             {
                 data << int32(MaxPower[i]);
             }
-            if (changesMask[139 + i])
+            if (changesMask[138 + i])
             {
                 data << float(PowerRegenFlatModifier[i]);
             }
-            if (changesMask[146 + i])
+            if (changesMask[145 + i])
             {
                 data << float(PowerRegenInterruptedFlatModifier[i]);
             }
         }
     }
-    if (changesMask[153])
+    if (changesMask[152])
     {
         for (std::size_t i = 0; i < 3; ++i)
         {
-            if (changesMask[154 + i])
+            if (changesMask[153 + i])
             {
                 VirtualItems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[157])
+    if (changesMask[156])
     {
         for (std::size_t i = 0; i < 2; ++i)
         {
-            if (changesMask[158 + i])
+            if (changesMask[157 + i])
             {
                 data << uint32(AttackRoundBaseTime[i]);
             }
         }
     }
-    if (changesMask[160])
+    if (changesMask[159])
     {
         for (std::size_t i = 0; i < 4; ++i)
         {
-            if (changesMask[161 + i])
+            if (changesMask[160 + i])
             {
                 data << int32(Stats[i]);
             }
-            if (changesMask[165 + i])
+            if (changesMask[164 + i])
             {
                 data << int32(StatPosBuff[i]);
             }
-            if (changesMask[169 + i])
+            if (changesMask[168 + i])
             {
                 data << int32(StatNegBuff[i]);
             }
         }
     }
-    if (changesMask[173])
+    if (changesMask[172])
     {
         for (std::size_t i = 0; i < 7; ++i)
         {
-            if (changesMask[174 + i])
+            if (changesMask[173 + i])
             {
                 data << int32(Resistances[i]);
             }
-            if (changesMask[181 + i])
+            if (changesMask[180 + i])
             {
                 data << int32(BonusResistanceMods[i]);
             }
-            if (changesMask[188 + i])
+            if (changesMask[187 + i])
             {
                 data << int32(ManaCostModifier[i]);
             }
@@ -1899,7 +1894,6 @@ void UnitData::ClearChangesMask()
     Base::ClearChangesMask(LookAtControllerID);
     Base::ClearChangesMask(TaxiNodesID);
     Base::ClearChangesMask(GuildGUID);
-    Base::ClearChangesMask(SkinningOwnerGUID);
     Base::ClearChangesMask(SilencedSchoolMask);
     Base::ClearChangesMask(NameplateAttachToGUID);
     Base::ClearChangesMask(NpcFlags);
@@ -2170,13 +2164,13 @@ void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
         allowedMaskForTarget |= { 0x00000012u, 0xFFFFFFF8u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000001u };
 }
 
-void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x00000007u, 0x00000000u, 0x00000000u, 0x00000000u, 0x0FFFFFFEu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
@@ -4434,11 +4428,11 @@ void GameObjectData::ClearChangesMask()
 void DynamicObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const
 {
     data << Caster;
+    data << uint8(Type);
     SpellVisual->WriteCreate(data, owner, receiver);
     data << int32(SpellID);
     data << float(Radius);
     data << uint32(CastTime);
-    data << uint8(Type);
 }
 
 void DynamicObjectData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const
@@ -4459,23 +4453,23 @@ void DynamicObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, b
         }
         if (changesMask[2])
         {
-            SpellVisual->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+            data << uint8(Type);
         }
         if (changesMask[3])
         {
-            data << int32(SpellID);
+            SpellVisual->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
         if (changesMask[4])
         {
-            data << float(Radius);
+            data << int32(SpellID);
         }
         if (changesMask[5])
         {
-            data << uint32(CastTime);
+            data << float(Radius);
         }
         if (changesMask[6])
         {
-            data << uint8(Type);
+            data << uint32(CastTime);
         }
     }
 }
@@ -4483,11 +4477,11 @@ void DynamicObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, b
 void DynamicObjectData::ClearChangesMask()
 {
     Base::ClearChangesMask(Caster);
+    Base::ClearChangesMask(Type);
     Base::ClearChangesMask(SpellVisual);
     Base::ClearChangesMask(SpellID);
     Base::ClearChangesMask(Radius);
     Base::ClearChangesMask(CastTime);
-    Base::ClearChangesMask(Type);
     _changesMask.ResetAll();
 }
 
@@ -4752,7 +4746,9 @@ void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
     data << float(BoundsRadius2D);
     data << uint32(DecalPropertiesID);
     data << CreatingEffectGUID;
-    data << Field_80;
+    data << uint32(Field_80);
+    data << uint32(Field_84);
+    data << Field_88;
     ExtraScaleCurve->WriteCreate(data, owner, receiver);
     VisualAnim->WriteCreate(data, owner, receiver);
 }
@@ -4764,7 +4760,7 @@ void AreaTriggerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
 
 void AreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, AreaTrigger const* owner, Player const* receiver) const
 {
-    data.WriteBits(changesMask.GetBlock(0), 16);
+    data.WriteBits(changesMask.GetBlock(0), 18);
 
     data.FlushBits();
     if (changesMask[0])
@@ -4819,13 +4815,21 @@ void AreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, boo
         }
         if (changesMask[14])
         {
-            data << Field_80;
+            data << uint32(Field_80);
+        }
+        if (changesMask[15])
+        {
+            data << uint32(Field_84);
+        }
+        if (changesMask[16])
+        {
+            data << Field_88;
         }
         if (changesMask[2])
         {
             ExtraScaleCurve->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
-        if (changesMask[15])
+        if (changesMask[17])
         {
             VisualAnim->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
         }
@@ -4848,6 +4852,8 @@ void AreaTriggerData::ClearChangesMask()
     Base::ClearChangesMask(DecalPropertiesID);
     Base::ClearChangesMask(CreatingEffectGUID);
     Base::ClearChangesMask(Field_80);
+    Base::ClearChangesMask(Field_84);
+    Base::ClearChangesMask(Field_88);
     Base::ClearChangesMask(VisualAnim);
     _changesMask.ResetAll();
 }

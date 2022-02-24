@@ -9557,8 +9557,8 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
-        //      0       1         2           3           4                      5           6              7             8            9         10        11       12
-        "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
+        //      0       1         2           3           4                      5           6              7         8             9            10        11        12       13
+        "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, Language, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
         "FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
     if (!result)
@@ -9580,12 +9580,13 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt32();
         gMenuItem.OptionNpcFlag         = fields[6].GetUInt64();
-        gMenuItem.ActionMenuID          = fields[7].GetUInt32();
-        gMenuItem.ActionPoiID           = fields[8].GetUInt32();
-        gMenuItem.BoxCoded              = fields[9].GetBool();
-        gMenuItem.BoxMoney              = fields[10].GetUInt32();
-        gMenuItem.BoxText               = fields[11].GetString();
-        gMenuItem.BoxBroadcastTextID    = fields[12].GetUInt32();
+        gMenuItem.Language              = fields[7].GetUInt32();
+        gMenuItem.ActionMenuID          = fields[8].GetUInt32();
+        gMenuItem.ActionPoiID           = fields[9].GetUInt32();
+        gMenuItem.BoxCoded              = fields[10].GetBool();
+        gMenuItem.BoxMoney              = fields[11].GetUInt32();
+        gMenuItem.BoxText               = fields[12].GetString();
+        gMenuItem.BoxBroadcastTextID    = fields[13].GetUInt32();
 
         if (gMenuItem.OptionIcon >= GossipOptionIcon::Count)
         {
@@ -9604,6 +9605,12 @@ void ObjectMgr::LoadGossipMenuItems()
 
         if (gMenuItem.OptionType >= GOSSIP_OPTION_MAX)
             TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown option id %u. Option will not be used", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionType);
+
+        if (gMenuItem.Language && !sLanguagesStore.LookupEntry(gMenuItem.Language))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing Language %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.Language);
+            gMenuItem.Language = 0;
+        }
 
         if (gMenuItem.ActionPoiID && !GetPointOfInterest(gMenuItem.ActionPoiID))
         {
@@ -10814,7 +10821,8 @@ void ObjectMgr::LoadPlayerChoices()
     uint32 oldMSTime = getMSTime();
     _playerChoices.clear();
 
-    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, Question, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
+    //                                                       0               1           2                3         4         5                  6                   7                    8
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
 
     if (!choices)
     {
@@ -10840,9 +10848,12 @@ void ObjectMgr::LoadPlayerChoices()
         choice.ChoiceId = choiceId;
         choice.UiTextureKitId = fields[1].GetInt32();
         choice.SoundKitId = fields[2].GetUInt32();
-        choice.Question = fields[3].GetString();
-        choice.HideWarboardHeader = fields[4].GetBool();
-        choice.KeepOpenAfterChoice = fields[5].GetBool();
+        choice.CloseSoundKitId = fields[3].GetUInt32();
+        choice.Duration = fields[4].GetInt64();
+        choice.Question = fields[5].GetString();
+        choice.PendingChoiceText = fields[6].GetString();
+        choice.HideWarboardHeader = fields[7].GetBool();
+        choice.KeepOpenAfterChoice = fields[8].GetBool();
 
     } while (choices->NextRow());
 
@@ -11172,8 +11183,10 @@ void ObjectMgr::LoadPlayerChoices()
 
             PlayerChoiceResponseMawPower& mawPower = responseItr->MawPower.emplace();
             mawPower.TypeArtFileID = fields[2].GetInt32();
-            mawPower.Rarity = fields[3].GetInt32();
-            mawPower.RarityColor = fields[4].GetUInt32();
+            if (!fields[3].IsNull())
+                mawPower.Rarity = fields[3].GetInt32();
+            if (!fields[4].IsNull())
+                mawPower.RarityColor = fields[4].GetUInt32();
             mawPower.SpellID = fields[5].GetInt32();
             mawPower.MaxStacks = fields[6].GetInt32();
 

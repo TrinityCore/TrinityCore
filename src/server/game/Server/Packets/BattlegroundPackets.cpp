@@ -19,9 +19,10 @@
 
 WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
 {
-    _worldPacket << int32(MythicPlusSeasonID);
-    _worldPacket << int32(CurrentSeason);
-    _worldPacket << int32(PreviousSeason);
+    _worldPacket << int32(MythicPlusDisplaySeasonID);
+    _worldPacket << int32(MythicPlusMilestoneSeasonID);
+    _worldPacket << int32(CurrentArenaSeason);
+    _worldPacket << int32(PreviousArenaSeason);
     _worldPacket << int32(ConquestWeeklyProgressCurrencyID);
     _worldPacket << int32(PvpSeasonID);
     _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
@@ -87,6 +88,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
     data << int32(playerData.Class);
     data << int32(playerData.CreatureID);
     data << int32(playerData.HonorLevel);
+    data << int32(playerData.Role);
     for (WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerPVPStat const& pvpStat : playerData.Stats)
         data << pvpStat;
 
@@ -205,6 +207,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldStatusQueued::Write()
     _worldPacket << Hdr;
     _worldPacket << uint32(AverageWaitTime);
     _worldPacket << uint32(WaitTime);
+    _worldPacket << int32(Unused920);
     _worldPacket.WriteBit(AsGroup);
     _worldPacket.WriteBit(EligibleForMatchmaking);
     _worldPacket.WriteBit(SuspendedQueue);
@@ -362,6 +365,7 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchComplete::Write()
     _worldPacket << uint8(Winner);
     _worldPacket << Duration;
     _worldPacket.WriteBit(LogData.has_value());
+    _worldPacket.WriteBits(SoloShuffleStatus, 2);
     _worldPacket.FlushBits();
 
     if (LogData)
