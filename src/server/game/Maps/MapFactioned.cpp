@@ -99,11 +99,8 @@ void MapFactioned::UnloadAll()
     Map::UnloadAll();
 }
 
-Map* MapFactioned::CreateFactionMapForTeam(uint32 mapId, TeamId teamId)
+Map* MapFactioned::CreateFactionMapForTeam(TeamId teamId)
 {
-    if (GetId() != mapId)
-        return nullptr;
-
     Map* map = FindFactionMap(teamId);
     if (!map)
         map = CreateFactionMap(teamId);

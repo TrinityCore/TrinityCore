@@ -43,7 +43,7 @@ class TC_GAME_API MapFactioned : public Map
 
         void UnloadAll() override;
 
-        Map* CreateFactionMapForTeam(uint32 mapId, TeamId teamId);
+        Map* CreateFactionMapForTeam(TeamId teamId);
 
         Map* FindFactionMap(TeamId team) const
         {

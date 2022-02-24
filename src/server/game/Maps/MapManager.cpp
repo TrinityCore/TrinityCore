@@ -135,7 +135,7 @@ Map* MapManager::CreateMap(uint32 id, Player* player, uint32 loginInstanceId, Te
         m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player, loginInstanceId);
 
     if (m && m->IsFactioned())
-        m = ((MapFactioned*)m)->CreateFactionMapForTeam(id, player ? player->GetTeamId() : teamId);
+        m = ((MapFactioned*)m)->CreateFactionMapForTeam(player ? player->GetTeamId() : teamId);
 
     return m;
 }
