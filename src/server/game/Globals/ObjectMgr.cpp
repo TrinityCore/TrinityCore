@@ -2314,12 +2314,12 @@ void ObjectMgr::LoadCreatures()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " creatures in %u ms", _creatureDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool ObjectMgr::HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint8 teamId) const
+bool ObjectMgr::HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId, TeamId teamId) const
 {
     return Trinity::Containers::MapGetValuePtr(_mapPersonalObjectGuidsStore, { mapid, spawnMode, phaseId, teamId }) != nullptr;
 }
 
-CellObjectGuids const* ObjectMgr::GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint8 teamId, uint32 cell_id) const
+CellObjectGuids const* ObjectMgr::GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, TeamId teamId, uint32 cell_id) const
 {
     if (CellObjectGuidsMap const* guids = Trinity::Containers::MapGetValuePtr(_mapPersonalObjectGuidsStore, { mapid, spawnMode, phaseId, teamId }))
         return Trinity::Containers::MapGetValuePtr(*guids, cell_id);

@@ -143,7 +143,7 @@ public:
             data.teamId = TeamId(map->GetTeamId());
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
             {
-                creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() }, TeamId(map->GetTeamId()));
+                creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() }, map->GetTeamId());
                 sObjectMgr->AddCreatureToGrid(&data);
             }
             return true;
@@ -154,7 +154,7 @@ public:
             return false;
 
         PhasingHandler::InheritPhaseShift(creature, chr);
-        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() }, TeamId(map->GetTeamId()));
+        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() }, map->GetTeamId());
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 

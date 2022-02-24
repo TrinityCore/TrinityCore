@@ -376,7 +376,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static bool CheckGridIntegrity(T* object, bool moved, char const* objType);
 
         uint32 GetInstanceId() const { return i_InstanceId; }
-        uint8 GetTeamId() const { return uint8(_teamId); }
+        TeamId GetTeamId() const { return _teamId; }
 
         enum EnterState
         {
@@ -570,7 +570,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, CharacterDatabaseTransaction dbTrans = nullptr, bool startup = false);
         void SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransaction dbTrans = nullptr);
         void LoadRespawnTimes();
-        void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(GetId(), GetInstanceId(), TeamId(GetTeamId())); }
+        void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(GetId(), GetInstanceId(), GetTeamId()); }
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId, TeamId teamId = TEAM_NEUTRAL);
 
         void LoadCorpseData();
