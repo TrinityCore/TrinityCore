@@ -2330,17 +2330,39 @@ CellObjectGuids const* ObjectMgr::GetCellPersonalObjectGuids(uint32 mapid, Diffi
 template<CellGuidSet CellObjectGuids::*guids>
 void ObjectMgr::AddSpawnDataToGrid(SpawnData const* data)
 {
+    MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapId);
+    if (!mapEntry)
+        return;
+
+    std::set<TeamId> teams = { TEAM_ALLIANCE, TEAM_HORDE };
+
     uint32 cellId = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId();
     bool isPersonalPhase = PhasingHandler::IsPersonalPhase(data->phaseId);
     if (!isPersonalPhase)
     {
         for (Difficulty difficulty : data->spawnDifficulties)
-            (_mapObjectGuidsStore[{ data->mapId, difficulty, data->teamId }][cellId].*guids).insert(data->spawnId);
+        {
+            if (mapEntry->IsFactioned() && data->teamId == TEAM_NEUTRAL)
+            {
+                for (TeamId teamId : teams)
+                    (_mapObjectGuidsStore[{ data->mapId, difficulty, teamId }][cellId].*guids).insert(data->spawnId);
+            }
+            else
+                (_mapObjectGuidsStore[{ data->mapId, difficulty, data->teamId }][cellId].*guids).insert(data->spawnId);
+        }
     }
     else
     {
         for (Difficulty difficulty : data->spawnDifficulties)
-            (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId, data->teamId }][cellId].*guids).insert(data->spawnId);
+        {
+            if (mapEntry->IsFactioned() && data->teamId == TEAM_NEUTRAL)
+            {
+                for (TeamId teamId : teams)
+                    (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId, teamId }][cellId].*guids).insert(data->spawnId);
+            }
+            else
+                (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId, data->teamId }][cellId].*guids).insert(data->spawnId);
+        }
     }
 }
 

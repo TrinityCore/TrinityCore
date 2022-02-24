@@ -949,8 +949,8 @@ class TC_GAME_API InstanceMap : public Map
         bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
-        TeamId GetTeamIdInInstance() const { return i_script_team; }
-        Team GetTeamInInstance() const { return i_script_team == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
+        TeamId GetTeamIdInInstance() const { return _teamId; }
+        Team GetTeamInInstance() const { return _teamId == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
 
         virtual void InitVisibilityDistance() override;
 
@@ -960,7 +960,6 @@ class TC_GAME_API InstanceMap : public Map
         bool m_unloadWhenEmpty;
         InstanceScript* i_data;
         uint32 i_script_id;
-        TeamId i_script_team;
         InstanceScenario* i_scenario;
 };
 

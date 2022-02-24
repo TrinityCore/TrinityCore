@@ -3917,9 +3917,9 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 /* ******* Dungeon Instance Maps ******* */
 
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, Map* _parent, TeamId InstanceTeam)
-  : Map(id, expiry, InstanceId, SpawnMode, _parent),
+  : Map(id, expiry, InstanceId, SpawnMode, _parent, InstanceTeam),
     m_resetAfterUnload(false), m_unloadWhenEmpty(false),
-    i_data(nullptr), i_script_id(0), i_script_team(InstanceTeam), i_scenario(nullptr)
+    i_data(nullptr), i_script_id(0), i_scenario(nullptr)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();

@@ -102,7 +102,7 @@ struct TransportSpawn
     uint8 PhaseUseFlags = 0;
     uint32 PhaseId = 0;
     uint32 PhaseGroup = 0;
-    TeamId TeamId = TEAM_NEUTRAL;
+    TeamId MapTeamId = TEAM_NEUTRAL;
 };
 
 class TC_GAME_API TransportMgr
