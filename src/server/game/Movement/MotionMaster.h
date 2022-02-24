@@ -181,6 +181,7 @@ class TC_GAME_API MotionMaster
             MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation);
         }
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false);
+        void MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id = EVENT_JUMP, bool hasOrientation = false);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount, float velocity = 0.f);
         void MoveCyclicPath(Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false, float velocity = 0.f);
         void MoveCyclicPath(uint32 pathId);

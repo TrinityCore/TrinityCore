@@ -460,6 +460,22 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_CONTROLLED);
 }
 
+void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id, bool hasOrientation /* = false*/)
+{
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '%s', jumps to point Id: %u (%s)", _owner->GetGUID().ToString().c_str(), id, pos.ToString().c_str());
+    if (speedXY < 0.01f)
+        return;
+
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+    init.SetParabolicVerticalAcceleration(gravity, 0);
+    init.SetVelocity(speedXY);
+    if (hasOrientation)
+        init.SetFacing(pos.GetOrientation());
+
+    Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_CONTROLLED);
+}
+
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount, float velocity /*= 0.f*/)
 {
     float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);

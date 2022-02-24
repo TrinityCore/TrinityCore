@@ -66,6 +66,12 @@ namespace Movement
          * can't be combined with final animation
          */
         void SetParabolic(float amplitude, float start_time);
+        /* Adds movement by parabolic trajectory
+         * @param vertical_acceleration - vertical acceleration
+         * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
+         * can't be combined with final animation
+         */
+        void SetParabolicVerticalAcceleration(float vertical_acceleration, float start_time);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
@@ -170,6 +176,15 @@ namespace Movement
     {
         args.time_perc = time_shift;
         args.parabolic_amplitude = amplitude;
+        args.vertical_acceleration = 0.0f;
+        args.flags.EnableParabolic();
+    }
+
+    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
+    {
+        args.time_perc = time_shift;
+        args.parabolic_amplitude = 0.0f;
+        args.vertical_acceleration = vertical_acceleration;
         args.flags.EnableParabolic();
     }
 
