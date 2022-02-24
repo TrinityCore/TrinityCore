@@ -45,7 +45,6 @@ EndScriptData */
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "SmoothPhasing.h"
 
 using namespace Trinity::ChatCommands;
 using CreatureSpawnId = Variant<Hyperlink<creature>, ObjectGuid::LowType>;
