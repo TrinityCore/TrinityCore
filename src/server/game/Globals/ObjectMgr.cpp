@@ -2674,7 +2674,7 @@ void ObjectMgr::LoadGameObjects()
             }
         }
 
-        data.teamId = data.teamId = fields[21].IsNull() ? TEAM_NEUTRAL : TeamId(fields[21].GetUInt8());;
+        data.teamId = fields[21].IsNull() ? TEAM_NEUTRAL : TeamId(fields[21].GetUInt8());;
 
         data.scriptId = GetScriptId(fields[22].GetString());
 
