@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAIImpl.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
@@ -31,42 +32,7 @@ enum HallowEndCandysSpells
     SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE    = 44743  // Effect 1: Apply Aura: Change Model (Defias Pirate, Male).   Effect 2: Increase Swim Speed, Value: 50%
 };
 
-// 24930 - Hallow's End Candy
-class spell_hallow_end_candy : public SpellScriptLoader
-{
-    public:
-        spell_hallow_end_candy() : SpellScriptLoader("spell_hallow_end_candy") { }
-
-        class spell_hallow_end_candy_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hallow_end_candy_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(spells);
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastSpell(GetCaster(), spells[urand(0, 3)], true);
-            }
-
-            void Register() override
-            {
-                OnEffectHit += SpellEffectFn(spell_hallow_end_candy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-
-        private:
-            static uint32 const spells[4];
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_hallow_end_candy_SpellScript();
-        }
-};
-
-uint32 const spell_hallow_end_candy::spell_hallow_end_candy_SpellScript::spells[4] =
+std::array<uint32, 4> const CandysSpells =
 {
     SPELL_HALLOWS_END_CANDY_ORANGE_GIANT,
     SPELL_HALLOWS_END_CANDY_SKELETON,
@@ -74,48 +40,58 @@ uint32 const spell_hallow_end_candy::spell_hallow_end_candy_SpellScript::spells[
     SPELL_HALLOWS_END_CANDY_GHOST
 };
 
-// 24926 - Hallow's End Candy
-class spell_hallow_end_candy_pirate : public SpellScriptLoader
+// 24930 - Hallow's End Candy
+class spell_hallow_end_candy : public SpellScript
 {
-    public:
-        spell_hallow_end_candy_pirate() : SpellScriptLoader("spell_hallow_end_candy_pirate") { }
+    PrepareSpellScript(spell_hallow_end_candy);
 
-        class spell_hallow_end_candy_pirate_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CandysSpells);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CandysSpells), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_hallow_end_candy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 24926 - Hallow's End Candy
+class spell_hallow_end_candy_pirate : public AuraScript
+{
+    PrepareAuraScript(spell_hallow_end_candy_pirate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareAuraScript(spell_hallow_end_candy_pirate_AuraScript);
+            SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE,
+            SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE,
-                    SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE
-                });
-            }
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        uint32 spell = GetTarget()->GetNativeGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+        GetTarget()->CastSpell(GetTarget(), spell, true);
+    }
 
-            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                uint32 spell = GetTarget()->GetNativeGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
-                GetTarget()->CastSpell(GetTarget(), spell, true);
-            }
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        uint32 spell = GetTarget()->GetNativeGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+        GetTarget()->RemoveAurasDueToSpell(spell);
+    }
 
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                uint32 spell = GetTarget()->GetNativeGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
-                GetTarget()->RemoveAurasDueToSpell(spell);
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_hallow_end_candy_pirate_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hallow_end_candy_pirate_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_hallow_end_candy_pirate_AuraScript();
-        }
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hallow_end_candy_pirate::HandleApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hallow_end_candy_pirate::HandleRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 enum TrickSpells
@@ -133,74 +109,63 @@ enum TrickSpells
 };
 
 // 24750 - Trick
-class spell_hallow_end_trick : public SpellScriptLoader
+class spell_hallow_end_trick : public SpellScript
 {
-    public:
-        spell_hallow_end_trick() : SpellScriptLoader("spell_hallow_end_trick") { }
+    PrepareSpellScript(spell_hallow_end_trick);
 
-        class spell_hallow_end_trick_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_hallow_end_trick_SpellScript);
+            SPELL_PIRATE_COSTUME_MALE,
+            SPELL_PIRATE_COSTUME_FEMALE,
+            SPELL_NINJA_COSTUME_MALE,
+            SPELL_NINJA_COSTUME_FEMALE,
+            SPELL_LEPER_GNOME_COSTUME_MALE,
+            SPELL_LEPER_GNOME_COSTUME_FEMALE,
+            SPELL_SKELETON_COSTUME,
+            SPELL_GHOST_COSTUME_MALE,
+            SPELL_GHOST_COSTUME_FEMALE,
+            SPELL_TRICK_BUFF
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_PIRATE_COSTUME_MALE,
-                    SPELL_PIRATE_COSTUME_FEMALE,
-                    SPELL_NINJA_COSTUME_MALE,
-                    SPELL_NINJA_COSTUME_FEMALE,
-                    SPELL_LEPER_GNOME_COSTUME_MALE,
-                    SPELL_LEPER_GNOME_COSTUME_FEMALE,
-                    SPELL_SKELETON_COSTUME,
-                    SPELL_GHOST_COSTUME_MALE,
-                    SPELL_GHOST_COSTUME_FEMALE,
-                    SPELL_TRICK_BUFF
-                });
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Player* target = GetHitPlayer())
-                {
-                    uint8 gender = target->GetNativeGender();
-                    uint32 spellId = SPELL_TRICK_BUFF;
-                    switch (urand(0, 5))
-                    {
-                        case 1:
-                            spellId = gender == GENDER_FEMALE ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
-                            break;
-                        case 2:
-                            spellId = gender == GENDER_FEMALE ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
-                            break;
-                        case 3:
-                            spellId = gender == GENDER_FEMALE ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
-                            break;
-                        case 4:
-                            spellId = gender == GENDER_FEMALE ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
-                            break;
-                        case 5:
-                            spellId = SPELL_SKELETON_COSTUME;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    caster->CastSpell(target, spellId, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (Player* target = GetHitPlayer())
         {
-            return new spell_hallow_end_trick_SpellScript();
+            uint8 gender = target->GetNativeGender();
+            uint32 spellId = SPELL_TRICK_BUFF;
+            switch (urand(0, 5))
+            {
+                case 1:
+                    spellId = gender == GENDER_FEMALE ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
+                    break;
+                case 2:
+                    spellId = gender == GENDER_FEMALE ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
+                    break;
+                case 3:
+                    spellId = gender == GENDER_FEMALE ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
+                    break;
+                case 4:
+                    spellId = gender == GENDER_FEMALE ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
+                    break;
+                case 5:
+                    spellId = SPELL_SKELETON_COSTUME;
+                    break;
+                default:
+                    break;
+            }
+
+            caster->CastSpell(target, spellId, true);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 enum TrickOrTreatSpells
@@ -214,79 +179,57 @@ enum TrickOrTreatSpells
 };
 
 // 24751 - Trick or Treat
-class spell_hallow_end_trick_or_treat : public SpellScriptLoader
+class spell_hallow_end_trick_or_treat : public SpellScript
 {
-    public:
-        spell_hallow_end_trick_or_treat() : SpellScriptLoader("spell_hallow_end_trick_or_treat") { }
+    PrepareSpellScript(spell_hallow_end_trick_or_treat);
 
-        class spell_hallow_end_trick_or_treat_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRICK, SPELL_TREAT, SPELL_TRICKED_OR_TREATED });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (Player* target = GetHitPlayer())
         {
-            PrepareSpellScript(spell_hallow_end_trick_or_treat_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_TRICK, SPELL_TREAT, SPELL_TRICKED_OR_TREATED });
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Player* target = GetHitPlayer())
-                {
-                    caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true);
-                    caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_hallow_end_trick_or_treat_SpellScript();
+            caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true);
+            caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_or_treat::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 44436 - Tricky Treat
-class spell_hallow_end_tricky_treat : public SpellScriptLoader
+class spell_hallow_end_tricky_treat : public SpellScript
 {
-    public:
-        spell_hallow_end_tricky_treat() : SpellScriptLoader("spell_hallow_end_tricky_treat") { }
+    PrepareSpellScript(spell_hallow_end_tricky_treat);
 
-        class spell_hallow_end_tricky_treat_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_hallow_end_tricky_treat_SpellScript);
+            SPELL_TRICKY_TREAT_SPEED,
+            SPELL_TRICKY_TREAT_TRIGGER,
+            SPELL_UPSET_TUMMY
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_TRICKY_TREAT_SPEED,
-                    SPELL_TRICKY_TREAT_TRIGGER,
-                    SPELL_UPSET_TUMMY
-                });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_TRICKY_TREAT_TRIGGER) && caster->GetAuraCount(SPELL_TRICKY_TREAT_SPEED) > 3 && roll_chance_i(33))
+            caster->CastSpell(caster, SPELL_UPSET_TUMMY, true);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (caster->HasAura(SPELL_TRICKY_TREAT_TRIGGER) && caster->GetAuraCount(SPELL_TRICKY_TREAT_SPEED) > 3 && roll_chance_i(33))
-                    caster->CastSpell(caster, SPELL_UPSET_TUMMY, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_hallow_end_tricky_treat_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hallow_end_tricky_treat::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 enum HallowendData
@@ -302,79 +245,68 @@ enum HallowendData
 };
 
 // 24717, 24718, 24719, 24720, 24724, 24733, 24737, 24741
-class spell_hallow_end_wand : public SpellScriptLoader
+class spell_hallow_end_wand : public SpellScript
 {
-public:
-    spell_hallow_end_wand() : SpellScriptLoader("spell_hallow_end_wand") {}
+    PrepareSpellScript(spell_hallow_end_wand);
 
-    class spell_hallow_end_wand_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellEntry*/) override
     {
-        PrepareSpellScript(spell_hallow_end_wand_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellEntry*/) override
+        return ValidateSpellInfo(
         {
-            return ValidateSpellInfo(
-            {
-                SPELL_PIRATE_COSTUME_MALE,
-                SPELL_PIRATE_COSTUME_FEMALE,
-                SPELL_NINJA_COSTUME_MALE,
-                SPELL_NINJA_COSTUME_FEMALE,
-                SPELL_LEPER_GNOME_COSTUME_MALE,
-                SPELL_LEPER_GNOME_COSTUME_FEMALE,
-                SPELL_GHOST_COSTUME_MALE,
-                SPELL_GHOST_COSTUME_FEMALE
-            });
-        }
+            SPELL_PIRATE_COSTUME_MALE,
+            SPELL_PIRATE_COSTUME_FEMALE,
+            SPELL_NINJA_COSTUME_MALE,
+            SPELL_NINJA_COSTUME_FEMALE,
+            SPELL_LEPER_GNOME_COSTUME_MALE,
+            SPELL_LEPER_GNOME_COSTUME_FEMALE,
+            SPELL_GHOST_COSTUME_MALE,
+            SPELL_GHOST_COSTUME_FEMALE
+        });
+    }
 
-        void HandleScriptEffect()
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-
-            uint32 spellId = 0;
-            uint8 gender = target->GetNativeGender();
-
-            switch (GetSpellInfo()->Id)
-            {
-                case SPELL_HALLOWED_WAND_LEPER_GNOME:
-                    spellId = gender ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
-                    break;
-                case SPELL_HALLOWED_WAND_PIRATE:
-                    spellId = gender ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
-                    break;
-                case SPELL_HALLOWED_WAND_GHOST:
-                    spellId = gender ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
-                    break;
-                case SPELL_HALLOWED_WAND_NINJA:
-                    spellId = gender ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
-                    break;
-                case SPELL_HALLOWED_WAND_RANDOM:
-                    spellId = RAND(SPELL_HALLOWED_WAND_PIRATE, SPELL_HALLOWED_WAND_NINJA, SPELL_HALLOWED_WAND_LEPER_GNOME, SPELL_HALLOWED_WAND_SKELETON, SPELL_HALLOWED_WAND_WISP, SPELL_HALLOWED_WAND_GHOST, SPELL_HALLOWED_WAND_BAT);
-                    break;
-                default:
-                    return;
-            }
-            caster->CastSpell(target, spellId, true);
-        }
-
-        void Register() override
-        {
-            AfterHit += SpellHitFn(spell_hallow_end_wand_SpellScript::HandleScriptEffect);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleScriptEffect()
     {
-        return new spell_hallow_end_wand_SpellScript();
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        uint32 spellId = 0;
+        uint8 gender = target->GetNativeGender();
+
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_HALLOWED_WAND_LEPER_GNOME:
+                spellId = gender ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
+                break;
+            case SPELL_HALLOWED_WAND_PIRATE:
+                spellId = gender ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
+                break;
+            case SPELL_HALLOWED_WAND_GHOST:
+                spellId = gender ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
+                break;
+            case SPELL_HALLOWED_WAND_NINJA:
+                spellId = gender ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
+                break;
+            case SPELL_HALLOWED_WAND_RANDOM:
+                spellId = RAND(SPELL_HALLOWED_WAND_PIRATE, SPELL_HALLOWED_WAND_NINJA, SPELL_HALLOWED_WAND_LEPER_GNOME, SPELL_HALLOWED_WAND_SKELETON, SPELL_HALLOWED_WAND_WISP, SPELL_HALLOWED_WAND_GHOST, SPELL_HALLOWED_WAND_BAT);
+                break;
+            default:
+                return;
+        }
+        caster->CastSpell(target, spellId, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_hallow_end_wand::HandleScriptEffect);
     }
 };
 
 void AddSC_event_hallows_end()
 {
-    new spell_hallow_end_candy();
-    new spell_hallow_end_candy_pirate();
-    new spell_hallow_end_trick();
-    new spell_hallow_end_trick_or_treat();
-    new spell_hallow_end_tricky_treat();
-    new spell_hallow_end_wand();
+    RegisterSpellScript(spell_hallow_end_candy);
+    RegisterSpellScript(spell_hallow_end_candy_pirate);
+    RegisterSpellScript(spell_hallow_end_trick);
+    RegisterSpellScript(spell_hallow_end_trick_or_treat);
+    RegisterSpellScript(spell_hallow_end_tricky_treat);
+    RegisterSpellScript(spell_hallow_end_wand);
 }
