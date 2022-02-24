@@ -132,7 +132,7 @@ Map* MapManager::CreateMap(uint32 id, Player* player, uint32 loginInstanceId, Te
     Map* m = CreateBaseMap(id);
 
     if (m && m->Instanceable())
-        m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player, loginInstanceId);
+        m = ((MapInstanced*)m)->CreateInstanceForPlayer(player, loginInstanceId);
 
     if (m && m->IsFactioned())
         m = ((MapFactioned*)m)->CreateFactionMapForTeam(player ? player->GetTeamId() : teamId);
@@ -150,7 +150,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId, TeamId teamId) const
         return ((MapInstanced*)map)->FindInstanceMap(instanceId);
 
     if (map->IsFactioned())
-        return ((MapFactioned*)map)->FindFactionMap(teamId);
+        return ((MapFactioned*)map)->FindFactionMap(teamId, instanceId);
 
     return map;
 }

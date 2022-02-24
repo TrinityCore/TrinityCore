@@ -97,6 +97,9 @@ Map::~Map()
         delete m_childTerrainMaps;
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
+
+    if (!Instanceable())
+        sMapMgr->FreeInstanceId(i_InstanceId);
 }
 
 void Map::DiscoverGridMapFiles()
@@ -345,6 +348,9 @@ i_scriptLock(false), _respawnCheckTimer(0)
         m_parentTerrainMap = this;
         m_childTerrainMaps = new std::vector<Map*>();
     }
+
+    if (!i_InstanceId)
+        i_InstanceId = sMapMgr->GenerateInstanceId();
 
     for (uint32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
     {

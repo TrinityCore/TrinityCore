@@ -47,7 +47,7 @@ class TC_GAME_API MapInstanced : public Map
         void UnloadAll() override;
         EnterState CannotEnter(Player* /*player*/) override;
 
-        Map* CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 loginInstanceId = 0);
+        Map* CreateInstanceForPlayer(Player* player, uint32 loginInstanceId = 0);
         Map* FindInstanceMap(uint32 instanceId) const
         {
             InstancedMaps::const_iterator i = m_InstancedMaps.find(instanceId);

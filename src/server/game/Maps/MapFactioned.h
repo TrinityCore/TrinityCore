@@ -45,10 +45,21 @@ class TC_GAME_API MapFactioned : public Map
 
         Map* CreateFactionMapForTeam(TeamId teamId);
 
-        Map* FindFactionMap(TeamId team) const
+        Map* FindFactionMap(TeamId teamId, uint32 instanceId = 0) const
         {
-            FactionedMaps::const_iterator i = _factionedMaps.find(team);
-            return(i == _factionedMaps.end() ? nullptr : i->second);
+            for (auto& factionMapPair : _factionedMaps)
+            {
+                Map* map = factionMapPair.second;
+
+                if (instanceId)
+                {
+                    if (map->GetInstanceId() == instanceId)
+                        return map;
+                }
+                else if (map->GetTeamId() == teamId)
+                    return map;
+            }
+            return nullptr;
         }
 
         FactionedMaps& GetFactionedMaps() { return _factionedMaps; }
