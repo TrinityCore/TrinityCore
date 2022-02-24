@@ -117,7 +117,8 @@ enum PaladinSpellIcons
     PALADIN_ICON_ID_GLYPH_OF_THE_LONG_WORD       = 4127,
     PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 5154,
     PALADIN_ICON_ID_GLYPH_OF_EXORCISM            = 292,
-    PALADIN_ICON_ID_SEALS_OF_COMMAND             = 561
+    PALADIN_ICON_ID_SEALS_OF_COMMAND             = 561,
+    PALADIN_ICON_ID_LONG_ARM_OF_THE_LAW          = 3013
 };
 
 enum PaladinCreatures
@@ -660,7 +661,8 @@ class spell_pal_judgement : public SpellScript
                 SPELL_PALADIN_JUDGEMENT_OF_TRUTH,
                 SPELL_PALADIN_JUDGEMENT_OF_RIGHTEOUSNESS,
                 SPELL_PALADIN_CENSURE,
-                SPELL_PALADIN_TWO_HANDED_WEAPON_SPECIALIZATION
+                SPELL_PALADIN_TWO_HANDED_WEAPON_SPECIALIZATION,
+                SPELL_PALADIN_LONG_ARM_OF_THE_LAW
             });
     }
 
@@ -707,6 +709,16 @@ class spell_pal_judgement : public SpellScript
             AddPct(bp, twoHandedSpec->GetAmount());
 
         caster->CastSpell(target, spellId, CastSpellExtraArgs(true).AddSpellBP0(bp));
+
+        // Long Arm of the Law
+        if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_LONG_ARM_OF_THE_LAW, EFFECT_0))
+        {
+            if (!roll_chance_i(aurEff->GetAmount()))
+                return;
+
+            if (target && caster->GetExactDist2d(target) > 15.f)
+                caster->CastSpell(SPELL_PALADIN_LONG_ARM_OF_THE_LAW, true);
+        }
     }
 
     void Register() override
@@ -1107,37 +1119,6 @@ class spell_pal_seal_of_truth : public AuraScript
     void Register() override
     {
         OnEffectProc.Register(&spell_pal_seal_of_truth::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-// -87168 - Long Arm of the Law
-class spell_pal_long_arm_of_the_law : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_PALADIN_LONG_ARM_OF_THE_LAW });
-    }
-
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        if (roll_chance_i(GetEffect(EFFECT_0)->GetAmount()))
-            if (Spell const* spell = eventInfo.GetProcSpell())
-                if (Unit* target = spell->m_targets.GetUnitTarget())
-                    return (eventInfo.GetActor()->GetDistance2d(target) > 15.0f);
-
-        return false;
-    }
-
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-    {
-        PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_LONG_ARM_OF_THE_LAW, aurEff);
-    }
-
-    void Register() override
-    {
-        DoCheckProc.Register(&spell_pal_long_arm_of_the_law::CheckProc);
-        OnEffectProc.Register(&spell_pal_long_arm_of_the_law::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1872,7 +1853,6 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_lay_on_hands);
     RegisterSpellScript(spell_pal_lights_beacon);
     RegisterSpellScript(spell_pal_light_of_dawn);
-    RegisterSpellScript(spell_pal_long_arm_of_the_law);
     RegisterSpellScript(spell_pal_protector_of_the_innocent);
     RegisterSpellScript(spell_pal_repentance);
     RegisterSpellScript(spell_pal_righteous_defense);
