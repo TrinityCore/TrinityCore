@@ -180,7 +180,7 @@ void TransportMgr::LoadTransportSpawns()
             spawn.PhaseUseFlags = phaseUseFlags;
             spawn.PhaseId = phaseId;
             spawn.PhaseGroup = phaseGroupId;
-            spawn.TeamId = teamId;
+            spawn.MapTeamId = teamId;
 
         } while (result->NextRow());
     }
@@ -519,7 +519,7 @@ void TransportMgr::SpawnContinentTransports()
 
     for (auto itr = _transportSpawns.begin(); itr != _transportSpawns.end(); ++itr)
         if (!ASSERT_NOTNULL(GetTransportTemplate(itr->second.TransportGameObjectId))->inInstance)
-            if (CreateTransport(itr->second.TransportGameObjectId, itr->second.SpawnId, nullptr, itr->second.PhaseUseFlags, itr->second.PhaseId, itr->second.PhaseGroup, itr->second.TeamId))
+            if (CreateTransport(itr->second.TransportGameObjectId, itr->second.SpawnId, nullptr, itr->second.PhaseUseFlags, itr->second.PhaseId, itr->second.PhaseGroup, itr->second.MapTeamId))
                 ++count;
 
     TC_LOG_INFO("server.loading", ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
