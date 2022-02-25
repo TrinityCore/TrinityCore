@@ -1420,6 +1420,8 @@ enum SpellEffectName
     SPELL_EFFECT_MODIFY_KEYSTONE_2                  = 285,
     SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE         = 286,
     SPELL_EFFECT_SET_GARRISON_FOLLOWER_LEVEL        = 287,
+    SPELL_EFFECT_288                                = 288,
+    SPELL_EFFECT_289                                = 289,
     TOTAL_SPELL_EFFECTS
 };
 

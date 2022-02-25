@@ -597,6 +597,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_VERSATILITY_HEALING_DONE_BENEFIT         = 503, // NYI
     SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER                = 504,
     SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS                    = 505, // NYI
+    SPELL_AURA_DISABLE_INERTIA                              = 506, // NYI
     TOTAL_AURAS
 };
 

@@ -191,7 +191,7 @@ enum AzeriteTierUnlockSetFlags
     AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 3189
+#define BATTLE_PET_SPECIES_MAX_ID 3248
 
 enum class BattlePetSpeciesFlags : uint16
 {
@@ -608,6 +608,7 @@ enum class CriteriaType : uint8
     MythicPlusRatingAttained                       = 230, /*NYI*/ // (Player) Mythic+ Rating "{#DungeonScore}" attained
     SpentTalentPoint                               = 231, /*NYI*/ // (Player) spent talent point
 
+    MythicPlusDisplaySeasonEnded                   = 234, /*NYI*/ // {DisplaySeason}
     Count
 };
 
@@ -1366,6 +1367,10 @@ enum class ModifierTreeType : int32
     PlayerBestWeeklyWinPvpTierInBracketEqualOrGreaterThan               = 325, // (Mainline) Player has best weekly win at or above "{@PVP_TIER_ENUM}" for "{@PVP_BRACKET}"
     PlayerHasVanillaCollectorsEdition                                   = 326, // Player has Vanilla Collector's Edition
     PlayerHasItemWithKeystoneLevelModifierEqualOrGreaterThan            = 327,
+
+    PlayerMythicPlusRatingInDisplaySeasonEqualOrGreaterThan             = 329, /*NYI*/ // Player has Mythic+ Rating of at least "{#DungeonScore}" in {DisplaySeason}
+
+    MythicPlusRatingIsInTop01Percent                                    = 334, // top 0.1% rating
 };
 
 enum class ModifierTreeOperator : int8
@@ -1552,7 +1557,7 @@ enum class SpellVisualEffectNameType : uint32
     UnitItemRangedIgnoreDisarmed    = 10
 };
 
-#define TaxiMaskSize 339
+#define TaxiMaskSize 345
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
