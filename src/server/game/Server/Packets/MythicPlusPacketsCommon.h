@@ -89,7 +89,9 @@ namespace WorldPackets
         {
             int32 Season = 0;
             std::vector<DungeonScoreMapData> Maps;
+            std::vector<DungeonScoreMapData> Maps2;
             float SeasonScore = 0.0f;
+            float SeasonScore2 = 0.0f;
         };
 
         struct DungeonScoreData

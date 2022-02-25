@@ -105,13 +105,13 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSeasonData const& dungeonSc
 {
     data << int32(dungeonScoreSeasonData.Season);
     data << uint32(dungeonScoreSeasonData.Maps.size());
-    data << uint32(0);
+    data << uint32(dungeonScoreSeasonData.Maps2.size());
     data << float(dungeonScoreSeasonData.SeasonScore);
-    data << float(0);
+    data << float(dungeonScoreSeasonData.SeasonScore2);
     for (DungeonScoreMapData const& map : dungeonScoreSeasonData.Maps)
         data << map;
 
-    for (DungeonScoreMapData const& map : dungeonScoreSeasonData.Maps)
+    for (DungeonScoreMapData const& map : dungeonScoreSeasonData.Maps2)
         data << map;
 
     return data;
