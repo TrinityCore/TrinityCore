@@ -93,7 +93,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
             return;
         }
 
-        WorldPackets::Query::QueryPlayerNameResponse response;
+        WorldPackets::Query::QueryPlayerNamesResponse response;
         for (Group::MemberSlot const& memberSlot : group->GetMemberSlots())
             player->GetSession()->BuildNameQueryData(memberSlot.guid, response.Players.emplace_back());
 

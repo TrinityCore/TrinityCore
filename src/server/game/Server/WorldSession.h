@@ -623,7 +623,7 @@ namespace WorldPackets
     {
         class QueryCreature;
         struct NameCacheLookupResult;
-        class QueryPlayerName;
+        class QueryPlayerNames;
         class QueryPageText;
         class QueryNPCText;
         class QueryGameObject;
@@ -1296,7 +1296,7 @@ class TC_GAME_API WorldSession
         void HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjUse& packet);
         void HandleGameobjectReportUse(WorldPackets::GameObject::GameObjReportUse& packet);
 
-        void HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet);
+        void HandleQueryPlayerNames(WorldPackets::Query::QueryPlayerNames& queryPlayerNames);
         void HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& queryTime);
         void HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet);
         void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet);

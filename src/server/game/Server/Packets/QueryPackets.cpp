@@ -100,7 +100,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Query::QueryPlayerName::Read()
+void WorldPackets::Query::QueryPlayerNames::Read()
 {
     Players.resize(_worldPacket.read<uint32>());
     for (ObjectGuid& player : Players)
@@ -219,7 +219,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheLookupRes
     return data;
 }
 
-WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+WorldPacket const* WorldPackets::Query::QueryPlayerNamesResponse::Write()
 {
     _worldPacket << uint32(Players.size());
     for (NameCacheLookupResult const& lookupResult : Players)

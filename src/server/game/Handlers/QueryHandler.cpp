@@ -45,10 +45,10 @@ void WorldSession::BuildNameQueryData(ObjectGuid guid, WorldPackets::Query::Name
         lookupData.Result = RESPONSE_FAILURE; // name unknown
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet)
+void WorldSession::HandleQueryPlayerNames(WorldPackets::Query::QueryPlayerNames& queryPlayerNames)
 {
-    WorldPackets::Query::QueryPlayerNameResponse response;
-    for (ObjectGuid guid : packet.Players)
+    WorldPackets::Query::QueryPlayerNamesResponse response;
+    for (ObjectGuid guid : queryPlayerNames.Players)
         BuildNameQueryData(guid, response.Players.emplace_back());
 
     SendPacket(response.Write());

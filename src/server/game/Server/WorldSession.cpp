@@ -1297,7 +1297,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         // CPU usage sending 2000 packets/second on a 3.70 GHz 4 cores on Win x64
         //                                              [% CPU mysqld]   [%CPU worldserver RelWithDebInfo]
         case CMSG_PLAYER_LOGIN:                         //   0               0.5
-        case CMSG_QUERY_PLAYER_NAME:                    //   0               1
+        case CMSG_QUERY_PLAYER_NAMES:                   //   0               1
         case CMSG_QUERY_PET_NAME:                       //   0               1
         case CMSG_QUERY_NPC_TEXT:                       //   0               1
         case CMSG_ATTACK_STOP:                          //   0               1

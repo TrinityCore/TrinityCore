@@ -104,14 +104,14 @@ namespace WorldPackets
             Optional<uint32> NativeRealmAddress; ///< original realm (?) (identifier made from the Index, BattleGroup and Region)
         };
 
-        class QueryPlayerName final : public ClientPacket
+        class QueryPlayerNames final : public ClientPacket
         {
         public:
-            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAME, std::move(packet)) { }
+            QueryPlayerNames(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAMES, std::move(packet)) { }
 
             void Read() override;
 
-            Array<ObjectGuid, 500> Players;
+            Array<ObjectGuid, 50> Players;
         };
 
         struct PlayerGuidLookupData
@@ -148,10 +148,10 @@ namespace WorldPackets
             Optional<NameCacheUnused920> Unused920;
         };
 
-        class QueryPlayerNameResponse final : public ServerPacket
+        class QueryPlayerNamesResponse final : public ServerPacket
         {
         public:
-            QueryPlayerNameResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAME_RESPONSE, 60) { }
+            QueryPlayerNamesResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAMES_RESPONSE, 60) { }
 
             WorldPacket const* Write() override;
 
