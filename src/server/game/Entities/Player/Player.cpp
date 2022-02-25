@@ -24586,6 +24586,12 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAura(SPELL_DH_DOUBLE_JUMP))
         setCompoundState.StateChanges.emplace_back(SMSG_MOVE_ENABLE_DOUBLE_JUMP, m_movementCounter++);
 
+    if (HasAuraType(SPELL_AURA_IGNORE_MOVEMENT_FORCES))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_IGNORE_MOVEMENT_FORCES, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_DISABLE_INERTIA))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_DISABLE_INERTIA, m_movementCounter++);
+
     if (!setCompoundState.StateChanges.empty())
     {
         setCompoundState.MoverGUID = GetGUID();

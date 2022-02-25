@@ -12873,6 +12873,37 @@ bool Unit::SetCanDoubleJump(bool enable)
     return true;
 }
 
+bool Unit::SetDisableInertia(bool disable)
+{
+    if (disable == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA))
+        return false;
+
+    if (disable)
+        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA);
+    else
+        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA);
+
+    static OpcodeServer const disableInertiaOpcodeTable[2] =
+    {
+        SMSG_MOVE_DISABLE_INERTIA,
+        SMSG_MOVE_ENABLE_INERTIA
+    };
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::MoveSetFlag packet(disableInertiaOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
 void Unit::SendSetVehicleRecId(uint32 vehicleId)
 {
     if (Player* player = ToPlayer())
