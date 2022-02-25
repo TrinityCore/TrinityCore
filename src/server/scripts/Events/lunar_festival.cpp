@@ -85,223 +85,212 @@ enum Fireworks
 
 Position omenSummonPos = {7558.993f, -2839.999f, 450.0214f, 4.46f};
 
-class npc_firework : public CreatureScript
+struct npc_firework : public ScriptedAI
 {
-public:
-    npc_firework() : CreatureScript("npc_firework") { }
+    npc_firework(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_fireworkAI : public ScriptedAI
+    bool isCluster()
     {
-        npc_fireworkAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool isCluster()
+        switch (me->GetEntry())
         {
-            switch (me->GetEntry())
-            {
-                case NPC_FIREWORK_BLUE:
-                case NPC_FIREWORK_GREEN:
-                case NPC_FIREWORK_PURPLE:
-                case NPC_FIREWORK_RED:
-                case NPC_FIREWORK_YELLOW:
-                case NPC_FIREWORK_WHITE:
-                case NPC_FIREWORK_BIG_BLUE:
-                case NPC_FIREWORK_BIG_GREEN:
-                case NPC_FIREWORK_BIG_PURPLE:
-                case NPC_FIREWORK_BIG_RED:
-                case NPC_FIREWORK_BIG_YELLOW:
-                case NPC_FIREWORK_BIG_WHITE:
-                    return false;
-                case NPC_CLUSTER_BLUE:
-                case NPC_CLUSTER_GREEN:
-                case NPC_CLUSTER_PURPLE:
-                case NPC_CLUSTER_RED:
-                case NPC_CLUSTER_YELLOW:
-                case NPC_CLUSTER_WHITE:
-                case NPC_CLUSTER_BIG_BLUE:
-                case NPC_CLUSTER_BIG_GREEN:
-                case NPC_CLUSTER_BIG_PURPLE:
-                case NPC_CLUSTER_BIG_RED:
-                case NPC_CLUSTER_BIG_YELLOW:
-                case NPC_CLUSTER_BIG_WHITE:
-                case NPC_CLUSTER_ELUNE:
-                default:
-                    return true;
-            }
+            case NPC_FIREWORK_BLUE:
+            case NPC_FIREWORK_GREEN:
+            case NPC_FIREWORK_PURPLE:
+            case NPC_FIREWORK_RED:
+            case NPC_FIREWORK_YELLOW:
+            case NPC_FIREWORK_WHITE:
+            case NPC_FIREWORK_BIG_BLUE:
+            case NPC_FIREWORK_BIG_GREEN:
+            case NPC_FIREWORK_BIG_PURPLE:
+            case NPC_FIREWORK_BIG_RED:
+            case NPC_FIREWORK_BIG_YELLOW:
+            case NPC_FIREWORK_BIG_WHITE:
+                return false;
+            case NPC_CLUSTER_BLUE:
+            case NPC_CLUSTER_GREEN:
+            case NPC_CLUSTER_PURPLE:
+            case NPC_CLUSTER_RED:
+            case NPC_CLUSTER_YELLOW:
+            case NPC_CLUSTER_WHITE:
+            case NPC_CLUSTER_BIG_BLUE:
+            case NPC_CLUSTER_BIG_GREEN:
+            case NPC_CLUSTER_BIG_PURPLE:
+            case NPC_CLUSTER_BIG_RED:
+            case NPC_CLUSTER_BIG_YELLOW:
+            case NPC_CLUSTER_BIG_WHITE:
+            case NPC_CLUSTER_ELUNE:
+            default:
+                return true;
+        }
+    }
+
+    GameObject* FindNearestLauncher()
+    {
+        GameObject* launcher = nullptr;
+
+        if (isCluster())
+        {
+            GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_1, 0.5f);
+            GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_2, 0.5f);
+            GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_3, 0.5f);
+            GameObject* launcher4 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_4, 0.5f);
+
+            if (launcher1)
+                launcher = launcher1;
+            else if (launcher2)
+                launcher = launcher2;
+            else if (launcher3)
+                launcher = launcher3;
+            else if (launcher4)
+                launcher = launcher4;
+        }
+        else
+        {
+            GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_1, 0.5f);
+            GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_2, 0.5f);
+            GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_3, 0.5f);
+
+            if (launcher1)
+                launcher = launcher1;
+            else if (launcher2)
+                launcher = launcher2;
+            else if (launcher3)
+                launcher = launcher3;
         }
 
-        GameObject* FindNearestLauncher()
+        return launcher;
+    }
+
+    uint32 GetFireworkSpell(uint32 entry)
+    {
+        switch (entry)
         {
-            GameObject* launcher = nullptr;
+            case NPC_FIREWORK_BLUE:
+                return SPELL_ROCKET_BLUE;
+            case NPC_FIREWORK_GREEN:
+                return SPELL_ROCKET_GREEN;
+            case NPC_FIREWORK_PURPLE:
+                return SPELL_ROCKET_PURPLE;
+            case NPC_FIREWORK_RED:
+                return SPELL_ROCKET_RED;
+            case NPC_FIREWORK_YELLOW:
+                return SPELL_ROCKET_YELLOW;
+            case NPC_FIREWORK_WHITE:
+                return SPELL_ROCKET_WHITE;
+            case NPC_FIREWORK_BIG_BLUE:
+                return SPELL_ROCKET_BIG_BLUE;
+            case NPC_FIREWORK_BIG_GREEN:
+                return SPELL_ROCKET_BIG_GREEN;
+            case NPC_FIREWORK_BIG_PURPLE:
+                return SPELL_ROCKET_BIG_PURPLE;
+            case NPC_FIREWORK_BIG_RED:
+                return SPELL_ROCKET_BIG_RED;
+            case NPC_FIREWORK_BIG_YELLOW:
+                return SPELL_ROCKET_BIG_YELLOW;
+            case NPC_FIREWORK_BIG_WHITE:
+                return SPELL_ROCKET_BIG_WHITE;
+            default:
+                return 0;
+        }
+    }
 
-            if (isCluster())
-            {
-                GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_1, 0.5f);
-                GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_2, 0.5f);
-                GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_3, 0.5f);
-                GameObject* launcher4 = GetClosestGameObjectWithEntry(me, GO_CLUSTER_LAUNCHER_4, 0.5f);
+    uint32 GetFireworkGameObjectId()
+    {
+        uint32 spellId = 0;
 
-                if (launcher1)
-                    launcher = launcher1;
-                else if (launcher2)
-                    launcher = launcher2;
-                else if (launcher3)
-                    launcher = launcher3;
-                else if (launcher4)
-                    launcher = launcher4;
-            }
-            else
-            {
-                GameObject* launcher1 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_1, 0.5f);
-                GameObject* launcher2 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_2, 0.5f);
-                GameObject* launcher3 = GetClosestGameObjectWithEntry(me, GO_FIREWORK_LAUNCHER_3, 0.5f);
-
-                if (launcher1)
-                    launcher = launcher1;
-                else if (launcher2)
-                    launcher = launcher2;
-                else if (launcher3)
-                    launcher = launcher3;
-            }
-
-            return launcher;
+        switch (me->GetEntry())
+        {
+            case NPC_CLUSTER_BLUE:
+                spellId = GetFireworkSpell(NPC_FIREWORK_BLUE);
+                break;
+            case NPC_CLUSTER_GREEN:
+                spellId = GetFireworkSpell(NPC_FIREWORK_GREEN);
+                break;
+            case NPC_CLUSTER_PURPLE:
+                spellId = GetFireworkSpell(NPC_FIREWORK_PURPLE);
+                break;
+            case NPC_CLUSTER_RED:
+                spellId = GetFireworkSpell(NPC_FIREWORK_RED);
+                break;
+            case NPC_CLUSTER_YELLOW:
+                spellId = GetFireworkSpell(NPC_FIREWORK_YELLOW);
+                break;
+            case NPC_CLUSTER_WHITE:
+                spellId = GetFireworkSpell(NPC_FIREWORK_WHITE);
+                break;
+            case NPC_CLUSTER_BIG_BLUE:
+                spellId = GetFireworkSpell(NPC_FIREWORK_BIG_BLUE);
+                break;
+            case NPC_CLUSTER_BIG_GREEN:
+                spellId = GetFireworkSpell(NPC_FIREWORK_BIG_GREEN);
+                break;
+            case NPC_CLUSTER_BIG_PURPLE:
+                spellId = GetFireworkSpell(NPC_FIREWORK_BIG_PURPLE);
+                break;
+            case NPC_CLUSTER_BIG_RED:
+                spellId = GetFireworkSpell(NPC_FIREWORK_BIG_RED);
+                break;
+            case NPC_CLUSTER_BIG_YELLOW:
+                spellId = GetFireworkSpell(NPC_FIREWORK_BIG_YELLOW);
+                break;
+            case NPC_CLUSTER_BIG_WHITE:
+                spellId = GetFireworkSpell(NPC_FIREWORK_BIG_WHITE);
+                break;
+            case NPC_CLUSTER_ELUNE:
+                spellId = GetFireworkSpell(urand(NPC_FIREWORK_BLUE, NPC_FIREWORK_WHITE));
+                break;
         }
 
-        uint32 GetFireworkSpell(uint32 entry)
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+
+        if (spellInfo && spellInfo->GetEffect(EFFECT_0).Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+            return spellInfo->GetEffect(EFFECT_0).MiscValue;
+
+        return 0;
+    }
+
+    void Reset() override
+    {
+        if (GameObject* launcher = FindNearestLauncher())
         {
-            switch (entry)
-            {
-                case NPC_FIREWORK_BLUE:
-                    return SPELL_ROCKET_BLUE;
-                case NPC_FIREWORK_GREEN:
-                    return SPELL_ROCKET_GREEN;
-                case NPC_FIREWORK_PURPLE:
-                    return SPELL_ROCKET_PURPLE;
-                case NPC_FIREWORK_RED:
-                    return SPELL_ROCKET_RED;
-                case NPC_FIREWORK_YELLOW:
-                    return SPELL_ROCKET_YELLOW;
-                case NPC_FIREWORK_WHITE:
-                    return SPELL_ROCKET_WHITE;
-                case NPC_FIREWORK_BIG_BLUE:
-                    return SPELL_ROCKET_BIG_BLUE;
-                case NPC_FIREWORK_BIG_GREEN:
-                    return SPELL_ROCKET_BIG_GREEN;
-                case NPC_FIREWORK_BIG_PURPLE:
-                    return SPELL_ROCKET_BIG_PURPLE;
-                case NPC_FIREWORK_BIG_RED:
-                    return SPELL_ROCKET_BIG_RED;
-                case NPC_FIREWORK_BIG_YELLOW:
-                    return SPELL_ROCKET_BIG_YELLOW;
-                case NPC_FIREWORK_BIG_WHITE:
-                    return SPELL_ROCKET_BIG_WHITE;
-                default:
-                    return 0;
-            }
+            launcher->SendCustomAnim(ANIM_GO_LAUNCH_FIREWORK);
+            me->SetOrientation(launcher->GetOrientation() + float(M_PI) / 2);
         }
+        else
+            return;
 
-        uint32 GetFireworkGameObjectId()
+        if (isCluster())
         {
-            uint32 spellId = 0;
-
-            switch (me->GetEntry())
+            // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
+            if (me->GetZoneId() == ZONE_MOONGLADE)
             {
-                case NPC_CLUSTER_BLUE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BLUE);
-                    break;
-                case NPC_CLUSTER_GREEN:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_GREEN);
-                    break;
-                case NPC_CLUSTER_PURPLE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_PURPLE);
-                    break;
-                case NPC_CLUSTER_RED:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_RED);
-                    break;
-                case NPC_CLUSTER_YELLOW:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_YELLOW);
-                    break;
-                case NPC_CLUSTER_WHITE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_WHITE);
-                    break;
-                case NPC_CLUSTER_BIG_BLUE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_BLUE);
-                    break;
-                case NPC_CLUSTER_BIG_GREEN:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_GREEN);
-                    break;
-                case NPC_CLUSTER_BIG_PURPLE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_PURPLE);
-                    break;
-                case NPC_CLUSTER_BIG_RED:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_RED);
-                    break;
-                case NPC_CLUSTER_BIG_YELLOW:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_YELLOW);
-                    break;
-                case NPC_CLUSTER_BIG_WHITE:
-                    spellId = GetFireworkSpell(NPC_FIREWORK_BIG_WHITE);
-                    break;
-                case NPC_CLUSTER_ELUNE:
-                    spellId = GetFireworkSpell(urand(NPC_FIREWORK_BLUE, NPC_FIREWORK_WHITE));
-                    break;
-            }
-
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-
-            if (spellInfo && spellInfo->GetEffect(EFFECT_0).Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                return spellInfo->GetEffect(EFFECT_0).MiscValue;
-
-            return 0;
-        }
-
-        void Reset() override
-        {
-            if (GameObject* launcher = FindNearestLauncher())
-            {
-                launcher->SendCustomAnim(ANIM_GO_LAUNCH_FIREWORK);
-                me->SetOrientation(launcher->GetOrientation() + float(M_PI) / 2);
-            }
-            else
-                return;
-
-            if (isCluster())
-            {
-                // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
-                if (me->GetZoneId() == ZONE_MOONGLADE)
+                if (!me->FindNearestCreature(NPC_OMEN, 100.0f) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
                 {
-                    if (!me->FindNearestCreature(NPC_OMEN, 100.0f) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
+                    switch (urand(0, 9))
                     {
-                        switch (urand(0, 9))
-                        {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
-                                    minion->AI()->AttackStart(me->SelectNearestPlayer(20.0f));
-                                break;
-                            case 9:
-                                me->SummonCreature(NPC_OMEN, omenSummonPos);
-                                break;
-                        }
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
+                                minion->AI()->AttackStart(me->SelectNearestPlayer(20.0f));
+                            break;
+                        case 9:
+                            me->SummonCreature(NPC_OMEN, omenSummonPos);
+                            break;
                     }
                 }
-                if (me->GetEntry() == NPC_CLUSTER_ELUNE)
-                    DoCast(SPELL_LUNAR_FORTUNE);
-
-                float displacement = 0.7f;
-                for (uint8 i = 0; i < 4; i++)
-                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData(), 1s);
             }
-            else
-                //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
-                me->CastSpell(me->GetPosition(), GetFireworkSpell(me->GetEntry()), true);
-        }
-    };
+            if (me->GetEntry() == NPC_CLUSTER_ELUNE)
+                DoCast(SPELL_LUNAR_FORTUNE);
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_fireworkAI(creature);
+            float displacement = 0.7f;
+            for (uint8 i = 0; i < 4; i++)
+                me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData(), 1s);
+        }
+        else
+            //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
+            me->CastSpell(me->GetPosition(), GetFireworkSpell(me->GetEntry()), true);
     }
 };
 
@@ -324,128 +313,106 @@ enum Omen
     EVENT_DESPAWN               = 3,
 };
 
-class npc_omen : public CreatureScript
+struct npc_omen : public ScriptedAI
 {
-public:
-    npc_omen() : CreatureScript("npc_omen") { }
-
-    struct npc_omenAI : public ScriptedAI
+    npc_omen(Creature* creature) : ScriptedAI(creature)
     {
-        npc_omenAI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetImmuneToPC(true);
-            me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
-        }
+        me->SetImmuneToPC(true);
+        me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
+    }
 
-        EventMap events;
+    EventMap events;
 
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (pointId == 1)
-            {
-                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                me->SetImmuneToPC(false);
-                if (Player* player = me->SelectNearestPlayer(40.0f))
-                    AttackStart(player);
-            }
-        }
-
-        void JustEngagedWith(Unit* /*attacker*/) override
-        {
-            events.Reset();
-            events.ScheduleEvent(EVENT_CAST_CLEAVE, 3s, 5s);
-            events.ScheduleEvent(EVENT_CAST_STARFALL, 8s, 10s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
-        }
-
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_ELUNE_CANDLE)
-            {
-                if (me->HasAura(SPELL_OMEN_STARFALL))
-                    me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);
-
-                events.RescheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            switch (events.ExecuteEvent())
-            {
-                case EVENT_CAST_CLEAVE:
-                    DoCastVictim(SPELL_OMEN_CLEAVE);
-                    events.ScheduleEvent(EVENT_CAST_CLEAVE, 8s, 10s);
-                    break;
-                case EVENT_CAST_STARFALL:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_OMEN_STARFALL);
-                    events.ScheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
-                    break;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void MovementInform(uint32 type, uint32 pointId) override
     {
-        return new npc_omenAI(creature);
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (pointId == 1)
+        {
+            me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            me->SetImmuneToPC(false);
+            if (Player* player = me->SelectNearestPlayer(40.0f))
+                AttackStart(player);
+        }
+    }
+
+    void JustEngagedWith(Unit* /*attacker*/) override
+    {
+        events.Reset();
+        events.ScheduleEvent(EVENT_CAST_CLEAVE, 3s, 5s);
+        events.ScheduleEvent(EVENT_CAST_STARFALL, 8s, 10s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_ELUNE_CANDLE)
+        {
+            if (me->HasAura(SPELL_OMEN_STARFALL))
+                me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);
+
+            events.RescheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        switch (events.ExecuteEvent())
+        {
+            case EVENT_CAST_CLEAVE:
+                DoCastVictim(SPELL_OMEN_CLEAVE);
+                events.ScheduleEvent(EVENT_CAST_CLEAVE, 8s, 10s);
+                break;
+            case EVENT_CAST_STARFALL:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_OMEN_STARFALL);
+                events.ScheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
+                break;
+        }
+
+        DoMeleeAttackIfReady();
     }
 };
 
-class npc_giant_spotlight : public CreatureScript
+struct npc_giant_spotlight : public ScriptedAI
 {
-public:
-    npc_giant_spotlight() : CreatureScript("npc_giant_spotlight") { }
+    npc_giant_spotlight(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_giant_spotlightAI : public ScriptedAI
+    EventMap events;
+
+    void Reset() override
     {
-        npc_giant_spotlightAI(Creature* creature) : ScriptedAI(creature) { }
+        events.Reset();
+        events.ScheduleEvent(EVENT_DESPAWN, 5min);
+    }
 
-        EventMap events;
-
-        void Reset() override
-        {
-            events.Reset();
-            events.ScheduleEvent(EVENT_DESPAWN, 5min);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            if (events.ExecuteEvent() == EVENT_DESPAWN)
-            {
-                if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_1, 5.0f))
-                    trap->RemoveFromWorld();
-
-                if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_2, 5.0f))
-                    trap->RemoveFromWorld();
-
-                if (Creature* omen = me->FindNearestCreature(NPC_OMEN, 5.0f, false))
-                    omen->DespawnOrUnsummon();
-
-                me->DespawnOrUnsummon();
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return new npc_giant_spotlightAI(creature);
+        events.Update(diff);
+
+        if (events.ExecuteEvent() == EVENT_DESPAWN)
+        {
+            if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_1, 5.0f))
+                trap->RemoveFromWorld();
+
+            if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_2, 5.0f))
+                trap->RemoveFromWorld();
+
+            if (Creature* omen = me->FindNearestCreature(NPC_OMEN, 5.0f, false))
+                omen->DespawnOrUnsummon();
+
+            me->DespawnOrUnsummon();
+        }
     }
 };
 
@@ -458,9 +425,10 @@ enum EluneCandle
     SPELL_ELUNE_CANDLE_NORMAL      = 26636
 };
 
-class spell_gen_elune_candle : public SpellScript
+// 26374 - Elune's Candle
+class spell_lunar_festival_elune_candle : public SpellScript
 {
-    PrepareSpellScript(spell_gen_elune_candle);
+    PrepareSpellScript(spell_lunar_festival_elune_candle);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -504,14 +472,14 @@ class spell_gen_elune_candle : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_elune_candle::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_lunar_festival_elune_candle::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 void AddSC_event_lunar_festival()
 {
-    new npc_firework();
-    new npc_omen();
-    new npc_giant_spotlight();
-    RegisterSpellScript(spell_gen_elune_candle);
+    RegisterCreatureAI(npc_firework);
+    RegisterCreatureAI(npc_omen);
+    RegisterCreatureAI(npc_giant_spotlight);
+    RegisterSpellScript(spell_lunar_festival_elune_candle);
 }
