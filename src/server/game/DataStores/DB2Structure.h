@@ -2536,8 +2536,8 @@ struct MapEntry
 
     bool IsFactioned() const
     {
-        // 9.0 NPE (New Player Experience) - Exile's Reach
-        return ID == 2175;
+        return ID == 2175 // 9.0 NPE (New Player Experience) - Exile's Reach
+            || ID == 609; // DeathKnightStart (Ebon Hold)
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
