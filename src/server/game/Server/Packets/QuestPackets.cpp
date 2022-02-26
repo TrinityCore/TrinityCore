@@ -769,7 +769,7 @@ WorldPacket const* DisplayPlayerChoice::Write()
 void ChoiceResponse::Read()
 {
     _worldPacket >> ChoiceID;
-    _worldPacket >> ResponseID;
+    _worldPacket >> ResponseIdentifier;
     IsReroll = _worldPacket.ReadBit();
 }
 }

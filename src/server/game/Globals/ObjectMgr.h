@@ -946,6 +946,13 @@ struct PlayerChoice
             [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
         return itr != Responses.end() ? &(*itr) : nullptr;
     }
+
+    PlayerChoiceResponse const* GetResponseByIdentifier(int32 responseIdentifier) const
+    {
+        auto itr = std::find_if(Responses.begin(), Responses.end(),
+            [responseIdentifier](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseIdentifier == responseIdentifier; });
+        return itr != Responses.end() ? &(*itr) : nullptr;
+    }
 };
 
 enum SkillRangeType
