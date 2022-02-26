@@ -24,6 +24,7 @@
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameObjectAI.h"
 #include "GameObjectModel.h"
 #include "GameObjectPackets.h"
@@ -44,7 +45,7 @@
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "QueryPackets.h"
-#include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "Transport.h"
 #include "World.h"
@@ -658,8 +659,8 @@ void GameObject::Update(uint32 diff)
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
                     break;
             }
+            [[fallthrough]];
         }
-        /* fallthrough */
         case GO_READY:
         {
             if (m_respawnCompatibilityMode)
@@ -774,7 +775,7 @@ void GameObject::Update(uint32 diff)
                     Unit* target = nullptr;
 
                     /// @todo this hack with search required until GO casting not implemented
-                    if (Unit* owner = GetOwner())
+                    if (GetOwner())
                     {
                         // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck checker(this, radius);
@@ -1003,7 +1004,7 @@ void GameObject::Update(uint32 diff)
                 m_respawnTime = 0;
 
                 if (m_spawnId)
-                    DestroyForNearbyPlayers();
+                    UpdateObjectVisibilityOnDestroy();
                 else
                     Delete();
 
@@ -1020,7 +1021,7 @@ void GameObject::Update(uint32 diff)
             SaveRespawnTime();
 
             if (m_respawnCompatibilityMode)
-                DestroyForNearbyPlayers();
+                UpdateObjectVisibilityOnDestroy();
             else
                 AddObjectToRemoveList();
 
@@ -1689,7 +1690,7 @@ void GameObject::Use(Unit* user)
             playerUser->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         playerUser->PlayerTalkClass->ClearMenus();
-        if (AI()->GossipHello(playerUser))
+        if (AI()->OnGossipHello(playerUser))
             return;
     }
 

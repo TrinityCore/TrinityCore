@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "Group.h"
 #include "Log.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -156,13 +155,10 @@ void FollowerAI::UpdateFollowerAI(uint32 /*uiDiff*/)
 
 void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, uint32 quest)
 {
-    if (Map* map = me->GetMap())
+    if (CreatureData const* cdata = me->GetCreatureData())
     {
-        if (CreatureData const* cdata = me->GetCreatureData())
-        {
-            if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
-                me->SaveRespawnTime(me->GetRespawnDelay());
-        }
+        if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
+            me->SaveRespawnTime(me->GetRespawnDelay());
     }
 
     if (me->IsEngaged())

@@ -67,6 +67,7 @@ namespace WorldPackets
             GossipOptionIcon OptionNPC = GossipOptionIcon(0);
             uint8 OptionFlags   = 0;
             int32 OptionCost    = 0;
+            uint32 OptionLanguage = 0;
             GossipOptionStatus Status = GossipOptionStatus(0);
             std::string Text;
             std::string Confirm;
@@ -119,7 +120,9 @@ namespace WorldPackets
         public:
             GossipComplete() : ServerPacket(SMSG_GOSSIP_COMPLETE, 0) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            bool SuppressSound = false;
         };
 
         struct VendorItem
@@ -263,6 +266,18 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid StableMaster;
+        };
+
+        class SetPetSlot final : public ClientPacket
+        {
+        public:
+            SetPetSlot(WorldPacket&& packet) : ClientPacket(CMSG_SET_PET_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid StableMaster;
+            uint32 PetNumber = 0;
+            uint8 DestSlot = 0;
         };
     }
 }

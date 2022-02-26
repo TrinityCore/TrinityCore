@@ -307,7 +307,7 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
     }
 }
 
-void BattlePetMgr::SaveToDB(LoginDatabaseTransaction& trans)
+void BattlePetMgr::SaveToDB(LoginDatabaseTransaction trans)
 {
     LoginDatabasePreparedStatement* stmt = nullptr;
 
@@ -492,7 +492,7 @@ void BattlePetMgr::ClearFanfare(ObjectGuid guid)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 }
 
-void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName)
+void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, std::unique_ptr<DeclinedName> declinedName)
 {
     if (!HasJournalLock())
         return;
@@ -504,9 +504,7 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, Declined
     pet->PacketInfo.Name = name;
     pet->NameTimestamp = GameTime::GetGameTime();
 
-    pet->DeclinedName.reset();
-    if (declinedName)
-        pet->DeclinedName = std::make_unique<DeclinedName>(*declinedName);
+    pet->DeclinedName = std::move(declinedName);
 
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
@@ -736,16 +734,6 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePe
     std::vector<std::reference_wrapper<BattlePet>> updates;
     updates.push_back(std::ref(*pet));
     SendUpdates(std::move(updates), false);
-
-    // Update battle pet related update fields
-    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
-    {
-        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
-        {
-            summonedBattlePet->SetWildBattlePetLevel(pet->PacketInfo.Level);
-            player->SetBattlePetData(pet);
-        }
-    }
 }
 
 void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
@@ -765,14 +753,12 @@ void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
     if (level >= MAX_BATTLE_PET_LEVEL)
         return;
 
-    Player* player = _owner->GetPlayer();
-
     while (grantedLevels > 0 && level < MAX_BATTLE_PET_LEVEL)
     {
         ++level;
         --grantedLevels;
 
-        player->UpdateCriteria(CriteriaType::BattlePetReachLevel, pet->PacketInfo.Species, level);
+        _owner->GetPlayer()->UpdateCriteria(CriteriaType::BattlePetReachLevel, pet->PacketInfo.Species, level);
     }
 
     pet->PacketInfo.Level = level;
@@ -787,16 +773,6 @@ void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
     std::vector<std::reference_wrapper<BattlePet>> updates;
     updates.push_back(std::ref(*pet));
     SendUpdates(std::move(updates), false);
-
-    // Update battle pet related update fields
-    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
-    {
-        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
-        {
-            summonedBattlePet->SetWildBattlePetLevel(pet->PacketInfo.Level);
-            player->SetBattlePetData(pet);
-        }
-    }
 }
 
 void BattlePetMgr::HealBattlePetsPct(uint8 pct)
@@ -817,6 +793,25 @@ void BattlePetMgr::HealBattlePetsPct(uint8 pct)
         }
 
     SendUpdates(std::move(updates), false);
+}
+
+void BattlePetMgr::UpdateBattlePetData(ObjectGuid guid)
+{
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    Player* player = _owner->GetPlayer();
+
+    // Update battle pet related update fields
+    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
+    {
+        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
+        {
+            summonedBattlePet->SetWildBattlePetLevel(pet->PacketInfo.Level);
+            player->SetBattlePetData(pet);
+        }
+    }
 }
 
 void BattlePetMgr::SummonPet(ObjectGuid guid)

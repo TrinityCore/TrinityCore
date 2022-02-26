@@ -250,7 +250,7 @@ struct dummy_dragonAI : public ScriptedAI
 
         // using a grid search here seem to be more efficient than caching all four guids
         // in instance script and calculate range to each.
-        GameObject* portal = me->FindNearestGameObject(GO_TWILIGHT_PORTAL, 50.0f);
+        GameObject* portal = me->FindNearestGameObject(GO_TWILIGHT_PORTAL, 50.0f, false);
 
         switch (me->GetEntry())
         {
@@ -259,21 +259,21 @@ struct dummy_dragonAI : public ScriptedAI
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
                 }
                 else
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
                 }
                 break;
             }
             case NPC_SHADRON:
             {
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28s);
                 else
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28s);
 
                 break;
             }
@@ -281,7 +281,7 @@ struct dummy_dragonAI : public ScriptedAI
             {
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -290,7 +290,7 @@ struct dummy_dragonAI : public ScriptedAI
                 }
                 else
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -386,12 +386,12 @@ struct dummy_dragonAI : public ScriptedAI
             case EVENT_SHADOW_FISSURE:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     DoCast(target, SPELL_SHADOW_FISSURE);
-                events.ScheduleEvent(eventId, urand(15000, 20000));
+                events.ScheduleEvent(eventId, 15s, 20s);
                 break;
             case EVENT_SHADOW_BREATH:
                 Talk(SAY_BREATH);
                 DoCastVictim(SPELL_SHADOW_BREATH);
-                events.ScheduleEvent(eventId, urand(20000, 25000));
+                events.ScheduleEvent(eventId, 20s, 25s);
                 break;
             default:
                 break;
@@ -631,7 +631,7 @@ class npc_acolyte_of_shadron : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28000);
+                me->DespawnOrUnsummon(28s);
 
                 //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
@@ -653,21 +653,16 @@ class npc_acolyte_of_shadron : public CreatureScript
                 if (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                instance->instance->DoOnPlayers([](Player* player)
                 {
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
+                    if (player->IsAlive() && player->HasAura(SPELL_TWILIGHT_SHIFT) && !player->GetVictim())
                     {
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
+                        player->CastSpell(player, SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
+                        player->CastSpell(player, SPELL_TWILIGHT_RESIDUE, true);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
                     }
-                }
+                });
 
                 // not solo fight, so main boss has debuff
                 if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SARTHARION)))
@@ -717,7 +712,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28000);
+                me->DespawnOrUnsummon(28s);
 
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
@@ -737,23 +732,19 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                instance->instance->DoOnPlayers([](Player* player)
                 {
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_SHIFT) && !i->GetSource()->GetVictim())
+                    if (player->IsAlive() && player->HasAura(SPELL_TWILIGHT_SHIFT) && !player->GetVictim())
                     {
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
-                        i->GetSource()->CastSpell(i->GetSource(), SPELL_TWILIGHT_RESIDUE, true);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
+                        player->CastSpell(player, SPELL_TWILIGHT_SHIFT_REMOVAL_ALL, true);
+                        player->CastSpell(player, SPELL_TWILIGHT_RESIDUE, true);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
                     }
-                    if (i->GetSource()->IsAlive() && i->GetSource()->HasAura(SPELL_TWILIGHT_TORMENT_VESP) && !i->GetSource()->GetVictim())
-                        i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
-                }
+
+                    if (player->IsAlive() && player->HasAura(SPELL_TWILIGHT_TORMENT_VESP) && !player->GetVictim())
+                        player->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
+                });
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO, true, true);
                 instance->DoRemoveAurasDueToSpellOnPlayers(57935, true, true);
@@ -812,9 +803,9 @@ public:
             me->RemoveAllAuras();
 
             if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
             else
-                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
             me->KillSelf();
         }
 

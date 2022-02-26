@@ -40,9 +40,9 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "TradeData.h"
 #include "UpdateData.h"
-#include "World.h"
 #include "WorldSession.h"
 #include <sstream>
 
@@ -316,7 +316,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = artifactResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.Artifact)
-                info.Artifact = boost::in_place();
+                info.Artifact.emplace();
             info.Artifact->Xp = fields[1].GetUInt64();
             info.Artifact->ArtifactAppearanceId = fields[2].GetUInt32();
             info.Artifact->ArtifactTierId = fields[3].GetUInt32();
@@ -359,7 +359,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = azeriteItemResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.AzeriteItem)
-                info.AzeriteItem = boost::in_place();
+                info.AzeriteItem.emplace();
             info.AzeriteItem->Xp = fields[1].GetUInt64();
             info.AzeriteItem->Level = fields[2].GetUInt32();
             info.AzeriteItem->KnowledgeLevel = fields[3].GetUInt32();
@@ -392,7 +392,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = azeriteItemMilestonePowersResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.AzeriteItem)
-                info.AzeriteItem = boost::in_place();
+                info.AzeriteItem.emplace();
             info.AzeriteItem->AzeriteItemMilestonePowers.push_back(fields[1].GetUInt32());
         }
         while (azeriteItemMilestonePowersResult->NextRow());
@@ -409,7 +409,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             {
                 ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
                 if (!info.AzeriteItem)
-                    info.AzeriteItem = boost::in_place();
+                    info.AzeriteItem.emplace();
 
                 info.AzeriteItem->UnlockedAzeriteEssences.push_back(azeriteEssencePower);
             }
@@ -426,7 +426,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             Field* fields = azeriteEmpoweredItemResult->Fetch();
             ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
             if (!info.AzeriteEmpoweredItem)
-                info.AzeriteEmpoweredItem = boost::in_place();
+                info.AzeriteEmpoweredItem.emplace();
 
             for (uint32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
                 if (sAzeritePowerStore.LookupEntry(fields[1 + i].GetInt32()))
@@ -453,9 +453,12 @@ Item::Item()
     m_paidExtendedCost = 0;
 
     m_randomBonusListId = 0;
+    m_gemScalingLevels = { };
 
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
+
+Item::~Item() = default;
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {
@@ -550,7 +553,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
-void Item::SaveToDB(CharacterDatabaseTransaction& trans)
+void Item::SaveToDB(CharacterDatabaseTransaction trans)
 {
     bool isInTransaction = bool(trans);
     if (!isInTransaction)
@@ -580,9 +583,17 @@ void Item::SaveToDB(CharacterDatabaseTransaction& trans)
             std::ostringstream ssEnchants;
             for (uint8 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
             {
-                ssEnchants << GetEnchantmentId(EnchantmentSlot(i)) << ' ';
-                ssEnchants << GetEnchantmentDuration(EnchantmentSlot(i)) << ' ';
-                ssEnchants << GetEnchantmentCharges(EnchantmentSlot(i)) << ' ';
+                if (SpellItemEnchantmentEntry const* enchantment = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(i)));
+                    enchantment && !enchantment->GetFlags().HasFlag(SpellItemEnchantmentFlags::DoNotSaveToDB))
+                {
+                    ssEnchants << GetEnchantmentId(EnchantmentSlot(i)) << ' ';
+                    ssEnchants << GetEnchantmentDuration(EnchantmentSlot(i)) << ' ';
+                    ssEnchants << GetEnchantmentCharges(EnchantmentSlot(i)) << ' ';
+                }
+                else
+                {
+                    ssEnchants << "0 0 0 ";
+                }
             }
             stmt->setString(++index, ssEnchants.str());
 
@@ -838,7 +849,10 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     ItemTemplate const* proto = GetTemplate();
     if (!proto)
+    {
+        TC_LOG_ERROR("entities.item", "Invalid entry %u for item %s. Refusing to load.", GetEntry(), GetGUID().ToString().c_str());
         return false;
+    }
 
     _bonusData.Initialize(proto);
 
@@ -892,17 +906,18 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     SetContext(ItemContext(fields[17].GetUInt8()));
 
-    Tokenizer bonusListString(fields[18].GetString(), ' ');
+    std::vector<std::string_view> bonusListString = Trinity::Tokenize(fields[18].GetStringView(), ' ', false);
     std::vector<int32> bonusListIDs;
     bonusListIDs.reserve(bonusListString.size());
-    for (char const* token : bonusListString)
-        bonusListIDs.push_back(atoi(token));
+    for (std::string_view token : bonusListString)
+        if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+            bonusListIDs.push_back(*bonusListID);
     SetBonuses(std::move(bonusListIDs));
 
     // load charges after bonuses, they can add more item effects
-    Tokenizer tokens(fields[6].GetString(), ' ', proto->Effects.size());
+    std::vector<std::string_view> tokens = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount && i < tokens.size(); ++i)
-        SetSpellCharges(i, atoi(tokens[i]));
+        SetSpellCharges(i, Trinity::StringTo<int32>(tokens[i]).value_or(0));
 
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[19].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[20].GetUInt32());
@@ -931,11 +946,11 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
         gemData[i].ItemId = fields[37 + i * gemFields].GetUInt32();
-        Tokenizer gemBonusListIDs(fields[38 + i * gemFields].GetString(), ' ');
+        std::vector<std::string_view> gemBonusListIDs = Trinity::Tokenize(fields[38 + i * gemFields].GetStringView(), ' ', false);
         uint32 b = 0;
-        for (char const* token : gemBonusListIDs)
-            if (uint32 bonusListID = atoul(token))
-                gemData[i].BonusListIDs[b++] = bonusListID;
+        for (std::string_view token : gemBonusListIDs)
+            if (Optional<uint16> bonusListID = Trinity::StringTo<uint16>(token))
+                gemData[i].BonusListIDs[b++] = *bonusListID;
 
         gemData[i].Context = fields[39 + i * gemFields].GetUInt8();
         if (gemData[i].ItemId)
@@ -946,15 +961,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[50].GetUInt32());
 
     // Enchants must be loaded after all other bonus/scaling data
-    Tokenizer enchantmentTokens(fields[8].GetString(), ' ');
+    std::vector<std::string_view> enchantmentTokens = Trinity::Tokenize(fields[8].GetStringView(), ' ', false);
     if (enchantmentTokens.size() == MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET)
     {
         for (uint32 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
         {
             auto enchantmentField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, i);
-            SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), atoul(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 0]));
-            SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), atoul(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 1]));
-            SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Charges), atoi(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 2]));
+            SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), Trinity::StringTo<int32>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 0]).value_or(0));
+            SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), Trinity::StringTo<uint32>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 1]).value_or(0));
+            SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Charges), Trinity::StringTo<int16>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 2]).value_or(0));
         }
     }
     m_randomBonusListId = fields[9].GetUInt32();
@@ -1065,7 +1080,7 @@ void Item::CheckArtifactRelicSlotUnlock(Player const* owner)
 }
 
 /*static*/
-void Item::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void Item::DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt64(0, itemGuid);
@@ -1096,7 +1111,7 @@ void Item::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void Item::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void Item::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromDB(trans, GetGUID().GetCounter());
 
@@ -1106,14 +1121,14 @@ void Item::DeleteFromDB(CharacterDatabaseTransaction& trans)
 }
 
 /*static*/
-void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
     stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
 }
 
-void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction& trans)
+void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromInventoryDB(trans, GetGUID().GetCounter());
 }
@@ -1287,12 +1302,10 @@ uint32 Item::GetEnchantRequiredLevel() const
 
     // Check all enchants for required level
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-    {
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->MinLevel > level)
                     level = enchantEntry->MinLevel;
-    }
 
     return level;
 }
@@ -1303,7 +1316,7 @@ bool Item::IsBoundByEnchant() const
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->Flags & ENCHANTMENT_CAN_SOULBOUND)
+                if (enchantEntry->GetFlags().HasFlag(SpellItemEnchantmentFlags::Soulbound))
                     return true;
 
     return false;
@@ -1369,11 +1382,13 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
     Player* owner = GetOwner();
     if (slot < MAX_INSPECTED_ENCHANTMENT_SLOT)
     {
-        if (uint32 oldEnchant = GetEnchantmentId(slot))
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), ObjectGuid::Empty, GetGUID(), GetEntry(), oldEnchant, slot);
+        if (SpellItemEnchantmentEntry const* oldEnchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(slot)))
+            if (!oldEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::DoNotLog))
+                owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), ObjectGuid::Empty, GetGUID(), GetEntry(), oldEnchant->ID, slot);
 
-        if (id)
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, slot);
+        if (SpellItemEnchantmentEntry const* newEnchant = sSpellItemEnchantmentStore.LookupEntry(id))
+            if (!newEnchant->GetFlags().HasFlag(SpellItemEnchantmentFlags::DoNotLog))
+                owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, slot);
     }
 
     ApplyArtifactPowerEnchantmentBonuses(slot, GetEnchantmentId(slot), false, owner);
@@ -2434,7 +2449,7 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    if (std::find(m_itemData->BonusListIDs->begin(), m_itemData->BonusListIDs->end(), bonusListID) != m_itemData->BonusListIDs->end())
+    if (std::find(m_itemData->BonusListIDs->begin(), m_itemData->BonusListIDs->end(), int32(bonusListID)) != m_itemData->BonusListIDs->end())
         return;
 
     if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
@@ -2799,7 +2814,7 @@ void BonusData::AddBonusList(uint32 bonusListId)
             AddBonus(bonus->Type, bonus->Value);
 }
 
-void BonusData::AddBonus(uint32 type, int32 const (&values)[4])
+void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
 {
     switch (type)
     {

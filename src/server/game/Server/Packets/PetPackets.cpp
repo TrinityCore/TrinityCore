@@ -104,7 +104,7 @@ WorldPacket const* WorldPackets::Pet::PetNameInvalid::Write()
 
     _worldPacket << uint8(RenameData.NewName.length());
 
-    _worldPacket.WriteBit(RenameData.DeclinedNames.is_initialized());
+    _worldPacket.WriteBit(RenameData.DeclinedNames.has_value());
 
     if (RenameData.DeclinedNames)
     {
@@ -128,7 +128,7 @@ void WorldPackets::Pet::PetRename::Read()
 
     if (_worldPacket.ReadBit())
     {
-        RenameData.DeclinedNames = boost::in_place();
+        RenameData.DeclinedNames.emplace();
         int32 count[MAX_DECLINED_NAME_CASES];
         for (int32 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
             count[i] = _worldPacket.ReadBits(7);

@@ -58,7 +58,7 @@ class go_gauntlet_gate : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
                     return false;
@@ -170,7 +170,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Tagged)
-                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
+                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 5min);
         }
 
         void UpdateAI(uint32 diff) override
@@ -256,7 +256,7 @@ public:
                 {
                      //100%, 50%, 33%, 25% chance to spawn
                      if (urand(1, i) == 1)
-                         DoSummon(NPC_RESTLESS, me, 20.0f, 600000);
+                         DoSummon(NPC_RESTLESS, me, 20.0f, 10min);
                 }
             }
         }
@@ -398,5 +398,5 @@ void AddSC_stratholme()
     new npc_restless_soul();
     new npc_spectral_ghostly_citizen();
     RegisterSpellScript(spell_ysida_saved_credit);
-    RegisterAuraScript(spell_stratholme_haunting_phantoms);
+    RegisterSpellScript(spell_stratholme_haunting_phantoms);
 }

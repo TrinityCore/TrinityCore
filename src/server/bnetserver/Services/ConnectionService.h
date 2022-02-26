@@ -18,7 +18,6 @@
 #ifndef ConnectionService_h__
 #define ConnectionService_h__
 
-#include "Common.h"
 #include "Service.h"
 #include "connection_service.pb.h"
 

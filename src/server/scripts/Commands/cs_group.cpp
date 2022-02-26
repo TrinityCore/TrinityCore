@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GroupMgr.h"
@@ -25,7 +26,6 @@
 #include "LFG.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -419,6 +419,7 @@ public:
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
+                LocaleConstant locale = handler->GetSessionDbcLocale();
                 phases = PhasingHandler::FormatPhases(p->GetPhaseShift());
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
@@ -426,7 +427,7 @@ public:
                 {
                     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
-                        zoneName = zone->AreaName[handler->GetSessionDbcLocale()];
+                        zoneName = zone->AreaName[locale];
                 }
             }
             else

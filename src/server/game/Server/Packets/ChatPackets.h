@@ -149,8 +149,8 @@ namespace WorldPackets
             Chat() : ServerPacket(SMSG_CHAT, 100) { }
             Chat(Chat const& chat);
 
-            void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0,
-                std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
+            void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message, uint32 achievementId = 0,
+                std::string_view channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string_view addonPrefix = "");
             void SetSender(WorldObject const* sender, LocaleConstant locale);
             void SetReceiver(WorldObject const* receiver, LocaleConstant locale);
 
@@ -189,6 +189,7 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint32 EmoteID = 0;
             std::vector<int32> SpellVisualKitIDs;
+            int32 SequenceVariation = 0;
         };
 
         class CTextEmote final : public ClientPacket
@@ -202,6 +203,7 @@ namespace WorldPackets
             int32 EmoteID = 0;
             int32 SoundIndex = -1;
             Array<int32, 2> SpellVisualKitIDs;
+            int32 SequenceVariation = 0;
         };
 
         class STextEmote final : public ServerPacket

@@ -230,7 +230,6 @@ public:
                     case 9:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                         if (Creature* trigger = ObjectAccessor::GetCreature(*me, triggerGUID))
                             Unit::Kill(me, trigger);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -248,7 +247,6 @@ public:
                     case 10:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                         me->SetFacingTo(me->GetOrientation() + float(M_PI));
                         if (Creature * trigger = me->SummonCreature(NPC_TRIGGER, MiddleRoomLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             triggerGUID = trigger->GetGUID();
@@ -257,8 +255,8 @@ public:
                         Talk(SAY_PHASE_2_TRANS);
                         instance->SetData(DATA_ONYXIA_PHASE, Phase);
                         events.ScheduleEvent(EVENT_WHELP_SPAWN, 5s);
-                        events.ScheduleEvent(EVENT_LAIR_GUARD, 15000);
-                        events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
+                        events.ScheduleEvent(EVENT_LAIR_GUARD, 15s);
+                        events.ScheduleEvent(EVENT_DEEP_BREATH, 75s);
                         events.ScheduleEvent(EVENT_MOVEMENT, 10s);
                         events.ScheduleEvent(EVENT_FIREBALL, 18s);
                         break;
@@ -427,7 +425,7 @@ public:
                                 Talk(EMOTE_BREATH);
                                 if (PointData) /// @todo: In what cases is this null? What should we do?
                                     DoCast(me, PointData->SpellId);
-                                events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
+                                events.ScheduleEvent(EVENT_DEEP_BREATH, 75s);
                             }
                             else
                                 events.ScheduleEvent(EVENT_DEEP_BREATH, 1s);
@@ -443,7 +441,7 @@ public:
 
                                 me->GetMotionMaster()->MovePoint(PointData->LocId, PointData->fX, PointData->fY, PointData->fZ);
                                 IsMoving = true;
-                                events.ScheduleEvent(EVENT_MOVEMENT, 25000);
+                                events.ScheduleEvent(EVENT_MOVEMENT, 25s);
                             }
                             else
                                 events.ScheduleEvent(EVENT_MOVEMENT, 500ms);

@@ -35,7 +35,6 @@ EndContentData */
 #include "Player.h"
 #include "razorfen_downs.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
 /*###
@@ -125,10 +124,10 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_EXTINGUISHING_THE_IDOL, DONE);
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5s);
         }
 
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_EXTINGUISHING_THE_IDOL)
             {
@@ -164,10 +163,10 @@ public:
                         Talk(SAY_EVENT_START);
                         DoCastSelf(SPELL_IDOL_SHUTDOWN_VISUAL);
                         events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 100ms);
-                        events.ScheduleEvent(EVENT_PROGRESS, 120000);
+                        events.ScheduleEvent(EVENT_PROGRESS, 120s);
                         break;
                     case EVENT_IDOL_ROOM_SPAWNER:
-                        if (Creature* creature = me->SummonCreature(NPC_IDOL_ROOM_SPAWNER, PosSummonSpawner[urand(0,2)], TEMPSUMMON_TIMED_DESPAWN, 4000))
+                        if (Creature* creature = me->SummonCreature(NPC_IDOL_ROOM_SPAWNER, PosSummonSpawner[urand(0,2)], TEMPSUMMON_TIMED_DESPAWN, 4s))
                             creature->AI()->SetData(0, spawnerCount);
                         if (++spawnerCount < 8)
                             events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 35s);
@@ -203,7 +202,7 @@ public:
                     case EVENT_COMPLETE:
                     {
                         DoCastSelf(SPELL_IDOM_ROOM_CAMERA_SHAKE);
-                        me->SummonGameObject(GO_BELNISTRASZS_BRAZIER, 2577.196f, 947.0781f, 53.16757f, 2.356195f, QuaternionData(0.f, 0.f, 0.9238796f, 0.3826832f), HOUR, GO_SUMMON_TIMED_DESPAWN);
+                        me->SummonGameObject(GO_BELNISTRASZS_BRAZIER, 2577.196f, 947.0781f, 53.16757f, 2.356195f, QuaternionData(0.f, 0.f, 0.9238796f, 0.3826832f), 1h, GO_SUMMON_TIMED_DESPAWN);
                         std::list<WorldObject*> ClusterList;
                         Trinity::AllWorldObjectsInRange objects(me, 50.0f);
                         Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
@@ -381,7 +380,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             me->SendCustomAnim(0);
             instance->SetData(DATA_WAVE, IN_PROGRESS);

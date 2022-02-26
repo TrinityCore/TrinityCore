@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "WaypointDefines.h"
-#include <vector>
 #include <unordered_map>
 
 class TC_GAME_API WaypointMgr

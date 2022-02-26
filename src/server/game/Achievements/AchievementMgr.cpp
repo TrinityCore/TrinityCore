@@ -33,6 +33,8 @@
 #include "Mail.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
+#include "StringConvert.h"
+#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -315,7 +317,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
     }
 }
 
-void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     if (!_completedAchievements.empty())
     {
@@ -533,6 +535,8 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
 
     UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
     UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
+
+    sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
 
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement);
@@ -756,9 +760,9 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
 
             CompletedAchievementData& ca = _completedAchievements[achievementid];
             ca.Date = fields[1].GetInt64();
-            Tokenizer guids(fields[2].GetString(), ' ');
-            for (uint32 i = 0; i < guids.size(); ++i)
-                ca.CompletingPlayers.insert(ObjectGuid::Create<HighGuid::Player>(uint64(strtoull(guids[i], nullptr, 10))));
+            for (std::string_view guid : Trinity::Tokenize(fields[2].GetStringView(), ' ', false))
+                if (Optional<ObjectGuid::LowType> parsedGuid = Trinity::StringTo<ObjectGuid::LowType>(guid))
+                    ca.CompletingPlayers.insert(ObjectGuid::Create<HighGuid::Player>(*parsedGuid));
 
             ca.Changed = false;
 
@@ -801,7 +805,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
     }
 }
 
-void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt;
     std::ostringstream guidstr;
@@ -984,6 +988,8 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
 
     UpdateCriteria(CriteriaType::EarnAchievement, achievement->ID, 0, 0, nullptr, referencePlayer);
     UpdateCriteria(CriteriaType::EarnAchievementPoints, achievement->Points, 0, 0, nullptr, referencePlayer);
+
+    sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
 }
 
 void GuildAchievementMgr::SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds /*timeElapsed*/, bool /*timedCompleted*/) const
@@ -1041,6 +1047,9 @@ CriteriaList const& GuildAchievementMgr::GetCriteriaByType(CriteriaType type, ui
     return sCriteriaMgr->GetGuildCriteriaByType(type);
 }
 
+AchievementGlobalMgr::AchievementGlobalMgr() = default;
+AchievementGlobalMgr::~AchievementGlobalMgr() = default;
+
 std::string PlayerAchievementMgr::GetOwnerInfo() const
 {
     return Trinity::StringFormat("%s %s", _owner->GetGUID().ToString().c_str(), _owner->GetName().c_str());
@@ -1081,17 +1090,17 @@ bool AchievementGlobalMgr::IsRealmCompleted(AchievementEntry const* achievement)
     if (itr == _allCompletedAchievements.end())
         return false;
 
-    if (itr->second == std::chrono::system_clock::time_point::min())
+    if (itr->second == SystemTimePoint ::min())
         return false;
 
-    if (itr->second == std::chrono::system_clock::time_point::max())
+    if (itr->second == SystemTimePoint::max())
         return true;
 
     // Allow completing the realm first kill for entire minute after first person did it
     // it may allow more than one group to achieve it (highly unlikely)
     // but apparently this is how blizz handles it as well
     if (achievement->Flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
-        return (std::chrono::system_clock::now() - itr->second) > Minutes(1);
+        return (GameTime::GetSystemTime() - itr->second) > Minutes(1);
 
     return true;
 }
@@ -1101,7 +1110,7 @@ void AchievementGlobalMgr::SetRealmCompleted(AchievementEntry const* achievement
     if (IsRealmCompleted(achievement))
         return;
 
-    _allCompletedAchievements[achievement->ID] = std::chrono::system_clock::now();
+    _allCompletedAchievements[achievement->ID] = GameTime::GetSystemTime();
 }
 
 //==========================================================
@@ -1139,6 +1148,39 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void AchievementGlobalMgr::LoadAchievementScripts()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _achievementScripts.clear();                            // need for reload case
+
+    QueryResult result = WorldDatabase.Query("SELECT AchievementId, ScriptName FROM achievement_scripts");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 achievement scripts. DB table `achievement_scripts` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 achievementId         = fields[0].GetUInt32();
+        std::string scriptName       = fields[1].GetString();
+
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
+        if (!achievement)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `achievement_scripts` contains non-existing Achievement (ID: %u), skipped.", achievementId);
+            continue;
+        }
+        _achievementScripts[achievementId] = sObjectMgr->GetScriptId(scriptName);
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " achievement scripts in %u ms", _achievementScripts.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
     uint32 oldMSTime = getMSTime();
@@ -1148,7 +1190,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     // instead the only potential race will happen on value associated with the key
     for (AchievementEntry const* achievement : sAchievementStore)
         if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-            _allCompletedAchievements[achievement->ID] = std::chrono::system_clock::time_point::min();
+            _allCompletedAchievements[achievement->ID] = SystemTimePoint::min();
 
     QueryResult result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
@@ -1176,7 +1218,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             continue;
         }
         else if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-            _allCompletedAchievements[achievementId] = std::chrono::system_clock::time_point::max();
+            _allCompletedAchievements[achievementId] = SystemTimePoint::max();
     }
     while (result->NextRow());
 
@@ -1336,4 +1378,11 @@ void AchievementGlobalMgr::LoadRewardLocales()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement reward locale strings in %u ms.", uint32(_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+uint32 AchievementGlobalMgr::GetAchievementScriptId(uint32 achievementId) const
+{
+    if (uint32 const* scriptId = Trinity::Containers::MapGetValuePtr(_achievementScripts, achievementId))
+        return *scriptId;
+    return 0;
 }

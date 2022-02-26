@@ -282,7 +282,7 @@ void ScriptedAI::ForceCombatStopForCreatureEntry(std::vector<uint32> creatureEnt
         ForceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);
 }
 
-Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
+Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, Milliseconds despawntime)
 {
     return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
 }
@@ -599,10 +599,10 @@ bool BossAI::CanAIAttack(Unit const* target) const
 
 void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*= nullptr*/)
 {
-    if (delayToRespawn < Seconds(2))
+    if (delayToRespawn < 2s)
     {
         TC_LOG_ERROR("scripts.ai", "BossAI::_DespawnAtEvade: called with delay of " SI64FMTD " seconds, defaulting to 2 (me: %s)", delayToRespawn.count(), me->GetGUID().ToString().c_str());
-        delayToRespawn = Seconds(2);
+        delayToRespawn = 2s;
     }
 
     if (!who)
@@ -615,7 +615,7 @@ void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*=
         return;
     }
 
-    who->DespawnOrUnsummon(0, delayToRespawn);
+    who->DespawnOrUnsummon(0s, delayToRespawn);
 
     if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);

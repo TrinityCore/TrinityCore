@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.11)
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
@@ -90,3 +90,18 @@ add_subdirectory(dep)
 
 # add core sources
 add_subdirectory(src)
+
+include(CTest)
+if(BUILD_TESTING)
+  list(APPEND CMAKE_MODULE_PATH
+    "${Catch2_SOURCE_DIR}/contrib")
+  include(Catch)
+
+  add_subdirectory(tests)
+
+  # Catch cmakefile messes with our settings we explicitly leave up to the user
+  # restore user preference
+  if (NOT WITH_SOURCE_TREE STREQUAL "hierarchical-folders")
+    set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
+  endif()
+endif()

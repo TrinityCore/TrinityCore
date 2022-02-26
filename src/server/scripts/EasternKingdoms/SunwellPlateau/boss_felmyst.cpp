@@ -214,7 +214,7 @@ public:
             {
                 float x, y, z;
                 unitCaster->GetPosition(x, y, z);
-                if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
                 {
                     summon->SetMaxHealth(unitCaster->GetMaxHealth());
                     summon->SetHealth(unitCaster->GetMaxHealth());
@@ -238,7 +238,7 @@ public:
         void MovementInform(uint32, uint32) override
         {
             if (phase == PHASE_FLIGHT)
-                events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
         }
 
         void DamageTaken(Unit*, uint32 &damage) override
@@ -302,7 +302,7 @@ public:
                         return;
                     }
 
-                    if (Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
+                    if (Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9s))
                     {
                         Vapor->AI()->AttackStart(target);
                         me->InterruptNonMeleeSpells(false);
@@ -329,7 +329,7 @@ public:
                     }
 
                     //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
-                    if (Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
+                    if (Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9s))
                     {
                         if (pVapor->AI())
                             pVapor->AI()->AttackStart(target);
@@ -343,7 +343,7 @@ public:
                 }
                 case 4:
                     DespawnSummons(NPC_VAPOR_TRAIL);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
                     break;
                 case 5:
                 {
@@ -377,14 +377,14 @@ public:
                     x = 2 * breathX - x;
                     y = 2 * breathY - y;
                     me->GetMotionMaster()->MovePoint(0, x, y, z);
-                    events.ScheduleEvent(EVENT_SUMMON_FOG, 1);
+                    events.ScheduleEvent(EVENT_SUMMON_FOG, 1ms);
                     break;
                 }
                 case 8:
                     me->CastStop(SPELL_FOG_BREATH);
                     me->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
                     ++uiBreathCount;
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
                     if (uiBreathCount < 3)
                         uiFlightCount = 4;
                     break;
@@ -472,7 +472,7 @@ public:
                             float x, y, z;
                             me->GetPosition(x, y, z);
                             me->UpdateGroundPositionZ(x, y, z);
-                            if (Creature* Fog = me->SummonCreature(NPC_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            if (Creature* Fog = me->SummonCreature(NPC_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10s))
                             {
                                 Fog->RemoveAurasDueToSpell(SPELL_TRAIL_TRIGGER);
                                 Fog->CastSpell(Fog, SPELL_FOG_TRIGGER, true);
@@ -500,7 +500,7 @@ public:
                 if (entry == NPC_VAPOR_TRAIL && phase == PHASE_FLIGHT)
                 {
                     (*i)->GetPosition(x, y, z);
-                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 }
                 (*i)->SetVisible(false);
                 (*i)->DespawnOrUnsummon();

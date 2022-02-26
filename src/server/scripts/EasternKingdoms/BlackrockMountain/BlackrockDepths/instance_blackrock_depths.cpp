@@ -21,7 +21,6 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include <sstream>
 
@@ -393,7 +392,7 @@ public:
 
         void TombOfSevenEnd()
         {
-            DoRespawnGameObject(GoChestGUID, DAY);
+            DoRespawnGameObject(GoChestGUID, 24h);
             HandleGameObject(GoTombExitGUID, true);//event done, open exit door
             HandleGameObject(GoTombEnterGUID, true);//event done, open entrance door
             TombEventStarterGUID.Clear();

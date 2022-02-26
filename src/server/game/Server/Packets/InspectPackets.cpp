@@ -208,8 +208,8 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
-    _worldPacket.WriteBit(GuildData.is_initialized());
-    _worldPacket.WriteBit(AzeriteLevel.is_initialized());
+    _worldPacket.WriteBit(GuildData.has_value());
+    _worldPacket.WriteBit(AzeriteLevel.has_value());
     _worldPacket.FlushBits();
 
     for (PVPBracketData const& bracket : Bracket)

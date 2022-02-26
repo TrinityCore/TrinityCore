@@ -207,7 +207,7 @@ class npc_ethereal_sphere : public CreatureScript
                 DoCast(me, SPELL_POWER_BALL_VISUAL);
                 DoCast(me, DUNGEON_MODE(SPELL_POWER_BALL_DAMAGE_TRIGGER, SPELL_POWER_BALL_DAMAGE_TRIGGER_H));
 
-                me->DespawnOrUnsummon(40000);
+                me->DespawnOrUnsummon(40s);
             }
 
             void DoAction(int32 action) override
@@ -233,7 +233,7 @@ class npc_ethereal_sphere : public CreatureScript
                         if (me->IsWithinDist(xevozz, 3.0f))
                         {
                             DoCastAOE(SPELL_ARCANE_POWER);
-                            me->DespawnOrUnsummon(8000);
+                            me->DespawnOrUnsummon(8s);
                             return;
                         }
                     }

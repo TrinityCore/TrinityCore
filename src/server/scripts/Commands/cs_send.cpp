@@ -17,12 +17,12 @@
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Language.h"
 #include "Mail.h"
 #include "ObjectMgr.h"
-#include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"

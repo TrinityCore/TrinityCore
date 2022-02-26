@@ -282,10 +282,10 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // flags taken from sniffs
-                    if (caster->HasUnitFlag(UnitFlags(UNIT_FLAG_SWIMMING | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6)))
+                    if (caster->HasUnitFlag(UnitFlags(UNIT_FLAG_CAN_SWIM | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6)))
                     {
                         caster->ToCreature()->SetReactState(REACT_PASSIVE);
-                        caster->AddUnitFlag(UnitFlags(UNIT_FLAG_SWIMMING | UNIT_FLAG_UNK_6));
+                        caster->AddUnitFlag(UnitFlags(UNIT_FLAG_CAN_SWIM | UNIT_FLAG_UNK_6));
                         caster->SetImmuneToAll(true, true);
                     }
                 }
@@ -296,7 +296,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                    caster->RemoveUnitFlag(UnitFlags(UNIT_FLAG_SWIMMING | UNIT_FLAG_UNK_6));
+                    caster->RemoveUnitFlag(UnitFlags(UNIT_FLAG_CAN_SWIM | UNIT_FLAG_UNK_6));
                     caster->SetImmuneToAll(false);
                 }
             }

@@ -19,6 +19,7 @@
 #define TRINITY_SPELLDEFINES_H
 
 #include "Define.h"
+#include "FlagsArray.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -30,9 +31,12 @@ class Corpse;
 class GameObject;
 class Item;
 class Player;
+class Spell;
 class Unit;
 class WorldObject;
 enum Difficulty : uint8;
+enum ProcFlags : uint32;
+enum ProcFlags2 : int32;
 
 namespace UF
 {
@@ -303,6 +307,7 @@ struct TC_GAME_API SpellDestination
     SpellDestination();
     SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
     SpellDestination(Position const& pos);
+    SpellDestination(WorldLocation const& loc);
     SpellDestination(WorldObject const& wObj);
 
     void Relocate(Position const& pos);
@@ -436,12 +441,14 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs(bool triggered) : TriggerFlags(triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE) {}
     CastSpellExtraArgs(TriggerCastFlags trigger) : TriggerFlags(trigger) {}
     CastSpellExtraArgs(Item* item) : TriggerFlags(TRIGGERED_FULL_MASK), CastItem(item) {}
+    CastSpellExtraArgs(Spell const* triggeringSpell) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringSpell(triggeringSpell); }
     CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) : CastDifficulty(castDifficulty) {}
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); }
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
+    CastSpellExtraArgs& SetTriggeringSpell(Spell const* triggeringSpell);
     CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura);
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }
@@ -455,6 +462,7 @@ struct TC_GAME_API CastSpellExtraArgs
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
     Difficulty CastDifficulty = Difficulty(0);
     ObjectGuid OriginalCastId = ObjectGuid::Empty;
+    Optional<int32> OriginalCastItemLevel;
     struct
     {
         friend struct CastSpellExtraArgs;
@@ -477,6 +485,51 @@ struct SpellCastVisual
 
     operator UF::SpellCastVisual() const;
     operator WorldPackets::Spells::SpellCastVisual() const;
+};
+
+class ProcFlagsInit : public FlagsArray<int32, 2>
+{
+    using Base = FlagsArray<int32, 2>;
+
+public:
+    constexpr ProcFlagsInit(ProcFlags procFlags = {}, ProcFlags2 procFlags2 = {})
+    {
+        _storage[0] = int32(procFlags);
+        _storage[1] = int32(procFlags2);
+    }
+
+    constexpr ProcFlagsInit& operator|=(ProcFlags procFlags)
+    {
+        _storage[0] |= int32(procFlags);
+        return *this;
+    }
+
+    constexpr ProcFlagsInit& operator|=(ProcFlags2 procFlags2)
+    {
+        _storage[1] |= int32(procFlags2);
+        return *this;
+    }
+
+    using Base::operator&;
+
+    constexpr ProcFlags operator&(ProcFlags procFlags) const
+    {
+        return static_cast<ProcFlags>(_storage[0] & procFlags);
+    }
+
+    constexpr ProcFlags2 operator&(ProcFlags2 procFlags2) const
+    {
+        return static_cast<ProcFlags2>(_storage[1] & procFlags2);
+    }
+
+    using Base::operator=;
+
+    constexpr ProcFlagsInit& operator=(Base const& right)
+    {
+        _storage[0] = right[0];
+        _storage[1] = right[1];
+        return *this;
+    }
 };
 
 #endif

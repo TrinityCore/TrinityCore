@@ -23,8 +23,6 @@
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "Log.h"
-#include <functional>
-#include <unordered_map>
 
 #define SECRET_FLAG_FOR(key, val, server) server ## _ ## key = (val ## ull << (16*SECRET_OWNER_ ## server))
 #define SECRET_FLAG(key, val) SECRET_FLAG_ ## key = val, SECRET_FLAG_FOR(key, val, BNETSERVER), SECRET_FLAG_FOR(key, val, WORLDSERVER)

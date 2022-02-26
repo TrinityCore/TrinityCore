@@ -60,7 +60,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 {
                     case NPC_MAULGAR:
                         MaulgarGUID = creature->GetGUID();
-                        /* fallthrough */
+                        [[fallthrough]];
                     case NPC_KROSH_FIREHAND:
                     case NPC_OLM_THE_SUMMONER:
                     case NPC_KIGGLER_THE_CRAZED:

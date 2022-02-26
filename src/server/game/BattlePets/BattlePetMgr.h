@@ -144,10 +144,12 @@ struct BattlePet
     BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
 };
 
-class BattlePetMgr
+class TC_GAME_API BattlePetMgr
 {
 public:
     explicit BattlePetMgr(WorldSession* owner);
+    BattlePetMgr(BattlePetMgr const& right) = delete;
+    BattlePetMgr(BattlePetMgr&& right) = delete;
 
     static void Initialize();
 
@@ -156,13 +158,13 @@ public:
     static uint32 SelectPetDisplay(BattlePetSpeciesEntry const* speciesEntry);
 
     void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
-    void SaveToDB(LoginDatabaseTransaction& trans);
+    void SaveToDB(LoginDatabaseTransaction trans);
 
     BattlePet* GetPet(ObjectGuid guid);
     void AddPet(uint32 species, uint32 display, uint16 breed, BattlePetBreedQuality quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
-    void ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName);
+    void ModifyName(ObjectGuid guid, std::string const& name, std::unique_ptr<DeclinedName> declinedName);
     bool IsPetInSlot(ObjectGuid guid);
 
     uint8 GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
@@ -183,6 +185,7 @@ public:
     void GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource);
     void GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels);
     void HealBattlePetsPct(uint8 pct);
+    void UpdateBattlePetData(ObjectGuid guid);
 
     void SummonPet(ObjectGuid guid);
     void DismissPet();

@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -55,11 +56,8 @@ public:
         return commandTable;
     }
 
-    static bool HandleHonorAddCommand(ChatHandler* handler, char const* args)
+    static bool HandleHonorAddCommand(ChatHandler* handler, int32 amount)
     {
-        if (!*args)
-            return false;
-
         Player* target = handler->getSelectedPlayer();
         if (!target)
         {
@@ -72,12 +70,11 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        int32 amount = atoi(args);
         target->RewardHonor(nullptr, 1, amount);
         return true;
     }
 
-    static bool HandleHonorAddKillCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleHonorAddKillCommand(ChatHandler* handler)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -96,7 +93,7 @@ public:
         return true;
     }
 
-    static bool HandleHonorUpdateCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleHonorUpdateCommand(ChatHandler* handler)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)

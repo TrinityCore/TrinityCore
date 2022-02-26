@@ -159,6 +159,7 @@ public:
     static Random& common();
 };
 
+Random& commonRandom();
 }
 
 #endif

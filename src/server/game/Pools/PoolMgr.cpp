@@ -32,6 +32,9 @@ PoolObject::PoolObject(uint64 _guid, float _chance) : guid(_guid), chance(std::f
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
 
+ActivePoolData::ActivePoolData() = default;
+ActivePoolData::~ActivePoolData() = default;
+
 // Method that tell amount spawned objects/subpools
 uint32 ActivePoolData::GetActiveObjectCount(uint32 pool_id) const
 {
@@ -110,6 +113,14 @@ void ActivePoolData::RemoveObject<Pool>(uint64 sub_pool_id, uint32 pool_id)
 
 ////////////////////////////////////////////////////////////
 // Methods of template class PoolGroup
+
+template <class T>
+PoolGroup<T>::PoolGroup(): poolId(0)
+{
+}
+
+template <class T>
+PoolGroup<T>::~PoolGroup() = default;
 
 // Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
 template <class T>
@@ -285,7 +296,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 trig
                 roll -= obj.chance;
                 // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
                 // so this need explicit check for this case
-                if (roll < 0 && (obj.guid == triggerFrom || !spawns.IsActiveObject<T>(obj.guid)))
+                if (roll < 0 && (/*obj.guid == triggerFrom ||*/ !spawns.IsActiveObject<T>(obj.guid)))
                 {
                     rolledObjects.push_back(obj);
                     break;
@@ -295,9 +306,9 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 trig
 
         if (!EqualChanced.empty() && rolledObjects.empty())
         {
-            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [triggerFrom, &spawns](PoolObject const& object)
+            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [/*triggerFrom, */&spawns](PoolObject const& object)
             {
-                return object.guid == triggerFrom || !spawns.IsActiveObject<T>(object.guid);
+                return /*object.guid == triggerFrom ||*/ !spawns.IsActiveObject<T>(object.guid);
             });
 
             Trinity::Containers::RandomResize(rolledObjects, count);
@@ -422,7 +433,8 @@ void PoolGroup<Pool>::RemoveRespawnTimeFromDB(uint64 /*guid*/) { }
 ////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
 
-PoolMgr::PoolMgr() { }
+PoolMgr::PoolMgr() = default;
+PoolMgr::~PoolMgr() = default;
 
 void PoolMgr::Initialize()
 {
@@ -802,7 +814,7 @@ uint32 PoolMgr::IsPartOfAPool(SpawnObjectType type, ObjectGuid::LowType spawnId)
         case SPAWN_TYPE_AREATRIGGER:
             return 0;
         default:
-            ASSERT(false, "Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId " UI64FMTD ")", uint32(type), spawnId);
+            ABORT_MSG("Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId " UI64FMTD ")", uint32(type), spawnId);
             return 0;
     }
 }

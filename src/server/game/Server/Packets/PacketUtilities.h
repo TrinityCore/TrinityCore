@@ -22,6 +22,7 @@
 #include "Duration.h"
 #include "Tuples.h"
 #include <boost/container/static_vector.hpp>
+#include <string_view>
 #include <ctime>
 
 namespace WorldPackets
@@ -79,6 +80,7 @@ namespace WorldPackets
         bool empty() const { return _storage.empty(); }
         char const* c_str() const { return _storage.c_str(); }
 
+        operator std::string_view() const { return _storage; }
         operator std::string&() { return _storage; }
         operator std::string const&() const { return _storage; }
 
@@ -205,7 +207,7 @@ namespace WorldPackets
     public:
         Timestamp() = default;
         Timestamp(time_t value) : _value(value) { }
-        Timestamp(std::chrono::system_clock::time_point const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
+        Timestamp(SystemTimePoint const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
 
         Timestamp& operator=(time_t value)
         {
@@ -213,7 +215,7 @@ namespace WorldPackets
             return *this;
         }
 
-        Timestamp& operator=(std::chrono::system_clock::time_point const& systemTime)
+        Timestamp& operator=(SystemTimePoint const& systemTime)
         {
             _value = std::chrono::system_clock::to_time_t(systemTime);
             return *this;

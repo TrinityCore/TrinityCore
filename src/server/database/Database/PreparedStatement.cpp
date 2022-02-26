@@ -18,10 +18,8 @@
 #include "PreparedStatement.h"
 #include "Errors.h"
 #include "MySQLConnection.h"
-#include "MySQLPreparedStatement.h"
 #include "QueryResult.h"
-#include "Log.h"
-#include "MySQLWorkaround.h"
+#include "StringFormat.h"
 
 PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
     m_index(index), statement_data(capacity) { }
@@ -99,6 +97,12 @@ void PreparedStatementBase::setString(const uint8 index, const std::string& valu
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
+}
+
+void PreparedStatementBase::setStringView(const uint8 index, const std::string_view value)
+{
+    ASSERT(index < statement_data.size());
+    statement_data[index].data.emplace<std::string>(value);
 }
 
 void PreparedStatementBase::setBinary(const uint8 index, const std::vector<uint8>& value)

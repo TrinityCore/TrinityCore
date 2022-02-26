@@ -129,7 +129,7 @@ struct boss_amanitar : public BossAI
 
     void SpawnMushroom(Position const pos)
     {
-        me->SummonCreature(roll_chance_i(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4000);
+        me->SummonCreature(roll_chance_i(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -280,5 +280,5 @@ void AddSC_boss_amanitar()
 {
     RegisterAhnKahetCreatureAI(boss_amanitar);
     RegisterAhnKahetCreatureAI(npc_amanitar_mushrooms);
-    RegisterAuraScript(spell_amanitar_potent_fungus);
+    RegisterSpellScript(spell_amanitar_potent_fungus);
 }

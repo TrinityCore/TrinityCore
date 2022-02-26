@@ -18,7 +18,6 @@
 #ifndef __WORLDSOCKET_H__
 #define __WORLDSOCKET_H__
 
-#include "Common.h"
 #include "AsyncCallbackProcessor.h"
 #include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
@@ -28,8 +27,7 @@
 #include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
 #include <array>
-#include <chrono>
-#include <functional>
+#include <boost/asio/ip/tcp.hpp>
 #include <mutex>
 
 typedef struct z_stream_s z_stream;
@@ -158,7 +156,7 @@ private:
     SessionKey _sessionKey;
     std::array<uint8, 16> _encryptKey;
 
-    std::chrono::steady_clock::time_point _LastPingTime;
+    TimePoint _LastPingTime;
     uint32 _OverSpeedPings;
 
     std::mutex _worldSessionLock;

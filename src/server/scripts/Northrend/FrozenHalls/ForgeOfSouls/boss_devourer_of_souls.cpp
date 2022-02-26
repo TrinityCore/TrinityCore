@@ -304,7 +304,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetControlled(true, UNIT_STATE_ROOT);
 
                             wailingSoulTick = 15;
-                            events.DelayEvents(18000); // no other events during wailing souls
+                            events.DelayEvents(18s); // no other events during wailing souls
                             events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
                             break;
 

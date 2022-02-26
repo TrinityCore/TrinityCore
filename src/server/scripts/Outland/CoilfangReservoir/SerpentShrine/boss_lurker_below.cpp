@@ -285,12 +285,11 @@ public:
 
                 if (RotTimer)
                 {
-                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                    instance->instance->DoOnPlayers([this, diff](Player* player)
                     {
-                        if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
-                            DoCast(i->GetSource(), SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
-                    }
+                        if (player->IsAlive() && me->HasInArc(diff / 20000.f * float(M_PI) * 2.f, player) && me->IsWithinDist(player, SPOUT_DIST) && !player->IsInWater())
+                            DoCast(player, SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
+                    });
 
                     if (SpoutAnimTimer <= diff)
                     {
@@ -372,7 +371,7 @@ public:
                     me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
                     // spawn adds
                     for (uint8 i = 0; i < 9; ++i)
-                        if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN))
                             Summons.Summon(summoned);
                     Spawned = true;
                 }
@@ -457,7 +456,7 @@ class go_strange_pool : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // 25%
                 if (!urand(0, 3))

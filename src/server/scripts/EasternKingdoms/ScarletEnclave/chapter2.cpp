@@ -21,7 +21,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 
 enum BloodyBreakoutTexts
@@ -109,7 +109,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
         _eventGossip = false;
     }
 
-    bool GossipHello(Player* player) override
+    bool OnGossipHello(Player* player) override
     {
         ObjectGuid const guid = me->GetGUID();
         _playerGUID = player->GetGUID();
@@ -127,7 +127,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
         return false;
     }
 
-    void QuestAccept(Player* /* player */, Quest const* quest) override
+    void OnQuestAccept(Player* /* player */, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_BLOODY_BREAKOUT)
         {

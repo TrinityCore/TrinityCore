@@ -27,10 +27,8 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
-#include "ScriptMgr.h"
 #include "Transport.h"
 #include "WaypointManager.h"
-#include "World.h"
 
 /// Put scripts in the execution queue
 void Map::ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo>> const& scripts, uint32 id, Object* source, Object* target)
@@ -445,7 +443,7 @@ void Map::ScriptsProcess()
                     if (step.script->Emote.Flags & SF_EMOTE_USE_STATE)
                         cSource->SetEmoteState(Emote(step.script->Emote.EmoteID));
                     else
-                        cSource->HandleEmoteCommand(step.script->Emote.EmoteID);
+                        cSource->HandleEmoteCommand(static_cast<Emote>(step.script->Emote.EmoteID));
                 }
                 break;
 
@@ -603,7 +601,7 @@ void Map::ScriptsProcess()
                         float z = step.script->TempSummonCreature.PosZ;
                         float o = step.script->TempSummonCreature.Orientation;
 
-                        if (!pSummoner->SummonCreature(step.script->TempSummonCreature.CreatureEntry, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, step.script->TempSummonCreature.DespawnDelay))
+                        if (!pSummoner->SummonCreature(step.script->TempSummonCreature.CreatureEntry, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, Milliseconds(step.script->TempSummonCreature.DespawnDelay)))
                             TC_LOG_ERROR("scripts", "%s creature was not spawned (entry: %u).", step.script->GetDebugInfo().c_str(), step.script->TempSummonCreature.CreatureEntry);
                     }
                 }
@@ -742,7 +740,7 @@ void Map::ScriptsProcess()
             case SCRIPT_COMMAND_DESPAWN_SELF:
                 // First try with target or source creature, then with target or source gameobject
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script, true))
-                    cSource->DespawnOrUnsummon(step.script->DespawnSelf.DespawnDelay);
+                    cSource->DespawnOrUnsummon(Milliseconds(step.script->DespawnSelf.DespawnDelay));
                 else if (GameObject* goSource = _GetScriptGameObjectSourceOrTarget(source, target, step.script, true))
                     goSource->DespawnOrUnsummon(Milliseconds(step.script->DespawnSelf.DespawnDelay));
                 break;

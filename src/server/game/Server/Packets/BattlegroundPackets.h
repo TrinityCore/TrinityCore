@@ -37,9 +37,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 MythicPlusSeasonID = 0;
-            int32 PreviousSeason = 0;
-            int32 CurrentSeason = 0;
+            int32 MythicPlusDisplaySeasonID = 0;
+            int32 MythicPlusMilestoneSeasonID = 0;
+            int32 PreviousArenaSeason = 0;
+            int32 CurrentArenaSeason = 0;
             int32 PvpSeasonID = 0;
             int32 ConquestWeeklyProgressCurrencyID = 0;
             bool WeeklyRewardChestsEnabled = false;
@@ -96,6 +97,8 @@ namespace WorldPackets
         {
             struct RatingData
             {
+                RatingData() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+
                 int32 Prematch[2] = { };
                 int32 Postmatch[2] = { };
                 int32 PrematchMMR[2] = { };
@@ -103,6 +106,8 @@ namespace WorldPackets
 
             struct HonorData
             {
+                HonorData() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+
                 uint32 HonorKills = 0;
                 uint32 Deaths = 0;
                 uint32 ContributionPoints = 0;
@@ -137,6 +142,7 @@ namespace WorldPackets
                 int32 Class = 0;
                 int32 CreatureID = 0;
                 int32 HonorLevel = 0;
+                int32 Role = 0;
             };
 
             std::vector<PVPMatchPlayerStatistics> Statistics;
@@ -217,6 +223,7 @@ namespace WorldPackets
             bool SuspendedQueue = false;
             bool EligibleForMatchmaking = false;
             uint32 WaitTime = 0;
+            int32 Unused920 = 0;
         };
 
         class BattlefieldStatusFailed final : public ServerPacket
@@ -489,6 +496,7 @@ namespace WorldPackets
             uint8 Winner = 0;
             WorldPackets::Duration<Seconds> Duration;
             Optional<PVPMatchStatistics> LogData;
+            uint32 SoloShuffleStatus = 0;
         };
 
         enum class BattlegroundCapturePointState : uint8

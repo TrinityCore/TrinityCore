@@ -69,7 +69,7 @@ class boss_postmaster_malown : public CreatureScript
                 events.ScheduleEvent(EVENT_BACKHAND, 8s);         // 2 sec stun
                 events.ScheduleEvent(EVENT_CURSEOFWEAKNESS, 20s); // lasts 2 mins
                 events.ScheduleEvent(EVENT_CURSEOFTONGUES, 22s);
-                events.ScheduleEvent(EVENT_CALLOFTHEGRAVE, 25000);
+                events.ScheduleEvent(EVENT_CALLOFTHEGRAVE, 25s);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -114,7 +114,7 @@ class boss_postmaster_malown : public CreatureScript
                         case EVENT_CALLOFTHEGRAVE:
                             if (rand32() % 100 < 5) //5% chance to cast
                                 DoCastVictim(SPELL_CALLOFTHEGRAVE, true);
-                            events.ScheduleEvent(EVENT_WAILINGDEAD, 25000);
+                            events.ScheduleEvent(EVENT_WAILINGDEAD, 25s);
                             break;
                         default:
                             break;

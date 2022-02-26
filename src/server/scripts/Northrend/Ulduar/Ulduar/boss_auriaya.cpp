@@ -17,8 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
@@ -704,7 +702,7 @@ void AddSC_boss_auriaya()
     RegisterSpellScript(spell_auriaya_strenght_of_the_pack);
     RegisterSpellScript(spell_auriaya_sentinel_blast);
     RegisterSpellScript(spell_auriaya_agro_creator);
-    RegisterAuraScript(spell_auriaya_random_agro_periodic);
+    RegisterSpellScript(spell_auriaya_random_agro_periodic);
     RegisterSpellScript(spell_auriaya_feral_essence_removal);
     RegisterSpellScript(spell_auriaya_feral_rush);
     new achievement_nine_lives();

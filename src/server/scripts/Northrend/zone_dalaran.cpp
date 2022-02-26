@@ -30,7 +30,6 @@ Script Data End */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 
 /*******************************************************
  * npc_mageguard_dalaran

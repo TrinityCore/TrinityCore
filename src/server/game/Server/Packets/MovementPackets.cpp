@@ -19,7 +19,6 @@
 #include "MoveSpline.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
-#include "PacketUtilities.h"
 #include "Unit.h"
 #include "Util.h"
 
@@ -29,26 +28,27 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     bool hasFallDirection = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
     bool hasFallData = hasFallDirection || movementInfo.jump.fallTime != 0;
     bool hasSpline = false; // todo 6.x send this infos
+    bool hasInertia = movementInfo.inertia.has_value();
 
     data << movementInfo.guid;
-    data << movementInfo.time;
+    data << uint32(movementInfo.flags);
+    data << uint32(movementInfo.flags2);
+    data << uint32(movementInfo.flags3);
+    data << uint32(movementInfo.time);
     data << movementInfo.pos.PositionXYZOStream();
-    data << movementInfo.pitch;
-    data << movementInfo.splineElevation;
+    data << float(movementInfo.pitch);
+    data << float(movementInfo.splineElevation);
 
     uint32 removeMovementForcesCount = 0;
     data << removeMovementForcesCount;
 
-    uint32 int168 = 0;
-    data << int168;
+    uint32 moveIndex = 0;
+    data << moveIndex;
 
     /*for (uint32 i = 0; i < removeMovementForcesCount; ++i)
     {
         data << ObjectGuid;
     }*/
-
-    data.WriteBits(movementInfo.flags, 30);
-    data.WriteBits(movementInfo.flags2, 18);
 
     data.WriteBit(hasTransportData);
     data.WriteBit(hasFallData);
@@ -56,24 +56,32 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 
     data.WriteBit(false); // HeightChangeFailed
     data.WriteBit(false); // RemoteTimeValid
+    data.WriteBit(hasInertia);
 
     data.FlushBits();
 
     if (hasTransportData)
         data << movementInfo.transport;
 
+    if (hasInertia)
+    {
+        data << movementInfo.inertia->guid;
+        data << movementInfo.inertia->force.PositionXYZStream();
+        data << uint32(movementInfo.inertia->lifetime);
+    }
+
     if (hasFallData)
     {
-        data << movementInfo.jump.fallTime;
-        data << movementInfo.jump.zspeed;
+        data << uint32(movementInfo.jump.fallTime);
+        data << float(movementInfo.jump.zspeed);
 
         data.WriteBit(hasFallDirection);
         data.FlushBits();
         if (hasFallDirection)
         {
-            data << movementInfo.jump.sinAngle;
-            data << movementInfo.jump.cosAngle;
-            data << movementInfo.jump.xyspeed;
+            data << float(movementInfo.jump.sinAngle);
+            data << float(movementInfo.jump.cosAngle);
+            data << float(movementInfo.jump.xyspeed);
         }
     }
 
@@ -85,6 +93,9 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     //bool hasSpline = false;
 
     data >> movementInfo.guid;
+    data >> movementInfo.flags;
+    data >> movementInfo.flags2;
+    data >> movementInfo.flags3;
     data >> movementInfo.time;
     data >> movementInfo.pos.PositionXYZOStream();
     data >> movementInfo.pitch;
@@ -102,18 +113,25 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
         data >> guid;
     }
 
-    movementInfo.flags = data.ReadBits(30);
-    movementInfo.flags2 = data.ReadBits(18);
-
     bool hasTransport = data.ReadBit();
     bool hasFall = data.ReadBit();
     /*hasSpline = */data.ReadBit(); // todo 6.x read this infos
 
     data.ReadBit(); // HeightChangeFailed
     data.ReadBit(); // RemoteTimeValid
+    bool hasInertia = data.ReadBit();
 
     if (hasTransport)
         data >> movementInfo.transport;
+
+    if (hasInertia)
+    {
+        movementInfo.inertia.emplace();
+
+        data >> movementInfo.inertia->guid;
+        data >> movementInfo.inertia->force.PositionXYZStream();
+        data >> movementInfo.inertia->lifetime;
+    }
 
     if (hasFall)
     {
@@ -265,11 +283,11 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data.WriteBit(movementSpline.VehicleExitVoluntary);
     data.WriteBit(movementSpline.Interpolate);
     data.WriteBits(movementSpline.PackedDeltas.size(), 16);
-    data.WriteBit(movementSpline.SplineFilter.is_initialized());
-    data.WriteBit(movementSpline.SpellEffectExtraData.is_initialized());
-    data.WriteBit(movementSpline.JumpExtraData.is_initialized());
-    data.WriteBit(movementSpline.AnimTierTransition.is_initialized());
-    data.WriteBit(movementSpline.Unknown901.is_initialized());
+    data.WriteBit(movementSpline.SplineFilter.has_value());
+    data.WriteBit(movementSpline.SpellEffectExtraData.has_value());
+    data.WriteBit(movementSpline.JumpExtraData.has_value());
+    data.WriteBit(movementSpline.AnimTierTransition.has_value());
+    data.WriteBit(movementSpline.Unknown901.has_value());
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -348,9 +366,9 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         bool hasFadeObjectTime = data.WriteBit(moveSpline.splineflags.fadeObject && moveSpline.effect_start_time < moveSpline.Duration());
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBit(false);                                                   // HasSplineFilter
-        data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
+        data.WriteBit(moveSpline.spell_effect_extra.has_value());               // HasSpellEffectExtraData
         bool hasJumpExtraData = data.WriteBit(moveSpline.splineflags.parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time));
-        data.WriteBit(moveSpline.anim_tier.is_initialized());                   // HasAnimationTierTransition
+        data.WriteBit(moveSpline.anim_tier.has_value());                        // HasAnimationTierTransition
         data.WriteBit(false);                                                   // HasUnknown901
         data.FlushBits();
 
@@ -495,7 +513,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         movementSpline.AnimTierTransition.emplace();
         movementSpline.AnimTierTransition->TierTransitionID = moveSpline.anim_tier->TierTransitionId;
         movementSpline.AnimTierTransition->StartTime = moveSpline.effect_start_time;
-        movementSpline.AnimTierTransition->AnimTier = moveSpline.anim_tier->AnimTier;
+        movementSpline.AnimTierTransition->AnimTier = AsUnderlyingType(moveSpline.anim_tier->AnimTier);
     }
 
     movementSpline.MoveTime = moveSpline.Duration();
@@ -622,8 +640,8 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 {
     _worldPacket << int32(MapID);
     _worldPacket << OldMapPosition;
-    _worldPacket.WriteBit(Ship.is_initialized());
-    _worldPacket.WriteBit(TransferSpellID.is_initialized());
+    _worldPacket.WriteBit(Ship.has_value());
+    _worldPacket.WriteBit(TransferSpellID.has_value());
     if (Ship)
     {
         _worldPacket << uint32(Ship->ID);
@@ -674,8 +692,8 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     _worldPacket << float(Facing);
     _worldPacket << uint8(PreloadWorld);
 
-    _worldPacket.WriteBit(TransportGUID.is_initialized());
-    _worldPacket.WriteBit(Vehicle.is_initialized());
+    _worldPacket.WriteBit(TransportGUID.has_value());
+    _worldPacket.WriteBit(Vehicle.has_value());
     _worldPacket.FlushBits();
 
     if (Vehicle)
@@ -718,15 +736,15 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket << *Status;
 
     _worldPacket << uint32(MovementForces ? MovementForces->size() : 0);
-    _worldPacket.WriteBit(WalkSpeed.is_initialized());
-    _worldPacket.WriteBit(RunSpeed.is_initialized());
-    _worldPacket.WriteBit(RunBackSpeed.is_initialized());
-    _worldPacket.WriteBit(SwimSpeed.is_initialized());
-    _worldPacket.WriteBit(SwimBackSpeed.is_initialized());
-    _worldPacket.WriteBit(FlightSpeed.is_initialized());
-    _worldPacket.WriteBit(FlightBackSpeed.is_initialized());
-    _worldPacket.WriteBit(TurnRate.is_initialized());
-    _worldPacket.WriteBit(PitchRate.is_initialized());
+    _worldPacket.WriteBit(WalkSpeed.has_value());
+    _worldPacket.WriteBit(RunSpeed.has_value());
+    _worldPacket.WriteBit(RunBackSpeed.has_value());
+    _worldPacket.WriteBit(SwimSpeed.has_value());
+    _worldPacket.WriteBit(SwimBackSpeed.has_value());
+    _worldPacket.WriteBit(FlightSpeed.has_value());
+    _worldPacket.WriteBit(FlightBackSpeed.has_value());
+    _worldPacket.WriteBit(TurnRate.has_value());
+    _worldPacket.WriteBit(PitchRate.has_value());
     _worldPacket.FlushBits();
 
     if (MovementForces)
@@ -839,7 +857,7 @@ void WorldPackets::Movement::MoveKnockBackAck::Read()
     bool hasSpeeds = _worldPacket.ReadBit();
     if (hasSpeeds)
     {
-        Speeds = boost::in_place();
+        Speeds.emplace();
         _worldPacket >> *Speeds;
     }
 }
@@ -995,12 +1013,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
 {
     data << uint16(stateChange.MessageID);
     data << uint32(stateChange.SequenceIndex);
-    data.WriteBit(stateChange.Speed.is_initialized());
-    data.WriteBit(stateChange.KnockBack.is_initialized());
-    data.WriteBit(stateChange.VehicleRecID.is_initialized());
-    data.WriteBit(stateChange.CollisionHeight.is_initialized());
-    data.WriteBit(stateChange.MovementForce_.is_initialized());
-    data.WriteBit(stateChange.MovementForceGUID.is_initialized());
+    data.WriteBit(stateChange.Speed.has_value());
+    data.WriteBit(stateChange.KnockBack.has_value());
+    data.WriteBit(stateChange.VehicleRecID.has_value());
+    data.WriteBit(stateChange.CollisionHeight.has_value());
+    data.WriteBit(stateChange.MovementForce_.has_value());
+    data.WriteBit(stateChange.MovementForceGUID.has_value());
+    data.WriteBit(stateChange.MovementInertiaGUID.has_value());
+    data.WriteBit(stateChange.MovementInertiaLifetimeMs.has_value());
     data.FlushBits();
 
     if (stateChange.MovementForce_)
@@ -1028,6 +1048,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
 
     if (stateChange.MovementForceGUID)
         data << *stateChange.MovementForceGUID;
+
+    if (stateChange.MovementInertiaGUID)
+        data << *stateChange.MovementInertiaGUID;
+
+    if (stateChange.MovementInertiaLifetimeMs)
+        data << uint32(*stateChange.MovementInertiaLifetimeMs);
 
     return data;
 }

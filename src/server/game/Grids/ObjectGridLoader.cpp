@@ -31,8 +31,6 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "SceneObject.h"
-#include "World.h"
-#include "ScriptMgr.h"
 
 void ObjectGridEvacuator::Visit(CreatureMapType &m)
 {
@@ -132,7 +130,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>&
 
         T* obj = new T;
         //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: " UI64FMTD ") Loading", table, guid);
-        if (!obj->LoadFromDB(guid, map, false, phaseOwner.is_initialized() /*allowDuplicate*/))
+        if (!obj->LoadFromDB(guid, map, false, phaseOwner.has_value() /*allowDuplicate*/))
         {
             delete obj;
             continue;
@@ -282,7 +280,10 @@ template<class T>
 void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 {
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        iter->GetSource()->SetDestroyedObject(true);
         iter->GetSource()->CleanupsBeforeDelete();
+    }
 }
 
 template void ObjectGridUnloader::Visit(CreatureMapType &);

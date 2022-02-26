@@ -18,7 +18,6 @@
 #include "BattlegroundAB.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
@@ -26,7 +25,6 @@
 #include "Player.h"
 #include "Random.h"
 #include "SpellInfo.h"
-#include "Util.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 

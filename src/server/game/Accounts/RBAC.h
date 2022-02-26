@@ -610,7 +610,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS                   = 702,
     RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES         = 703,
     RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING                  = 704,
-    RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION                   = 705,
+    // 705 unused
     RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS                = 706,
     RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA                   = 707,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY                = 708,
@@ -636,7 +636,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_RESTART_CANCEL                  = 728,
     RBAC_PERM_COMMAND_SERVER_SET                             = 729,
     RBAC_PERM_COMMAND_SERVER_SET_CLOSED                      = 730,
-    RBAC_PERM_COMMAND_SERVER_SET_DIFFTIME                    = 731,
+    RBAC_PERM_COMMAND_SERVER_SET_DIFFTIME                    = 731, // reserved
     RBAC_PERM_COMMAND_SERVER_SET_LOGLEVEL                    = 732,
     RBAC_PERM_COMMAND_SERVER_SET_MOTD                        = 733,
     RBAC_PERM_COMMAND_SERVER_SHUTDOWN                        = 734,

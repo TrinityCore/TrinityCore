@@ -31,7 +31,6 @@
 #include "RBAC.h"
 #include "ScriptMgr.h"
 #include "SessionKeyGenerator.h"
-#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -464,7 +463,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             break;
         case CMSG_HOTFIX_REQUEST:
             _canRequestHotfixes = false;
-            /* fallthrough */
+            [[fallthrough]];
         default:
         {
             if (opcode == CMSG_TIME_SYNC_RESPONSE)

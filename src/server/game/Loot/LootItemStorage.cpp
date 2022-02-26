@@ -23,10 +23,8 @@
 #include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-
+#include "StringConvert.h"
+#include <sstream>
 #include <unordered_map>
 
 namespace
@@ -46,9 +44,9 @@ LootItemStorage* LootItemStorage::instance()
     return &instance;
 }
 
-boost::shared_mutex* LootItemStorage::GetLock()
+std::shared_mutex* LootItemStorage::GetLock()
 {
-    static boost::shared_mutex _lock;
+    static std::shared_mutex _lock;
     return &_lock;
 }
 
@@ -90,11 +88,9 @@ void LootItemStorage::LoadStorageFromDB()
             lootItem.needs_quest = fields[8].GetBool();
             lootItem.randomBonusListId = fields[9].GetUInt32();
             lootItem.context = ItemContext(fields[10].GetUInt8());
-            Tokenizer bonusLists(fields[11].GetString(), ' ');
-            std::transform(bonusLists.begin(), bonusLists.end(), std::back_inserter(lootItem.BonusListIDs), [](char const* token)
-                {
-                    return int32(strtol(token, nullptr, 10));
-                });
+            for (std::string_view bonusList : Trinity::Tokenize(fields[11].GetStringView(), ' ', false))
+                if (Optional<int32> bonusListID = Trinity::StringTo<int32>(bonusList))
+                    lootItem.BonusListIDs.push_back(*bonusListID);
 
             storedContainer.AddLootItem(lootItem, trans);
 
@@ -144,7 +140,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 
     // read
     {
-        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+        std::shared_lock<std::shared_mutex> lock(*GetLock());
 
         auto itr = _lootItemStore.find(loot->containerID.GetCounter());
         if (itr == _lootItemStore.end())
@@ -196,7 +192,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 void LootItemStorage::RemoveStoredMoneyForContainer(uint64 containerId)
 {
     // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -209,7 +205,7 @@ void LootItemStorage::RemoveStoredLootForContainer(uint64 containerId)
 {
     // write
     {
-        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        std::unique_lock<std::shared_mutex> lock(*GetLock());
         _lootItemStore.erase(containerId);
     }
 
@@ -228,7 +224,7 @@ void LootItemStorage::RemoveStoredLootForContainer(uint64 containerId)
 void LootItemStorage::RemoveStoredLootItemForContainer(uint64 containerId, uint32 itemId, uint32 count)
 {
     // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -245,7 +241,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // read
     {
-        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+        std::shared_lock<std::shared_mutex> lock(*GetLock());
 
         auto itr = _lootItemStore.find(loot->containerID.GetCounter());
         if (itr != _lootItemStore.end())
@@ -287,12 +283,12 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // write
     {
-        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        std::unique_lock<std::shared_mutex> lock(*GetLock());
         _lootItemStore.emplace(loot->containerID.GetCounter(), std::move(container));
     }
 }
 
-void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction& trans)
+void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction trans)
 {
     _lootItems.emplace(std::piecewise_construct, std::forward_as_tuple(lootItem.itemid), std::forward_as_tuple(lootItem));
     if (!trans)
@@ -319,7 +315,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     trans->Append(stmt);
 }
 
-void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction& trans)
+void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction trans)
 {
     _money = money;
     if (!trans)

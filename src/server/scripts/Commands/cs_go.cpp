@@ -24,8 +24,8 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Language.h"
 #include "MapManager.h"
@@ -220,7 +220,7 @@ public:
     static bool HandleGoGridCommand(ChatHandler* handler, float gridX, float gridY, Optional<uint32> oMapId)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 mapId = oMapId.get_value_or(player->GetMapId());
+        uint32 mapId = oMapId.value_or(player->GetMapId());
 
         // center of grid
         float x = (gridX - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
@@ -246,27 +246,24 @@ public:
         return true;
     }
 
-    static bool HandleGoQuestCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoQuestCommand(ChatHandler* handler, Variant<Hyperlink<quest>, uint32> questData)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
 
-        char* id = handler->extractKeyFromLink((char*)args, "Hquest");
-        if (!id)
-            return false;
-
-        uint32 questID = atoul(id);
-        if (!questID)
-            return false;
-
-        if (!sObjectMgr->GetQuestTemplate(questID))
+        uint32 questID;
+        if (questData.holds_alternative<uint32>())
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, questID);
-            handler->SetSentErrorMessage(true);
-            return false;
+            questID = questData.get<uint32>();
+
+            if (!sObjectMgr->GetQuestTemplate(questID))
+            {
+                handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, questID);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
         }
+        else
+            questID = questData.get<Hyperlink<quest>>()->Quest->GetQuestId();
 
         float x, y, z;
         uint32 mapId;
@@ -333,30 +330,11 @@ public:
     }
 
     //teleport at coordinates
-    static bool HandleGoZoneXYCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoZoneXYCommand(ChatHandler* handler, float x, float y, Optional<Variant<Hyperlink<area>, uint32>> areaIdArg)
     {
-        if (!*args)
-            return false;
-
         Player* player = handler->GetSession()->GetPlayer();
 
-        char* zoneX = strtok((char*)args, " ");
-        char* zoneY = strtok(nullptr, " ");
-        char* tail = strtok(nullptr, "");
-
-        char* id = handler->extractKeyFromLink(tail, "Harea");       // string or [name] Shift-click form |color|Harea:area_id|h[name]|h|r
-
-        if (!zoneX || !zoneY)
-            return false;
-
-        float x = (float)atof(zoneX);
-        float y = (float)atof(zoneY);
-
-        // prevent accept wrong numeric args
-        if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
-            return false;
-
-        uint32 areaId = id ? atoul(id) : player->GetZoneId();
+        uint32 areaId = areaIdArg ? *areaIdArg : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
@@ -408,7 +386,7 @@ public:
     static bool HandleGoXYZCommand(ChatHandler* handler, float x, float y, Optional<float> z, Optional<uint32> id, Optional<float> o)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 mapId = id.get_value_or(player->GetMapId());
+        uint32 mapId = id.value_or(player->GetMapId());
         if (z)
         {
             if (!MapManager::IsValidMapCoord(mapId, x, y, *z))
@@ -430,7 +408,7 @@ public:
             z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
         }
 
-        return DoTeleport(handler, { x, y, *z, o.get_value_or(0.0f) }, mapId);
+        return DoTeleport(handler, { x, y, *z, o.value_or(0.0f) }, mapId);
     }
 
     template<typename T>
@@ -458,12 +436,12 @@ public:
     static bool HandleGoOffsetCommand(ChatHandler* handler, float dX, Optional<float> dY, Optional<float> dZ, Optional<float> dO)
     {
         Position loc = handler->GetSession()->GetPlayer()->GetPosition();
-        loc.RelocateOffset({ dX, dY.get_value_or(0.0f), dZ.get_value_or(0.0f), dO.get_value_or(0.0f) });
+        loc.RelocateOffset({ dX, dY.value_or(0.0f), dZ.value_or(0.0f), dO.value_or(0.0f) });
 
         return DoTeleport(handler, loc);
     }
 
-    static bool HandleGoInstanceCommand(ChatHandler* handler, std::vector<std::string> const& labels)
+    static bool HandleGoInstanceCommand(ChatHandler* handler, std::vector<std::string_view> labels)
     {
         if (labels.empty())
             return false;
@@ -475,7 +453,7 @@ public:
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
             char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->MapName[handler->GetSessionDbcLocale()];
-            for (auto const& label : labels)
+            for (std::string_view label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
 
@@ -548,7 +526,7 @@ public:
         return false;
     }
 
-    static bool HandleGoBossCommand(ChatHandler* handler, std::vector<std::string> const& needles)
+    static bool HandleGoBossCommand(ChatHandler* handler, std::vector<std::string_view> needles)
     {
         if (needles.empty())
             return false;
@@ -565,7 +543,7 @@ public:
 
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(data.ScriptID);
-            for (auto const& label : needles)
+            for (std::string_view label : needles)
                 if (StringContainsStringI(scriptName, label) || StringContainsStringI(data.Name, label))
                     ++count;
 

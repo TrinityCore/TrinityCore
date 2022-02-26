@@ -20,11 +20,7 @@
 #include "CreatureAIImpl.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "Player.h"
-#include "QuestDef.h"
 #include "Spell.h"
-#include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include <sstream>
@@ -198,12 +194,10 @@ void UnitAI::FillAISpellInfo()
         else
             AIInfo->condition = AICOND_COMBAT;
 
-        if (AIInfo->cooldown < spellInfo->RecoveryTime)
-            AIInfo->cooldown = spellInfo->RecoveryTime;
+        if (AIInfo->cooldown.count() < int32(spellInfo->RecoveryTime))
+            AIInfo->cooldown = Milliseconds(spellInfo->RecoveryTime);
 
-        if (!spellInfo->GetMaxRange(false))
-            UPDATE_TARGET(AITARGET_SELF)
-        else
+        if (spellInfo->GetMaxRange(false))
         {
             for (SpellEffectInfo const& effect : spellInfo->GetEffects())
             {
@@ -224,7 +218,7 @@ void UnitAI::FillAISpellInfo()
                 }
             }
         }
-        AIInfo->realCooldown = spellInfo->RecoveryTime + spellInfo->StartRecoveryTime;
+        AIInfo->realCooldown = Milliseconds(spellInfo->RecoveryTime + spellInfo->StartRecoveryTime);
         AIInfo->maxRange = spellInfo->GetMaxRange(false) * 3 / 4;
 
         AIInfo->Effects = 0;
@@ -304,7 +298,7 @@ ThreatManager& UnitAI::GetThreatManager()
     return me->GetThreatManager();
 }
 
-void UnitAI::SortByDistance(std::list<Unit*> list, bool ascending)
+void UnitAI::SortByDistance(std::list<Unit*>& list, bool ascending)
 {
     list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
 }

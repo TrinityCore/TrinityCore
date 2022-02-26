@@ -103,7 +103,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     TC_LOG_DEBUG("network", "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", curloc);
 
     WorldPackets::Taxi::ShowTaxiNodes data;
-    data.WindowInfo = boost::in_place();
+    data.WindowInfo.emplace();
     data.WindowInfo->UnitGUID = unit->GetGUID();
     data.WindowInfo->CurrentNode = curloc;
 
@@ -111,7 +111,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
     TaxiMask reachableNodes;
     std::fill(reachableNodes.begin(), reachableNodes.end(), 0);
-    sTaxiPathGraph.GetReachableNodesMask(sTaxiNodesStore.LookupEntry(curloc), &reachableNodes);
+    TaxiPathGraph::GetReachableNodesMask(sTaxiNodesStore.LookupEntry(curloc), &reachableNodes);
 
     for (std::size_t i = 0; i < TaxiMaskSize; ++i)
     {
@@ -216,7 +216,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
     }
 
     std::vector<uint32> nodes;
-    sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
+    TaxiPathGraph::GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
     GetPlayer()->ActivateTaxiPathTo(nodes, unit, 0, preferredMountDisplay);
 }
 

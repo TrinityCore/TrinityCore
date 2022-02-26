@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "Timer.h"
 
@@ -77,7 +76,7 @@ Position const WhitemaneIntroMovePos = { 1163.113370f, 1398.856812f, 32.527786f,
 struct boss_scarlet_commander_mograine : public BossAI
 {
 public:
-    boss_scarlet_commander_mograine(Creature* creature) : BossAI(creature, DATA_MOGRAINE_AND_WHITE_EVENT), _killYellTimer(0)
+    boss_scarlet_commander_mograine(Creature* creature) : BossAI(creature, DATA_MOGRAINE_AND_WHITE_EVENT), _killYellTimer(0s)
     {
         Initialize();
     }
@@ -93,7 +92,7 @@ public:
         Initialize();
 
         _Reset();
-        _killYellTimer.Reset(0);
+        _killYellTimer.Reset(0s);
 
         DoCastSelf(SPELL_RETRIBUTION_AURA, true);
         me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
@@ -128,7 +127,7 @@ public:
         if (_killYellTimer.Passed())
         {
             Talk(SAY_MO_KILL);
-            _killYellTimer.Reset(5 * IN_MILLISECONDS);
+            _killYellTimer.Reset(5s);
         }
     }
 
@@ -232,7 +231,7 @@ public:
     }
 
 private:
-    TimeTrackerSmall _killYellTimer;
+    TimeTracker _killYellTimer;
     bool _fakeDeath;
     bool _canDie;
 };
@@ -241,7 +240,7 @@ private:
 struct boss_high_inquisitor_whitemane : public ScriptedAI
 {
 public:
-    boss_high_inquisitor_whitemane(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _killYellTimer(0)
+    boss_high_inquisitor_whitemane(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _killYellTimer(0s)
     {
         Initialize();
     }
@@ -258,7 +257,7 @@ public:
 
         _events.Reset();
         _scheduler.CancelAll();
-        _killYellTimer.Reset(0);
+        _killYellTimer.Reset(0s);
 
         DoCastSelf(SPELL_RETRIBUTION_AURA);
         me->SetReactState(REACT_AGGRESSIVE);
@@ -288,7 +287,7 @@ public:
         if (_killYellTimer.Passed())
         {
             Talk(SAY_WH_KILL);
-            _killYellTimer.Reset(5 * IN_MILLISECONDS);
+            _killYellTimer.Reset(5s);
         }
     }
 
@@ -427,7 +426,7 @@ private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
-    TimeTrackerSmall _killYellTimer;
+    TimeTracker _killYellTimer;
     bool _ressurectionInProgress;
     bool _canDie;
 };

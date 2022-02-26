@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "Conversation.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 
 class conversation_allied_race_dk_defender_of_azeroth : public ConversationScript

@@ -19,7 +19,7 @@
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 /*####
@@ -91,7 +91,7 @@ public:
                 if (me->HasAura(SPELL_OMEN_STARFALL))
                     me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);
 
-                events.RescheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                events.RescheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
             }
         }
 
@@ -139,7 +139,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_DESPAWN, 5min);
         }
 
         void UpdateAI(uint32 diff) override

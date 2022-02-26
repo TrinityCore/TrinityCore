@@ -23,15 +23,10 @@
 #include "GridNotifiers.h"
 #include "Item.h"
 #include "Map.h"
-#include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
 #include "Transport.h"
-#include "World.h"
-
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
 
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
@@ -40,7 +35,7 @@ void HashMapHolder<T>::Insert(T* o)
         || std::is_same<Transport, T>::value,
         "Only Player and Transport can be registered in global HashMapHolder");
 
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     GetContainer()[o->GetGUID()] = o;
 }
@@ -48,7 +43,7 @@ void HashMapHolder<T>::Insert(T* o)
 template<class T>
 void HashMapHolder<T>::Remove(T* o)
 {
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     GetContainer().erase(o->GetGUID());
 }
@@ -56,7 +51,7 @@ void HashMapHolder<T>::Remove(T* o)
 template<class T>
 T* HashMapHolder<T>::Find(ObjectGuid guid)
 {
-    boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+    std::shared_lock<std::shared_mutex> lock(*GetLock());
 
     typename MapType::iterator itr = GetContainer().find(guid);
     return (itr != GetContainer().end()) ? itr->second : nullptr;
@@ -70,9 +65,9 @@ auto HashMapHolder<T>::GetContainer() -> MapType&
 }
 
 template<class T>
-boost::shared_mutex* HashMapHolder<T>::GetLock()
+std::shared_mutex* HashMapHolder<T>::GetLock()
 {
-    static boost::shared_mutex _lock;
+    static std::shared_mutex _lock;
     return &_lock;
 }
 
@@ -81,28 +76,28 @@ template class TC_GAME_API HashMapHolder<Transport>;
 
 namespace PlayerNameMapHolder
 {
-typedef std::unordered_map<std::string, Player*> MapType;
-static MapType PlayerNameMap;
+    typedef std::unordered_map<std::string, Player*> MapType;
+    static MapType PlayerNameMap;
 
-void Insert(Player* p)
-{
-    PlayerNameMap[p->GetName()] = p;
-}
+    void Insert(Player* p)
+    {
+        PlayerNameMap[p->GetName()] = p;
+    }
 
-void Remove(Player* p)
-{
-    PlayerNameMap.erase(p->GetName());
-}
+    void Remove(Player* p)
+    {
+        PlayerNameMap.erase(p->GetName());
+    }
 
-Player* Find(std::string const& name)
-{
-    std::string charName(name);
-    if (!normalizePlayerName(charName))
-        return nullptr;
+    Player* Find(std::string_view name)
+    {
+        std::string charName(name);
+        if (!normalizePlayerName(charName))
+            return nullptr;
 
-    auto itr = PlayerNameMap.find(charName);
-    return (itr != PlayerNameMap.end()) ? itr->second : nullptr;
-}
+        auto itr = PlayerNameMap.find(charName);
+        return (itr != PlayerNameMap.end()) ? itr->second : nullptr;
+    }
 } // namespace PlayerNameMapHolder
 
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid const& guid)
@@ -267,7 +262,7 @@ Player* ObjectAccessor::FindPlayer(ObjectGuid const& guid)
     return player && player->IsInWorld() ? player : nullptr;
 }
 
-Player* ObjectAccessor::FindPlayerByName(std::string const& name)
+Player* ObjectAccessor::FindPlayerByName(std::string_view name)
 {
     Player* player = PlayerNameMapHolder::Find(name);
     if (!player || !player->IsInWorld())
@@ -287,7 +282,7 @@ Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid const& guid)
     return HashMapHolder<Player>::Find(guid);
 }
 
-Player* ObjectAccessor::FindConnectedPlayerByName(std::string const& name)
+Player* ObjectAccessor::FindConnectedPlayerByName(std::string_view name)
 {
     return PlayerNameMapHolder::Find(name);
 }
@@ -299,7 +294,7 @@ HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
 
 void ObjectAccessor::SaveAllPlayers()
 {
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+    std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
 
     HashMapHolder<Player>::MapType const& m = GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)

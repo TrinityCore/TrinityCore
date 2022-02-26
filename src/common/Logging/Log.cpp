@@ -18,13 +18,13 @@
 #include "Log.h"
 #include "AppenderConsole.h"
 #include "AppenderFile.h"
-#include "Common.h"
 #include "Config.h"
 #include "Errors.h"
 #include "Logger.h"
 #include "LogMessage.h"
 #include "LogOperation.h"
 #include "Strand.h"
+#include "StringConvert.h"
 #include "Util.h"
 #include <chrono>
 #include <sstream>
@@ -47,7 +47,7 @@ uint8 Log::NextAppenderId()
     return AppenderId++;
 }
 
-Appender* Log::GetAppenderByName(std::string const& name)
+Appender* Log::GetAppenderByName(std::string_view name)
 {
     auto it = appenders.begin();
     while (it != appenders.end() && it->second && it->second->getName() != name)
@@ -65,10 +65,9 @@ void Log::CreateAppenderFromConfigLine(std::string const& appenderName, std::str
     // if type = File. optional1 = file and option2 = mode
     // if type = Console. optional1 = Color
 
-    Tokenizer tokens(options, ',');
-    auto iter = tokens.begin();
+    std::vector<std::string_view> tokens = Trinity::Tokenize(options, ',', true);
 
-    size_t size = tokens.size();
+    size_t const size = tokens.size();
     std::string name = appenderName.substr(9);
 
     if (size < 2)
@@ -78,33 +77,41 @@ void Log::CreateAppenderFromConfigLine(std::string const& appenderName, std::str
     }
 
     AppenderFlags flags = APPENDER_FLAGS_NONE;
-    AppenderType type = AppenderType(atoi(*iter++));
-    LogLevel level = LogLevel(atoi(*iter++));
-
-    if (level > LOG_LEVEL_FATAL)
-    {
-        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level %d for appender %s\n", level, name.c_str());
-        return;
-    }
-
-    if (size > 2)
-        flags = AppenderFlags(atoi(*iter++));
+    AppenderType type = AppenderType(Trinity::StringTo<uint8>(tokens[0]).value_or(APPENDER_INVALID));
+    LogLevel level = LogLevel(Trinity::StringTo<uint8>(tokens[1]).value_or(LOG_LEVEL_INVALID));
 
     auto factoryFunction = appenderFactory.find(type);
     if (factoryFunction == appenderFactory.end())
     {
-        fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown type %d for appender %s\n", type, name.c_str());
+        fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown type '%s' for appender %s\n", std::string(tokens[0]).c_str(), name.c_str());
         return;
+    }
+
+    if (level > NUM_ENABLED_LOG_LEVELS)
+    {
+        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level '%s' for appender %s\n", std::string(tokens[1]).c_str(), name.c_str());
+        return;
+    }
+
+    if (size > 2)
+    {
+        if (Optional<uint8> flagsVal = Trinity::StringTo<uint8>(tokens[2]))
+            flags = AppenderFlags(*flagsVal);
+        else
+        {
+            fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown flags '%s' for appender %s\n", std::string(tokens[2]).c_str(), name.c_str());
+            return;
+        }
     }
 
     try
     {
-        Appender* appender = factoryFunction->second(NextAppenderId(), name, level, flags, std::vector<char const*>(iter, tokens.end()));
+        Appender* appender = factoryFunction->second(NextAppenderId(), name, level, flags, tokens);
         appenders[appender->getId()].reset(appender);
     }
     catch (InvalidAppenderArgsException const& iaae)
     {
-        fprintf(stderr, "%s", iaae.what());
+        fprintf(stderr, "%s\n", iaae.what());
     }
 }
 
@@ -119,7 +126,6 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
         return;
 
     LogLevel level = LOG_LEVEL_DISABLED;
-    uint8 type = uint8(-1);
 
     std::string name = loggerName.substr(7);
 
@@ -129,8 +135,7 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
         return;
     }
 
-    Tokenizer tokens(options, ',');
-    Tokenizer::const_iterator iter = tokens.begin();
+    std::vector<std::string_view> tokens = Trinity::Tokenize(options, ',', true);
 
     if (tokens.size() != 2)
     {
@@ -145,10 +150,10 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
         return;
     }
 
-    level = LogLevel(atoi(*iter++));
-    if (level > LOG_LEVEL_FATAL)
+    level = LogLevel(Trinity::StringTo<uint8>(tokens[0]).value_or(LOG_LEVEL_INVALID));
+    if (level > NUM_ENABLED_LOG_LEVELS)
     {
-        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong Log Level %u for logger %s\n", type, name.c_str());
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong Log Level '%s' for logger %s\n", std::string(tokens[0]).c_str(), name.c_str());
         return;
     }
 
@@ -158,20 +163,15 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
     logger = std::make_unique<Logger>(name, level);
     //fprintf(stdout, "Log::CreateLoggerFromConfig: Created Logger %s, Level %u\n", name.c_str(), level);
 
-    std::istringstream ss(*iter);
-    std::string str;
-
-    ss >> str;
-    while (ss)
+    for (std::string_view appenderName : Trinity::Tokenize(tokens[1], ' ', false))
     {
-        if (Appender* appender = GetAppenderByName(str))
+        if (Appender* appender = GetAppenderByName(appenderName))
         {
             logger->addAppender(appender->getId(), appender);
             //fprintf(stdout, "Log::CreateLoggerFromConfig: Added Appender %s to Logger %s\n", appender->getName().c_str(), name.c_str());
         }
         else
-            fprintf(stderr, "Error while configuring Appender %s in Logger %s. Appender does not exist", str.c_str(), name.c_str());
-        ss >> str;
+            fprintf(stderr, "Error while configuring Appender %s in Logger %s. Appender does not exist\n", std::string(appenderName).c_str(), name.c_str());
     }
 }
 
@@ -201,7 +201,7 @@ void Log::ReadLoggersFromConfig()
 
         Close(); // Clean any Logger or Appender created
 
-        AppenderConsole* appender = new AppenderConsole(NextAppenderId(), "Console", LOG_LEVEL_DEBUG, APPENDER_FLAGS_NONE, std::vector<char const*>());
+        AppenderConsole* appender = new AppenderConsole(NextAppenderId(), "Console", LOG_LEVEL_DEBUG, APPENDER_FLAGS_NONE, {});
         appenders[appender->getId()].reset(appender);
 
         Logger* rootLogger = new Logger(LOGGER_ROOT, LOG_LEVEL_ERROR);
@@ -287,11 +287,12 @@ std::string Log::GetTimestampStr()
     }
 }
 
-bool Log::SetLogLevel(std::string const& name, char const* newLevelc, bool isLogger /* = true */)
+bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /* = true */)
 {
-    LogLevel newLevel = LogLevel(atoi(newLevelc));
-    if (newLevel < 0)
+    if (newLeveli < 0)
         return false;
+
+    LogLevel newLevel = LogLevel(newLeveli);
 
     if (isLogger)
     {

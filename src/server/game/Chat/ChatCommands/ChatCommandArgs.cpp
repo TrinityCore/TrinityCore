@@ -22,6 +22,7 @@
 #include "SpellMgr.h"
 
 using namespace Trinity::ChatCommands;
+using ChatCommandResult = Trinity::Impl::ChatCommands::ChatCommandResult;
 
 struct AchievementVisitor
 {
@@ -29,12 +30,15 @@ struct AchievementVisitor
     value_type operator()(Hyperlink<achievement> achData) const { return achData->Achievement; }
     value_type operator()(uint32 achId) const { return sAchievementStore.LookupEntry(achId); }
 };
-char const* Trinity::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, char const* args)
+ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, ChatHandler const* handler, std::string_view args)
 {
-    Variant <Hyperlink<achievement>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(AchievementVisitor(), val);
-    return args;
+    Variant<Hyperlink<achievement>, uint32> val;
+    ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
+    if (!result || (data = val.visit(AchievementVisitor())))
+        return result;
+    if (uint32* id = std::get_if<uint32>(&val))
+        return FormatTrinityString(handler, LANG_CMDPARSER_ACHIEVEMENT_NO_EXIST, *id);
+    return std::nullopt;
 }
 
 struct CurrencyTypesVisitor
@@ -43,53 +47,74 @@ struct CurrencyTypesVisitor
     value_type operator()(Hyperlink<currency> currency) const { return currency->Currency; }
     value_type operator()(uint32 currencyId) const { return sCurrencyTypesStore.LookupEntry(currencyId); }
 };
-char const* Trinity::ChatCommands::ArgInfo<CurrencyTypesEntry const*>::TryConsume(CurrencyTypesEntry const*& data, char const* args)
+ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<CurrencyTypesEntry const*>::TryConsume(CurrencyTypesEntry const*& data, ChatHandler const* handler, std::string_view args)
 {
-    Variant <Hyperlink<currency>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(CurrencyTypesVisitor(), val);
-    return args;
+    Variant<Hyperlink<currency>, uint32> val;
+    ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
+    if (!result || (data = val.visit(CurrencyTypesVisitor())))
+        return result;
+    if (uint32* id = std::get_if<uint32>(&val))
+        return FormatTrinityString(handler, LANG_CMDPARSER_CURRENCY_NO_EXIST, *id);
+    return std::nullopt;
 }
 
 struct GameTeleVisitor
 {
     using value_type = GameTele const*;
     value_type operator()(Hyperlink<tele> tele) const { return sObjectMgr->GetGameTele(tele); }
-    value_type operator()(std::string const& tele) const { return sObjectMgr->GetGameTele(tele); }
+    value_type operator()(std::string_view tele) const { return sObjectMgr->GetGameTele(tele); }
 };
-char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, char const* args)
+ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, ChatHandler const* handler, std::string_view args)
 {
-    Variant<Hyperlink<tele>, std::string> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(GameTeleVisitor(), val);
-    return args;
+    Variant<Hyperlink<tele>, std::string_view> val;
+    ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
+    if (!result || (data = val.visit(GameTeleVisitor())))
+        return result;
+    if (val.holds_alternative<Hyperlink<tele>>())
+        return FormatTrinityString(handler, LANG_CMDPARSER_GAME_TELE_ID_NO_EXIST, static_cast<uint32>(std::get<Hyperlink<tele>>(val)));
+    else
+        return FormatTrinityString(handler, LANG_CMDPARSER_GAME_TELE_NO_EXIST, STRING_VIEW_FMT_ARG(std::get<std::string_view>(val)));
+}
+
+struct ItemTemplateVisitor
+{
+    using value_type = ItemTemplate const*;
+    value_type operator()(Hyperlink<item> item) const { return item->Item; }
+    value_type operator()(uint32 item) const { return sObjectMgr->GetItemTemplate(item); }
+};
+ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<ItemTemplate const*>::TryConsume(ItemTemplate const*& data, ChatHandler const* handler, std::string_view args)
+{
+    Variant<Hyperlink<item>, uint32> val;
+    ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
+    if (!result || (data = val.visit(ItemTemplateVisitor())))
+        return result;
+    if (uint32* id = std::get_if<uint32>(&val))
+        return FormatTrinityString(handler, LANG_CMDPARSER_ITEM_NO_EXIST, *id);
+    return std::nullopt;
 }
 
 struct SpellInfoVisitor
 {
     using value_type = SpellInfo const*;
+
+    value_type operator()(Hyperlink<apower> artifactPower) const { return operator()(artifactPower->ArtifactPower->SpellID); }
+    value_type operator()(Hyperlink<conduit> soulbindConduit) const { return operator()((*soulbindConduit)->SpellID); }
+    value_type operator()(Hyperlink<enchant> enchant) const { return enchant; }
+    value_type operator()(Hyperlink<mawpower> mawPower) const { return operator()((*mawPower)->SpellID); }
+    value_type operator()(Hyperlink<pvptal> pvpTalent) const { return operator()((*pvpTalent)->SpellID); }
     value_type operator()(Hyperlink<spell> spell) const { return spell->Spell; }
+    value_type operator()(Hyperlink<talent> talent) const { return operator()((*talent)->SpellID); }
+    value_type operator()(Hyperlink<trade> trade) const { return trade->Spell; }
+
     value_type operator()(uint32 spellId) const { return sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE); }
 };
-char const* Trinity::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, char const* args)
+ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, ChatHandler const* handler, std::string_view args)
 {
-    Variant<Hyperlink<spell>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(SpellInfoVisitor(), val);
-    return args;
-}
-
-struct BoolVisitor
-{
-    using value_type = bool;
-    value_type operator()(uint32 i) const { return !!i; }
-    value_type operator()(ExactSequence<'o', 'n'>) const { return true; }
-    value_type operator()(ExactSequence<'o', 'f', 'f'>) const { return false; }
-};
-char const* Trinity::ChatCommands::ArgInfo<bool>::TryConsume(bool& data, char const* args)
-{
-    Variant<uint32, ExactSequence<'o', 'n'>, ExactSequence<'o', 'f', 'f'>> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(BoolVisitor(), val);
-    return args;
+    Variant<Hyperlink<apower>, Hyperlink<conduit>, Hyperlink<enchant>, Hyperlink<mawpower>, Hyperlink<pvptal>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
+    ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
+    if (!result || (data = val.visit(SpellInfoVisitor())))
+        return result;
+    if (uint32* id = std::get_if<uint32>(&val))
+        return FormatTrinityString(handler, LANG_CMDPARSER_SPELL_NO_EXIST, *id);
+    return std::nullopt;
 }

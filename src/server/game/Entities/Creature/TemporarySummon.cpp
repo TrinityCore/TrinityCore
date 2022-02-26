@@ -16,15 +16,19 @@
  */
 
 #include "TemporarySummon.h"
+#include "CellImpl.h"
 #include "CreatureAI.h"
 #include "DB2Structure.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "GridNotifiers.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
+#include "SmoothPhasing.h"
+#include <boost/container/small_vector.hpp>
 #include <sstream>
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject) :
@@ -244,7 +248,49 @@ void TempSummon::InitSummon()
 
 void TempSummon::UpdateObjectVisibilityOnCreate()
 {
-    WorldObject::UpdateObjectVisibility(true);
+    boost::container::small_vector<WorldObject*, 2> objectsToUpdate;
+    objectsToUpdate.push_back(this);
+
+    if (SmoothPhasing const* smoothPhasing = GetSmoothPhasing())
+    {
+        SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(GetDemonCreatorGUID());
+        if (infoForSeer && infoForSeer->ReplaceObject && smoothPhasing->IsReplacing(*infoForSeer->ReplaceObject))
+            if (WorldObject* original = ObjectAccessor::GetWorldObject(*this, *infoForSeer->ReplaceObject))
+                objectsToUpdate.push_back(original);
+    }
+
+    Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
+}
+
+void TempSummon::UpdateObjectVisibilityOnDestroy()
+{
+    boost::container::small_vector<WorldObject*, 2> objectsToUpdate;
+    objectsToUpdate.push_back(this);
+
+    WorldObject* original = nullptr;
+    if (SmoothPhasing const* smoothPhasing = GetSmoothPhasing())
+    {
+        SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(GetDemonCreatorGUID());
+        if (infoForSeer && infoForSeer->ReplaceObject && smoothPhasing->IsReplacing(*infoForSeer->ReplaceObject))
+            original = ObjectAccessor::GetWorldObject(*this, *infoForSeer->ReplaceObject);
+
+        if (original)
+        {
+            objectsToUpdate.push_back(original);
+
+            // disable replacement without removing - it is still needed for next step (visibility update)
+            if (SmoothPhasing* originalSmoothPhasing = original->GetSmoothPhasing())
+                originalSmoothPhasing->DisableReplacementForSeer(GetDemonCreatorGUID());
+        }
+    }
+
+    Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
+
+    if (original) // original is only != nullptr when it was replaced
+        if (SmoothPhasing* originalSmoothPhasing = original->GetSmoothPhasing())
+            originalSmoothPhasing->ClearViewerDependentInfo(GetDemonCreatorGUID());
 }
 
 void TempSummon::SetTempSummonType(TempSummonType type)
@@ -258,7 +304,7 @@ void TempSummon::UnSummon(uint32 msTime)
     {
         ForcedUnsummonDelayEvent* pEvent = new ForcedUnsummonDelayEvent(*this);
 
-        m_Events.AddEvent(pEvent, m_Events.CalculateTime(msTime));
+        m_Events.AddEvent(pEvent, m_Events.CalculateTime(Milliseconds(msTime)));
         return;
     }
 

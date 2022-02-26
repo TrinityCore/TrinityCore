@@ -18,7 +18,6 @@
 #ifndef SC_HYJAL_TRASH_AI_H
 #define SC_HYJAL_TRASH_AI_H
 
-#include "hyjal.h"
 #include "ScriptedEscortAI.h"
 
 struct hyjal_trashAI : public EscortAI

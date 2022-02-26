@@ -25,10 +25,10 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameEventMgr.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
@@ -1337,13 +1337,13 @@ public:
 
         uint32 counter = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+        LocaleConstant locale = handler->GetSessionDbcLocale();
 
         // search in Map.dbc
         for (uint32 id = 0; id < sMapStore.GetNumRows(); id++)
         {
             if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                LocaleConstant locale = handler->GetSessionDbcLocale();
                 std::string name = mapInfo->MapName[locale];
                 if (name.empty())
                     continue;
@@ -1434,7 +1434,7 @@ public:
             if (mapInfo->IsContinent())
                 ss << handler->GetTrinityString(LANG_CONTINENT);
 
-            switch (mapInfo->MapType)
+            switch (mapInfo->InstanceType)
             {
                 case MAP_INSTANCE:
                     ss << handler->GetTrinityString(LANG_INSTANCE);

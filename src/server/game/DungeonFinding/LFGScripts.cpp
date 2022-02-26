@@ -27,6 +27,7 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "QueryPackets.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "WorldSession.h"
@@ -92,9 +93,11 @@ void LFGPlayerScript::OnMapChanged(Player* player)
             return;
         }
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-            if (Player* member = itr->GetSource())
-                player->GetSession()->SendNameQueryOpcode(member->GetGUID());
+        WorldPackets::Query::QueryPlayerNamesResponse response;
+        for (Group::MemberSlot const& memberSlot : group->GetMemberSlots())
+            player->GetSession()->BuildNameQueryData(memberSlot.guid, response.Players.emplace_back());
+
+        player->SendDirectMessage(response.Write());
 
         if (sLFGMgr->selectedRandomLfgDungeon(player->GetGUID()))
             player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);

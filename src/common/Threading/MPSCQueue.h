@@ -19,7 +19,7 @@
 #define MPSCQueue_h__
 
 #include <atomic>
-#include <utility>
+#include <type_traits>
 
 namespace Trinity
 {
@@ -95,10 +95,10 @@ class MPSCQueueIntrusive
 public:
     MPSCQueueIntrusive() : _dummyPtr(reinterpret_cast<T*>(std::addressof(_dummy))), _head(_dummyPtr), _tail(_dummyPtr)
     {
-        T* front = _head.load(std::memory_order_relaxed);
-        (front->*IntrusiveLink).store(nullptr, std::memory_order_relaxed);
-        // _dummy is constructed from aligned_storage and is left uninitialized so we init only its Next here
-        (_dummyPtr->*IntrusiveLink).store(nullptr, std::memory_order_relaxed);
+        // _dummy is constructed from aligned_storage and is intentionally left uninitialized (it might not be default constructible)
+        // so we init only its IntrusiveLink here
+        std::atomic<T*>* dummyNext = new (&(_dummyPtr->*IntrusiveLink)) std::atomic<T*>();
+        dummyNext->store(nullptr, std::memory_order_relaxed);
     }
 
     ~MPSCQueueIntrusive()

@@ -110,7 +110,7 @@ class boss_salramm : public CreatureScript
                         break;
                     case EVENT_EXPLODE_GHOUL2:
                         events.ScheduleEvent(EVENT_SUMMON_GHOULS, Seconds(4));
-                        // intentional missing break
+                        [[fallthrough]];
                     case EVENT_EXPLODE_GHOUL1:
                         Talk(SAY_EXPLODE_GHOUL);
                         DoCastAOE(SPELL_EXPLODE_GHOUL, true);
@@ -159,5 +159,5 @@ class spell_salramm_steal_flesh : public AuraScript
 void AddSC_boss_salramm()
 {
     new boss_salramm();
-    RegisterAuraScript(spell_salramm_steal_flesh);
+    RegisterSpellScript(spell_salramm_steal_flesh);
 }

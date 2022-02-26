@@ -876,6 +876,7 @@ struct BroadcastTextLoadInfo
             { false, FT_SHORT, "EmotesID" },
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "ChatBubbleDurationMs" },
+            { true, FT_INT, "VoiceOverPriorityID" },
             { false, FT_INT, "SoundKitID1" },
             { false, FT_INT, "SoundKitID2" },
             { false, FT_SHORT, "EmoteID1" },
@@ -2079,6 +2080,23 @@ struct FriendshipReputationLoadInfo
             { true, FT_INT, "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, FriendshipReputationMeta::Instance(), HOTFIX_SEL_FRIENDSHIP_REPUTATION);
+        return &loadInfo;
+    }
+};
+
+struct GameobjectArtKitLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "AttachModelFileID" },
+            { true, FT_INT, "TextureVariationFileID1" },
+            { true, FT_INT, "TextureVariationFileID2" },
+            { true, FT_INT, "TextureVariationFileID3" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GameObjectArtKitMeta::Instance(), HOTFIX_SEL_GAMEOBJECT_ART_KIT);
         return &loadInfo;
     }
 };
@@ -3382,6 +3400,8 @@ struct ItemSparseLoadInfo
             { false, FT_INT, "DurationInInventory" },
             { false, FT_FLOAT, "QualityModifier" },
             { false, FT_INT, "BagFamily" },
+            { true, FT_INT, "StartQuestID" },
+            { true, FT_INT, "LanguageID" },
             { false, FT_FLOAT, "ItemRange" },
             { false, FT_FLOAT, "StatPercentageOfSocket1" },
             { false, FT_FLOAT, "StatPercentageOfSocket2" },
@@ -3430,7 +3450,6 @@ struct ItemSparseLoadInfo
             { false, FT_SHORT, "ZoneBound2" },
             { false, FT_SHORT, "ItemSet" },
             { false, FT_SHORT, "LockID" },
-            { false, FT_SHORT, "StartQuestID" },
             { false, FT_SHORT, "PageID" },
             { false, FT_SHORT, "ItemDelay" },
             { false, FT_SHORT, "MinFactionID" },
@@ -3447,7 +3466,6 @@ struct ItemSparseLoadInfo
             { false, FT_BYTE, "SheatheType" },
             { false, FT_BYTE, "Material" },
             { false, FT_BYTE, "PageMaterialID" },
-            { false, FT_BYTE, "LanguageID" },
             { false, FT_BYTE, "Bonding" },
             { false, FT_BYTE, "DamageDamageType" },
             { true, FT_BYTE, "StatModifierBonusStat1" },
@@ -3712,6 +3730,9 @@ struct LanguagesLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
+            { true, FT_INT, "Flags" },
+            { true, FT_INT, "UiTextureKitID" },
+            { true, FT_INT, "UiTextureKitElementCount" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LanguagesMeta::Instance(), HOTFIX_SEL_LANGUAGES);
         return &loadInfo;
@@ -6072,7 +6093,7 @@ struct TaxiNodesLoadInfo
             { false, FT_SHORT, "ContinentID" },
             { true, FT_INT, "ConditionID" },
             { false, FT_SHORT, "CharacterBitNumber" },
-            { false, FT_BYTE, "Flags" },
+            { false, FT_SHORT, "Flags" },
             { true, FT_INT, "UiTextureKitID" },
             { true, FT_INT, "MinimapAtlasMemberID" },
             { false, FT_FLOAT, "Facing" },
@@ -6399,6 +6420,44 @@ struct UiSplashScreenLoadInfo
             { true, FT_INT, "RequiredTimeEventPassed" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, UISplashScreenMeta::Instance(), HOTFIX_SEL_UI_SPLASH_SCREEN);
+        return &loadInfo;
+    }
+};
+
+struct UnitConditionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_BYTE, "Variable1" },
+            { false, FT_BYTE, "Variable2" },
+            { false, FT_BYTE, "Variable3" },
+            { false, FT_BYTE, "Variable4" },
+            { false, FT_BYTE, "Variable5" },
+            { false, FT_BYTE, "Variable6" },
+            { false, FT_BYTE, "Variable7" },
+            { false, FT_BYTE, "Variable8" },
+            { true, FT_BYTE, "Op1" },
+            { true, FT_BYTE, "Op2" },
+            { true, FT_BYTE, "Op3" },
+            { true, FT_BYTE, "Op4" },
+            { true, FT_BYTE, "Op5" },
+            { true, FT_BYTE, "Op6" },
+            { true, FT_BYTE, "Op7" },
+            { true, FT_BYTE, "Op8" },
+            { true, FT_INT, "Value1" },
+            { true, FT_INT, "Value2" },
+            { true, FT_INT, "Value3" },
+            { true, FT_INT, "Value4" },
+            { true, FT_INT, "Value5" },
+            { true, FT_INT, "Value6" },
+            { true, FT_INT, "Value7" },
+            { true, FT_INT, "Value8" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, UnitConditionMeta::Instance(), HOTFIX_SEL_UNIT_CONDITION);
         return &loadInfo;
     }
 };

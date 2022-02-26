@@ -21,7 +21,6 @@
 #include "BattlegroundPackets.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
-#include "DB2Stores.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -34,7 +33,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "WorldSession.h"
-#include "WorldStatePackets.h"
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 

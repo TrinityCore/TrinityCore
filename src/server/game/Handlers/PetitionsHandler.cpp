@@ -25,12 +25,10 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "PetitionMgr.h"
 #include "PetitionPackets.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <sstream>
 
 #define CHARTER_DISPLAY_ID 16161

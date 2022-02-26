@@ -30,7 +30,6 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
-#include "World.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(nullptr), _removedAura(nullptr), _caster(nullptr), _duration(0), _isViewpoint(false)
@@ -166,10 +165,7 @@ void DynamicObject::Update(uint32 p_time)
 void DynamicObject::Remove()
 {
     if (IsInWorld())
-    {
-        RemoveFromWorld();
         AddObjectToRemoveList();
-    }
 }
 
 int32 DynamicObject::GetDuration() const

@@ -198,9 +198,9 @@ public:
         {
             BossAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_SHIMMER, 0);
-            events.ScheduleEvent(EVENT_BREATH_1, 30000);
-            events.ScheduleEvent(EVENT_BREATH_2, 60000);
+            events.ScheduleEvent(EVENT_SHIMMER, 0s);
+            events.ScheduleEvent(EVENT_BREATH_1, 30s);
+            events.ScheduleEvent(EVENT_BREATH_2, 60s);
             events.ScheduleEvent(EVENT_AFFLICTION, 10s);
             events.ScheduleEvent(EVENT_FRENZY, 15s);
         }
@@ -235,11 +235,11 @@ public:
                         }
                     case EVENT_BREATH_1:
                             DoCastVictim(Breath1_Spell);
-                            events.ScheduleEvent(EVENT_BREATH_1, 60000);
+                            events.ScheduleEvent(EVENT_BREATH_1, 60s);
                             break;
                     case EVENT_BREATH_2:
                             DoCastVictim(Breath2_Spell);
-                            events.ScheduleEvent(EVENT_BREATH_2, 60000);
+                            events.ScheduleEvent(EVENT_BREATH_2, 60s);
                             break;
                     case EVENT_AFFLICTION:
                         {
@@ -306,7 +306,7 @@ class go_chromaggus_lever : public GameObjectScript
         {
             go_chromaggus_leverAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (_instance->GetBossState(DATA_CHROMAGGUS) != DONE && _instance->GetBossState(DATA_CHROMAGGUS) != IN_PROGRESS)
                 {
