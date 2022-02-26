@@ -17428,7 +17428,8 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
         else if (questGiver->IsQuestGiver())
             packet.LaunchQuest = true;
         else if (quest->GetNextQuestInChain() && !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
-            packet.UseQuestReward = true;
+            if (Quest const* rewardQuest = sObjectMgr->GetQuestTemplate(quest->GetNextQuestInChain()))
+                packet.UseQuestReward = CanTakeQuest(rewardQuest, false);
     }
 
     packet.HideChatMessage = hideChatMessage;
