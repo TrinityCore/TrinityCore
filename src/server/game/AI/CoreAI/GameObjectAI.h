@@ -32,6 +32,14 @@ class Unit;
 class WorldObject;
 enum class QuestGiverStatus : uint32;
 
+namespace WorldPackets
+{
+    namespace Battleground
+    {
+        enum class BattlegroundCapturePointState : uint8;
+    }
+}
+
 class TC_GAME_API GameObjectAI
 {
     private:
@@ -107,6 +115,11 @@ class TC_GAME_API GameObjectAI
 
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
+
+        // Called when the capture point gets assaulted by a player. Return true to disable default behaviour.
+        virtual bool OnCapturePointAssaulted(Player* /*player*/) { return false; }
+        // Called when the capture point state gets updated. Return true to disable default behaviour.
+        virtual bool OnCapturePointUpdated(WorldPackets::Battleground::BattlegroundCapturePointState /*state*/) { return false; }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

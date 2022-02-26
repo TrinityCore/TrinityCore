@@ -571,7 +571,8 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //502 SPELL_AURA_MOD_VERSATILITY_DAMAGE_DONE_BENEFIT
     &AuraEffect::HandleNULL,                                      //503 SPELL_AURA_MOD_VERSATILITY_HEALING_DONE_BENEFIT
     &AuraEffect::HandleNoImmediateEffect,                         //504 SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER implemented in Unit::SpellHealingBonusTaken
-    &AuraEffect::HandleNULL,                                      //503 SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS
+    &AuraEffect::HandleNULL,                                      //505 SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS
+    &AuraEffect::HandleDisableInertia,                            //506 SPELL_AURA_DISABLE_INERTIA
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
@@ -2714,6 +2715,23 @@ void AuraEffect::HandleIgnoreMovementForces(AuraApplication const* aurApp, uint8
     }
 
     target->SetIgnoreMovementForces(apply);
+}
+
+void AuraEffect::HandleDisableInertia(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (!apply)
+    {
+        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+        if (target->HasAuraType(GetAuraType()))
+            return;
+    }
+
+    target->SetDisableInertia(apply);
 }
 
 /****************************/
@@ -5443,7 +5461,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     caster->HealBySpell(healInfo);
 
     caster->GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal() * 0.5f, GetSpellInfo());
-    Unit::ProcSkillsAndAuras(caster, caster, PROC_FLAG_DEAL_HARMFUL_PERIODIC, PROC_FLAG_TAKE_HARMFUL_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
+    Unit::ProcSkillsAndAuras(caster, caster, PROC_FLAG_DEAL_HELPFUL_PERIODIC, PROC_FLAG_TAKE_HELPFUL_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
 
     caster->SendSpellNonMeleeDamageLog(&log);
 }
@@ -5532,8 +5550,8 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
         return;
 
-    ProcFlagsInit procAttacker = PROC_FLAG_DEAL_HARMFUL_PERIODIC;
-    ProcFlagsInit procVictim   = PROC_FLAG_TAKE_HARMFUL_PERIODIC;
+    ProcFlagsInit procAttacker = PROC_FLAG_DEAL_HELPFUL_PERIODIC;
+    ProcFlagsInit procVictim   = PROC_FLAG_TAKE_HELPFUL_PERIODIC;
     ProcFlagsHit hitMask = crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
     // ignore item heals
     if (GetBase()->GetCastItemGUID().IsEmpty())

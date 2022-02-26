@@ -3665,6 +3665,18 @@ void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     data->AddUpdateBlock(buffer);
 }
 
+void Player::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), UnitMask.GetChangesMask(),
+        PlayerMask.GetChangesMask(), ActivePlayerMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void Player::DestroyForPlayer(Player* target) const
 {
     Unit::DestroyForPlayer(target);
@@ -9338,7 +9350,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             }
             break;
         case 3358: // Arathi Basin
-            if (battleground && battleground->GetTypeID(true) == BATTLEGROUND_AB)
+            if (battleground && (battleground->GetTypeID(true) == BATTLEGROUND_AB || battleground->GetTypeID(true) == BATTLEGROUND_DOM_AB))
                 battleground->FillInitialWorldStates(packet);
             else
             {
@@ -24603,6 +24615,12 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAura(SPELL_DH_DOUBLE_JUMP))
         setCompoundState.StateChanges.emplace_back(SMSG_MOVE_ENABLE_DOUBLE_JUMP, m_movementCounter++);
 
+    if (HasAuraType(SPELL_AURA_IGNORE_MOVEMENT_FORCES))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_IGNORE_MOVEMENT_FORCES, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_DISABLE_INERTIA))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_DISABLE_INERTIA, m_movementCounter++);
+
     if (!setCompoundState.StateChanges.empty())
     {
         setCompoundState.MoverGUID = GetGUID();
@@ -28545,11 +28563,11 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
         if (playerChoiceResponseTemplate.MawPower)
         {
             WorldPackets::Quest::PlayerChoiceResponseMawPower& mawPower = playerChoiceResponse.MawPower.emplace();
-            mawPower.TypeArtFileID = playerChoiceResponse.MawPower->TypeArtFileID;
-            mawPower.Rarity = playerChoiceResponse.MawPower->Rarity;
-            mawPower.RarityColor = playerChoiceResponse.MawPower->RarityColor;
-            mawPower.SpellID = playerChoiceResponse.MawPower->SpellID;
-            mawPower.MaxStacks = playerChoiceResponse.MawPower->MaxStacks;
+            mawPower.TypeArtFileID = playerChoiceResponseTemplate.MawPower->TypeArtFileID;
+            mawPower.Rarity = playerChoiceResponseTemplate.MawPower->Rarity;
+            mawPower.RarityColor = playerChoiceResponseTemplate.MawPower->RarityColor;
+            mawPower.SpellID = playerChoiceResponseTemplate.MawPower->SpellID;
+            mawPower.MaxStacks = playerChoiceResponseTemplate.MawPower->MaxStacks;
         }
     }
 

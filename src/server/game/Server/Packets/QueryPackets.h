@@ -104,14 +104,14 @@ namespace WorldPackets
             Optional<uint32> NativeRealmAddress; ///< original realm (?) (identifier made from the Index, BattleGroup and Region)
         };
 
-        class QueryPlayerName final : public ClientPacket
+        class QueryPlayerNames final : public ClientPacket
         {
         public:
-            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAME, std::move(packet)) { }
+            QueryPlayerNames(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAMES, std::move(packet)) { }
 
             void Read() override;
 
-            ObjectGuid Player;
+            Array<ObjectGuid, 50> Players;
         };
 
         struct PlayerGuidLookupData
@@ -133,16 +133,29 @@ namespace WorldPackets
             DeclinedName DeclinedNames;
         };
 
-        class QueryPlayerNameResponse final : public ServerPacket
+        struct NameCacheUnused920
+        {
+            uint32 Unused1 = 0;
+            ObjectGuid Unused2;
+            std::string_view Unused3;
+        };
+
+        struct NameCacheLookupResult
+        {
+            ObjectGuid Player;
+            uint8 Result = 0; // 0 - full packet, != 0 - only guid
+            Optional<PlayerGuidLookupData> Data;
+            Optional<NameCacheUnused920> Unused920;
+        };
+
+        class QueryPlayerNamesResponse final : public ServerPacket
         {
         public:
-            QueryPlayerNameResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAME_RESPONSE, 60) { }
+            QueryPlayerNamesResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAMES_RESPONSE, 60) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Player;
-            uint8 Result = 0; // 0 - full packet, != 0 - only guid
-            PlayerGuidLookupData Data;
+            std::vector<NameCacheLookupResult> Players;
         };
 
         class QueryPageText final : public ClientPacket

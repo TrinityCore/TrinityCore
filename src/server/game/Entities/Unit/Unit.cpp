@@ -1519,7 +1519,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinity::IteratorPair<int32 const*> spellVisualKitIds /*= {}*/)
+void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinity::IteratorPair<int32 const*> spellVisualKitIds /*= {}*/, int32 sequenceVariation /*= 0*/)
 {
     WorldPackets::Chat::Emote packet;
     packet.Guid = GetGUID();
@@ -1528,6 +1528,8 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     if (EmotesEntry const* emotesEntry = sEmotesStore.LookupEntry(emoteId))
         if (emotesEntry->AnimID == ANIM_MOUNT_SPECIAL || emotesEntry->AnimID == ANIM_MOUNT_SELF_SPECIAL)
             std::copy(spellVisualKitIds.begin(), spellVisualKitIds.end(), std::back_inserter(packet.SpellVisualKitIDs));
+
+    packet.SequenceVariation = sequenceVariation;
 
     if (target)
         target->SendDirectMessage(packet.Write());
@@ -12871,6 +12873,37 @@ bool Unit::SetCanDoubleJump(bool enable)
     return true;
 }
 
+bool Unit::SetDisableInertia(bool disable)
+{
+    if (disable == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA))
+        return false;
+
+    if (disable)
+        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA);
+    else
+        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_DISABLE_INERTIA);
+
+    static OpcodeServer const disableInertiaOpcodeTable[2] =
+    {
+        SMSG_MOVE_DISABLE_INERTIA,
+        SMSG_MOVE_ENABLE_INERTIA
+    };
+
+    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    {
+        WorldPackets::Movement::MoveSetFlag packet(disableInertiaOpcodeTable[disable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
 void Unit::SendSetVehicleRecId(uint32 vehicleId)
 {
     if (Player* player = ToPlayer())
@@ -13113,6 +13146,17 @@ void Unit::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+}
+
+void Unit::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), UnitMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Unit::DestroyForPlayer(Player* target) const

@@ -1041,7 +1041,7 @@ class TC_GAME_API Unit : public WorldObject
                                      DamageInfo* damageInfo, HealInfo* healInfo);
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProcContainer& procAuras);
 
-        void HandleEmoteCommand(Emote emoteId, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {});
+        void HandleEmoteCommand(Emote emoteId, Player* target = nullptr, Trinity::IteratorPair<int32 const*> spellVisualKitIds = {}, int32 sequenceVariation = 0);
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
@@ -1220,6 +1220,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
         bool SetCanDoubleJump(bool enable);
+        bool SetDisableInertia(bool disable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         MovementForces const* GetMovementForces() const { return _movementForces.get(); }
@@ -1738,6 +1739,13 @@ class TC_GAME_API Unit : public WorldObject
         bool HasExtraUnitMovementFlag(uint32 f) const { return m_movementInfo.HasExtraMovementFlag(f); }
         uint32 GetExtraUnitMovementFlags() const { return m_movementInfo.GetExtraMovementFlags(); }
         void SetExtraUnitMovementFlags(uint32 f) { m_movementInfo.SetExtraMovementFlags(f); }
+
+        void AddExtraUnitMovementFlag2(uint32 f) { m_movementInfo.AddExtraMovementFlag2(f); }
+        void RemoveExtraUnitMovementFlag2(uint32 f) { m_movementInfo.RemoveExtraMovementFlag2(f); }
+        bool HasExtraUnitMovementFlag2(uint32 f) const { return m_movementInfo.HasExtraMovementFlag2(f); }
+        uint32 GetExtraUnitMovementFlags2() const { return m_movementInfo.GetExtraMovementFlags2(); }
+        void SetExtraUnitMovementFlags2(uint32 f) { m_movementInfo.SetExtraMovementFlags2(f); }
+
         bool IsSplineEnabled() const;
 
         void SetControlled(bool apply, UnitState state);
@@ -1873,6 +1881,17 @@ class TC_GAME_API Unit : public WorldObject
         void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::UnitData::Mask const& requestedUnitMask, Player const* target) const;
+
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(Unit const* owner) : Owner(owner) { }
+
+            Unit const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::UnitData::Base UnitMask;
+
+            void operator()(Player const* player) const;
+        };
 
     protected:
         void DestroyForPlayer(Player* target) const override;

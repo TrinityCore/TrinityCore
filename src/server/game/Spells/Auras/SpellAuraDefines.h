@@ -550,7 +550,7 @@ enum AuraType : uint32
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE            = 456,
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,
     SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY                = 458,
-    SPELL_AURA_IGNORE_MOVEMENT_FORCES                       = 459,  // NYI
+    SPELL_AURA_IGNORE_MOVEMENT_FORCES                       = 459,
     SPELL_AURA_RESET_COOLDOWNS_ON_DUEL_START                = 460,  // NYI
     SPELL_AURA_461                                          = 461,
     SPELL_AURA_MOD_HEALING_AND_ABSORB_FROM_CASTER           = 462,  // NYI
@@ -597,6 +597,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_VERSATILITY_HEALING_DONE_BENEFIT         = 503, // NYI
     SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER                = 504,
     SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS                    = 505, // NYI
+    SPELL_AURA_DISABLE_INERTIA                              = 506,
     TOTAL_AURAS
 };
 

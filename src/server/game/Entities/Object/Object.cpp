@@ -299,8 +299,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool HasFallDirection = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
         bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
         bool HasSpline = unit->IsSplineEnabled();
+        bool HasInertia = unit->m_movementInfo.inertia.has_value();
 
         *data << GetGUID();                                             // MoverGUID
+
+        *data << uint32(unit->GetUnitMovementFlags());
+        *data << uint32(unit->GetExtraUnitMovementFlags());
+        *data << uint32(unit->GetExtraUnitMovementFlags2());
 
         *data << uint32(unit->m_movementInfo.time);                     // MoveTime
         *data << float(unit->GetPositionX());
@@ -317,16 +322,22 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         //for (std::size_t i = 0; i < RemoveForcesIDs.size(); ++i)
         //    *data << ObjectGuid(RemoveForcesIDs);
 
-        data->WriteBits(unit->GetUnitMovementFlags(), 30);
-        data->WriteBits(unit->GetExtraUnitMovementFlags(), 18);
         data->WriteBit(!unit->m_movementInfo.transport.guid.IsEmpty()); // HasTransport
         data->WriteBit(HasFall);                                        // HasFall
         data->WriteBit(HasSpline);                                      // HasSpline - marks that the unit uses spline movement
         data->WriteBit(false);                                          // HeightChangeFailed
         data->WriteBit(false);                                          // RemoteTimeValid
+        data->WriteBit(HasInertia);                                     // HasInertia
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
             *data << unit->m_movementInfo.transport;
+
+        if (HasInertia)
+        {
+            *data << unit->m_movementInfo.inertia->guid;
+            *data << unit->m_movementInfo.inertia->force.PositionXYZStream();
+            *data << uint32(unit->m_movementInfo.inertia->lifetime);
+        }
 
         if (HasFall)
         {
@@ -454,6 +465,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool hasAreaTriggerBox      = shape.IsBox();
         bool hasAreaTriggerPolygon  = createProperties && shape.IsPolygon();
         bool hasAreaTriggerCylinder = shape.IsCylinder();
+        bool hasDisk                = shape.IsDisk();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
         bool hasOrbit               = areaTrigger->HasOrbit();
         bool hasMovementScript      = false;
@@ -473,6 +485,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasAreaTriggerBox);
         data->WriteBit(hasAreaTriggerPolygon);
         data->WriteBit(hasAreaTriggerCylinder);
+        data->WriteBit(hasDisk);
         data->WriteBit(hasAreaTriggerSpline);
         data->WriteBit(hasOrbit);
         data->WriteBit(hasMovementScript);
@@ -540,6 +553,18 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
             *data << float(shape.CylinderDatas.HeightTarget);
             *data << float(shape.CylinderDatas.LocationZOffset);
             *data << float(shape.CylinderDatas.LocationZOffsetTarget);
+        }
+
+        if (hasDisk)
+        {
+            *data << float(shape.DiskDatas.InnerRadius);
+            *data << float(shape.DiskDatas.InnerRadiusTarget);
+            *data << float(shape.DiskDatas.OuterRadius);
+            *data << float(shape.DiskDatas.OuterRadiusTarget);
+            *data << float(shape.DiskDatas.Height);
+            *data << float(shape.DiskDatas.HeightTarget);
+            *data << float(shape.DiskDatas.LocationZOffset);
+            *data << float(shape.DiskDatas.LocationZOffsetTarget);
         }
 
         //if (hasMovementScript)
