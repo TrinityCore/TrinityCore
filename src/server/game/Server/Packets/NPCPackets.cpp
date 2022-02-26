@@ -77,6 +77,7 @@ WorldPacket const* GossipMessage::Write()
         _worldPacket << uint8(options.OptionNPC);
         _worldPacket << int8(options.OptionFlags);
         _worldPacket << int32(options.OptionCost);
+        _worldPacket << uint32(options.OptionLanguage);
         _worldPacket.WriteBits(options.Text.size(), 12);
         _worldPacket.WriteBits(options.Confirm.size(), 12);
         _worldPacket.WriteBits(AsUnderlyingType(options.Status), 2);
@@ -168,6 +169,14 @@ void GossipSelectOption::Read()
 
     uint32 length = _worldPacket.ReadBits(8);
     PromotionCode = _worldPacket.ReadString(length);
+}
+
+WorldPacket const* GossipComplete::Write()
+{
+    _worldPacket.WriteBit(SuppressSound);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }
 
 WorldPacket const* PlayerTabardVendorActivate::Write()

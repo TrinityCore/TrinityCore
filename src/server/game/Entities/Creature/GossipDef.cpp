@@ -225,6 +225,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
         opt.OptionNPC = item.MenuItemIcon;
         opt.OptionFlags = item.IsCoded;     // makes pop up box password
         opt.OptionCost = item.BoxMoney;     // money required to open menu, 2.0.3
+        opt.OptionLanguage = item.Language;
         opt.Text = item.Message;            // text for gossip item
         opt.Confirm = item.BoxMessage;      // accept text (related to money) pop up box, 2.0.3
         opt.Status = GossipOptionStatus::Available;

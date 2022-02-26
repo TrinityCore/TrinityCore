@@ -678,8 +678,8 @@ namespace WorldPackets
         {
             int32 Unused901_1 = 0;
             int32 TypeArtFileID = 0;
-            int32 Rarity = 0;
-            uint32 RarityColor = 0;
+            Optional<int32> Rarity;
+            Optional<uint32> RarityColor;
             int32 Unused901_2 = 0;
             int32 SpellID = 0;
             int32 MaxStacks = 0;
@@ -696,12 +696,12 @@ namespace WorldPackets
             uint32 SoundKitID = 0;
             uint8 GroupID = 0;
             int32 UiTextureKitID = 0;
-            std::string Answer;
-            std::string Header;
-            std::string SubHeader;
-            std::string ButtonTooltip;
-            std::string Description;
-            std::string Confirmation;
+            std::string_view Answer;
+            std::string_view Header;
+            std::string_view SubHeader;
+            std::string_view ButtonTooltip;
+            std::string_view Description;
+            std::string_view Confirmation;
             Optional<PlayerChoiceResponseReward> Reward;
             Optional<uint32> RewardQuestID;
             Optional<PlayerChoiceResponseMawPower> MawPower;
@@ -718,8 +718,11 @@ namespace WorldPackets
             int32 ChoiceID = 0;
             int32 UiTextureKitID = 0;
             uint32 SoundKitID = 0;
+            uint32 CloseUISoundKitID = 0;
             uint8 NumRerolls = 0;
-            std::string Question;
+            WorldPackets::Duration<Seconds> Duration;
+            std::string_view Question;
+            std::string_view PendingChoiceText;
             std::vector<PlayerChoiceResponse> Responses;
             bool CloseChoiceFrame = false;
             bool HideWarboardHeader = false;
@@ -734,7 +737,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 ChoiceID = 0;
-            int32 ResponseID = 0;
+            int32 ResponseIdentifier = 0;
             bool IsReroll = false;
         };
     }

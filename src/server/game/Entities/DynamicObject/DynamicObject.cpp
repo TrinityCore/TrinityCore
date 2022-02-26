@@ -302,6 +302,17 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
     data->AddUpdateBlock(buffer);
 }
 
+void DynamicObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), DynamicObjectMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void DynamicObject::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&DynamicObject::m_dynamicObjectData);

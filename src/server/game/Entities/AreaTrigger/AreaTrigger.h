@@ -53,6 +53,17 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::AreaTriggerData::Mask const& requestedAreaTriggerMask, Player const* target) const;
 
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(AreaTrigger const* owner) : Owner(owner) { }
+
+            AreaTrigger const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::AreaTriggerData::Base AreaTriggerMask;
+
+            void operator()(Player const* player) const;
+        };
+
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
@@ -128,6 +139,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void SearchUnitInBox(std::vector<Unit*>& targetList);
         void SearchUnitInPolygon(std::vector<Unit*>& targetList);
         void SearchUnitInCylinder(std::vector<Unit*>& targetList);
+        void SearchUnitInDisk(std::vector<Unit*>& targetList);
         bool CheckIsInPolygon2D(Position const* pos) const;
         void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
 

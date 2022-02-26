@@ -3648,6 +3648,18 @@ void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     data->AddUpdateBlock(buffer);
 }
 
+void Player::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), UnitMask.GetChangesMask(),
+        PlayerMask.GetChangesMask(), ActivePlayerMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void Player::DestroyForPlayer(Player* target) const
 {
     Unit::DestroyForPlayer(target);
@@ -9321,7 +9333,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             }
             break;
         case 3358: // Arathi Basin
-            if (battleground && battleground->GetTypeID(true) == BATTLEGROUND_AB)
+            if (battleground && (battleground->GetTypeID(true) == BATTLEGROUND_AB || battleground->GetTypeID(true) == BATTLEGROUND_DOM_AB))
                 battleground->FillInitialWorldStates(packet);
             else
             {
@@ -24586,6 +24598,12 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAura(SPELL_DH_DOUBLE_JUMP))
         setCompoundState.StateChanges.emplace_back(SMSG_MOVE_ENABLE_DOUBLE_JUMP, m_movementCounter++);
 
+    if (HasAuraType(SPELL_AURA_IGNORE_MOVEMENT_FORCES))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_IGNORE_MOVEMENT_FORCES, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_DISABLE_INERTIA))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_DISABLE_INERTIA, m_movementCounter++);
+
     if (!setCompoundState.StateChanges.empty())
     {
         setCompoundState.MoverGUID = GetGUID();
@@ -26135,44 +26153,33 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus oldLiquidStatus, Optional<
     // process liquid auras using generic unit code
     Unit::ProcessTerrainStatusUpdate(oldLiquidStatus, newLiquidData);
 
+    m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA | UNDERWATER_INSLIME | UNDERWATER_INDARKWATER);
+
     // player specific logic for mirror timers
     if (GetLiquidStatus() && newLiquidData)
     {
         // Breath bar state (under water in any liquid type)
         if (newLiquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::AllLiquids))
-        {
             if (GetLiquidStatus() & LIQUID_MAP_UNDER_WATER)
                 m_MirrorTimerFlags |= UNDERWATER_INWATER;
-            else
-                m_MirrorTimerFlags &= ~UNDERWATER_INWATER;
-        }
 
         // Fatigue bar state (if not on flight path or transport)
         if (newLiquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::DarkWater) && !IsInFlight() && !GetTransport())
             m_MirrorTimerFlags |= UNDERWATER_INDARKWATER;
-        else
-            m_MirrorTimerFlags &= ~UNDERWATER_INDARKWATER;
 
         // Lava state (any contact)
         if (newLiquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::Magma))
-        {
             if (GetLiquidStatus() & MAP_LIQUID_STATUS_IN_CONTACT)
                 m_MirrorTimerFlags |= UNDERWATER_INLAVA;
-            else
-                m_MirrorTimerFlags &= ~UNDERWATER_INLAVA;
-        }
 
         // Slime state (any contact)
         if (newLiquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::Slime))
-        {
             if (GetLiquidStatus() & MAP_LIQUID_STATUS_IN_CONTACT)
                 m_MirrorTimerFlags |= UNDERWATER_INSLIME;
-            else
-                m_MirrorTimerFlags &= ~UNDERWATER_INSLIME;
-        }
     }
-    else
-        m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA | UNDERWATER_INSLIME | UNDERWATER_INDARKWATER);
+
+    if (HasAuraType(SPELL_AURA_FORCE_BREATH_BAR))
+        m_MirrorTimerFlags |= UNDERWATER_INWATER;
 }
 
 void Player::AtEnterCombat()
@@ -28528,11 +28535,11 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
         if (playerChoiceResponseTemplate.MawPower)
         {
             WorldPackets::Quest::PlayerChoiceResponseMawPower& mawPower = playerChoiceResponse.MawPower.emplace();
-            mawPower.TypeArtFileID = playerChoiceResponse.MawPower->TypeArtFileID;
-            mawPower.Rarity = playerChoiceResponse.MawPower->Rarity;
-            mawPower.RarityColor = playerChoiceResponse.MawPower->RarityColor;
-            mawPower.SpellID = playerChoiceResponse.MawPower->SpellID;
-            mawPower.MaxStacks = playerChoiceResponse.MawPower->MaxStacks;
+            mawPower.TypeArtFileID = playerChoiceResponseTemplate.MawPower->TypeArtFileID;
+            mawPower.Rarity = playerChoiceResponseTemplate.MawPower->Rarity;
+            mawPower.RarityColor = playerChoiceResponseTemplate.MawPower->RarityColor;
+            mawPower.SpellID = playerChoiceResponseTemplate.MawPower->SpellID;
+            mawPower.MaxStacks = playerChoiceResponseTemplate.MawPower->MaxStacks;
         }
     }
 
