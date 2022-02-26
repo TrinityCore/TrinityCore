@@ -6143,9 +6143,8 @@ void AuraEffect::HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication con
         aura->ApplyForTargets();
 }
 
-void AuraEffect::HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
-
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
@@ -6153,10 +6152,7 @@ void AuraEffect::HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode,
     if (!playerTarget)
         return;
 
-    if (apply)
-        playerTarget->StartBreathTimer();
-    else
-        playerTarget->StopBreathTimer();
+    playerTarget->UpdatePositionData();
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;

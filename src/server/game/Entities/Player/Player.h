@@ -2073,9 +2073,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void RemovedInsignia(Player* looterPlr);
 
-        void StartBreathTimer();
-        void StopBreathTimer();
-
         WorldSession* GetSession() const { return m_session; }
 
     protected:
