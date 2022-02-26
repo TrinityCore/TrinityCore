@@ -43,6 +43,13 @@ ByteBuffer& operator<<(ByteBuffer& data, EuropaTicketConfig const& europaTicketS
     return data;
 }
 
+WorldPacket operator<<(WorldPacket& data, GameRuleValuePair const& gameRuleValue)
+{
+    data << int32(gameRuleValue.Rule);
+    data << int32(gameRuleValue.Value);
+    return data;
+}
+
 WorldPacket const* FeatureSystemStatus::Write()
 {
     _worldPacket << uint8(ComplaintStatus);
@@ -69,6 +76,14 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << uint32(ClubsPresenceUpdateTimer);
     _worldPacket << uint32(HiddenUIClubsPresenceUpdateTimer);
+
+    _worldPacket << int32(GameRuleUnknown1);
+    _worldPacket << uint32(GameRuleValues.size());
+
+    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
+
+    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
+        _worldPacket << gameRuleValue;
 
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
@@ -189,9 +204,15 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(ActiveClassTrialBoostType);
     _worldPacket << int32(MinimumExpansionLevel);
     _worldPacket << int32(MaximumExpansionLevel);
+    _worldPacket << int32(GameRuleUnknown1);
+    _worldPacket << uint32(GameRuleValues.size());
+    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
 
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
+
+    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
+        _worldPacket << gameRuleValue;
 
     return &_worldPacket;
 }

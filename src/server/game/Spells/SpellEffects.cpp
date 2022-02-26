@@ -370,6 +370,8 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //285 SPELL_EFFECT_MODIFY_KEYSTONE_2
     &Spell::EffectGrantBattlePetExperience,                 //286 SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE
     &Spell::EffectNULL,                                     //287 SPELL_EFFECT_SET_GARRISON_FOLLOWER_LEVEL
+    &Spell::EffectUnused,                                   //288 SPELL_EFFECT_288
+    &Spell::EffectNULL,                                     //289 SPELL_EFFECT_289
 };
 
 void Spell::EffectNULL()
@@ -1602,6 +1604,11 @@ void Spell::EffectOpenLock()
                 bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
+        }
+        else if (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
+        {
+            gameObjTarget->AssaultCapturePoint(player);
+            return;
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {

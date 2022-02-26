@@ -333,6 +333,12 @@ enum MovementFlags2 : uint32
     MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00080000
 };
 
+enum MovementFlags3 : uint32
+{
+    MOVEMENTFLAG3_NONE              = 0x00000000,
+    MOVEMENTFLAG3_DISABLE_INERTIA   = 0x00000001,
+};
+
 enum HitInfo
 {
     HITINFO_NORMALSWING         = 0x00000000,

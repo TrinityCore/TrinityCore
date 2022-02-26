@@ -753,6 +753,7 @@ struct GossipMenuItems
     uint32              OptionBroadcastTextID;
     uint32              OptionType;
     uint32              OptionNpcFlag;
+    uint32              Language;
     uint32              ActionMenuID;
     uint32              ActionPoiID;
     bool                BoxCoded;
@@ -898,8 +899,8 @@ struct PlayerChoiceResponseReward
 struct PlayerChoiceResponseMawPower
 {
     int32 TypeArtFileID = 0;
-    int32 Rarity = 0;
-    uint32 RarityColor = 0;
+    Optional<int32> Rarity;
+    Optional<uint32> RarityColor;
     int32 SpellID = 0;
     int32 MaxStacks = 0;
 };
@@ -931,7 +932,10 @@ struct PlayerChoice
     int32 ChoiceId;
     int32 UiTextureKitId;
     uint32 SoundKitId;
+    uint32 CloseSoundKitId;
+    int64 Duration;
     std::string Question;
+    std::string PendingChoiceText;
     std::vector<PlayerChoiceResponse> Responses;
     bool HideWarboardHeader;
     bool KeepOpenAfterChoice;
@@ -1684,7 +1688,7 @@ class TC_GAME_API ObjectMgr
         GraveyardContainer GraveyardStore;
 
         static void AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data);
-        static std::string_view GetLocaleString(std::vector<std::string> const& data, size_t locale)
+        static std::string_view GetLocaleString(std::vector<std::string> const& data, LocaleConstant locale)
         {
             if (locale < data.size())
                 return data[locale];
@@ -1693,8 +1697,14 @@ class TC_GAME_API ObjectMgr
         }
         static void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
         {
-            if (std::string_view str = GetLocaleString(data, static_cast<size_t>(localeConstant)); !str.empty())
+            if (std::string_view str = GetLocaleString(data, localeConstant); !str.empty())
                 value.assign(str);
+        }
+
+        static void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string_view& value)
+        {
+            if (std::string_view str = GetLocaleString(data, localeConstant); !str.empty())
+                value = str;
         }
 
         CharacterConversionMap FactionChangeAchievements;

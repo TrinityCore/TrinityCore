@@ -100,9 +100,11 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Query::QueryPlayerName::Read()
+void WorldPackets::Query::QueryPlayerNames::Read()
 {
-    _worldPacket >> Player;
+    Players.resize(_worldPacket.read<uint32>());
+    for (ObjectGuid& player : Players)
+        _worldPacket >> player;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
@@ -188,13 +190,40 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     return data;
 }
 
-WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+ByteBuffer operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheUnused920 const& thing)
 {
-    _worldPacket << uint8(Result);
-    _worldPacket << Player;
+    data << uint32(thing.Unused1);
+    data << thing.Unused2;
+    data.WriteBits(thing.Unused3.length(), 7);
+    data.FlushBits();
 
-    if (Result == RESPONSE_SUCCESS)
-        _worldPacket << Data;
+    data.WriteString(thing.Unused3);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheLookupResult const& result)
+{
+    data << uint8(result.Result);
+    data << result.Player;
+    data.WriteBit(result.Data.has_value());
+    data.WriteBit(result.Unused920.has_value());
+    data.FlushBits();
+
+    if (result.Data)
+        data << *result.Data;
+
+    if (result.Unused920)
+        data << *result.Unused920;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNamesResponse::Write()
+{
+    _worldPacket << uint32(Players.size());
+    for (NameCacheLookupResult const& lookupResult : Players)
+        _worldPacket << lookupResult;
 
     return &_worldPacket;
 }
