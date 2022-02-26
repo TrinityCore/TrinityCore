@@ -348,9 +348,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         std::string GetDebugInfo() const override;
 
-        UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
-
         void UpdateDynamicFlagsForNearbyPlayers() const;
+
+        UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
 
     protected:
         void CreateModel();
