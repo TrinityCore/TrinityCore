@@ -83,6 +83,18 @@ public:
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
         UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target) const;
 
+    struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+    {
+        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteItem const* owner) : Owner(owner) { }
+
+        AzeriteItem const* Owner;
+        UF::ObjectData::Base ObjectMask;
+        UF::ItemData::Base ItemMask;
+        UF::AzeriteItemData::Base AzeriteItemMask;
+
+        void operator()(Player const* player) const;
+    };
+
     UF::UpdateField<UF::AzeriteItemData, 0, TYPEID_AZERITE_ITEM> m_azeriteItemData;
 
 private:

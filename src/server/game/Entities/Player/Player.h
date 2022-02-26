@@ -2086,6 +2086,20 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::UnitData::Mask const& requestedUnitMask,
             UF::PlayerData::Mask const& requestedPlayerMask, UF::ActivePlayerData::Mask const& requestedActivePlayerMask, Player const* target) const;
+
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(Player const* owner) : Owner(owner) { }
+
+            Player const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::UnitData::Base UnitMask;
+            UF::PlayerData::Base PlayerMask;
+            UF::ActivePlayerData::Base ActivePlayerMask;
+
+            void operator()(Player const* player) const;
+        };
+
         void DestroyForPlayer(Player* target) const override;
 
         // notifiers

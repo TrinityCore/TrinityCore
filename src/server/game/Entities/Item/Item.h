@@ -378,6 +378,18 @@ class TC_GAME_API Item : public Object
         void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::ItemData::Mask const& requestedItemMask, Player const* target) const;
+
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(Item const* owner) : Owner(owner) { }
+
+            Item const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::ItemData::Base ItemMask;
+
+            void operator()(Player const* player) const;
+        };
+
         bool AddToObjectUpdate() override;
         void RemoveFromObjectUpdate() override;
 

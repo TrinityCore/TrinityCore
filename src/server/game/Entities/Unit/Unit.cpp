@@ -13148,6 +13148,17 @@ void Unit::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
     data->AddUpdateBlock(buffer);
 }
 
+void Unit::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), UnitMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void Unit::DestroyForPlayer(Player* target) const
 {
     if (Battleground* bg = target->GetBattleground())

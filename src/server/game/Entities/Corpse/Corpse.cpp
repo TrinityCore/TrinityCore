@@ -282,6 +282,17 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     data->AddUpdateBlock(buffer);
 }
 
+void Corpse::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), CorpseMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void Corpse::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Corpse::m_corpseData);
