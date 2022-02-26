@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
@@ -1319,6 +1320,45 @@ class spell_q12823_remove_collapsing_cave_aura : public SpellScript
     }
 };
 
+/*######
+## Quest 12987: Mounting Hodir's Helm
+######*/
+
+enum MountingHodirsHelm
+{
+    TEXT_PRONOUNCEMENT_1     = 30906,
+    TEXT_PRONOUNCEMENT_2     = 30907,
+    NPC_HODIRS_HELM_KC       = 30210
+};
+
+// 56278 - Read Pronouncement
+class spell_read_pronouncement : public AuraScript
+{
+    PrepareAuraScript(spell_read_pronouncement);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_PRONOUNCEMENT_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_PRONOUNCEMENT_2) &&
+            sObjectMgr->GetCreatureTemplate(NPC_HODIRS_HELM_KC);
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+        {
+            target->Unit::Whisper(TEXT_PRONOUNCEMENT_1, target, true);
+            target->KilledMonsterCredit(NPC_HODIRS_HELM_KC);
+            target->Unit::Whisper(TEXT_PRONOUNCEMENT_2, target, true);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_roxi_ramrocket();
@@ -1342,4 +1382,5 @@ void AddSC_storm_peaks()
     new spell_fatal_strike();
     new spell_player_mount_wyrm();
     RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
+    RegisterSpellScript(spell_read_pronouncement);
 }
