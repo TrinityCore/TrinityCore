@@ -82,8 +82,8 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
         return;
     }
 
-    // We need in some cases increase search radius
-    // Allow find creatures with huge combat reach in a diferent nearby cell
+    // We need in some cases increase search radius.
+    // Allow to find creatures with huge combat reach in a different nearby cell.
     if (extraRadius)
         radius += EXTRA_RADIUS_FOR_SEARCH;
 
