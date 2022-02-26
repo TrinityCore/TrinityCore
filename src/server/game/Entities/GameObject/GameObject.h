@@ -92,6 +92,17 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const;
 
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(GameObject const* owner) : Owner(owner) { }
+
+            GameObject const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::GameObjectData::Base GameObjectMask;
+
+            void operator()(Player const* player) const;
+        };
+
         void AddToWorld() override;
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;

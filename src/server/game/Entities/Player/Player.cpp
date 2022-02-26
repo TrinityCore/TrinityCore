@@ -3648,6 +3648,18 @@ void Player::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     data->AddUpdateBlock(buffer);
 }
 
+void Player::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), UnitMask.GetChangesMask(),
+        PlayerMask.GetChangesMask(), ActivePlayerMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void Player::DestroyForPlayer(Player* target) const
 {
     Unit::DestroyForPlayer(target);

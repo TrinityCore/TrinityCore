@@ -1882,6 +1882,17 @@ class TC_GAME_API Unit : public WorldObject
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::UnitData::Mask const& requestedUnitMask, Player const* target) const;
 
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(Unit const* owner) : Owner(owner) { }
+
+            Unit const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::UnitData::Base UnitMask;
+
+            void operator()(Player const* player) const;
+        };
+
     protected:
         void DestroyForPlayer(Player* target) const override;
         void ClearUpdateMask(bool remove) override;

@@ -2829,6 +2829,17 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     data->AddUpdateBlock(buffer);
 }
 
+void GameObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), GameObjectMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void GameObject::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&GameObject::m_gameObjectData);

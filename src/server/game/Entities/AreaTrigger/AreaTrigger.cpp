@@ -1054,6 +1054,17 @@ void AreaTrigger::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     data->AddUpdateBlock(buffer);
 }
 
+void AreaTrigger::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), AreaTriggerMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void AreaTrigger::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&AreaTrigger::m_areaTriggerData);

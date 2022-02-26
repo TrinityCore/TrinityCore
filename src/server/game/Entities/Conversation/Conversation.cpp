@@ -25,8 +25,8 @@
 #include "Log.h"
 #include "Map.h"
 #include "PhasingHandler.h"
+#include "Player.h"
 #include "ScriptMgr.h"
-#include "Unit.h"
 #include "UpdateData.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
@@ -284,6 +284,17 @@ void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obje
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+}
+
+void Conversation::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ConversationMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Conversation::ClearUpdateMask(bool remove)
