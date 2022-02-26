@@ -255,7 +255,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT                   = 161,
     SPELL_AURA_POWER_BURN                                   = 162,
     SPELL_AURA_MOD_CRIT_DAMAGE_BONUS                        = 163,
-    SPELL_AURA_FORCE_BREATH_BAR                             = 164,  // NYI
+    SPELL_AURA_FORCE_BREATH_BAR                             = 164,
     SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS            = 165,
     SPELL_AURA_MOD_ATTACK_POWER_PCT                         = 166,
     SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT                  = 167,
