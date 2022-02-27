@@ -24,7 +24,6 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
-#include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -900,39 +899,6 @@ class spell_q14076_14092_pound_drum : public SpellScript
     void Register() override
     {
         OnCast += SpellCastFn(spell_q14076_14092_pound_drum::HandleSummon);
-    }
-};
-
-enum HodirsHelm
-{
-    SAY_1               = 1,
-    SAY_2               = 2,
-    NPC_KILLCREDIT      = 30210, // Hodir's Helm KC Bunny
-    NPC_ICE_SPIKE_BUNNY = 30215
-};
-
-// 56278 - Read Pronouncement
-class spell_q12987_read_pronouncement : public AuraScript
-{
-    PrepareAuraScript(spell_q12987_read_pronouncement);
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        // player must cast kill credit and do emote text, according to sniff
-        if (Player* target = GetTarget()->ToPlayer())
-        {
-            if (Creature* trigger = target->FindNearestCreature(NPC_ICE_SPIKE_BUNNY, 25.0f))
-            {
-                sCreatureTextMgr->SendChat(trigger, SAY_1, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, target);
-                target->KilledMonsterCredit(NPC_KILLCREDIT);
-                sCreatureTextMgr->SendChat(trigger, SAY_2, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, target);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_q12987_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2456,7 +2422,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q14112_14145_chum_the_water);
     RegisterSpellScript(spell_q9452_cast_net);
     RegisterSpellScript(spell_q14076_14092_pound_drum);
-    RegisterSpellScript(spell_q12987_read_pronouncement);
     RegisterSpellScript(spell_q12277_wintergarde_mine_explosion);
     RegisterSpellScript(spell_q12066_bunny_kill_credit);
     RegisterSpellScript(spell_q12735_song_of_cleansing);
