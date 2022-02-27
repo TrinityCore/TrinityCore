@@ -2723,38 +2723,6 @@ class spell_item_purify_helboar_meat : public SpellScript
     }
 };
 
-enum CrystalPrison
-{
-    OBJECT_IMPRISONED_DOOMGUARD     = 179644,
-};
-
-class spell_item_crystal_prison_dummy_dnd : public SpellScript
-{
-    PrepareSpellScript(spell_item_crystal_prison_dummy_dnd);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        if (!sObjectMgr->GetGameObjectTemplate(OBJECT_IMPRISONED_DOOMGUARD))
-            return false;
-        return true;
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        if (Creature* target = GetHitCreature())
-            if (target->isDead() && !target->IsPet())
-            {
-                GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), Seconds(target->GetRespawnTime() - GameTime::GetGameTime()));
-                target->DespawnOrUnsummon();
-            }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_crystal_prison_dummy_dnd::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum NighInvulnerability
 {
     SPELL_NIGH_INVULNERABILITY                  = 30456,
@@ -4282,7 +4250,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_ashbringer);
     RegisterSpellScript(spell_magic_eater_food);
     RegisterSpellScript(spell_item_purify_helboar_meat);
-    RegisterSpellScript(spell_item_crystal_prison_dummy_dnd);
     RegisterSpellScript(spell_item_nigh_invulnerability);
     RegisterSpellScript(spell_item_poultryizer);
     RegisterSpellScript(spell_item_socrethars_stone);
