@@ -1459,16 +1459,16 @@ class TC_GAME_API WorldSession
         void HandleBlackMarketRequestItems(WorldPackets::BlackMarket::BlackMarketRequestItems& blackMarketRequestItems);
         void HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMarketBidOnItem& blackMarketBidOnItem);
 
-        void HandleGetMailList(WorldPackets::Mail::MailGetList& packet);
-        void HandleSendMail(WorldPackets::Mail::SendMail& packet);
-        void HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& packet);
-        void HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet);
-        void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet);
-        void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet);
-        void HandleMailDelete(WorldPackets::Mail::MailDelete& packet);
+        void HandleGetMailList(WorldPackets::Mail::MailGetList& getList);
+        void HandleSendMail(WorldPackets::Mail::SendMail& sendMail);
+        void HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& takeMoney);
+        void HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& takeItem);
+        void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& markAsRead);
+        void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& returnToSender);
+        void HandleMailDelete(WorldPackets::Mail::MailDelete& mailDelete);
         void HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemTextQuery);
-        void HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& packet);
-        void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& packet);
+        void HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& createTextItem);
+        void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& queryNextMailTime);
         void HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& cancelChanneling);
 
         void HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem);
