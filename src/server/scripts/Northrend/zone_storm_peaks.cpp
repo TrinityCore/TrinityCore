@@ -1359,6 +1359,60 @@ class spell_read_pronouncement : public AuraScript
     }
 };
 
+/*######
+## Quest 13011: Jormuttar is Soo Fat...
+######*/
+
+enum JormuttarIsSooFat
+{
+    SPELL_CREATE_BEAR_FLANK    = 56566,
+    SPELL_BEAR_FLANK_FAIL      = 56569,
+    TEXT_CARVE_FAIL            = 30986
+};
+
+// 56565 - Bear Flank Master
+class spell_bear_flank_master : public SpellScript
+{
+    PrepareSpellScript(spell_bear_flank_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_BEAR_FLANK, SPELL_BEAR_FLANK_FAIL });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance_i(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 56569 - Bear Flank Fail
+class spell_bear_flank_fail : public AuraScript
+{
+    PrepareAuraScript(spell_bear_flank_fail);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_CARVE_FAIL);
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            target->Unit::Whisper(TEXT_CARVE_FAIL, target, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_bear_flank_fail::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_roxi_ramrocket();
@@ -1383,4 +1437,6 @@ void AddSC_storm_peaks()
     new spell_player_mount_wyrm();
     RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
     RegisterSpellScript(spell_read_pronouncement);
+    RegisterSpellScript(spell_bear_flank_master);
+    RegisterSpellScript(spell_bear_flank_fail);
 }

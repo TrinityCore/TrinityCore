@@ -1301,52 +1301,6 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScript
     }
 };
 
-enum BearFlankMaster
-{
-    SPELL_CREATE_BEAR_FLANK = 56566,
-    SPELL_BEAR_FLANK_FAIL   = 56569
-};
-
-// 56565 - Bear Flank Master
-class spell_q13011_bear_flank_master : public SpellScript
-{
-    PrepareSpellScript(spell_q13011_bear_flank_master);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_CREATE_BEAR_FLANK,
-            SPELL_BEAR_FLANK_FAIL
-        });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_UNIT;
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetHitPlayer())
-        {
-            if (roll_chance_i(50))
-            {
-                Creature* creature = GetCaster()->ToCreature();
-                player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
-                creature->AI()->Talk(0, player);
-            }
-            else
-                player->CastSpell(player, SPELL_CREATE_BEAR_FLANK);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q13011_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 57385 - Argent Cannon
 // 57412 - Reckoning Bomb
 class spell_q13086_cannons_target : public SpellScript
@@ -2280,7 +2234,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy);
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon);
     RegisterSpellScript(spell_q12847_summon_soul_moveto_bunny);
-    RegisterSpellScript(spell_q13011_bear_flank_master);
     RegisterSpellScript(spell_q13086_cannons_target);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
