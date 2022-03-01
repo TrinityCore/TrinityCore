@@ -1294,29 +1294,28 @@ class spell_player_mount_wyrm : public SpellScriptLoader
         }
 };
 
-enum CollapsingCave
-{
-    SPELL_COLLAPSING_CAVE = 55486
-};
+/*######
+## Quest 12823: A Flawless Plan
+######*/
 
 // 55693 - Remove Collapsing Cave Aura
 class spell_q12823_remove_collapsing_cave_aura : public SpellScript
 {
     PrepareSpellScript(spell_q12823_remove_collapsing_cave_aura);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_COLLAPSING_CAVE });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->RemoveAurasDueToSpell(SPELL_COLLAPSING_CAVE);
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
