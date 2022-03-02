@@ -829,6 +829,37 @@ class spell_summon_tualiq_proxy : public SpellScript
     }
 };
 
+/*######
+## Quest 14076 & 14092: Breakfast Of Champions
+######*/
+
+enum BreakfastOfChampions
+{
+    SPELL_SUMMON_DEEP_JORMUNGAR     = 66510,
+    SPELL_STORMFORGED_MOLE_MACHINE  = 66492
+};
+
+// 66512 - Pound Drum
+class spell_q14076_14092_pound_drum : public SpellScript
+{
+    PrepareSpellScript(spell_q14076_14092_pound_drum);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_DEEP_JORMUNGAR, SPELL_STORMFORGED_MOLE_MACHINE });
+    }
+
+    void HandleSummon()
+    {
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_SUMMON_DEEP_JORMUNGAR : SPELL_STORMFORGED_MOLE_MACHINE, true);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_q14076_14092_pound_drum::HandleSummon);
+    }
+};
+
 void AddSC_icecrown()
 {
     new npc_argent_valiant;
@@ -838,4 +869,5 @@ void AddSC_icecrown()
     new npc_frostbrood_skytalon();
     RegisterSpellScript(spell_the_ocular_on_death);
     RegisterSpellScript(spell_summon_tualiq_proxy);
+    RegisterSpellScript(spell_q14076_14092_pound_drum);
 }
