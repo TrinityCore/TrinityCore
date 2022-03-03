@@ -75,6 +75,7 @@ class TC_GAME_API SmartScript
         bool IsSmart(bool silent = false) const;
 
         void StoreTargetList(ObjectVector const& targets, uint32 id);
+        void AddToStoredTargetList(ObjectVector const& targets, uint32 id);
         ObjectVector const* GetStoredTargetVector(uint32 id, WorldObject const& ref) const;
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset);

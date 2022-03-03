@@ -35,6 +35,7 @@ void AddSC_boss_amanitar();
 void AddSC_boss_jedoga_shadowseeker();
 void AddSC_boss_volazj();
 void AddSC_instance_ahnkahet();
+void AddSC_ahnkahet();
 // Drak'Tharon Keep
 void AddSC_boss_trollgore();
 void AddSC_boss_novos();
@@ -227,6 +228,7 @@ void AddNorthrendScripts()
     AddSC_boss_jedoga_shadowseeker();
     AddSC_boss_volazj();
     AddSC_instance_ahnkahet();
+    AddSC_ahnkahet();
     // Azjol-Nerub - Azjol-Nerub
     AddSC_boss_krik_thir();
     AddSC_boss_hadronox();

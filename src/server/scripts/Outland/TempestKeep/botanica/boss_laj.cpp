@@ -74,7 +74,8 @@ struct boss_laj : public BossAI
     void JustSummoned(Creature* summon) override
     {
         // Not entirely correct, they aggro on their own in a weird way and in general behave weirdly
-        summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random, 0));
+        if (me->IsEngaged())
+            DoZoneInCombat(summon);
     }
 
     void UpdateAI(uint32 diff) override

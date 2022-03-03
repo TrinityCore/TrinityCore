@@ -15,27 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Dragonblight
-SD%Complete: 100
-SDComment:
-SDCategory: Dragonblight
-EndScriptData */
-
-/* ContentData
-npc_alexstrasza_wr_gate
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 
 /*#####
@@ -586,107 +578,205 @@ class npc_wyrmrest_defender : public CreatureScript
         }
 };
 
-/*#####
-# npc_torturer_lecraft
-#####*/
+/*######
+## Quest 12053: The Might of the Horde
+######*/
 
-enum TorturerLeCraft
+enum WarsongBattleStandard
 {
-    SPELL_HEMORRHAGE                   = 30478,
-    SPELL_KIDNEY_SHOT                  = 30621,
-    SPELL_HIGH_EXECUTORS_BRANDING_IRON = 48603,
-    NPC_TORTURER_LECRAFT               = 27394,
-    EVENT_HEMORRHAGE                   = 1,
-    EVENT_KIDNEY_SHOT                  = 2,
-    SAY_AGGRO                          = 0
+    TEXT_TAUNT_1    = 25888,
+    TEXT_TAUNT_2    = 25889,
+    TEXT_TAUNT_3    = 25890,
+    TEXT_TAUNT_4    = 25891,
+    TEXT_TAUNT_5    = 25892,
+    TEXT_TAUNT_6    = 25893,
+    TEXT_TAUNT_7    = 25894
 };
 
-class npc_torturer_lecraft : public CreatureScript
+// 47304 - Warsong Battle Standard
+class spell_warsong_battle_standard : public SpellScript
 {
-    public: npc_torturer_lecraft() : CreatureScript("npc_torturer_lecraft") {}
+    PrepareSpellScript(spell_warsong_battle_standard);
 
-        struct npc_torturer_lecraftAI : public ScriptedAI
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_TAUNT_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_2) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_3) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_4) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_5) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_6) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_7);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->Unit::Say(RAND(TEXT_TAUNT_1, TEXT_TAUNT_2, TEXT_TAUNT_3, TEXT_TAUNT_4, TEXT_TAUNT_5, TEXT_TAUNT_6, TEXT_TAUNT_7), caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warsong_battle_standard::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12470 & 13343: Mystery of the Infinite & Mystery of the Infinite, Redux
+######*/
+
+enum MysteryOfTheInfinite
+{
+    SPELL_MIRROR_IMAGE_AURA         = 49889
+};
+
+// 49686 - Mystery of the Infinite: Script Effect Player Cast Mirror Image
+class spell_moti_mirror_image_script_effect : public SpellScript
+{
+    PrepareSpellScript(spell_moti_mirror_image_script_effect);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_AURA });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_moti_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 50020 - Mystery of the Infinite: Hourglass cast See Invis on Master
+class spell_moti_hourglass_cast_see_invis_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_moti_hourglass_cast_see_invis_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12457: The Chain Gun And You
+######*/
+
+enum TheChainGunAndYou
+{
+    TEXT_CALL_OUT_1    = 27083,
+    TEXT_CALL_OUT_2    = 27084
+};
+
+// BasePoints of the dummy effect is ID of npc_text used to group texts, it's not implemented so texts are grouped manually. Same with 49556 but looks like it's not used
+// 49550 - Call Out Injured Soldier
+class spell_call_out_injured_soldier : public SpellScript
+{
+    PrepareSpellScript(spell_call_out_injured_soldier);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_CALL_OUT_1) && sObjectMgr->GetBroadcastText(TEXT_CALL_OUT_2);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
+            if (Unit* passenger = vehicle->GetPassenger(0))
+                passenger->Unit::Say(RAND(TEXT_CALL_OUT_1, TEXT_CALL_OUT_2), passenger);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_call_out_injured_soldier::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12252: Torture the Torturer
+######*/
+
+enum TortureTheTorturer
+{
+    WHISPER_TORTURE_1             = 1,
+    WHISPER_TORTURE_2             = 2,
+    WHISPER_TORTURE_3             = 3,
+    WHISPER_TORTURE_4             = 4,
+    WHISPER_TORTURE_5             = 5,
+    WHISPER_TORTURE_RANDOM        = 6,
+
+    SPELL_TORTURER_KILL_CREDIT    = 48607,
+    SPELL_BRANDING_IRON_IMPACT    = 48614
+};
+
+// 48603 - High Executor's Branding Iron
+class spell_high_executor_branding_iron : public SpellScript
+{
+    PrepareSpellScript(spell_high_executor_branding_iron);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TORTURER_KILL_CREDIT, SPELL_BRANDING_IRON_IMPACT });
+    }
+
+    void HandleWhisper()
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        Creature* target = GetHitCreature();
+        if (!caster || !target)
+            return;
+
+        target->CastSpell(target, SPELL_BRANDING_IRON_IMPACT);
+
+        if (Aura* aura = caster->GetAura(GetSpellInfo()->Id))
         {
-            npc_torturer_lecraftAI(Creature* creature) : ScriptedAI(creature)
+            switch (aura->GetStackAmount())
             {
-                _textCounter = 1;
-            }
-
-            void Reset() override
-            {
-                _textCounter = 1;
-                _playerGUID.Clear();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                _events.ScheduleEvent(EVENT_HEMORRHAGE, 5s, 8s);
-                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 12s, 15s);
-
-                if (Player* player = who->ToPlayer())
-                    Talk (SAY_AGGRO, player);
-            }
-
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id != SPELL_HIGH_EXECUTORS_BRANDING_IRON)
+                case 1:
+                    target->AI()->Talk(WHISPER_TORTURE_1, caster);
+                    break;
+                case 2:
+                    target->AI()->Talk(WHISPER_TORTURE_2, caster);
+                    break;
+                case 3:
+                    target->AI()->Talk(WHISPER_TORTURE_3, caster);
+                    break;
+                case 4:
+                    target->AI()->Talk(WHISPER_TORTURE_4, caster);
+                    break;
+                case 5:
+                    target->AI()->Talk(WHISPER_TORTURE_5, caster);
+                    target->CastSpell(caster, SPELL_TORTURER_KILL_CREDIT);
+                    break;
+                case 6:
+                    target->AI()->Talk(WHISPER_TORTURE_RANDOM, caster);
+                    break;
+                default:
                     return;
-
-                if (Player* player = caster->ToPlayer())
-                {
-                    if (_textCounter == 1)
-                        _playerGUID = player->GetGUID();
-
-                    if (_playerGUID != player->GetGUID())
-                        return;
-
-                    Talk(_textCounter, player);
-
-                    if (_textCounter == 5)
-                        player->KilledMonsterCredit(NPC_TORTURER_LECRAFT);
-
-                    ++_textCounter;
-
-                    if (_textCounter == 13)
-                        _textCounter = 6;
-                }
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-               if (!UpdateVictim())
-                   return;
-
-               _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_HEMORRHAGE:
-                            DoCastVictim(SPELL_HEMORRHAGE);
-                            _events.ScheduleEvent(EVENT_HEMORRHAGE, 12s, 168s);
-                            break;
-                        case EVENT_KIDNEY_SHOT:
-                            DoCastVictim(SPELL_KIDNEY_SHOT);
-                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 20s, 26s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-            private:
-                EventMap _events;
-                uint8    _textCounter;
-                ObjectGuid _playerGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_torturer_lecraftAI(creature);
         }
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_high_executor_branding_iron::HandleWhisper);
+    }
 };
 
 void AddSC_dragonblight()
@@ -695,5 +785,9 @@ void AddSC_dragonblight()
     new spell_q12096_q12092_dummy();
     new spell_q12096_q12092_bark();
     new npc_wyrmrest_defender();
-    new npc_torturer_lecraft();
+    RegisterSpellScript(spell_warsong_battle_standard);
+    RegisterSpellScript(spell_moti_mirror_image_script_effect);
+    RegisterSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
+    RegisterSpellScript(spell_call_out_injured_soldier);
+    RegisterSpellScript(spell_high_executor_branding_iron);
 }

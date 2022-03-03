@@ -288,49 +288,6 @@ public:
 };
 
 /*######
-## Quest 12916: Our Only Hope!
-## go_scourge_enclosure
-######*/
-
-enum ScourgeEnclosure
-{
-    QUEST_OUR_ONLY_HOPE                      = 12916,
-    NPC_GYMER_DUMMY                          = 29928, // From quest template
-    SPELL_GYMER_LOCK_EXPLOSION               = 55529
-};
-
-class go_scourge_enclosure : public GameObjectScript
-{
-public:
-    go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
-
-    struct go_scourge_enclosureAI : public GameObjectAI
-    {
-        go_scourge_enclosureAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (Creature* gymerDummy = me->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f))
-                {
-                    player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
-                    gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                    gymerDummy->DespawnOrUnsummon(4s);
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_scourge_enclosureAI(go);
-    }
-};
-
-/*######
 ## Quest: Troll Patrol: The Alchemist's Apprentice
 ######*/
 
@@ -1024,9 +981,15 @@ class spell_scourge_disguise_expiring : public AuraScript
                 player->Unit::Whisper(TEXT_DISGUISE_WARNING, player, true);
     }
 
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SCOURGE_DISGUISE);
+    }
+
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise_expiring::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_scourge_disguise_expiring::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1070,7 +1033,7 @@ class spell_cocooned_not_on_quest : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_SUMMON_SCOURGED_CAPTIVE, true);
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_SUMMON_SCOURGED_CAPTIVE);
     }
 
     void Register() override
@@ -1091,13 +1054,7 @@ class spell_cocooned_on_quest : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
-        if (roll_chance_i(66))
-            target->CastSpell(caster, SPELL_SUMMON_SCOURGED_CAPTIVE, true);
-        else
-            target->CastSpell(caster, SPELL_SUMMON_CAPTIVE_FOOTMAN, true);
+        GetHitUnit()->CastSpell(GetCaster(), roll_chance_i(66) ? SPELL_SUMMON_SCOURGED_CAPTIVE : SPELL_SUMMON_CAPTIVE_FOOTMAN);
     }
 
     void Register() override
@@ -1112,7 +1069,6 @@ void AddSC_zuldrak()
     new npc_captured_rageclaw();
     new npc_released_offspring_harkoa();
     new npc_crusade_recruit();
-    new go_scourge_enclosure();
     new npc_alchemist_finklestein();
     new go_finklesteins_cauldron();
     new spell_random_ingredient_aura();

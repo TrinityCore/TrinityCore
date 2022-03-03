@@ -116,6 +116,14 @@ void SmartScript::StoreTargetList(ObjectVector const& targets, uint32 id)
     _storedTargets.emplace(id, ObjectGuidVector(targets));
 }
 
+void SmartScript::AddToStoredTargetList(ObjectVector const& targets, uint32 id)
+{
+    auto [itr, inserted] = _storedTargets.try_emplace(id, targets);
+    if (!inserted)
+        for (WorldObject* obj : targets)
+            itr->second.AddGuid(obj->GetGUID());
+}
+
 ObjectVector const* SmartScript::GetStoredTargetVector(uint32 id, WorldObject const& ref) const
 {
     auto itr = _storedTargets.find(id);
@@ -710,19 +718,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
                 else
                     TC_LOG_DEBUG("scripts.ai", "Spell %u not cast because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (%s) already has the aura", e.action.cast.spell, target->GetGUID().ToString().c_str());
-            }
-            break;
-        }
-        case SMART_ACTION_ADD_AURA:
-        {
-            for (WorldObject* target : targets)
-            {
-                if (IsUnit(target))
-                {
-                    target->ToUnit()->AddAura(e.action.addAura.spell, target->ToUnit());
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ADD_AURA: Adding aura %u to unit %s",
-                        e.action.addAura.spell, target->GetGUID().ToString().c_str());
-                }
             }
             break;
         }
@@ -1819,13 +1814,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     target->ToUnit()->InterruptNonMeleeSpells(e.action.interruptSpellCasting.withDelayed != 0, e.action.interruptSpellCasting.spell_id, e.action.interruptSpellCasting.withInstant != 0);
             break;
         }
-        case SMART_ACTION_SEND_GO_CUSTOM_ANIM:
-        {
-            for (WorldObject* target : targets)
-                if (IsGameObject(target))
-                    target->ToGameObject()->SendCustomAnim(e.action.sendGoCustomAnim.anim);
-            break;
-        }
         case SMART_ACTION_JUMP_TO_POS:
         {
             for (WorldObject* target : targets)
@@ -1945,27 +1933,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
                 if (IsCreature(target))
                     target->ToCreature()->SetControlled(e.action.setRoot.root != 0, UNIT_STATE_ROOT);
-            break;
-        }
-        case SMART_ACTION_SET_GO_FLAG:
-        {
-            for (WorldObject* target : targets)
-                if (IsGameObject(target))
-                    target->ToGameObject()->SetUInt32Value(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
-            break;
-        }
-        case SMART_ACTION_ADD_GO_FLAG:
-        {
-            for (WorldObject* target : targets)
-                if (IsGameObject(target))
-                    target->ToGameObject()->SetFlag(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
-            break;
-        }
-        case SMART_ACTION_REMOVE_GO_FLAG:
-        {
-            for (WorldObject* target : targets)
-                if (IsGameObject(target))
-                    target->ToGameObject()->RemoveFlag(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
             break;
         }
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
@@ -2363,8 +2330,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (GameObject* targetGo = target->ToGameObject())
                 {
-                    targetGo->ActivateObject(GameObjectActions(e.action.activateGameObject.gameObjectAction));
+                    targetGo->ActivateObject(GameObjectActions(e.action.activateGameObject.gameObjectAction), GetBaseObject());
                 }
+            }
+            break;
+        }
+        case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
+        {
+            if (!targets.empty())
+                AddToStoredTargetList(targets, e.action.addToStoredTargets.id);
+            else
+            {
+                WorldObject* baseObject = GetBaseObject();
+                TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ADD_TO_STORED_TARGET_LIST: var %u, baseObject %s, event %u - tried to add no targets to stored target list",
+                    e.action.addToStoredTargets.id, !baseObject ? "" : baseObject->GetName().c_str(), e.event_id);
             }
             break;
         }
@@ -3019,6 +2998,20 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                     RecalcTimer(e, e.event.spellHit.cooldownMin, e.event.spellHit.cooldownMax);
                     ProcessAction(e, unit, 0, 0, bvar, spell, gob);
                 }
+            break;
+        }
+        case SMART_EVENT_ON_SPELL_CAST:
+        case SMART_EVENT_ON_SPELL_FAILED:
+        case SMART_EVENT_ON_SPELL_START:
+        {
+            if (!spell)
+                return;
+
+            if (spell->Id != e.event.spellCast.spell)
+                return;
+
+            RecalcTimer(e, e.event.spellCast.cooldownMin, e.event.spellCast.cooldownMax);
+            ProcessAction(e, nullptr, 0, 0, bvar, spell);
             break;
         }
         case SMART_EVENT_OOC_LOS:
