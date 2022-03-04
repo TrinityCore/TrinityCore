@@ -24,6 +24,7 @@
 #include "TSEventLoader.h"
 #include "TSCreature.h"
 #include "TSMacros.h"
+#include "TSEvents.h"
 // @tswow-end
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
@@ -85,6 +86,11 @@ void CombatReference::EndCombat()
     if (needSecondAI)
         if (UnitAI* secondAI = second->GetAI())
             secondAI->JustExitedCombat();
+
+    // @tswow-begin
+    FIRE(UnitOnExitCombatWith, TSUnit(first), TSUnit(second));
+    FIRE(UnitOnExitCombatWith, TSUnit(second), TSUnit(first));
+    // @tswow-end
 
     // ...and finally clean up the reference object
     delete this;
@@ -342,6 +348,7 @@ void CombatManager::EndAllPvPCombat()
     {
         FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnJustEnteredCombat,TSCreature(c->ToCreature()),TSUnit(other));
     }
+    FIRE(UnitOnEnterCombatWith, TSUnit(me), TSUnit(other));
     // @tswow-end
     if (UnitAI* ai = me->GetAI())
         ai->JustEnteredCombat(other);
@@ -383,6 +390,9 @@ bool CombatManager::UpdateOwnerCombatState() const
         _owner->AtEnterCombat();
         if (_owner->GetTypeId() != TYPEID_UNIT)
             _owner->AtEngage(GetAnyTarget());
+        // @tswow-begin
+        FIRE(UnitOnEnterCombat, TSUnit(_owner));
+        // @tswow-end
     }
     else
     {
@@ -390,6 +400,9 @@ bool CombatManager::UpdateOwnerCombatState() const
         _owner->AtExitCombat();
         if (_owner->GetTypeId() != TYPEID_UNIT)
             _owner->AtDisengage();
+        // @tswow-begin
+        FIRE(UnitOnExitCombat, TSUnit(_owner));
+        // @tswow-end
     }
 
     if (Unit* master = _owner->GetCharmerOrOwner())
