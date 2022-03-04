@@ -12399,6 +12399,16 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
         ApplyEquipCooldown(pItem2);
 
+        // @tswow-begin
+        FIRE_MAP(
+              pItem2->GetTemplate()->events
+            , ItemOnEquip
+            , TSItem(pItem2)
+            , TSPlayer(this)
+            , slot
+            , true
+        );
+        // @tswow-end
         return pItem2;
     }
 
@@ -12408,6 +12418,17 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     // only for full equip instead adding to stack
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, slot, pItem->GetEntry());
+
+    // @tswow-begin
+    FIRE_MAP(
+          pItem2->GetTemplate()->events
+        , ItemOnEquip
+        , TSItem(pItem)
+        , TSPlayer(this)
+        , slot
+        , false
+    );
+    // @tswow-end
 
     return pItem;
 }
