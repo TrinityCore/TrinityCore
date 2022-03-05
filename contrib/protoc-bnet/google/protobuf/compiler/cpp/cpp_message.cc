@@ -1741,8 +1741,7 @@ GenerateOneofClear(io::Printer* printer) {
         ToUpper(descriptor_->oneof_decl(i)->name()));
     printer->Outdent();
     printer->Print(
-        "}\n"
-        "\n");
+        "}\n");
   }
 }
 
@@ -2594,7 +2593,6 @@ GenerateIsInitialized(io::Printer* printer) {
   }
 
   // Now check that all embedded messages are initialized.
-  printer->Print("\n");
   for (int i = 0; i < descriptor_->field_count(); i++) {
     const FieldDescriptor* field = descriptor_->field(i);
     if (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE &&
