@@ -860,6 +860,48 @@ class spell_q14076_14092_pound_drum : public SpellScript
     }
 };
 
+/*######
+## Quest 14112 & 14145: What Do You Feed a Yeti, Anyway?
+######*/
+
+enum ChumTheWaterSummons
+{
+    SPELL_SUMMON_ANGRY_KVALDIR           = 66737,
+    SPELL_SUMMON_NORTH_SEA_MAKO          = 66738,
+    SPELL_SUMMON_NORTH_SEA_THRESHER      = 66739,
+    SPELL_SUMMON_NORTH_SEA_BLUE_SHARK    = 66740
+};
+
+std::array<uint32, 4> const ChumTheWaterSummonSpells =
+{
+    SPELL_SUMMON_ANGRY_KVALDIR,
+    SPELL_SUMMON_NORTH_SEA_MAKO,
+    SPELL_SUMMON_NORTH_SEA_THRESHER,
+    SPELL_SUMMON_NORTH_SEA_BLUE_SHARK
+};
+
+// 66741 - Chum the Water
+class spell_q14112_14145_chum_the_water : public SpellScript
+{
+    PrepareSpellScript(spell_q14112_14145_chum_the_water);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(ChumTheWaterSummonSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(ChumTheWaterSummonSpells));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_q14112_14145_chum_the_water::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     new npc_argent_valiant;
@@ -870,4 +912,5 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_the_ocular_on_death);
     RegisterSpellScript(spell_summon_tualiq_proxy);
     RegisterSpellScript(spell_q14076_14092_pound_drum);
+    RegisterSpellScript(spell_q14112_14145_chum_the_water);
 }

@@ -780,36 +780,6 @@ class spell_q13280_13283_jump_jets : public SpellScript
     }
 };
 
-enum ChumTheWaterSummons
-{
-    SUMMON_ANGRY_KVALDIR = 66737,
-    SUMMON_NORTH_SEA_MAKO = 66738,
-    SUMMON_NORTH_SEA_THRESHER = 66739,
-    SUMMON_NORTH_SEA_BLUE_SHARK = 66740
-};
-
-// 66741 - Chum the Water
-class spell_q14112_14145_chum_the_water : public SpellScript
-{
-    PrepareSpellScript(spell_q14112_14145_chum_the_water);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK });
-    }
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, RAND(SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q14112_14145_chum_the_water::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum RedSnapperVeryTasty
 {
     SPELL_FISHED_UP_RED_SNAPPER  = 29867,
@@ -2117,7 +2087,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
     RegisterSpellScript(spell_q13280_13283_plant_battle_standard);
     RegisterSpellScript(spell_q13280_13283_jump_jets);
-    RegisterSpellScript(spell_q14112_14145_chum_the_water);
     RegisterSpellScript(spell_q9452_cast_net);
     RegisterSpellScript(spell_q12066_bunny_kill_credit);
     RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
