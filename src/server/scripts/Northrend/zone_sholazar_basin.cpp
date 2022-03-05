@@ -663,6 +663,125 @@ class spell_q12611_deathbolt : public SpellScript
     }
 };
 
+/*######
+## Quest 12683: Burning to Help
+######*/
+
+enum BurningToHelp
+{
+    SPELL_HYDRA_SPUTUM     = 52307
+};
+
+// 52308 - Take Sputum Sample
+class spell_sholazar_take_sputum_sample : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_take_sputum_sample);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+        {
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())
+        });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        if (!GetCaster()->HasAura(uint32(GetEffectInfo(EFFECT_1).CalcValue())))
+            return SPELL_FAILED_CASTER_AURASTATE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_sholazar_take_sputum_sample::CheckCast);
+        OnEffectHit += SpellEffectFn(spell_sholazar_take_sputum_sample::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 52306 - Sputum Collected
+class spell_sholazar_sputum_collected : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_sputum_collected);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HYDRA_SPUTUM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_HYDRA_SPUTUM);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sholazar_sputum_collected::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12735: A Cleansing Song
+######*/
+
+enum ACleansingSong
+{
+    SPELL_SUMMON_SPIRIT_ATHA        = 52954,
+    SPELL_SUMMON_SPIRIT_HAKHALAN    = 52958,
+    SPELL_SUMMON_SPIRIT_KOOSU       = 52959,
+
+    AREA_BITTERTIDE_LAKE            = 4385,
+    AREA_RIVERS_HEART               = 4290,
+    AREA_WINTERGRASP_RIVER          = 4388
+};
+
+// 52941 - Song of Cleansing
+class spell_sholazar_song_of_cleansing : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_song_of_cleansing);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SUMMON_SPIRIT_ATHA,
+            SPELL_SUMMON_SPIRIT_HAKHALAN,
+            SPELL_SUMMON_SPIRIT_KOOSU
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        switch (caster->GetAreaId())
+        {
+            case AREA_BITTERTIDE_LAKE:
+                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_ATHA);
+                break;
+            case AREA_RIVERS_HEART:
+                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_HAKHALAN);
+                break;
+            case AREA_WINTERGRASP_RIVER:
+                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_KOOSU);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sholazar_song_of_cleansing::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     RegisterCreatureAI(npc_engineer_helice);
@@ -673,4 +792,7 @@ void AddSC_sholazar_basin()
     new spell_q12589_shoot_rjr();
     new npc_haiphoon();
     RegisterSpellScript(spell_q12611_deathbolt);
+    RegisterSpellScript(spell_sholazar_take_sputum_sample);
+    RegisterSpellScript(spell_sholazar_sputum_collected);
+    RegisterSpellScript(spell_sholazar_song_of_cleansing);
 }
