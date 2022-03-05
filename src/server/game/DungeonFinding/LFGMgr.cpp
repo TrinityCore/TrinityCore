@@ -716,6 +716,14 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
         roles &= sObjectMgr->GetPlayerClassRoleMask(player->GetClass());
     }
 
+    if (guid)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
+            roles = FilterClassRoles(player, roles);
+        else
+            return;
+    }
+
     LfgRoleCheck& roleCheck = itRoleCheck->second;
     bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && guid;
 
@@ -1863,6 +1871,16 @@ uint8 LFGMgr::GetTeam(ObjectGuid guid)
     uint8 team = PlayersStore[guid].GetTeam();
     TC_LOG_TRACE("lfg.data.player.team.get", "Player: %s, Team: %u", guid.ToString().c_str(), team);
     return team;
+}
+
+uint8 LFGMgr::FilterClassRoles(Player* player, uint8 roles)
+{
+    roles &= PLAYER_ROLE_ANY;
+    if (!(LfgRoleClasses::TANK & player->GetClassMask()))
+        roles &= ~PLAYER_ROLE_TANK;
+    if (!(LfgRoleClasses::HEALER & player->GetClassMask()))
+        roles &= ~PLAYER_ROLE_HEALER;
+    return roles;
 }
 
 uint8 LFGMgr::RemovePlayerFromGroup(ObjectGuid gguid, ObjectGuid guid)

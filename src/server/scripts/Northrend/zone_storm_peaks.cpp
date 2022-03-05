@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
@@ -1293,29 +1294,121 @@ class spell_player_mount_wyrm : public SpellScriptLoader
         }
 };
 
-enum CollapsingCave
-{
-    SPELL_COLLAPSING_CAVE = 55486
-};
+/*######
+## Quest 12823: A Flawless Plan
+######*/
 
 // 55693 - Remove Collapsing Cave Aura
 class spell_q12823_remove_collapsing_cave_aura : public SpellScript
 {
     PrepareSpellScript(spell_q12823_remove_collapsing_cave_aura);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_COLLAPSING_CAVE });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->RemoveAurasDueToSpell(SPELL_COLLAPSING_CAVE);
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12987: Mounting Hodir's Helm
+######*/
+
+enum MountingHodirsHelm
+{
+    TEXT_PRONOUNCEMENT_1     = 30906,
+    TEXT_PRONOUNCEMENT_2     = 30907,
+    NPC_HODIRS_HELM_KC       = 30210
+};
+
+// 56278 - Read Pronouncement
+class spell_read_pronouncement : public AuraScript
+{
+    PrepareAuraScript(spell_read_pronouncement);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_PRONOUNCEMENT_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_PRONOUNCEMENT_2) &&
+            sObjectMgr->GetCreatureTemplate(NPC_HODIRS_HELM_KC);
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+        {
+            target->Unit::Whisper(TEXT_PRONOUNCEMENT_1, target, true);
+            target->KilledMonsterCredit(NPC_HODIRS_HELM_KC);
+            target->Unit::Whisper(TEXT_PRONOUNCEMENT_2, target, true);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 13011: Jormuttar is Soo Fat...
+######*/
+
+enum JormuttarIsSooFat
+{
+    SPELL_CREATE_BEAR_FLANK    = 56566,
+    SPELL_BEAR_FLANK_FAIL      = 56569,
+    TEXT_CARVE_FAIL            = 30986
+};
+
+// 56565 - Bear Flank Master
+class spell_bear_flank_master : public SpellScript
+{
+    PrepareSpellScript(spell_bear_flank_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_BEAR_FLANK, SPELL_BEAR_FLANK_FAIL });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance_i(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 56569 - Bear Flank Fail
+class spell_bear_flank_fail : public AuraScript
+{
+    PrepareAuraScript(spell_bear_flank_fail);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetBroadcastText(TEXT_CARVE_FAIL);
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            target->Unit::Whisper(TEXT_CARVE_FAIL, target, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_bear_flank_fail::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1342,4 +1435,7 @@ void AddSC_storm_peaks()
     new spell_fatal_strike();
     new spell_player_mount_wyrm();
     RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
+    RegisterSpellScript(spell_read_pronouncement);
+    RegisterSpellScript(spell_bear_flank_master);
+    RegisterSpellScript(spell_bear_flank_fail);
 }

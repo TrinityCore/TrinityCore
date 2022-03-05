@@ -1009,6 +1009,7 @@ enum TrinityStrings
     LANG_CMDPARSER_ITEM_NO_EXIST          = 1513,
     LANG_CMDPARSER_SPELL_NO_EXIST         = 1514,
     LANG_CMDPARSER_EXACT_SEQ_MISMATCH     = 1515,
+    LANG_CMDPARSER_CURRENCY_NO_EXIST      = 1516, // master branch ONLY
 
     // 1516-1998 - free
     LANG_DEBUG_AREATRIGGER_LEFT           = 1999, // master branch ONLY
@@ -1143,8 +1144,9 @@ enum TrinityStrings
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085, // master branch ONLY
     LANG_NPCINFO_NPC_FLAGS                = 5086, // master branch ONLY
     LANG_NPCINFO_PHASE_IDS                = 5087, // master branch ONLY
+    LANG_SCENARIO                         = 5088, // master branch ONLY
 
-    // Room for more Trinity strings        5088-6603
+    // Room for more Trinity strings        5089-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                          = 6604,

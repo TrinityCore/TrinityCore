@@ -23,7 +23,7 @@
 #include "Util.h"
 #include <boost/filesystem.hpp>
 #include <unordered_map>
-// @tswow-begin
+ // @tswow-begin
 #include <cxxopts.h>
 // @tswow-end
 
@@ -86,21 +86,21 @@ std::string output;
 std::set<uint32> generated_maps;
 std::set<std::pair<int, int>> generated_tiles;
 bool handleArgs(int argc, char** argv,
-               int &mapnum,
-               int &tileX,
-               int &tileY,
-               Optional<float>& maxAngle,
-               Optional<float>& maxAngleNotSteep,
-               bool &skipLiquid,
-               bool &skipContinents,
-               bool &skipJunkMaps,
-               bool &skipBattlegrounds,
-               bool &debugOutput,
-               bool &silent,
-               bool &bigBaseUnit,
-               char* &offMeshInputPath,
-               char* &file,
-               unsigned int& threads)
+    int& mapnum,
+    int& tileX,
+    int& tileY,
+    Optional<float>& maxAngle,
+    Optional<float>& maxAngleNotSteep,
+    bool& skipLiquid,
+    bool& skipContinents,
+    bool& skipJunkMaps,
+    bool& skipBattlegrounds,
+    bool& debugOutput,
+    bool& silent,
+    bool& bigBaseUnit,
+    char*& offMeshInputPath,
+    char*& file,
+    unsigned int& threads)
 {
     cxxopts::Options options("mmaps_generator", "Generate mmaps");
     options.add_options()
@@ -192,26 +192,26 @@ int main(int argc, char** argv)
     int tileX = -1, tileY = -1;
     Optional<float> maxAngle, maxAngleNotSteep;
     bool skipLiquid = false,
-         skipContinents = false,
-         skipJunkMaps = true,
-         skipBattlegrounds = false,
-         debugOutput = false,
-         silent = false,
-         bigBaseUnit = false;
+        skipContinents = false,
+        skipJunkMaps = true,
+        skipBattlegrounds = false,
+        debugOutput = false,
+        silent = false,
+        bigBaseUnit = false;
     char* offMeshInputPath = nullptr;
     char* file = nullptr;
 
     bool validParam = handleArgs(argc, argv, mapnum,
-                                 tileX, tileY, maxAngle, maxAngleNotSteep,
-                                 skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
-                                 debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
+        tileX, tileY, maxAngle, maxAngleNotSteep,
+        skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
+        debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
 
     if (!validParam)
         return silent ? -1 : finish("You have specified invalid parameters", -1);
 
     // @tswow-begin
     if (generated_maps.size() > 0 && debugOutput)
-    // @tswow-end
+        // @tswow-end
     {
         if (silent)
             return -2;
@@ -231,8 +231,8 @@ int main(int argc, char** argv)
         return silent ? -5 : finish("Failed to load LiquidType.dbc", -5);
 
     MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
-    // @tswow-begin
-                       skipBattlegrounds, debugOutput, bigBaseUnit, generated_maps, offMeshInputPath, threads);
+        // @tswow-begin
+        skipBattlegrounds, debugOutput, bigBaseUnit, generated_maps, offMeshInputPath, threads);
     // @tswow-end
 
     uint32 start = getMSTime();

@@ -28,8 +28,7 @@
 
 enum MedivhBm
 {
-    SAY_ENTER                            = 0,        // where does this belong?
-    SAY_INTRO                            = 1,
+    SAY_ENTER                            = 0,
     SAY_WEAK75                           = 2,
     SAY_WEAK50                           = 3,
     SAY_WEAK25                           = 4,
@@ -146,7 +145,7 @@ struct npc_medivh_bm : public ScriptedAI
             if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS || instance->GetData(TYPE_MEDIVH) == DONE)
                 return;
 
-            Talk(SAY_INTRO);
+            Talk(SAY_ENTER);
             instance->SetData(TYPE_MEDIVH, IN_PROGRESS);
             DoCast(me, SPELL_CHANNEL, false);
             Check_Timer = 5000;

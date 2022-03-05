@@ -3169,6 +3169,11 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD))
             TriggerGlobalCooldown();
 
+        // Call CreatureAI hook OnSpellStart
+        if (Creature* caster = m_caster->ToCreature())
+            if (caster->IsAIEnabled())
+                caster->AI()->OnSpellStart(GetSpellInfo());
+
         // commented out !m_spellInfo->StartRecoveryTime, it forces instant spells with global cooldown to be processed in spell::update
         // as a result a spell that passed CheckCast and should be processed instantly may suffer from this delayed process
         // the easiest bug to observe is LoS check in AddUnitTarget, even if spell passed the CheckCast LoS check the situation can change in spell::update
@@ -3518,10 +3523,10 @@ void Spell::_cast(bool skipCheck)
     }
     // @tswow-end
 
-    // Call CreatureAI hook OnSpellCastFinished
+    // Call CreatureAI hook OnSpellCast
     if (Creature* caster = m_originalCaster->ToCreature())
         if (caster->IsAIEnabled())
-            caster->AI()->OnSpellCastFinished(GetSpellInfo(), SPELL_FINISHED_SUCCESSFUL_CAST);
+            caster->AI()->OnSpellCast(GetSpellInfo());
 }
 
 template <class Container>
@@ -3844,7 +3849,7 @@ void Spell::update(uint32 difftime)
                 // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
                 if (Creature* creatureCaster = m_caster->ToCreature())
                     if (creatureCaster->IsAIEnabled())
-                        creatureCaster->AI()->OnSpellCastFinished(m_spellInfo, SPELL_FINISHED_CHANNELING_COMPLETE);
+                        creatureCaster->AI()->OnChannelFinished(m_spellInfo);
             }
             break;
         }

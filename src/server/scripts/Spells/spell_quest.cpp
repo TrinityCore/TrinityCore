@@ -898,86 +898,6 @@ class spell_q14076_14092_pound_drum : public SpellScript
     }
 };
 
-enum HodirsHelm
-{
-    SAY_1               = 1,
-    SAY_2               = 2,
-    NPC_KILLCREDIT      = 30210, // Hodir's Helm KC Bunny
-    NPC_ICE_SPIKE_BUNNY = 30215
-};
-
-// 56278 - Read Pronouncement
-class spell_q12987_read_pronouncement : public AuraScript
-{
-    PrepareAuraScript(spell_q12987_read_pronouncement);
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        // player must cast kill credit and do emote text, according to sniff
-        if (Player* target = GetTarget()->ToPlayer())
-        {
-            if (Creature* trigger = target->FindNearestCreature(NPC_ICE_SPIKE_BUNNY, 25.0f))
-            {
-                sCreatureTextMgr->SendChat(trigger, SAY_1, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
-                target->KilledMonsterCredit(NPC_KILLCREDIT);
-                sCreatureTextMgr->SendChat(trigger, SAY_2, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_q12987_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-enum LeaveNothingToChance
-{
-    NPC_UPPER_MINE_SHAFT            = 27436,
-    NPC_LOWER_MINE_SHAFT            = 27437,
-
-    SPELL_UPPER_MINE_SHAFT_CREDIT   = 48744,
-    SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
-};
-
-// 48742 - Wintergarde Mine Explosion
-class spell_q12277_wintergarde_mine_explosion : public SpellScript
-{
-    PrepareSpellScript(spell_q12277_wintergarde_mine_explosion);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Creature* unitTarget = GetHitCreature())
-        {
-            if (Unit* caster = GetCaster())
-            {
-                if (caster->GetTypeId() == TYPEID_UNIT)
-                {
-                    if (Unit* owner = caster->GetOwner())
-                    {
-                        switch (unitTarget->GetEntry())
-                        {
-                            case NPC_UPPER_MINE_SHAFT:
-                                caster->CastSpell(owner, SPELL_UPPER_MINE_SHAFT_CREDIT, true);
-                                break;
-                            case NPC_LOWER_MINE_SHAFT:
-                                caster->CastSpell(owner, SPELL_LOWER_MINE_SHAFT_CREDIT, true);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12277_wintergarde_mine_explosion::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum FocusOnTheBeach
 {
     SPELL_BUNNY_CREDIT_BEAM = 47390,
@@ -1066,9 +986,7 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScript
 enum Quest12372Data
 {
     // NPCs
-    NPC_WYRMREST_TEMPLE_CREDIT       = 27698,
-    // Spells
-    WHISPER_ON_HIT_BY_FORCE_WHISPER       = 1
+    NPC_WYRMREST_TEMPLE_CREDIT       = 27698
 };
 
 // 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
@@ -1089,29 +1007,6 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum q12372Creatures
-{
-    NPC_WYRMREST_DEFENDER = 27629
-};
-
-// 50287 - Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
-class spell_q12372_azure_on_death_force_whisper : public SpellScript
-{
-    PrepareSpellScript(spell_q12372_azure_on_death_force_whisper);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Creature* defender = GetHitCreature();
-        if (defender && defender->GetEntry() == NPC_WYRMREST_DEFENDER)
-            defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwner());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12372_azure_on_death_force_whisper::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1403,52 +1298,6 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScript
     void Register() override
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q12847_summon_soul_moveto_bunny::SetDest, EFFECT_0, TARGET_DEST_CASTER);
-    }
-};
-
-enum BearFlankMaster
-{
-    SPELL_CREATE_BEAR_FLANK = 56566,
-    SPELL_BEAR_FLANK_FAIL   = 56569
-};
-
-// 56565 - Bear Flank Master
-class spell_q13011_bear_flank_master : public SpellScript
-{
-    PrepareSpellScript(spell_q13011_bear_flank_master);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_CREATE_BEAR_FLANK,
-            SPELL_BEAR_FLANK_FAIL
-        });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_UNIT;
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetHitPlayer())
-        {
-            if (roll_chance_i(50))
-            {
-                Creature* creature = GetCaster()->ToCreature();
-                player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
-                creature->AI()->Talk(0, player);
-            }
-            else
-                player->CastSpell(player, SPELL_CREATE_BEAR_FLANK);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q13011_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -2369,8 +2218,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q14112_14145_chum_the_water);
     RegisterSpellScript(spell_q9452_cast_net);
     RegisterSpellScript(spell_q14076_14092_pound_drum);
-    RegisterSpellScript(spell_q12987_read_pronouncement);
-    RegisterSpellScript(spell_q12277_wintergarde_mine_explosion);
     RegisterSpellScript(spell_q12066_bunny_kill_credit);
     RegisterSpellScript(spell_q12735_song_of_cleansing);
     RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
@@ -2381,14 +2228,12 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11010_q11102_q11023_choose_loc);
     RegisterSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount);
     RegisterSpellScript(spell_q11140salvage_wreckage);
-    RegisterSpellScript(spell_q12372_azure_on_death_force_whisper);
     RegisterSpellScript(spell_q12527_zuldrak_rat);
     RegisterSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan);
     RegisterSpellScript(spell_q12730_quenching_mist);
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy);
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon);
     RegisterSpellScript(spell_q12847_summon_soul_moveto_bunny);
-    RegisterSpellScript(spell_q13011_bear_flank_master);
     RegisterSpellScript(spell_q13086_cannons_target);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);

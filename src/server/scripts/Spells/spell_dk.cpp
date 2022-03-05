@@ -1765,26 +1765,6 @@ class spell_dk_scent_of_blood : public AuraScript
     }
 };
 
-// -49004 - Scent of Blood trigger
-class spell_dk_scent_of_blood_trigger : public AuraScript
-{
-    PrepareAuraScript(spell_dk_scent_of_blood_trigger);
-
-    // Each rank of Scent of Blood adds a trigger spell effect
-    // thus each effect adds one stack when proccing
-    // We need to remove the old buff before proccing again
-    // or we would be adding stacks to a possibly existing aura
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-    {
-        GetTarget()->RemoveAurasDueToSpell(aurEff->GetSpellEffectInfo().TriggerSpell);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_dk_scent_of_blood_trigger::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-    }
-};
-
 // -55090 - Scourge Strike (55265, 55270, 55271)
 class spell_dk_scourge_strike : public SpellScript
 {
@@ -2769,7 +2749,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_rime);
     RegisterSpellScript(spell_dk_rune_tap_party);
     RegisterSpellScript(spell_dk_scent_of_blood);
-    RegisterSpellScript(spell_dk_scent_of_blood_trigger);
     RegisterSpellScript(spell_dk_scourge_strike);
     RegisterSpellScript(spell_dk_spell_deflection);
     RegisterSpellScript(spell_dk_sudden_doom);
