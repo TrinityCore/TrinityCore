@@ -689,7 +689,7 @@ class spell_sholazar_take_sputum_sample : public SpellScript
     SpellCastResult CheckCast()
     {
         if (!GetCaster()->HasAura(uint32(GetEffectInfo(EFFECT_1).CalcValue())))
-            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;    // Should be 'You can't do that yet', can't find it
+            return SPELL_FAILED_CASTER_AURASTATE;
 
         return SPELL_CAST_OK;
     }
