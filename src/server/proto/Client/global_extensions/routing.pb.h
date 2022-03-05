@@ -34,7 +34,6 @@ void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2frouting_2eproto();
 void protobuf_AssignDesc_global_5fextensions_2frouting_2eproto();
 void protobuf_ShutdownFile_global_5fextensions_2frouting_2eproto();
 
-
 enum ClientIdentityRoutingType {
   CLIENT_IDENTITY_ROUTING_DISABLED = 0,
   CLIENT_IDENTITY_ROUTING_BATTLE_NET_ACCOUNT = 1,
@@ -58,16 +57,11 @@ inline bool ClientIdentityRoutingType_Parse(
 }
 // ===================================================================
 
+// ===================================================================
 
 // ===================================================================
 
-
 // ===================================================================
-
-
-// ===================================================================
-
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -76,13 +70,11 @@ inline bool ClientIdentityRoutingType_Parse(
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::ClientIdentityRoutingType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::ClientIdentityRoutingType>() {
   return ::bgs::protocol::ClientIdentityRoutingType_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

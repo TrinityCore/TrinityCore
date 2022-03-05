@@ -847,9 +847,7 @@ class TC_PROTO_API ClubRoleSet : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -2353,7 +2351,6 @@ inline void ClubRoleSet::set_allocated_subtype(::std::string* subtype) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubRoleSet.subtype)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -2364,8 +2361,6 @@ inline void ClubRoleSet::set_allocated_subtype(::std::string* subtype) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

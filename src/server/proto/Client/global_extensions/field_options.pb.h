@@ -1146,7 +1146,6 @@ class TC_PROTO_API MessageFieldRestriction : public ::google::protobuf::Message 
 };
 // ===================================================================
 
-
 // ===================================================================
 
 static const int kFieldOptionsFieldNumber = 90000;
@@ -2433,7 +2432,6 @@ inline void MessageFieldRestriction::set_needed(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.MessageFieldRestriction.needed)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -2442,7 +2440,6 @@ inline void MessageFieldRestriction::set_needed(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::EntityIdRestriction_Kind> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::EntityIdRestriction_Kind>() {
@@ -2453,7 +2450,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::LogOption>() {
   return ::bgs::protocol::LogOption_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

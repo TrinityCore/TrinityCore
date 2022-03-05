@@ -1276,7 +1276,6 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // ClientRequest
@@ -2479,7 +2478,6 @@ inline void RegisterUtilitiesResponse::set_allocated_client_id(::std::string* cl
 
 // UnregisterUtilitiesRequest
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -2490,8 +2488,6 @@ inline void RegisterUtilitiesResponse::set_allocated_client_id(::std::string* cl
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

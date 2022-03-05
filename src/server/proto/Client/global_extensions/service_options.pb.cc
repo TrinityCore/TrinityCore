@@ -33,7 +33,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto() {
   protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -154,7 +153,6 @@ struct StaticDescriptorInitializer_global_5fextensions_2fservice_5foptions_2epro
     protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
   }
 } static_descriptor_initializer_global_5fextensions_2fservice_5foptions_2eproto_;
-
 // ===================================================================
 
 const ::google::protobuf::EnumDescriptor* BGSServiceOptions_ServiceType_descriptor() {
@@ -648,7 +646,6 @@ void BGSServiceOptions::CopyFrom(const BGSServiceOptions& from) {
 }
 
 bool BGSServiceOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -673,7 +670,6 @@ void BGSServiceOptions::Swap(BGSServiceOptions* other) {
   metadata.reflection = BGSServiceOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -957,7 +953,6 @@ void SDKServiceOptions::CopyFrom(const SDKServiceOptions& from) {
 }
 
 bool SDKServiceOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -986,7 +981,6 @@ void SDKServiceOptions::Swap(SDKServiceOptions* other) {
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::ServiceOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::SDKServiceOptions >, 11, false >
   sdk_service_options(kSdkServiceOptionsFieldNumber, ::bgs::protocol::SDKServiceOptions::default_instance());
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol

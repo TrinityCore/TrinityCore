@@ -233,9 +233,7 @@ class TC_PROTO_API VoiceCredentials : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -519,7 +517,6 @@ inline void VoiceCredentials::set_mute_reason(::bgs::protocol::VoiceMuteReason v
   // @@protoc_insertion_point(field_set:bgs.protocol.VoiceCredentials.mute_reason)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -528,7 +525,6 @@ inline void VoiceCredentials::set_mute_reason(::bgs::protocol::VoiceMuteReason v
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::VoiceJoinType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::VoiceJoinType>() {
@@ -544,7 +540,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::VoiceProviderVersion>() {
   return ::bgs::protocol::VoiceProviderVersion_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

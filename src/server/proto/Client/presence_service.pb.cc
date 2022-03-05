@@ -58,7 +58,6 @@ const ::google::protobuf::ServiceDescriptor* PresenceService_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_presence_5fservice_2eproto() {
   protobuf_AddDesc_presence_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -368,7 +367,6 @@ struct StaticDescriptorInitializer_presence_5fservice_2eproto {
     protobuf_AddDesc_presence_5fservice_2eproto();
   }
 } static_descriptor_initializer_presence_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -737,7 +735,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 
 bool SubscribeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000006) != 0x00000006) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -768,7 +765,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1059,7 +1055,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 
 bool UnsubscribeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1087,7 +1082,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1414,7 +1408,6 @@ void UpdateRequest::CopyFrom(const UpdateRequest& from) {
 
 bool UpdateRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -1444,7 +1437,6 @@ void UpdateRequest::Swap(UpdateRequest* other) {
   metadata.reflection = UpdateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1735,7 +1727,6 @@ void QueryRequest::CopyFrom(const QueryRequest& from) {
 
 bool QueryRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -1764,7 +1755,6 @@ void QueryRequest::Swap(QueryRequest* other) {
   metadata.reflection = QueryRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1963,7 +1953,6 @@ void QueryResponse::CopyFrom(const QueryResponse& from) {
 }
 
 bool QueryResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->field())) return false;
   return true;
 }
@@ -1984,7 +1973,6 @@ void QueryResponse::Swap(QueryResponse* other) {
   metadata.reflection = QueryResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2348,7 +2336,6 @@ void BatchSubscribeRequest::CopyFrom(const BatchSubscribeRequest& from) {
 }
 
 bool BatchSubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2377,7 +2364,6 @@ void BatchSubscribeRequest::Swap(BatchSubscribeRequest* other) {
   metadata.reflection = BatchSubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2624,7 +2610,6 @@ void SubscribeResult::CopyFrom(const SubscribeResult& from) {
 }
 
 bool SubscribeResult::IsInitialized() const {
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -2648,7 +2633,6 @@ void SubscribeResult::Swap(SubscribeResult* other) {
   metadata.reflection = SubscribeResult_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2847,7 +2831,6 @@ void BatchSubscribeResponse::CopyFrom(const BatchSubscribeResponse& from) {
 }
 
 bool BatchSubscribeResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->subscribe_failed())) return false;
   return true;
 }
@@ -2868,7 +2851,6 @@ void BatchSubscribeResponse::Swap(BatchSubscribeResponse* other) {
   metadata.reflection = BatchSubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3153,7 +3135,6 @@ void BatchUnsubscribeRequest::CopyFrom(const BatchUnsubscribeRequest& from) {
 }
 
 bool BatchUnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3179,7 +3160,6 @@ void BatchUnsubscribeRequest::Swap(BatchUnsubscribeRequest* other) {
   metadata.reflection = BatchUnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3394,7 +3374,6 @@ uint32 PresenceService::HandleBatchUnsubscribe(::bgs::protocol::presence::v1::Ba
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

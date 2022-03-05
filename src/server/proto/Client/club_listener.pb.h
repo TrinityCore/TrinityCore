@@ -39,9 +39,7 @@ void TC_PROTO_API protobuf_AddDesc_club_5flistener_2eproto();
 void protobuf_AssignDesc_club_5flistener_2eproto();
 void protobuf_ShutdownFile_club_5flistener_2eproto();
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -90,10 +88,7 @@ class TC_PROTO_API ClubListener : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
-
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -104,8 +99,6 @@ class TC_PROTO_API ClubListener : public ServiceBase
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

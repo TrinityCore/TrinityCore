@@ -31,7 +31,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmember_5fid_2eproto() {
   protobuf_AddDesc_club_5fmember_5fid_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -106,7 +105,6 @@ struct StaticDescriptorInitializer_club_5fmember_5fid_2eproto {
     protobuf_AddDesc_club_5fmember_5fid_2eproto();
   }
 } static_descriptor_initializer_club_5fmember_5fid_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -352,7 +350,6 @@ void MemberId::CopyFrom(const MemberId& from) {
 }
 
 bool MemberId::IsInitialized() const {
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -376,7 +373,6 @@ void MemberId::Swap(MemberId* other) {
   metadata.reflection = MemberId_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 
