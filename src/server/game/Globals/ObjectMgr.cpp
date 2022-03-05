@@ -2342,7 +2342,7 @@ void ObjectMgr::AddSpawnDataToGrid(SpawnData const* data)
     {
         for (Difficulty difficulty : data->spawnDifficulties)
         {
-            if (mapEntry->IsFactioned() && data->teamId == TEAM_NEUTRAL)
+            if (data->teamId == TEAM_NEUTRAL)
             {
                 for (TeamId teamId : teams)
                     (_mapObjectGuidsStore[{ data->mapId, difficulty, teamId }][cellId].*guids).insert(data->spawnId);
@@ -2355,7 +2355,7 @@ void ObjectMgr::AddSpawnDataToGrid(SpawnData const* data)
     {
         for (Difficulty difficulty : data->spawnDifficulties)
         {
-            if (mapEntry->IsFactioned() && data->teamId == TEAM_NEUTRAL)
+            if (data->teamId == TEAM_NEUTRAL)
             {
                 for (TeamId teamId : teams)
                     (_mapPersonalObjectGuidsStore[{ data->mapId, difficulty, data->phaseId, teamId }][cellId].*guids).insert(data->spawnId);
