@@ -19,6 +19,7 @@
 #define TRANSPORTMGR_H
 
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 #include <map>
 #include <memory>
 #include <unordered_map>

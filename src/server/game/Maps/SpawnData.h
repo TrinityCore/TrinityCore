@@ -20,6 +20,7 @@
 
 #include "DBCEnums.h"
 #include "Position.h"
+#include "SharedDefines.h"
 #include <vector>
 
 class AreaTrigger;
