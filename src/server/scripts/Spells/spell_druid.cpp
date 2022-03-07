@@ -723,8 +723,8 @@ class spell_dru_innervate : public AuraScript
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
-                if (GetTarget() != caster)
+            if (GetTarget() != caster)
+                if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
                     caster->CastSpell(caster, SPELL_DRUID_INNERVATE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
                             .AddSpellBP0(-innervateR2->GetAmount()));
     }
