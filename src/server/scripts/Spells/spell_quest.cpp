@@ -587,39 +587,6 @@ class spell_q12851_going_bearback : public AuraScript
     }
 };
 
-enum Whoarethey
-{
-    SPELL_MALE_DISGUISE = 38080,
-    SPELL_FEMALE_DISGUISE = 38081,
-    SPELL_GENERIC_DISGUISE = 32756
-};
-
-// 48917 - Who Are They: Cast from Questgiver
-class spell_q10041_q10040_who_are_they : public SpellScript
-{
-    PrepareSpellScript(spell_q10041_q10040_who_are_they);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_MALE_DISGUISE, SPELL_FEMALE_DISGUISE, SPELL_GENERIC_DISGUISE });
-    }
-
-    void HandleScript(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        if (Player* target = GetHitPlayer())
-        {
-            target->CastSpell(target, target->GetNativeGender() == GENDER_MALE ? SPELL_MALE_DISGUISE : SPELL_FEMALE_DISGUISE, true);
-            target->CastSpell(target, SPELL_GENERIC_DISGUISE, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q10041_q10040_who_are_they::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // http://www.wowhead.com/quest=12659 Scalps!
 enum Quest12659Data
 {
@@ -2081,7 +2048,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q12459_seeds_of_natures_wrath);
     RegisterSpellScript(spell_q12634_despawn_fruit_tosser);
     RegisterSpellScript(spell_q12851_going_bearback);
-    RegisterSpellScript(spell_q10041_q10040_who_are_they);
     RegisterSpellScript(spell_q12659_ahunaes_knife);
     RegisterSpellScript(spell_q9874_liquid_fire);
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
