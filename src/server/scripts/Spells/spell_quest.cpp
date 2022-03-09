@@ -619,40 +619,6 @@ class spell_q12659_ahunaes_knife : public SpellScript
     }
 };
 
-enum StoppingTheSpread
-{
-    NPC_VILLAGER_KILL_CREDIT                     = 18240,
-    SPELL_FLAMES                                 = 39199
-};
-
-// 32146 - Liquid Fire
-class spell_q9874_liquid_fire : public SpellScript
-{
-    PrepareSpellScript(spell_q9874_liquid_fire);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (Creature* target = GetHitCreature())
-            if (!target->HasAura(SPELL_FLAMES))
-            {
-                caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
-                target->CastSpell(target, SPELL_FLAMES, true);
-                target->DespawnOrUnsummon(60s);
-            }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q9874_liquid_fire::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum SalvagingLifesStength
 {
     NPC_SHARD_KILL_CREDIT                        = 29303,
@@ -2049,7 +2015,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q12634_despawn_fruit_tosser);
     RegisterSpellScript(spell_q12851_going_bearback);
     RegisterSpellScript(spell_q12659_ahunaes_knife);
-    RegisterSpellScript(spell_q9874_liquid_fire);
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
     RegisterSpellScript(spell_q13280_13283_plant_battle_standard);
     RegisterSpellScript(spell_q13280_13283_jump_jets);
