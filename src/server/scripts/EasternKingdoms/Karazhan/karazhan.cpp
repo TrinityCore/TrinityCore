@@ -64,17 +64,12 @@ enum Creatures
 /*######
 # npc_barnesAI
 ######*/
-
-#define GOSSIP_READY        "I'm not an actor."
-
-#define SAY_READY           "Splendid, I'm going to get the audience ready. Break a leg!"
-#define SAY_OZ_INTRO1       "Finally, everything is in place. Are you ready for your big stage debut?"
-#define OZ_GOSSIP1          "I'm not an actor."
-#define SAY_OZ_INTRO2       "Don't worry, you'll be fine. You look like a natural!"
-#define OZ_GOSSIP2          "Ok, I'll give it a try, then."
-
-#define SAY_RAJ_INTRO1      "The romantic plays are really tough, but you'll do better this time. You have TALENT. Ready?"
-#define RAJ_GOSSIP1         "I've never been more ready."
+enum gossips {
+  OZ_GOSSIP1_MID              = 7421, // I'm not an actor.
+  OZ_GOSSIP1_OID              = 0,
+  OZ_GOSSIP2_MID              = 7422, // Ok, I'll give it a try, then.
+  OZ_GOSSIP2_OID              = 0,
+};
 
 #define OZ_GM_GOSSIP1       "[GM] Change event to EVENT_OZ"
 #define OZ_GM_GOSSIP2       "[GM] Change event to EVENT_HOOD"
@@ -347,7 +342,7 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, OZ_GOSSIP2_MID, OZ_GOSSIP2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     SendGossipMenuFor(player, 8971, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
@@ -380,7 +375,7 @@ public:
             // Check for death of Moroes and if opera event is not done already
             if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, OZ_GOSSIP1_MID, OZ_GOSSIP1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                 if (player->IsGameMaster())
                 {
