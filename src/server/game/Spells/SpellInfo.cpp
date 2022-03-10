@@ -1145,12 +1145,12 @@ bool SpellInfo::HasOnlyDamageEffects() const
     return true;
 }
 
-bool SpellInfo::CanBeInterrupted(Unit* interruptTarget) const
+bool SpellInfo::CanBeInterrupted(Unit* interruptTarget, bool ignoreImmunity /*= false*/) const
 {
     return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)
         || HasChannelInterruptFlag(SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::EnteringCombat)
         || (interruptTarget->IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
-        || (!(interruptTarget->GetMechanicImmunityMask() & (1 << MECHANIC_INTERRUPT))
+        || ((!(interruptTarget->GetMechanicImmunityMask() & (1 << MECHANIC_INTERRUPT)) || ignoreImmunity)
         && PreventionType & SPELL_PREVENTION_TYPE_SILENCE);
 }
 
@@ -3315,17 +3315,10 @@ uint32 SpellInfo::GetAllowedMechanicMask() const
 
 uint32 SpellInfo::GetMechanicImmunityMask(Unit* caster) const
 {
-    bool canBeInterrupted = [&]()
-    {
-        return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)
-            || HasChannelInterruptFlag(SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::EnteringCombat)
-            || (caster->IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
-            || PreventionType & SPELL_PREVENTION_TYPE_SILENCE;
-    }();
-
     uint32 casterMechanicImmunityMask = caster->GetMechanicImmunityMask();
     uint32 mechanicImmunityMask = 0;
-    if (canBeInterrupted)
+
+    if (CanBeInterrupted(caster, true))
     {
         if (casterMechanicImmunityMask & (1 << MECHANIC_INTERRUPT))
             mechanicImmunityMask |= (1 << MECHANIC_INTERRUPT);

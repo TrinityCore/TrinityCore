@@ -489,7 +489,7 @@ class TC_GAME_API SpellInfo
         inline bool HasAttribute(SpellAttr10 attribute) const { return !!(AttributesEx10 & attribute); }
         inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
-        bool CanBeInterrupted(Unit* interruptTarget) const;
+        bool CanBeInterrupted(Unit* interruptTarget, bool ignoreImmunity = false) const;
 
         bool HasAnyAuraInterruptFlag() const;
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }
