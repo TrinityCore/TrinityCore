@@ -50,16 +50,19 @@ TC_COMMON_API double rand_chance();
 /* Return a random number in the range 0..count (exclusive) with each value having a different chance of happening */
 TC_COMMON_API uint32 urandweighted(size_t count, double const* chances);
 
+/* Return true if a coin flip with the given chance of receiving tails occours*/
+TC_COMMON_API bool coin_flip(float chance);
+
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)
 {
-    return chance > rand_chance();
+    return coin_flip(chance);
 }
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_i(int chance)
 {
-    return chance > irand(0, 99);
+    return coin_flip(static_cast<float>(chance));
 }
 
 /*

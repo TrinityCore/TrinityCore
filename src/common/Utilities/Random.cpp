@@ -90,6 +90,12 @@ uint32 urandweighted(size_t count, double const* chances)
     return dd(engine);
 }
 
+bool coin_flip(float chance)
+{
+    std::bernoulli_distribution bd { chance / 100.0 };
+    return bd(engine);
+}
+
 RandomEngine& RandomEngine::Instance()
 {
     return engine;
