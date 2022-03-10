@@ -1638,23 +1638,23 @@ void SpellMgr::LoadSpellProcs()
                     procEntry.ProcFlags = spellInfo->ProcFlags;
                 if (!procEntry.Charges)
                     procEntry.Charges = spellInfo->ProcCharges;
-                if (!procEntry.Chance && !procEntry.ProcsPerMinute)
-                    procEntry.Chance = float(spellInfo->ProcChance);
+                if (procEntry.Chance == 0.f && procEntry.ProcsPerMinute == 0.f)
+                    procEntry.Chance = static_cast<float>(spellInfo->ProcChance);
 
                 // validate data
                 if (procEntry.SchoolMask & ~SPELL_SCHOOL_MASK_ALL)
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SchoolMask` set: %u", spellInfo->Id, procEntry.SchoolMask);
                 if (procEntry.SpellFamilyName && (procEntry.SpellFamilyName < SPELLFAMILY_MAGE || procEntry.SpellFamilyName > SPELLFAMILY_PET || procEntry.SpellFamilyName == 14 || procEntry.SpellFamilyName == 16))
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SpellFamilyName` set: %u", spellInfo->Id, procEntry.SpellFamilyName);
-                if (procEntry.Chance < 0)
+                if (procEntry.Chance < 0.f)
                 {
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in the `Chance` field", spellInfo->Id);
-                    procEntry.Chance = 0;
+                    procEntry.Chance = 0.f;
                 }
-                if (procEntry.ProcsPerMinute < 0)
+                if (procEntry.ProcsPerMinute < 0.f)
                 {
                     TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in the `ProcsPerMinute` field", spellInfo->Id);
-                    procEntry.ProcsPerMinute = 0;
+                    procEntry.ProcsPerMinute = 0.f;
                 }
                 if (!procEntry.ProcFlags)
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `ProcFlags` value defined, proc will not be triggered.", spellInfo->Id);
@@ -1856,7 +1856,7 @@ void SpellMgr::LoadSpellProcs()
         */
 
         SpellProcEntry procEntry;
-        procEntry.SchoolMask      = 0;
+        procEntry.SchoolMask = 0;
         procEntry.ProcFlags = spellInfo->ProcFlags;
         procEntry.SpellFamilyName = 0;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1908,8 +1908,8 @@ void SpellMgr::LoadSpellProcs()
         if (addTriggerFlag)
             procEntry.AttributesMask |= PROC_ATTR_TRIGGERED_CAN_PROC;
 
-        procEntry.ProcsPerMinute  = 0;
-        procEntry.Chance          = spellInfo->ProcChance;
+        procEntry.ProcsPerMinute  = 0.f;
+        procEntry.Chance          = static_cast<float>(spellInfo->ProcChance);
         procEntry.Cooldown        = Milliseconds::zero();
         procEntry.Charges         = spellInfo->ProcCharges;
 

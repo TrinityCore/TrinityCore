@@ -7987,7 +7987,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             if (m_extraAttacks && spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
                 return;
 
-            float chance = (float)spellInfo->ProcChance;
+            float chance = static_cast<float>(spellInfo->ProcChance);
 
             if (proto->SpellPPMRate)
             {
@@ -8048,10 +8048,10 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             float chance = pEnchant->EffectPointsMin[s] != 0 ? float(pEnchant->EffectPointsMin[s]) : GetWeaponProcChance();
             if (entry)
             {
-                if (entry->ProcsPerMinute)
+                if (entry->ProcsPerMinute != 0.f)
                     chance = GetPPMProcChance(proto->GetDelay(), entry->ProcsPerMinute, spellInfo);
-                else if (entry->Chance)
-                    chance = (float)entry->Chance;
+                else if (entry->Chance != 0.f)
+                    chance = entry->Chance;
             }
 
             // Apply spell mods
