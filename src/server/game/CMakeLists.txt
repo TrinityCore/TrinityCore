@@ -74,6 +74,7 @@ FILE(GLOB TSWOW_PRIVATE ${TSWOW_CORE_PRIVATE}/*)
 FILE(GLOB TSWOW_MESSAGES ${TSWOW_MESSAGES_INCLUDES}/*)
 
 target_compile_definitions(game PUBLIC CUSTOM_PACKET_API=TC_GAME_API)
+target_compile_definitions(game PUBLIC TRINITY=1)
 
 source_group("tswow-messages" FILES ${TSWOW_MESSAGES})
 source_group("tswow-public" FILES ${TSWOW_PUBLIC})

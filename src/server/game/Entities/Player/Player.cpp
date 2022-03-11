@@ -12421,7 +12421,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
     // @tswow-begin
     FIRE_MAP(
-          pItem2->GetTemplate()->events
+          pItem->GetTemplate()->events
         , ItemOnEquip
         , TSItem(pItem)
         , TSPlayer(this)
