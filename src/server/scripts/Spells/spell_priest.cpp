@@ -90,7 +90,6 @@ enum PriestSpells
     SPELL_PRIEST_RENEW                              = 139,
     SPELL_PRIEST_REVELATIONS                        = 88627,
     SPELL_PRIEST_SHADOW_ORB_MARKER                  = 93683,
-    SPELL_PRIEST_SHADOW_ORB_POWER                   = 77486,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
@@ -1056,18 +1055,14 @@ class spell_pri_shadow_orbs : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_PRIEST_SHADOW_ORB_POWER,
-                spellInfo->Effects[EFFECT_0].TriggerSpell
-            });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].TriggerSpell) });
     }
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         Unit* target = GetTarget();
         // Do not proc when the target has Shadow Orb Power mastery active
-        if (target->HasAura(SPELL_PRIEST_SHADOW_ORB_POWER, target->GetGUID()))
+        if (target->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_PRIEST, 0, 0, 0x00100000))
             return false;
 
         int32 procChance = 10;
@@ -1096,7 +1091,7 @@ class spell_pri_shadow_orb_power : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].TriggerSpell) });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1140,9 +1135,11 @@ class spell_pri_shadow_orb : public AuraScript
         PreventDefaultAction();
 
         Unit* target = GetTarget();
-        int32 bp = aurEff->GetAmount();
+        int32 bp = 10;
+        if (AuraEffect const* mastery = target->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_PRIEST, 0, 0, 0x00100000))
+            bp += mastery->GetAmount();
+
         target->CastSpell(target, SPELL_PRIEST_EMPOWERED_SHADOW, CastSpellExtraArgs(aurEff).AddSpellBP0(bp).AddSpellMod(SPELLVALUE_BASE_POINT1, bp));
-        target->RemoveAurasDueToSpell(SPELL_PRIEST_SHADOW_ORB_MARKER);
         Remove();
     }
 
