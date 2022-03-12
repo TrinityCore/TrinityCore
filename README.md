@@ -25,22 +25,6 @@ make pull requests to our [Github repository](https://github.com/The-Cataclysm-P
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](https://www.trinitycore.org).
 
-## Requirements
-
-+ Platform: Linux, Windows or Mac
-+ Processor with SSE2 support
-+ Boost ≥ 1.68 (Linux) 1.70 (Windows)
-+ MySQL ≥ 5.7.0
-+ CMake ≥ 3.8.0 (Linux) 3.8.0 (Windows)
-+ OpenSSL = 1.0.x
-+ GCC ≥ 7.1.0 (Linux only) (clang 3.5 heavy recommended)
-+ MS Visual Studio ≥ 16.4 (2019) (Windows only)
-+ zlib ≥ 1.2.7
-+ ZeroMQ:
-+ apt-get install libzmq3-dev (Linux only)
-+ x64 - https://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x64.exe (Windows only)
-+ or x86 - https://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x86.exe (Windows only)
-
 ## Install
 
 Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
