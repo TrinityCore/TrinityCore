@@ -661,7 +661,7 @@ WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
     _worldPacket << uint32(MapID);
     _worldPacket << uint8(Arg);
     _worldPacket << int32(MapDifficultyXConditionID);
-    _worldPacket.WriteBits(TransfertAbort, 5);
+    _worldPacket.WriteBits(TransfertAbort, 6);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
