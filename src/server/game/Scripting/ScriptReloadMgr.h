@@ -23,14 +23,14 @@
 #include "Define.h"
 #include <boost/filesystem/path.hpp>
 
-/// Represents a strong reference to a dynamic library which
-/// provides C++ scripts. As long as one reference to the library exists
-/// the library is kept loaded in the server, which makes it possible to lazy
-/// unload several script types on demand (like SpellScripts), and to
-/// provide multiple versions of the same script to the script factories.
-///
-/// Acquire a new reference through using:
-/// `ScriptReloadMgr::AcquireModuleReferenceOfContext`
+ /// Represents a strong reference to a dynamic library which
+ /// provides C++ scripts. As long as one reference to the library exists
+ /// the library is kept loaded in the server, which makes it possible to lazy
+ /// unload several script types on demand (like SpellScripts), and to
+ /// provide multiple versions of the same script to the script factories.
+ ///
+ /// Acquire a new reference through using:
+ /// `ScriptReloadMgr::AcquireModuleReferenceOfContext`
 class ModuleReference
 {
 public:

@@ -19,6 +19,10 @@
 /// @{
 /// \file
 
+// @tswow-begin
+#include "TSLibLoader.h"
+#include "TSEventLoader.h"
+// @tswow-end
 #include "Common.h"
 #include "AppenderDB.h"
 #include "AsyncAcceptor.h"
@@ -123,6 +127,7 @@ extern int main(int argc, char** argv)
     // @tswow-begin
     setbuf(stdout,0);
     setbuf(stderr,0);
+    SetBinPath(argv[0]);
     // @tswow-end
     Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
     signal(SIGABRT, &Trinity::AbortHandler);
@@ -364,6 +369,12 @@ extern int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
+    // @tswow-begin
+    sScriptMgr->SetScriptContext("tswow");
+    TSInitializeEvents();
+    UpdateTSLibraries(false);
+    sScriptMgr->SwapScriptContext(true);
+    // @tswow-end
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
