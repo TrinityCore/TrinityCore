@@ -694,8 +694,6 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
 
 // @tswow-begin
 bool ClientPktHeader::IsValidSize() const {
-    // @tswow-begin
-    return size >= 4;
-    // @tswow-end
+    return size >= 4 && size < 10240;
 }
 // @tswow-end
