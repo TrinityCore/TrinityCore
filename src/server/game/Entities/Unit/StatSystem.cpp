@@ -627,7 +627,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     }
     else
     {
+        // @tswow-begin
         switch (meleeAPFormulas[GetClass()])
+        // @tswow-end
         {
             case CLASS_WARRIOR:
                 val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
