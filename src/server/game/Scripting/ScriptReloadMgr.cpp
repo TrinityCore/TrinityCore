@@ -1536,8 +1536,10 @@ SourceUpdateListener::SourceUpdateListener(fs::path path, std::string script_mod
     }
     else
     {
-        TC_LOG_ERROR("scripts.hotswap", "Failed to initialize thesource recompiler on \"%s\".",
-            path_.generic_string().c_str());
+        // @tswow-begin - we're not using the recompiler.
+        //TC_LOG_ERROR("scripts.hotswap", "Failed to initialize thesource recompiler on \"%s\".",
+        //    path_.generic_string().c_str());
+        // @tswow-end
     }
 }
 
