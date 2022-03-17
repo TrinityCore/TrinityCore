@@ -49,8 +49,8 @@ target_include_directories (sane-sol2 SYSTEM INTERFACE "${sol2_SOURCE_DIR}/inclu
 # sourcemap
 #
 FetchContent_Declare (sourcemap
-  GIT_REPOSITORY https://github.com/mgreter/sourcemap.cpp.git
-  GIT_TAG bd09bd903ff6bf77950b5bb8d0138e26ade95d4a
+  GIT_REPOSITORY https://github.com/tswow/sourcemap.cpp.git
+  GIT_TAG 1523872a09ed3478f5e3d4c0cd72c01e50116e40
 )
 FetchContent_MakeAvailable (sourcemap)
 file(GLOB SOURCEMAP_SRC
