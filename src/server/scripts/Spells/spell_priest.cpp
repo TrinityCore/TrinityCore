@@ -1592,7 +1592,7 @@ class spell_pri_atonement : public AuraScript
         if (target->GetCombatReach() >= 15.0f)
             caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_TRIGGERED_LARGE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp).AddSpellMod(SPELLVALUE_RADIUS_MOD, int32(target->GetCombatReach() + 15.0f) * 100));
         else
-            caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_TRIGGERED_DEFAULT, CastSpellExtraArgs(aurEff).AddSpellBP0(SPELLVALUE_BASE_POINT0));
+            caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_TRIGGERED_DEFAULT, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override
