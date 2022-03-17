@@ -491,6 +491,11 @@ void World::LoadConfigSettings(bool reload)
         sMetric->LoadFromConfigs();
     }
 
+    ///- Should lua be enabled?
+    // @tswow-begin
+    m_bool_configs[CONFIG_TSWOW_LUA_ENABLED] = sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false);
+    // @tswow-en
+
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
     Motd::SetMotd(sConfigMgr->GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
@@ -1434,7 +1439,14 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfigMgr->GetBoolDefault("ShowKickInWorld", false);
     m_bool_configs[CONFIG_SHOW_MUTE_IN_WORLD] = sConfigMgr->GetBoolDefault("ShowMuteInWorld", false);
     m_bool_configs[CONFIG_SHOW_BAN_IN_WORLD] = sConfigMgr->GetBoolDefault("ShowBanInWorld", false);
-    m_int_configs[CONFIG_NUMTHREADS] = sConfigMgr->GetIntDefault("MapUpdate.Threads", 1);
+    // @tswow-begin - only allow one thread if using lua
+    uint32 mapUpdateThreads = m_int_configs[CONFIG_NUMTHREADS] = sConfigMgr->GetIntDefault("MapUpdate.Threads", 1);
+    if (m_int_configs[CONFIG_TSWOW_LUA_ENABLED] && mapUpdateThreads > 1)
+    {
+        m_int_configs[CONFIG_NUMTHREADS] = 1;
+        TC_LOG_ERROR("server.loading", "MapUpdate.Threads cannot be %i when TSWoW Lua is enabled. Set to 1.", mapUpdateThreads);
+    }
+    // @tswow-end
     m_int_configs[CONFIG_MAX_RESULTS_LOOKUP_COMMANDS] = sConfigMgr->GetIntDefault("Command.LookupMaxResults", 0);
 
     // Warden

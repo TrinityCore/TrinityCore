@@ -86,7 +86,6 @@
 #include "TSCreature.h"
 #include "TSSpellInfo.h"
 #include "TSSpell.h"
-#include "TSMacros.h"
 #include "TSBossAI.h"
 // @tswow-end
 

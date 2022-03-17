@@ -56,7 +56,6 @@
 // @tswow-begin
 #include "TSUnit.h"
 #include "TSCreature.h"
-#include "TSMacros.h"
 #include "TSEventLoader.h"
 #include "TSMap.h"
 #include "TSBossAI.h"

@@ -35,7 +35,6 @@
 // @tswow-begin
 #include "TSUnit.h"
 #include "TSCreature.h"
-#include "TSMacros.h"
 #include "TSEventLoader.h"
 // @tswow-end
 
