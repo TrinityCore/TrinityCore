@@ -1270,8 +1270,8 @@ private:
     /// since most users will forget this.
     void DoCMakePrefixCorrectionIfNeeded()
     {
-        TC_LOG_INFO("scripts.hotswap", "Correcting your CMAKE_INSTALL_PREFIX in \"%s\"...",
-            BuiltInConfig::GetBuildDirectory().c_str());
+        //TC_LOG_INFO("scripts.hotswap", "Correcting your CMAKE_INSTALL_PREFIX in \"%s\"...",
+        //    BuiltInConfig::GetBuildDirectory().c_str());
 
         auto const cmake_cache_path = fs::absolute("CMakeCache.txt",
             BuiltInConfig::GetBuildDirectory());
@@ -1282,10 +1282,10 @@ private:
             boost::system::error_code error;
                 if (!fs::exists(cmake_cache_path, error))
                 {
-                    TC_LOG_ERROR("scripts.hotswap", ">> CMake cache \"%s\" doesn't exist, "
-                        "set the \"BuildDirectory\" option in your worldserver.conf to point"
-                        "to your build directory!",
-                        cmake_cache_path.generic_string().c_str());
+                    //TC_LOG_ERROR("scripts.hotswap", ">> CMake cache \"%s\" doesn't exist, "
+                    //    "set the \"BuildDirectory\" option in your worldserver.conf to point"
+                    //    "to your build directory!",
+                    //    cmake_cache_path.generic_string().c_str());
 
                         return false;
                 }
