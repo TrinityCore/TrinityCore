@@ -22,7 +22,7 @@
 // @tswow-begin
 #include "TSLibLoader.h"
 #include "TSEventLoader.h"
-#include "TSLuaLoader.h"
+#include "TSLua.h"
 // @tswow-end
 #include "Common.h"
 #include "AppenderDB.h"
@@ -376,7 +376,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->SwapScriptContext(true);
     if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false))
     {
-        LoadLua();
+        TSLuaState::Load();
     }
 
     // @tswow-end

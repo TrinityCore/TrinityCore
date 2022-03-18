@@ -24,7 +24,7 @@ EndScriptData */
 
 // @tswow-begin
 #include "TSLibLoader.h"
-#include "TSLuaLoader.h"
+#include "TSLua.h"
 #include "Config.h"
 // @tswow-end
 #include "ScriptMgr.h"
@@ -198,7 +198,7 @@ public:
     {
         if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false))
         {
-            LoadLua();
+            TSLuaState::Load();
             if (handler)
             {
                 handler->SendGlobalGMSysMessage("All lua scripts reloaded.");
