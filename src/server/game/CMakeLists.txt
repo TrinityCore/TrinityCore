@@ -53,7 +53,7 @@ target_include_directories(game
     ${CMAKE_CURRENT_BINARY_DIR}
     # tswow-begin
     ${TSWOW_INCLUDES}
-    ${lua51_SOURCE_DIR}/src
+    ${LUA_ROOT}
     ${sol2_SOURCE_DIR}/include
     ${sourcemap_SOURCE_DIR}/src
     ${sourcemap_SOURCE_DIR}/deps/json

@@ -64,7 +64,7 @@ target_include_directories(worldserver
     ${PUBLIC_INCLUDES}
     # tswow-begin
     ${TSWOW_INCLUDES}
-    ${lua51_SOURCE_DIR}/src
+    ${LUA_ROOT}
     ${sol2_SOURCE_DIR}/include
     ${sourcemap_SOURCE_DIR}/src
     ${sourcemap_SOURCE_DIR}/deps/json

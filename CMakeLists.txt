@@ -21,15 +21,8 @@ project(TrinityCore)
 
 include(FetchContent)
 
-#
-# Lua 5.1
-#
-FetchContent_Declare(
-  lua51
-  URL https://www.lua.org/ftp/lua-5.1.5.tar.gz
-)
-FetchContent_MakeAvailable(lua51)
-file(GLOB SRC_LUA ${lua51_SOURCE_DIR}/src/*.c)
+SET(LUA_ROOT ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src)
+file(GLOB SRC_LUA ${LUA_ROOT}/*.h ${LUA_ROOT}/*.c)
 add_library ( liblua ${SRC_LUA} )
 
 #

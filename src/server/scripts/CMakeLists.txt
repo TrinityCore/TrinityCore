@@ -174,9 +174,9 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
         ${CMAKE_CURRENT_SOURCE_DIR}
         #tswow-begin
         ${TSWOW_INCLUDES}
-        ${lua51_SOURCE_DIR}/src
+        ${LUA_ROOT}
         ${sol2_SOURCE_DIR}/include
-        ${lua51_SOURCE_DIR}/src
+        ${LUA_ROOT}
         ${sourcemap_SOURCE_DIR}/src
         ${sourcemap_SOURCE_DIR}/deps/json
         ${sourcemap_SOURCE_DIR}/deps/cencode
@@ -231,7 +231,7 @@ target_include_directories(scripts
     ${CMAKE_CURRENT_SOURCE_DIR}
     #tswow-begin
     ${TSWOW_INCLUDES}
-    ${lua51_SOURCE_DIR}/src
+    ${LUA_ROOT}
     ${sol2_SOURCE_DIR}/include
     ${sourcemap_SOURCE_DIR}/src
     ${sourcemap_SOURCE_DIR}/deps/json
