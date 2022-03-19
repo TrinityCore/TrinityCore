@@ -22,6 +22,9 @@ Comment: All reload related commands
 Category: commandscripts
 EndScriptData */
 
+// @tswow-begin
+#include "TSLibLoader.h"
+// @tswow-end
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -171,6 +174,7 @@ public:
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY,       true,  &HandleReloadVehicleTemplateAccessoryCommand,   "" },
             // @tswow-begin
             { "spell_autolearn",               rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_AUTOLEARN,                  true,  &HandleReloadSpellAutolearnCommand,             "" },
+            { "livescripts",                   rbac::RBAC_PERM_COMMAND_RELOAD_LIVESCRIPTS,                      true,  &HandleReloadLivescripts,                       "" },
             // @tswow-end
         };
         static std::vector<ChatCommand> commandTable =
@@ -179,6 +183,14 @@ public:
         };
         return commandTable;
     }
+
+    // @tswow-begin
+    static bool HandleReloadLivescripts(ChatHandler* /*handler*/, char const* args)
+    {
+        UpdateTSLibraries(std::string(args) == "force");
+        return true;
+    }
+    // @tswow-end
 
     //reload commands
     static bool HandleReloadGMTicketsCommand(ChatHandler* /*handler*/, char const* /*args*/)

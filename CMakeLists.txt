@@ -19,15 +19,15 @@ project(TrinityCore)
 
 #tswow-begin add tswow sources
 get_filename_component(
-  TSWOW_CORE_PRIVATE ${CMAKE_SOURCE_DIR}/../tswow-core/Private ABSOLUTE
+  TSWOW_CORE_PRIVATE ${CMAKE_SOURCE_DIR}/../../tswow-core/Private ABSOLUTE
 )
 
 get_filename_component(
-  TSWOW_CORE_PUBLIC ${CMAKE_SOURCE_DIR}/../tswow-core/Public ABSOLUTE
+  TSWOW_CORE_PUBLIC ${CMAKE_SOURCE_DIR}/../../tswow-core/Public ABSOLUTE
 )
 
 get_filename_component(
-  TSWOW_MESSAGES_INCLUDES ${CMAKE_SOURCE_DIR}/../client-extensions/CustomPackets ABSOLUTE
+  TSWOW_MESSAGES_INCLUDES ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/CustomPackets ABSOLUTE
 )
 
 SET(TSWOW_INCLUDES

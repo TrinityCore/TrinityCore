@@ -708,21 +708,21 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
     if (itRoleCheck == RoleChecksStore.end())
         return;
 
+    // @tswow-begin
     // Sanitize input roles
     roles &= PLAYER_ROLE_ANY;
     if (guid) {
-        Player* player = ObjectAccessor::FindPlayer(guid);
-        if (!player) return;
-        roles &= sObjectMgr->GetPlayerClassRoleMask(player->GetClass());
-    }
-
-    if (guid)
-    {
         if (Player* player = ObjectAccessor::FindPlayer(guid))
-            roles = FilterClassRoles(player, roles);
+        {
+            roles &= sObjectMgr->GetPlayerClassRoleMask(player->GetClass());
+            roles &= PLAYER_ROLE_ANY;
+        }
         else
+        {
             return;
+        }
     }
+    // @tswow-end
 
     LfgRoleCheck& roleCheck = itRoleCheck->second;
     bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && guid;
