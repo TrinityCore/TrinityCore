@@ -715,7 +715,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
+        me->SetUnitFlags(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void Reset() override
@@ -1160,7 +1160,7 @@ struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
 
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
+        me->SetUnitFlags(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -1260,9 +1260,9 @@ struct boss_sylvanas_windrunner : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
-        if (spell->Id == SPELL_RUIN)
+        if (spell->Id == SPELL_RUIN && reason == SPELL_FINISHED_CANCELED)
         {
             // TODO: change this since she's interrupted 5 times
             if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
@@ -2844,7 +2844,7 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
 
         me->SetReactState(REACT_PASSIVE);
 
-        me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
+        me->SetUnitFlags(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void DoAction(int32 action) override
@@ -2853,7 +2853,7 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
         {
             case ACTION_ACTIVATE_DOMINATION_ARROW:
             {
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                 DoCastSelf(SPELL_DOMINATION_ARROW_ACTIVATE, true);
 
@@ -4098,7 +4098,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
         if (me->HealthBelowPctDamaged(85.0f, damage))
@@ -4354,7 +4354,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
             me->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[3], false);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
         if (me->HealthBelowPctDamaged(85.0f, damage))
@@ -4705,7 +4705,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
         if (me->HealthBelowPctDamaged(85.0f, damage))
@@ -5380,7 +5380,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
         _events.Reset();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
         if (me->HealthBelowPctDamaged(85.0f, damage))
