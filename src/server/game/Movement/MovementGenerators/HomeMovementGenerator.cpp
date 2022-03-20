@@ -27,7 +27,6 @@
 // @tswow-begin
 #include "TSEventLoader.h"
 #include "TSCreature.h"
-#include "TSMacros.h"
 // @tswow-end
 
 template<class T>

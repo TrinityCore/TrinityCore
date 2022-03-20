@@ -755,6 +755,7 @@ enum RBACPermissions
     RBAC_PERM_TEST                                           = 17691,
     RBAC_PERM_COMMAND_RELOAD_SPELL_AUTOLEARN                 = 17692,
     RBAC_PERM_COMMAND_RELOAD_LIVESCRIPTS                     = 17693,
+    RBAC_PERM_COMMAND_RELOAD_LUA                             = 17694,
     // @tswow-end
     RBAC_PERM_MAX
 };

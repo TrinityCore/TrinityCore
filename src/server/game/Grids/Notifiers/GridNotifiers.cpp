@@ -27,7 +27,6 @@
 #include "TSEventLoader.h"
 #include "TSUnit.h"
 #include "TSCreature.h"
-#include "TSMacros.h"
 // @tswow-end
 
 using namespace Trinity;

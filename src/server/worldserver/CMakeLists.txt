@@ -62,6 +62,14 @@ CollectIncludeDirectories(
 target_include_directories(worldserver
   PUBLIC
     ${PUBLIC_INCLUDES}
+    # tswow-begin
+    ${TSWOW_INCLUDES}
+    ${LUA_ROOT}
+    ${sol2_SOURCE_DIR}/include
+    ${sourcemap_SOURCE_DIR}/src
+    ${sourcemap_SOURCE_DIR}/deps/json
+    ${sourcemap_SOURCE_DIR}/deps/cencode
+    # tswow-end
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 

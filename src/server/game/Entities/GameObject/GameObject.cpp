@@ -48,7 +48,6 @@
 #include "TSEventLoader.h"
 #include "TSPlayer.h"
 #include "TSGameObject.h"
-#include "TSMacros.h"
 #include "TSEvents.h"
 #include "TSMap.h"
 #include "TSLoot.h"
@@ -1619,7 +1618,13 @@ void GameObject::Use(Unit* user)
         playerUser->PlayerTalkClass->ClearMenus();
         // @tswow-begin
         bool b = false;
-        FIRE_BOOL_MAP(GetGOInfo()->events,GameObjectOnGossipHello,b,TSGameObject(this),TSPlayer(playerUser));
+        FIRE_MAP(
+              GetGOInfo()->events
+            , GameObjectOnGossipHello
+            , TSGameObject(this)
+            , TSPlayer(playerUser)
+            , TSMutable<bool>(&b)
+        );
         if (AI()->OnGossipHello(playerUser))
         // @tswow-end
             return;

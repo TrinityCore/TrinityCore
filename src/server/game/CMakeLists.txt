@@ -53,6 +53,11 @@ target_include_directories(game
     ${CMAKE_CURRENT_BINARY_DIR}
     # tswow-begin
     ${TSWOW_INCLUDES}
+    ${LUA_ROOT}
+    ${sol2_SOURCE_DIR}/include
+    ${sourcemap_SOURCE_DIR}/src
+    ${sourcemap_SOURCE_DIR}/deps/json
+    ${sourcemap_SOURCE_DIR}/deps/cencode
     # tswow-end
     )
 
@@ -86,10 +91,12 @@ target_link_libraries(game
   PRIVATE
     trinity-core-interface
     efsw
-  PUBLIC
     # tswow-begin
     nlohmann_json::nlohmann_json
+    liblua
+    sourcemaps
     # tswow-end
+  PUBLIC
     game-interface)
 
 set_target_properties(game

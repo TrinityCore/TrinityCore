@@ -44,7 +44,6 @@
 #include "WorldSession.h"
 // @tswow-begin
 #include "TSMap.h"
-#include "TSMacros.h"
 #include "TSEvents.h"
 #include "TSItemTemplate.h"
 #include "TSSpellInfo.h"

@@ -53,7 +53,6 @@
 // @tswow-begin
 #include "TSEventLoader.h"
 #include "TSEvents.h"
-#include "TSMacros.h"
 #include "TSMap.h"
 #include "TSPlayer.h"
 #include "TSCreature.h"

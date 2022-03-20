@@ -18,6 +18,56 @@ set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 project(TrinityCore)
 
 #tswow-begin add tswow sources
+
+include(FetchContent)
+
+SET(LUA_ROOT ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src)
+file(GLOB SRC_LUA ${LUA_ROOT}/*.h ${LUA_ROOT}/*.c)
+add_library ( liblua ${SRC_LUA} )
+if(NOT WIN32)
+    target_compile_options(liblua PUBLIC -fPIC)
+endif()
+
+#
+# sol2
+#
+FetchContent_Declare (sol2
+  GIT_REPOSITORY https://github.com/tswow/sol2
+  GIT_TAG b9c83d5ecf6bc9503dc66779f2395dc32dffb1e5
+)
+FetchContent_MakeAvailable (sol2)
+add_library (sane-sol2 INTERFACE)
+add_library (sol2::sane ALIAS sane-sol2)
+target_link_libraries (sane-sol2 INTERFACE liblua)
+target_include_directories (sane-sol2 SYSTEM INTERFACE "${sol2_SOURCE_DIR}/include")
+
+#
+# sourcemap
+#
+FetchContent_Declare (sourcemap
+  GIT_REPOSITORY https://github.com/tswow/sourcemap.cpp.git
+  GIT_TAG 79a901a367fdc1482306661eadfbb7d0ec50f2c2
+)
+FetchContent_MakeAvailable (sourcemap)
+file(GLOB SOURCEMAP_SRC
+    ${sourcemap_SOURCE_DIR}/src/*
+    ${sourcemap_SOURCE_DIR}/src/format/*
+    ${sourcemap_SOURCE_DIR}/deps/json/*
+    ${sourcemap_SOURCE_DIR}/deps/cencode/*
+)
+add_library(sourcemaps ${SOURCEMAP_SRC})
+target_include_directories(sourcemaps PUBLIC
+    ${sourcemap_SOURCE_DIR}/src
+    ${sourcemap_SOURCE_DIR}/deps/json
+    ${sourcemap_SOURCE_DIR}/deps/cencode
+)
+if(NOT WIN32)
+    target_compile_options(sourcemaps PUBLIC -fPIC)
+endif()
+
+#
+# tswow
+#
 get_filename_component(
   TSWOW_CORE_PRIVATE ${CMAKE_SOURCE_DIR}/../../tswow-core/Private ABSOLUTE
 )
@@ -35,6 +85,8 @@ SET(TSWOW_INCLUDES
   ${TSWOW_CORE_PUBLIC}
   ${TSWOW_MESSAGES_INCLUDES}
 )
+
+ADD_COMPILE_DEFINITIONS(USE_STD_SHARED_PTR=1)
 
 FILE(GLOB_RECURSE TSWOW_SOURCES
     ${TSWOW_CORE_PRIVATE}/*
