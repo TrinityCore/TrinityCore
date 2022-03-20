@@ -40,7 +40,6 @@
 #include "TSUnit.h"
 #include "TSCreature.h"
 #include "TSSpellInfo.h"
-#include "TSMacros.h"
 #include "TSPlayer.h"
 #include "TSQuest.h"
 #include "TSGameObject.h"
@@ -115,7 +114,13 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     _player->PlayerTalkClass->ClearMenus();
     // @tswow-begin
     bool b = false;
-    FIRE_BOOL_MAP(creature->GetCreatureTemplate()->events,CreatureOnGossipHello,b,TSCreature(creature),TSPlayer(_player));
+    FIRE_MAP(
+          creature->GetCreatureTemplate()->events
+        , CreatureOnGossipHello
+        , TSCreature(creature)
+        , TSPlayer(_player)
+        , TSMutable<bool>(&b)
+    );
     if (b || creature->AI()->OnGossipHello(_player))
     // @tswow-end
         return;

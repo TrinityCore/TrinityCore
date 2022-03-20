@@ -23,7 +23,6 @@
 // @tswow-begin
 #include "TSEventLoader.h"
 #include "TSCreature.h"
-#include "TSMacros.h"
 #include "TSEvents.h"
 // @tswow-end
 

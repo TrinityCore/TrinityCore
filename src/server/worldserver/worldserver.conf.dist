@@ -4352,4 +4352,12 @@ Metric.OverallStatusInterval = 1
 TSWoW.MessageBufferBytes = 10000
 
 #
+#    TSWoW.LuaEnabled
+#        Description: Enables lua scripting.
+#        Default:     false
+#
+
+TSWoW.EnableLua = false
+
+#
 ###################################################################################################

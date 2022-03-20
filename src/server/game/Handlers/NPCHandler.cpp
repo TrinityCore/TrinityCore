@@ -45,7 +45,6 @@
 #include "TSQuest.h"
 #include "TSPlayer.h"
 #include "TSCreature.h"
-#include "TSMacros.h"
 // @tswow-end
 
 enum StableResultCode
@@ -220,7 +219,13 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     _player->PlayerTalkClass->ClearMenus();
     // @tswow-begin
     bool b = false;
-    FIRE_BOOL_MAP(unit->GetCreatureTemplate()->events,CreatureOnGossipHello,b,TSCreature(unit),TSPlayer(_player));
+    FIRE_MAP(
+          unit->GetCreatureTemplate()->events
+        , CreatureOnGossipHello
+        , TSCreature(unit)
+        , TSPlayer(_player)
+        , TSMutable<bool>(&b)
+    );
     if (!b && !unit->AI()->OnGossipHello(_player))
     // @tswow-end
     {

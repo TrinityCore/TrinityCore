@@ -107,7 +107,6 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 // @tswow-begin
-#include "TSMacros.h"
 #include "TSEvents.h"
 #include "TSQuest.h"
 #include "TSPlayer.h"

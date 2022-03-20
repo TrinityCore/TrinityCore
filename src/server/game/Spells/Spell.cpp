@@ -70,7 +70,6 @@
 #include "TSCorpse.h"
 #include "TSGameObject.h"
 #include "TSWorldObject.h"
-#include "TSMacros.h"
 // @tswow-end
 
 extern SpellEffectHandlerFn SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
