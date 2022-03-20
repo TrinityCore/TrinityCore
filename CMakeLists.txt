@@ -24,6 +24,9 @@ include(FetchContent)
 SET(LUA_ROOT ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src)
 file(GLOB SRC_LUA ${LUA_ROOT}/*.h ${LUA_ROOT}/*.c)
 add_library ( liblua ${SRC_LUA} )
+if(NOT WIN32)
+    target_compile_options(liblua PUBLIC -fPIC)
+endif()
 
 #
 # sol2
@@ -43,7 +46,7 @@ target_include_directories (sane-sol2 SYSTEM INTERFACE "${sol2_SOURCE_DIR}/inclu
 #
 FetchContent_Declare (sourcemap
   GIT_REPOSITORY https://github.com/tswow/sourcemap.cpp.git
-  GIT_TAG 1523872a09ed3478f5e3d4c0cd72c01e50116e40
+  GIT_TAG 79a901a367fdc1482306661eadfbb7d0ec50f2c2
 )
 FetchContent_MakeAvailable (sourcemap)
 file(GLOB SOURCEMAP_SRC
@@ -58,6 +61,9 @@ target_include_directories(sourcemaps PUBLIC
     ${sourcemap_SOURCE_DIR}/deps/json
     ${sourcemap_SOURCE_DIR}/deps/cencode
 )
+if(NOT WIN32)
+    target_compile_options(sourcemaps PUBLIC -fPIC)
+endif()
 
 #
 # tswow
