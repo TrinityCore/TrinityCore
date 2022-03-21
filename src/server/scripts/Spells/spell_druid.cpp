@@ -340,7 +340,7 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
             target->CastSpell(target, SPELL_DRUID_EUPHORIA_MANA_ENERGIZE, CastSpellExtraArgs().AddSpellBP0(euphoria->GetAmount()));
 
         // T11 Bonus
-        if (AuraEffect const* t11Bonus = target->GetAuraEffect(SPELL_DRUID_ITEM_T11_BALANCE_4P_BONUS, EFFECT_0))
+        if (target->GetAuraEffect(SPELL_DRUID_ITEM_T11_BALANCE_4P_BONUS, EFFECT_0))
             target->CastSpell(target, SPELL_DRUID_ASTRAL_ALIGNMENT, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 3));
     }
 

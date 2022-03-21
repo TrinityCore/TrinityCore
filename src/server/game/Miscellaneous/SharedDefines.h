@@ -296,7 +296,7 @@ inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
     return SPELL_SCHOOL_NORMAL;
 }
 
-enum ItemQualities
+enum ItemQualities : uint8
 {
     ITEM_QUALITY_POOR                  = 0,                 //GREY
     ITEM_QUALITY_NORMAL                = 1,                 //WHITE

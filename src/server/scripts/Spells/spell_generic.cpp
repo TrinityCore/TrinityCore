@@ -4522,19 +4522,18 @@ class spell_gen_blink : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitUnit())
+                Unit* caster = GetCaster();
+                if (!caster || !caster->IsCreature())
+                    return;
+
+                Creature* creature = caster->ToCreature();
+                if (Unit* target = creature->GetThreatManager().GetCurrentVictim())
                 {
-                    if (Creature* caster = GetCaster()->ToCreature())
+                    creature->GetThreatManager().ResetThreat(target);
+                    if (creature->IsAIEnabled())
                     {
-                        if (Unit* target = caster->GetThreatManager().GetCurrentVictim())
-                        {
-                            caster->GetThreatManager().ResetThreat(target);
-                            if (caster->IsAIEnabled())
-                            {
-                                caster->CastSpell(target, SPELL_BLINK_TARGET, true);
-                                caster->AI()->AttackStart(target);
-                            }
-                        }
+                        creature->CastSpell(target, SPELL_BLINK_TARGET, true);
+                        creature->AI()->AttackStart(target);
                     }
                 }
             }

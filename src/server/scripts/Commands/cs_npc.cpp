@@ -1589,7 +1589,7 @@ public:
         if (!name)
             name = "Unknown item";
         handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
-            itemCount, ItemQualityColors[itemTemplate ? itemTemplate->GetQuality() : ITEM_QUALITY_POOR], itemId, name, itemId);
+            itemCount, ItemQualityColors[itemTemplate ? itemTemplate->GetQuality() : static_cast<uint8>(ITEM_QUALITY_POOR)], itemId, name, itemId);
     }
     static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
     {

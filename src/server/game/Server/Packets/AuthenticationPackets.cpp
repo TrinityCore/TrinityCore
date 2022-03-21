@@ -337,9 +337,9 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
 
     HmacSha1 hmacHash(64, WherePacketHmac);
     hmacHash.UpdateData(address, 16);
-    hmacHash.UpdateData((uint8* const)&addressType, 4);
-    hmacHash.UpdateData((uint8* const)&port, 2);
-    hmacHash.UpdateData((uint8* const)Haiku.c_str(), 73);
+    hmacHash.UpdateData(reinterpret_cast<uint8 const*>(&addressType), 4);
+    hmacHash.UpdateData(reinterpret_cast<uint8 const*>(&port), 2);
+    hmacHash.UpdateData(reinterpret_cast<uint8 const*>(Haiku.c_str()), 73);
     hmacHash.UpdateData(PiDigits, 142);
     hmacHash.UpdateData(&Payload.XorMagic, 1);
     hmacHash.Finalize();

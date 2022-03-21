@@ -490,8 +490,8 @@ struct npc_brazie_the_bonatist_vehicle : public VehicleAI
                 case EVENT_CREATE_GHOUL:
                 {
                     // The tutorial quest only spawns zombies in the center lane
-                    uint8 index = _currentLevel == LEVEL_TUTORIAL ? CENTER_ZOMBIE_LANE_INDEX : urand(0, MAX_TARGET_POSITIONS - 1);
-                    Position pos = SpitterTargetPositions[index];
+                    uint8 index = _currentLevel == LEVEL_TUTORIAL ? static_cast<uint8>(CENTER_ZOMBIE_LANE_INDEX) : static_cast<uint8>(urand(0, MAX_TARGET_POSITIONS - 1));
+                    Position const& pos = SpitterTargetPositions[index];
                     float angle = pos.GetAngle(GoalStalkerPositions[index]);
 
                     uint32 spellId = 0;

@@ -513,7 +513,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_defaultDbcLocale = LocaleConstant(sConfigMgr->GetIntDefault("DBC.Locale", 0));
 
-    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale < LOCALE_enUS || m_defaultDbcLocale == LOCALE_NONE)
+    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale == LOCALE_NONE)
     {
         TC_LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < %d and not %d (set to 0)", TOTAL_LOCALES, LOCALE_NONE);
         m_defaultDbcLocale = LOCALE_enUS;
@@ -1258,9 +1258,9 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_BG_XP_FOR_KILL]                            = sConfigMgr->GetBoolDefault("Battleground.GiveXPForKills", false);
 
     m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE]                  = sConfigMgr->GetIntDefault ("RatedBattleground.Enable", 0);
-    if (m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] < 0 || m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] > 3)
+    if (m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] > 3)
     {
-        TC_LOG_ERROR("server.loading", "RatedBattleground.Enable (%d) must be >= 0 and <= 3. Using 0 instead.", m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE]);
+        TC_LOG_ERROR("server.loading", "RatedBattleground.Enable (%d) must be in a range between 0 and 3. Using 0 instead.", m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE]);
         m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] = 0;
     }
     m_int_configs[CONFIG_RATED_BATTLEGROUND_REWARD]                  = sConfigMgr->GetIntDefault ("RatedBattleground.Reward", 40000);

@@ -744,7 +744,7 @@ struct boss_ragnaros_firelands : public BossAI
                     events.Repeat(1min);
                     break;
                 case EVENT_ENGULFING_FLAMES:
-                    DoCastAOE(IsHeroic() ? SPELL_WORLD_IN_FLAMES : SPELL_ENGULFING_FLAMES, CastSpellExtraArgs().AddSpellBP0(urand(0, 2)));
+                    DoCastAOE(IsHeroic() ? SPELL_WORLD_IN_FLAMES : static_cast<uint32>(SPELL_ENGULFING_FLAMES), CastSpellExtraArgs().AddSpellBP0(urand(0, 2)));
                     Talk(IsHeroic() ? SAY_ANNOUNCE_WORLD_IN_FLAMES : SAY_ANNOUNCE_ENGULFING_FLAMES);
                     events.Repeat(events.IsInPhase(PHASE_TWO) ? 1min : 30s);
                     break;
