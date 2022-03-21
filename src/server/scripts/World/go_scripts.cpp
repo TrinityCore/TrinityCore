@@ -1216,8 +1216,9 @@ public:
 ## go_ETC70_music
 ####*/
 
-enum ETC70Music {
-    POWER_OF_THE_HORDE = 181075,
+enum ETC70Music 
+{
+    POWER_OF_THE_HORDE = 181075
 };
 enum ETC70MusicEvent
 {
