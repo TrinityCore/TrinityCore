@@ -32,67 +32,6 @@
 #include "WorldSession.h"
 
 /*######
-## npc_roxi_ramrocket
-######*/
-
-enum RoxiRamrocket
-{
-    SPELL_MECHANO_HOG               = 60866,
-    SPELL_MEKGINEERS_CHOPPER        = 60867
-};
-
-class npc_roxi_ramrocket : public CreatureScript
-{
-public:
-    npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
-
-    struct npc_roxi_ramrocketAI : public ScriptedAI
-    {
-        npc_roxi_ramrocketAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            //Quest Menu
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            //Trainer Menu
-            if (me->IsTrainer())
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-            //Vendor Menu
-            if (me->IsVendor())
-                if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_TRAIN:
-                    player->GetSession()->SendTrainerList(me);
-                    break;
-                case GOSSIP_ACTION_TRADE:
-                    player->GetSession()->SendListInventory(me->GetGUID());
-                    break;
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_roxi_ramrocketAI(creature);
-    }
-};
-
-/*######
 ## npc_brunnhildar_prisoner
 ######*/
 
@@ -1414,7 +1353,6 @@ class spell_bear_flank_fail : public AuraScript
 
 void AddSC_storm_peaks()
 {
-    new npc_roxi_ramrocket();
     new npc_brunnhildar_prisoner();
     new npc_freed_protodrake();
     new npc_icefang();
