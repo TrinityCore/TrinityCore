@@ -1167,6 +1167,7 @@ struct SmartAction
         struct
         {
             uint32 gameObjectAction;
+            uint32 param; // UNUSED: param reserved for compatibility with master branch
         } activateGameObject;
 
         struct
