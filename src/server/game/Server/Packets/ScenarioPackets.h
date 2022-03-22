@@ -59,7 +59,7 @@ namespace WorldPackets
             std::vector<BonusObjectiveData> BonusObjectives;
             std::vector<uint32> PickedSteps;
             std::vector<ScenarioSpellUpdate> Spells;
-            ObjectGuid PlayerGUID = ObjectGuid::Empty;
+            ObjectGuid PlayerGUID;
             bool ScenarioComplete = false;
         };
 
