@@ -117,12 +117,11 @@ class TC_COMMON_API BIH
         {
             float intervalMin = -1.f;
             float intervalMax = -1.f;
-            G3D::Vector3 org = r.origin();
-            G3D::Vector3 dir = r.direction();
-            G3D::Vector3 invDir;
+            G3D::Vector3 const& org = r.origin();
+            G3D::Vector3 const& dir = r.direction();
+            G3D::Vector3 const& invDir = r.invDirection();
             for (int i=0; i<3; ++i)
             {
-                invDir[i] = 1.f / dir[i];
                 if (G3D::fuzzyNe(dir[i], 0.0f))
                 {
                     float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
