@@ -245,6 +245,17 @@ namespace WorldPackets
             int32 LevelTime = 0;
             bool TriggerEvent = false;
         };
+
+        class LoadingScreenNotify final : public ClientPacket
+        {
+        public:
+            LoadingScreenNotify(WorldPacket&& packet) : ClientPacket(CMSG_LOADING_SCREEN_NOTIFY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 MapID = -1;
+            bool Showing = false;
+        };
     }
 }
 

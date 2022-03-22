@@ -91,6 +91,7 @@ namespace WorldPackets
         class CharDelete;
         class EnumCharacters;
         class GenerateRandomCharacterName;
+        class LoadingScreenNotify;
         class PlayerLogin;
         class ShowingCloak;
         class ShowingHelm;
@@ -641,7 +642,7 @@ class TC_GAME_API WorldSession
         void SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial);
         void HandleContinuePlayerLogin();
         void AbortLogin(WorldPackets::Character::LoginFailureReason reason);
-        void HandleLoadScreenOpcode(WorldPacket& recvPacket);
+        void HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& packet);
         void HandlePlayerLogin(LoginQueryHolder const& holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);
         void HandleCharFactionOrRaceChangeCallback(std::shared_ptr<CharacterFactionChangeInfo> factionChangeInfo, PreparedQueryResult result);

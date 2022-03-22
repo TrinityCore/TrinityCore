@@ -315,7 +315,7 @@ enum OpcodeClient : uint16
     CMSG_LF_GUILD_REMOVE_RECRUIT                      = 0x3027,
     CMSG_LF_GUILD_SET_GUILD_POST                      = 0x0448,
     CMSG_LIST_INVENTORY                               = 0x2806,
-    CMSG_LOAD_SCREEN                                  = 0x2422,
+    CMSG_LOADING_SCREEN_NOTIFY                        = 0x2422,
     CMSG_LOGOUT_CANCEL                                = 0x2324,
     CMSG_LOGOUT_REQUEST                               = 0x0A25,
     CMSG_LOG_DISCONNECT                               = 0x446D,
