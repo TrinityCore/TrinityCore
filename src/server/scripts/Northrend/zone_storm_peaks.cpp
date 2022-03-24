@@ -1351,6 +1351,81 @@ class spell_bear_flank_fail : public AuraScript
     }
 };
 
+/*######
+## Quest 12828: Ample Inspiration
+######*/
+
+enum AmpleInspiration
+{
+    SPELL_QUIET_SUICIDE              = 3617,
+    SPELL_SUMMON_MAIN_MAMMOTH_MEAT   = 57444,
+    SPELL_MAMMOTH_SUMMON_OBJECT_1    = 54627,
+    SPELL_MAMMOTH_SUMMON_OBJECT_2    = 54628,
+    SPELL_MAMMOTH_SUMMON_OBJECT_3    = 54623,
+
+    ITEM_EXPLOSIVE_DEVICE            = 40686
+};
+
+// 54581 - Mammoth Explosion Spell Spawner
+class spell_storm_peaks_mammoth_explosion_master : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_mammoth_explosion_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_QUIET_SUICIDE,
+            SPELL_SUMMON_MAIN_MAMMOTH_MEAT,
+            SPELL_MAMMOTH_SUMMON_OBJECT_1,
+            SPELL_MAMMOTH_SUMMON_OBJECT_2,
+            SPELL_MAMMOTH_SUMMON_OBJECT_3
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_QUIET_SUICIDE);
+        caster->CastSpell(caster, SPELL_SUMMON_MAIN_MAMMOTH_MEAT);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_1);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_1);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_1);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_2);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_2);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_2);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_3);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_3);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_mammoth_explosion_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 54892 - Unstable Explosive Detonation
+class spell_storm_peaks_unstable_explosive_detonation : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_unstable_explosive_detonation);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetItemTemplate(ITEM_EXPLOSIVE_DEVICE);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            caster->DestroyItemCount(ITEM_EXPLOSIVE_DEVICE, 1, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_unstable_explosive_detonation::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_brunnhildar_prisoner();
@@ -1376,4 +1451,6 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_read_pronouncement);
     RegisterSpellScript(spell_bear_flank_master);
     RegisterSpellScript(spell_bear_flank_fail);
+    RegisterSpellScript(spell_storm_peaks_mammoth_explosion_master);
+    RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
 }
