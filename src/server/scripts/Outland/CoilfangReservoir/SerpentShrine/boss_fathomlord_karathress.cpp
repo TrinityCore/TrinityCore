@@ -33,7 +33,7 @@ EndScriptData */
 enum FathomlordKarathress
 {
     SAY_AGGRO                       = 0,
-    SAY_GAIN_BLESSING               = 1, 
+    SAY_GAIN_BLESSING               = 1,
     SAY_GAIN_ABILITY1               = 2,
     SAY_GAIN_ABILITY2               = 3,
     SAY_GAIN_ABILITY3               = 4,
