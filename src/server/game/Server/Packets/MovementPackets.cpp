@@ -368,7 +368,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data.WriteBit(false);                                                   // HasSplineFilter
         data.WriteBit(moveSpline.spell_effect_extra.has_value());               // HasSpellEffectExtraData
         bool hasJumpExtraData = data.WriteBit(moveSpline.splineflags.parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time));
-        data.WriteBit(moveSpline.anim_tier.has_value());                        // HasAnimationTierTransition
+        data.WriteBit(moveSpline.anim_tier.has_value());                        // HasAnimTierTransition
         data.WriteBit(false);                                                   // HasUnknown901
         data.FlushBits();
 
