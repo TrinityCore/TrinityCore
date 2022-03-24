@@ -406,16 +406,18 @@ public:
 /*###
 # npc_image_of_medivh
 ####*/
-
-#define SAY_DIALOG_MEDIVH_1         "You've got my attention, dragon. You'll find I'm not as easily scared as the villagers below."
-#define SAY_DIALOG_ARCANAGOS_2      "Your dabbling in the arcane has gone too far, Medivh. You've attracted the attention of powers beyond your understanding. You must leave Karazhan at once!"
-#define SAY_DIALOG_MEDIVH_3         "You dare challenge me at my own dwelling? Your arrogance is astounding, even for a dragon!"
-#define SAY_DIALOG_ARCANAGOS_4      "A dark power seeks to use you, Medivh! If you stay, dire days will follow. You must hurry, we don't have much time!"
-#define SAY_DIALOG_MEDIVH_5         "I do not know what you speak of, dragon... but I will not be bullied by this display of insolence. I'll leave Karazhan when it suits me!"
-#define SAY_DIALOG_ARCANAGOS_6      "You leave me no alternative. I will stop you by force if you won't listen to reason!"
-#define EMOTE_DIALOG_MEDIVH_7       "begins to cast a spell of great power, weaving his own essence into the magic."
-#define SAY_DIALOG_ARCANAGOS_8      "What have you done, wizard? This cannot be! I'm burning from... within!"
-#define SAY_DIALOG_MEDIVH_9         "He should not have angered me. I must go... recover my strength now..."
+enum IMAGE_OF_MEDIVH_TEXT
+{
+    SAY_DIALOG_MEDIVH_1             = 0,  // You've got my attention, dragon. You'll find I'm not as easily scared as the villagers below. BroadcastID 14295
+    SAY_DIALOG_ARCANAGOS_2          = 0,  // Your dabbling in the arcane has gone too far, Medivh. You've attracted the attention of powers beyond your understanding. You must leave Karazhan at once! BroadcastID 14296
+    SAY_DIALOG_MEDIVH_3             = 1,  // You dare challenge me at my own dwelling? Your arrogance is astounding, even for a dragon! BroadcastID 14297
+    SAY_DIALOG_ARCANAGOS_4          = 1,  // A dark power seeks to use you, Medivh! If you stay, dire days will follow. You must hurry, we don't have much time! BroadcastID 14298
+    SAY_DIALOG_MEDIVH_5             = 2,  // I do not know what you speak of, dragon... but I will not be bullied by this display of insolence. I'll leave Karazhan when it suits me! BroadcastID 14299
+    SAY_DIALOG_ARCANAGOS_6          = 2,  // You leave me no alternative. I will stop you by force if you won't listen to reason! BroadcastID 14300
+    EMOTE_DIALOG_MEDIVH_7           = 3,  // begins to cast a spell of great power, weaving his own essence into the magic. BroadcastID 14308
+    SAY_DIALOG_ARCANAGOS_8          = 3,  // What have you done, wizard? This cannot be! I'm burning from... within! BroadcastID 14294
+    SAY_DIALOG_MEDIVH_9             = 4   // He should not have angered me. I must go... recover my strength now... BroadcastID 14316
+};
 
 static float MedivPos[4] = {-11161.49f, -1902.24f, 91.48f, 1.94f};
 static float ArcanagosPos[4] = {-11169.75f, -1881.48f, 95.39f, 4.83f};
@@ -510,25 +512,25 @@ public:
             {
             case 0: return 9999999;
             case 1:
-                me->Yell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_1);
                 return 10000;
             case 2:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL);
+                    arca->Yell(SAY_DIALOG_ARCANAGOS_2);
                 return 20000;
             case 3:
-                me->Yell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_3);
                 return 10000;
             case 4:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL);
+                    arca->Yell(SAY_DIALOG_ARCANAGOS_4);
                 return 20000;
             case 5:
-                me->Yell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_5);
                 return 20000;
             case 6:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL);
+                    arca->Yell(SAY_DIALOG_ARCANAGOS_6);
                 return 10000;
             case 7:
                 FireArcanagosTimer = 500;
@@ -538,7 +540,7 @@ public:
                 DoCast(me, SPELL_MANA_SHIELD);
                 return 10000;
             case 9:
-                me->TextEmote(EMOTE_DIALOG_MEDIVH_7);
+                Talk(EMOTE_DIALOG_MEDIVH_7);
                 return 10000;
             case 10:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
@@ -546,7 +548,7 @@ public:
                 return 1000;
             case 11:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL);
+                    arca->Yell(SAY_DIALOG_ARCANAGOS_8);
                 return 5000;
             case 12:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
@@ -559,7 +561,7 @@ public:
                 }
                 return 10000;
             case 13:
-                me->Yell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_9);
                 return 10000;
             case 14:
             {

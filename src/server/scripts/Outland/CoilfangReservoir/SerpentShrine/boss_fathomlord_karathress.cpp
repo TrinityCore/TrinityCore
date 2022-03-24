@@ -33,7 +33,7 @@ EndScriptData */
 enum FathomlordKarathress
 {
     SAY_AGGRO                       = 0,
-    SAY_GAIN_BLESSING               = 1,
+    SAY_GAIN_BLESSING               = 1, 
     SAY_GAIN_ABILITY1               = 2,
     SAY_GAIN_ABILITY2               = 3,
     SAY_GAIN_ABILITY3               = 4,
@@ -94,7 +94,6 @@ enum FathomlordKarathress
 #define OLUM_Z                     -7.54773f
 #define OLUM_O                     0.401581f
 
-#define SAY_GAIN_BLESSING_OF_TIDES      "Your overconfidence will be your undoing! Guards, lend me your strength!"
 #define SAY_MISC                        "Alana be'lendor!" //don't know what use this
 
 #define MAX_ADVISORS 3
@@ -286,7 +285,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->Yell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL);
+                    Talk(SAY_GAIN_BLESSING);
                     DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
                 }
             }

@@ -381,10 +381,11 @@ enum Thassarian
     SAY_LERYSSA_1           = 0,
     SAY_LERYSSA_2           = 1,
     SAY_LERYSSA_3           = 2,
-    SAY_LERYSSA_4           = 3
-};
+    SAY_LERYSSA_4           = 3,
 
-#define GOSSIP_ITEM_T   "Let's do this, Thassarian. It's now or never."
+    GOSSIP_THASSARIAN_MENU  = 9418, //Let's do this, Thassarian.  It's now or never.
+    GOSSIP_THASSARIAN_OP    = 0
+};
 
 class npc_thassarian : public CreatureScript
 {
@@ -667,7 +668,7 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE && me->GetAreaId() == 4128)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_THASSARIAN_MENU, GOSSIP_THASSARIAN_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
