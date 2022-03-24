@@ -251,7 +251,7 @@ struct boss_jedoga_shadowseeker : public BossAI
             if (_initiateGUIDS.empty())
             {
                 DoCastSelf(SPELL_HOVER_FALL_1);
-                me->SetAnimationTier(AnimationTier::Ground);
+                me->SetAnimTier(AnimTier::Ground);
                 events.ScheduleEvent(EVENT_START_FIGHT_1, Seconds(1));
             }
         }

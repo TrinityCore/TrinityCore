@@ -78,7 +78,7 @@ enum UnitBytes2Offsets : uint8
 };
 
 // UNIT_FIELD_BYTES_1 (UNIT_BYTES_1_OFFSET_ANIM_TIER)
-enum class AnimationTier : uint8
+enum class AnimTier : uint8
 {
     Ground      = 0, // plays ground tier animations
     Swim        = 1, // falls back to ground tier animations, not handled by the client, should never appear in sniffs, will prevent tier change animations from playing correctly if used

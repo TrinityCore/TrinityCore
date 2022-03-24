@@ -22,7 +22,7 @@
 #include "MoveSplineInitArgs.h"
 #include <G3D/Vector3.h>
 
-enum class AnimationTier : uint8;
+enum class AnimTier : uint8;
 
 namespace Movement
 {
@@ -126,7 +126,7 @@ namespace Movement
         int32 currentPathIdx() const;
 
         bool HasAnimation() const { return splineflags.animation; }
-        AnimationTier GetAnimationTier() const { return static_cast<AnimationTier>(splineflags.animTier); }
+        AnimTier GetAnimTier() const { return static_cast<AnimTier>(splineflags.animTier); }
 
         bool onTransport;
         std::string ToString() const;
