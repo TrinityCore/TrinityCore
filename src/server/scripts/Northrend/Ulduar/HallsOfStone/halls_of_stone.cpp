@@ -122,8 +122,13 @@ enum Misc
 
 };
 
-#define GOSSIP_ITEM_START               "Brann, it would be our honor!"
-#define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!"
+enum Gossip
+{
+    GOSSIP_ITEM_START_MID               = 9669,     //Brann, it would be our honor!
+    GOSSIP_ITEM_START_OID               = 0,
+    GOSSIP_ITEM_PROGRESS_MID            = 9670,    //Let's move Brann, enough of the history lessons!
+    GOSSIP_ITEM_PROGRESS_OID            = 0
+};
 
 static Position SpawnLocations[]=
 {
@@ -687,7 +692,7 @@ struct npc_brann_hos : public EscortAI
         if (me->IsQuestGiver())
             player->PrepareQuestMenu(me->GetGUID());
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        AddGossipItemFor(player, GOSSIP_ITEM_START_MID, GOSSIP_ITEM_START_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         SendGossipMenuFor(player, TEXT_ID_START, me->GetGUID());
 
         return true;
