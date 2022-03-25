@@ -75,7 +75,6 @@ enum FathomlordKarathress
     SPELL_CYCLONE_CYCLONE           = 29538,
 
     //Yells and Quotes
-    SOUND_GAIN_BLESSING_OF_TIDES    = 11278,
     SOUND_MISC                      = 11283,
 
     //Summoned Unit GUIDs
@@ -286,7 +285,6 @@ public:
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
                     Talk(SAY_GAIN_BLESSING);
-                    DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
                 }
             }
 

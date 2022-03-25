@@ -64,11 +64,13 @@ enum Creatures
 /*######
 # npc_barnesAI
 ######*/
-enum gossips {
-  OZ_GOSSIP1_MID              = 7421, // I'm not an actor.
-  OZ_GOSSIP1_OID              = 0,
-  OZ_GOSSIP2_MID              = 7422, // Ok, I'll give it a try, then.
-  OZ_GOSSIP2_OID              = 0,
+
+enum Misc
+{
+    OZ_GOSSIP1_MID              = 7421, // I'm not an actor.
+    OZ_GOSSIP1_OID              = 0,
+    OZ_GOSSIP2_MID              = 7422, // Ok, I'll give it a try, then.
+    OZ_GOSSIP2_OID              = 0,
 };
 
 #define OZ_GM_GOSSIP1       "[GM] Change event to EVENT_OZ"
@@ -406,17 +408,18 @@ public:
 /*###
 # npc_image_of_medivh
 ####*/
-enum IMAGE_OF_MEDIVH_TEXT
+
+enum
 {
-    SAY_DIALOG_MEDIVH_1             = 0,  // You've got my attention, dragon. You'll find I'm not as easily scared as the villagers below. BroadcastID 14295
-    SAY_DIALOG_ARCANAGOS_2          = 0,  // Your dabbling in the arcane has gone too far, Medivh. You've attracted the attention of powers beyond your understanding. You must leave Karazhan at once! BroadcastID 14296
-    SAY_DIALOG_MEDIVH_3             = 1,  // You dare challenge me at my own dwelling? Your arrogance is astounding, even for a dragon! BroadcastID 14297
-    SAY_DIALOG_ARCANAGOS_4          = 1,  // A dark power seeks to use you, Medivh! If you stay, dire days will follow. You must hurry, we don't have much time! BroadcastID 14298
-    SAY_DIALOG_MEDIVH_5             = 2,  // I do not know what you speak of, dragon... but I will not be bullied by this display of insolence. I'll leave Karazhan when it suits me! BroadcastID 14299
-    SAY_DIALOG_ARCANAGOS_6          = 2,  // You leave me no alternative. I will stop you by force if you won't listen to reason! BroadcastID 14300
-    EMOTE_DIALOG_MEDIVH_7           = 3,  // begins to cast a spell of great power, weaving his own essence into the magic. BroadcastID 14308
-    SAY_DIALOG_ARCANAGOS_8          = 3,  // What have you done, wizard? This cannot be! I'm burning from... within! BroadcastID 14294
-    SAY_DIALOG_MEDIVH_9             = 4   // He should not have angered me. I must go... recover my strength now... BroadcastID 14316
+    SAY_DIALOG_MEDIVH_1             = 0,
+    SAY_DIALOG_ARCANAGOS_2          = 0,
+    SAY_DIALOG_MEDIVH_3             = 1,
+    SAY_DIALOG_ARCANAGOS_4          = 1,
+    SAY_DIALOG_MEDIVH_5             = 2,
+    SAY_DIALOG_ARCANAGOS_6          = 2,
+    EMOTE_DIALOG_MEDIVH_7           = 3,
+    SAY_DIALOG_ARCANAGOS_8          = 3,
+    SAY_DIALOG_MEDIVH_9             = 4
 };
 
 static float MedivPos[4] = {-11161.49f, -1902.24f, 91.48f, 1.94f};
@@ -516,21 +519,21 @@ public:
                 return 10000;
             case 2:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_2);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_2);
                 return 20000;
             case 3:
                 Talk(SAY_DIALOG_MEDIVH_3);
                 return 10000;
             case 4:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_4);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_4);
                 return 20000;
             case 5:
                 Talk(SAY_DIALOG_MEDIVH_5);
                 return 20000;
             case 6:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_6);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_6);
                 return 10000;
             case 7:
                 FireArcanagosTimer = 500;
@@ -548,7 +551,7 @@ public:
                 return 1000;
             case 11:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_8);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_8);
                 return 5000;
             case 12:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))

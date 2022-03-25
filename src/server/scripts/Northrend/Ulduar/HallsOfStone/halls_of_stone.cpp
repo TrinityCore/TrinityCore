@@ -130,8 +130,6 @@ enum Gossip
     GOSSIP_ITEM_PROGRESS_OID            = 0
 };
 
-#define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!" // missing handler?
-
 static Position SpawnLocations[]=
 {
     {946.992f, 397.016f, 208.374f, 0.0f},
