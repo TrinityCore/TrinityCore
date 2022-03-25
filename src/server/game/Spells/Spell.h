@@ -800,7 +800,11 @@ class TC_GAME_API Spell
         int32 m_timer;
 
         SpellEvent* _spellEvent;
+// @tswow-begin make public
+public:
         TriggerCastFlags _triggeredCastFlags;
+private:
+// @tswow-end
 
         // if need this can be replaced by Aura copy
         // we can't store original aura link to prevent access to deleted auras
