@@ -2528,7 +2528,7 @@ bool Creature::LoadCreaturesAddon()
         SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_PET_TALENTS, 0);
         SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, uint8((cainfo->bytes1 >> 16) & 0xFF));
 
-        SetAnimationTier(static_cast<AnimationTier>((cainfo->bytes1 >> 24) & 0xFF));
+        SetAnimTier(static_cast<AnimTier>((cainfo->bytes1 >> 24) & 0xFF));
 
         //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
         //! If no inhabittype_fly (if no MovementFlag_DisableGravity or MovementFlag_CanFly flag found in sniffs)
@@ -2927,21 +2927,21 @@ bool Creature::SetWalk(bool enable)
     return true;
 }
 
-bool Creature::SetDisableGravity(bool disable, bool packetOnly /*=false*/, bool updateAnimationTier /*= true*/)
+bool Creature::SetDisableGravity(bool disable, bool packetOnly /*=false*/, bool updateAnimTier /*= true*/)
 {
     //! It's possible only a packet is sent but moveflags are not updated
     //! Need more research on this
-    if (!packetOnly && !Unit::SetDisableGravity(disable, packetOnly, updateAnimationTier))
+    if (!packetOnly && !Unit::SetDisableGravity(disable, packetOnly, updateAnimTier))
         return false;
 
-    if (updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
+    if (updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
     {
         if (IsGravityDisabled())
-            SetAnimationTier(AnimationTier::Fly);
+            SetAnimTier(AnimTier::Fly);
         else if (IsHovering())
-            SetAnimationTier(AnimationTier::Hover);
+            SetAnimTier(AnimTier::Hover);
         else
-            SetAnimationTier(AnimationTier::Ground);
+            SetAnimTier(AnimTier::Ground);
     }
 
     if (!movespline->Initialized())
@@ -3009,19 +3009,19 @@ bool Creature::SetFeatherFall(bool enable, bool packetOnly /* = false */)
     return true;
 }
 
-bool Creature::SetHover(bool enable, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
+bool Creature::SetHover(bool enable, bool packetOnly /*= false*/, bool updateAnimTier /*= true*/)
 {
-    if (!packetOnly && !Unit::SetHover(enable, packetOnly, updateAnimationTier))
+    if (!packetOnly && !Unit::SetHover(enable, packetOnly, updateAnimTier))
         return false;
 
-    if (updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
+    if (updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
     {
         if (IsGravityDisabled())
-            SetAnimationTier(AnimationTier::Fly);
+            SetAnimTier(AnimTier::Fly);
         else if (IsHovering())
-            SetAnimationTier(AnimationTier::Hover);
+            SetAnimTier(AnimTier::Hover);
         else
-            SetAnimationTier(AnimationTier::Ground);
+            SetAnimTier(AnimTier::Ground);
     }
 
     if (!movespline->Initialized())

@@ -1133,7 +1133,7 @@ class boss_aerial_command_unit : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->SetDisableGravity(true);
-                    me->SetAnimationTier(AnimationTier::Ground);
+                    me->SetAnimTier(AnimTier::Ground);
 
                     DoCastSelf(SPELL_VEHICLE_DAMAGED, true);
 
