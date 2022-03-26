@@ -159,9 +159,9 @@ class boss_doomrel : public CreatureScript
                 me->SetImmuneToPC(true);
 
                 if (_instance->GetData(DATA_GHOSTKILL) >= 7)
-                    me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                    me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
                 else
-                    me->SetNpcFlags(UNIT_NPC_FLAG_GOSSIP);
+                    me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_GOSSIP);
             }
 
             void JustEngagedWith(Unit* /*who*/) override

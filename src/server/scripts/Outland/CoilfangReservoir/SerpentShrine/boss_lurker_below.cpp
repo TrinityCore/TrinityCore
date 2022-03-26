@@ -367,7 +367,7 @@ public:
 
                 if (!Spawned)
                 {
-                    me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->ReplaceAllUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
                     // spawn adds
                     for (uint8 i = 0; i < 9; ++i)
                         if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN))

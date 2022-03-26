@@ -192,8 +192,8 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetRace(fields[7].GetUInt8());
     SetClass(fields[8].GetUInt8());
     SetSex(fields[9].GetUInt8());
-    SetFlags(fields[10].GetUInt8());
-    SetCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
+    ReplaceAllFlags(fields[10].GetUInt8());
+    ReplaceAllCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
     SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[15].GetUInt64()));
     SetFactionTemplate(sChrRacesStore.AssertEntry(m_corpseData->RaceID)->FactionID);
 

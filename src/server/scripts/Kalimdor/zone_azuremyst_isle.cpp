@@ -219,7 +219,7 @@ public:
             Initialize();
 
             me->SetFaction(NormFaction);
-            me->SetNpcFlags(NpcFlags);
+            me->ReplaceAllNpcFlags(NpcFlags);
         }
 
         void JustEngagedWith(Unit* who) override

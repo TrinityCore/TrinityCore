@@ -5925,7 +5925,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         }
 
         // PvP, FFAPvP
-        minion->SetPvpFlags(GetPvpFlags());
+        minion->ReplaceAllPvpFlags(GetPvpFlags());
 
         // FIXME: hack, speed must be set only at follow
         if (GetTypeId() == TYPEID_PLAYER && minion->IsPet())
@@ -6061,7 +6061,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
             charm->m_ControlledByPlayer = false;
 
         // PvP, FFAPvP
-        charm->SetPvpFlags(GetPvpFlags());
+        charm->ReplaceAllPvpFlags(GetPvpFlags());
 
         ASSERT(charm->GetCharmerGUID().IsEmpty(),
             "Unit %u is being charmed, but it already has a charmer %s", charm->GetEntry(), charm->GetCharmerGUID().ToString().c_str());
@@ -6101,13 +6101,13 @@ void Unit::SetCharm(Unit* charm, bool apply)
         {
             charm->m_ControlledByPlayer = true;
             charm->AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
-            charm->SetPvpFlags(player->GetPvpFlags());
+            charm->ReplaceAllPvpFlags(player->GetPvpFlags());
         }
         else
         {
             charm->m_ControlledByPlayer = false;
             charm->RemoveUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
-            charm->SetPvpFlags(UNIT_BYTE2_FLAG_NONE);
+            charm->ReplaceAllPvpFlags(UNIT_BYTE2_FLAG_NONE);
         }
 
         if (charm->IsWalking() != _isWalkingBeforeCharm)

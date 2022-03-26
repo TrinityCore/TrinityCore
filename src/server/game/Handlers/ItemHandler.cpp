@@ -905,7 +905,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
     }
 
     item->SetGiftCreator(_player->GetGUID());
-    item->SetItemFlags(ITEM_FIELD_FLAG_WRAPPED);
+    item->ReplaceAllItemFlags(ITEM_FIELD_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
 
     if (item->GetState() == ITEM_NEW) // save new item, to have alway for `character_gifts` record in `item_instance`

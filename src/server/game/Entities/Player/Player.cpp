@@ -4411,7 +4411,7 @@ void Player::KillPlayer()
     setDeathState(CORPSE);
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_IN_PVP);
 
-    SetDynamicFlags(UNIT_DYNFLAG_NONE);
+    ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
     if (!sMapStore.LookupEntry(GetMapId())->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         AddPlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
     else
@@ -4470,7 +4470,7 @@ Corpse* Player::CreateCorpse()
     corpse->SetSex(GetNativeGender());
     corpse->SetClass(GetClass());
     corpse->SetCustomizations(Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
-    corpse->SetFlags(flags);
+    corpse->ReplaceAllFlags(flags);
     corpse->SetDisplayId(GetNativeDisplayId());
     corpse->SetFactionTemplate(sChrRacesStore.AssertEntry(GetRace())->FactionID);
 
@@ -18047,8 +18047,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetBankBagSlotCount(fields.bankSlots);
     SetNativeGender(fields.gender);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Inebriation), fields.drunk);
-    SetPlayerFlags(fields.playerFlags);
-    SetPlayerFlagsEx(fields.playerFlagsEx);
+    ReplaceAllPlayerFlags(fields.playerFlags);
+    ReplaceAllPlayerFlagsEx(fields.playerFlagsEx);
     SetWatchedFactionIndex(fields.watchedFaction);
 
     m_atLoginFlags = fields.at_login;
@@ -28668,8 +28668,8 @@ Pet* Player::SummonPet(uint32 entry, Optional<PetSaveMode> slot, float x, float 
     pet->SetCreatorGUID(GetGUID());
     pet->SetFaction(GetFaction());
 
-    pet->SetNpcFlags(UNIT_NPC_FLAG_NONE);
-    pet->SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
+    pet->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+    pet->ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
     pet->InitStatsForLevel(GetLevel());
 
     SetMinion(pet, true);

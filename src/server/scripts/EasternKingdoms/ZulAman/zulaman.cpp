@@ -109,7 +109,7 @@ class npc_voljin_zulaman : public CreatureScript
                     _events.Reset();
                     me->SetMountDisplayId(0);
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    me->SetDynamicFlags(UNIT_DYNFLAG_NONE);
+                    me->ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
                     _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_1, 1s);
                     Talk(SAY_INTRO_1, player);
                     me->SetWalk(true);

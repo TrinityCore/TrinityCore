@@ -1256,7 +1256,7 @@ public:
                         Julianne->GetMotionMaster()->Clear();
                         Julianne->setDeathState(JUST_DIED);
                         Julianne->CombatStop(true);
-                        Julianne->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
+                        Julianne->ReplaceAllDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
                     }
                     return;
                 }
@@ -1525,7 +1525,7 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32& dama
                 Romulo->GetMotionMaster()->Clear();
                 Romulo->setDeathState(JUST_DIED);
                 Romulo->CombatStop(true);
-                Romulo->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
+                Romulo->ReplaceAllDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
             }
 
             return;

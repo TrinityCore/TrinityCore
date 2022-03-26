@@ -336,7 +336,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
         SetFaction(goOverride->Faction);
-        SetFlags(GameObjectFlags(goOverride->Flags));
+        ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
     }
 
     if (m_goTemplateAddon)
@@ -632,7 +632,7 @@ void GameObject::Update(uint32 diff)
                         if (caster && caster->GetTypeId() == TYPEID_PLAYER)
                         {
                             SetGoState(GO_STATE_ACTIVE);
-                            SetFlags(GO_FLAG_NODESPAWN);
+                            ReplaceAllFlags(GO_FLAG_NODESPAWN);
 
                             UpdateData udata(caster->GetMapId());
                             WorldPacket packet;
@@ -993,7 +993,7 @@ void GameObject::Update(uint32 diff)
                 SendGameObjectDespawn();
                 //reset flags
                 if (GameObjectOverride const* goOverride = GetGameObjectOverride())
-                    SetFlags(GameObjectFlags(goOverride->Flags));
+                    ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
             }
 
             if (!m_respawnDelayTime)
@@ -1094,7 +1094,7 @@ void GameObject::Delete()
     SetGoState(GO_STATE_READY);
 
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
-        SetFlags(GameObjectFlags(goOverride->Flags));
+        ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
 
     uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
     if (poolid)

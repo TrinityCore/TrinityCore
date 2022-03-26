@@ -4851,7 +4851,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones = new Corpse();
         bones->Create(corpse->GetGUID().GetCounter(), this);
 
-        bones->SetCorpseDynamicFlags(CorpseDynFlags(*corpse->m_corpseData->DynamicFlags));
+        bones->ReplaceAllCorpseDynamicFlags(corpse->GetCorpseDynamicFlags());
         bones->SetOwnerGUID(corpse->m_corpseData->Owner);
         bones->SetPartyGUID(corpse->m_corpseData->PartyGUID);
         bones->SetGuildGUID(corpse->m_corpseData->GuildGUID);
@@ -4860,7 +4860,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->SetSex(corpse->m_corpseData->Sex);
         bones->SetClass(corpse->m_corpseData->Class);
         bones->SetCustomizations(Trinity::Containers::MakeIteratorPair(corpse->m_corpseData->Customizations.begin(), corpse->m_corpseData->Customizations.end()));
-        bones->SetFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
+        bones->ReplaceAllFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
         bones->SetFactionTemplate(corpse->m_corpseData->FactionTemplate);
 
         bones->SetCellCoord(corpse->GetCellCoord());

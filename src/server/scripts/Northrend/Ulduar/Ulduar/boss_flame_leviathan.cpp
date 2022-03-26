@@ -637,7 +637,7 @@ class boss_flame_leviathan_seat : public CreatureScript
                         if (Creature* turret = turretPassenger->ToCreature())
                         {
                             turret->SetFaction(me->GetVehicleBase()->GetFaction());
-                            turret->SetUnitFlags(UnitFlags(0)); // unselectable
+                            turret->ReplaceAllUnitFlags(UnitFlags(0)); // unselectable
                             turret->AI()->AttackStart(who);
                         }
                     if (Unit* devicePassenger = me->GetVehicleKit()->GetPassenger(SEAT_DEVICE))
@@ -657,7 +657,7 @@ class boss_flame_leviathan_seat : public CreatureScript
                     if (Unit* device = ASSERT_NOTNULL(me->GetVehicleKit())->GetPassenger(SEAT_DEVICE))
                     {
                         device->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                        device->SetUnitFlags(UnitFlags(0)); // unselectable
+                        device->ReplaceAllUnitFlags(UnitFlags(0)); // unselectable
                     }
                 }
             }

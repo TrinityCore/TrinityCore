@@ -122,7 +122,7 @@ class instance_uldaman : public InstanceMapScript
 
                     case GO_ANCIENT_VAULT_DOOR:
                         go->SetGoState(GO_STATE_READY);
-                        go->SetFlags(GameObjectFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN));
+                        go->ReplaceAllFlags(GameObjectFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN));
                         ancientVaultDoor = go->GetGUID();
 
                         if (m_auiEncounter[1] == DONE)

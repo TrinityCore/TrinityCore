@@ -70,7 +70,7 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
     if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
     {
         _escortNPCFlags = me->m_unitData->NpcFlags[0];
-        me->SetNpcFlags((NPCFlags)0);
+        me->ReplaceAllNpcFlags((NPCFlags)0);
     }
 
     me->GetMotionMaster()->MovePath(_path, _repeatWaypointPath);
@@ -194,7 +194,7 @@ void SmartAI::EndPath(bool fail)
 
     if (_escortNPCFlags)
     {
-        me->SetNpcFlags((NPCFlags)_escortNPCFlags);
+        me->ReplaceAllNpcFlags((NPCFlags)_escortNPCFlags);
         _escortNPCFlags = 0;
     }
 

@@ -985,7 +985,7 @@ public:
 
                     if (Merithra)
                     {
-                        Merithra->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                        Merithra->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
                         Merithra->SetStandState(UNIT_STAND_STATE_STAND);
                         Merithra->SetDisplayId(MERITHRA_NIGHT_ELF_FORM);
                         Merithra->SetFaction(FACTION_FRIENDLY);
@@ -993,7 +993,7 @@ public:
 
                     if (Caelestrasz)
                     {
-                        Caelestrasz->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                        Caelestrasz->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
                         Caelestrasz->SetStandState(UNIT_STAND_STATE_STAND);
                         Caelestrasz->SetDisplayId(CAELESTRASZ_NIGHT_ELF_FORM);
                         Caelestrasz->SetFaction(FACTION_FRIENDLY);
@@ -1001,7 +1001,7 @@ public:
 
                     if (Arygos)
                     {
-                        Arygos->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                        Arygos->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
                         Arygos->SetStandState(UNIT_STAND_STATE_STAND);
                         Arygos->SetDisplayId(ARYGOS_GNOME_FORM);
                         Arygos->SetFaction(FACTION_FRIENDLY);

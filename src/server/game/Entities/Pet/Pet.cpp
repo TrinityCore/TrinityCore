@@ -274,8 +274,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     SetDisplayId(petInfo->DisplayId);
     SetNativeDisplayId(petInfo->DisplayId);
     uint8 petlevel = petInfo->Level;
-    SetNpcFlags(UNIT_NPC_FLAG_NONE);
-    SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
+    ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+    ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
     SetName(petInfo->Name);
 
     switch (getPetType())
@@ -283,14 +283,14 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         case SUMMON_PET:
             petlevel = owner->GetLevel();
             SetClass(CLASS_MAGE);
-            SetUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet dismiss, cancel)
+            ReplaceAllUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet dismiss, cancel)
             break;
         case HUNTER_PET:
             SetClass(CLASS_WARRIOR);
             SetGender(GENDER_NONE);
             SetSheath(SHEATH_STATE_MELEE);
-            SetPetFlags(petInfo->WasRenamed ? UNIT_PET_FLAG_CAN_BE_ABANDONED : UnitPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED));
-            SetUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet abandon, cancel)
+            ReplaceAllPetFlags(petInfo->WasRenamed ? UNIT_PET_FLAG_CAN_BE_ABANDONED : UnitPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED));
+            ReplaceAllUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet abandon, cancel)
             break;
         default:
             if (!IsPetGhoul())
@@ -616,7 +616,7 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
         if (getPetType() == HUNTER_PET)
         {
             // pet corpse non lootable and non skinnable
-            SetDynamicFlags(UNIT_DYNFLAG_NONE);
+            ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
             RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
 
             //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -833,8 +833,8 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
     SetPetNameTimestamp(0);
     SetPetExperience(0);
     SetPetNextLevelExperience(uint32(sObjectMgr->GetXPForLevel(GetLevel() + 1) * PET_XP_FACTOR));
-    SetNpcFlags(UNIT_NPC_FLAG_NONE);
-    SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
+    ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+    ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
 
     if (cinfo->type == CREATURE_TYPE_BEAST)
     {
@@ -842,7 +842,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
         SetGender(GENDER_NONE);
         SetPowerType(POWER_FOCUS);
         SetSheath(SHEATH_STATE_MELEE);
-        SetPetFlags(UnitPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED));
+        ReplaceAllPetFlags(UnitPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED));
     }
 
     return true;

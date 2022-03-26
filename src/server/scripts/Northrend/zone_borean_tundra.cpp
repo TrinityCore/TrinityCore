@@ -1458,7 +1458,7 @@ public:
                 me->SetEmoteState(uiEmoteState);
 
             if (uiNpcFlags)
-                me->SetNpcFlags(uiNpcFlags);
+                me->ReplaceAllNpcFlags(uiNpcFlags);
 
             Initialize();
 
@@ -1470,7 +1470,7 @@ public:
         void DoAction(int32 /*iParam*/) override
         {
             me->StopMoving();
-            me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+            me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 me->SetFacingToObject(player);
