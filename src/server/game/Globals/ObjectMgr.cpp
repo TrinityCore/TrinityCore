@@ -3691,6 +3691,7 @@ void ObjectMgr::LoadSingleItemTemplate(std::string entry)
 
 void ObjectMgr::LoadSingleItemTemplateObject(ItemTemplate* itemInfo)
 {
+    delete &_itemTemplateStore[itemInfo->ItemId];
     _itemTemplateStore[itemInfo->ItemId] = *itemInfo;
     // Load cached data
     itemInfo->_LoadTotalAP();
