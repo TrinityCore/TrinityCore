@@ -381,10 +381,11 @@ enum Thassarian
     SAY_LERYSSA_1           = 0,
     SAY_LERYSSA_2           = 1,
     SAY_LERYSSA_3           = 2,
-    SAY_LERYSSA_4           = 3
-};
+    SAY_LERYSSA_4           = 3,
 
-#define GOSSIP_ITEM_T   "Let's do this, Thassarian. It's now or never."
+    GOSSIP_THASSARIAN_MENU  = 9418, //Let's do this, Thassarian.  It's now or never.
+    GOSSIP_THASSARIAN_OP    = 0
+};
 
 class npc_thassarian : public CreatureScript
 {
@@ -667,7 +668,7 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE && me->GetAreaId() == 4128)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_THASSARIAN_MENU, GOSSIP_THASSARIAN_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
@@ -1415,12 +1416,13 @@ enum HiddenCultist
     SAY_HIDDEN_CULTIST_1                        = 0,
     SAY_HIDDEN_CULTIST_2                        = 1,
     SAY_HIDDEN_CULTIST_3                        = 2,
-    SAY_HIDDEN_CULTIST_4                        = 3
-};
+    SAY_HIDDEN_CULTIST_4                        = 3,
 
-char const* GOSSIP_ITEM_TOM_HEGGER = "What do you know about the Cult of the Damned?";
-char const* GOSSIP_ITEM_GUARD_MITCHELLS = "How long have you worked for the Cult of the Damned?";
-char const* GOSSIP_ITEM_SALTY_JOHN_THORPE = "I have a reason to believe you're involved in the cultist activity";
+    GOSSIP_ITEM_TOM_HEGGER_MENUID               = 9217, //What do you know about the Cult of the Damned?
+    GOSSIP_ITEM_GUARD_MITCHELLS_MENUID          = 9219, //How long have you worked for the Cult of the Damned?
+    GOSSIP_ITEM_SALTY_JOHN_THORPE_MENUID        = 9218, //I have a reason to believe you're involved in the cultist activity
+    GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID         = 0
+};
 
 class npc_hidden_cultist : public CreatureScript
 {
@@ -1548,28 +1550,28 @@ public:
         bool OnGossipHello(Player* player) override
         {
             uint32 uiGossipText = 0;
-            char const* charGossipItem;
+            uint32 charGossipItem = 0;
 
             switch (me->GetEntry())
             {
                 case NPC_TOM_HEGGER:
                     uiGossipText = GOSSIP_TEXT_TOM_HEGGER;
-                    charGossipItem = GOSSIP_ITEM_TOM_HEGGER;
+                    charGossipItem = GOSSIP_ITEM_TOM_HEGGER_MENUID;
                     break;
                 case NPC_SALTY_JOHN_THORPE:
                     uiGossipText = GOSSIP_TEXT_SALTY_JOHN_THORPE;
-                    charGossipItem = GOSSIP_ITEM_SALTY_JOHN_THORPE;
+                    charGossipItem = GOSSIP_ITEM_SALTY_JOHN_THORPE_MENUID;
                     break;
                 case NPC_GUARD_MITCHELLS:
                     uiGossipText = GOSSIP_TEXT_GUARD_MITCHELSS;
-                    charGossipItem = GOSSIP_ITEM_GUARD_MITCHELLS;
+                    charGossipItem = GOSSIP_ITEM_GUARD_MITCHELLS_MENUID;
                     break;
                 default:
                     return false;
             }
 
             if (player->HasAura(SPELL_RIGHTEOUS_VISION) && player->GetQuestStatus(QUEST_THE_HUNT_IS_ON) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, charGossipItem, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, charGossipItem, GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             if (me->IsVendor())
                 AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
