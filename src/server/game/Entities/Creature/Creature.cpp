@@ -675,7 +675,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     // trigger creature is always uninteractible and can not be attacked
     if (IsTrigger())
-        AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
     InitializeReactState();
 
@@ -1357,7 +1357,7 @@ void Creature::SetLootRecipient(Unit* unit, bool withGroup)
     else
         m_lootRecipientGroup = ObjectGuid::Empty;
 
-    AddDynamicFlag(UNIT_DYNFLAG_TAPPED);
+    SetDynamicFlag(UNIT_DYNFLAG_TAPPED);
 }
 
 // return true if this creature is tapped by the player or by a member of his group.
@@ -2518,7 +2518,7 @@ bool Creature::CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction /
     if (IsCivilian())
         return false;
 
-    if (HasUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE)) || IsImmuneToNPC())
+    if (HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE) || IsImmuneToNPC())
         return false;
 
     // skip fighting creature
@@ -2874,14 +2874,14 @@ void Creature::RefreshCanSwimFlag(bool recheck)
     // Check if the creature has UNIT_FLAG_CAN_SWIM and add it if it's missing
     // Creatures must be able to chase a target in water if they can enter water
     if (_isMissingCanSwimFlagOutOfCombat && CanEnterWater())
-        AddUnitFlag(UNIT_FLAG_CAN_SWIM);
+        SetUnitFlag(UNIT_FLAG_CAN_SWIM);
 }
 
 void Creature::AllLootRemovedFromCorpse()
 {
     if (loot.loot_type != LOOT_SKINNING && !IsPet() && GetCreatureTemplate()->SkinLootId && hasLootRecipient())
         if (LootTemplates_Skinning.HaveLootFor(GetCreatureTemplate()->SkinLootId))
-            AddUnitFlag(UNIT_FLAG_SKINNABLE);
+            SetUnitFlag(UNIT_FLAG_SKINNABLE);
 
     time_t now = GameTime::GetGameTime();
     // Do not reset corpse remove time if corpse is already removed

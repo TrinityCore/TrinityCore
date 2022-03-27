@@ -676,9 +676,9 @@ void BattlegroundSA::DemolisherStartState(bool start)
         if (Creature* dem = GetBGCreature(i))
         {
             if (start)
-                dem->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
             else
-                dem->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
     }
 }
@@ -762,7 +762,7 @@ void BattlegroundSA::UpdateObjectInteractionFlags(uint32 objectId)
         if (CanInteractWithObject(objectId))
             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         else
-            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            go->SetFlag(GO_FLAG_NOT_SELECTABLE);
     }
 }
 

@@ -271,7 +271,7 @@ public:
 
             playerGUID.Clear();
             me->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -304,7 +304,7 @@ public:
                 me->GetMotionMaster()->MovePoint(0, exorcismPos[1]);
                 Talk(SAY_BARADA_2);
 
-                me->AddUnitFlag(UNIT_FLAG_PACIFIED);
+                me->SetUnitFlag(UNIT_FLAG_PACIFIED);
             }
         }
 
@@ -549,7 +549,7 @@ public:
         {
             me->RestoreFaction();
             me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->SetImmuneToPC(true);
         }
 
@@ -564,7 +564,7 @@ public:
                 me->RemoveAllAuras();
                 me->CombatStop(true);
                 EngagementOver();
-                me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetImmuneToPC(true);
                 Talk(SAY_DEFEATED);
 

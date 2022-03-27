@@ -107,7 +107,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                                 if (value == ACTION_ENABLE)
                                     cube->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 else
-                                    cube->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                                    cube->SetFlag(GO_FLAG_NOT_SELECTABLE);
                             }
                         break;
                     case DATA_COLLAPSE:

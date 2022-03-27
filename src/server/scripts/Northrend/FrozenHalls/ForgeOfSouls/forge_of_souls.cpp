@@ -81,7 +81,7 @@ struct npc_sylvanas_fos : public ScriptedAI
     {
         Initialize();
         instance = me->GetInstanceScript();
-        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
     }
 
     void Initialize()
@@ -168,7 +168,7 @@ struct npc_jaina_fos: public ScriptedAI
     {
         Initialize();
         instance = me->GetInstanceScript();
-        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
     }
 
     void Initialize()

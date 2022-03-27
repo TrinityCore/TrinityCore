@@ -159,7 +159,7 @@ struct boss_majordomo : public BossAI
                 {
                     case EVENT_OUTRO_1:
                         me->NearTeleportTo(RagnarosTelePos.GetPositionX(), RagnarosTelePos.GetPositionY(), RagnarosTelePos.GetPositionZ(), RagnarosTelePos.GetOrientation());
-                        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         break;
                     case EVENT_OUTRO_2:
                         instance->instance->SummonCreature(NPC_RAGNAROS, RagnarosSummonPos);
@@ -186,7 +186,7 @@ struct boss_majordomo : public BossAI
         else if (action == ACTION_START_RAGNAROS_ALT)
         {
             me->SetFaction(FACTION_FRIENDLY);
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
     }
 

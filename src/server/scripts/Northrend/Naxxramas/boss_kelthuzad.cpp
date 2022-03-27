@@ -223,7 +223,7 @@ struct boss_kelthuzad : public BossAI
                 return;
             _Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
             _skeletonCount = 0;
             _bansheeCount = 0;

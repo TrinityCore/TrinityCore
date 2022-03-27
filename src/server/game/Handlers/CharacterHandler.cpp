@@ -1296,7 +1296,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // Set FFA PvP for non GM in non-rest mode
     if (sWorld->IsFFAPvPRealm() && !pCurrChar->IsGameMaster() && !pCurrChar->HasPlayerFlag(PLAYER_FLAGS_RESTING))
-        pCurrChar->AddPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+        pCurrChar->SetPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
 
     if (pCurrChar->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP))
         pCurrChar->SetContestedPvP();

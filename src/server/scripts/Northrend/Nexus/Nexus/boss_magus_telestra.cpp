@@ -274,7 +274,7 @@ struct boss_magus_telestra : public ScriptedAI
             me->CastStop();
             me->RemoveAllAuras();
             me->SetVisible(false);
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             uiFireMagusGUID = SplitPersonality(NPC_FIRE_MAGUS);
             uiFrostMagusGUID = SplitPersonality(NPC_FROST_MAGUS);
             uiArcaneMagusGUID = SplitPersonality(NPC_ARCANE_MAGUS);
@@ -291,7 +291,7 @@ struct boss_magus_telestra : public ScriptedAI
             me->CastStop();
             me->RemoveAllAuras();
             me->SetVisible(false);
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             uiFireMagusGUID = SplitPersonality(NPC_FIRE_MAGUS);
             uiFrostMagusGUID = SplitPersonality(NPC_FROST_MAGUS);
             uiArcaneMagusGUID = SplitPersonality(NPC_ARCANE_MAGUS);

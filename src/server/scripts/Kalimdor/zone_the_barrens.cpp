@@ -376,8 +376,8 @@ public:
                             if (!creature)
                                 continue;
                             creature->SetFaction(35);
-                            creature->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                            creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             AffrayChallenger[i] = creature->GetGUID();
                         }

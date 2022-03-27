@@ -83,7 +83,7 @@ class instance_ahnkahet : public InstanceMapScript
                         if (SpheresState[0])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                            go->SetFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -92,7 +92,7 @@ class instance_ahnkahet : public InstanceMapScript
                         if (SpheresState[1])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                            go->SetFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);

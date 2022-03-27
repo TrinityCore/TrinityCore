@@ -293,7 +293,7 @@ struct boss_sartharion : public BossAI
                 }
                 fetchTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, TenebronPositions[0]);
 
-                fetchTene->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                fetchTene->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
         }
 
@@ -310,7 +310,7 @@ struct boss_sartharion : public BossAI
                 }
                 fetchShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, ShadronPositions[0]);
 
-                fetchShad->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                fetchShad->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
         }
 
@@ -327,7 +327,7 @@ struct boss_sartharion : public BossAI
                 }
                 fetchVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, VesperonPositions[0]);
 
-                fetchVesp->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                fetchVesp->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
         }
 

@@ -261,7 +261,7 @@ public:
                 case TEXT_EMOTE_CHICKEN:
                     if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand32() % 30 == 1)
                     {
-                        me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         me->SetFaction(FACTION_FRIENDLY);
                         Talk(player->GetTeam() == HORDE ? EMOTE_HELLO_H : EMOTE_HELLO_A);
                     }
@@ -269,7 +269,7 @@ public:
                 case TEXT_EMOTE_CHEER:
                     if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
                     {
-                        me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         me->SetFaction(FACTION_FRIENDLY);
                         Talk(EMOTE_CLUCK_TEXT);
                     }
@@ -661,7 +661,7 @@ public:
             }
 
             Event = true;
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void PatientDied(Position const* point)
@@ -772,7 +772,7 @@ public:
             me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             //no regen health
-            me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+            me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
 
             //to make them lay with face down
             me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -810,7 +810,7 @@ public:
                         ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
             //make uninteractible
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             //regen health
             me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
@@ -847,9 +847,9 @@ public:
             if (me->IsAlive() && me->GetHealth() <= 6)
             {
                 me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->setDeathState(JUST_DIED);
-                me->AddDynamicFlag(UNIT_DYNFLAG_DEAD);
+                me->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
 
                 if (!DoctorGUID.IsEmpty())
                     if (Creature* doctor = ObjectAccessor::GetCreature((*me), DoctorGUID))
@@ -900,7 +900,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
             if (Creature* Patient = me->SummonCreature(patientEntry, **point, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
             {
                 //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
-                Patient->AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+                Patient->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
 
                 Patients.push_back(Patient->GetGUID());
                 ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->DoctorGUID = me->GetGUID();
@@ -1106,7 +1106,7 @@ public:
 
         void Reset() override
         {
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -1752,7 +1752,7 @@ public:
                     player->RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN); // turn on XP gain
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2: // XP OFF selected
-                    player->AddPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN); // turn off XP gain
+                    player->SetPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN); // turn off XP gain
                     break;
             }
             CloseGossipMenuFor(player);
@@ -2128,8 +2128,8 @@ public:
                 })
                 .Schedule(Seconds(1), [this](TaskContext context)
                 {
-                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasNpcFlag(NPCFlags(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR)))
-                        me->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR));
+                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
                     context.Repeat();
                 });
         }
@@ -2140,7 +2140,7 @@ public:
             {
                 case GOSSIP_OPTION_BANK:
                 {
-                    me->AddNpcFlag(UNIT_NPC_FLAG_BANKER);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_BANKER);
                     uint32 _bankAura = IsArgentSquire() ? SPELL_AURA_BANK_S : SPELL_AURA_BANK_G;
                     if (!me->HasAura(_bankAura))
                         DoCastSelf(_bankAura);
@@ -2151,7 +2151,7 @@ public:
                 }
                 case GOSSIP_OPTION_SHOP:
                 {
-                    me->AddNpcFlag(UNIT_NPC_FLAG_VENDOR);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_VENDOR);
                     uint32 _shopAura = IsArgentSquire() ? SPELL_AURA_SHOP_S : SPELL_AURA_SHOP_G;
                     if (!me->HasAura(_shopAura))
                         DoCastSelf(_shopAura);
@@ -2162,7 +2162,7 @@ public:
                 }
                 case GOSSIP_OPTION_MAIL:
                 {
-                    me->AddNpcFlag(UNIT_NPC_FLAG_MAILBOX);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_MAILBOX);
                     player->GetSession()->SendShowMailBox(me->GetGUID());
 
                     uint32 _mailAura = IsArgentSquire() ? SPELL_AURA_POSTMAN_S : SPELL_AURA_POSTMAN_G;

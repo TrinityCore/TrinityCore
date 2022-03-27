@@ -644,7 +644,7 @@ struct npc_cult_fanatic : public ScriptedAI
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         DoCastSelf(SPELL_FULL_HEAL, true);
-                        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     })
                     .Schedule(Seconds(6), [this](TaskContext /*context*/)
                     {
@@ -735,7 +735,7 @@ struct npc_cult_adherent : public ScriptedAI
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         DoCastSelf(SPELL_FULL_HEAL, true);
-                        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     })
                     .Schedule(Seconds(6), [this](TaskContext /*context*/)
                     {

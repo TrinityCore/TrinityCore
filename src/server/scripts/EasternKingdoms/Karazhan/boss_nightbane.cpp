@@ -438,7 +438,7 @@ class go_blackened_urn : public GameObjectScript
 
                 if (Creature* nightbane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NIGHTBANE)))
                 {
-                    me->AddFlag(GO_FLAG_IN_USE);
+                    me->SetFlag(GO_FLAG_IN_USE);
                     nightbane->AI()->DoAction(ACTION_SUMMON);
                 }
                 return false;

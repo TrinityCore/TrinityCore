@@ -573,7 +573,7 @@ public:
 
             me->RestoreFaction();
             CombatAI::Reset();
-            me->AddUnitFlag(UNIT_FLAG_CAN_SWIM);
+            me->SetUnitFlag(UNIT_FLAG_CAN_SWIM);
         }
 
         void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -931,7 +931,7 @@ public:
 
             deathcharger->RestoreFaction();
             deathcharger->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-            deathcharger->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            deathcharger->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             if (!me->GetVehicle() && deathcharger->IsVehicle() && deathcharger->GetVehicleKit()->HasEmptySeat(0))
                 me->EnterVehicle(deathcharger);
         }
@@ -944,7 +944,7 @@ public:
 
             if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
             {
-                deathcharger->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                deathcharger->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                 deathcharger->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 deathcharger->SetFaction(FACTION_SCARLET_CRUSADE_2);
             }

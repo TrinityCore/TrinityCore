@@ -477,7 +477,7 @@ struct boss_toc_champion_controller : public BossAI
             {
                 summons.Summon(champion);
                 champion->SetReactState(REACT_PASSIVE);
-                champion->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                champion->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 champion->SetImmuneToPC(false);
                 if (playerTeam == ALLIANCE)
                 {

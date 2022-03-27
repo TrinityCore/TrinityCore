@@ -110,7 +110,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
                 Initialize();
             }

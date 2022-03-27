@@ -311,7 +311,7 @@ struct npc_frozen_core : public ScriptedAI
         {
             _events.Reset();
             DoCastSelf(SPELL_ICE_SPEAR_CONTROL_AURA);
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
         }
     }

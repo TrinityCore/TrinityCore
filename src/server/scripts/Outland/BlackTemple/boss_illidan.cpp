@@ -595,7 +595,7 @@ struct boss_illidan_stormrage : public BossAI
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetDisableGravity(true);
                 DoPlaySoundToSet(me, ILLIDAN_TAKEOFF_SOUND_ID);
@@ -625,7 +625,7 @@ struct boss_illidan_stormrage : public BossAI
                 summons.DoAction(ACTION_START_PHASE_4, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 events.ScheduleEvent(EVENT_SHADOW_PRISON_TEXT, Milliseconds(500), GROUP_PHASE_ALL);
                 break;
             case ACTION_ILLIDAN_CAGED:
@@ -638,7 +638,7 @@ struct boss_illidan_stormrage : public BossAI
                 events.Reset();
                 specialEvents.Reset();
                 DoCastSelf(SPELL_DEATH, true);
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 events.ScheduleEvent(EVENT_DEFEATED_TEXT, 4s);
                 break;
             default:
@@ -1165,7 +1165,7 @@ struct npc_akama_illidan : public ScriptedAI
         {
             case POINT_ILLIDARI_COUNCIL:
                 Talk(SAY_AKAMA_FINISH);
-                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 break;
             case POINT_STAIRS:
                 ChangeOrientation(6.265732f);
@@ -1174,7 +1174,7 @@ struct npc_akama_illidan : public ScriptedAI
             case POINT_ILLIDAN_ROOM:
                 ChangeOrientation(2.129302f);
                 Talk(SAY_AKAMA_BETRAYER);
-                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 break;
             case POINT_FACE_ILLIDAN:
                 ChangeOrientation(3.140537f);
@@ -2305,7 +2305,7 @@ class spell_maiev_down : public AuraScript
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

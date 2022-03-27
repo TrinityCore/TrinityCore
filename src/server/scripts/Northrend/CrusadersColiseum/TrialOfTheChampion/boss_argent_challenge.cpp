@@ -163,7 +163,7 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
-            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void Initialize()
@@ -274,7 +274,7 @@ public:
             instance = creature->GetInstanceScript();
 
             creature->SetReactState(REACT_PASSIVE);
-            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             creature->RestoreFaction();
         }
 

@@ -94,7 +94,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 Initialize();
                 SummonChannelers();
                 me->SetReactState(REACT_PASSIVE);
-                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetImmuneToAll(true);
             }
 

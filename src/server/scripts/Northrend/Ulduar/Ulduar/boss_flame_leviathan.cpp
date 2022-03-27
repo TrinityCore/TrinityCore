@@ -250,7 +250,7 @@ class boss_flame_leviathan : public CreatureScript
 
                 DoCast(SPELL_INVIS_AND_STEALTH_DETECT);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED));
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -570,7 +570,7 @@ class boss_flame_leviathan : public CreatureScript
                 if (id != ACTION_MOVE_TO_CENTER_POSITION)
                     return;
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED));
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
             }
 
             private:
@@ -643,11 +643,11 @@ class boss_flame_leviathan_seat : public CreatureScript
                     if (Unit* devicePassenger = me->GetVehicleKit()->GetPassenger(SEAT_DEVICE))
                         if (Creature* device = devicePassenger->ToCreature())
                         {
-                            device->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                            device->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                             device->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         }
 
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 }
                 else if (seatId == SEAT_TURRET)
                 {
@@ -656,7 +656,7 @@ class boss_flame_leviathan_seat : public CreatureScript
 
                     if (Unit* device = ASSERT_NOTNULL(me->GetVehicleKit())->GetPassenger(SEAT_DEVICE))
                     {
-                        device->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                        device->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                         device->ReplaceAllUnitFlags(UnitFlags(0)); // unselectable
                     }
                 }
@@ -773,7 +773,7 @@ class boss_flame_leviathan_overload_device : public CreatureScript
                 if (me->GetVehicle())
                 {
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                     if (Unit* player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
@@ -969,7 +969,7 @@ class npc_thorims_hammer : public CreatureScript
         {
             npc_thorims_hammerAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->CastSpell(me, AURA_DUMMY_BLUE, true);
             }
 
@@ -1008,7 +1008,7 @@ public:
         npc_mimirons_infernoAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
             me->CastSpell(me, AURA_DUMMY_YELLOW, true);
             me->SetReactState(REACT_PASSIVE);
         }
@@ -1065,7 +1065,7 @@ class npc_hodirs_fury : public CreatureScript
         {
             npc_hodirs_furyAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->CastSpell(me, AURA_DUMMY_GREEN, true);
             }
 
@@ -1676,7 +1676,7 @@ class spell_systems_shutdown : public SpellScriptLoader
 
                 //! This could probably in the SPELL_EFFECT_SEND_EVENT handler too:
                 owner->AddUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
-                owner->AddUnitFlag(UNIT_FLAG_STUNNED);
+                owner->SetUnitFlag(UNIT_FLAG_STUNNED);
                 owner->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
             }
 

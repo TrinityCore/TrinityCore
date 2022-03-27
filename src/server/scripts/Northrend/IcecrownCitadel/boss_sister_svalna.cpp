@@ -456,7 +456,7 @@ struct boss_sister_svalna : public BossAI
                     CastSpellExtraArgs args;
                     args.AddSpellBP0(1);
                     summon->CastSpell(target, VEHICLE_SPELL_RIDE_HARDCODED, args);
-                    summon->AddUnitFlag2(UNIT_FLAG2_INTERACT_WHILE_HOSTILE);
+                    summon->SetUnitFlag2(UNIT_FLAG2_INTERACT_WHILE_HOSTILE);
                 }
                 break;
             default:

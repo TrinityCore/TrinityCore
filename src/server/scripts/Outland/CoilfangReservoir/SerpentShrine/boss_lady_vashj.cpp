@@ -150,7 +150,7 @@ public:
             Intro = false;
             JustCreated = true;
             CanAttack = false;
-            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
+            creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
         }
 
         void Initialize()

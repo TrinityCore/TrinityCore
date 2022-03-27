@@ -476,11 +476,11 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     InitDisplayIds();
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
     {
-        AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
-        AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+        SetPvpFlag(UNIT_BYTE2_FLAG_PVP);
+        SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
     }
 
-    AddUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
+    SetUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
     SetHoverHeight(1.0f);            // default for players in 3.0.3
 
     SetWatchedFactionIndex(-1);
@@ -1275,7 +1275,7 @@ void Player::ToggleAFK()
     if (isAFK())
         RemovePlayerFlag(PLAYER_FLAGS_AFK);
     else
-        AddPlayerFlag(PLAYER_FLAGS_AFK);
+        SetPlayerFlag(PLAYER_FLAGS_AFK);
 
     // afk player not allowed in battleground
     if (!IsGameMaster() && isAFK() && InBattleground() && !InArena())
@@ -1287,7 +1287,7 @@ void Player::ToggleDND()
     if (isDND())
         RemovePlayerFlag(PLAYER_FLAGS_DND);
     else
-        AddPlayerFlag(PLAYER_FLAGS_DND);
+        SetPlayerFlag(PLAYER_FLAGS_DND);
 }
 
 uint8 Player::GetChatFlags() const
@@ -2109,8 +2109,8 @@ void Player::SetGameMaster(bool on)
     {
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
         SetFaction(FACTION_FRIENDLY);
-        AddPlayerFlag(PLAYER_FLAGS_GM);
-        AddUnitFlag2(UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
+        SetPlayerFlag(PLAYER_FLAGS_GM);
+        SetUnitFlag2(UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
         if (Pet* pet = GetPet())
             pet->SetFaction(FACTION_FRIENDLY);
@@ -2137,7 +2137,7 @@ void Player::SetGameMaster(bool on)
 
         // restore FFA PvP Server state
         if (sWorld->IsFFAPvPRealm())
-            AddPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+            SetPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
 
         // restore FFA PvP area state, remove not allowed for GM mounts
         UpdateArea(m_areaUpdateId);
@@ -2570,22 +2570,22 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetMountDisplayId(0);
 
     // cleanup unit flags (will be re-applied if need at aura load).
-    RemoveUnitFlag(UnitFlags(
+    RemoveUnitFlag(
         UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_ATTACKABLE_1 |
         UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC  | UNIT_FLAG_LOOTING          |
         UNIT_FLAG_PET_IN_COMBAT  | UNIT_FLAG_SILENCED     | UNIT_FLAG_PACIFIED         |
         UNIT_FLAG_STUNNED        | UNIT_FLAG_IN_COMBAT    | UNIT_FLAG_DISARMED         |
         UNIT_FLAG_CONFUSED       | UNIT_FLAG_FLEEING      | UNIT_FLAG_UNINTERACTIBLE   |
-        UNIT_FLAG_SKINNABLE      | UNIT_FLAG_MOUNT        | UNIT_FLAG_ON_TAXI          ));
-    AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);   // must be set
+        UNIT_FLAG_SKINNABLE      | UNIT_FLAG_MOUNT        | UNIT_FLAG_ON_TAXI          );
+    SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);   // must be set
 
-    AddUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);// must be set
+    SetUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);// must be set
 
     // cleanup player flags (will be re-applied if need at aura load), to avoid have ghost flag without ghost aura, for example.
-    RemovePlayerFlag(PlayerFlags(PLAYER_FLAGS_AFK | PLAYER_FLAGS_DND | PLAYER_FLAGS_GM | PLAYER_FLAGS_GHOST));
+    RemovePlayerFlag(PLAYER_FLAGS_AFK | PLAYER_FLAGS_DND | PLAYER_FLAGS_GM | PLAYER_FLAGS_GHOST);
 
-    RemoveVisFlags(UNIT_VIS_FLAGS_ALL);                 // one form stealth modified bytes
-    RemovePvpFlag(UnitPVPStateFlags(UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY));
+    RemoveVisFlag(UNIT_VIS_FLAGS_ALL);                 // one form stealth modified bytes
+    RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY);
 
     // restore if need some important flags
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalRegenFlags), 0);
@@ -4330,7 +4330,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
-        AddDynamicFlag(UNIT_DYNFLAG_REFER_A_FRIEND);
+        SetDynamicFlag(UNIT_DYNFLAG_REFER_A_FRIEND);
 
     setDeathState(ALIVE);
 
@@ -4413,7 +4413,7 @@ void Player::KillPlayer()
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
     if (!sMapStore.LookupEntry(GetMapId())->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
-        AddPlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
+        SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
     else
         RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
 
@@ -7114,7 +7114,7 @@ void Player::SetInGuild(ObjectGuid::LowType guildId)
     if (guildId)
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::GuildGUID), ObjectGuid::Create<HighGuid::Guild>(guildId));
-        AddPlayerFlag(PLAYER_FLAGS_GUILD_LEVEL_ENABLED);
+        SetPlayerFlag(PLAYER_FLAGS_GUILD_LEVEL_ENABLED);
     }
     else
     {
@@ -7208,7 +7208,7 @@ void Player::UpdateArea(uint32 newArea)
     pvpInfo.IsInNoPvPArea = false;
     if (area && area->IsSanctuary())    // in sanctuary
     {
-        AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
+        SetPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
         pvpInfo.IsInNoPvPArea = true;
         if (!duel && GetCombatManager().HasPvPCombat())
             CombatStopWithPets();
@@ -8707,7 +8707,7 @@ void Player::RemovedInsignia(Player* looterPlr)
         return;
 
     // Now we must make bones lootable, and send player loot
-    bones->AddCorpseDynamicFlag(CORPSE_DYNFLAG_LOOTABLE);
+    bones->SetCorpseDynamicFlag(CORPSE_DYNFLAG_LOOTABLE);
 
     // We store the level of our player in the gold field
     // We retrieve this information at Player::SendLoot()
@@ -9121,7 +9121,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
         m_AELootView[loot->GetGUID()] = guid;
 
         if (loot_type == LOOT_CORPSE && !guid.IsItem())
-            AddUnitFlag(UNIT_FLAG_LOOTING);
+            SetUnitFlag(UNIT_FLAG_LOOTING);
     }
     else
         SendLootError(loot->GetGUID(), guid, LOOT_ERROR_DIDNT_KILL);
@@ -12075,7 +12075,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
     Item* item = Item::CreateItem(itemId, count, context, this);
     if (item)
     {
-        item->AddItemFlag(ITEM_FIELD_FLAG_NEW_ITEM);
+        item->SetItemFlag(ITEM_FIELD_FLAG_NEW_ITEM);
 
         item->SetBonuses(bonusListIDs);
 
@@ -12119,7 +12119,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
                 if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, {}, {}, context, {}, addToCollection))
                 {
                     childItem->SetCreator(item->GetGUID());
-                    childItem->AddItemFlag(ITEM_FIELD_FLAG_CHILD);
+                    childItem->SetItemFlag(ITEM_FIELD_FLAG_CHILD);
                     item->SetChildItem(childItem->GetGUID());
                 }
             }
@@ -12321,7 +12321,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             }
         }
 
-        pItem->AddItemFlag2(ITEM_FIELD_FLAG2_EQUIPPED);
+        pItem->SetItemFlag2(ITEM_FIELD_FLAG2_EQUIPPED);
 
         if (IsInWorld() && update)
         {
@@ -12499,7 +12499,7 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
         uint8 slot = pos & 255;
         VisualizeItem(slot, pItem);
 
-        pItem->AddItemFlag2(ITEM_FIELD_FLAG2_EQUIPPED);
+        pItem->SetItemFlag2(ITEM_FIELD_FLAG2_EQUIPPED);
 
         if (IsInWorld())
         {
@@ -18628,7 +18628,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     // RaF stuff.
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
-        AddDynamicFlag(UNIT_DYNFLAG_REFER_A_FRIEND);
+        SetDynamicFlag(UNIT_DYNFLAG_REFER_A_FRIEND);
 
     _LoadDeclinedNames(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
 
@@ -18924,7 +18924,7 @@ void Player::LoadCorpse(PreparedQueryResult result)
             Field* fields = result->Fetch();
             _corpseLocation.WorldRelocate(fields[0].GetUInt16(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
             if (!sMapStore.AssertEntry(_corpseLocation.GetMapId())->Instanceable())
-                AddPlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
+                SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
             else
                 RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_RELEASE_TIMER);
         }
@@ -19787,7 +19787,7 @@ void Player::_LoadGroup(PreparedQueryResult result)
         if (Group* group = sGroupMgr->GetGroupByDbStoreId((*result)[0].GetUInt32()))
         {
             if (group->IsLeader(GetGUID()))
-                AddPlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
+                SetPlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
 
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
@@ -21797,7 +21797,7 @@ void Player::SetContestedPvP(Player* attackedPlayer)
     if (!HasUnitState(UNIT_STATE_ATTACK_PLAYER))
     {
         AddUnitState(UNIT_STATE_ATTACK_PLAYER);
-        AddPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP);
+        SetPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP);
         // call MoveInLineOfSight for nearby contested guards
         Trinity::AIRelocationNotifier notifier(*this);
         Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
@@ -23017,7 +23017,7 @@ void Player::CleanupAfterTaxiFlight()
 {
     m_taxi.ClearTaxiDestinations(); // not destinations, clear source node
     Dismount();
-    RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_ON_TAXI));
+    RemoveUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_ON_TAXI);
 }
 
 void Player::ContinueTaxiFlight() const
@@ -23165,7 +23165,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 
         if (pProto->HasFlag(ITEM_FLAG_ITEM_PURCHASE_RECORD) && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
-            it->AddItemFlag(ITEM_FIELD_FLAG_REFUNDABLE);
+            it->SetItemFlag(ITEM_FIELD_FLAG_REFUNDABLE);
             it->SetRefundRecipient(GetGUID());
             it->SetPaidMoney(price);
             it->SetPaidExtendedCost(crItem->ExtendedCost);
@@ -23623,9 +23623,9 @@ void Player::UpdatePvPState(bool onlyFFA)
     {
         if (!IsFFAPvP())
         {
-            AddPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+            SetPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
             for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-                (*itr)->AddPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+                (*itr)->SetPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
         }
     }
     else if (IsFFAPvP())
@@ -29180,7 +29180,7 @@ void Player::SetWarModeDesired(bool enabled)
 
     if (enabled)
     {
-        AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
+        SetPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
         TogglePvpTalents(true);
         SetPvP(true);
     }
@@ -29197,7 +29197,7 @@ void Player::SetWarModeDesired(bool enabled)
 void Player::SetWarModeLocal(bool enabled)
 {
     if (enabled)
-        AddPlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE);
+        SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE);
     else
         RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE);
 }
@@ -29238,12 +29238,12 @@ void Player::UpdateWarModeAuras()
         }
         else
         {
-            AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+            SetPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
             RemoveAurasDueToSpell(auraInside);
             CastSpell(this, auraOutside, true);
         }
         SetWarModeLocal(true);
-        AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
+        SetPvpFlag(UNIT_BYTE2_FLAG_PVP);
     }
     else
     {

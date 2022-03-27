@@ -412,7 +412,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                             break;
                         case EVENT_BRANN_SAY_GET_IT:
                             Talk(BRANN_SAY_GET_IT);
-                            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             break;
                         case EVENT_BRANN_SET_ORIENTATION_4:
                             me->SetFacingTo(3.141593f);

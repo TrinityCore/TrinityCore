@@ -190,7 +190,7 @@ class npc_flash_freeze : public CreatureScript
                 Initialize();
                 instance = me->GetInstanceScript();
                 me->SetDisplayFromModel(1);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
+                me->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -270,7 +270,7 @@ class npc_ice_block : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 me->SetDisplayFromModel(1);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
+                me->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -285,7 +285,7 @@ class npc_ice_block : public CreatureScript
                     return;
 
                 targetGUID = summoner->GetGUID();
-                summoner->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
+                summoner->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 summoner->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetInCombatWith(summoner);
                 AddThreat(summoner, 250.0f);
@@ -302,7 +302,7 @@ class npc_ice_block : public CreatureScript
             {
                 if (Creature* helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
-                    helper->RemoveUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
+                    helper->RemoveUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                     helper->SetControlled(false, UNIT_STATE_ROOT);
 
                     if (Creature* hodir = instance->GetCreature(DATA_HODIR))
@@ -406,7 +406,7 @@ class boss_hodir : public CreatureScript
                     me->RemoveAllAttackers();
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
-                    me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->InterruptNonMeleeSpells(true);
                     me->StopMoving();

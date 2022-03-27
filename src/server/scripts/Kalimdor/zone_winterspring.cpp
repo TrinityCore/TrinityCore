@@ -584,7 +584,7 @@ public:
                 if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
                     escortAI->DoContinueEscort(isAltar);
             }
-            me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             return false;
         }
     };

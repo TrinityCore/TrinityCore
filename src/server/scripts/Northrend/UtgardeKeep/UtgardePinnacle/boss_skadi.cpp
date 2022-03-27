@@ -226,7 +226,7 @@ struct boss_skadi : public BossAI
         {
             case ACTION_START_ENCOUNTER:
                 instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->setActive(true);
                 SpawnFirstWave();
                 Talk(SAY_AGGRO);

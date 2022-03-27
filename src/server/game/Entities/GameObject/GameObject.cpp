@@ -439,7 +439,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             RemoveFlag(GameObjectFlags(0xF00));
-            AddFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
+            SetFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
             break;
         case GAMEOBJECT_TYPE_CAPTURE_POINT:
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), m_goInfo->capturePoint.SpellVisual1);
@@ -1269,7 +1269,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
         if (!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction())
         {
-            AddFlag(GO_FLAG_NODESPAWN);
+            SetFlag(GO_FLAG_NODESPAWN);
             m_respawnDelayTime = 0;
             m_respawnTime = 0;
         }
@@ -1660,7 +1660,7 @@ void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObje
             RemoveFlag(GO_FLAG_LOCKED);
             break;
         case GameObjectActions::Lock:
-            AddFlag(GO_FLAG_LOCKED);
+            SetFlag(GO_FLAG_LOCKED);
             break;
         case GameObjectActions::Open:
             if (unitCaster)
@@ -1691,14 +1691,14 @@ void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObje
             DespawnOrUnsummon();
             break;
         case GameObjectActions::MakeInert:
-            AddFlag(GO_FLAG_NOT_SELECTABLE);
+            SetFlag(GO_FLAG_NOT_SELECTABLE);
             break;
         case GameObjectActions::MakeActive:
             RemoveFlag(GO_FLAG_NOT_SELECTABLE);
             break;
         case GameObjectActions::CloseAndLock:
             ResetDoorOrButton();
-            AddFlag(GO_FLAG_LOCKED);
+            SetFlag(GO_FLAG_LOCKED);
             break;
         case GameObjectActions::UseArtKit0:
         case GameObjectActions::UseArtKit1:
@@ -1801,7 +1801,7 @@ void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType l
 void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false */)
 {
     if (activate)
-        AddFlag(GO_FLAG_IN_USE);
+        SetFlag(GO_FLAG_IN_USE);
     else
         RemoveFlag(GO_FLAG_IN_USE);
 
@@ -2002,7 +2002,7 @@ void GameObject::Use(Unit* user)
             if (uint32 trapEntry = info->goober.linkedTrap)
                 TriggeringLinkedGameObject(trapEntry, user);
 
-            AddFlag(GO_FLAG_IN_USE);
+            SetFlag(GO_FLAG_IN_USE);
             SetLootState(GO_ACTIVATED, user);
 
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
@@ -2669,7 +2669,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
     switch (state)
     {
         case GO_DESTRUCTIBLE_INTACT:
-            RemoveFlag(GameObjectFlags(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED));
+            RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
             SetDisplayId(m_goInfo->displayId);
             if (setHealth)
             {
@@ -2684,7 +2684,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             AI()->Damaged(attackerOrHealer, m_goInfo->destructibleBuilding.DamagedEvent);
 
             RemoveFlag(GO_FLAG_DESTROYED);
-            AddFlag(GO_FLAG_DAMAGED);
+            SetFlag(GO_FLAG_DAMAGED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
@@ -2713,7 +2713,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                     bg->DestroyGate(player, this);
 
             RemoveFlag(GO_FLAG_DAMAGED);
-            AddFlag(GO_FLAG_DESTROYED);
+            SetFlag(GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
@@ -2732,7 +2732,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_REBUILDING:
         {
             EventInform(m_goInfo->destructibleBuilding.RebuildingEvent, attackerOrHealer);
-            RemoveFlag(GameObjectFlags(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED));
+            RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
@@ -3321,7 +3321,7 @@ void GameObject::CreateModel()
 {
     m_model = GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
     if (m_model && m_model->isMapObject())
-        AddFlag(GO_FLAG_MAP_OBJECT);
+        SetFlag(GO_FLAG_MAP_OBJECT);
 }
 
 std::string GameObject::GetDebugInfo() const

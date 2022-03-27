@@ -126,12 +126,12 @@ class boss_broggok : public CreatureScript
                         break;
                     case ACTION_RESET_BROGGOK:
                         me->SetReactState(REACT_PASSIVE);
-                        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         summons.DespawnAll();
                         instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
                         if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
                         {
-                            lever->RemoveFlag(GameObjectFlags(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE));
+                            lever->RemoveFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
                             lever->SetGoState(GO_STATE_READY);
                         }
                         break;
@@ -260,7 +260,7 @@ class go_broggok_lever : public GameObjectScript
                         broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
                 }
 
-                me->AddFlag(GameObjectFlags(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE));
+                me->SetFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
                 me->SetGoState(GO_STATE_ACTIVE);
 
                 return true;

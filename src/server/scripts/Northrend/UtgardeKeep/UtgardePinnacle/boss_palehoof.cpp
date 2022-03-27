@@ -512,7 +512,7 @@ struct go_palehoof_sphere : public GameObjectAI
         {
             if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
             {
-                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                me->SetFlag(GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);
                 palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
             }

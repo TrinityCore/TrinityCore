@@ -206,7 +206,7 @@ struct boss_high_astromancer_solarian : public BossAI
                 AppearDelay = false;
                 if (Phase == 2)
                 {
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetVisible(false);
                 }
                 AppearDelay_Timer = 2s;
@@ -309,7 +309,7 @@ struct boss_high_astromancer_solarian : public BossAI
                 {
                     if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer + Phase3_Timer + AppearDelay_Timer + 1700ms))
                     {
-                        Summoned->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        Summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
                     }
                 }

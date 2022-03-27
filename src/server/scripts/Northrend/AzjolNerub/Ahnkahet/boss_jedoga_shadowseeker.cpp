@@ -328,7 +328,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->InterruptNonMeleeSpells(true);
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO, JedogaGroundPosition);
                     break;
                 case EVENT_FLY_DELAY:

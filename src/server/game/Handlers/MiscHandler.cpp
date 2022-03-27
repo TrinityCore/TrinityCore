@@ -278,7 +278,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequ
         if (GetPlayer()->GetStandState() == UNIT_STAND_STATE_STAND)
             GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
         GetPlayer()->SetRooted(true);
-        GetPlayer()->AddUnitFlag(UNIT_FLAG_STUNNED);
+        GetPlayer()->SetUnitFlag(UNIT_FLAG_STUNNED);
     }
 
     SetLogoutStartTime(GameTime::GetGameTime());
@@ -312,7 +312,7 @@ void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
 {
     if (!GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_IN_PVP))
     {
-        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->SetPlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
             GetPlayer()->UpdatePvP(true, true);
@@ -320,7 +320,7 @@ void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
     else if (!GetPlayer()->IsWarModeLocalActive())
     {
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        GetPlayer()->SetPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
             GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime();     // start toggle-off
     }
@@ -330,7 +330,7 @@ void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
 {
     if (packet.EnablePVP)
     {
-        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->SetPlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
             GetPlayer()->UpdatePvP(true, true);
@@ -338,7 +338,7 @@ void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
     else if (!GetPlayer()->IsWarModeLocalActive())
     {
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        GetPlayer()->SetPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
             GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime();     // start toggle-off
     }
@@ -1041,7 +1041,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
 void WorldSession::HandleSetTaxiBenchmark(WorldPackets::Misc::SetTaxiBenchmarkMode& packet)
 {
     if (packet.Enable)
-        _player->AddPlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
+        _player->SetPlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
     else
         _player->RemovePlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
 }

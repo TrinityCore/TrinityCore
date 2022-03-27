@@ -65,8 +65,8 @@ public:
 
         void Reset() override
         {
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
             //hack, due to really weird spell behaviour :(
             if (instance->GetData(DATA_DISTILLER) == IN_PROGRESS)

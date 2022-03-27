@@ -148,7 +148,7 @@ struct boss_apothecary_hummel : public BossAI
                     _isDead = true;
                     me->RemoveAurasDueToSpell(SPELL_ALLURING_PERFUME);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     Talk(SAY_HUMMEL_DEATH);
                 }
             }

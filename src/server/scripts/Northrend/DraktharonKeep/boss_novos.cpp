@@ -204,7 +204,7 @@ private:
         }
         else
         {
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             DoCast(SPELL_ARCANE_FIELD);
         }
     }

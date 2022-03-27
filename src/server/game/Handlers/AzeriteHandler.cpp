@@ -176,7 +176,7 @@ void WorldSession::HandleAzeriteEmpoweredItemViewed(WorldPackets::Azerite::Azeri
     if (!item || !item->IsAzeriteEmpoweredItem())
         return;
 
-    item->AddItemFlag(ITEM_FIELD_FLAG_AZERITE_EMPOWERED_ITEM_VIEWED);
+    item->SetItemFlag(ITEM_FIELD_FLAG_AZERITE_EMPOWERED_ITEM_VIEWED);
     item->SetState(ITEM_CHANGED, _player);
 }
 

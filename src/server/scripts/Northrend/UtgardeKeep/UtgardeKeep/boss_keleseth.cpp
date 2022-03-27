@@ -243,7 +243,7 @@ struct npc_vrykul_skeleton : public ScriptedAI
             if (!me->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
             {
                 // from sniffs
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                 events.Reset();

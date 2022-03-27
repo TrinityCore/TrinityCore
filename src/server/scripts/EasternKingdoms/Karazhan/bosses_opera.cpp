@@ -1019,7 +1019,7 @@ void PretendToDie(Creature* creature)
     creature->InterruptNonMeleeSpells(true);
     creature->RemoveAllAuras();
     creature->SetHealth(0);
-    creature->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+    creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     creature->GetMotionMaster()->Clear();
     creature->GetMotionMaster()->MoveIdle();
     creature->SetStandState(UNIT_STAND_STATE_DEAD);

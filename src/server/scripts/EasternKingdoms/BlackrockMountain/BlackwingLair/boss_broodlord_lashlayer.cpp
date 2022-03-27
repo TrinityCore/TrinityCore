@@ -204,7 +204,7 @@ struct go_suppression_device : public GameObjectAI
             return;
         _active = false;
         me->SetGoState(GO_STATE_ACTIVE);
-        me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         _events.CancelEvent(EVENT_SUPPRESSION_CAST);
     }
 

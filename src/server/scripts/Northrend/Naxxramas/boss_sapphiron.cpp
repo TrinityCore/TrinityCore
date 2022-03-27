@@ -141,7 +141,7 @@ struct boss_sapphiron : public BossAI
         if (!instance->GetData(DATA_HAD_SAPPHIRON_BIRTH))
         {
             me->SetVisible(false);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
         }
 

@@ -242,8 +242,8 @@ struct boss_twin_baseAI : public BossAI
         {
             if (!pSister->IsAlive())
             {
-                me->AddDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
-                pSister->AddDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
+                me->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
+                pSister->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
                 events.Reset();
                 summons.DespawnAll();
                 HandleRemoveAuras();
@@ -556,7 +556,7 @@ struct npc_unleashed_ballAI : public ScriptedAI
 
     void Reset() override
     {
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         me->SetReactState(REACT_PASSIVE);
         me->SetDisableGravity(true);
         me->SetCanFly(true);

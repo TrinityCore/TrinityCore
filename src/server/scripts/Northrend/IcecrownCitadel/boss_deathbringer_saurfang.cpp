@@ -364,7 +364,7 @@ struct boss_deathbringer_saurfang : public BossAI
             _dead = true;
             _JustDied();
             _EnterEvadeMode();
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
             me->RemoveAurasOnEvade();
             DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
@@ -729,7 +729,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
                     {
                         deathbringer->CastSpell(me, SPELL_RIDE_VEHICLE, true);  // for the packet logs.
-                        deathbringer->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        deathbringer->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         deathbringer->SetEmoteState(EMOTE_STATE_DROWNED);
                     }
                     _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 1s);    // move

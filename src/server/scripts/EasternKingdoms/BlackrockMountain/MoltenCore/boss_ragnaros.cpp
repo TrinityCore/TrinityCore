@@ -82,7 +82,7 @@ struct boss_ragnaros : public BossAI
         Initialize();
         _introState = 0;
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         SetCombatMovement(false);
     }
 
@@ -250,7 +250,7 @@ struct boss_ragnaros : public BossAI
                             //Root self
                             //DoCast(me, 23973);
                             me->SetFaction(FACTION_FRIENDLY);
-                            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             me->SetEmoteState(EMOTE_STATE_SUBMERGED);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
                             instance->SetData(DATA_RAGNAROS_ADDS, 0);

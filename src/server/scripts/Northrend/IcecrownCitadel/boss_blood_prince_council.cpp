@@ -528,7 +528,7 @@ struct BloodPrincesBossAI : public BossAI
         _isEmpowered = false;
         if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
         {
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             controller->AI()->SetData(DATA_PRINCE_EVADE, 1);
         }
     }

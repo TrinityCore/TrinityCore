@@ -148,7 +148,7 @@ class boss_kologarn : public CreatureScript
                 Talk(SAY_DEATH);
                 DoCast(SPELL_KOLOGARN_PACIFY);
                 me->GetMotionMaster()->MoveTargetedHome();
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
                 _JustDied();
             }

@@ -56,7 +56,7 @@ struct go_blackfathom_fire : public GameObjectAI
     bool OnGossipHello(Player* /*player*/) override
     {
         me->SetGoState(GO_STATE_ACTIVE);
-        me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
         return true;
     }
@@ -185,7 +185,7 @@ struct npc_morridune : public EscortAI
             case 4:
                 SetEscortPaused(true);
                 me->SetFacingTo(1.775791f);
-                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 Talk(SAY_MORRIDUNE_2);
                 break;
         }

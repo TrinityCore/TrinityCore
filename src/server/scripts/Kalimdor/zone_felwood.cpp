@@ -63,7 +63,7 @@ public:
             }
             else
             {
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
 
             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);

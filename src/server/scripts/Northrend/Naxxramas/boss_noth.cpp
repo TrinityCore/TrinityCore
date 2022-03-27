@@ -233,7 +233,7 @@ struct boss_noth : public BossAI
                 case EVENT_BALCONY:
                     events.SetPhase(PHASE_BALCONY);
                     me->SetReactState(REACT_PASSIVE);
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->AttackStop();
                     me->StopMoving();
                     me->RemoveAllAuras();

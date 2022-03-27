@@ -55,7 +55,7 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
         return;
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
-    owner->AddUnitFlag(UNIT_FLAG_FLEEING);
+    owner->SetUnitFlag(UNIT_FLAG_FLEEING);
 
     _path = nullptr;
     SetTargetLocation(owner);

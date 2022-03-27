@@ -781,7 +781,7 @@ public:
             Initialize();
 
             me->AddUnitState(UNIT_STATE_ROOT);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetTarget(ObjectGuid::Empty);
         }
 

@@ -201,7 +201,7 @@ struct boss_alar : public BossAI
                 me->SetHealth(0);
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAllAuras();
-                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->AttackStop();
                 me->SetTarget(ObjectGuid::Empty);
                 me->SetSpeedRate(MOVE_RUN, 5.0f);
@@ -411,7 +411,7 @@ struct boss_alar : public BossAI
             {
                 me->AttackStop();
                 me->GetMotionMaster()->MovePoint(6, waypoint[4][0], waypoint[4][1], waypoint[4][2]);
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetBoundingRadius(50);
                 WaitEvent = WE_METEOR;
                 WaitTimer = 0;
@@ -428,7 +428,7 @@ struct boss_alar : public BossAI
                     Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2min);
                     if (Summoned)
                     {
-                        Summoned->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        Summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         Summoned->SetObjectScale(Summoned->GetObjectScale() * 2.5f);
                         Summoned->SetDisplayId(11686);
                         Summoned->SetFaction(me->GetFaction());
@@ -507,7 +507,7 @@ struct npc_ember_of_alar : public ScriptedAI
             damage = 0;
             DoCast(me, SPELL_EMBER_BLAST, true);
             me->SetDisplayId(11686);
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             if (instance->GetBossState(DATA_ALAR) == IN_PROGRESS)
             {
                 if (Unit* Alar = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ALAR)))

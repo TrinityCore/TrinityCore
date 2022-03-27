@@ -325,7 +325,7 @@ struct boss_sindragosa : public BossAI
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetSpeedRate(MOVE_FLIGHT, 4.0f);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
             me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
             me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
@@ -695,7 +695,7 @@ struct npc_spinestalker : public ScriptedAI
             me->setActive(true);
             me->SetFarVisible(true);
             me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
             me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
             me->SetDefaultMovementType(IDLE_MOTION_TYPE);

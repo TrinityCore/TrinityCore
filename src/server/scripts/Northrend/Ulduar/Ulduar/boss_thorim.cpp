@@ -485,7 +485,7 @@ class boss_thorim : public CreatureScript
                     me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
 
                 if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
-                    lever->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                    lever->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                 // Remove trigger auras
                 if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
@@ -557,7 +557,7 @@ class boss_thorim : public CreatureScript
                 me->RemoveAllAttackers();
                 me->AttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
-                me->AddUnitFlag(UNIT_FLAG_RENAME);
+                me->SetUnitFlag(UNIT_FLAG_RENAME);
 
                 if (Creature* controller = instance->GetCreature(DATA_THORIM_CONTROLLER))
                     controller->RemoveAllAuras();

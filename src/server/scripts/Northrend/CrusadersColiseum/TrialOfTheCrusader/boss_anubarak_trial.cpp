@@ -188,7 +188,7 @@ struct boss_anubarak_trial : public BossAI
             events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, 20s);
 
         Initialize();
-        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         // clean up spawned Frost Spheres
         std::list<Creature*> FrostSphereList;
         me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
@@ -268,7 +268,7 @@ struct boss_anubarak_trial : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
 
         // Despawn Scarab Swarms neutral
         EntryCheckPredicate pred(NPC_SCARAB);
@@ -331,7 +331,7 @@ struct boss_anubarak_trial : public BossAI
                     {
                         DoCast(me, SPELL_SUBMERGE_ANUBARAK);
                         DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+                        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                         Talk(EMOTE_BURROWER);
                         events.SetPhase(PHASE_SUBMERGED);
                         events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2s, 0, PHASE_SUBMERGED);
@@ -367,7 +367,7 @@ struct boss_anubarak_trial : public BossAI
                     DoCast(SPELL_SPIKE_TELE);
                     summons.DespawnEntry(NPC_SPIKE);
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE));
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                     DoCast(me, SPELL_EMERGE_ANUBARAK);
                     Talk(EMOTE_EMERGE);
                     events.SetPhase(PHASE_MELEE);
@@ -563,7 +563,7 @@ struct npc_nerubian_burrower : public ScriptedAI
                 if (!me->HasAura(SPELL_PERMAFROST_HELPER))
                 {
                     DoCast(me, SPELL_SUBMERGE_EFFECT);
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     DoCast(me, SPELL_PERSISTENT_DIRT, true);
                 }
             }
@@ -604,7 +604,7 @@ struct npc_frost_sphere : public ScriptedAI
             {
                 // we are close to the ground
                 me->GetMotionMaster()->MoveIdle();
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
                 DoCast(SPELL_PERMAFROST_MODEL);
                 DoCast(SPELL_PERMAFROST);
@@ -614,7 +614,7 @@ struct npc_frost_sphere : public ScriptedAI
             {
                 // we are in air
                 me->GetMotionMaster()->MoveIdle();
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 //At hit the ground
                 me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
                 me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);

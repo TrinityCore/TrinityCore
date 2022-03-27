@@ -1647,7 +1647,7 @@ Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
 
     newItem->SetCreator(GetCreator());
     newItem->SetGiftCreator(GetGiftCreator());
-    newItem->ReplaceAllItemFlags(ItemFieldFlags(*m_itemData->DynamicFlags & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE)));
+    newItem->ReplaceAllItemFlags(ItemFieldFlags(*m_itemData->DynamicFlags) & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE));
     newItem->SetExpiration(m_itemData->Expiration);
     // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
     if (player)
@@ -1892,7 +1892,7 @@ bool Item::IsRefundExpired()
 
 void Item::SetSoulboundTradeable(GuidSet const& allowedLooters)
 {
-    AddItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE);
+    SetItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;
 }
 

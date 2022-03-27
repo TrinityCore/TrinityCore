@@ -311,7 +311,7 @@ struct boss_algalon_the_observer : public BossAI
         {
             case ACTION_START_INTRO:
             {
-                me->AddUnitFlag2(UNIT_FLAG2_DONT_FADE_IN);
+                me->SetUnitFlag2(UNIT_FLAG2_DONT_FADE_IN);
                 me->SetDisableGravity(true);
                 DoCastSelf(SPELL_ARRIVAL, true);
                 DoCastSelf(SPELL_RIDE_THE_LIGHTNING, true);
@@ -341,7 +341,7 @@ struct boss_algalon_the_observer : public BossAI
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17s);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26s);
                 me->DespawnOrUnsummon(34s);
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToNPC(true);
                 break;
             case ACTION_INIT_ALGALON:
@@ -361,7 +361,7 @@ struct boss_algalon_the_observer : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         Milliseconds introDelay = 0ms;
-        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetImmuneToNPC(true);
         events.Reset();
         events.SetPhase(PHASE_ROLE_PLAY);
@@ -485,7 +485,7 @@ struct boss_algalon_the_observer : public BossAI
             events.SetPhase(PHASE_ROLE_PLAY);
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             DoCastSelf(SPELL_SELF_STUN);
             events.Reset();
             summons.DespawnAll();
@@ -637,7 +637,7 @@ struct boss_algalon_the_observer : public BossAI
                     me->RemoveAllAuras();
                     ResetThreatList();
                     me->SetFaction(FACTION_FRIENDLY);
-                    me->AddUnitFlag(UNIT_FLAG_RENAME);
+                    me->SetUnitFlag(UNIT_FLAG_RENAME);
                     events.ScheduleEvent(EVENT_OUTRO_2, 2s);
                     break;
                 case EVENT_OUTRO_2:
@@ -996,7 +996,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
             return false;
 
         // Start Algalon event
-        me->AddFlag(GO_FLAG_IN_USE);
+        me->SetFlag(GO_FLAG_IN_USE);
         _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5s);
         if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannIntroSpawnPos))
             brann->AI()->DoAction(ACTION_START_INTRO);

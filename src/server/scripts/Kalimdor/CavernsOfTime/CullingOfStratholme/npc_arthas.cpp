@@ -576,7 +576,7 @@ public:
 
                 // Adjust gossip flag based on whether we have a gossip menu or not
                 if (target.HasGossip)
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 else
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
@@ -1465,7 +1465,7 @@ public:
                     case RP5_EVENT_CHROMIE_SPAWN:
                         if (Creature* chromie = instance->instance->SummonCreature(NPC_CHROMIE_3, ArthasPositions[RP5_CHROMIE_SPAWN]))
                         {
-                            chromie->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+                            chromie->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                             Movement::PointsArray path(ChromieSplinePos, ChromieSplinePos + chromiePathSize);
                             Movement::MoveSplineInit init(chromie);
                             init.SetFly();
@@ -1483,7 +1483,7 @@ public:
                         {
                             chromie->CastSpell(chromie, SPELL_CHROMIE_3_TRANSFORM);
                             chromie->AI()->Talk(RP5_LINE_CHROMIE0);
-                            chromie->AddNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+                            chromie->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         }
                         break;
                     default:

@@ -216,7 +216,7 @@ struct boss_shade_of_akama : public BossAI
         _Reset();
         Initialize();
         me->SetImmuneToPC(true);
-        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetEmoteState(EMOTE_STATE_STUN);
         me->SetWalk(true);
         events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, 1s);
@@ -370,7 +370,7 @@ struct npc_akama_shade : public ScriptedAI
         DoCastSelf(SPELL_STEALTH);
 
         if (_instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
     }
 
     void JustSummoned(Creature* summon) override
@@ -574,7 +574,7 @@ struct npc_ashtongue_channeler : public PassiveAI
 
             channel.Repeat(Seconds(2));
         });
-        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void UpdateAI(uint32 diff) override

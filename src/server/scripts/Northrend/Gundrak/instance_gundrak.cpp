@@ -357,7 +357,7 @@ struct go_gundrak_altar : public GameObjectAI
 
     bool OnGossipHello(Player* /*player*/) override
     {
-        me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         me->SetGoState(GO_STATE_ACTIVE);
 
         instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());

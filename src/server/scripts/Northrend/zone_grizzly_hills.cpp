@@ -372,7 +372,7 @@ public:
                 {
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetImmuneToPC(true);
-                    me->AddDynamicFlag(UNIT_DYNFLAG_DEAD);
+                    me->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
                 }
                 _phase = 0;
             }
@@ -626,7 +626,7 @@ public:
         {
             if (spellInfo->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TYPEID_PLAYER)
             {
-                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetImmuneToPC(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->CombatStop(false);
@@ -726,7 +726,7 @@ public:
                             _events.ScheduleEvent(EVENT_LAKEFROG_3, 3s);
                             break;
                         case EVENT_LAKEFROG_3:
-                            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             _events.ScheduleEvent(EVENT_LAKEFROG_4, 25s);
                             break;
                         case EVENT_LAKEFROG_4:

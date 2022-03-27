@@ -279,7 +279,7 @@ struct boss_muru : public BossAI
             _phase = PHASE_TWO;
             me->RemoveAllAuras();
             DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
             {

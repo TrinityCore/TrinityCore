@@ -19,6 +19,7 @@
 #define TRINITY_SHAREDDEFINES_H
 
 #include "Define.h"
+#include "EnumFlag.h"
 
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
 constexpr float Z_OFFSET_FIND_HEIGHT = 0.5f;
@@ -2816,6 +2817,8 @@ enum GameObjectFlags
     GO_FLAG_IN_MULTI_USE                            = 0x00200000, // GO_FLAG_IN_USE equivalent for objects usable by multiple players
     GO_FLAG_LOW_PRIORITY_SELECTION                  = 0x04000000, // client will give lower cursor priority to this object when multiple objects overlap
 };
+
+DEFINE_ENUM_FLAG(GameObjectFlags);
 
 enum GameObjectDynamicLowFlags
 {
@@ -5668,6 +5671,8 @@ enum CorpseDynFlags
 {
     CORPSE_DYNFLAG_LOOTABLE        = 0x0001
 };
+
+DEFINE_ENUM_FLAG(CorpseDynFlags);
 
 #define PLAYER_CORPSE_LOOT_ENTRY 1
 

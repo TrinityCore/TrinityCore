@@ -516,7 +516,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_CELESTIAL_PLANETARIUM_ACCESS_10:
                     case GO_CELESTIAL_PLANETARIUM_ACCESS_25:
                         if (_algalonSummoned)
-                            gameObject->AddFlag(GO_FLAG_IN_USE);
+                            gameObject->SetFlag(GO_FLAG_IN_USE);
                         break;
                     case GO_DOODAD_UL_SIGILDOOR_01:
                     case GO_DOODAD_UL_SIGILDOOR_02:
@@ -1036,7 +1036,7 @@ class instance_ulduar : public InstanceMapScript
                 if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
                 {
                     vehicle->RemoveAllPassengers();
-                    vehicleCreature->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    vehicleCreature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     vehicleCreature->DespawnOrUnsummon(5min);
                 }
             }

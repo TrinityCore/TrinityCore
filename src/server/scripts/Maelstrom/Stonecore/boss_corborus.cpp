@@ -192,7 +192,7 @@ class boss_corborus : public CreatureScript
                             events.RescheduleEvent(EVENT_SUBMERGE, 100s);
 
                             me->SetReactState(REACT_PASSIVE);
-                            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                             me->AttackStop();
 

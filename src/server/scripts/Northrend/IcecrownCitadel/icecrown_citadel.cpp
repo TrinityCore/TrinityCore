@@ -754,7 +754,7 @@ struct npc_icc_orb_controller : public ScriptedAI
             UpdateValidGuids();
             ScheduleVisualChannel(true);
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
-                orb->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                orb->SetFlag(GO_FLAG_NOT_SELECTABLE);
         }
     }
 
@@ -1129,7 +1129,7 @@ struct go_empowering_blood_orb : public GameObjectAI
 
     void HandleObjectUse()
     {
-        me->AddFlag(GO_FLAG_IN_USE);
+        me->SetFlag(GO_FLAG_IN_USE);
         me->SetGoAnimProgress(255);
         me->SetGoState(GO_STATE_DESTROYED);
         if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))
@@ -1310,7 +1310,7 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_PASSIVE);
-            target->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             target->SetImmuneToPC(true);
             target->SetEmoteState(EMOTE_STATE_CUSTOM_SPELL_02);
         }

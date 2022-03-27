@@ -92,8 +92,8 @@ public:
             uiTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
             SetGrandChampionsForEncounter();
             SetArgentChampion();
@@ -431,7 +431,7 @@ public:
         {
             if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
-                summon->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                summon->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 summon->SetReactState(REACT_PASSIVE);
             }
         }

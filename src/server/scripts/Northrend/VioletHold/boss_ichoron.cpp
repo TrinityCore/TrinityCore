@@ -291,8 +291,8 @@ class spell_ichoron_drained : public AuraScript
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-        GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        GetTarget()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

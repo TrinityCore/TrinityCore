@@ -540,7 +540,7 @@ class npc_wyrmrest_defender : public CreatureScript
                     case SPELL_WYRMREST_DEFENDER_MOUNT:
                         Talk(WHISPER_MOUNTED, me->GetCharmerOrOwner());
                         me->SetImmuneToAll(false);
-                        me->AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+                        me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
                         break;
                     // Both below are for checking low hp warning
                     case SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE:

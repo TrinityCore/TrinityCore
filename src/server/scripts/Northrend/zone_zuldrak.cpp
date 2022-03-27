@@ -56,7 +56,7 @@ public:
         void Reset() override
         {
             _rageclawGUID.Clear();
-            me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 0.1f);
@@ -234,7 +234,7 @@ public:
 
         void Reset() override
         {
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->SetEmoteState(EMOTE_STATE_COWER);
             Initialize();
         }

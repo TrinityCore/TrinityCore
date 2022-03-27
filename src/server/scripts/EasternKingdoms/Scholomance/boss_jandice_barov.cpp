@@ -90,7 +90,7 @@ public:
                         break;
                     case EVENT_ILLUSION:
                         DoCast(SPELL_ILLUSION);
-                        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         me->SetDisplayId(11686);  // Invisible Model
                         ModifyThreatByPercent(me->GetVictim(), -99);
                         events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);

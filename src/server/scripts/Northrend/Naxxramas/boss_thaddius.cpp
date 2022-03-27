@@ -316,7 +316,7 @@ public:
 
         me->DespawnOrUnsummon(0s, 30s);
 
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED));
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
         me->SetImmuneToPC(true);
         me->setActive(false);
         me->SetFarVisible(false);
@@ -575,7 +575,7 @@ public:
         if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
             thaddius->AI()->DoAction(ACTION_STALAGG_DIED);
 
-        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->RemoveAllAuras();
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
@@ -814,7 +814,7 @@ public:
         if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
             thaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
 
-        me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->RemoveAllAuras();
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();

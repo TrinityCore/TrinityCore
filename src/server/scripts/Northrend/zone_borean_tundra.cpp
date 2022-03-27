@@ -447,7 +447,7 @@ public:
                     if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                     {
                         arthasGUID = arthas->GetGUID();
-                        arthas->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        arthas->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         arthas->SetReactState(REACT_PASSIVE);
                         arthas->SetWalk(true);
                         arthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
@@ -504,7 +504,7 @@ public:
                         {
                             talbot->UpdateEntry(NPC_PRINCE_VALANAR);
                             talbot->SetFaction(FACTION_MONSTER);
-                            talbot->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                            talbot->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             talbot->SetReactState(REACT_PASSIVE);
                         }
                         phaseTimer = 5000;
@@ -544,7 +544,7 @@ public:
                             leryssaGUID = leryssa->GetGUID();
                             leryssa->SetWalk(false);
                             leryssa->SetReactState(REACT_PASSIVE);
-                            leryssa->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                            leryssa->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             leryssa->GetMotionMaster()->MovePoint(0, 3741.969971f, 3571.439941f, 477.441010f);
                         }
                         phaseTimer = 2000;
@@ -620,7 +620,7 @@ public:
                         break;
 
                     case 16:
-                        me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         phaseTimer = 20000;
                         ++phase;
                         break;
@@ -1433,7 +1433,7 @@ public:
         {
             Initialize();
             uiEmoteState = creature->GetEmoteState();
-            uiNpcFlags = NPCFlags(creature->m_unitData->NpcFlags[0]);
+            uiNpcFlags = creature->GetNpcFlags();
         }
 
         void Initialize()

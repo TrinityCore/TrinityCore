@@ -184,7 +184,7 @@ struct boss_victor_nefarius : public BossAI
                 _Reset();
 
             me->SetVisible(true);
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->SetFaction(FACTION_FRIENDLY);
             me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);
             me->RemoveAura(SPELL_NEFARIANS_BARRIER);
@@ -219,7 +219,7 @@ struct boss_victor_nefarius : public BossAI
         if (summon->GetEntry() != NPC_NEFARIAN)
         {
             summon->UpdateEntry(NPC_BONE_CONSTRUCT);
-            summon->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            summon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             summon->SetReactState(REACT_PASSIVE);
             summon->SetStandState(UNIT_STAND_STATE_DEAD);
         }

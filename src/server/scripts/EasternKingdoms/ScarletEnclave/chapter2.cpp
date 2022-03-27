@@ -139,7 +139,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
     void Reset() override
     {
         me->SetImmuneToNPC(true);
-        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         me->SetStandState(UNIT_STAND_STATE_DEAD);
         me->RemoveAllAuras();
 
@@ -203,7 +203,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                 case EVENT_INTRO_6:
                     Talk(SAY_KOLTIRA_3);
                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     _eventGossip = true;
 
                     break;

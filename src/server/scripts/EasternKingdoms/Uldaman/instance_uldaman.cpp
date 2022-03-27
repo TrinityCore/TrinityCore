@@ -122,7 +122,7 @@ class instance_uldaman : public InstanceMapScript
 
                     case GO_ANCIENT_VAULT_DOOR:
                         go->SetGoState(GO_STATE_READY);
-                        go->ReplaceAllFlags(GameObjectFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN));
+                        go->ReplaceAllFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN);
                         ancientVaultDoor = go->GetGUID();
 
                         if (m_auiEncounter[1] == DONE)
@@ -142,7 +142,7 @@ class instance_uldaman : public InstanceMapScript
                         if (m_auiEncounter[2] == DONE)
                         {
                             HandleGameObject(ObjectGuid::Empty, true, go);
-                            go->AddFlag(GO_FLAG_INTERACT_COND);
+                            go->SetFlag(GO_FLAG_INTERACT_COND);
                         }
                         break;
                 }
@@ -152,7 +152,7 @@ class instance_uldaman : public InstanceMapScript
             {
                 creature->SetFaction(FACTION_FRIENDLY);
                 creature->RemoveAllAuras();
-                creature->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 creature->SetControlled(true, UNIT_STATE_ROOT);
                 creature->AddAura(SPELL_MINION_FREEZE_ANIM, creature);
             }
@@ -172,7 +172,7 @@ class instance_uldaman : public InstanceMapScript
                 if (!go)
                     return;
 
-                go->AddFlag(GO_FLAG_INTERACT_COND);
+                go->SetFlag(GO_FLAG_INTERACT_COND);
             }
 
             void ActivateStoneKeepers()

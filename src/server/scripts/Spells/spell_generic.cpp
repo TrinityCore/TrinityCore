@@ -1533,9 +1533,9 @@ class spell_gen_feign_death_all_flags : public AuraScript
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->AddDynamicFlag( UNIT_DYNFLAG_DEAD);
-        target->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->AddUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetDynamicFlag( UNIT_DYNFLAG_DEAD);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
 
         if (Creature* creature = target->ToCreature())
             creature->SetReactState(REACT_PASSIVE);
@@ -1568,8 +1568,8 @@ class spell_gen_feign_death_no_dyn_flag : public AuraScript
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->AddUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
 
         if (Creature* creature = target->ToCreature())
             creature->SetReactState(REACT_PASSIVE);
@@ -1600,8 +1600,8 @@ class spell_gen_feign_death_no_prevent_emotes : public AuraScript
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->AddDynamicFlag(UNIT_DYNFLAG_DEAD);
-        target->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
         if (Creature* creature = target->ToCreature())
             creature->SetReactState(REACT_PASSIVE);
@@ -2499,7 +2499,7 @@ class spell_gen_prevent_emotes : public AuraScript
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->AddUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3784,7 +3784,7 @@ class spell_gen_gm_freeze : public AuraScript
             player->CombatStop();
             if (player->IsNonMeleeSpellCast(true))
                 player->InterruptNonMeleeSpells(true);
-            player->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            player->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
             // if player class = hunter || warlock remove pet if alive
             if ((player->GetClass() == CLASS_HUNTER) || (player->GetClass() == CLASS_WARLOCK))

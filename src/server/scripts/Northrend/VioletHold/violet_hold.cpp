@@ -369,7 +369,7 @@ struct npc_sinclari_vh : public ScriptedAI
             if (Creature* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[i], TEMPSUMMON_MANUAL_DESPAWN))
                 summon->AI()->SetData(DATA_PORTAL_LOCATION, i);
 
-        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
         std::list<Creature*> guardList;
         me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
@@ -502,7 +502,7 @@ struct npc_sinclari_vh : public ScriptedAI
                     if (GameObject* mainDoor = _instance->GetGameObject(DATA_MAIN_DOOR))
                     {
                         mainDoor->SetGoState(GO_STATE_READY);
-                        mainDoor->AddFlag(GO_FLAG_LOCKED);
+                        mainDoor->SetFlag(GO_FLAG_LOCKED);
                     }
                     task.Repeat(Seconds(5));
                     break;
@@ -512,7 +512,7 @@ struct npc_sinclari_vh : public ScriptedAI
                     break;
                 case 9:
                     // We should teleport inside if event is in progress with GOSSIP_MENU_SEND_ME_IN
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     break;
                 default:
                     break;
@@ -529,7 +529,7 @@ struct npc_sinclari_vh : public ScriptedAI
 
             task.Schedule(Seconds(10), [this](TaskContext /*task*/)
             {
-                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             });
         });
     }

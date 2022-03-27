@@ -69,7 +69,7 @@ struct boss_vaelastrasz : public BossAI
     boss_vaelastrasz(Creature* creature) : BossAI(creature, DATA_VAELASTRAZ_THE_CORRUPT)
     {
         Initialize();
-        creature->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        creature->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         creature->SetFaction(FACTION_FRIENDLY);
         creature->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }

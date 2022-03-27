@@ -167,7 +167,7 @@ public:
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
 
                 if (GameObject* iris = instance->GetGameObject(irisGUID))
-                    iris->AddFlag(GO_FLAG_IN_USE);
+                    iris->SetFlag(GO_FLAG_IN_USE);
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                     malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START

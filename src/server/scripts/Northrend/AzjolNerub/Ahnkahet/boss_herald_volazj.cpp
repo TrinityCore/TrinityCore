@@ -225,7 +225,7 @@ struct boss_volazj : public BossAI
                 Talk(SAY_INSANITY);
                 DoCastSelf(SPELL_WHISPER_INSANITY, true);
                 // Unattackable
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_STUNNED);
             }
             // phase mask

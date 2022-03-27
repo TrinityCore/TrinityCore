@@ -449,7 +449,7 @@ struct npc_feral_defender : public ScriptedAI
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->RemoveAurasDueToSpell(SPELL_RANDOM_AGRO_PERIODIC);
                 DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
                 DoCastSelf(SPELL_FERAL_ESSENCE_APPLICATION_REMOVAL, true);

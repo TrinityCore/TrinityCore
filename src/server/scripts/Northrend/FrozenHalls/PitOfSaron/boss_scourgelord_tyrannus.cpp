@@ -147,7 +147,7 @@ struct boss_tyrannus : public BossAI
         events.Reset();
         events.SetPhase(PHASE_NONE);
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         instance->SetBossState(DATA_TYRANNUS, NOT_STARTED);
     }
 
@@ -300,7 +300,7 @@ struct boss_rimefang : public ScriptedAI
         Initialize();
         me->SetCanFly(true);
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void JustReachedHome() override

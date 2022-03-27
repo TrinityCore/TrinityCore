@@ -680,7 +680,7 @@ struct boss_malygos : public BossAI
                 if (!_firstCyclicMovementStarted)
                 {
                     _firstCyclicMovementStarted = true;
-                    me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                         me->SetFacingToObject(alexstraszaBunny);
                     events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, 1s, 0, PHASE_TWO);
@@ -1159,7 +1159,7 @@ struct npc_melee_hover_disk : public VehicleAI
             if (vehicleTemp->GetPassenger(0) && vehicleTemp->GetPassenger(0)->GetTypeId() == TYPEID_PLAYER)
             {
                 vehicleTemp->RemoveAllPassengers();
-                me->AddUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
         }
 
@@ -1897,7 +1897,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScript
         Creature* caster = GetCaster()->ToCreature();
         if (InstanceScript* instance = caster->GetInstanceScript())
             if (GameObject* platform = caster->GetMap()->GetGameObject(instance->GetGuidData(DATA_PLATFORM)))
-                platform->AddFlag(GO_FLAG_DESTROYED);
+                platform->SetFlag(GO_FLAG_DESTROYED);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
