@@ -414,6 +414,68 @@ class spell_brewfest_mount_transformation : public SpellScript
     }
 };
 
+enum CreateEmptyBrewBottle
+{
+    SPELL_BOTM_CREATE_EMPTY_BREW_BOTTLE    = 51655
+};
+
+// 42254, 42255, 42256, 42257, 42258, 42259, 42260, 42261, 42263, 42264, 43959, 43961 - Weak Alcohol
+class spell_brewfest_botm_weak_alcohol : public SpellScript
+{
+    PrepareSpellScript(spell_brewfest_botm_weak_alcohol);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BOTM_CREATE_EMPTY_BREW_BOTTLE });
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_BOTM_CREATE_EMPTY_BREW_BOTTLE, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_brewfest_botm_weak_alcohol::HandleAfterCast);
+    }
+};
+
+enum EmptyBottleThrow
+{
+    SPELL_BOTM_EMPTY_BOTTLE_THROW_IMPACT_CREATURE    = 51695,   // Just unit, not creature
+    SPELL_BOTM_EMPTY_BOTTLE_THROW_IMPACT_GROUND      = 51697
+};
+
+// 51694 - BOTM - Empty Bottle Throw - Resolve
+class spell_brewfest_botm_empty_bottle_throw_resolve : public SpellScript
+{
+    PrepareSpellScript(spell_brewfest_botm_empty_bottle_throw_resolve);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BOTM_EMPTY_BOTTLE_THROW_IMPACT_CREATURE,
+            SPELL_BOTM_EMPTY_BOTTLE_THROW_IMPACT_GROUND
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (Unit* target = GetHitUnit())
+            caster->CastSpell(target, SPELL_BOTM_EMPTY_BOTTLE_THROW_IMPACT_CREATURE, true);
+        else
+            caster->CastSpell(GetHitDest()->GetPosition(), SPELL_BOTM_EMPTY_BOTTLE_THROW_IMPACT_GROUND, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_brewfest_botm_empty_bottle_throw_resolve::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_event_brewfest()
 {
     RegisterSpellScript(spell_brewfest_giddyup);
@@ -426,4 +488,6 @@ void AddSC_event_brewfest()
     RegisterSpellScript(spell_brewfest_dismount_ram);
     RegisterSpellScript(spell_brewfest_barker_bunny);
     RegisterSpellScript(spell_brewfest_mount_transformation);
+    RegisterSpellScript(spell_brewfest_botm_weak_alcohol);
+    RegisterSpellScript(spell_brewfest_botm_empty_bottle_throw_resolve);
 }
