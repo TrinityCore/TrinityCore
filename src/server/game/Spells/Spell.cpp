@@ -4889,12 +4889,22 @@ void Spell::SendChannelUpdate(uint32 time)
 
 void Spell::SendChannelStart(uint32 duration)
 {
-    ObjectGuid channelTarget = m_targets.GetObjectTargetGUID();;
+    ObjectGuid channelTarget = m_targets.GetObjectTargetGUID();
     if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
     {
         // this is for TARGET_SELECT_CATEGORY_NEARBY
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)
             channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
+        else
+        {
+            // We assume that when we have a channel spell with more than one unique unit target that there is a caster and a target.
+            // We don't want the caster but the target so we are looking for a non-caster entry within the target list
+            for (auto& itr : m_UniqueTargetInfo)
+            {
+                if (itr.targetGUID != m_caster->GetGUID())
+                    channelTarget = itr.targetGUID;
+            }
+        }
     }
 
     // There must always be a channel target
