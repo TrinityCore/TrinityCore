@@ -1,0 +1,1 @@
+UPDATE `spell_proc` SET `SpellTypeMask`= 0x1 | 0x2 WHERE `SpellId` IN (90848, 90886, 90888, 90892, 90897, 90899, 90990, 90993, 95878);
