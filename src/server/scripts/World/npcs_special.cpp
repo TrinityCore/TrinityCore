@@ -2923,86 +2923,76 @@ enum MageOrb
 };
 
 // Frostfire Orb / Flaming Orb
-class npc_mage_orb : public CreatureScript
-{
-    public:
-        npc_mage_orb() : CreatureScript("npc_mage_orb") { }
+ struct npc_mage_orb : public ScriptedAI
+ {
+     npc_mage_orb(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_mage_orbAI : public PetAI
-        {
-            npc_mage_orbAI(Creature* creature) : PetAI(creature) { }
+     void AttackStart(Unit* /*target*/) override
+     {
+         // Calling MovePoint again to apply movement speed changes
+         if (me->isMoving())
+             me->GetMotionMaster()->MovePoint(0, pos);
+     }
 
-            void AttackStart(Unit* /*target*/) override
-            {
-                // Calling MovePoint again to apply movement speed changes
-                if (me->isMoving())
-                    me->GetMotionMaster()->MovePoint(0, pos);
-            }
+     void IsSummonedBy(Unit* summoner) override
+     {
+         pos = summoner->GetPosition();
+         pos.m_positionZ += 2.0f; // increasing the height to avoid terrain hickups
+         summoner->MovePositionToFirstCollision(pos, 100.0f, 0.0f);
+         events.ScheduleEvent(EVENT_MOVE_FORWARD, Milliseconds(1));
+         events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECT, Milliseconds(400));
+         events.ScheduleEvent(EVENT_EARLY_EXPLOSION, Seconds(5));
+         events.ScheduleEvent(EVENT_EXPLODE, Seconds(15) + Milliseconds(400));
+     }
 
-            void IsSummonedBy(Unit* summoner) override
-            {
-                pos = summoner->GetPosition();
-                pos.m_positionZ += 2.0f; // increasing the height to avoid terrain hickups
-                summoner->MovePositionToFirstCollision(pos, 100.0f, 0.0f);
-                events.ScheduleEvent(EVENT_MOVE_FORWARD, Milliseconds(1));
-                events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECT, Milliseconds(400));
-                events.ScheduleEvent(EVENT_EARLY_EXPLOSION, Seconds(5));
-                events.ScheduleEvent(EVENT_EXPLODE, Seconds(15) + Milliseconds(400));
-            }
+     void UpdateAI(uint32 diff) override
+     {
+         events.Update(diff);
 
-            void UpdateAI(uint32 diff) override
-            {
-                events.Update(diff);
+         if (uint32 eventId = events.ExecuteEvent())
+         {
+             switch (eventId)
+             {
+                 case EVENT_MOVE_FORWARD:
+                     me->GetMotionMaster()->Clear();
+                     me->GetMotionMaster()->MovePoint(0, pos);
+                     break;
+                 case EVENT_APPLY_PERIODIC_EFFECT:
+                     DoCastSelf(me->GetEntry() == NPC_FLAME_ORB ? SPELL_FLAME_ORB_AURA : SPELL_FROSTFIRE_ORB_AURA, true);
+                     break;
+                 case EVENT_EARLY_EXPLOSION:
+                     if (!me->IsInCombat())
+                         if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                             if (Aura* aura = summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
+                                 if (roll_chance_i(aura->GetSpellInfo()->ProcChance))
+                                 {
+                                     Position explPos = me->GetPosition();
+                                     float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                                     summoner->CastSpell({ explPos.GetPositionX(), explPos.GetPositionY(), z }, SPELL_FIRE_POWER_EXPLOSION, true);
+                                     me->DespawnOrUnsummon();
+                                 }
+                     break;
+                 case EVENT_EXPLODE:
+                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                         if (Aura* aura = summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
+                             if (roll_chance_i(aura->GetSpellInfo()->ProcChance))
+                             {
+                                 Position explPos = me->GetPosition();
+                                 float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                                 summoner->CastSpell({ explPos.GetPositionX(), explPos.GetPositionY(), z }, SPELL_FIRE_POWER_EXPLOSION, true);
+                                 me->DespawnOrUnsummon();
+                             }
+                     break;
+                 default:
+                     break;
+             }
+         }
+     }
+ private:
+     EventMap events;
+     Position pos;
+ };
 
-                if (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MOVE_FORWARD:
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(0, pos);
-                            break;
-                        case EVENT_APPLY_PERIODIC_EFFECT:
-                            DoCastSelf(me->GetEntry() == NPC_FLAME_ORB ? SPELL_FLAME_ORB_AURA : SPELL_FROSTFIRE_ORB_AURA, true);
-                            break;
-                        case EVENT_EARLY_EXPLOSION:
-                            if (!me->IsInCombat())
-                                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                                    if (Aura* aura = summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
-                                        if (roll_chance_i(aura->GetSpellInfo()->ProcChance))
-                                        {
-                                            Position explPos = me->GetPosition();
-                                            float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-                                            summoner->CastSpell({ explPos.GetPositionX(), explPos.GetPositionY(), z }, SPELL_FIRE_POWER_EXPLOSION, true);
-                                            me->DespawnOrUnsummon();
-                                        }
-                            break;
-                        case EVENT_EXPLODE:
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                                if (Aura* aura = summoner->GetAuraOfRankedSpell(SPELL_FIRE_POWER_R1))
-                                    if (roll_chance_i(aura->GetSpellInfo()->ProcChance))
-                                    {
-                                        Position explPos = me->GetPosition();
-                                        float z = explPos.GetPositionZ() - me->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-                                        summoner->CastSpell({ explPos.GetPositionX(), explPos.GetPositionY(), z }, SPELL_FIRE_POWER_EXPLOSION, true);
-                                        me->DespawnOrUnsummon();
-                                    }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        private:
-            EventMap events;
-            Position pos;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_mage_orbAI(creature);
-        }
-};
 
 enum DruidTreant
 {
@@ -3182,7 +3172,7 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
-    new npc_mage_orb();
+    RegisterCreatureAI(npc_mage_orb);
     new npc_druid_treant();
     RegisterCreatureAI(npc_darkmoon_island_gnoll);
 }
