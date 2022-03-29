@@ -403,7 +403,6 @@ struct CreatureSpellFocusData
     Spell const* FocusSpell = nullptr;
     ObjectGuid OriginalUnitTarget;
     uint32 ReacquiringTargetDelay = 0;
-    float OriginalOrientation = 0.f;
 
 public:
     void Reset()
