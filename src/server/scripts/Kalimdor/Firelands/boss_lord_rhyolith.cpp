@@ -1009,6 +1009,7 @@ class spell_rhyolith_drink_magma : public SpellScript
             return;
 
         target->SetFacingTo(target->GetAngle(PlateauPlatformCenterPosition));
+        target->SetOrientation(target->GetAngle(PlateauPlatformCenterPosition));
         target->CastSpell(nullptr, SPELL_MOLTEN_SPEW);
     }
 
