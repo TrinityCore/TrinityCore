@@ -575,7 +575,6 @@ public:
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            uint32 const sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
             SendActionMenu(player, action);
@@ -865,7 +864,6 @@ public:
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            uint32 const sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
             SendActionMenu(player, action);
@@ -976,7 +974,6 @@ public:
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            uint32 const sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
             SendActionMenu(player, action);

@@ -61,7 +61,7 @@ enum OnGossips
     GOSSIP_ITEM_DEFAULT_OP      = 0,
     GOSSIP_ITEM_KAEL_1_MENU     = 9199, //Who are you?
     GOSSIP_ITEM_KAEL_2_MENU     = 9200, //What can we do to assist you?
-    GOSSIP_ITEM_KAEL_3_MENU     = 9919, //What brings you to the Sunwell?
+    GOSSIP_ITEM_KAEL_3_MENU     = 9199, //What brings you to the Sunwell?
     GOSSIP_ITEM_KAEL_4_MENU     = 9297, //You're not alone here?
     GOSSIP_ITEM_KAEL_4_OP       = 0,
     GOSSIP_ITEM_KAEL_5_MENU     = 9297, //What would Kil'jaeden want with a mortal woman?
@@ -124,7 +124,7 @@ public:
                     SendGossipMenuFor(player, 12500, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 1:
-                    AddGossipItemFor(player, GOSSIP_ITEM_KAEL_3_MENU, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, GOSSIP_ITEM_KAEL_3_MENU, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     SendGossipMenuFor(player, 12502, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
