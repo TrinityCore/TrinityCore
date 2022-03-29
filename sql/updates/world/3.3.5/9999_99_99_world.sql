@@ -54,17 +54,6 @@ INSERT INTO `gossip_menu_option`(`MenuID`, `OptionID`, `OptionIcon`, `OptionText
 (6091, 1, 0, 'Please teach me how to become a swordsmith, Seril.', 9991, 0, 0, 0, 0, 0, 0, NULL, 0, 0),
 (6091, 2, 0, 'I wish to unlearn Swordsmithing!', 18982, 0, 0, 0, 0, 0, 1000000, 'Forgetting your swordsmithing skill is not something to do lightly.  If you choose to abandon it you will forget all recipes that require swordsmithing to create!', 18983, 0);
 
--- npc professions alchemy
-UPDATE `creature_template` SET `ScriptName`='npc_prof_alchemy' WHERE `entry` IN (22427,19052,17909);
-DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (8542,8540,7571) AND `OptionID` IN (1,2);
-INSERT INTO `gossip_menu_option`(`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
-(8542, 1, 0, 'I\'ve trained as an alchemist once again.  I wish to specialize in transmutations.', 20292, 0, 0, 0, 0, 0, 0, NULL, 0, 0),
-(8542, 2, 0, 'I wish to unlearn Transmutation Mastery.', 21876, 0, 0, 0, 0, 0, 1500000, 'Forgetting your skill in Transmutation Mastery is not something to do lightly.Are you absolutely sure?', 21872, 0),
-(8540, 1, 0, 'I\'ve trained as an alchemist once again.  I wish to specialize in elixirs.', 20289, 0, 0, 0, 0, 0, 0, NULL, 0, 0),
-(8540, 2, 0, 'I wish to unlearn Elixir Mastery.', 21875, 0, 0, 0, 0, 0, 1500000, 'Forgetting your skill in Elixir Mastery is not something to do lightly.Are you absolutely sure?', 21871, 0),
-(7571, 1, 0, 'I\'ve trained as an alchemist once again.  I wish to specialize in potions.', 20287, 0, 0, 0, 0, 0, 0, NULL, 0, 0),
-(7571, 2, 0, 'I wish to unlearn Potion Mastery.', 21874, 0, 0, 0, 0, 0, 1500000, 'Forgetting your skill in Potion Mastery is not something to do lightly.Are you absolutely sure?', 21870, 0);
-
 -- npc professions engineering
 DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (6092,6094,8308,8306) AND `OptionID` IN (2);
 INSERT INTO `gossip_menu_option`(`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
