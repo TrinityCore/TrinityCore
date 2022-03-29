@@ -170,7 +170,7 @@ class instance_stratholme : public InstanceMapScript
                         break;
                     case NPC_YSIDA:
                         ysidaGUID = creature->GetGUID();
-                        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        creature->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                 }
             }
@@ -278,7 +278,7 @@ class instance_stratholme : public InstanceMapScript
                                     ysida->CastSpell(nullptr, SPELL_YSIDA_SAVED, true);
                                     ysida->SetWalk(true);
                                     ysida->AI()->Talk(SAY_YSIDA_SAVED);
-                                    ysida->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                                    ysida->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                                     ysida->GetClosePoint(x, y, z, ysida->GetObjectScale() / 3, 4.0f);
                                     ysida->GetMotionMaster()->MovePoint(1, x, y, z);
 

@@ -1793,7 +1793,7 @@ void Spell::EffectOpenLock()
     {
         GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
 
-        if (goInfo->CannotBeUsedUnderImmunity() && m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
+        if (goInfo->CannotBeUsedUnderImmunity() && player->HasUnitFlag(UNIT_FLAG_IMMUNE))
             return;
 
         // Arathi Basin banner opening. /// @todo Verify correctness of this check
@@ -2139,7 +2139,7 @@ void Spell::EffectSummonType()
                         return;
 
                     summon->SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
-                    summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+                    summon->ReplaceAllNpcFlags(NPCFlags(summon->GetCreatureTemplate()->npcflag));
                     summon->SetImmuneToAll(true);
                     break;
                 }
@@ -2916,7 +2916,7 @@ void Spell::EffectSummonPet()
             pet->SetReactState(REACT_DEFENSIVE);
     }
 
-    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+    pet->SetCreatedBySpell(m_spellInfo->Id);
 
     // generate new name for summon pet
     std::string new_name = sObjectMgr->GeneratePetName(petentry);
@@ -4226,8 +4226,8 @@ void Spell::EffectSkinning()
 
     uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
-    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
-    creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+    creature->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
+    creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
     player->SendLoot(creature->GetGUID(), LOOT_SKINNING);
 
     int32 const reqValue = targetLevel < 10 ? 0 : (targetLevel < 20 ? (targetLevel - 10) * 10 : targetLevel * 5);
@@ -4541,8 +4541,8 @@ void Spell::EffectResurrectPet()
         pet->Relocate(x, y, z, player->GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
     }
 
-    pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
-    pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+    pet->ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
+    pet->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
     pet->setDeathState(ALIVE);
     pet->ClearUnitState(UNIT_STATE_ALL_ERASABLE);
     pet->SetHealth(pet->CountPctFromMaxHealth(damage));
@@ -5259,7 +5259,7 @@ void Spell::SummonGuardian(SpellEffectInfo const& spellEffectInfo, uint32 entry,
             if (uint32 weapon = unitCaster->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
             {
                 summon->SetDisplayId(11686); // modelid2
-                summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
+                summon->SetVirtualItem(0, weapon);
             }
             else
                 summon->SetDisplayId(1126); // modelid1
@@ -5278,7 +5278,7 @@ void Spell::EffectRenamePet()
         !unitTarget->IsPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
         return;
 
-    unitTarget->SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED);
+    unitTarget->SetPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED);
 }
 
 void Spell::EffectPlayMusic()

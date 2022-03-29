@@ -187,7 +187,7 @@ class npc_flash_freeze : public CreatureScript
                 Initialize();
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -267,7 +267,7 @@ class npc_ice_block : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -282,7 +282,7 @@ class npc_ice_block : public CreatureScript
                     return;
 
                 targetGUID = summoner->GetGUID();
-                summoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                summoner->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 summoner->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetInCombatWith(summoner);
                 AddThreat(summoner, 250.0f);
@@ -299,7 +299,7 @@ class npc_ice_block : public CreatureScript
             {
                 if (Creature* helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
-                    helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                    helper->RemoveUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                     helper->SetControlled(false, UNIT_STATE_ROOT);
 
                     if (Creature* hodir = instance->GetCreature(DATA_HODIR))
@@ -403,7 +403,7 @@ class boss_hodir : public CreatureScript
                     me->RemoveAllAttackers();
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->InterruptNonMeleeSpells(true);
                     me->StopMoving();
@@ -671,7 +671,7 @@ class npc_hodir_priest : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);
@@ -753,7 +753,7 @@ class npc_hodir_shaman : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);
@@ -818,7 +818,7 @@ class npc_hodir_druid : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);
@@ -896,7 +896,7 @@ class npc_hodir_mage : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);

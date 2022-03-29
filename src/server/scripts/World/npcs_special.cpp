@@ -228,7 +228,7 @@ public:
         {
             Initialize();
             me->SetFaction(FACTION_PREY);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -236,7 +236,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             // Reset flags after a certain time has passed so that the next player has to start the 'event' again
-            if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+            if (me->HasNpcFlag(UNIT_NPC_FLAG_QUESTGIVER))
             {
                 if (ResetFlagTimer <= diff)
                 {
@@ -258,7 +258,7 @@ public:
                 case TEXT_EMOTE_CHICKEN:
                     if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand32() % 30 == 1)
                     {
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         me->SetFaction(FACTION_FRIENDLY);
                         Talk(player->GetTeam() == HORDE ? EMOTE_HELLO_H : EMOTE_HELLO_A);
                     }
@@ -266,7 +266,7 @@ public:
                 case TEXT_EMOTE_CHEER:
                     if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
                     {
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         me->SetFaction(FACTION_FRIENDLY);
                         Talk(EMOTE_CLUCK_TEXT);
                     }
@@ -312,7 +312,7 @@ struct npc_dancing_flames : public ScriptedAI
     {
         DoCastSelf(SPELL_SUMMON_BRAZIER, true);
         DoCastSelf(SPELL_BRAZIER_DANCE, false);
-        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+        me->SetEmoteState(EMOTE_STATE_DANCE);
         float x, y, z;
         me->GetPosition(x, y, z);
         me->Relocate(x, y, z + 1.05f);
@@ -633,7 +633,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void BeginEvent(Player* player)
@@ -658,7 +658,7 @@ public:
             }
 
             Event = true;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         }
 
         void PatientDied(Position const* point)
@@ -766,13 +766,13 @@ public:
             Initialize();
 
             //no select
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             //no regen health
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+            me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
 
             //to make them lay with face down
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
 
             uint32 mobId = me->GetEntry();
 
@@ -807,13 +807,13 @@ public:
                         ENSURE_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
             //make uninteractible
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             //regen health
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+            me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
 
             //stand up
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
 
             Talk(SAY_DOC);
 
@@ -843,10 +843,10 @@ public:
 
             if (me->IsAlive() && me->GetHealth() <= 6)
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->setDeathState(JUST_DIED);
-                me->SetFlag(UNIT_DYNAMIC_FLAGS, 32);
+                me->SetDynamicFlag(32);
 
                 if (DoctorGUID)
                     if (Creature* doctor = ObjectAccessor::GetCreature((*me), DoctorGUID))
@@ -897,7 +897,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
             if (Creature* Patient = me->SummonCreature(patientEntry, **point, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
             {
                 //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
-                Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                Patient->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
 
                 Patients.push_back(Patient->GetGUID());
                 ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->DoctorGUID = me->GetGUID();
@@ -1103,7 +1103,7 @@ public:
 
         void Reset() override
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -1521,14 +1521,14 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                     }
                     else
                     {
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                        me->SetEmoteState(EMOTE_STATE_DANCE);
                         _events.ScheduleEvent(EVENT_NEXT, 8s, 12s);
                     }
                     break;
                 case EVENT_NEXT:
                     // If dancing stop before next random state
-                    if (me->GetUInt32Value(UNIT_NPC_EMOTESTATE) == EMOTE_STATE_DANCE)
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                    if (me->GetEmoteState() == EMOTE_STATE_DANCE)
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
 
                     // Random EVENT_EMOTE or EVENT_FACETO
                     if (roll_chance_i(50))
@@ -2111,7 +2111,7 @@ class npc_train_wrecker : public CreatureScript
                                 _timer -= diff;
                                 break;
                             }
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_DANCE);
+                            me->SetEmoteState(EMOTE_ONESHOT_DANCE);
                             me->DespawnOrUnsummon(5s);
                             _nextAction = 0;
                             break;
@@ -2224,8 +2224,8 @@ public:
                 })
                 .Schedule(Seconds(1), [this](TaskContext context)
                 {
-                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
                     context.Repeat();
                 });
         }
@@ -2236,7 +2236,7 @@ public:
             {
                 case GOSSIP_OPTION_BANK:
                 {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_BANKER);
                     uint32 _bankAura = IsArgentSquire() ? SPELL_AURA_BANK_S : SPELL_AURA_BANK_G;
                     if (!me->HasAura(_bankAura))
                         DoCastSelf(_bankAura);
@@ -2247,7 +2247,7 @@ public:
                 }
                 case GOSSIP_OPTION_SHOP:
                 {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_VENDOR);
                     uint32 _shopAura = IsArgentSquire() ? SPELL_AURA_SHOP_S : SPELL_AURA_SHOP_G;
                     if (!me->HasAura(_shopAura))
                         DoCastSelf(_shopAura);
@@ -2258,7 +2258,7 @@ public:
                 }
                 case GOSSIP_OPTION_MAIL:
                 {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_MAILBOX);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_MAILBOX);
                     player->GetSession()->SendShowMailBox(me->GetGUID());
 
                     uint32 _mailAura = IsArgentSquire() ? SPELL_AURA_POSTMAN_S : SPELL_AURA_POSTMAN_G;

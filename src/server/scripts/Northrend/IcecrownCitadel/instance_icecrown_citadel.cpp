@@ -272,7 +272,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_INFILTRATOR_MINCHAR_BQ:
                          // keep him in air
-                         creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                         creature->SetEmoteState(EMOTE_ONESHOT_NONE);
                          creature->SetDisableGravity(true);
                          break;
                     case NPC_CROK_SCOURGEBANE:

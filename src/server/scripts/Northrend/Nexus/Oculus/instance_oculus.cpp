@@ -82,7 +82,7 @@ class instance_oculus : public InstanceMapScript
                         BelgaristraszGUID = creature->GetGUID();
                         if (GetBossState(DATA_DRAKOS) == DONE)
                         {
-                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            creature->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             creature->Relocate(BelgaristraszMove);
                         }
                         break;
@@ -90,7 +90,7 @@ class instance_oculus : public InstanceMapScript
                         EternosGUID = creature->GetGUID();
                         if (GetBossState(DATA_DRAKOS) == DONE)
                         {
-                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            creature->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             creature->Relocate(EternosMove);
                         }
                         break;
@@ -98,7 +98,7 @@ class instance_oculus : public InstanceMapScript
                         VerdisaGUID = creature->GetGUID();
                         if (GetBossState(DATA_DRAKOS) == DONE)
                         {
-                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            creature->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             creature->Relocate(VerdisaMove);
                         }
                         break;

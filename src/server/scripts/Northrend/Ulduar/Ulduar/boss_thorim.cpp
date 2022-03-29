@@ -576,7 +576,7 @@ class boss_thorim : public CreatureScript
                 me->RemoveAllAttackers();
                 me->AttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME);
+                me->SetUnitFlag(UNIT_FLAG_RENAME);
 
                 if (Creature* controller = instance->GetCreature(DATA_THORIM_CONTROLLER))
                     controller->RemoveAllAuras();
@@ -1934,7 +1934,7 @@ class spell_thorim_stormhammer : public SpellScriptLoader
 
             void LoseHammer()
             {
-                GetCaster()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                GetCaster()->SetVirtualItem(0, 0);
             }
 
             void Register() override
@@ -1977,7 +1977,7 @@ class spell_thorim_stormhammer_sif : public SpellScriptLoader
 
             void LoseHammer()
             {
-                GetCaster()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                GetCaster()->SetVirtualItem(0, 0);
             }
 
             void Register() override
@@ -2006,7 +2006,7 @@ class spell_thorim_stormhammer_boomerang : public SpellScriptLoader
             void RecoverHammer(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, THORIM_WEAPON_DISPLAY_ID);
+                    target->SetVirtualItem(0, THORIM_WEAPON_DISPLAY_ID);
             }
 
             void Register() override

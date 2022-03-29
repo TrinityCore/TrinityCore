@@ -91,7 +91,7 @@ public:
                     // we make Immolthar non attackable, otherwise players with pets can pull him out of the forcefield
                     // TODO: this change isnt correct but since of today (13.09.2020) mmaps dont support doors
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
-                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     break;
                 default:
                     break;
@@ -262,7 +262,7 @@ public:
                     ffield->SetGoState(GO_STATE_ACTIVE);
                 // remove previously set non attackable flag
                 if (Creature* immo = instance->GetCreature(_immoGUID))
-                    immo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    immo->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
         }
 

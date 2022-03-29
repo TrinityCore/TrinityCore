@@ -353,8 +353,8 @@ struct boss_kaelthas : public BossAI
     {
         Initialize();
         DoAction(ACTION_PREPARE_ADVISORS);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
-        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetEmoteState(EMOTE_ONESHOT_NONE);
         me->SetDisableGravity(false);
         me->SetTarget(ObjectGuid::Empty);
         me->SetObjectScale(1.0f);
@@ -383,7 +383,7 @@ struct boss_kaelthas : public BossAI
         {
             case ACTION_START_ENCOUNTER:
                 Talk(SAY_INTRO);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                 _advisorGuid[ADVISOR_THALADRED] = instance->GetGuidData(DATA_THALADRED);
                 _advisorGuid[ADVISOR_SANGUINAR] = instance->GetGuidData(DATA_SANGUINAR);
@@ -400,7 +400,7 @@ struct boss_kaelthas : public BossAI
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, _advisorGuid[i]))
                     {
                         creature->Respawn(true);
-                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         creature->AI()->EnterEvadeMode();
                     }
                 }
@@ -502,7 +502,7 @@ struct boss_kaelthas : public BossAI
             case POINT_TRANSITION_CENTER_ASCENDING:
                 me->SetFacingTo(float(M_PI));
                 Talk(SAY_PHASE5_NUTS);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetDisableGravity(true);
                 //me->SetHover(true); -- Set in sniffs, but breaks his visual.
                 events.ScheduleEvent(EVENT_TRANSITION_2, 2s);
@@ -521,7 +521,7 @@ struct boss_kaelthas : public BossAI
             case POINT_END_TRANSITION:
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->InterruptNonMeleeSpells(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->RemoveAurasDueToSpell(SPELL_FULLPOWER);
 
                 if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
@@ -575,13 +575,13 @@ struct boss_kaelthas : public BossAI
             switch (eventId)
             {
                 case EVENT_START_ENCOUNTER:
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                    me->SetUnitFlag(UNIT_FLAG_PACIFIED);
                     DoAction(ACTION_ACTIVE_ADVISOR);
                     break;
                 case EVENT_ACTIVE_ADVISOR:
                     if (Creature* advisor = ObjectAccessor::GetCreature(*me, _advisorGuid[_advisorCounter]))
                     {
-                        advisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        advisor->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             advisor->AI()->AttackStart(target);
@@ -603,7 +603,7 @@ struct boss_kaelthas : public BossAI
                     // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
                     ResetThreatList();
 
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
 
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         AttackStart(target);
@@ -636,7 +636,7 @@ struct boss_kaelthas : public BossAI
                     events.ScheduleEvent(EVENT_SUMMON_PHOENIX, 45s, 60s, EVENT_GROUP_COMBAT, PHASE_COMBAT);
                     break;
                 case EVENT_END_TRANSITION:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                    me->SetEmoteState(EMOTE_ONESHOT_NONE);
                     DoCast(SPELL_FULLPOWER);
                     events.ScheduleEvent(EVENT_TRANSITION_4, 2s);
                     break;
@@ -701,7 +701,7 @@ struct boss_kaelthas : public BossAI
                     me->RemoveAurasDueToSpell(SPELL_NETHER_BEAM_VISUAL3);
                     DoCast(me, SPELL_KAEL_EXPLODES3, true);
                     DoCast(me, SPELL_KAEL_STUNNED); // Core doesn't handle the emote properly while flying.
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DROWNED);
+                    me->SetEmoteState(EMOTE_STATE_DROWNED);
 
                     // Destroy the surrounding environment.
                     if (GameObject* statue = instance->GetGameObject(DATA_KAEL_STATUE_LEFT))
@@ -779,8 +779,8 @@ struct advisorbase_ai : public ScriptedAI
         Initialize();
 
         me->SetStandState(UNIT_STAND_STATE_STAND);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
 
         //reset encounter
         if (instance->GetBossState(DATA_KAELTHAS) == IN_PROGRESS)
@@ -790,7 +790,7 @@ struct advisorbase_ai : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (!who || _inFakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (!who || _inFakeDeath || me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -798,7 +798,7 @@ struct advisorbase_ai : public ScriptedAI
 
     void AttackStart(Unit* who) override
     {
-        if (!who || _inFakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (!who || _inFakeDeath || me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::AttackStart(who);
@@ -809,7 +809,7 @@ struct advisorbase_ai : public ScriptedAI
         if (spellInfo->Id == SPELL_RESSURECTION)
         {
             _hasRessurrected = true;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             events.ScheduleEvent(EVENT_DELAYED_RESSURECTION, 2s);
         }
@@ -829,7 +829,7 @@ struct advisorbase_ai : public ScriptedAI
             me->RemoveAllAurasOnDeath();
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_STUNNED);
             me->SetTarget(ObjectGuid::Empty);
             me->SetStandState(UNIT_STAND_STATE_DEAD);
             me->GetMotionMaster()->Clear();
@@ -1059,7 +1059,7 @@ struct boss_grand_astromancer_capernian : public advisorbase_ai
 
     void AttackStart(Unit* who) override
     {
-        if (!who || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (!who || me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         if (me->Attack(who, true))

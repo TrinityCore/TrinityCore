@@ -187,7 +187,7 @@ struct npc_tiger_matriarch : public ScriptedAI
         if (HealthBelowPct(20))
         {
             damage = 0;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             if (Unit* vehSummoner = attacker->ToTempSummon()->GetSummonerUnit())
             {
                 vehSummoner->AddAura(SPELL_SUMMON_ZENTABRA_TRIGGER, vehSummoner);

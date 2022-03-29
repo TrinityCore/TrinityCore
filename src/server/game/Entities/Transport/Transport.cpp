@@ -475,7 +475,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
         return nullptr;
     }
 
-    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+    summon->SetCreatedBySpell(spellId);
 
     summon->SetTransport(this);
     summon->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);

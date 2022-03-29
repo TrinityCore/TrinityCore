@@ -576,9 +576,9 @@ public:
 
                 // Adjust gossip flag based on whether we have a gossip menu or not
                 if (target.HasGossip)
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 else
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
                 TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: has snapback for this state, distance = %f", target.SnapbackPosition->GetExactDist(me));
                 // Snapback handling - if we're too far from where we're supposed to be, teleport there
@@ -1074,7 +1074,7 @@ public:
                             DoCast(citizen, SPELL_CRUSADER_STRIKE, TRIGGERED_IGNORE_SET_FACING);
                         if (Creature* resident = me->FindNearestCreature(NPC_RESIDENT, 100.0f, true))
                         {
-                            resident->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+                            resident->SetEmoteState(EMOTE_STATE_COWER);
                             resident->AI()->Talk(RP2_LINE_RESIDENT1, ObjectAccessor::GetUnit(*me, _eventStarterGuid));
                         }
                         break;
@@ -1465,7 +1465,7 @@ public:
                     case RP5_EVENT_CHROMIE_SPAWN:
                         if (Creature* chromie = instance->instance->SummonCreature(NPC_CHROMIE_3, ArthasPositions[RP5_CHROMIE_SPAWN]))
                         {
-                            chromie->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                            chromie->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                             Movement::PointsArray path(ChromieSplinePos, ChromieSplinePos + chromiePathSize);
                             Movement::MoveSplineInit init(chromie);
                             init.SetFly();
@@ -1476,14 +1476,14 @@ public:
                         break;
                     case RP5_EVENT_CHROMIE_LAND:
                         if (Creature* chromie = me->FindNearestCreature(NPC_CHROMIE_3, 100.0f, true))
-                            chromie->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
+                            chromie->SetAnimTier(AnimTier::Ground);
                         break;
                     case RP5_EVENT_CHROMIE_TRANSFORM:
                         if (Creature* chromie = me->FindNearestCreature(NPC_CHROMIE_3, 100.0f, true))
                         {
                             chromie->CastSpell(chromie, SPELL_CHROMIE_3_TRANSFORM);
                             chromie->AI()->Talk(RP5_LINE_CHROMIE0);
-                            chromie->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                            chromie->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         }
                         break;
                     default:

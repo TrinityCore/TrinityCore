@@ -395,7 +395,7 @@ public:
             if (!tree || !player)
                 return;
 
-            tree->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            tree->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
             if (roll == 1) // friendly version
             {
@@ -540,7 +540,7 @@ class npc_wyrmrest_defender : public CreatureScript
                     case SPELL_WYRMREST_DEFENDER_MOUNT:
                         Talk(WHISPER_MOUNTED, me->GetCharmerOrOwner());
                         me->SetImmuneToAll(false);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                        me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
                         break;
                     // Both below are for checking low hp warning
                     case SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE:
@@ -568,7 +568,7 @@ class npc_wyrmrest_defender : public CreatureScript
 
             void OnCharmed(bool /*apply*/) override
             {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
         };
 

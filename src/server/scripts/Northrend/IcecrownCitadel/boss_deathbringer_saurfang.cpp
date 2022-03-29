@@ -364,7 +364,7 @@ struct boss_deathbringer_saurfang : public BossAI
             _dead = true;
             _JustDied();
             _EnterEvadeMode();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
             me->RemoveAurasOnEvade();
             DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
@@ -461,7 +461,7 @@ struct boss_deathbringer_saurfang : public BossAI
             switch (eventId)
             {
                 case EVENT_INTRO_ALLIANCE_2:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_ALLIANCE_2);
                     break;
@@ -474,7 +474,7 @@ struct boss_deathbringer_saurfang : public BossAI
                     DoCastSelf(SPELL_GRIP_OF_AGONY);
                     break;
                 case EVENT_INTRO_HORDE_2:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetFaction(FACTION_UNDEAD_SCOURGE);
                     Talk(SAY_INTRO_HORDE_2);
                     break;
@@ -661,7 +661,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                 for (auto itr = guardList.begin(); itr != guardList.end(); ++x, ++itr)
                     (*itr)->AI()->SetData(0, x);
 
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 Talk(SAY_INTRO_HORDE_1);
                 _events.SetPhase(PHASE_INTRO_H);
                 _events.ScheduleEvent(EVENT_INTRO_HORDE_3, 18500ms, 0, PHASE_INTRO_H);
@@ -729,8 +729,8 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
                     {
                         deathbringer->CastSpell(me, SPELL_RIDE_VEHICLE, true);  // for the packet logs.
-                        deathbringer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
-                        deathbringer->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DROWNED);
+                        deathbringer->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        deathbringer->SetEmoteState(EMOTE_STATE_DROWNED);
                     }
                     _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 1s);    // move
                     _events.ScheduleEvent(EVENT_OUTRO_HORDE_6, 4s);    // say
@@ -862,7 +862,7 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
                 for (auto itr = guardList.begin(); itr != guardList.end(); ++x, ++itr)
                     (*itr)->AI()->SetData(0, x);
 
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 Talk(SAY_INTRO_ALLIANCE_1);
                 _events.ScheduleEvent(EVENT_INTRO_ALLIANCE_4, 29500ms, 0, PHASE_INTRO_A);
                 _instance->HandleGameObject(_instance->GetGuidData(GO_SAURFANG_S_DOOR), true);

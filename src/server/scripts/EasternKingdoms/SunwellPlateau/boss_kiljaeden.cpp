@@ -263,7 +263,7 @@ public:
         {
             Initialize();
             me->SetDisableGravity(true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->setActive(true);
             me->SetFarVisible(true);
 
@@ -443,8 +443,8 @@ public:
 
         void InitializeAI() override
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitState(UNIT_STATE_STUNNED);
 
             ScriptedAI::InitializeAI();
@@ -589,7 +589,7 @@ public:
             if (Creature* pKalec = instance->GetCreature(DATA_KALECGOS_KJ))
                 pKalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
 
-            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 12);
+            me->SetCombatReach(12);
             summons.DespawnAll();
         }
 
@@ -616,8 +616,8 @@ public:
         {
             if (summoned->GetEntry() == NPC_ARMAGEDDON_TARGET)
             {
-                summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
-                summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                summoned->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         //      summoned->SetVisibility(VISIBILITY_OFF);  //with this we cant see the armageddon visuals
             }
             else
@@ -1037,7 +1037,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void JustSummoned(Creature* summoned) override

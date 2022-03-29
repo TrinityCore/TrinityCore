@@ -54,10 +54,10 @@ class spell_operation_gnomeregan_basic_orders_emote : public AuraScript
                 target->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
                 break;
             case SPELL_TEST_DANCE:
-                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                target->SetEmoteState(EMOTE_STATE_DANCE);
                 break;
             case SPELL_TEST_STOP_DANCE:
-                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                target->SetEmoteState(EMOTE_STATE_NONE);
                 break;
             default:
                 return;

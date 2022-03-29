@@ -141,7 +141,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
     {
         if (action == ACTION_START_QUEST)
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
             if (Creature* thalorien = me->SummonCreature(NPC_THALORIEN_DAWNSEEKER, thalorienSummon, TEMPSUMMON_CORPSE_DESPAWN))
                 _thalorienGUID = thalorien->GetGUID();
@@ -153,7 +153,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         _summons.DespawnAll();
         _playerGUID.Clear();
         _morlenGUID.Clear();
@@ -258,7 +258,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                     {
                         thalorien->SetWalk(true);
                         thalorien->GetMotionMaster()->MovePoint(0, thalorienFight);
-                        thalorien->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                        thalorien->SetEmoteState(EMOTE_STATE_READY2H);
                         thalorien->SetHomePosition(thalorienFight);
                     }
 
@@ -320,7 +320,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                             creature->GetEntry() == NPC_MORLEN_GOLDGRIP)
                             continue;
 
-                        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         if (Creature* thalorien = ObjectAccessor::GetCreature(*me, _thalorienGUID))
                             creature->AI()->AttackStart(thalorien);
                     }
@@ -334,7 +334,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                 case EVENT_MORLEN_ATTACK:
                     if (Creature* morlen = ObjectAccessor::GetCreature(*me, _morlenGUID))
                     {
-                        morlen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        morlen->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         if (Creature* thalorien = ObjectAccessor::GetCreature(*me, _thalorienGUID))
                             morlen->AI()->AttackStart(thalorien);
                     }
@@ -374,7 +374,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                         thalorien->DespawnOrUnsummon(5s);
                     }
 
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
                     break;
             }

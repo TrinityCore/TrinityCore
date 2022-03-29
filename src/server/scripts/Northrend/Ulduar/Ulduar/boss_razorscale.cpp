@@ -383,7 +383,7 @@ struct boss_razorscale : public BossAI
         switch (actionId)
         {
             case ACTION_START_FIGHT:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetSpeedRate(MOVE_RUN, 3.0f);
                 me->StopMoving();
                 me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_FLIGHT, RazorFlightPosition);
@@ -687,7 +687,7 @@ struct npc_expedition_commander : public ScriptedAI
         {
             CloseGossipMenuFor(player);
             _events.SetPhase(PHASE_COMBAT);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
                 razorscale->AI()->DoAction(ACTION_START_FIGHT);
             return true;
@@ -904,7 +904,7 @@ struct npc_expedition_defender : public ScriptedAI
             return;
 
         me->SetHomePosition(DefendersPosition[_myPositionNumber]);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
 private:
@@ -934,7 +934,7 @@ struct npc_expedition_trapper : public ScriptedAI
                 me->GetMotionMaster()->MoveTargetedHome();
                 break;
             case ACTION_START_FIGHT:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                 break;
             case ACTION_STOP_CAST:
                 me->InterruptNonMeleeSpells(false);
@@ -998,7 +998,7 @@ struct npc_expedition_engineer : public ScriptedAI
             _scheduler.Schedule(Seconds(28), [this](TaskContext /*context*/)
             {
                 HandleHarpoonMovement();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
             });
         }
         else if (actionId == ACTION_FIX_HARPOONS)
@@ -1173,7 +1173,7 @@ struct npc_expedition_engineer : public ScriptedAI
                 _scheduler.
                     Schedule(Seconds(3), [this](TaskContext /*context*/)
                 {
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                    me->SetEmoteState(EMOTE_STATE_USE_STANDING);
                 })
                     .Schedule(Seconds(18), [this](TaskContext /*context*/)
                 {

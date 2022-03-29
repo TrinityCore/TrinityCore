@@ -225,7 +225,7 @@ struct boss_skadi : public BossAI
         {
             case ACTION_START_ENCOUNTER:
                 instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->setActive(true);
                 SpawnFirstWave();
                 Talk(SAY_AGGRO);
@@ -260,7 +260,7 @@ struct boss_skadi : public BossAI
                 Talk(SAY_DRAKE_DEATH);
                 DoCastSelf(SPELL_SKADI_TELEPORT);
                 summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _phase = PHASE_GROUND;
@@ -477,7 +477,7 @@ struct npc_skadi_trashAI : public ScriptedAI
         switch (pointId)
         {
             case POINT_0:
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, me->GetEntry() == NPC_YMIRJAR_WARRIOR ? EMOTE_STATE_READY1H : EMOTE_STATE_READY2HL);
+                me->SetEmoteState(me->GetEntry() == NPC_YMIRJAR_WARRIOR ? EMOTE_STATE_READY1H : EMOTE_STATE_READY2HL);
                 break;
             case POINT_1:
                 _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)

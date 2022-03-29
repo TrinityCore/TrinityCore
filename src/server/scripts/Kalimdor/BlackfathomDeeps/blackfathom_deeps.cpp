@@ -175,7 +175,7 @@ struct npc_morridune : public EscortAI
     void Reset() override
     {
         Talk(SAY_MORRIDUNE_1);
-        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         Start(false);
     }
 
@@ -186,7 +186,7 @@ struct npc_morridune : public EscortAI
             case 4:
                 SetEscortPaused(true);
                 me->SetFacingTo(1.775791f);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 Talk(SAY_MORRIDUNE_2);
                 break;
         }

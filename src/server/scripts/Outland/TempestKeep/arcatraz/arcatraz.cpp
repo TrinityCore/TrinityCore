@@ -289,7 +289,7 @@ struct npc_warden_mellichar : public ScriptedAI
     {
         Initialize();
 
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         DoCast(me, SPELL_TARGET_OMEGA);
 
         instance->SetBossState(DATA_HARBINGER_SKYRISS, NOT_STARTED);

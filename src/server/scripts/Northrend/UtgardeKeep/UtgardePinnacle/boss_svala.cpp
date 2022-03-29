@@ -158,7 +158,7 @@ struct boss_svala : public BossAI
         else
         {
             events.SetPhase(IDLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         me->SetDisableGravity(false);
@@ -189,14 +189,14 @@ struct boss_svala : public BossAI
         if (events.IsInPhase(IDLE) && me->IsValidAttackTarget(who) && me->IsWithinDistInMap(who, 40))
         {
             events.SetPhase(INTRO);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
             if (GameObject* mirror = instance->GetGameObject(DATA_UTGARDE_MIRROR))
                 mirror->SetGoState(GO_STATE_READY);
 
             if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                arthas->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                 _arthasGUID = arthas->GetGUID();
             }
             events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_0, 1s, 0, INTRO);
@@ -290,7 +290,7 @@ struct boss_svala : public BossAI
                     }
                     me->RemoveAllAuras();
                     me->UpdateEntry(NPC_SVALA_SORROWGRAVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_1, 2s, 0, INTRO);
                     break;
                 case EVENT_INTRO_SVALA_TALK_1:
@@ -321,7 +321,7 @@ struct boss_svala : public BossAI
                 case EVENT_INTRO_DESPAWN_ARTHAS:
                     if (GameObject* mirror = instance->GetGameObject(DATA_UTGARDE_MIRROR))
                         mirror->SetGoState(GO_STATE_ACTIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
                         arthas->DespawnOrUnsummon();
                     _arthasGUID.Clear();

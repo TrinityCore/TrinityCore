@@ -1567,7 +1567,7 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
-        if (m_goInfo->CannotBeUsedUnderImmunity() && playerUser->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
+        if (m_goInfo->CannotBeUsedUnderImmunity() && playerUser->HasUnitFlag(UNIT_FLAG_IMMUNE))
             return;
 
         if (!m_goInfo->IsUsableMounted())
@@ -1694,7 +1694,7 @@ void GameObject::Use(Unit* user)
                 {
                     itr->second = player->GetGUID(); //this slot in now used by player
                     player->TeleportTo(GetMapId(), x_lowest, y_lowest, GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
-                    player->SetStandState(UNIT_STAND_STATE_SIT_LOW_CHAIR+info->chair.height);
+                    player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->chair.height));
                     return;
                 }
             }
@@ -2135,7 +2135,7 @@ void GameObject::Use(Unit* user)
             WorldPacket data(SMSG_ENABLE_BARBER_SHOP, 0);
             player->SendDirectMessage(&data);
 
-            player->SetStandState(UNIT_STAND_STATE_SIT_LOW_CHAIR+info->barberChair.chairheight);
+            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight));
             return;
         }
         default:
