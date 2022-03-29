@@ -115,7 +115,12 @@ Position const MajordomoStaghelmMovePosition = { 523.4965f, -61.987846f, 83.9470
 struct boss_majordomo_staghelm : public BossAI
 {
     boss_majordomo_staghelm(Creature* creature) : BossAI(creature, DATA_MAJORDOMO_STAGHELM),
-        _firstTransformation(true), _splitPlayersTicks(0), _clusteredPlayersTicks(0), _currentForm(Forms::Druid), _appliedSeeds(0), _formSwitchCount(0), _killedDruidsOfTheFlameCount(0) { }
+        _firstTransformation(true), _splitPlayersTicks(0), _clusteredPlayersTicks(0), _currentForm(Forms::Druid), _appliedSeeds(0), _formSwitchCount(0), _killedDruidsOfTheFlameCount(0)
+    {
+        // Grid unloading causes Majordomo to despawn when being out of cell range for too long
+        // Since his respawn position differs from his initial position and we don't have a way to manipulate spawn points anymore, there is no other way (yet).
+        me->setActive(true);
+    }
 
     void InitializeAI() override
     {
