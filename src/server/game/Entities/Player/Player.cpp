@@ -17194,9 +17194,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         return false;
     }
 
-    // overwrite possible wrong/corrupted guid
-    SetGuidValue(OBJECT_FIELD_GUID, guid);
-
     Gender gender = Gender(fields[5].GetUInt8());
     if (!IsValidGender(gender))
     {
@@ -17871,7 +17868,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     return true;
 }
 
-bool Player::isAllowedToLoot(Creature const* creature)
+bool Player::isAllowedToLoot(Creature const* creature) const
 {
     if (!creature->isDead() || !creature->IsDamageEnoughForLootingAndReward())
         return false;
@@ -17888,7 +17885,7 @@ bool Player::isAllowedToLoot(Creature const* creature)
     if (loot->loot_type == LOOT_SKINNING)
         return creature->GetLootRecipientGUID() == GetGUID();
 
-    Group* thisGroup = GetGroup();
+    Group const* thisGroup = GetGroup();
     if (!thisGroup)
         return this == creature->GetLootRecipient();
     else if (thisGroup != creature->GetLootRecipientGroup())

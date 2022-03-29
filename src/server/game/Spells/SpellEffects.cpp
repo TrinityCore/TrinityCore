@@ -829,7 +829,7 @@ void Spell::EffectTriggerSpell()
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo->Id, args);
+    m_caster->CastSpell(std::move(targets), spellInfo->Id, args);
 }
 
 void Spell::EffectTriggerMissileSpell()
@@ -881,7 +881,7 @@ void Spell::EffectTriggerMissileSpell()
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo->Id, args);
+    m_caster->CastSpell(std::move(targets), spellInfo->Id, args);
 }
 
 void Spell::EffectForceCast()
@@ -3509,13 +3509,9 @@ void Spell::EffectScriptEffect()
                     if (!m_targets.HasDst())
                         return;
 
-                    float x, y, z;
                     float radius = effectInfo->CalcRadius();
                     for (uint8 i = 0; i < 15; ++i)
-                    {
-                        m_caster->GetRandomPoint(*destTarget, radius, x, y, z);
-                        m_caster->CastSpell({x, y, z}, 54522, true);
-                    }
+                        m_caster->CastSpell(m_caster->GetRandomPoint(*destTarget, radius), 54522, true);
                     break;
                 }
                 case 52173: // Coyote Spirit Despawn

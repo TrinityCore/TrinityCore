@@ -525,7 +525,7 @@ struct boss_sindragosa : public BossAI
                     destY = float(rand_norm()) * 75.0f + 2450.0f;
                     destZ = 205.0f; // random number close to ground, get exact in next call
                     me->UpdateGroundPositionZ(destX, destY, destZ);
-                    me->CastSpell({ destX, destY, destZ }, SPELL_FROST_BOMB_TRIGGER, false);
+                    me->CastSpell(Position{ destX, destY, destZ }, SPELL_FROST_BOMB_TRIGGER, false);
                     events.ScheduleEvent(EVENT_FROST_BOMB, 6s, 8s);
                     break;
                 }

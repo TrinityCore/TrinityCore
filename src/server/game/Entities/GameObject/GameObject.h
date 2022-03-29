@@ -83,7 +83,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         explicit GameObject();
         ~GameObject();
 
-        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
+        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const override;
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
@@ -225,7 +225,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
-        bool ActivateToQuest(Player* target) const;
+        bool ActivateToQuest(Player const* target) const;
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = nullptr);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();

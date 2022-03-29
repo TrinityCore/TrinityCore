@@ -1331,7 +1331,7 @@ void GameObject::Respawn()
     }
 }
 
-bool GameObject::ActivateToQuest(Player* target) const
+bool GameObject::ActivateToQuest(Player const* target) const
 {
     if (target->HasQuestForGO(GetEntry()))
         return true;
@@ -1344,7 +1344,7 @@ bool GameObject::ActivateToQuest(Player* target) const
         case GAMEOBJECT_TYPE_QUESTGIVER:
         {
             GameObject* go = const_cast<GameObject*>(this);
-            QuestGiverStatus questStatus = target->GetQuestDialogStatus(go);
+            QuestGiverStatus questStatus = const_cast<Player*>(target)->GetQuestDialogStatus(go);
             if (questStatus > DIALOG_STATUS_UNAVAILABLE)
                 return true;
             break;
@@ -2595,7 +2595,7 @@ GameObject* GameObject::GetLinkedTrap()
     return ObjectAccessor::GetGameObject(*this, m_linkedTrap);
 }
 
-void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
+void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player const* target) const
 {
     if (!target)
         return;
