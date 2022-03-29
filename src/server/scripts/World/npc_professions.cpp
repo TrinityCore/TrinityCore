@@ -32,6 +32,7 @@ EndScriptData */
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "WorldSession.h"
+
 /*
 A few notes for future developement:
 - It's possible blacksmithing still require some tweaks and adjustments due to the way we _have_ to use reputation.
@@ -41,12 +42,14 @@ A few notes for future developement:
 # to be removed from here (->npc_text). This is data for database projects.
 ###*/
 #define TALK_MUST_UNLEARN_WEAPON    "You must forget your weapon type specialty before I can help you. Go to Everlook in Winterspring and seek help there."
+
 #define TALK_HAMMER_LEARN           "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the hammersmith."
 #define TALK_AXE_LEARN              "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the axesmith."
 #define TALK_SWORD_LEARN            "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the swordsmith."
 #define TALK_HAMMER_UNLEARN         "Forgetting your Hammersmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Hammersmithing to create!"
 #define TALK_AXE_UNLEARN            "Forgetting your Axesmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Axesmithing to create!"
 #define TALK_SWORD_UNLEARN          "Forgetting your Swordsmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Swordsmithing to create!"
+
 /*###
 # generic defines
 ###*/
@@ -62,26 +65,34 @@ A few notes for future developement:
 #define GOSSIP_WEAPON_UNLEARN       "I wish to unlearn the art of Weaponsmithing"
 #define GOSSIP_ARMOR_LEARN          "Please teach me how to become a Armorsmith"
 #define GOSSIP_ARMOR_UNLEARN        "I wish to unlearn the art of Armorsmithing"
+
 #define GOSSIP_UNLEARN_SMITH_SPEC   "I wish to unlearn my blacksmith specialty"
 #define BOX_UNLEARN_ARMORORWEAPON   "Do you really want to unlearn your blacksmith specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_LEARN_HAMMER         "Please teach me how to become a Hammersmith, Lilith"
 #define GOSSIP_UNLEARN_HAMMER       "I wish to unlearn Hammersmithing"
 #define GOSSIP_LEARN_AXE            "Please teach me how to become a Axesmith, Kilram"
 #define GOSSIP_UNLEARN_AXE          "I wish to unlearn Axesmithing"
 #define GOSSIP_LEARN_SWORD          "Please teach me how to become a Swordsmith, Seril"
 #define GOSSIP_UNLEARN_SWORD        "I wish to unlearn Swordsmithing"
+
 #define BOX_UNLEARN_WEAPON_SPEC     "Do you really want to unlearn your weaponsmith specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_UNLEARN_DRAGON       "I wish to unlearn Dragonscale Leatherworking"
 #define GOSSIP_UNLEARN_ELEMENTAL    "I wish to unlearn Elemental Leatherworking"
 #define GOSSIP_UNLEARN_TRIBAL       "I wish to unlearn Tribal Leatherworking"
+
 #define BOX_UNLEARN_LEATHER_SPEC    "Do you really want to unlearn your leatherworking specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_LEARN_SPELLFIRE      "Please teach me how to become a Spellcloth tailor"
 #define GOSSIP_UNLEARN_SPELLFIRE    "I wish to unlearn Spellfire Tailoring"
 #define GOSSIP_LEARN_MOONCLOTH      "Please teach me how to become a Mooncloth tailor"
 #define GOSSIP_UNLEARN_MOONCLOTH    "I wish to unlearn Mooncloth Tailoring"
 #define GOSSIP_LEARN_SHADOWEAVE     "Please teach me how to become a Shadoweave tailor"
 #define GOSSIP_UNLEARN_SHADOWEAVE   "I wish to unlearn Shadoweave Tailoring"
+
 #define BOX_UNLEARN_TAILOR_SPEC     "Do you really want to unlearn your tailoring specialty and lose all associated recipes? \n Cost: "
+
 /*###
 # spells defines
 ###*/
@@ -163,6 +174,7 @@ enum SpecializationTrainers
     N_TRAINER_HAMMER        = 11191, // Lilith the Lithe
     N_TRAINER_AXE           = 11192, // Kilram
     N_TRAINER_SWORD         = 11193, // Seril Scourgebane
+
     /* Leatherworking */
     N_TRAINER_DRAGON1       =  7866, // Peter Galen
     N_TRAINER_DRAGON2       =  7867, // Thorkaf Dragoneye
@@ -170,6 +182,7 @@ enum SpecializationTrainers
     N_TRAINER_ELEMENTAL2    =  7869, // Brumn Winterhoof
     N_TRAINER_TRIBAL1       =  7870, // Caryssia Moonhunter
     N_TRAINER_TRIBAL2       =  7871, // Se'Jib
+
     /* Tailoring */
     N_TRAINER_SPELLFIRE     = 22213, // Gidge Spellweaver
     N_TRAINER_MOONCLOTH     = 22208, // Nasmara Moonsong
@@ -654,6 +667,7 @@ enum EngineeringTrinkets
 #define GOSSIP_ITEM_ZAP         "This Dimensional Imploder sounds dangerous! How can I make one?"
 #define GOSSIP_ITEM_JHORDY      "I must build a beacon for this marvelous device!"
 #define GOSSIP_ITEM_KABLAM      "[PH] Unknown"
+
 class npc_engineering_tele_trinket : public CreatureScript
 {
 public:
